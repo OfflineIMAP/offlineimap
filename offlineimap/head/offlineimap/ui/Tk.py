@@ -347,7 +347,7 @@ class LEDAccountFrame:
         c.setLEDCount(0)
         c.createLEDLock()
         self.canvas = c
-        c.pack(side = BOTTOM, expand = 0, fill = X)
+        c.pack(side = LEFT, expand = 0, fill = X)
 
     def startsleep(s, sleepsecs):
         print 351
@@ -355,9 +355,10 @@ class LEDAccountFrame:
         s.button = Button(s.frame, text = "Sync now", command = s.syncnow,
                           background = "black", activebackground = "black",
                           activeforeground = "white",
-                          foreground = "blue",
-                          font = (s.fontfamily, s.fontsize), bd = 0,
-                          relief = FLAT)
+                          foreground = "blue", highlightthickness = 0,
+                          padx = 0, pady = 0,
+                          font = (s.fontfamily, s.fontsize), borderwidth = 0,
+                          relief = 'solid')
         s.button.pack(side = LEFT)
 
     def syncnow(s):
