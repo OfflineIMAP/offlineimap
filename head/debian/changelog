@@ -1,3 +1,11 @@
+offlineimap (1.0.2) unstable; urgency=low
+
+  * Made sure that LocalStatus does writing atomically.  If the program
+    is interrupted during save(), there will always be a complete copy of
+    either the old or the new data.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 24 Jun 2002 09:57:28 -0500
+
 offlineimap (1.0.1) unstable; urgency=low
 
   * Fixed a bug with writing messages to some IMAP servers.  Turns

@@ -61,7 +61,7 @@ class LocalStatusFolder(BaseFolder):
         file.close()
 
     def save(self):
-        file = open(self.filename, "wt")
+        file = open(self.filename + ".tmp", "wt")
         file.write(magicline + "\n")
         for msg in self.messagelist.values():
             flags = msg['flags']
@@ -69,6 +69,7 @@ class LocalStatusFolder(BaseFolder):
             flags = ''.join(flags)
             file.write("%s:%s\n" % (msg['uid'], flags))
         file.close()
+        os.rename(self.filename + ".tmp", self.filename)
 
     def getmessagelist(self):
         return self.messagelist
