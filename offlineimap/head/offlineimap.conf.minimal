@@ -1,0 +1,10 @@
+# Sample minimal config file.  Copy this to ~/.offlineimaprc and edit to
+# suit to get started fast.
+
+[general]
+accounts = Test
+
+[Test]
+localfolders = ~/Test
+remotehost = examplehost
+remoteuser = jgoerzen

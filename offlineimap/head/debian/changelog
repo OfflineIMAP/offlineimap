@@ -1,5 +1,6 @@
 offlineimap (3.99.6) unstable; urgency=low
 
+  * This a 4.0 TRACK release, and may be unstable or in flux!
   * Completed work to make both graphical interfaces work 
     with a threaded Tcl/Tk Tkinter.  A threaded Tcl/Tk actually makes
     life MORE difficult for multi-threaded Python programs, argh.
@@ -21,6 +22,9 @@ offlineimap (3.99.6) unstable; urgency=low
     However, this is not going to be a huge problem because the new Curses
     Blinkenlights interface has this support, and does it a lot better than
     TTY.TTYUI ever could have.
+  * Provided config file default for many more options.  Closes: #168219.
+  * New example file offlineimap.conf.minimal showing you how to get started
+    fast.  It uses only 6 lines to set up an account.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu,  2 Jan 2003 13:59:44 -0600
 
