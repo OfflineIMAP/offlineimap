@@ -30,8 +30,11 @@ class IMAPRepository(BaseRepository):
         self.accountname = accountname
         self.folders = None
         self.nametrans = lambda foldername: foldername
+        self.folderfilter = lambda foldername: 1
         if config.has_option(accountname, 'nametrans'):
             self.nametrans = eval(config.get(accountname, 'nametrans'))
+        if config.has_option(accountname, 'folderfilter'):
+            self.folderfilter = eval(config.get(accountname, 'folderfilter'))
 
     def getsep(self):
         return self.imapserver.delim
@@ -54,8 +57,11 @@ class IMAPRepository(BaseRepository):
             flags, delim, name = imaputil.imapsplit(string)
             if '\\Noselect' in imaputil.flagsplit(flags):
                 continue
+            foldername = imaputil.dequote(name)
+            if not self.folderfilter(foldername):
+                continue
             retval.append(folder.IMAP.IMAPFolder(self.imapserver, name,
-                                                 self.nametrans(imaputil.dequote(name)),
+                                                 self.nametrans(foldername),
                                                  self.accountname))
         retval.sort(lambda x, y: cmp(x.getvisiblename(), y.getvisiblename()))
         self.folders = retval

@@ -1,3 +1,12 @@
+offlineimap (2.0.0) unstable; urgency=low
+
+  * This code is now multithreaded.  New config file options control the
+    behavior.  This can make synchronizing several times faster.
+  * Fixed the STATUS call to be compatible with Exchange.
+  * Added the ability to exclude folders.
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed,  3 Jul 2002 14:21:32 -0500
+
 offlineimap (1.0.4) unstable; urgency=low
 
   * Deletion of more than one message has been optimized.  This could make
