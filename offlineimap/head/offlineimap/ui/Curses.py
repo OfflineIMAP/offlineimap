@@ -207,7 +207,6 @@ class Blinkenlights(BlinkenBase, UIBase):
         finally:
             s.iolock.release()
             s.inputhandler.input_release()
-        s._msg(" Got password '%s'" % password)
         return password
 
     def setupwindows(s):
