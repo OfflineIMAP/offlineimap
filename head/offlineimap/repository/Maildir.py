@@ -39,6 +39,8 @@ class MaildirRepository(BaseRepository):
         os.mkdir(folderdir, 0700)
         for subdir in ['cur', 'new', 'tmp']:
             os.mkdir(os.path.join(folderdir, subdir), 0700)
+        # Invalidate the cache
+        self.folders = None
 
     def deletefolder(self, foldername):
         print "NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername

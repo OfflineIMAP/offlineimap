@@ -51,12 +51,18 @@ for accountname in accounts:
     else:
         password = getpass.getpass("Password for %s: " % accountname)
     ssl = config.getboolean(accountname, "ssl")
+
+    # Connect to the remote server.
     server = imapserver.IMAPServer(user, password, host, port, ssl)
-    #print "Connecting to server...",
-    #imapobj = server.makeconnection()
-    #print "Done."
     remoterepos = repository.IMAP.IMAPRepository(server)
+
+    # Connect to the Maildirs.
     localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(config.get(accountname, "localfolders")))
+
+    # Connect to the local cache.
+    statusrepos = repository.LocalStatus.LocalStatusRepository(accountmetadata)
+    
+    
     print "Synchronizing folder list..."
     remoterepos.syncfoldersto(localrepos)
     print "Done."
