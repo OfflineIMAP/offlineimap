@@ -229,7 +229,9 @@ CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 > supports many
 	  features (offline reading, for one) that most IMAP-aware
-	  readers don't.
+	  readers don't.  However, this feature is not as time-tested
+	  as traditional syncing, so my advice is to stick with normal
+	  methods of operation for the time being.
 	</P
 ></DIV
 ></DIV
@@ -1483,6 +1485,19 @@ CLASS="APPLICATION"
 	  </P
 ></DD
 ><DT
+>I've upgraded and now <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	crashes when I start it up!  Why?</DT
+><DD
+><P
+>You need to upgrade your configuration
+	file.  See  at the end of this
+	      manual.
+	    </P
+></DD
+><DT
 >How do I specify the names of my folders?</DT
 ><DD
 ><P
@@ -1712,7 +1727,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN478"
+NAME="AEN484"
 ></A
 ><H2
 >Conforming To</H2
@@ -1722,7 +1737,7 @@ NAME="AEN478"
 ><LI
 ><P
 >Internet Message Access Protocol version 4rev1 (IMAP 4rev1) as
-	  specified in RFC2060</P
+	  specified in RFC2060 and RFC3501</P
 ></LI
 ><LI
 ><P
@@ -1751,14 +1766,14 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN491"
+NAME="AEN497"
 ></A
 ><H2
 >Notes</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN493"
+NAME="AEN499"
 ></A
 ><H3
 >Deleting Local Folders</H3
@@ -1790,7 +1805,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN500"
+NAME="AEN506"
 ></A
 ><H3
 >Multiple Instances</H3
@@ -1819,7 +1834,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN507"
+NAME="AEN513"
 ></A
 ><H3
 >Copying Messages Between Folders</H3
@@ -1849,7 +1864,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN513"
+NAME="AEN519"
 ></A
 ><H3
 >Use with Evolution</H3
@@ -1885,7 +1900,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN521"
+NAME="AEN527"
 ></A
 ><H3
 >Use with KMail</H3
@@ -1919,7 +1934,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN529"
+NAME="AEN535"
 ></A
 ><H3
 >Mailing List</H3
@@ -1938,7 +1953,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN533"
+NAME="AEN539"
 ></A
 ><H3
 >Bugs</H3
@@ -1964,7 +1979,70 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN539"
+NAME="UPGRADING.4.0"
+></A
+><H2
+>Upgrading to 4.0</H2
+><P
+>	If you are upgrading from a version of <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> prior to
+	3.99.12, you will find that you will get errors when
+	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> starts up (relating to ConfigParser or
+	AccountHashGenerator) and the
+	configuration file.  This is because the config file format
+	had to change to accomodate new features in 4.0.  Fortunately,
+	it's not difficult to adjust it to suit.
+      </P
+><P
+>	First thing you need to do is stop any running <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	instance, making sure first that it's synced all your mail.
+	Then, modify your
+	<TT
+CLASS="FILENAME"
+>~/.offlineimaprc</TT
+> file.  You'll need to
+	split up each account section (make sure that it now starts
+	with "Account ") into two Repository sections (one for the
+	local side and another for the remote side.)  See the files
+	<TT
+CLASS="FILENAME"
+>offlineimap.conf.minimal</TT
+> and
+	<TT
+CLASS="FILENAME"
+>offlineimap.conf</TT
+> in the distribution if
+	you need more assistance.
+      </P
+><P
+>	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>'s status directory area has also changed.
+	Therefore, you should delete everything in ~/.offlineimap as
+	well as your local mail folders.
+      </P
+><P
+>	When you start up <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> 4.0, it will re-download all
+	your mail from the server and then you can continue using it
+	like normal.
+      </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN559"
 ></A
 ><H2
 >Copyright</H2
@@ -2002,7 +2080,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN548"
+NAME="AEN568"
 ></A
 ><H2
 >Author</H2
@@ -2054,7 +2132,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN560"
+NAME="AEN580"
 ></A
 ><H2
 >See Also</H2

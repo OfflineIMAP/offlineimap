@@ -1,4 +1,142 @@
 ------------------------------------------------------------------------
+rev 509:  jgoerzen | 2003-07-18 13:49:13 -0500 (Fri, 18 Jul 2003) | 3 lines
+Changed paths:
+   A /offlineimap/head/UPGRADING
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.sgml
+
+Added a section on upgrading to the documentation
+
+
+------------------------------------------------------------------------
+rev 487:  jgoerzen | 2003-06-26 14:03:07 -0500 (Thu, 26 Jun 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/Maildir.py
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Fixed version confusion
+
+------------------------------------------------------------------------
+rev 486:  jgoerzen | 2003-06-26 13:38:47 -0500 (Thu, 26 Jun 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Prep for 3.99.19
+
+------------------------------------------------------------------------
+rev 485:  jgoerzen | 2003-06-26 13:28:54 -0500 (Thu, 26 Jun 2003) | 5 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+
+  * Applied patch from Joerg Wendland <joergland@debian.org> to use
+    APPENDUID result from mail servers that provide it.  Closes: #198772.
+
+Resolves: [debian.org #198772]
+
+------------------------------------------------------------------------
+rev 484:  jgoerzen | 2003-06-02 11:17:29 -0500 (Mon, 02 Jun 2003) | 7 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/imapserver.py
+
+  * Added a "force" option to imapserver/select to force a reloading of a
+    folder.  Per [complete.org #67], when cachemessagelist() was called
+    on an object that was cached from a previous run, it would not
+    re-issue the select().
+
+Closes: [complete.org #67]
+
+------------------------------------------------------------------------
+rev 482:  jgoerzen | 2003-06-02 11:11:51 -0500 (Mon, 02 Jun 2003) | 1 line
+Changed paths:
+   M /offlineimap/head/debian/control
+
+
+------------------------------------------------------------------------
+rev 481:  jgoerzen | 2003-06-02 11:09:57 -0500 (Mon, 02 Jun 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/Makefile
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/debian/rules
+   M /offlineimap/head/offlineimap.py
+   M /offlineimap/head/setup.py
+
+Updated
+
+------------------------------------------------------------------------
+rev 480:  jgoerzen | 2003-06-02 09:52:33 -0500 (Mon, 02 Jun 2003) | 3 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+
+Fixed the -l option
+
+
+------------------------------------------------------------------------
+rev 479:  jgoerzen | 2003-06-02 09:07:30 -0500 (Mon, 02 Jun 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/init.py
+
+Made -d recognized
+
+------------------------------------------------------------------------
+rev 478:  jgoerzen | 2003-06-02 09:06:18 -0500 (Mon, 02 Jun 2003) | 4 lines
+Changed paths:
+   M /offlineimap/head/Makefile
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/debian/control
+   M /offlineimap/head/debian/rules
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap/imaplib.py
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/TTY.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.py
+   M /offlineimap/head/offlineimap.sgml
+   M /offlineimap/head/setup.py
+
+Added -l option.  Updated documentation for it.  Changed _msg to _display
+override in UI modules.  Renamed "doc" to "docs" target in Makefile to avoid
+conflicting with a subdir.
+
+------------------------------------------------------------------------
+rev 477:  jgoerzen | 2003-05-27 17:01:27 -0500 (Tue, 27 May 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/imaplib.py
+
+Fixed SSL for Python2.3.
+
+------------------------------------------------------------------------
+rev 475:  jgoerzen | 2003-05-06 09:27:36 -0500 (Tue, 06 May 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Preparing for 3.99.17
+
+------------------------------------------------------------------------
 rev 474:  jgoerzen | 2003-05-06 09:26:12 -0500 (Tue, 06 May 2003) | 17 lines
 Changed paths:
    M /offlineimap/head/debian/changelog
