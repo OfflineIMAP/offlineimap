@@ -1,5 +1,5 @@
 # Tk UI
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002, 2003 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ from ScrolledText import ScrolledText
 from offlineimap import threadutil, version
 from Queue import Queue
 from UIBase import UIBase
+from offlineimap.ui.Blinkenlights import BlinkenBase
 
 class PasswordDialog:
     def __init__(self, accountname, config, master=None, errmsg = None):
@@ -360,7 +361,7 @@ class LEDThreadFrame:
         pass
          
 
-class Blinkenlights(VerboseUI):
+class Blinkenlights(BlinkenBase, VerboseUI):
     def __init__(s, config, verbose = 0):
         VerboseUI.__init__(s, config, verbose)
         s.fontfamily = 'Helvetica'
@@ -456,51 +457,6 @@ class Blinkenlights(VerboseUI):
             s._rescroll()
             s.top.resizable(width = 1, height = 1)
 
-
-    def acct(s, accountname):
-        s.gettf().setcolor('purple')
-        VerboseUI.acct(s, accountname)
-
-    def connecting(s, hostname, port):
-        s.gettf().setcolor('gray')
-        VerboseUI.connecting(s, hostname, port)
-
-    def syncfolders(s, srcrepos, destrepos):
-        s.gettf().setcolor('blue')
-        VerboseUI.syncfolders(s, srcrepos, destrepos)
-
-    def syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder):
-        s.gettf().setcolor('cyan')
-        VerboseUI.syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder)
-
-    def loadmessagelist(s, repos, folder):
-        s.gettf().setcolor('green')
-        s._msg("Scanning folder [%s/%s]" % (s.getnicename(repos),
-                                            folder.getvisiblename()))
-
-    def syncingmessages(s, sr, sf, dr, df):
-        s.gettf().setcolor('blue')
-        VerboseUI.syncingmessages(s, sr, sf, dr, df)
-
-    def copyingmessage(s, uid, src, destlist):
-        s.gettf().setcolor('orange')
-        VerboseUI.copyingmessage(s, uid, src, destlist)
-
-    def deletingmessages(s, uidlist, destlist):
-        s.gettf().setcolor('red')
-        VerboseUI.deletingmessages(s, uidlist, destlist)
-
-    def deletingmessage(s, uid, destlist):
-        s.gettf().setcolor('red')
-        VerboseUI.deletingmessage(s, uid, destlist)
-
-    def addingflags(s, uid, flags, destlist):
-        s.gettf().setcolor('yellow')
-        VerboseUI.addingflags(s, uid, flags, destlist)
-
-    def deletingflags(s, uid, flags, destlist):
-        s.gettf().setcolor('pink')
-        VerboseUI.deletingflags(s, uid, flags, destlist)
 
     def threadExited(s, thread):
         threadid = thread.threadid
