@@ -316,10 +316,10 @@ class Blinkenlights(BlinkenBase, UIBase):
 
             # New one.
             s.af[accountname] = CursesAccountFrame(s.c, accountname, s.iolock)
-            #s.iolock.acquire()
+            s.iolock.acquire()
             s.c.reset()
             s.setupwindows(dolock = 0)
-            #s.iolock.release()
+            s.iolock.release()
         finally:
             s.aflock.release()
         return s.af[accountname]
