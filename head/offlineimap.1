@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH OFFLINEIMAP 1 "July 11, 2002" "John Goerzen" "OfflineIMAP manual"
+.TH OFFLINEIMAP 1 "July 12, 2002" "John Goerzen" "OfflineIMAP manual"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -31,6 +31,9 @@ OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
 .br
 [
 .BI \-d
+]
+[
+.BI \-o
 ]
 [
 .BI \-u " interface"
@@ -236,6 +239,9 @@ in order to make the results more sensible.  Note that this output
 will contain full IMAP protocol in plain text, including passwords, so
 take care to remove that from the debugging output before sending it
 to anyone else.
+.TP
+.B \-o
+Run only once, ignoring any autorefresh setting in the config file.  
 .TP
 .B \-h, \-\-help
 Show summary of options.

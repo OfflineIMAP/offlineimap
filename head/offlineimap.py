@@ -29,7 +29,7 @@ if '--help' in sys.argv[1:]:
     sys.stdout.write(version.cmdhelp + "\n")
     sys.exit(0)
     
-for optlist in getopt(sys.argv[1:], '1a:c:du:h')[0]:
+for optlist in getopt(sys.argv[1:], '1oa:c:du:h')[0]:
     options[optlist[0]] = optlist[1]
 
 if '-d' in options:
@@ -56,6 +56,8 @@ else:
     ui = offlineimap.ui.detector.findUI(config)
 ui.init_banner()
 
+if '-o' in options and config.has_option("general", "autorefresh"):
+    config.remove_option("general", "autorefresh")
 
 metadatadir = os.path.expanduser(config.get("general", "metadata"))
 if not os.path.exists(metadatadir):
