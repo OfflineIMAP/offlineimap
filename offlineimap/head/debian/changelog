@@ -5,8 +5,14 @@ offlineimap (3.99.16) unstable; urgency=low
     scan ., resulting in huge paths and an eventual crash.  Fixed with
     a one-line patch to Maildir.py.  Fixes [complete.org #60].
     Closes: #191318.
+  * Added some significant debug code to folder/IMAP.py when saving a new
+    message with APPEND.  This should make it easier to track down bugs both
+    in OfflineIMAP and in mail servers that implement this poorly.
+  * Fixed adding of X-OfflineIMAP header when the message starts out with
+    no headers.  (This should not generally occur.)  This should help
+    with some "invalid literal for long()" problems.
 
- -- John Goerzen <jgoerzen@complete.org>  Tue, 29 Apr 2003 08:10:17 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Tue,  6 May 2003 07:10:17 -0500
 
 offlineimap (3.99.15) unstable; urgency=low
 
