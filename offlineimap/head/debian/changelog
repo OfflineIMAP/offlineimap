@@ -1,7 +1,7 @@
 offlineimap (4.0.4) unstable; urgency=low
 
-  * Reverted patch from Daniel James.  It apparently has caused
-    header corruption.  Closes: #254261.
+  * Reverted the header insertion point patch applied in 4.0.3.  It
+    has apparently caused header corruption.  Closes: #254261.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue, 15 Jun 2004 04:41:36 -0500
 
