@@ -768,6 +768,24 @@ message will be re-downloaded with the proper UID.
 .B OfflineIMAP
 makes sure that the message was properly uploaded before deleting it,
 so there should be no risk of data loss.
+.SS USE WITH EVOLUTION
+OfflineIMAP can work with Evolution.  To do so, first configure your
+OfflineIMAP account to have:
+.br
+.B sep = /
+.br
+in its configuration.  Then, configure Evolution with the
+"Maildir-format mail directories" server type.  For the path, you will need to
+specify the name of the top-level folder
+.B inside
+your OfflineIMAP storage location.  You're now set!
+.SS USE WITH KMAIL
+At this time, I believe that
+.B OfflineIMAP
+is not compatible with KMail.  KMail cannot work in any mode other than to move
+all messages out of all folders immediately, which (besides being annoying
+and fundamentally broken) is incompatible with
+.B OfflineIMAP.
 .SS MAILING LIST
 There is an OfflineIMAP mailing list available.
 .PP
