@@ -59,15 +59,17 @@ class BaseFolder:
         """Returns the content of the specified message."""
         raise NotImplementedException
 
-    def savemessage(self, uid, content):
+    def savemessage(self, uid, content, flags):
         """Writes a new message, with the specified uid.
         If the uid is < 0, the backend should assign a new uid and return it.
-        If the backend cannot assign a new uid, it returns the uid passed in.
+
+        If the backend cannot assign a new uid, it returns the uid passed in
+        WITHOUT saving the message.
+        
         IMAP backend should be the only one that can assign a new uid.
-        If the uid is < 0 and the backend cannot assign a new UID, it is
-        required to TAKE NO ACTION other than returning the uid passed in.
 
         If the uid is > 0, the backend should set the uid to this, if it can.
+        If it cannot set the uid to that, it will save it anyway.
         It will return the uid assigned in any case.
         """
         raise NotImplementedException
@@ -125,21 +127,18 @@ class BaseFolder:
             message = self.getmessage(uid)
             flags = self.getmessageflags(uid)
             for tryappend in applyto:
-                successuid = tryappend.savemessage(uid, message)
+                successuid = tryappend.savemessage(uid, message, flags)
                 if successuid > 0:
-                    tryappend.savemessageflags(uid, flags)
                     successobject = tryappend
                     break
             # Did we succeed?
             if successobject != None:
                 # Copy the message to the other remote servers.
                 for appendserver in [x for x in applyto if x != successobject]:
-                    appendserver.savemessage(successuid, message)
-                    appendserver.savemessageflags(successuid, flags)
+                    appendserver.savemessage(successuid, message, flags)
                 # Copy it to its new name on the local server and delete
                 # the one without a UID.
-                self.savemessage(successuid, message)
-                self.savemessageflags(successuid, flags)
+                self.savemessage(successuid, message, flags)
                 self.deletemessage(uid)
             else:
                 # Did not find any server to take this message.  Delete
