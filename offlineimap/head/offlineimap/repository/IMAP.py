@@ -157,11 +157,14 @@ class IMAPRepository(BaseRepository):
             imapobj = self.imapserver.acquireconnection()
             try:
                 for foldername in self.folderincludes:
-                    if imapobj.select(foldername, readonly = 1)[0] == 'OK':
-                        retval.append(self.getfoldertype()(self.imapserver,
-                                                           foldername,
-                                                           self.nametrans(foldername),
-                                                           self.accountname, self))
+                    try:
+                        imapobj.select(foldername, readonly = 1)
+                    except ValueError:
+                        continue
+                    retval.append(self.getfoldertype()(self.imapserver,
+                                                       foldername,
+                                                       self.nametrans(foldername),
+                                                       self.accountname, self))
             finally:
                 self.imapserver.releaseconnection(imapobj)
                 

@@ -19,7 +19,7 @@
 from Base import BaseFolder
 from offlineimap import imaputil, imaplib
 from offlineimap.ui import UIBase
-import rfc822, time, string, random, binascii
+import rfc822, time, string, random, binascii, re
 from StringIO import StringIO
 from copy import copy
 
@@ -69,7 +69,7 @@ class IMAPFolder(BaseFolder):
 
         try:
             # Primes untagged_responses
-            assert(imapobj.select(self.getfullname(), readonly = 1)[0] == 'OK')
+            imapobj.select(self.getfullname(), readonly = 1)
             try:
                 # Some mail servers do not return an EXISTS response if
                 # the folder is empty.
@@ -174,7 +174,7 @@ class IMAPFolder(BaseFolder):
                 # but some IMAP servers nonetheless choke on 1902.
                 date = imaplib.Time2Internaldate(time.localtime())
 
-            content = re.sub("[^\r]\n", "\r\n", content)
+            content = re.sub("([^\r])\n", "\\1\r\n", content)
 
             (headername, headervalue) = self.savemessage_getnewheader(content)
             content = self.savemessage_addheader(content, headername,
