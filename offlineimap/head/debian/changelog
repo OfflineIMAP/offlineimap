@@ -1,3 +1,9 @@
+offlineimap (3.2.0) unstable; urgency=low
+
+  * New BLINKENLIGHTS interface!
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 07:53:20 -0500
+
 offlineimap (3.1.1) unstable; urgency=low
 
   * Modified imaputil.py and folder/Maildir.py to run faster.  Eliminated

@@ -1,4 +1,36 @@
 ------------------------------------------------------------------------
+rev 176:  jgoerzen | 2002-07-24 07:46:18 -0500 (Wed, 24 Jul 2002) | 6 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/manual.html
+   U /offlineimap/head/manual.pdf
+   U /offlineimap/head/manual.ps
+   U /offlineimap/head/manual.txt
+   U /offlineimap/head/offlineimap/version.py
+   U /offlineimap/head/offlineimap.1
+
+
+This is release 3.1.1.  Fixed a typo in the manual: Tk.TKUI -> Tk.TkUI. 
+Noted the new version and release time in the changelog and in version.py. 
+Rebuilt the documentation.  Feed the cats, watered the plants, backed up
+/dev/null.
+
+------------------------------------------------------------------------
+rev 175:  jgoerzen | 2002-07-23 22:34:59 -0500 (Tue, 23 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+New Blinkenlights interface.
+
+------------------------------------------------------------------------
+rev 170:  jgoerzen | 2002-07-23 14:47:13 -0500 (Tue, 23 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+   U /offlineimap/head/debian/changelog
+
+Noted recent changes.
+
+------------------------------------------------------------------------
 rev 169:  jgoerzen | 2002-07-23 14:28:40 -0500 (Tue, 23 Jul 2002) | 3 lines
 Changed paths:
    U /offlineimap/head/offlineimap/imaplib.py
