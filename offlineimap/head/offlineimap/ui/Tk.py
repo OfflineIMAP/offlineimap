@@ -342,15 +342,12 @@ class LEDAccountFrame:
         return LEDThreadFrame(s.canvas)
 
     def _createcanvas(self, parent):
-        c = LEDCanvas(parent, background = 'black', height = 20, bd = 0,
-                      highlightthickness = 0)
-        c.setLEDCount(0)
-        c.createLEDLock()
+        c = LEDFrame(parent)
         self.canvas = c
         c.pack(side = LEFT, expand = 0, fill = X)
+        #c.pack(side = LEFT, expand = 0, fill = X)
 
     def startsleep(s, sleepsecs):
-        print 351
         s.sleeping_abort = 0
         s.button = Button(s.frame, text = "Sync now", command = s.syncnow,
                           background = "black", activebackground = "black",
@@ -362,11 +359,9 @@ class LEDAccountFrame:
         s.button.pack(side = LEFT)
 
     def syncnow(s):
-        print 357
         s.sleeping_abort = 1
 
     def sleeping(s, sleepsecs, remainingsecs):
-        print 360
         if remainingsecs:
             s.button.config(text = 'Sync now (%d:%02d remain)' % \
                             (remainingsecs / 60, remainingsecs % 60))
@@ -376,33 +371,20 @@ class LEDAccountFrame:
             del s.button
         return s.sleeping_abort
 
-class LEDCanvas(Canvas):
+class LEDFrame(Frame):
     """This holds the different lights."""
-    def createLEDLock(self):
-        self.ledlock = Lock()
-    def acquireLEDLock(self):
-        self.ledlock.acquire()
-    def releaseLEDLock(self):
-        self.ledlock.release()
-    def setLEDCount(self, arg):
-        self.ledcount = arg
-    def getLEDCount(self):
-        return self.ledcount
-    def incLEDCount(self):
-        self.ledcount += 1
+    def getnewobj(self):
+        retval = Canvas(self, background = 'black', height = 20, bd = 0,
+                        highlightthickness = 0, width = 10)
+        retval.pack(side = LEFT, padx = 0, pady = 0, ipadx = 0, ipady = 0)
+        return retval
 
 class LEDThreadFrame:
     """There is one of these for each little light."""
     def __init__(self, master):
-        self.canvas = master
+        self.canvas = master.getnewobj()
         self.color = ''
-        try:
-            self.canvas.acquireLEDLock()
-            startpos = 5 + self.canvas.getLEDCount() * 10
-            self.canvas.incLEDCount()
-        finally:
-            self.canvas.releaseLEDLock()
-        self.ovalid = self.canvas.create_oval(startpos, 5, startpos + 5,
+        self.ovalid = self.canvas.create_oval(5, 5, 10,
                                               10, fill = 'gray',
                                               outline = '#303030')
 
@@ -473,13 +455,13 @@ class Blinkenlights(BlinkenBase, VerboseUI):
         menubar.add_command(label = "Exit", command = s.terminate)
         s.top.config(menu = menubar)
         s.menubar = menubar
-        s.gettf().setcolor('red')
-        s._msg(version.banner)
         s.text.see(END)
-        s.top.resizable(width = 0, height = 0)
         if s.config.has_option("ui.Tk.Blinkenlights", "showlog") and \
            s.config.getboolean("ui.Tk.Blinkenlights", "showlog"):
             s._togglelog()
+        s.gettf().setcolor('red')
+        s.top.resizable(width = 0, height = 0)
+        s._msg(version.banner)
 
     def _togglelog(s):
         if s.textenabled:
@@ -494,7 +476,7 @@ class Blinkenlights(BlinkenBase, VerboseUI):
             s.top.update()
         
         else: 
-            s.text.pack(side = BOTTOM, expand = 1, fill = BOTH)
+            s.text.pack(side = TOP, expand = 1, fill = BOTH)
             s.textenabled = 1
             s.top.update()
             s.top.geometry("")
@@ -508,7 +490,6 @@ class Blinkenlights(BlinkenBase, VerboseUI):
         BlinkenBase.sleep(s, sleepsecs)
 
     def sleeping(s, sleepsecs, remainingsecs):
-        print 503
         return BlinkenBase.sleeping(s, sleepsecs, remainingsecs)
 
     def _rescroll(s):
