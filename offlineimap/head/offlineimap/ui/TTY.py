@@ -46,9 +46,7 @@ class TTYUI(UIBase):
             s._msg("%s: %s" % (accountname, errmsg))
         s.outputlock.acquire()
         try:
-            return getpass("%s: Enter password for %s on %s: " %
-                           (accountname, config.get(accountname, "remoteuser"),
-                            config.get(accountname, "remotehost")))
+            return getpass("%s: Enter password: " % accountname)
         finally:
             s.outputlock.release()
 

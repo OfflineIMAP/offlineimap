@@ -38,9 +38,7 @@ class PasswordDialog:
         text = ''
         if errmsg:
             text = '%s: %s\n' % (accountname, errmsg)
-        text += "%s: Enter password for %s on %s: " % \
-                (accountname, config.get(accountname, "remoteuser"),
-                 config.get(accountname, "remotehost"))
+        text += "%s: Enter password: " % accountname
         self.label = Label(self.top, text = text)
         self.label.pack()
 
