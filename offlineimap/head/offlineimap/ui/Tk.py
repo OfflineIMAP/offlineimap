@@ -368,7 +368,7 @@ class Blinkenlights(VerboseUI):
         c.createLEDLock()
         self.canvas = c
         c.pack(side = BOTTOM, expand = 0, fill = X)
-        widthmetric = tkFont.Font(family = 'Helvetica', size = 8).measure("0")
+        widthmetric = tkFont.Font(family = self.fontfamily, size = self.fontsize).measure("0")
         self.loglines = 5
         if self.config.has_option("ui.Tk.Blinkenlights", "loglines"):
             self.loglines = self.config.getint("ui.Tk.Blinkenlights",
@@ -378,10 +378,10 @@ class Blinkenlights(VerboseUI):
             self.bufferlines = self.config.getint("ui.Tk.Blinkenlights",
                                                   "bufferlines")
         self.text = ScrolledText(self.top, bg = 'black', #scrollbar = 'y',
-                                 font = ("Helvetica", 8),
+                                 font = (self.fontfamily, self.fontsize),
                                  bd = 0, highlightthickness = 0, setgrid = 0,
                                  state = DISABLED, height = self.loglines,
-                                 wrap = NONE, width = 10)
+                                 wrap = NONE, width = 60)
         self.text.vbar.configure(background = '#000050',
                                  activebackground = 'blue',
                                  highlightbackground = 'black',
@@ -401,7 +401,7 @@ class Blinkenlights(VerboseUI):
                        activeforeground = "white",
                        activeborderwidth = 0,
                        background = "black", foreground = "blue",
-                       font = ("Helvetica", 8), bd = 0)
+                       font = (s.fontfamily, s.fontsize), bd = 0)
         menubar.add_command(label = "About", command = s.showlicense)
         menubar.add_command(label = "Show Log", command = s._togglelog)
         menubar.add_command(label = "Exit", command = s.terminate)
