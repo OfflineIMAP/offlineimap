@@ -1,4 +1,32 @@
 ------------------------------------------------------------------------
+rev 358:  jgoerzen | 2003-03-01 09:31:30 -0600 (Sat, 01 Mar 2003) | 1 line
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/Base.py
+
+
+------------------------------------------------------------------------
+rev 357:  jgoerzen | 2003-02-07 14:12:47 -0600 (Fri, 07 Feb 2003) | 3 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/ui/Noninteractive.py
+
+  * Always do a flush in Noninteractive when writing out data.
+
+
+------------------------------------------------------------------------
+rev 355:  jgoerzen | 2003-02-05 14:56:24 -0600 (Wed, 05 Feb 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap.1
+
+Readying 3.99.9
+
+------------------------------------------------------------------------
 rev 354:  jgoerzen | 2003-01-29 14:36:13 -0600 (Wed, 29 Jan 2003) | 2 lines
 Changed paths:
    M /offlineimap/head/offlineimap.sgml
