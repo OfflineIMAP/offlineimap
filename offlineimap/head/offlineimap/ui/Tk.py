@@ -155,11 +155,11 @@ class VerboseUI(UIBase):
             return 0
 
     def _createTopWindow(self, doidlevac = 1):
-        self.threadframes = {}
-        self.availablethreadframes = []
-        self.tflock = Lock()
         self.notdeleted = 1
         self.created = threading.Event()
+
+        self.af = {}
+        self.aflock = Lock()
 
         t = threadutil.ExitNotifyThread(target = self._runmainloop,
                                         name = "Tk Mainloop")
@@ -181,6 +181,19 @@ class VerboseUI(UIBase):
         s.top.after_idle(s.created.set)
         s.top.mainloop()
         s.notdeleted = 0
+
+    def getaccountframe(s):
+        accountname = s.getthreadaccount()
+        s.aflock.acquire()
+        try:
+            if accountname in s.af:
+                return s.af[accountname]
+
+            s.af[accountname] = LEDAccountFrame(s.top, accountname,
+                                                s.fontfamily, s.fontsize)
+        finally:
+            s.aflock.release()
+        return s.af[accountname]
     
     def getpass(s, accountname, config, errmsg = None):
         pd = PasswordDialog(accountname, config, errmsg = errmsg)
@@ -310,7 +323,53 @@ TkUI = VerboseUI
 
 ################################################## Blinkenlights
 
+class LEDAccountFrame:
+    def __init__(self, top, accountname, fontfamily, fontsize):
+        self.top = top
+        self.accountname = accountname
+        self.fontfamily = fontfamily
+        self.fontsize = fontsize
+        self.frame = Frame(self.top)
+        self.frame.pack(side = BOTTOM, expand = 0, fill = X)
+        self._createcanvas(self.frame)
+
+        self.label = Label(self.frame, text = accountname)
+        self.label.pack()
+
+    def getnewthreadframe(s):
+        return LEDThreadFrame(s.canvas)
+
+    def _createcanvas(self, parent):
+        c = LEDCanvas(parent, background = 'black', height = 20, bd = 0,
+                      highlightthickness = 0)
+        c.setLEDCount(0)
+        c.createLEDLock()
+        self.canvas = c
+        c.pack(side = BOTTOM, expand = 0, fill = X)
+
+    def startsleep(s, sleepsecs):
+        print 351
+        s.sleeping_abort = 0
+        s.button = Button(s.frame, text = "Sync now", command = s.syncnow)
+        s.button.pack()
+
+    def syncnow(s):
+        print 357
+        s.sleeping_abort = 1
+
+    def sleeping(s, sleepsecs, remainingsecs):
+        print 360
+        if remainingsecs:
+            s.button.config(text = 'Sync now (%d:%02d remain)' % \
+                            (remainingsecs / 60, remainingsecs % 60))
+            time.sleep(sleepsecs)
+        else:
+            s.button.destroy()
+            del s.button
+        return s.sleeping_abort
+
 class LEDCanvas(Canvas):
+    """This holds the different lights."""
     def createLEDLock(self):
         self.ledlock = Lock()
     def acquireLEDLock(self):
@@ -325,6 +384,7 @@ class LEDCanvas(Canvas):
         self.ledcount += 1
 
 class LEDThreadFrame:
+    """There is one of these for each little light."""
     def __init__(self, master):
         self.canvas = master
         self.color = ''
@@ -352,23 +412,6 @@ class LEDThreadFrame:
         else:
             self.setcolor('black')
 
-    def destroythreadextraframe(self):
-        pass
-
-    def getthreadextraframe(self):
-        raise NotImplementedError
-
-    def setaccount(self, account):
-        pass
-    def setmailbox(self, mailbox):
-        pass
-    def updateloclabel(self):
-        pass
-    def appendmessage(self, newtext):
-        pass
-    def setmessage(self, newtext):
-        pass
-         
 
 class Blinkenlights(BlinkenBase, VerboseUI):
     def __init__(s, config, verbose = 0):
@@ -384,12 +427,7 @@ class Blinkenlights(BlinkenBase, VerboseUI):
         VerboseUI._createTopWindow(self, 0)
         #self.top.resizable(width = 0, height = 0)
         self.top.configure(background = 'black', bd = 0)
-        c = LEDCanvas(self.top, background = 'black', height = 20, bd = 0,
-                      highlightthickness = 0)
-        c.setLEDCount(0)
-        c.createLEDLock()
-        self.canvas = c
-        c.pack(side = BOTTOM, expand = 0, fill = X)
+
         widthmetric = tkFont.Font(family = self.fontfamily, size = self.fontsize).measure("0")
         self.loglines = 5
         if self.config.has_option("ui.Tk.Blinkenlights", "loglines"):
@@ -414,10 +452,8 @@ class Blinkenlights(BlinkenBase, VerboseUI):
         self.tags = []
         self.textlock = Lock()
 
-    def gettf(s, newtype=LEDThreadFrame):
-        return VerboseUI.gettf(s, newtype, s.canvas)
-
     def init_banner(s):
+        BlinkenBase.init_banner(s)
         s._createTopWindow()
         menubar = Menu(s.top, activebackground = "black",
                        activeforeground = "white",
@@ -436,14 +472,6 @@ class Blinkenlights(BlinkenBase, VerboseUI):
         if s.config.has_option("ui.Tk.Blinkenlights", "showlog") and \
            s.config.getboolean("ui.Tk.Blinkenlights", "showlog"):
             s._togglelog()
-        #s.tflock.acquire()
-        #try:
-        #    for i in range(s.top.winfo_reqwidth() / 10 - 1):
-        #        newframe = LEDThreadFrame(s.canvas)
-        #        newframe.setthread(None)
-        #        s.availablethreadframes.append(newframe)
-        #finally:
-        #    s.tflock.release()
 
     def _togglelog(s):
         if s.textenabled:
@@ -466,25 +494,14 @@ class Blinkenlights(BlinkenBase, VerboseUI):
             s._rescroll()
             s.top.resizable(width = 1, height = 1)
 
-
-    def threadExited(s, thread):
-        threadid = thread.threadid
-        s.tflock.acquire()
-        try:
-            if threadid in s.threadframes:
-                tf = s.threadframes[threadid]
-                del s.threadframes[threadid]
-                s.availablethreadframes.append(tf)
-                tf.setthread(None)
-        finally:
-            s.tflock.release()
-
     def sleep(s, sleepsecs):
-        s.sleeping_abort = 0
-        s.menubar.add_command(label = "Sync now", command = s._sleep_cancel)
         s.gettf().setcolor('red')
         s._msg("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
-        UIBase.sleep(s, sleepsecs)
+        BlinkenBase.sleep(s, sleepsecs)
+
+    def sleeping(s, sleepsecs, remainingsecs):
+        print 503
+        return BlinkenBase.sleeping(s, sleepsecs, remainingsecs)
 
     def _rescroll(s):
         s.text.see(END)
@@ -496,7 +513,7 @@ class Blinkenlights(BlinkenBase, VerboseUI):
             for thisline in msg.split("\n"):
                 s._msg(thisline)
             return
-        VerboseUI._msg(s, msg)
+        #VerboseUI._msg(s, msg)
         color = s.gettf().getcolor()
         rescroll = 1
         s.textlock.acquire()
@@ -520,17 +537,4 @@ class Blinkenlights(BlinkenBase, VerboseUI):
             s.text.config(state = DISABLED)
             s.textlock.release()
 
-    def sleeping(s, sleepsecs, remainingsecs):
-        if remainingsecs:
-            s.menubar.entryconfig('end', label = "Sync now (%d:%02d remain)" % \
-                          (remainingsecs / 60, remainingsecs % 60))
-            if s.gettf().getcolor() == 'red':
-                s.gettf().setcolor('black')
-            else:
-                s.gettf().setcolor('red')
-            time.sleep(sleepsecs)
-        else:
-            s.menubar.delete('end')
-            s.gettf().setcolor('black')
-        return s.sleeping_abort
     

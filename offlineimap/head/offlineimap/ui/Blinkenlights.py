@@ -119,4 +119,16 @@ class BlinkenBase:
         finally:
             s.tflock.release()
             
+    def sleep(s, sleepsecs):
+        s.gettf().setcolor('red')
+        s.getaccountframe().startsleep(sleepsecs)
+        UIBase.sleep(s, sleepsecs)
 
+    def sleeping(s, sleepsecs, remainingsecs):
+        if remainingsecs and s.gettf().getcolor() == 'black':
+            s.gettf().setcolor('red')
+        else:
+            s.gettf().setcolor('black')
+        return s.getaccountframe().sleeping(sleepsecs, remainingsecs)
+
+    
