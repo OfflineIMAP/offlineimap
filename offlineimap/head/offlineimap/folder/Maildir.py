@@ -182,6 +182,12 @@ class MaildirFolder(BaseFolder):
     def savemessageflags(self, uid, flags):
         oldfilename = self.messagelist[uid]['filename']
         newpath, newname = os.path.split(oldfilename)
+        if 'S' in flags:
+            # If a message has been seen, it goes into the cur
+            # directory.  CR debian#152482, [complete.org #4]
+            newpath = os.path.join(self.getfullname(), 'cur')
+        else:
+            newpath = os.path.join(self.getfullname(), 'new')
         infostr = ':'
         infomatch = re.search('(:.*)$', newname)
         if infomatch:                   # If the info string is present..

@@ -1,13 +1,20 @@
+offlineimap (3.99.20) unstable; urgency=low
+
+  * OfflineIMAP now moves messages between new and cur in Maildir when flags
+    have changed on the server.
+  * Applied patch from Joerg Wendland <joergland@debian.org> to use
+    APPENDUID result from mail servers that provide it.  Closes: #198772.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 27 Jun 2003 07:28:33 -0500
+
 offlineimap (3.99.19) unstable; urgency=low
 
   * Added a "force" option to imapserver/select to force a reloading of a
     folder.  Per [complete.org #67], when cachemessagelist() was called
     on an object that was cached from a previous run, it would not
     re-issue the select().
-  * Applied patch from Joerg Wendland <joergland@debian.org> to use
-    APPENDUID result from mail servers that provide it.  Closes: #198772.
 
- -- John Goerzen <jgoerzen@complete.org>  Thu, 27 Jun 2003 07:04:53 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Mon,  2 Jun 2003 07:04:53 -0500
 
 offlineimap (3.99.18) unstable; urgency=low
 
