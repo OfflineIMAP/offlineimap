@@ -1,6 +1,7 @@
 offlineimap (3.0.1) unstable; urgency=low
 
   * Detabified the source.
+  * Added UI list to the manpage.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri, 12 Jul 2002 07:28:24 -0500
 
