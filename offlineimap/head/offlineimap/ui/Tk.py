@@ -236,8 +236,12 @@ class VerboseUI(UIBase):
         s.top = None
         TextOKDialog("Main Program Exception", exceptionstr)
 
-    def warn(s, msg):
-        TextOKDialog("OfflineIMAP Warning", msg)
+    def warn(s, msg, minor):
+        if minor:
+            # Just let the default handler catch it
+            UIBase.warn(s, msg, minor)
+        else:
+            TextOKDialog("OfflineIMAP Warning", msg)
 
     def showlicense(s):
         TextOKDialog(version.productname + " License",

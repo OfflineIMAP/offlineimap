@@ -26,8 +26,11 @@ class Basic(UIBase):
     def _msg(s, msg):
         print msg
 
-    def warn(s, msg):
-        sys.stderr.write("WARNING: " + str(msg) + "\n")
+    def warn(s, msg, minor = 0):
+        warntxt = 'WARNING'
+        if minor:
+            warntxt = 'warning'
+        sys.stderr.write(warntxt + ": " + str(msg) + "\n")
 
     def sleep(s, sleepsecs):
         if s.verbose >= 0:

@@ -78,9 +78,14 @@ class IMAPFolder(BaseFolder):
             # Discard the message number.
             messagestr = string.split(messagestr, maxsplit = 1)[1]
             options = imaputil.flags2hash(messagestr)
-            uid = long(options['UID'])
-            flags = imaputil.flagsimap2maildir(options['FLAGS'])
-            self.messagelist[uid] = {'uid': uid, 'flags': flags}
+            if not options.has_key('UID'):
+                UIBase.getglobalui().warn('No UID in message with options %s' %\
+                                          str(options),
+                                          minor = 1)
+            else:
+                uid = long(options['UID'])
+                flags = imaputil.flagsimap2maildir(options['FLAGS'])
+                self.messagelist[uid] = {'uid': uid, 'flags': flags}
 
     def getmessagelist(self):
         return self.messagelist

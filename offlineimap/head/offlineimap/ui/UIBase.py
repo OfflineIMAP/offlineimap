@@ -44,8 +44,11 @@ class UIBase:
         """Generic tool called when no other works."""
         raise NotImplementedError
 
-    def warn(s, msg):
-        s._msg("WARNING: " + msg)
+    def warn(s, msg, minor = 0):
+        if minor:
+            s._msg("warning: " + msg)
+        else:
+            s._msg("WARNING: " + msg)
 
     def debug(s, debugtype, msg):
         thisthread = threading.currentThread()
