@@ -130,7 +130,7 @@ class MaildirFolder(BaseFolder):
         file = open(filename, 'rt')
         retval = file.read()
         file.close()
-        return retval
+        return retval.replace("\r\n", "\n")
 
     def savemessage(self, uid, content, flags):
         if uid < 0:
