@@ -282,6 +282,9 @@ class VerboseUI(UIBase):
 
 
     def init_banner(s):
+        s.threadframes = {}
+        s.availablethreadframes = []
+        s.tflock = Lock()
         s._createTopWindow()
         s._msg(version.productname + " " + version.versionstr + ", " +\
                version.copyright)
