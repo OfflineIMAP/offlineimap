@@ -1,9 +1,10 @@
 offlineimap (1.0.4) unstable; urgency=low
 
   * Deletion of more than one message has been optimized.  This could make
-    deleting large numbers of messages far faster.
+    deleting large numbers of messages far faster -- several orders of
+    magnitude.
   * Moved more sleep code into ui layer.  Fancier sleep actions are now
-    possible.
+    possible.  Better handling of Ctrl-C in TTY handler.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue,  2 Jul 2002 14:16:04 -0500
 
