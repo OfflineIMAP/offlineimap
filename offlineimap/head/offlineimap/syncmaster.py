@@ -23,7 +23,7 @@ import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
 
-def syncaccount(accountname, metadatadir, servers, config, passwords,
+def syncaccount(accountname, metadatadir, servers, config,
                 localeval, *args):
     ui = UIBase.getglobalui()
     # We don't need an account lock because syncitall() goes through
@@ -38,7 +38,7 @@ def syncaccount(accountname, metadatadir, servers, config, passwords,
         if accountname in servers:
             server = servers[accountname]
         else:
-            server = imapserver.ConfigedIMAPServer(config, accountname, passwords)
+            server = imapserver.ConfigedIMAPServer(config, accountname)
             servers[accountname] = server
             
         remoterepos = repository.IMAP.IMAPRepository(config, localeval, accountname, server)
@@ -147,7 +147,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
 
     
 
-def syncitall(accounts, metadatadir, servers, config, passwords, localeval):
+def syncitall(accounts, metadatadir, servers, config, localeval):
     ui = UIBase.getglobalui()
     global mailboxes
     mailboxes = []                      # Reset.
@@ -157,7 +157,7 @@ def syncitall(accounts, metadatadir, servers, config, passwords, localeval):
                                        target = syncaccount,
                                        name = "Account sync %s" % accountname,
                                        args = (accountname, metadatadir,
-                                               servers, config, passwords,
+                                               servers, config,
                                                localeval))
         thread.setDaemon(1)
         thread.start()
@@ -166,11 +166,11 @@ def syncitall(accounts, metadatadir, servers, config, passwords, localeval):
     threadutil.threadsreset(threads)
     mbnames.genmbnames(config, localeval, mailboxes)
 
-def sync_with_timer(accounts, metadatadir, servers, config, passwords,
+def sync_with_timer(accounts, metadatadir, servers, config,
                     localeval):
     ui = UIBase.getglobalui()
     currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
-    syncitall(accounts, metadatadir, servers, config, passwords, localeval)
+    syncitall(accounts, metadatadir, servers, config, localeval)
     if config.has_option('general', 'autorefresh'):
         refreshperiod = config.getint('general', 'autorefresh') * 60
         while 1:
@@ -200,5 +200,5 @@ def sync_with_timer(accounts, metadatadir, servers, config, passwords,
                     event.set()
                 for thread in kathreads.values():
                     thread.join()
-                syncitall(accounts, metadatadir, servers, config, passwords,
+                syncitall(accounts, metadatadir, servers, config,
                           localeval)

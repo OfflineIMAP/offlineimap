@@ -92,7 +92,7 @@ class UIBase:
 
     ################################################## INPUT
 
-    def getpass(s, accountname, config):
+    def getpass(s, accountname, config, errmsg = None):
         raise NotImplementedError
 
     def folderlist(s, list):

@@ -90,8 +90,6 @@ def startup(versionno):
     server = None
     remoterepos = None
     localrepos = None
-    passwords = {}
-    tunnels = {}
 
     if '-1' in options:
         threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
@@ -99,23 +97,7 @@ def startup(versionno):
         threadutil.initInstanceLimit("ACCOUNTLIMIT",
                                      config.getint("general", "maxsyncaccounts"))
 
-    # We have to gather passwords here -- don't want to have two threads
-    # asking for passwords simultaneously.
-
     for account in accounts:
-        #if '.' in account:
-        #    raise ValueError, "Account '%s' contains a dot; dots are not " \
-        #        "allowed in account names." % account
-        if config.has_option(account, "preauthtunnel"):
-            tunnels[account] = config.get(account, "preauthtunnel")
-        elif config.has_option(account, "remotepass"):
-            passwords[account] = config.get(account, "remotepass")
-        elif config.has_option(account, "remotepassfile"):
-            passfile = open(os.path.expanduser(config.get(account, "remotepassfile")))
-            passwords[account] = passfile.readline().strip()
-            passfile.close()
-        else:
-            passwords[account] = ui.getpass(account, config)
         for instancename in ["FOLDER_" + account, "MSGCOPY_" + account]:
             if '-1' in options:
                 threadutil.initInstanceLimit(instancename, 1)
@@ -133,7 +115,6 @@ def startup(versionno):
                                    'metadatadir': metadatadir,
                                    'servers': servers,
                                    'config': config,
-                                   'passwords': passwords,
                                    'localeval': localeval})
     t.setDaemon(1)
     t.start()

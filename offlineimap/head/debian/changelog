@@ -1,3 +1,11 @@
+offlineimap (3.99.3) unstable; urgency=low
+
+  * Moved password promting into imapserver.py.  Passwords are now asked
+    for on-demand and typos will no longer crash the program (the user
+    will be re-prompted).  Closes: #162672.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon,  4 Nov 2002 11:15:11 -0600
+
 offlineimap (3.99.2) unstable; urgency=low
 
   * Further attempts to fix imapsplit problems.

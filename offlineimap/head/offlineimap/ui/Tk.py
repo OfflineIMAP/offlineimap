@@ -27,13 +27,16 @@ from Queue import Queue
 from UIBase import UIBase
 
 class PasswordDialog:
-    def __init__(self, accountname, config, master=None):
+    def __init__(self, accountname, config, master=None, errmsg = None):
         self.top = Toplevel(master)
         self.top.title(version.productname + " Password Entry")
-        self.label = Label(self.top,
-                           text = "%s: Enter password for %s on %s: " % \
-                           (accountname, config.get(accountname, "remoteuser"),
-                            config.get(accountname, "remotehost")))
+        text = ''
+        if errmsg:
+            text = '%s: %s\n' % (accountname, errmsg)
+        text += "%s: Enter password for %s on %s: " % \
+                (accountname, config.get(accountname, "remoteuser"),
+                 config.get(accountname, "remotehost"))
+        self.label = Label(self.top, text = text)
         self.label.pack()
 
         self.entry = Entry(self.top, show='*')
@@ -171,8 +174,8 @@ class VerboseUI(UIBase):
         s.top.mainloop()
         s.notdeleted = 0
     
-    def getpass(s, accountname, config):
-        pd = PasswordDialog(accountname, config)
+    def getpass(s, accountname, config, errmsg = None):
+        pd = PasswordDialog(accountname, config, errmsg = errmsg)
         return pd.getpassword()
 
     def gettf(s, newtype=ThreadFrame, master = None):

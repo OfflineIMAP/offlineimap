@@ -48,11 +48,15 @@ class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL): pass
 class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplib.IMAP4_Tunnel): pass
 
 class IMAPServer:
-    def __init__(self, username = None, password = None, hostname = None,
+    def __init__(self, config, accountname,
+                 username = None, password = None, hostname = None,
                  port = None, ssl = 1, maxconnections = 1, tunnel = None,
                  reference = '""'):
+        self.account = accountname
+        self.config = config
         self.username = username
         self.password = password
+        self.passworderror = None
         self.hostname = hostname
         self.tunnel = tunnel
         self.port = port
@@ -71,6 +75,16 @@ class IMAPServer:
         self.semaphore = BoundedSemaphore(self.maxconnections)
         self.connectionlock = Lock()
         self.reference = reference
+
+    def getpassword(self):
+        if self.password != None and self.passworderror == None:
+            return self.password
+
+        self.password = UIBase.getglobalui().getpass(self.account, self.config,
+                                                     self.passworderror)
+        self.passworderror = None
+
+        return self.password
 
     def getdelim(self):
         """Returns this server's folder delimiter.  Can only be called
@@ -92,7 +106,7 @@ class IMAPServer:
 
     def md5handler(self, response):
         challenge = response.strip()
-        msg = self.password
+        msg = self.getpassword()
         while len(msg) < 64:
             msg += "\0"
 
@@ -135,23 +149,31 @@ class IMAPServer:
 
         UIBase.getglobalui().connecting(self.hostname, self.port)
 
-        # Generate a new connection.
-        if self.tunnel:
-            imapobj = UsefulIMAP4_Tunnel(self.tunnel)
-        elif self.usessl:
-            imapobj = UsefulIMAP4_SSL(self.hostname, self.port)
-        else:
-            imapobj = UsefulIMAP4(self.hostname, self.port)
-
-        if not self.tunnel:
-            if 'AUTH=CRAM-MD5' in imapobj.capabilities:
-                UIBase.getglobalui().debug('imap',
-                                           'Attempting CRAM-MD5 authentication')
-                imapobj.authenticate('CRAM-MD5', self.md5handler)
+        success = 0
+        while not success:
+            # Generate a new connection.
+            if self.tunnel:
+                imapobj = UsefulIMAP4_Tunnel(self.tunnel)
+            elif self.usessl:
+                imapobj = UsefulIMAP4_SSL(self.hostname, self.port)
             else:
-                UIBase.getglobalui().debug('imap',
-                                           'Attempting plain authentication')
-                imapobj.login(self.username, self.password)
+                imapobj = UsefulIMAP4(self.hostname, self.port)
+
+            if not self.tunnel:
+                try:
+                    if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+                        UIBase.getglobalui().debug('imap',
+                                                   'Attempting CRAM-MD5 authentication')
+                        imapobj.authenticate('CRAM-MD5', self.md5handler)
+                    else:
+                        UIBase.getglobalui().debug('imap',
+                                                   'Attempting plain authentication')
+                        imapobj.login(self.username, self.getpassword())
+                    # Would bail by here if there was a failure.
+                    success = 1
+                except imapobj.error, val:
+                    self.passworderror = str(val)
+                    self.password = None
 
         if self.delim == None:
             listres = imapobj.list(self.reference, '""')[1]
@@ -249,13 +271,19 @@ class ConfigedIMAPServer(IMAPServer):
 
         # Connect to the remote server.
         if usetunnel:
-            IMAPServer.__init__(self,
+            IMAPServer.__init__(self, config, accountname,
                                 tunnel = config.get(accountname, "preauthtunnel"),
                                 reference = reference,
                                 maxconnections = config.getint(accountname, "maxconnections"))
         else:
             if not password:
-                password = config.get(accountname, 'remotepass')
-            IMAPServer.__init__(self, user, password, host, port, ssl,
+                if config.has_option(accountname, 'remotepass'):
+                    password = config.get(accountname, 'remotepass')
+                elif config.has_option(accountname, 'remotepassfile'):
+                    passfile = open(os.path.expanduser(config.get(accountname, "remotepassfile")))
+                    password = passfile.readline().strip()
+                    passfile.close()
+            IMAPServer.__init__(self, config, accountname,
+                                user, password, host, port, ssl,
                                 config.getint(accountname, "maxconnections"),
                                 reference = reference)

@@ -25,21 +25,32 @@ class TTYUI(UIBase):
     def __init__(s, config, verbose = 0):
         UIBase.__init__(s, config, verbose)
         s.iswaiting = 0
+        s.outputlock = Lock()
 
     def isusable(s):
         return sys.stdout.isatty() and sys.stdin.isatty()
         
     def _msg(s, msg):
-        if (currentThread().getName() == 'MainThread'):
-            print msg
-        else:
-            print "%s:\n   %s" % (currentThread().getName(), msg)
-        sys.stdout.flush()
+        s.outputlock.acquire()
+        try:
+            if (currentThread().getName() == 'MainThread'):
+                print msg
+            else:
+                print "%s:\n   %s" % (currentThread().getName(), msg)
+            sys.stdout.flush()
+        finally:
+            s.outputlock.release()
 
-    def getpass(s, accountname, config):
-        return getpass("%s: Enter password for %s on %s: " %
-                       (accountname, config.get(accountname, "remoteuser"),
-                        config.get(accountname, "remotehost")))
+    def getpass(s, accountname, config, errmsg = None):
+        if errmsg:
+            s._msg("%s: %s" % (accountname, errmsg))
+        s.outputlock.acquire()
+        try:
+            return getpass("%s: Enter password for %s on %s: " %
+                           (accountname, config.get(accountname, "remoteuser"),
+                            config.get(accountname, "remotehost")))
+        finally:
+            s.outputlock.release()
 
     def sleep(s, sleepsecs):
         s.iswaiting = 1
