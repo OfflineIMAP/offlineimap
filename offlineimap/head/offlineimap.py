@@ -179,10 +179,16 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     localfolder.cachemessagelist()
     ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
 
+
     # Load status folder.
     statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
                                          replace(remoterepos.getsep(),
                                                  statusrepos.getsep()))
+    if localfolder.getuidvalidity() == None:
+        # This is a new folder, so delete the status cache to be sure
+        # we don't have a conflict.
+        statusfolder.deletemessagelist()
+        
     statusfolder.cachemessagelist()
 
     
