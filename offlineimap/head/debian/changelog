@@ -4,7 +4,7 @@ offlineimap (3.99.3) unstable; urgency=low
     for on-demand and typos will no longer crash the program (the user
     will be re-prompted).  Closes: #162672.
 
- -- John Goerzen <jgoerzen@complete.org>  Mon,  4 Nov 2002 11:15:11 -0600
+ -- John Goerzen <jgoerzen@complete.org>  Mon,  4 Nov 2002 11:16:11 -0600
 
 offlineimap (3.99.2) unstable; urgency=low
 
