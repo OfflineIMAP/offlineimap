@@ -1,0 +1,187 @@
+# -*- Mode: makefile; -*-
+# 
+# Common Makefile for SGML documents
+#
+# Copyright (C) 2002, 2003 John Goerzen
+# <jgoerzen@complete.org>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+# The following variables should be set:
+# MASTERBASE -- basename of master file -- example: linux-guide
+# BASICDEPS -- various dependencies of the master file.  For instance,
+#   this might include files included in the SGML.  It could also be empty.
+# TOPNODE -- Basename of top id for HTML link.
+
+MASTER := $(MASTERBASE).sgml
+FIGUREDIRS := $(wildcard figures/*)
+DOINDEX ?= yes
+
+######################################################################
+# Index generation
+######################################################################
+
+ifeq ($(DOINDEX), yes)
+
+INDEXSGMLFILE := index/index.sgml
+INDEXDATAFILE := index/HTML.index
+
+$(INDEXSGMLFILE): $(INDEXDATAFILE)
+	@echo " *** Generating SGML index from index list"
+	collateindex.pl -i ch.index -g -o index/index.sgml index/HTML.index
+
+$(INDEXDATAFILE): $(MASTER) $(BASICDEPS)
+#	jade -t sgml -d docbook.dsl -V html-index $(MASTER)
+#	jade -t sgml -V html-index $(MASTER)
+	@echo " *** Generating index list from document"
+	-rm -r index
+	mkdir index
+	collateindex.pl -i ch.index -N -o index/index.sgml
+	#mkdir html-temp
+	#docbook2html --output html-temp -V html-index $(MASTER)
+	docbook-2-html -O -V -O html-index $(HTMLARGS) $(MASTER)
+	mv $(MASTERBASE)-html/HTML.index index/
+	rm -r $(MASTERBASE)-html
+endif # DOINDEX
+
+######################################################################
+# PostScript generation
+######################################################################
+
+$(MASTERBASE).ps: $(MASTER) $(BASICDEPS) $(INDEXSGMLFILE) $(EPSFILES)
+	@echo " *** Generating PostScript output"
+# This works too: docbook2ps -V paper-size=Letter $(MASTER)
+	docbook-2-ps -q -O -V -O paper-size=Letter $(PSARGS) $(MASTER)
+
+######################################################################
+# Figure generation
+######################################################################
+
+%_1.epi: %.ps
+	$(get-epi)
+%_2.epi: %.ps
+	$(get-epi)
+%_3.epi: %.ps
+	$(get-epi)
+%_4.epi: %.ps
+	$(get-epi)
+%_5.epi: %.ps
+	$(get-epi)
+%_6.epi: %.ps
+	$(get-epi)
+%_7.epi: %.ps
+	$(get-epi)
+%_8.epi: %.ps
+	$(get-epi)
+%_9.epi: %.ps
+	$(get-epi)
+%_10.epi: %.ps
+	$(get-epi)
+%_11.epi: %.ps
+	$(get-epi)
+%_12.epi: %.ps
+	$(get-epi)
+
+%.png: %.epi
+	@echo " *** Generating PNG image for $<"
+	gs -q -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r90 -dBATCH -dNOPAUSE \
+		-dSAFER -sOutputFile=$@ -sDEVICE=png16m $< -c showpage
+
+%.ps: %.pdf
+	pdftops $<
+
+######################################################################
+# HTML generation
+######################################################################
+
+define copy-figures-worker
+mkdir html/figures
+for DIRECTORY in $(FIGUREDIRS); do mkdir html/$$DIRECTORY; cp -v $$DIRECTORY/*.png html/$$DIRECTORY/; done
+endef
+
+define copy-figures
+$(if $(FIGUREDIRS),$(copy-figures-worker))
+endef
+
+html/index.html: $(MASTER) $(BASICDEPS) $(INDEXSGMLFILE) $(PNGFILES)
+	@echo " *** Generating HTML output"
+	-rm -r html
+	mkdir html
+	#docbook2html --output html $(MASTER)
+	docbook-2-html $(HTMLARGS) $(MASTER)
+	mv $(MASTERBASE)-html/* html/
+	rmdir $(MASTERBASE)-html
+	$(copy-figures)
+#	tidy -m html/*.html
+	ln -s $(TOPNODE).html html/index.html
+	-cp -v /usr/share/gtk-doc/*.png html/
+
+######################################################################
+# Cleaning
+######################################################################
+
+clean:
+	-rm -f `find . -name "*~"` `find . -name "*.png"` `find . -name "*.epi"`
+	-rm -r html-temp linux-guide-html html index
+	-rm *.aux *.log *.dvi *.tex *.jtex *.ps *.html *.log *.out jadetex.cfg
+	-rm *.ps html/*.html figures/topology/*.epi figures/topology/*.png
+	-rm *.log *.pdb
+	-rm `find . -name ".ps"` `find . -name "*.epi"` *.pdf
+	-rm `find . -name "*.png"`
+
+######################################################################
+# Utility functions
+######################################################################
+
+GETPAGE=$(shell echo $(1) | sed -e "s/^.*_\([0-9]*\).epi/\\1/g")
+define get-epi
+@echo " *** Generating EPI image for $<"
+psselect -q $(call GETPAGE,$@) $< temp.ps
+psresize -w 6.375in -h 8.25in temp.ps temp2.ps
+../sgml-common/ps2epsi temp2.ps $@
+rm temp.ps temp2.ps
+endef
+
+pdf: $(MASTERBASE).pdf
+
+$(MASTERBASE).pdf: $(MASTERBASE).ps
+	ps2pdf14 $(MASTERBASE).ps
+
+plucker: $(MASTERBASE).pdb
+$(MASTERBASE).pdb: html
+	plucker-build --bpp=4 --compression=zlib --doc-name="$(MASTERBASE)" \
+	-H file:`pwd`/html/index.html -M 5 \
+	--maxheight=320 --maxwidth=310 \
+	--staybelow=file:`pwd`/html --title="$(MASTERBASE)" -p . \
+	-f $(MASTERBASE)
+
+###########################################################################
+# These are obsolete but should still work.
+###########################################################################
+
+
+$(MASTERBASE).dvi: $(MASTERBASE).tex
+	@echo " *** Generating DVI file."
+	jadetex unix-guide.tex
+	jadetex unix-guide.tex
+	jadetex unix-guide.tex
+
+$(MASTERBASE).tex: $(MASTER) $(BASICDEPS) $(INDEXSGMLFILE)
+	@echo " *** Generating TeX files."
+	docbook2tex -V paper-size=Letter $(MASTER)
+#	jade -t tex -V tex-backend -d \
+#		/usr/share/sgml/docbook/stylesheet/dsssl/modular/print/docbook.dsl \
+#		$(MASTER)
+
