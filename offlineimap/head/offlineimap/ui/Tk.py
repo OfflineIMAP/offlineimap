@@ -365,7 +365,7 @@ class Blinkenlights(VerboseUI):
                                                "loglines")
         self.bufferlines = 500
         if self.config.has_option("ui.Tk.Blinkenlights", "bufferlines"):
-            self.bufferlines = self.config.getint("ui.tk.Blinkenlights",
+            self.bufferlines = self.config.getint("ui.Tk.Blinkenlights",
                                                   "bufferlines")
         self.text = ScrolledText(self.top, bg = 'black', #scrollbar = 'y',
                                  font = ("Helvetica", 8),
