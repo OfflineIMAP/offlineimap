@@ -8,6 +8,8 @@ offlineimap (3.0.2) unstable; urgency=low
     more gracefully.  This could occur if the server doesn't support
     SEARCH, can't find the message ID, or finds multiple message IDs.
     Closes: #153241.
+  * Now source is in Subversion.  Make version.py log the Subversion
+    revision number.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed, 15 Jul 2002 06:43:36 -0500
 
