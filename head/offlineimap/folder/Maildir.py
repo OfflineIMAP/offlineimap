@@ -24,6 +24,7 @@ timeseq = 0
 lasttime = long(0)
 
 def gettimeseq():
+    global lasttime, timeseq
     thistime = long(time.time())
     if thistime == lasttime:
         timeseq += 1
@@ -91,7 +92,7 @@ class MaildirFolder(BaseFolder):
                 # assume it is a foreign (new) message and generate a
                 # negative uid for it
                 uid = nouidcounter
-                nouidcountr -= 1
+                nouidcounter -= 1
             else:                       # It comes from our folder.
                 uidmatch = re.search(',U=(\d+)', messagename)
                 uid = None

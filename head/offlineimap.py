@@ -43,9 +43,9 @@ accounts = accounts.split(",")
 server = None
 remoterepos = None
 localrepos = None
-mailboxes = []
 
 def syncitall():
+    mailboxes = []
     for accountname in accounts:
         ui.acct(accountname)
         accountmetadata = os.path.join(metadatadir, accountname)
