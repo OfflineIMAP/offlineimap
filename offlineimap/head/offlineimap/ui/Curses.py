@@ -231,7 +231,7 @@ class Blinkenlights(BlinkenBase, UIBase):
         try:
             s.gettf().setcolor('white')
             s._addline_unlocked(" *** Input Required", s.gettf().getcolor())
-            s._addline_unlocked(" *** Please enter password for account %s: ", accountname,
+            s._addline_unlocked(" *** Please enter password for account %s: " % accountname,
                    s.gettf().getcolor())
             s.logwindow.refresh()
             password = s.logwindow.getstr()

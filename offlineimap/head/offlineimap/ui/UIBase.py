@@ -54,19 +54,21 @@ class UIBase:
     def registerthread(s, account):
         """Provides a hint to UIs about which account this particular
         thread is processing."""
-        if s.threadaccounts.has_key(thread.get_ident()):
+        if s.threadaccounts.has_key(threading.currentThread()):
             raise ValueError, "Thread already registered (old %s, new %s)" % \
                   (s.getthreadaccount(s), account)
-        s.threadaccounts[thread.get_ident()] = account
+        s.threadaccounts[threading.currentThread()] = account
 
     def unregisterthread(s, thr):
         """Recognizes a thread has exited."""
         if s.threadaccounts.has_key(thr):
             del s.threadaccounts[thr]
 
-    def getthreadaccount(s):
-        if s.threadaccounts.has_key(thread.get_ident()):
-            return s.threadaccounts[thread.get_ident()]
+    def getthreadaccount(s, thr = None):
+        if not thr:
+            thr = threading.currentThread()
+        if s.threadaccounts.has_key(thr):
+            return s.threadaccounts[thr]
         return None
 
     def debug(s, debugtype, msg):
