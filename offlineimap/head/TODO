@@ -16,3 +16,7 @@
 
 * Add new UI modules designed for noninteractive, cronned operation.
   Est time: 30 minutes
+
+* Ability to check SSL sync.
+
+* New IMAP library.
