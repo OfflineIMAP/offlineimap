@@ -32,6 +32,20 @@ class MaildirRepository(BaseRepository):
     def getsep(self):
         return '.'
 
+    
+
+    def makefolder(self, foldername):
+        folderdir = os.path.join(self.root, foldername)
+        os.mkdir(folderdir, 0700)
+        for subdir in ['cur', 'new', 'tmp']:
+            os.mkdir(os.path.join(folderdir, subdir), 0700)
+
+    def deletefolder(self, foldername):
+        print "NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername
+
+    def getfolder(self, foldername):
+        return folder.Maildir.MaildirFolder(self.root, foldername)
+    
     def getfolders(self):
         if self.folders != None:
             return self.folders
@@ -45,7 +59,7 @@ class MaildirRepository(BaseRepository):
                     os.path.isdir(os.path.join(fullname, 'new')) and
                     os.path.isdir(os.path.join(fullname, 'tmp'))):
                 continue
-            retval.append(MaildirFolder(self.root, dirname))
+            retval.append(folder.Maildir.MaildirFolder(self.root, dirname))
         self.folders = retval
         return retval
     

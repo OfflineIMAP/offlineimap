@@ -30,6 +30,9 @@ class IMAPRepository(BaseRepository):
     def getsep(self):
         return self.imapserver.delim
 
+    def getfolder(self, foldername):
+        return folder.IMAP.IMAPFolder(self.imapserver, name)
+
     def getfolders(self):
         if self.folders != None:
             return self.folders

@@ -18,15 +18,45 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from imapsync import imaplib, imaputil, imapserver, repository, folder
-import re
-import getpass
+import re, getpass, os, os.path
+from ConfigParser import ConfigParser
 
-host = raw_input('Host: ')
-user = raw_input('Username: ')
-passwd = getpass.getpass('Password: ')
+config = ConfigParser()
+config.read("imapsync.conf")
+metadatadir = os.path.expanduser(config.get("general", "metadata"))
+if not os.path.exists(metadatadir):
+    os.mkdir(metadatadir, 0700)
 
-server = imapserver.IMAPServer(user, passwd, host, ssl = 1)
-imapobj = server.makeconnection()
-delim, root = imaputil.imapsplit(imapobj.list('""', '""')[1][0])[1:]
+accounts = config.get("general", "accounts")
+accounts = accounts.replace(" ", "")
+accounts = accounts.split(",")
 
-repos = repository.IMAP.IMAPRepository(server)
+for accountname in accounts:
+    print "Processing account " + accountname
+    accountmetadata = os.path.join(metadatadir, accountname)
+    if not os.path.exists(accountmetadata):
+        os.mkdir(accountmetadata, 0700)
+    host = config.get(accountname, "remotehost")
+    user = config.get(accountname, "remoteuser")
+    port = None
+    if config.has_option(accountname, "remoteport"):
+        port = config.getint(accountname, "remoteport")
+    password = None
+    if config.has_option(accountname, "remotepass"):
+        password = config.get(accountname, "remotepass")
+    else:
+        password = getpass.getpass("Password for %s: " % accountname)
+    ssl = config.getboolean(accountname, "ssl")
+    server = imapserver.IMAPServer(user, password, host, port, ssl)
+    #print "Connecting to server...",
+    #imapobj = server.makeconnection()
+    #print "Done."
+    remoterepos = repository.IMAP.IMAPRepository(server)
+    localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(config.get(accountname, "localfolders")))
+    print "Synchronizing folder list..."
+    remoterepos.syncfoldersto(localrepos)
+    print "Done."
+    for remotefolder in remoterepos.getfolders():
+        print "*** SYNCHRONIZING FOLDER %s" % remotefolder.getname()
+        localfolder = localrepos.getfolder(remotefolder.getname())
+        

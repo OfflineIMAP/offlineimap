@@ -24,10 +24,13 @@ class BaseRepository:
     def getsep(self):
         raise NotImplementedError
 
-    def makefolder(self):
+    def makefolder(self, foldername):
         raise NotImplementedError
 
-    def deletefolder(self):
+    def deletefolder(self, foldername):
+        raise NotImplementedError
+
+    def getfolder(self, foldername):
         raise NotImplementedError
     
     def syncfoldersto(self, dest):
