@@ -17,6 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from Tkinter import *
+import tkFont
 from threading import *
 import thread, traceback, time
 from StringIO import StringIO
@@ -355,7 +356,16 @@ class Blinkenlights(VerboseUI):
         c.setLEDCount(0)
         c.createLEDLock()
         self.canvas = c
-        c.pack(side = BOTTOM)
+        c.pack(side = BOTTOM, expand = 1)
+        widthmetric = tkFont.Font(family = 'Helvetica', size = 8).measure("0")
+        self.text = Text(self.top, bg = 'black', font = ("Helvetica", 8),
+                         bd = 0, highlightthickness = 0, setgrid = 0,
+                         state = DISABLED, height = 5, wrap = NONE,
+                         width = int(c.cget('width')) / widthmetric)
+        self.textenabled = 0
+        self.tags = []
+        self.textlock = Lock()
+        self.loglines = 5
 
     def gettf(s, newtype=LEDThreadFrame):
         return VerboseUI.gettf(s, newtype, s.canvas)
@@ -367,11 +377,43 @@ class Blinkenlights(VerboseUI):
                        background = "black", foreground = "blue",
                        font = ("Helvetica", 8), bd = 0)
         menubar.add_command(label = "About", command = s.showlicense)
+        menubar.add_command(label = "Show Log", command = s._togglelog)
         menubar.add_command(label = "Exit", command = s.terminate)
         s.top.config(menu = menubar)
         s.menubar = menubar
         s.gettf().setcolor('red')
         s._msg(version.banner)
+
+    def _largerlog(s):
+        s.loglines += 1
+        s.text.configure(height = s.loglines)
+
+    def _smallerlog(s):
+        if s.loglines >= 2:
+            s.loglines -= 1
+            s.text.configure(height = s.loglines)
+
+    def _togglelog(s):
+        if s.textenabled:
+            s.text.pack_forget()
+            s.textenabled = 0
+            s.menubar.delete('Log')
+            s.menubar.insert_command('Exit', label = 'Show Log',
+                                     command = s._togglelog)
+        else:
+            s.text.pack(side = BOTTOM, expand = 1)
+            s.textenabled = 1
+            s.menubar.delete('Show Log')
+
+            logmenu = Menu(s.menubar, tearoff = 0,
+                           activebackground = "#000030",
+                           background = "#000030", foreground = "blue",
+                           activeforeground = "white",
+                           font = ("Helvetica", 8))
+            logmenu.add_command(label = "Hide Log", command = s._togglelog)
+            logmenu.add_command(label = "Larger Log", command = s._largerlog)
+            logmenu.add_command(label = "Smaller Log", command = s._smallerlog)
+            s.menubar.insert_cascade('Exit', label = "Log", menu = logmenu)
 
     def acct(s, accountname):
         s.gettf().setcolor('purple')
@@ -387,7 +429,8 @@ class Blinkenlights(VerboseUI):
 
     def loadmessagelist(s, repos, folder):
         s.gettf().setcolor('green')
-        VerboseUI.loadmessagelist(s, repos, folder)
+        s._msg("Scanning folder [%s/%s]" % (s.getnicename(repos),
+                                            folder.getvisiblename()))
 
     def syncingmessages(s, sr, sf, dr, df):
         s.gettf().setcolor('blue')
@@ -428,7 +471,32 @@ class Blinkenlights(VerboseUI):
     def sleep(s, sleepsecs):
         s.sleeping_abort = 0
         s.menubar.add_command(label = "Sync now", command = s._sleep_cancel)
+        s._msg("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
         UIBase.sleep(s, sleepsecs)
+
+    def _msg(s, msg):
+        if "\n" in msg:
+            for thisline in msg.split("\n"):
+                s._msg(thisline)
+            return
+        VerboseUI._msg(s, msg)
+        color = s.gettf().getcolor()
+
+        s.textlock.acquire()
+        try:
+            s.text.config(state = NORMAL)
+            if not color in s.tags:
+                s.text.tag_config(color, foreground = color)
+                s.tags.append(color)
+            s.text.insert(END, msg + "\n", color)
+
+            # Trim down.  Not quite sure why I have to say 7 instead of 5,
+            # but so it is.
+            while float(s.text.index(END)) > s.loglines + 2.0:
+                s.text.delete(1.0, 2.0)
+        finally:
+            s.text.config(state = DISABLED)
+            s.textlock.release()
 
     def sleeping(s, sleepsecs, remainingsecs):
         if remainingsecs:
