@@ -34,7 +34,7 @@ setup(name = "offlineimap",
       url = offlineimap.version.homepage,
       packages = ['offlineimap', 'offlineimap.folder',
                   'offlineimap.repository', 'offlineimap.ui'],
-      scripts = ['offlineimap.py'],
+      scripts = ['bin/offlineimap'],
       license = offlineimap.version.copyright + \
                 ", Licensed under the GPL version 2"
 )
