@@ -45,7 +45,8 @@ class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplib.IMAP4_Tunnel): pass
 
 class IMAPServer:
     def __init__(self, username = None, password = None, hostname = None,
-                 port = None, ssl = 1, maxconnections = 1, tunnel = None):
+                 port = None, ssl = 1, maxconnections = 1, tunnel = None,
+                 reference = '""'):
         self.username = username
         self.password = password
         self.hostname = hostname
@@ -64,7 +65,7 @@ class IMAPServer:
         self.assignedconnections = []
         self.semaphore = BoundedSemaphore(self.maxconnections)
         self.connectionlock = Lock()
-        
+        self.reference = reference
 
     def getdelim(self):
         """Returns this server's folder delimiter.  Can only be called
@@ -116,7 +117,7 @@ class IMAPServer:
 
         if self.delim == None:
             self.delim, self.root = \
-                        imaputil.imapsplit(imapobj.list('""', '""')[1][0])[1:]
+                        imaputil.imapsplit(imapobj.list(self.reference, '""')[1][0])[1:]
             self.delim = imaputil.dequote(self.delim)
             self.root = imaputil.dequote(self.root)
 

@@ -23,7 +23,8 @@ import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
 
-# imaplib.Debug = 5
+if '-d' in sys.argv:
+    imaplib.Debug = 5
 
 ui = offlineimap.ui.TTY.TTYUI()
 ui.init_banner()
@@ -94,16 +95,21 @@ def syncaccount(accountname, *args):
             port = config.getint(accountname, "remoteport")
         ssl = config.getboolean(accountname, "ssl")
         usetunnel = config.has_option(accountname, "preauthtunnel")
+        reference = '""'
+        if config.has_option(accountname, "reference"):
+            reference = config.get(accountname, "reference")
 
         server = None
         # Connect to the remote server.
         if usetunnel:
             server = imapserver.IMAPServer(tunnel = tunnels[accountname],
+                                           reference = reference,
                                            maxconnections = config.getint(accountname, "maxconnections"))
         else:
             server = imapserver.IMAPServer(user, passwords[accountname],
                                            host, port, ssl,
-                                           config.getint(accountname, "maxconnections"))
+                                           config.getint(accountname, "maxconnections"),
+                                           reference = reference)
         remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
 
         # Connect to the Maildirs.

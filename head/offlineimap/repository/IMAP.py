@@ -50,7 +50,7 @@ class IMAPRepository(BaseRepository):
         retval = []
         imapobj = self.imapserver.acquireconnection()
         try:
-            listresult = imapobj.list()[1]
+            listresult = imapobj.list(directory = self.imapserver.reference)[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         for string in listresult:

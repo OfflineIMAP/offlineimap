@@ -1,3 +1,10 @@
+offlineimap (2.0.3) unstable; urgency=low
+
+  * Added support for specifying references.  Closes: #151960.
+  * Added -d command-line option to enable imaplib debugging.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu,  4 Jul 2002 20:39:29 -0500
+
 offlineimap (2.0.2) unstable; urgency=low
 
   * Added support for remotepassfile.  Closes: #151943.
