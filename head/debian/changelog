@@ -11,6 +11,9 @@ offlineimap (2.0.0) unstable; urgency=low
     example file packaged with the distribution.
   * The Debian package now properly installs the example offlineimap.conf
     file.
+  * There is a new mailing list available.  To join, send SUBSCRIBE
+    to offlineimap-request@complete.org.  The posting address is
+    offlineimap@complete.org.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed,  3 Jul 2002 19:21:32 -0500
 

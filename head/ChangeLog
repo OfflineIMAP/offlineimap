@@ -1,3 +1,144 @@
+2002-07-03 21:44  jgoerzen
+
+	* debian/changelog: Updated
+
+2002-07-03 21:43  jgoerzen
+
+	* README, debian/control: Added more information to README and
+	debian/control
+
+2002-07-03 17:35  jgoerzen
+
+	* offlineimap.py: Fixed a bug with generating mailbox listings
+
+2002-07-03 16:02  jgoerzen
+
+	* debian/: changelog, changelog: Fixed
+
+2002-07-03 15:44  jgoerzen
+
+	* offlineimap.py: Removed debug code
+
+2002-07-03 15:40  jgoerzen
+
+	* offlineimap.py: A bit more debugging
+
+2002-07-03 15:37  jgoerzen
+
+	* offlineimap.py: Added debug
+
+2002-07-03 15:23  jgoerzen
+
+	* offlineimap.py: Removed a debug tool
+
+2002-07-03 15:16  jgoerzen
+
+	* debian/: changelog, rules: Updated changelog with these options
+	
+	offlineimap (2.0.0) unstable; urgency=low
+	
+	  * This code is now multithreaded.  New config file options
+	control the
+	      behavior.  This can make synchronizing several times faster.
+		* Fixed the STATUS call to be compatible with Exchange.
+		  * Added the ability to exclude folders.
+		    * If upgrading from 1.0.x, you will need to add
+	maxsyncaccounts to the
+			general section and maxconnections to each account
+	sections.
+			    There is also a new folderfilter option.
+				You can find examples of all of these in
+	the new offlineimap.conf
+				    example file packaged with the
+	distribution.
+				      * The Debian package now properly
+	installs the example offlineimap.conf
+
+2002-07-03 15:10  jgoerzen
+
+	* offlineimap.conf, debian/changelog,
+	offlineimap/repository/IMAP.py: Added the ability to filter out
+	folders
+
+2002-07-03 12:59  jgoerzen
+
+	* offlineimap/threadutil.py: Re-enabled after debug.
+
+2002-07-03 12:58  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Another bugfix
+
+2002-07-03 12:57  jgoerzen
+
+	* offlineimap.py, offlineimap/threadutil.py,
+	offlineimap/folder/Base.py, offlineimap/folder/IMAP.py,
+	offlineimap/repository/IMAP.py: More updates
+
+2002-07-03 11:40  jgoerzen
+
+	* offlineimap/imapserver.py: More work on threads
+
+2002-07-03 11:14  jgoerzen
+
+	* offlineimap.py, offlineimap/imapserver.py,
+	offlineimap/folder/Base.py, offlineimap/folder/IMAP.py,
+	offlineimap/ui/TTY.py: More working!
+
+2002-07-03 10:58  jgoerzen
+
+	* offlineimap.py, offlineimap/imapserver.py,
+	offlineimap/folder/IMAP.py: Bug fixes
+
+2002-07-03 10:35  jgoerzen
+
+	* offlineimap.py, offlineimap/imapserver.py,
+	offlineimap/threadutil.py, offlineimap/folder/Base.py,
+	offlineimap/folder/IMAP.py: Another work on syncing
+
+2002-07-03 10:00  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Fixed a bug with the status call
+
+2002-07-03 09:15  jgoerzen
+
+	* offlineimap/repository/IMAP.py: Modified to new imapserver
+	semantics
+
+2002-07-03 09:02  jgoerzen
+
+	* offlineimap/imapserver.py: Moved some more code to threadutil
+
+2002-07-03 08:59  jgoerzen
+
+	* offlineimap/imapserver.py: Updated to use threadutil
+
+2002-07-03 08:58  jgoerzen
+
+	* offlineimap.py, offlineimap/__init__.py,
+	offlineimap/threadutil.py, offlineimap/ui/TTY.py,
+	offlineimap/ui/UIBase.py: Initial work on threading support
+
+2002-07-03 08:49  jgoerzen
+
+	* debian/changelog: Updated.
+
+2002-07-02 22:04  jgoerzen
+
+	* offlineimap/: imapserver.py, repository/IMAP.py: Start of support
+	for multi-threading
+
+2002-07-02 20:01  jgoerzen
+
+	* offlineimap.conf: Updated with thread support
+
+2002-07-02 18:37  jgoerzen
+
+	* debian/rules: Removed extraneous clean
+
+2002-07-02 15:56  jgoerzen
+
+	* ChangeLog: Final prep, 1.0.4
+
 2002-07-02 15:50  jgoerzen
 
 	* debian/changelog: Updated for 1.0.4
@@ -431,9 +572,14 @@
 
 	* offlineimap/repository/: Base.py, __init__.py: Added
 
+2002-06-18 13:28  jgoerzen
+
+	* offlineimap/mailbox/__init__.py: [no log message]
+
 2002-06-18 13:26  jgoerzen
 
-	* offlineimap/: folder/__init__.py, repository/Base.py: Updated
+	* offlineimap/: folder/__init__.py, mailbox/__init__.py,
+	repository/Base.py: Updated
 
 2002-06-18 13:09  jgoerzen
 

@@ -31,6 +31,12 @@ OfflimeIMAP, you can:
  * Synchronize your mail using a completely safe and fault-tolerant
    algorithm.  (At least I think it is!)
 
+ * Customize which mailboxes to synchronize with regular expressions
+   or lists.
+
+ * Synchronize your mail two to four times faster than with other tools
+   or other mail readers' internal IMAP support.
+
 In short, OfflineIMAP is a tool to let you read mail how YOU want to.
 
 ==================================================
@@ -260,3 +266,33 @@ set folder=$HOME/Mail
 set spoolfile=+Personal/INBOX
 
 That's it!
+
+--------------------------------------------------
+
+Q. What about the speed of the sync?
+
+A. OfflineIMAP 2.0 contains a multithreaded system.  A good way to
+experiment is by setting maxsyncaccounts to 3 and maxconnections to 3
+in each account clause.
+
+This lets OfflineIMAP open up multiple connections simultaneously.
+That will let it process multiple folders and messages at once.  In
+most cases, this will increase performance of the sync.
+
+Don't set the number too high.  If you do that, things might actually
+slow down as your link gets saturated.  Also, too many connections can
+cause mail servers to have excessive load.  Administrators might take
+unkindly to this, and the server might bog down.  There are many
+variables in the optimal setting; experimentation may help.
+
+An informal benchmark yields these results for my setup:
+
+OfflineIMAP 2.0 sync with multitreading:  9 seconds
+OfflineIMAP 1.x sync w/o multithreading: 20 seconds
+GNUS sync:                                5 minutes
+MacOS X Mail.app "manual cache" method:  10 minutes
+
+OfflineIMAP's default configuration example does not have
+multithreading enabled.  You must configure it yourself to gain these
+performance benefits.  This decision was taken to provide a "works out
+of the box" experience.

@@ -29,4 +29,10 @@ Description: IMAP/Maildir synchronization and reader support
  * Synchronize your mail using a completely safe and fault-tolerant
    algorithm.  (At least I think it is!)
  .
+ * Customize which mailboxes to synchronize with regular expressions
+   or lists.
+ .
+ * Synchronize your mail two to four times faster than with other tools
+   or other mail readers' internal IMAP support.
+ .
  In short, OfflineIMAP is a tool to let you read mail how YOU want to.
