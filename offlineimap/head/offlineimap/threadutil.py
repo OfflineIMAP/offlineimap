@@ -134,6 +134,11 @@ def threadexited(thread):
         ui.threadException(thread)      # Expected to terminate
         sys.exit(100)                   # Just in case...
         os._exit(100)
+    elif thread.getExitMessage() == 'SYNC_WITH_TIMER_TERMINATE':
+        ui.terminate()
+        # Just in case...
+        sys.exit(100)
+        os._exit(100)
     else:
         ui.threadExited(thread)
 

@@ -1,3 +1,11 @@
+offlineimap (3.99.15) unstable; urgency=low
+
+  * Backed out removal of SYNC_WITH_TIMER_TERMINATE code to deal with
+    completed syncs.  Without this code, -o broke because the app would
+    never terminate.  Closes: #FIXME.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 28 Apr 2003 14:00:32 -0500
+
 offlineimap (3.99.14) unstable; urgency=low
 
   * Added the ability to use the top level of a Maildir as folder named

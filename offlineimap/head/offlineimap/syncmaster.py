@@ -1,5 +1,5 @@
 # OfflineIMAP synchronization master code
-# Copyright (C) 2002, 2003 John Goerzen
+# Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -25,16 +25,21 @@ import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
 
-def syncaccount(config, accountname):
+def syncaccount(threads, config, accountname):
     account = SyncableAccount(config, accountname)
     thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                    target = account.syncrunner,
                                    name = "Account sync %s" % accountname)
     thread.setDaemon(1)
     thread.start()
+    threads.add(thread)
     
 def syncitall(accounts, config):
+    currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
     ui = UIBase.getglobalui()
+    threads = threadutil.threadlist()
     mbnames.init(config, accounts)
     for accountname in accounts:
-        syncaccount(config, accountname)
+        syncaccount(threads, config, accountname)
+    # Wait for the threads to finish.
+    threads.reset()
