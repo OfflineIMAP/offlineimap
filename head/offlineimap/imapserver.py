@@ -58,6 +58,8 @@ class IMAPServer:
         if self.delim == None:
             self.delim, self.root = \
                         imaputil.imapsplit(imapobj.list('""', '""')[1][0])[1:]
+            self.delim = imaputil.dequote(self.delim)
+            self.root = imaputil.dequote(self.root)
 
         return imapobj
     

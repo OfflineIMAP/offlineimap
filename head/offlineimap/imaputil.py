@@ -66,7 +66,7 @@ def imapsplit(string):
             workstr = workstr[len(parenlist):]
             retval.append(parenlist)
         elif workstr[0] == '"':
-            quotelist = re.search('^("([^"]|\\")*")', workstr).group(1)
+            quotelist = re.search('^("(?:[^"]|\\\\")*")', workstr).group(1)
             workstr = workstr[len(quotelist):]
             retval.append(quotelist)
         else:
@@ -75,3 +75,30 @@ def imapsplit(string):
             retval.append(unq)
     return retval
             
+def flagsimap2maildir(string):
+    flagmap = {'\\Seen': 'S',
+               '\\Answered': 'R',
+               '\\Flagged': 'F',
+               '\\Deleted': 'T',
+               '\\Draft': 'D'}
+    retval = []
+    imapflaglist = flagsplit(string)
+    for imapflag in imapflaglist:
+        if flagmap.has_key(imapflag):
+            retval.append(flagmap[imapflag])
+    retval.sort()
+    return retval
+
+def flagsmaildir2imap(list):
+    flagmap = {'S': '\\Seen',
+               'R': '\\Answered',
+               'F': '\\Flagged',
+               'T': '\\Deleted',
+               'D': '\\Draft'}
+    retval = []
+    for mdflag in list:
+        if flagmap.has_key(mdflag):
+            retval.append(flagmap[mdflag])
+    retval.sort()
+    return retval
+

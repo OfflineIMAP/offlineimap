@@ -35,7 +35,7 @@ class MaildirFolder(BaseFolder):
         if not os.path.exists(self.uidfilename):
             return None
         file = open(self.uidfilename, "rt")
-        retval = int(file.readline().strip())
+        retval = long(file.readline().strip())
         file.close()
         return retval
 
@@ -75,7 +75,7 @@ class MaildirFolder(BaseFolder):
                 uid = nouidcounter
                 nouidcounter -= 1
             else:
-                uid = int(uidmatch.group(1))
+                uid = long(uidmatch.group(1))
             flagmatch = re.search(':.*2,([A-Z]+)')
             flags = []
             if flagmatch:
@@ -107,7 +107,7 @@ class MaildirFolder(BaseFolder):
             if attempts > 15:
                 raise IOError, "Couldn't write to file %s" % messagename
             messagename = '%d.%d.%s,U=%d' % \
-                          (int(time.time()),
+                          (long(time.time()),
                            os.getpid(),
                            socket.gethostname(),
                            uid)

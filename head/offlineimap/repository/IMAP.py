@@ -31,13 +31,13 @@ class IMAPRepository(BaseRepository):
         return self.imapserver.delim
 
     def getfolder(self, foldername):
-        return folder.IMAP.IMAPFolder(self.imapserver, name)
+        return folder.IMAP.IMAPFolder(self.imapserver, foldername)
 
     def getfolders(self):
         if self.folders != None:
             return self.folders
         retval = []
-        for string in self.imapobj.list(self.imapserver.root)[1]:
+        for string in self.imapobj.list()[1]:
             flags, delim, name = imaputil.imapsplit(string)
             if '\\Noselect' in imaputil.flagsplit(flags):
                 continue

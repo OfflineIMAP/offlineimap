@@ -31,14 +31,14 @@ class IMAPFolder(BaseFolder):
     def getuidvalidity(self):
         x = self.imapobj.status(self.getfullname(), ('UIDVALIDITY'))[1][0]
         uidstring = imaputil.imapsplit(x)[1]
-        return int(imaputil.flagsplit(x)[1])
+        return long(imaputil.flagsplit(uidstring)[1])
     
     def cachemessagelist(self):
         assert(self.imapobj.select(self.getfullname())[0] == 'OK')
         self.messagelist = {}
         response = self.imapobj.status(self.getfullname(), ('MESSAGES'))[1][0]
         result = imaputil.imapsplit(response)[1]
-        maxmsgid = int(imaputil.flags2hash(result)['MESSAGES'])
+        maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
 
         # Now, get the flags and UIDs for these.
         response = self.imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
@@ -46,5 +46,12 @@ class IMAPFolder(BaseFolder):
             # Discard the message number.
             messagestr = imaputil.imapsplit(messagestr)[1]
             options = imaputil.flags2hash(messagestr)
-            
+            uid = long(options['UID'])
+            flags = imaputil.flagsimap2maildir(options['FLAGS'])
+            self.messagelist[uid] = {'uid': uid, 'flags': flags}
+
+    def getmessagelist(self):
+        return self.messagelist
+
+    
         
