@@ -29,7 +29,7 @@ if '--help' in sys.argv[1:]:
     sys.stdout.write(version.cmdhelp + "\n")
     sys.exit(0)
     
-for optlist in getopt(sys.argv[1:], '1oa:c:du:h')[0]:
+for optlist in getopt(sys.argv[1:], 'P:1oa:c:du:h')[0]:
     options[optlist[0]] = optlist[1]
 
 if '-d' in options:
@@ -41,6 +41,15 @@ if '-h' in options:
 configfilename = os.path.expanduser("~/.offlineimaprc")
 if '-c' in options:
     configfilename = options['-c']
+if '-P' in options:
+    if not '-1' in options:
+        sys.stderr.write("FATAL: profile mode REQUIRES -1\n")
+        sys.exit(100)
+    profiledir = options['-P']
+    os.mkdir(profiledir)
+    threadutil.setprofiledir(profiledir)
+    sys.stderr.write("WARNING: profile mode engaged;\n{otentially large data will be created in " + profiledir + "\n")
+
 
 
 config = ConfigParser()

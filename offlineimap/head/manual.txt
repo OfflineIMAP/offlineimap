@@ -7,112 +7,112 @@ NAME
        reader support
 
 SYNOPSIS
-       offlineimap [ -1 ] [ -a accountlist ] [ -c configfile ]
-       [ -d ] [ -o ] [ -u interface ]
+       offlineimap [ -1 ] [ -P profiledir ] [ -a accountlist ]  [
+       -c configfile ] [ -d ] [ -o ] [ -u interface ]
 
        offlineimap -h | --help
 
 DESCRIPTION
-       OfflineIMAP is a tool to  simplify  your  e-mail  reading.
-       With  OfflineIMAP, you can read the same mailbox from mul-
-       tiple computers.  You get a current copy of your  messages
-       on  each  computer, and changes you make one place will be
-       visible on all  other  systems.   For  instance,  you  can
+       OfflineIMAP  is  a  tool  to simplify your e-mail reading.
+       With OfflineIMAP, you can read the same mailbox from  mul-
+       tiple  computers.  You get a current copy of your messages
+       on each computer, and changes you make one place  will  be
+       visible  on  all  other  systems.   For  instance, you can
        delete a message on your home computer, and it will appear
-       deleted on your work computer  as  well.   OfflineIMAP  is
+       deleted  on  your  work  computer as well.  OfflineIMAP is
        also useful if you want to use a mail reader that does not
        have IMAP support, has poor IMAP support, or does not pro-
        vide disconnected operation.
 
-       OfflineIMAP  is FAST; it synchronizes my two accounts with
-       over 50 folders in 3 seconds.  Other similar  tools  might
-       take  over  a  minute, and achieve a less-reliable result.
-       Some mail readers can take over 10 minutes to do the  same
-       thing,  and  some  don't  even  support it at all.  Unlike
-       other mail tools, OfflineIMAP  features  a  multi-threaded
-       synchronization  algorithm  that can dramatically speed up
-       performance in many situations  by  synchronizing  several
+       OfflineIMAP is FAST; it synchronizes my two accounts  with
+       over  50  folders in 3 seconds.  Other similar tools might
+       take over a minute, and achieve  a  less-reliable  result.
+       Some  mail readers can take over 10 minutes to do the same
+       thing, and some don't even  support  it  at  all.   Unlike
+       other  mail  tools,  OfflineIMAP features a multi-threaded
+       synchronization algorithm that can dramatically  speed  up
+       performance  in  many  situations by synchronizing several
        different things simultaneously.
 
-       OfflineIMAP  is  FLEXIBLE; you can customize which folders
-       are synced  via  regular  expressions,  lists,  or  Python
-       expressions;  a  versatile and comprehensive configuration
-       file is used to control behavior; two user interfaces  are
-       built-in;  fine-tuning  of  synchronization performance is
-       possible; internal or external  automation  is  supported;
-       SSL  and  PREAUTH  tunnels are both supported; offline (or
-       "unplugged") reading is supported; and esoteric IMAP  fea-
-       tures  are  supported  to  ensure  compatibility  with the
+       OfflineIMAP is FLEXIBLE; you can customize  which  folders
+       are  synced  via  regular  expressions,  lists,  or Python
+       expressions; a versatile and  comprehensive  configuration
+       file  is used to control behavior; two user interfaces are
+       built-in; fine-tuning of  synchronization  performance  is
+       possible;  internal  or  external automation is supported;
+       SSL and PREAUTH tunnels are both  supported;  offline  (or
+       "unplugged")  reading is supported; and esoteric IMAP fea-
+       tures are  supported  to  ensure  compatibility  with  the
        widest variety of IMAP servers.
 
        OfflineIMAP is SAFE; it uses an algorithm designed to pre-
-       vent  mail  loss  at  all costs.  Because of the design of
-       this algorithm, even programming errors should not  result
-       in  loss of mail.  I am so confident in the algorithm that
-       I use my own personal and work  accounts  for  testing  of
+       vent mail loss at all costs.  Because  of  the  design  of
+       this  algorithm, even programming errors should not result
+       in loss of mail.  I am so confident in the algorithm  that
+       I  use  my  own  personal and work accounts for testing of
        OfflineIMAP pre-release, development, and beta releases.
 
    METHOD OF OPERATION
-       OfflineIMAP  operates  by  maintaining a hierarchy of mail
-       folders in Maildir format locally.  Your own  mail  reader
-       will  read  mail  from this tree, and need never know that
+       OfflineIMAP operates by maintaining a  hierarchy  of  mail
+       folders  in  Maildir format locally.  Your own mail reader
+       will read mail from this tree, and need  never  know  that
        the mail comes from IMAP.  OfflineIMAP will detect changes
-       to  the mail folders on your IMAP server and your own com-
+       to the mail folders on your IMAP server and your own  com-
        puter  and  bi-directionally  synchronize  them,  copying,
        marking, and deleting messages as necessary.
 
 INSTALLATION
        If you are reading this document via the "man" command, it
-       is likely that you have no installation tasks to  perform;
-       your  system  administrator  has already installed it.  If
+       is  likely that you have no installation tasks to perform;
+       your system administrator has already  installed  it.   If
        you need to install it yourself, you have three options: a
-       system-wide  installation with Debian, system-wide instal-
+       system-wide installation with Debian, system-wide  instal-
        lation with other systems, and a single-user installation.
-       You  can  download  the latest version of OfflineIMAP from
+       You can download the latest version  of  OfflineIMAP  from
        http://quux.org/devel/offlineimap/.
 
    PREREQUISITES
        In order to use OfflineIMAP, you need to have these condi-
        tions satisfied:
 
-       o      Your  mail server must support IMAP.  Most Internet
-              Service Providers and corporate  networks  do,  and
-              most  operating systems have an IMAP implementation
+       o      Your mail server must support IMAP.  Most  Internet
+              Service  Providers  and  corporate networks do, and
+              most operating systems have an IMAP  implementation
               readily available.
 
-       o      You  must  have  Python  version  2.2.1  or   above
+       o      You   must  have  Python  version  2.2.1  or  above
               installed.  If you are running on Debian GNU/Linux,
-              this requirement will automatically be  taken  care
-              of  for  you.   If  you do not have Python already,
-              check with your system administrator  or  operating
-              system     vendor;    or,    download    it    from
-              http://www.python.org/.  If you intend to  use  the
-              Tk  interface,  you  must  have  Tkiner (python-tk)
+              this  requirement  will automatically be taken care
+              of for you.  If you do  not  have  Python  already,
+              check  with  your system administrator or operating
+              system    vendor;    or,    download    it     from
+              http://www.python.org/.   If  you intend to use the
+              Tk interface,  you  must  have  Tkiner  (python-tk)
               installed.  If you intend to use the SSL interface,
-              your  Python must have been built with SSL support.
+              your Python must have been built with SSL  support.
 
-       o      Have a mail reader that supports the Maildir  mail-
-              box  format.   Most  modern  mail readers have this
-              support built-in, so you can  choose  from  a  wide
+       o      Have  a mail reader that supports the Maildir mail-
+              box format.  Most modern  mail  readers  have  this
+              support  built-in,  so  you  can choose from a wide
               variety of mail servers.  This format is also known
-              as the "qmail" format, so any mail reader  compati-
+              as  the "qmail" format, so any mail reader compati-
               ble with it will work with OfflineIMAP.
 
    DEBIAN SYSTEM-WIDE INSTALLATION
-       If  you  are  tracking  Debian  unstable,  you may install
-       OfflineIMAP by simply running  the  following  command  as
+       If you are  tracking  Debian  unstable,  you  may  install
+       OfflineIMAP  by  simply  running  the following command as
        root:
 
        apt-get install offlineimap
 
-       If  you  are  not  tracking  Debian unstable, download the
-       Debian .deb package from the OfflineIMAP website and  then
-       run  dpkg  -i to install the downloaded package.  Then, go
-       to CONFIGURATION below.   You  will  type  offlineimap  to
+       If you are not  tracking  Debian  unstable,  download  the
+       Debian  .deb package from the OfflineIMAP website and then
+       run dpkg -i to install the downloaded package.   Then,  go
+       to  CONFIGURATION  below.   You  will  type offlineimap to
        invoke the program.
 
    OTHER SYSTEM-WIDE INSTALLATION
-       Download  the  tar.gz version of the package from the web-
+       Download the tar.gz version of the package from  the  web-
        site.  Then run these commands:
 
        tar -zxvf offlineimap-x.y.z.tar.gz
@@ -124,34 +124,47 @@ INSTALLATION
        to invoke the program.
 
    SINGLE-ACCOUNT INSTALLATION
-       Download the tar.gz version of the package from  the  web-
+       Download  the  tar.gz version of the package from the web-
        site.  Then run these commands:
 
        tar -zxvf offlineimap-x.y.z.tar.gz
        cd offlineimap-x.y.z
 
-       When  you  want  to run OfflineIMAP, you will issue the cd
-       command as above and then type ./offlineimap; there is  no
+       When you want to run OfflineIMAP, you will  issue  the  cd
+       command  as above and then type ./offlineimap; there is no
        installation step necessary.
 
 CONFIGURATION
-       OfflineIMAP  is  regulated by a configuration file that is
-       normally stored in  ~/.offlineimaprc.   OfflineIMAP  ships
+       OfflineIMAP is regulated by a configuration file  that  is
+       normally  stored  in  ~/.offlineimaprc.  OfflineIMAP ships
        with a file named offlineimap.conf that you should copy to
        that location and then edit.  This file is vital to proper
-       operation  of  the  system; it sets everything you need to
+       operation of the system; it sets everything  you  need  to
        run OfflineIMAP.  Full documentation for the configuration
        file is included within the sample file.
 
 OPTIONS
-       Most  configuration  is  done  via the configuration file.
+       Most configuration is done  via  the  configuration  file.
        Nevertheless, there are a few options that you may set for
        OfflineIMAP.
 
-       -1     Disable   all  multithreading  operations  and  use
+       -1     Disable  all  multithreading  operations  and   use
               solely a single-thread sync.  This effectively sets
               the maxsyncaccounts and all maxconnections configu-
               ration file variables to 1.
+
+       -P profiledir
+              Sets  OfflineIMAP  into  profile mode.  The program
+              will create profiledir (it must not already exist).
+              As it runs, Python profiling information about each
+              thread is logged  into  profiledir.   Please  note:
+              This  option is present for debugging and optimiza-
+              tion only, and should NOT be used unless you have a
+              specific  reason  to  do so.  It will significantly
+              slow program performance, may  reduce  reliability,
+              and  can  generate  huge amounts of data.  You must
+              use the -1 option when you use -P.
+
 
        -a accountlist
               Overrides the accounts section in the config  file.
@@ -261,8 +274,8 @@ ERRORS
 
    UID validity problem for folder
        IMAP servers use a unique ID (UID) to refer to a  specific
-       message.   This  number  is  guaranteed  to be unique to a
-       particular message FOREVER.  No other message in the  same
+       message.  This number is guaranteed to be unique to a par-
+       ticular message FOREVER.  No other  message  in  the  same
        folder  will  ever get the same UID.  UIDs are an integral
        part of OfflineIMAP's  synchronization  scheme;  they  are
        used  to match up messages on your computer to messages on
@@ -380,8 +393,8 @@ OTHER FREQUENTLY ASKED QUESTIONS
               The  folder  ID  is  necessary  so  OfflineIMAP can
               detect a  message  moved  to  a  different  folder.
               OfflineIMAP  stores  the  UID  (U=  number)  and an
-              md5sum of the foldername (FMD5= number) to  facili-
-              tate this.
+              md5sum  of  the  foldername   (FMD5=   number)   to
+              facilitate this.
 
        What is the speed of OfflineIMAP's sync?
               OfflineIMAP versions 2.0 and above contain a multi-
@@ -516,4 +529,3 @@ SEE ALSO
 
 
 
-John Goerzen              July 12, 2002            OFFLINEIMAP(1)

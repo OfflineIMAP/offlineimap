@@ -23,12 +23,15 @@ OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
 .BI \-1
 ]
 [
+.BI \-P \ profiledir
+]
+[
 .BI \-a \ accountlist
 ]
 [
 .BI \-c \ configfile
 ]
-.br
+.\".br
 [
 .BI \-d
 ]
@@ -217,6 +220,22 @@ sync.  This effectively sets the
 and all
 .B maxconnections
 configuration file variables to 1.
+.TP
+.BI \-P \ profiledir
+Sets
+.B OfflineIMAP
+into profile mode.  The program will create
+.B profiledir
+(it must not already exist).  As it runs, Python profiling information
+about each thread is logged into profiledir.  Please note: This option
+is present for debugging and optimization only, and should NOT be used
+unless you have a specific reason to do so.  It will significantly
+slow program performance, may reduce reliability, and can generate
+huge amounts of data.  You must use the
+.B \-1
+option when you use
+.B -P.
+
 .TP
 .BI \-a \ accountlist
 Overrides the

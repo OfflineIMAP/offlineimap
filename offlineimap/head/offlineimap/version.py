@@ -1,8 +1,8 @@
 productname = 'OfflineIMAP'
 versionstr = "3.0.3"
-revno = long('$Rev: 152 $'[6:-2])
+revno = long('$Rev: 164 $'[6:-2])
 revstr = "Rev %d" % revno
-datestr = '$Date: 2002-07-21 15:46:40 -0500 (Sun, 21 Jul 2002) $'
+datestr = '$Date: 2002-07-22 15:48:15 -0500 (Mon, 22 Jul 2002) $'
 
 
 versionlist = versionstr.split(".")
@@ -40,15 +40,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"""
 
 cmdhelp = """
-       offlineimap [ -1 ] [ -a accountlist ] [ -c configfile ]
-       [ -d ] [ -u interface ]
+       offlineimap [ -1 ] [ -P profiledir ] [ -a accountlist ]  [
+       -c configfile ] [ -d ] [ -o ] [ -u interface ]
 
        offlineimap -h | --help
 
-       -1     Disable   all  multithreading  operations  and  use
+       -1     Disable  all  multithreading  operations  and   use
               solely a single-thread sync.  This effectively sets
               the maxsyncaccounts and all maxconnections configu-
               ration file variables to 1.
+
+       -P profiledir
+              Sets  OfflineIMAP  into  profile mode.  The program
+              will create profiledir (it must not already exist).
+              As it runs, Python profiling information about each
+              thread is logged  into  profiledir.   Please  note:
+              This  option is present for debugging and optimiza-
+              tion only, and should NOT be used unless you have a
+              specific  reason  to  do so.  It will significantly
+              slow program performance, may  reduce  reliability,
+              and  can  generate  huge amounts of data.  You must
+              use the -1 option when you use -P.
+
 
        -a accountlist
               Overrides the accounts section in the config  file.
@@ -72,14 +85,23 @@ cmdhelp = """
               remove  that from the debugging output before send-
               ing it to anyone else.
 
+       -o     Run only once, ignoring any autorefresh setting  in
+              the config file.
+
        -h, --help
               Show summary of options.
 
        -u interface
-              Specifies an alternative user interface  module  to
-              use.   This  overrides the default specified in the
-              configuration file.  The UI specified with -u  will
-              be  forced to be used, even if its isuable() method
-              states that it cannot be.   Use  this  option  with
+              Specifies  an  alternative user interface module to
+              use.  This overrides the default specified  in  the
+              configuration  file.  The UI specified with -u will
+              be forced to be used, even if its isuable()  method
+              states  that  it  cannot  be.  Use this option with
               care.
+
+              The pre-defined options are  Tk.TKUI  (a  graphical
+              interface), TTY.TTYUI (a text-mode interface), Non-
+              interactive.Basic (a non-interactive mode  suitable
+              for  cronning),  and  Noninteractive.Quiet  (a mode
+              that generates no output except for errors).
 """

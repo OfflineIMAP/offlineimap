@@ -18,7 +18,13 @@
 
 from threading import *
 from StringIO import StringIO
-import sys, traceback, thread
+import sys, traceback, thread, profile
+
+profiledir = None
+
+def setprofiledir(newdir):
+    global profiledir
+    profiledir = newdir
 
 ######################################################################
 # General utilities
@@ -81,10 +87,20 @@ class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a thread has
     exited and to provide for the ability for it to find out why."""
     def run(self):
-        global exitcondition, exitthreads
+        global exitcondition, exitthreads, profiledir
         self.threadid = thread.get_ident()
         try:
-            Thread.run(self)
+            if not profiledir:          # normal case
+                Thread.run(self)
+            else:
+                prof = profile.Profile()
+                try:
+                    prof = prof.runctx("Thread.run(self)", globals(), locals())
+                except SystemExit:
+                    pass
+                prof.dump_stats( \
+                            profiledir + "/" + str(self.threadid) + "_" + \
+                            self.getName() + ".prof")
         except:
             self.setExitCause('EXCEPTION')
             self.setExitException(sys.exc_info()[1])

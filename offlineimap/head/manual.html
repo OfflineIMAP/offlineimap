@@ -25,7 +25,7 @@
 
 <hr>
 <!-- Creator     : groff version 1.17.2 -->
-<!-- CreationDate: Sun Jul 21 20:54:05 2002 -->
+<!-- CreationDate: Mon Jul 22 15:46:54 2002 -->
 <a name="NAME"></a>
 <h2>NAME</h2>
 <table width="100%" border=0 rules="none" frame="void"
@@ -40,10 +40,10 @@ OfflineIMAP - Powerful IMAP/Maildir synchronization and reader support</td></tab
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="10%"></td><td width="90%">
-<b>offlineimap</b> [ <b>-1</b> ] [ <b>-a</b>
-<i>accountlist</i> ] [ <b>-c</b> <i>configfile</i> ]<br>
-[ <b>-d</b> ] [ <b>-o</b> ] [ <b>-u</b> <i>interface</i>
-]</td></table>
+<b>offlineimap</b> [ <b>-1</b> ] [ <b>-P</b>
+<i>profiledir</i> ] [ <b>-a</b> <i>accountlist</i> ] [
+<b>-c</b> <i>configfile</i> ] [ <b>-d</b> ] [ <b>-o</b> ] [
+<b>-u</b> <i>interface</i> ]</td></table>
 
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
@@ -319,6 +319,27 @@ Disable all multithreading operations and use solely a
 single-thread sync. This effectively sets the
 <b>maxsyncaccounts</b> and all <b>maxconnections</b>
 configuration file variables to 1.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>-P</b> <i>profiledir</i></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+Sets <b>OfflineIMAP</b> into profile mode. The program will
+create <b>profiledir</b> (it must not already exist). As it
+runs, Python profiling information about each thread is
+logged into profiledir. Please note: This option is present
+for debugging and optimization only, and should NOT be used
+unless you have a specific reason to do so. It will
+significantly slow program performance, may reduce
+reliability, and can generate huge amounts of data. You must
+use the <b>-1</b> option when you use
+<b>-P.</b></td></table>
 
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">

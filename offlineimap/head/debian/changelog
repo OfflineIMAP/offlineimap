@@ -6,6 +6,7 @@ offlineimap (3.0.4) unstable; urgency=low
   * Manual: added UW IMAPD example with references from docwhat@gerf.org.
   * New UI modules: Noninteractive.Basic and Noninteractive.Quiet.
     Fixes [complete.org #14].
+  * Added per-thread profiling support to aid in debugging.
 
  -- John Goerzen <jgoerzen@complete.org>  Sun, 21 Jul 2002 16:09:42 -0500
 
