@@ -73,7 +73,7 @@ binary-indep: build install
 	dh_installdocs
 	mv debian/$(PACKAGE)/usr/bin/$(PACKAGE).py \
 		debian/$(PACKAGE)/usr/bin/$(PACKAGE)
-	dh_installexamples
+	dh_installexamples offlineimap.conf
 	dh_installmenu
 #	dh_installlogrotate
 #	dh_installemacsen

@@ -4,6 +4,13 @@ offlineimap (2.0.0) unstable; urgency=low
     behavior.  This can make synchronizing several times faster.
   * Fixed the STATUS call to be compatible with Exchange.
   * Added the ability to exclude folders.
+  * If upgrading from 1.0.x, you will need to add maxsyncaccounts to the
+    general section and maxconnections to each account sections.
+    There is also a new folderfilter option.
+    You can find examples of all of these in the new offlineimap.conf
+    example file packaged with the distribution.
+  * The Debian package now properly installs the example offlineimap.conf
+    file.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed,  3 Jul 2002 14:21:32 -0500
 
