@@ -151,9 +151,15 @@ class IMAPFolder(BaseFolder):
         needupdate = copy(uidlist)
         for result in r:
             if result == None:
+                # Compensate for servers that don't return anything from
+                # STORE.
                 continue
-            flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
-            uid = long(imaputil.flags2hash(imaputil.imapsplit(result)[1])['UID'])
+            attributehash = imaputil.flags2hash(imaputil.imapsplit(result)[1])
+            if not ('UID' in attributehash and 'FLAGS' in attributehash):
+                # Compensate for servers that don't return a UID attribute.
+                continue
+            flags = attributehash['FLAGS']
+            uid = long(attributehash['UID'])
             self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
             try:
                 needupdate.remove(uid)
