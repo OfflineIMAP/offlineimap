@@ -1,5 +1,4 @@
-#!/usr/bin/python2.2 -i
-
+# Base folder support
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
@@ -17,16 +16,19 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from imapsync import imaplib, imaputil, imapserver, repository, folder
-import re
-import getpass
+class BaseFolder:
+    def getname(self):
+        """Returns name"""
+        return self.name
 
-host = raw_input('Host: ')
-user = raw_input('Username: ')
-passwd = getpass.getpass('Password: ')
+    def getroot(self):
+        """Returns the root of the folder, in a folder-specific fashion."""
+        return self.root
 
-server = imapserver.IMAPServer(user, passwd, host, ssl = 1)
-imapobj = server.makeconnection()
-delim, root = imaputil.imapsplit(imapobj.list('""', '""')[1][0])[1:]
+    def getsep(self):
+        """Returns the separator for this folder type."""
+        return self.sep
 
-repos = repository.IMAP.IMAPRepository(server)
+    def getfullname(self):
+        return self.getroot() + self.getsep() + self.getname()
+    

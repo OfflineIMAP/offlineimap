@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from imapsync import imaplib
+from imapsync import imaplib, imaputil
 
 class IMAPServer:
     def __init__(self, username, password, hostname, port = None, ssl = 1):
@@ -25,11 +25,23 @@ class IMAPServer:
         self.hostname = hostname
         self.port = port
         self.usessl = ssl
+        self.delim = None
+        self.root = None
         if port == None:
             if ssl:
                 self.port = 993
             else:
                 self.port = 143
+
+    def getdelim(self):
+        """Returns this server's folder delimiter.  Can only be called
+        after one or more calls to makeconnection."""
+        return self.delim
+
+    def getroot(self):
+        """Returns this server's folder root.  Can only be called after one
+        or more calls to makeconnection."""
+        return self.root
 
     def makeconnection(self):
         """Opens a connection to the server and returns an appropriate
@@ -42,6 +54,11 @@ class IMAPServer:
             imapobj = imaplib.IMAP4(self.hostname, self.port)
 
         imapobj.login(self.username, self.password)
+
+        if self.delim == None:
+            self.delim, self.root = \
+                        imaputil.imapsplit(imapobj.list('""', '""')[1][0])[1:]
+
         return imapobj
     
         

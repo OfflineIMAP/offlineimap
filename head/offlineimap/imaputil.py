@@ -30,6 +30,11 @@ def dequote(string):
     string = string.replace('\\\\', '\\')
     return string
 
+def flagsplit(string):
+    if string[0] != '(' or string[-1] != ')':
+        raise ValueError, "Passed string '%s' is not a flag list" % string
+    return string[1:-1].split(" ")
+
 def imapsplit(string):
     """Takes a string from an IMAP conversation and returns a list containing
     its components.  One example string is:

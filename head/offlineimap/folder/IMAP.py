@@ -1,5 +1,4 @@
-#!/usr/bin/python2.2 -i
-
+# IMAP folder support
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
@@ -17,16 +16,13 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from imapsync import imaplib, imaputil, imapserver, repository, folder
-import re
-import getpass
+from Base import BaseFolder
+from imapsync import imaputil
 
-host = raw_input('Host: ')
-user = raw_input('Username: ')
-passwd = getpass.getpass('Password: ')
-
-server = imapserver.IMAPServer(user, passwd, host, ssl = 1)
-imapobj = server.makeconnection()
-delim, root = imaputil.imapsplit(imapobj.list('""', '""')[1][0])[1:]
-
-repos = repository.IMAP.IMAPRepository(server)
+class IMAPFolder(BaseFolder):
+    def __init__(self, imapserver, name):
+        self.name = imaputil.dequote(name)
+        self.root = imapserver.root
+        self.sep = imapserver.delim
+        self.imapserver = imapserver
+        
