@@ -1,3 +1,9 @@
+offlineimap (3.99.10) unstable; urgency=low
+
+  * Always do a flush in Noninteractive when writing out data.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri,  7 Feb 2003 14:12:17 -0600
+
 offlineimap (3.99.9) unstable; urgency=low
 
   * Added check to make sure that two processes do not run in the same
