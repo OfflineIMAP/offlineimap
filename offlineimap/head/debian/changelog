@@ -3,6 +3,11 @@ offlineimap (3.99.15) unstable; urgency=low
   * Backed out removal of SYNC_WITH_TIMER_TERMINATE code to deal with
     completed syncs.  Without this code, -o broke because the app would
     never terminate.  Closes: #190063.
+  * Raise an exception when the status area is locked.  This will cause UIs
+    to go through their normal exception handling code.  In particular, for
+    the Curses.Blinkenlights interface, the Curses module will be stopped
+    and the error message will be printed on the console.  Previously, this
+    error message would not have been visible.  Closes: #185709.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 28 Apr 2003 14:00:32 -0500
 
