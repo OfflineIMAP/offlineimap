@@ -18,6 +18,8 @@
 
 from Base import BaseFolder
 from imapsync import imaputil
+import rfc822
+from StringIO import StringIO
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name):
@@ -64,3 +66,28 @@ class IMAPFolder(BaseFolder):
     def getmessageflags(self, uid):
         return self.getmessagelist()[uid]['flags']
     
+    def savemessage(self, uid, content, flags):
+        # This backend always assigns a new uid, so the uid arg is ignored.
+
+        # In order to get the new uid, we need to save off the message ID.
+
+        message = rfc822.Message(StringIO(content))
+        mid = self.imapobj._quote(message.getheader('Message-Id'))
+        date = imaplib.Time2Internaldate(rfc822.parsedate(message.getheader('Date')))
+
+        assert(self.imapobj.append(self.getfullname(),
+                                   imaputil.flagsmaildir2imap(flags),
+                                   date, content)[0] == 'OK')
+        
+        # Now find the UID it got.
+        matchinguids = self.imapobj.uid('search', None,
+                                        '(HEADER Message-Id %s)' % mid)[1][0]
+        matchinguids = matchinguids.split(' ')
+        matchinguids.sort()
+        uid = long(matchinguids[-1])
+        self.messagelist[uid] = {'uid': uid, 'flags': flags}
+        return uid
+
+    
+    
+        
