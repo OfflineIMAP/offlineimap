@@ -1,5 +1,6 @@
 offlineimap (3.2.9) unstable; urgency=low
 
+  * imaputil.py now logs information with IMAP debugging is enabled.
   * Added folderfilter capability to mbnames recorder.  You can now omit
     specified folders from the mbnames output.
 

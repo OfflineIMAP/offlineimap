@@ -17,7 +17,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil, version, localeval
+from offlineimap import imaplib, imapserver, repository, folder, mbnames, threadutil, version, localeval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from offlineimap.ui import UIBase
 import re, os, os.path, offlineimap, sys
@@ -66,6 +66,7 @@ localeval = localeval.LocalEval(path)
 
 ui = offlineimap.ui.detector.findUI(config, localeval, options.get('-u'))
 ui.init_banner()
+
 
 if '-d' in options:
     for debugtype in options['-d'].split(','):

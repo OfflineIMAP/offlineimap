@@ -18,17 +18,26 @@
 
 import re, string
 quotere = re.compile('^("(?:[^"]|\\\\")*")')
+import __main__
+
+def debug(*args):
+    msg = []
+    for arg in args:
+        msg.append(str(arg))
+    __main__.ui.debug('imap', " ".join(msg))
 
 def dequote(string):
     """Takes a string which may or may not be quoted and returns it, unquoted.
     This function does NOT consider parenthised lists to be quoted.
     """
 
+    debug("dequote() called with input:", string)
     if not (string[0] == '"' and string[-1] == '"'):
         return string
     string = string[1:-1]               # Strip off quotes.
     string = string.replace('\\"', '"')
     string = string.replace('\\\\', '\\')
+    debug("dequote() returning:", string)
     return string
 
 def flagsplit(string):
@@ -37,11 +46,13 @@ def flagsplit(string):
     return imapsplit(string[1:-1])
 
 def options2hash(list):
+    debug("options2hash called with input:", list)
     retval = {}
     counter = 0
     while (counter < len(list)):
         retval[list[counter]] = list[counter + 1]
         counter += 2
+    debug("options2hash returning:", retval)
     return retval
 
 def flags2hash(string):
@@ -56,7 +67,8 @@ def imapsplit(imapstring):
     The result from parsing this will be:
 
     ['(\\HasNoChildren)', '"."', '"INBOX.Sent"']"""
-    
+
+    debug("imapsplit() called with input:", imapstring)
     workstr = imapstring.strip()
     retval = []
     while len(workstr):
@@ -87,6 +99,7 @@ def imapsplit(imapstring):
             elif splitslen == 0:
                 # There was not even an unquoted word.
                 break
+    debug("imapsplit() returning:", retval)
     return retval
             
 def flagsimap2maildir(flagstring):
