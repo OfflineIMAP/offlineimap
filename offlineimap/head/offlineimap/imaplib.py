@@ -1050,6 +1050,46 @@ class IMAP4_Tunnel(IMAP4):
         self.outfd.close()
         
 
+class sslwrapper:
+    def __init__(self, sslsock):
+        self.sslsock = sslsock
+        self.readbuf = ''
+
+    def write(self, s):
+        return self.sslsock.write(s)
+
+    def _read(self, n):
+        return self.sslsock.read(n)
+
+    def read(self, n):
+        if len(self.readbuf):
+            # Return the stuff in readbuf, even if less than n.
+            # It might contain the rest of the line, and if we try to
+            # read more, might block waiting for data that is not
+            # coming to arrive.
+            bytesfrombuf = min(n, len(self.readbuf))
+            retval = self.readbuf[:bytesfrombuf]
+            self.readbuf = self.readbuf[bytesfrombuf:]
+            return retval
+        retval = self._read(n)
+        if len(retval) > n:
+            self.readbuf = retval[n:]
+            return retval[:n]
+        return retval
+
+    def readline(self):
+        retval = ''
+        while 1:
+            linebuf = self.read(1024)
+            nlindex = linebuf.find("\n")
+            if nlindex != -1:
+                retval += linebuf[:nlindex + 1]
+                self.readbuf = linebuf[nlindex + 1:] + self.readbuf
+                return retval
+            else:
+                retval += linebuf
+                
+
 class IMAP4_SSL(IMAP4):
 
     """IMAP4 client class over SSL connection
@@ -1082,6 +1122,7 @@ class IMAP4_SSL(IMAP4):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((host, port))
         self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
+        self.sslobj = sslwrapper(self.sslobj)
 
 
     def read(self, size):
@@ -1094,12 +1135,7 @@ class IMAP4_SSL(IMAP4):
 
     def readline(self):
         """Read line from remote."""
-        line = ""
-        while 1:
-            char = self.sslobj.read(1)
-            line += char
-            if char == "\n": return line
-
+        return self.sslobj.readline()
 
     def send(self, data):
         """Send data to remote."""
