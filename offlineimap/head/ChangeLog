@@ -1,4 +1,377 @@
 ------------------------------------------------------------------------
+rev 326:  jgoerzen | 2003-01-06 15:30:37 -0600 (Mon, 06 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap.conf
+   A /offlineimap/head/offlineimap.conf.minimal
+
+Added minimal config file; noted this in changelog
+
+------------------------------------------------------------------------
+rev 325:  jgoerzen | 2003-01-06 15:15:22 -0600 (Mon, 06 Jan 2003) | 4 lines
+Changed paths:
+   M /offlineimap/head/debian/copyright
+   M /offlineimap/head/offlineimap/CustomConfig.py
+   M /offlineimap/head/offlineimap/accounts.py
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/mbnames.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap/ui/detector.py
+   M /offlineimap/head/offlineimap.conf
+
+Touched up the isactive tests.
+
+Added defaults for many more options.
+
+------------------------------------------------------------------------
+rev 324:  jgoerzen | 2003-01-06 14:37:19 -0600 (Mon, 06 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/debian/control
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.conf
+
+Updated documentation and information with information about new settings
+
+------------------------------------------------------------------------
+rev 323:  jgoerzen | 2003-01-06 14:21:46 -0600 (Mon, 06 Jan 2003) | 8 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/TTY.py
+
+Due to possibly having one account sleep while another is reading a
+password, and other tricky situations, support for nice updating and
+cancelling of a sleep in TTY.TTYUI has been removed.
+
+However, this is not going to be a huge problem because the new Curses
+Blinkenlights interface has this support, and does it a lot better than
+TTY.TTYUI ever could have.
+
+------------------------------------------------------------------------
+rev 322:  jgoerzen | 2003-01-06 14:18:09 -0600 (Mon, 06 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+Curses interface now can sleep, too.  Woohoo.
+
+------------------------------------------------------------------------
+rev 321:  jgoerzen | 2003-01-06 12:18:06 -0600 (Mon, 06 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+More fine-tunning.  Looks like using the grid manager is helping out.
+
+------------------------------------------------------------------------
+rev 320:  jgoerzen | 2003-01-06 12:00:43 -0600 (Mon, 06 Jan 2003) | 10 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Reworked the canvas.
+
+Before, problem was the label and buttons to the right of the lights would
+make the window too wide.  When the button got added, the window would get
+even wider.  That was because the canvas would not shrink.
+
+My workaround is to use a separate canvas for each light.  Seems to be OK
+here....
+
+
+------------------------------------------------------------------------
+rev 319:  jgoerzen | 2003-01-06 11:31:19 -0600 (Mon, 06 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Working better now. 
+
+------------------------------------------------------------------------
+rev 318:  jgoerzen | 2003-01-06 11:14:17 -0600 (Mon, 06 Jan 2003) | 3 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+More visual tweaking.  The Button doesn't seem to be working well, so I'm
+going to try a MenuButton.
+
+------------------------------------------------------------------------
+rev 317:  jgoerzen | 2003-01-06 11:04:40 -0600 (Mon, 06 Jan 2003) | 5 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Basic Tk.Blinkenlights structure completed.  Need to fine-tune the display.
+
+Sleeping API added to Blinkenlights base class.
+
+
+------------------------------------------------------------------------
+rev 316:  jgoerzen | 2003-01-06 10:19:00 -0600 (Mon, 06 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap.conf
+
+Noted a few things for the docs
+
+------------------------------------------------------------------------
+rev 315:  jgoerzen | 2003-01-06 10:15:15 -0600 (Mon, 06 Jan 2003) | 5 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Fixed up the VerboseUI for new account system.  All that really needed
+updating with the "Sync immediately" button, to cope with syncing different
+accounts at different times.  It's better now.
+
+
+------------------------------------------------------------------------
+rev 314:  jgoerzen | 2003-01-06 09:58:29 -0600 (Mon, 06 Jan 2003) | 16 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/threadutil.py
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/debuglock.py
+
+More locking updates.
+
+Introduced a new MultiLock to threadutil.  This lock will let a single
+thread acquire the same lock more than once, keeping track of how many times
+this happens, and will release the actual lock only when the lock's
+lock count gets back to zero.
+
+By using MultiLock, various functions in Curses.py and Blinkenlights.py no
+longer need to pass around to other functions a parameter indicating whether
+or not a lock should be obtained.  This was a large cause of complexity and
+errors, which is now eliminated.
+
+Everything seems to be working properly wrt locking at this point.  The
+Curses.Blinkenlights interface has achieved basic working functionality.
+
+
+------------------------------------------------------------------------
+rev 313:  jgoerzen | 2003-01-06 08:41:14 -0600 (Mon, 06 Jan 2003) | 3 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/mbnames.py
+
+Just to be sure, since it could be called by multiple threads, genmbnames
+will not lock itself.
+
+------------------------------------------------------------------------
+rev 312:  jgoerzen | 2003-01-06 08:40:23 -0600 (Mon, 06 Jan 2003) | 6 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/accounts.py
+   M /offlineimap/head/offlineimap/mbnames.py
+   M /offlineimap/head/offlineimap/syncmaster.py
+
+Updated the mbnames recorder to bring it back up-to-date with the new
+account-centric system.  It will now gather reports from account sync
+threads, and when it has all that it's supposed to, it'll write out the
+file.
+
+
+------------------------------------------------------------------------
+rev 311:  jgoerzen | 2003-01-05 23:11:00 -0600 (Sun, 05 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+Fixed a problem that prevented it from working on the console.
+
+------------------------------------------------------------------------
+rev 310:  jgoerzen | 2003-01-05 23:07:16 -0600 (Sun, 05 Jan 2003) | 6 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   A /offlineimap/head/offlineimap/ui/debuglock.py
+
+Added some temporary debug code to help weed out a few race conditions with
+the curses Blinkenlights interface.  Think I've finally got it.  I'm leaving
+the debugging code in for now, though, to help in case there are future
+problems.
+
+
+------------------------------------------------------------------------
+rev 309:  jgoerzen | 2003-01-05 16:54:59 -0600 (Sun, 05 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/accounts.py
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+More progress with bug fixes and locking
+
+------------------------------------------------------------------------
+rev 308:  jgoerzen | 2003-01-05 11:07:58 -0600 (Sun, 05 Jan 2003) | 8 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/accounts.py
+   M /offlineimap/head/offlineimap/folder/Base.py
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/folder/LocalStatus.py
+   M /offlineimap/head/offlineimap/folder/Maildir.py
+   M /offlineimap/head/offlineimap/repository/LocalStatus.py
+   M /offlineimap/head/offlineimap/repository/Maildir.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+
+More progress at debugging.  The curses blinkenlights is now working well,
+though it still has an occasional tendency to corrupt the light display with
+comments from the log.  I suspect a locking problem -- need to be more
+strict with iolock I suspect.
+
+Updated various modules to register the threads' account names, etc.
+
+
+------------------------------------------------------------------------
+rev 307:  jgoerzen | 2003-01-05 00:01:17 -0600 (Sun, 05 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+
+Starting to work now.
+
+------------------------------------------------------------------------
+rev 306:  jgoerzen | 2003-01-04 23:55:37 -0600 (Sat, 04 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+Removed debug prints
+
+------------------------------------------------------------------------
+rev 305:  jgoerzen | 2003-01-04 23:50:01 -0600 (Sat, 04 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+
+Believed to be somewhat working now
+
+------------------------------------------------------------------------
+rev 304:  jgoerzen | 2003-01-04 20:11:46 -0600 (Sat, 04 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap.1
+
+Clarified copyright statement
+
+------------------------------------------------------------------------
+rev 303:  jgoerzen | 2003-01-04 20:07:40 -0600 (Sat, 04 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+Removed password echo for debugging
+
+------------------------------------------------------------------------
+rev 302:  jgoerzen | 2003-01-04 20:07:00 -0600 (Sat, 04 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+Now capable of actually reading passwords.
+
+------------------------------------------------------------------------
+rev 301:  jgoerzen | 2003-01-04 19:51:35 -0600 (Sat, 04 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/__init__.py
+   M /offlineimap/head/offlineimap/ui/detector.py
+   M /offlineimap/head/offlineimap/version.py
+
+Nominally-working Blinkenlights interface for Curses!
+
+------------------------------------------------------------------------
+rev 300:  jgoerzen | 2003-01-04 16:51:17 -0600 (Sat, 04 Jan 2003) | 2 lines
+Changed paths:
+   A /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   A /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/__init__.py
+
+Beginnings of support for a curses-based Blinkenlights.
+
+------------------------------------------------------------------------
+rev 299:  jgoerzen | 2003-01-04 15:35:36 -0600 (Sat, 04 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Started breaking Blinkenlights out into a base class.
+
+------------------------------------------------------------------------
+rev 298:  jgoerzen | 2003-01-03 16:58:04 -0600 (Fri, 03 Jan 2003) | 2 lines
+Changed paths:
+   D /offlineimap/head/offlineimap/test.py
+
+Removed this (not a real part of the program)
+
+------------------------------------------------------------------------
+rev 297:  jgoerzen | 2003-01-03 16:57:46 -0600 (Fri, 03 Jan 2003) | 5 lines
+Changed paths:
+   A /offlineimap/head/debian/changelog
+   A /offlineimap/head/offlineimap/CustomConfig.py
+   A /offlineimap/head/offlineimap/accounts.py
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/mbnames.py
+   M /offlineimap/head/offlineimap/syncmaster.py
+   A /offlineimap/head/offlineimap/test.py
+   M /offlineimap/head/offlineimap/threadutil.py
+   M /offlineimap/head/offlineimap/ui/Noninteractive.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+   M /offlineimap/head/offlineimap/ui/detector.py
+
+  * Changed to a more account-centric behavior.  The refresh time is now
+    a per-account variable.  Implemented new account classes.  User
+    interfaces must now be updated to take advantage of this.
+
+
+------------------------------------------------------------------------
+rev 296:  jgoerzen | 2003-01-03 16:57:20 -0600 (Fri, 03 Jan 2003) | 2 lines
+Changed paths:
+   D /offlineimap/head/debian/changelog
+
+Fixing error
+
+------------------------------------------------------------------------
+rev 295:  jgoerzen | 2003-01-02 19:08:10 -0600 (Thu, 02 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Got Tk working again.  Woohoo.
+
+------------------------------------------------------------------------
+rev 294:  jgoerzen | 2003-01-02 19:01:41 -0600 (Thu, 02 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/folder/LocalStatus.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Updated with various fixes
+
+------------------------------------------------------------------------
+rev 293:  jgoerzen | 2003-01-02 14:05:14 -0600 (Thu, 02 Jan 2003) | 6 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imaputil.py
+
+  * Now properly handles folder names that contain parenthesis.  Used
+    patch from Kyler Laird in
+    http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=173895.
+    Closes: #173895.	
+
+
+------------------------------------------------------------------------
+rev 292:  jgoerzen | 2003-01-02 14:00:23 -0600 (Thu, 02 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Beginning of work to make it work with a threaded Tcl/Tk Tkinter.
+
+------------------------------------------------------------------------
+rev 291:  jgoerzen | 2002-12-03 10:26:03 -0600 (Tue, 03 Dec 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+
+This is 3.99.5
+
+------------------------------------------------------------------------
 rev 290:  jgoerzen | 2002-12-03 10:25:06 -0600 (Tue, 03 Dec 2002) | 2 lines
 Changed paths:
    M /offlineimap/head/debian/changelog

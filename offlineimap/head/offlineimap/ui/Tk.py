@@ -392,8 +392,8 @@ class LEDThreadFrame:
     def __init__(self, master):
         self.canvas = master.getnewobj()
         self.color = ''
-        self.ovalid = self.canvas.create_oval(5, 5, 10,
-                                              10, fill = 'gray',
+        self.ovalid = self.canvas.create_oval(4, 4, 9,
+                                              9, fill = 'gray',
                                               outline = '#303030')
 
     def setcolor(self, newcolor):

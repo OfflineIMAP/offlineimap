@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.18.1 -->
-<!-- CreationDate: Mon Jan  6 14:35:15 2003 -->
+<!-- CreationDate: Mon Jan  6 15:32:30 2003 -->
 <html>
 <head>
 <meta name="generator" content="groff -Thtml, see www.gnu.org">
@@ -314,6 +314,12 @@ location and then edit. This file is vital to proper
 operation of the system; it sets everything you need to run
 <b>OfflineIMAP.</b> Full documentation for the configuration
 file is included within the sample file.</p>
+<!-- INDENTATION -->
+<p><b>OfflineIMAP</b> also ships a file named
+<i>offlineimap.conf.minimal</i> that you can also try.
+It&rsquo;s useful if you want to get started with the most
+basic feature set, and you can read about other features
+later with <i>offlineimap.conf.</i></p>
 </td>
 </table>
 <a name="OPTIONS"></a>
@@ -333,12 +339,12 @@ Nevertheless, there are a few options that you may set for
 <table width="100%" border=0 rules="none" frame="void"
        cols="4" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="11%"></td>
+<td width="13%"></td>
 <td width="2%">
 
 <p><b>&minus;1</b></p>
 </td>
-<td width="7%"></td>
+<td width="5%"></td>
 <td width="77%">
 
 <p>Disable all multithreading operations and use solely a
@@ -453,12 +459,12 @@ operations.</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="4" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="13%"></td>
+<td width="11%"></td>
 <td width="2%">
 
 <p><b>&minus;o</b></p>
 </td>
-<td width="5%"></td>
+<td width="7%"></td>
 <td width="77%">
 
 <p>Run only once, ignoring any autorefresh setting in the
@@ -571,12 +577,12 @@ are as follows:</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="4" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="13%"></td>
+<td width="11%"></td>
 <td width="7%">
 
 <p><b>Black</b></p>
 </td>
-<td width="1%"></td>
+<td width="2%"></td>
 <td width="77%">
 
 <p>indicates that this light&rsquo;s thread has terminated;
@@ -605,14 +611,13 @@ remind you of HAL 9000 in <i>2001.</i></p>
 </table>
 <!-- TABS -->
 <table width="100%" border=0 rules="none" frame="void"
-       cols="4" cellspacing="0" cellpadding="0">
+       cols="3" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="8%">
+<td width="10%">
 
 <p><b>Gray</b></p>
 </td>
-<td width="1%"></td>
 <td width="77%">
 
 <p>indicates that the thread is establishing a new
@@ -620,11 +625,10 @@ connection to the IMAP server.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="8%">
+<td width="10%">
 
 <p><b>Purple</b></p>
 </td>
-<td width="1%"></td>
 <td width="77%">
 
 <p>is the color of an account synchronization thread that
@@ -633,22 +637,20 @@ is monitoring the progress of the folders in that account
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="8%">
+<td width="10%">
 
 <p><b>Cyan</b></p>
 </td>
-<td width="1%"></td>
 <td width="77%">
 
 <p>indicates that the thread is syncing a folder.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="8%">
+<td width="10%">
 
 <p><b>Green</b></p>
 </td>
-<td width="1%"></td>
 <td width="77%">
 
 <p>means that a folder&rsquo;s message list is being
@@ -656,11 +658,10 @@ loaded.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="8%">
+<td width="10%">
 
 <p><b>Blue</b></p>
 </td>
-<td width="1%"></td>
 <td width="77%">
 
 <p>is the color of a message synchronization controller
@@ -668,11 +669,10 @@ thread.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="8%">
+<td width="10%">
 
 <p><b>Orange</b></p>
 </td>
-<td width="1%"></td>
 <td width="77%">
 
 <p>indicates that an actual message is being copied.</p>
@@ -697,13 +697,14 @@ thread.</p>
 </table>
 <!-- TABS -->
 <table width="100%" border=0 rules="none" frame="void"
-       cols="3" cellspacing="0" cellpadding="0">
+       cols="4" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="10%">
+<td width="8%">
 
 <p><b>Yellow</b></p>
 </td>
+<td width="1%"></td>
 <td width="77%">
 
 <p>(bright orange) indicates that message flags are being
@@ -711,10 +712,11 @@ added.</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="10%">
+<td width="8%">
 
 <p><b>Pink</b></p>
 </td>
+<td width="1%"></td>
 <td width="77%">
 
 <p>(bright red) indicates that message flags are being
@@ -1397,11 +1399,11 @@ connection&quot;</p>
        cols="4" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="2%">
+<td width="1%">
 
 <p>&bull;</p>
 </td>
-<td width="7%"></td>
+<td width="8%"></td>
 <td width="77%">
 
 <p>Internet Message Access Protocol version 4rev1 (IMAP
@@ -1409,11 +1411,11 @@ connection&quot;</p>
 </td>
 <tr valign="top" align="left">
 <td width="11%"></td>
-<td width="2%">
+<td width="1%">
 
 <p>&bull;</p>
 </td>
-<td width="7%"></td>
+<td width="8%"></td>
 <td width="77%">
 
 <p>CRAM-MD5 as specified in RFC2195</p>
@@ -1423,12 +1425,12 @@ connection&quot;</p>
 <table width="100%" border=0 rules="none" frame="void"
        cols="4" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="11%"></td>
+<td width="13%"></td>
 <td width="1%">
 
 <p>&bull;</p>
 </td>
-<td width="8%"></td>
+<td width="7%"></td>
 <td width="77%">
 
 <p>Maildir as specified in
@@ -1436,12 +1438,12 @@ http://www.qmail.org/qmail-manual-html/man5/maildir.html and
 http://cr.yp.to/proto/maildir.html.</p>
 </td>
 <tr valign="top" align="left">
-<td width="11%"></td>
+<td width="13%"></td>
 <td width="1%">
 
 <p>&bull;</p>
 </td>
-<td width="8%"></td>
+<td width="7%"></td>
 <td width="77%">
 
 <p>Standard Python 2.2.1 as implemented on POSIX-compliant
