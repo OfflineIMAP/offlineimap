@@ -24,7 +24,7 @@ offlineimap (3.99.0) unstable; urgency=low
   * offlineimap.py is back to ease the use of OfflineIMAP in single-user
     installations.
 
- -- John Goerzen <jgoerzen@complete.org>  Mon, 30 Sep 2002 12:08:08 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 07 Oct 2002 05:08:08 -0500
 
 offlineimap (3.2.8) unstable; urgency=low
 
