@@ -247,7 +247,7 @@ NAME="AEN67"
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 > system-wide,
-        or your system adminstrator has done that for you, your task
+        or your system administrator has done that for you, your task
         for setting up <SPAN
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
@@ -469,7 +469,7 @@ CLASS="COMMAND"
 	  package.  Then, skip to <A
 HREF="#CONFIGURATION"
 ><I
->Configruation</I
+>Configuration</I
 ></A
 > below.  You will type <B
 CLASS="COMMAND"
@@ -512,7 +512,7 @@ CLASS="COMMAND"
 	  Next, proceed to <A
 HREF="#CONFIGURATION"
 ><I
->Configruation</I
+>Configuration</I
 ></A
 > below.  You will type <B
 CLASS="COMMAND"
@@ -564,7 +564,7 @@ CLASS="REFSECT1"
 NAME="CONFIGURATION"
 ></A
 ><H2
->Configruation</H2
+>Configuration</H2
 ><P
 >	<SPAN
 CLASS="APPLICATION"
@@ -797,7 +797,7 @@ CLASS="REPLACEABLE"
 ><DD
 ><P
 >Specifies an alternative user interface module
-	      to use.  This overrides the defailt specified in the
+	      to use.  This overrides the default specified in the
 	      configuration file.  The pre-defined options are listed in
 	      the User Interfaces section.</P
 ></DD
@@ -943,7 +943,7 @@ CLASS="CITATION"
 ><DD
 ><P
 >indicates that an actual message is being copied.
-	      (We use fuschia for fake messages.)
+	      (We use fuchsia for fake messages.)
 	    </P
 ></DD
 ><DT
@@ -1293,10 +1293,14 @@ CLASS="PROGRAMLISTING"
 
 def mycmp(x, y):
    for prefix in prioritized:
-       if x.startswith(prefix):
-           return -1
-       elif y.startswith(prefix):
-           return +1
+       xsw = x.startswith(prefix)
+       ysw = y.startswith(prefix)
+       if xsw and ysw:
+          return cmp(x, y)
+       elif xsw:
+          return -1
+       elif ysw:
+          return +1
    return cmp(x, y)
 
 def test_mycmp():
@@ -1556,7 +1560,7 @@ CLASS="APPLICATION"
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 > can help these programs by writing the names
-	    of the folders ni a format you specify.  See the example
+	    of the folders in a format you specify.  See the example
 	    <TT
 CLASS="FILENAME"
 >offlineimap.conf</TT
@@ -1782,7 +1786,7 @@ NAME="AEN499"
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 > does a two-way synchronization.  That is, if you
-	  make a change to the mail on the server, it will be propogated to your
+	  make a change to the mail on the server, it will be propagated to your
 	  local copy, and vise-versa.  Some people might think that it would be
 	  wise to just delete all their local mail folders periodically.  If you
 	  do this with <SPAN
@@ -1995,7 +1999,7 @@ CLASS="APPLICATION"
 > starts up (relating to ConfigParser or
 	AccountHashGenerator) and the
 	configuration file.  This is because the config file format
-	had to change to accomodate new features in 4.0.  Fortunately,
+	had to change to accommodate new features in 4.0.  Fortunately,
 	it's not difficult to adjust it to suit.
       </P
 ><P
@@ -2145,6 +2149,69 @@ CLASS="APPLICATION"
 CLASS="APPLICATION"
 >python</SPAN
 >(1)
+      </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN585"
+></A
+><H2
+>History</H2
+><P
+>	Detailed history may be found in the file ChangeLog in the
+	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> distribution.  Feature and bug histories may be
+	found in the file debian/changelog which, despite its name, is
+	not really Debian-specific.  This section provides a large
+	overview.
+      </P
+><P
+>	Development on <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> began on June 18, 2002.  Version
+	1.0.0 was released three days later on June 21, 2002.  Point
+	releases followed, including speed optimizations and some
+	compatibility fixes.
+      </P
+><P
+>Version 2.0.0 was released on July 3, 2002, and
+	represented the first time the synchronization became
+	multithreaded and, to the best of my knowledge, the first
+	multithreaded IMAP syncrhonizing application in existance.
+	The last 2.0.x release, 2.0.8, was made on July 9.
+      </P
+><P
+>	Version 3.0.0 was released on July 11, 2002, and introduced
+	modular user interfaces and the first GUI interface for
+	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>.  This manual also was introduced with 3.0.0,
+	along with many command-line options.  Version 3.1.0 was
+	released on July 21, adding the Noninteractive user
+	interfaces, profiling support, and several bugfixes.  3.2.0
+	was released on July 24, adding support for the Blinkenlights
+	GUI interface.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> entered maintenance mode for
+	awhile, as it had reached a feature-complete milestone in my
+	mind.
+      </P
+><P
+>	The 3.99.x branch began in on October 7, 2002, to begin work
+	for 4.0.  The Curses.Blinkenlights interface was added in
+	3.99.6, and many architectural changes were made.
+      </P
+><P
+>	4.0.0 was released on July 18, 2003, including the ability to
+            synchronize directly between two IMAP servers, the first
+            re-architecting of the configuration file to refine the
+            notion of an account, and the new Curses interface.
       </P
 ></DIV
 ></DIV

@@ -11,7 +11,7 @@ Depends: python2.3
 Suggests: python2.3-tk
 Description: IMAP/Maildir synchronization and reader support
  OfflineIMAP is a tool to simplify your e-mail reading.  With
- OfflimeIMAP, you can:
+ OfflineIMAP, you can:
  .
   * Read the same mailbox from multiple computers, and have your
     changes (deletions, etc.) be automatically reflected on

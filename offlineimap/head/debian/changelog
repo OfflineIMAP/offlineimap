@@ -1,8 +1,14 @@
 offlineimap (4.0.3) unstable; urgency=low
 
-  * Fixed version numbers to read 4.0.3.
+  * Fixed version numbers to read 4.0.3.  Closes: #220536.
   * Switched defaults from Python 2.2 to Python 2.3.
-    Closes: #237560.
+    Closes: #237560, #239018.
+  * Fixed description typo.  Closes: #211251.
+  * Fixed nametrans example.  Closes: #252644.
+  * Applied patch from Johannes Berg for mycmp example in manual.
+    Closes: #252645.
+  * Fixed typos in manual.  Closes: #252646.
+  * Regenerated docs.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri,  4 Jun 2004 10:10:00 -0500
 

@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "25 July 2003" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "04 June 2004" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
@@ -83,7 +83,7 @@ methods of operation for the time being.
 .SH "QUICK START"
 .PP
 If you have already installed \fBOfflineIMAP\fR system-wide,
-or your system adminstrator has done that for you, your task
+or your system administrator has done that for you, your task
 for setting up \fBOfflineIMAP\fR for the first time is quite
 simple.  You just need to set up your configuration file, make
 your folder directory, and run it!
@@ -308,7 +308,7 @@ Show summary of options.
 .TP
 \fB-u \fIinterface\fB\fR
 Specifies an alternative user interface module
-to use.  This overrides the defailt specified in the
+to use.  This overrides the default specified in the
 configuration file.  The pre-defined options are listed in
 the User Interfaces section.
 .SH "USER INTERFACES"
@@ -375,7 +375,7 @@ is the color of a message synchronization controller thread.
 .TP
 \fBOrange\fR
 indicates that an actual message is being copied.
-(We use fuschia for fake messages.)
+(We use fuchsia for fake messages.)
 .TP
 \fBRed (meaning 2)\fR
 indicates that a message is being deleted.
@@ -562,10 +562,14 @@ prioritized = ['INBOX', 'personal', 'announce', 'list']
 
 def mycmp(x, y):
    for prefix in prioritized:
-       if x.startswith(prefix):
-           return -1
-       elif y.startswith(prefix):
-           return +1
+       xsw = x.startswith(prefix)
+       ysw = y.startswith(prefix)
+       if xsw and ysw:
+          return cmp(x, y)
+       elif xsw:
+          return -1
+       elif ysw:
+          return +1
    return cmp(x, y)
 
 def test_mycmp():
@@ -673,7 +677,7 @@ Yes; see the Notes section below.
 Some mail readers, such as Mutt, are not capable
 of automatically determining the names of your mailboxes.
 \fBOfflineIMAP\fR can help these programs by writing the names
-of the folders ni a format you specify.  See the example
+of the folders in a format you specify.  See the example
 \fIofflineimap.conf\fR for details.
 .TP
 \fBCan I synchronize multiple accounts with OfflineIMAP?\fR
@@ -769,7 +773,7 @@ Standard Python 2.2.1 as implemented on POSIX-compliant systems.
 .SS "DELETING LOCAL FOLDERS"
 .PP
 \fBOfflineIMAP\fR does a two-way synchronization.  That is, if you
-make a change to the mail on the server, it will be propogated to your
+make a change to the mail on the server, it will be propagated to your
 local copy, and vise-versa.  Some people might think that it would be
 wise to just delete all their local mail folders periodically.  If you
 do this with \fBOfflineIMAP\fR, remember to also remove your local status
@@ -846,7 +850,7 @@ If you are upgrading from a version of \fBOfflineIMAP\fR prior to
 \fBOfflineIMAP\fR starts up (relating to ConfigParser or
 AccountHashGenerator) and the
 configuration file.  This is because the config file format
-had to change to accomodate new features in 4.0.  Fortunately,
+had to change to accommodate new features in 4.0.  Fortunately,
 it's not difficult to adjust it to suit.
 .PP
 First thing you need to do is stop any running \fBOfflineIMAP\fR
