@@ -104,7 +104,6 @@ def syncaccount(accountname, *args):
 
         folderthreads = []
         for remotefolder in remoterepos.getfolders():
-            server.connectionwait()
             thread = InstanceLimitedThread(\
                 instancename = 'FOLDER_' + accountname,
                 target = syncfolder,
@@ -171,7 +170,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
 def syncitall():
     mailboxes = []                      # Reset.
     threads = []
-    for accountname in accounts:        
+    for accountname in accounts:
         thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                        target = syncaccount,
                                        name = "syncaccount-%s" % accountname,
