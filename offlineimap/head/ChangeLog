@@ -1,4 +1,11 @@
 ------------------------------------------------------------------------
+rev 247:  jgoerzen | 2002-09-26 11:08:04 -0500 (Thu, 26 Sep 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+
+Updated the ChangeLog
+
+------------------------------------------------------------------------
 rev 246:  jgoerzen | 2002-09-26 09:36:16 -0500 (Thu, 26 Sep 2002) | 2 lines
 Changed paths:
    M /offlineimap/head/offlineimap/version.py
