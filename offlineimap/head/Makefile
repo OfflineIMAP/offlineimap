@@ -26,10 +26,10 @@ clean:
 	-rm -f `find . -name ".cache*"`
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 
-changelog:
-	cvs2cl
-	cvs commit ChangeLog
-	rm ChangeLog.bak
+#changelog:
+#	cvs2cl
+#	cvs commit ChangeLog
+#	rm ChangeLog.bak
 
 docs:
 	man -t -l offlineimap.1 > manual.ps
