@@ -1,5 +1,4 @@
-#!/usr/bin/python2.2 -i
-
+# Base repository support
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
@@ -17,14 +16,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from imapsync import imaplib, imaputil, imapserver
-import re
-import getpass
-
-host = raw_input('Host: ')
-user = raw_input('Username: ')
-passwd = getpass.getpass('Password: ')
-
-server = imapserver.IMAPServer(user, passwd, host, ssl = 1)
-imapobj = server.makeconnection()
-delim, root = imaputil.imapsplit(imapobj.list('""', '""')[1][0])[1:]
+class BaseRepository:
+    def getfolders(self):
+        """Returns a list of ALL folders on this server."""
+        return []
+    
