@@ -50,5 +50,6 @@ class IMAPRepository(BaseRepository):
                 continue
             retval.append(folder.IMAP.IMAPFolder(self.imapserver, name,
                                                  self.nametrans(imaputil.dequote(name))))
+        retval.sort()
         self.folders = retval
         return retval

@@ -45,71 +45,88 @@ remoterepos = None
 localrepos = None
 mailboxes = []
 
-for accountname in accounts:
-    ui.acct(accountname)
-    accountmetadata = os.path.join(metadatadir, accountname)
-    if not os.path.exists(accountmetadata):
-        os.mkdir(accountmetadata, 0700)
-    host = config.get(accountname, "remotehost")
-    user = config.get(accountname, "remoteuser")
-    port = None
-    if config.has_option(accountname, "remoteport"):
-        port = config.getint(accountname, "remoteport")
-    password = None
-    if config.has_option(accountname, "remotepass"):
-        password = config.get(accountname, "remotepass")
-    else:
-        password = ui.getpass(accountname, host, port, user)
-    ssl = config.getboolean(accountname, "ssl")
+def syncitall():
+    for accountname in accounts:
+        ui.acct(accountname)
+        accountmetadata = os.path.join(metadatadir, accountname)
+        if not os.path.exists(accountmetadata):
+            os.mkdir(accountmetadata, 0700)
+        host = config.get(accountname, "remotehost")
+        user = config.get(accountname, "remoteuser")
+        port = None
+        if config.has_option(accountname, "remoteport"):
+            port = config.getint(accountname, "remoteport")
+        password = None
+        if config.has_option(accountname, "remotepass"):
+            password = config.get(accountname, "remotepass")
+        else:
+            password = ui.getpass(accountname, host, port, user)
+            # Save it for future reference.
+            config.set(accountname, "remotepass", password)
+        ssl = config.getboolean(accountname, "ssl")
 
-    # Connect to the remote server.
-    server = imapserver.IMAPServer(user, password, host, port, ssl)
-    remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
+        # Connect to the remote server.
+        server = imapserver.IMAPServer(user, password, host, port, ssl)
+        remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
 
-    # Connect to the Maildirs.
-    localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(config.get(accountname, "localfolders")))
+        # Connect to the Maildirs.
+        localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(config.get(accountname, "localfolders")))
 
-    # Connect to the local cache.
-    statusrepos = repository.LocalStatus.LocalStatusRepository(accountmetadata)
-    
-    ui.syncfolders(remoterepos, localrepos)
-    remoterepos.syncfoldersto(localrepos)
+        # Connect to the local cache.
+        statusrepos = repository.LocalStatus.LocalStatusRepository(accountmetadata)
 
-    for remotefolder in remoterepos.getfolders():
-        mailboxes.append({'accountname': accountname,
-                          'foldername': remotefolder.getvisiblename()})
-        # Load local folder.
-        localfolder = localrepos.getfolder(remotefolder.getvisiblename())
-        if not localfolder.isuidvalidityok(remotefolder):
-            ui.validityproblem(remotefolder)
-            continue
-        ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
-        ui.loadmessagelist(localrepos, localfolder)
-        localfolder.cachemessagelist()
-        ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
+        ui.syncfolders(remoterepos, localrepos)
+        remoterepos.syncfoldersto(localrepos)
+
+        for remotefolder in remoterepos.getfolders():
+            mailboxes.append({'accountname': accountname,
+                              'foldername': remotefolder.getvisiblename()})
+            # Load local folder.
+            localfolder = localrepos.getfolder(remotefolder.getvisiblename())
+            if not localfolder.isuidvalidityok(remotefolder):
+                ui.validityproblem(remotefolder)
+                continue
+            ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
+            ui.loadmessagelist(localrepos, localfolder)
+            localfolder.cachemessagelist()
+            ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
+
+            # Load remote folder.
+            ui.loadmessagelist(remoterepos, remotefolder)
+            remotefolder.cachemessagelist()
+            ui.messagelistloaded(remoterepos, remotefolder,
+                                 len(remotefolder.getmessagelist().keys()))
+
+            # Load status folder.
+            statusfolder = statusrepos.getfolder(remotefolder.getvisiblename())
+            statusfolder.cachemessagelist()
+
+            if not statusfolder.isnewfolder():
+                ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
+                localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
+
+            # Synchronize remote changes.
+            ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
+            remotefolder.syncmessagesto(localfolder)
+
+            # Make sure the status folder is up-to-date.
+            ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
+            localfolder.syncmessagesto(statusfolder)
+            statusfolder.save()
+        server.close()
+
+
+    mbnames.genmbnames(config, mailboxes)
+
+syncitall()
+if config.has_option('general', 'autorefresh'):
+    refreshperiod = config.getint('general', 'autorefresh') * 60
+    while 1:
+        sleepamount = refreshperiod
+        abortsleep = 0
+        while sleepamount > 0 and not abortsleep:
+            abortsleep = ui.sleeping(1, sleepamount)
+            sleepamount -= 1
+        ui.sleeping(0, 0)        # Done sleeping.
+        syncitall()
         
-        # Load remote folder.
-        ui.loadmessagelist(remoterepos, remotefolder)
-        remotefolder.cachemessagelist()
-        ui.messagelistloaded(remoterepos, remotefolder,
-                             len(remotefolder.getmessagelist().keys()))
-
-        # Load status folder.
-        statusfolder = statusrepos.getfolder(remotefolder.getvisiblename())
-        statusfolder.cachemessagelist()
-        
-        if not statusfolder.isnewfolder():
-            ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
-            localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
-        
-        # Synchronize remote changes.
-        ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
-        remotefolder.syncmessagesto(localfolder)
-
-        # Make sure the status folder is up-to-date.
-        ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
-        localfolder.syncmessagesto(statusfolder)
-        statusfolder.save()
-        
-        
-mbnames.genmbnames(config, mailboxes)

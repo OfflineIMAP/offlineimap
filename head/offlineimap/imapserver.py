@@ -67,4 +67,6 @@ class IMAPServer:
         self.imapobj = imapobj
         return imapobj
     
-        
+    def close(self):
+        self.imapobj.logout()
+        self.imapobj = None

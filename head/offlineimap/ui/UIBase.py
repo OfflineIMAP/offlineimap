@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from imapsync import repository
-import re
+import re, time
 
 class UIBase:
     ################################################## UTILS
@@ -95,12 +95,22 @@ class UIBase:
     def addingflags(s, uid, flags, destlist):
         ds = s.folderlist(destlist)
         s._msg("Adding flags %s to message %d on %s" % \
-               (flags.join(", "), uid, ds))
+               (", ".join(flags), uid, ds))
 
     def deletingflags(s, uid, flags, destlist):
         ds = s.folderlist(destlist)
         s._msg("Deleting flags %s to message %d on %s" % \
-               (flags.join(", "), uid, ds))
+               (", ".join(flags), uid, ds))
 
+    ################################################## Other
 
-    
+    def sleeping(s, sleepsecs, remainingsecs):
+        """Sleep for sleepsecs, remainingsecs to go.
+        If sleepsecs is 0, indicates we're done sleeping.
+
+        Return 0 for normal sleep, or 1 to indicate a request
+        to sync immediately."""
+        s._msg("Next refresh in %d seconds" % remainingsec)
+        if sleepsecs > 0:
+            time.sleep(sleepsecs)
+        return 0

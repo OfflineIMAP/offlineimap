@@ -64,7 +64,7 @@ class IMAPFolder(BaseFolder):
 
     def getmessage(self, uid):
         assert(self.imapobj.select(self.getfullname())[0] == 'OK')
-        return self.imapobj.uid('fetch', '%d' % uid, '(RFC822)')[1][0][1].replace("\r\n", "\n")
+        return self.imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')[1][0][1].replace("\r\n", "\n")
     
     def getmessageflags(self, uid):
         return self.getmessagelist()[uid]['flags']
