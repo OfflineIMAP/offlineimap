@@ -64,10 +64,7 @@ else:
     path=None
 localeval = localeval.LocalEval(path)
 
-if '-u' in options:
-    ui = offlineimap.ui.detector.getUImod(options['-u'])(config, localeval)
-else:
-    ui = offlineimap.ui.detector.findUI(config, localeval)
+ui = offlineimap.ui.detector.findUI(config, localeval, options.get('-u'))
 ui.init_banner()
 
 if '-d' in options:

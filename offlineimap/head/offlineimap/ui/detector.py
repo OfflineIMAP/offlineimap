@@ -19,7 +19,7 @@
 import offlineimap.ui
 import sys
 
-def findUI(config, localeval):
+def findUI(config, localeval, chosenUI=None):
     uistrlist = ['Tk.Blinkenlights', 'Tk.VerboseUI', 'TTY.TTYUI',
                  'Noninteractive.Basic', 'Noninteractive.Quiet']
     namespace={}
@@ -27,8 +27,12 @@ def findUI(config, localeval):
         if ui.startswith('_') or ui=='detector':
             continue
         namespace[ui]=getattr(offlineimap.ui, ui)
-    if config.has_option("general", "ui"):
+
+    if chosenUI is not None:
+        uistrlist = [chosenUI]
+    elif config.has_option("general", "ui"):
         uistrlist = config.get("general", "ui").replace(" ", "").split(",")
+
     for uistr in uistrlist:
         uimod = getUImod(uistr, localeval, namespace)
         if uimod:
