@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import offlineimap.version
-import re, time, sys, traceback, threading
+import re, time, sys, traceback, threading, thread
 from StringIO import StringIO
 
 debugtypes = {'imap': 'IMAP protocol debugging',
@@ -38,6 +38,7 @@ class UIBase:
         s.debuglist = []
         s.debugmessages = {}
         s.debugmsglen = 50
+        s.threadaccounts = {}
     
     ################################################## UTILS
     def _msg(s, msg):
@@ -49,6 +50,24 @@ class UIBase:
             s._msg("warning: " + msg)
         else:
             s._msg("WARNING: " + msg)
+
+    def registerthread(s, account):
+        """Provides a hint to UIs about which account this particular
+        thread is processing."""
+        if s.threadaccounts.has_key(thread.get_ident()):
+            raise ValueError, "Thread already registered (old %s, new %s)" % \
+                  (s.getthreadaccount(s), account)
+        s.threadaccounts[thread.get_ident()] = account
+
+    def unregisterthread(s, thr):
+        """Recognizes a thread has exited."""
+        if s.threadaccounts.has_key(thr):
+            del s.threadaccounts[thr]
+
+    def getthreadaccount(s):
+        if s.threadaccounts.has_key(thread.get_ident()):
+            return s.threadaccounts[thread.get_ident()]
+        return None
 
     def debug(s, debugtype, msg):
         thisthread = threading.currentThread()
@@ -258,6 +277,7 @@ class UIBase:
         """Called when a thread has exited normally.  Many UIs will
         just ignore this."""
         s.delThreadDebugLog(thread)
+        s.unregisterthread(thread)
 
     ################################################## Other
 

@@ -79,14 +79,35 @@ class CursesUtil:
         curses.endwin()
         del self.stdscr
 
-    def resize(self):
+    def reset(self):
         self.stop()
         self.start()
 
-class CursesThreadFrame:
+class CursesAccountFrame:
     def __init__(s, master):
+        s.c = master
+        s.children = []
+
+    def setwindow(s, window):
+        s.window = window
+        location = 0
+        for child in s.children:
+            child.update(window, 0, location)
+            location += 1
+
+    def getnewthreadframe(s):
+        tf = CursesThreadFrame(s.c, s.window, 0, len(s.children))
+        s.children.append(tf)
+        return tf
+
+class CursesThreadFrame:
+    def __init__(s, master, window, y, x):
         """master should be a CursesUtil object."""
         s.c = master
+        s.window = window
+        s.x = x
+        s.y = y
+        s.colors = []
         bg = curses.COLOR_BLACK
         s.colormap = {'black': s.c.getpair(curses.COLOR_BLACK, bg),
                          'gray': s.c.getpair(curses.COLOR_WHITE, bg),
@@ -100,12 +121,20 @@ class CursesThreadFrame:
                          'yellow': curses.A_BOLD | s.c.getpair(curses.COLOR_YELLOW, bg),
                          'pink': curses.A_BOLD | s.c.getpair(curses.COLOR_RED, bg)}
         s.setcolor('gray')
-                         
+
     def setcolor(self, color):
         self.color = self.colormap[color]
+        self.window.addstr(self.y, self.x, '.', self.color)
+        self.window.refresh()
 
     def getcolor(self):
         return self.color
+
+    def setthread(self, newthread):
+        if newthread:
+            self.setcolor('gray')
+        else:
+            self.setcolor('black')
 
 class InputHandler:
     def __init__(s, util):
@@ -181,12 +210,18 @@ class InputHandler:
 class Blinkenlights(BlinkenBase, UIBase):
     def init_banner(s):
         s.iolock = Lock()
+        s.af = {}
+        s.aflock = Lock()
         s.c = CursesUtil()
-        s.accounts = []
         s.text = []
-        s.tf = CursesThreadFrame(s.c)
-        s.setupwindows()
+        BlinkenBase.init_banner(s)
+        print 217
+        s.setupwindows(dolock = 0)
+        print '219a'
         s.inputhandler = InputHandler(s.c)
+        print 219
+        print 221
+        
         s._msg(version.banner)
         s._msg(str(dir(s.c.stdscr)))
         s.inputhandler.set_bgchar(s.keypress)
@@ -209,17 +244,43 @@ class Blinkenlights(BlinkenBase, UIBase):
             s.inputhandler.input_release()
         return password
 
-    def setupwindows(s):
-        s.bannerwindow = curses.newwin(1, s.c.width, 0, 0)
-        s.drawbanner()
-        s.logheight = s.c.height - 1 - len(s.accounts) * 2
-        s.logwindow = curses.newwin(s.logheight, s.c.width, 1, 0)
-        s.logwindow.idlok(1)
-        s.logwindow.scrollok(1)
-        s.drawlog()
-        curses.doupdate()
+    def setupwindows(s, dolock = 1):
+        print 244
+        if dolock:
+            s.iolock.acquire()
+        try:
+            s.bannerwindow = curses.newwin(1, s.c.width, 0, 0)
+            s.setupwindow_drawbanner()
+            s.logheight = s.c.height - 1 - len(s.af.keys())
+            s.logwindow = curses.newwin(s.logheight, s.c.width, 1, 0)
+            s.logwindow.idlok(1)
+            s.logwindow.scrollok(1)
+            s.setupwindow_drawlog()
 
-    def drawbanner(s):
+            print 258
+
+            accounts = s.af.keys()
+            accounts.sort()
+            accounts.reverse()
+
+            print 264
+
+            pos = s.c.height - 1
+            for account in accounts:
+                accountwindow = curses.newwin(1, s.c.width, pos, 0)
+                s.af[account].setwindow(accountwindow)
+                pos -= 1
+
+            print 272
+            
+            curses.doupdate()
+
+            print 276
+        finally:
+            if dolock:
+                s.iolock.release()
+
+    def setupwindow_drawbanner(s):
         s.bannerwindow.bkgd(' ', curses.A_BOLD | \
                             s.c.getpair(curses.COLOR_WHITE,
                                         curses.COLOR_BLUE))
@@ -227,21 +288,36 @@ class Blinkenlights(BlinkenBase, UIBase):
                                          version.versionstr))
         s.bannerwindow.addstr(0, s.bannerwindow.getmaxyx()[1] - len(version.copyright) - 1,
                               version.copyright)
-
+        
         s.bannerwindow.noutrefresh()
 
-    def drawlog(s):
-        s.iolock.acquire()
-        try:
-            s.logwindow.bkgd(' ', s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK))
-            for line, color in s.text:
-                s.logwindow.addstr(line + "\n", color)
-                s.logwindow.noutrefresh()
-        finally:
-            s.iolock.release()
+    def setupwindow_drawlog(s):
+        s.logwindow.bkgd(' ', s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK))
+        for line, color in s.text:
+            s.logwindow.addstr(line + "\n", color)
+            s.logwindow.noutrefresh()
 
-    def gettf(s):
-        return s.tf
+    def getaccountframe(s):
+        accountname = s.getthreadaccount()
+        print 'c302: ', accountname
+        s.aflock.acquire()
+        print 'c304'
+        try:
+            if accountname in s.af:
+                return s.af[accountname]
+
+            # New one.
+            s.af[accountname] = CursesAccountFrame(s.c)
+            #s.iolock.acquire()
+            print 297
+            s.c.reset()
+            s.setupwindows(dolock = 0)
+            print 300
+            #s.iolock.release()
+        finally:
+            s.aflock.release()
+        return s.af[accountname]
+
 
     def _msg(s, msg, color = None):
         if "\n" in msg:
@@ -249,6 +325,7 @@ class Blinkenlights(BlinkenBase, UIBase):
                 s._msg(thisline)
             return
         s.iolock.acquire()
+        print 326
         try:
             if not s.c.isactive():
                 # For dumping out exceptions and stuff.
@@ -258,6 +335,7 @@ class Blinkenlights(BlinkenBase, UIBase):
                 s.gettf().setcolor(color)
             s._addline_unlocked(msg, s.gettf().getcolor())
             s.logwindow.refresh()
+            print 336
         finally:
             s.iolock.release()
 

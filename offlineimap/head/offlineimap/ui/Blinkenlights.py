@@ -16,6 +16,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from threading import *
+import thread
+
 class BlinkenBase:
     """This is a mix-in class that should be mixed in with either UIBase
     or another appropriate base class.  The Tk interface, for instance,
@@ -66,4 +69,59 @@ class BlinkenBase:
         s.gettf().setcolor('pink')
         s.__class__.__bases__[-1].deletingflags(s, uid, flags, destlist)
 
+    def init_banner(s):
+        s.availablethreadframes = {}
+        s.threadframes = {}
+        s.tflock = Lock()
+
+    def threadExited(s, thread):
+        threadid = thread.threadid
+        accountname = s.getthreadaccount(thread)
+        s.tflock.acquire()
+        try:
+            if threadid in s.threadframes[accountname]:
+                tf = s.threadframes[accountname][threadid]
+                del s.threadframes[accountname][threadid]
+                s.availablethreadframes[accountname].append(tf)
+                tf.setthread(None)
+        finally:
+            s.tflock.release()
+
+        UIBase.threadExited(s, thread)
+
+    def gettf(s):
+        threadid = thread.get_ident()
+        accountname = s.getthreadaccount()
+        
+        s.tflock.acquire()
+
+        print "b98"
+
+        try:
+            if not accountname in s.threadframes:
+                s.threadframes[accountname] = {}
+                
+            if threadid in s.threadframes[accountname]:
+                return s.threadframes[accountname][threadid]
+
+            print 'b107'
+
+            if not accountname in s.availablethreadframes:
+                s.availablethreadframes[accountname] = []
+
+            print 'b112'
+
+            if len(s.availablethreadframes[accountname]):
+                tf = s.availablethreadframes[accountname].pop(0)
+                tf.setthread(currentThread())
+            else:
+                print 'b118'
+                tf = s.getaccountframe().getnewthreadframe()
+                print 'b120'
+            s.threadframes[accountname][threadid] = tf
+            return tf
+        
+        finally:
+            s.tflock.release()
+        
 
