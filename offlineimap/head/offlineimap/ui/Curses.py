@@ -15,8 +15,6 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-DEBUGLOG = open("/tmp/debug", "wt")
-
 from Blinkenlights import BlinkenBase
 from UIBase import UIBase
 from threading import *
@@ -123,14 +121,8 @@ class CursesUtil:
         del self.stdscr
 
     def reset(self):
-        DEBUGLOG.write("  in reset...\n")
-        DEBUGLOG.flush()
         self.stop()
-        DEBUGLOG.write("  stop done...\n")
-        DEBUGLOG.flush()
         self.start()
-        DEBUGLOG.write("  start done...\n")
-        DEBUGLOG.flush()
 
 class CursesAccountFrame:
     def __init__(s, master, accountname):
@@ -334,31 +326,18 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.resizeterm()
 
     def resizeterm(s, dosleep = 1):
-        DEBUGLOG.write("\nResizeterm called...\n")
-        DEBUGLOG.write("pid: %d\n" % os.getpid())
         if not s.resizelock.acquire(0):
             s.resizecount += 1
-            DEBUGLOG.write("Already resizing; aborting.\n")
             return
         else:
-            DEBUGLOG.write("Got the lock\n")
         signal.signal(signal.SIGWINCH, signal.SIG_IGN)
         s.aflock.acquire()
         s.c.lock()
-        DEBUGLOG.write("locks acquired...\n")
         s.resizecount += 1
-        DEBUGLOG.write("at top of try\n")
         while s.resizecount:
-            DEBUGLOG.write("in while loop\n")
             s.c.reset()
-            DEBUGLOG.write("reset done...\n")
-            DEBUGLOG.write("sleep done...\n")
-            DEBUGLOG.flush()
             s.setupwindows()
-            DEBUGLOG.write("setupwindows done...\n")
             s.resizecount -= 1
-        DEBUGLOG.write("exiting while loop...\n")
-        DEBUGLOG.write("in finally section...\n")
         s.c.unlock()
         s.aflock.release()
         s.resizelock.release()
