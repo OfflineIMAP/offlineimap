@@ -41,12 +41,13 @@ class LocalStatusRepository(BaseRepository):
     def getfolders(self):
         retval = []
         for folder in os.listdir(self.directory):
-            retval.append(folder.LocalStatus.LocalStatusFolder(\
-                self.getfolderfilename(folder)))
+            retval.append(folder.LocalStatus.LocalStatusFolder(self.directory,
+                                                               folder))
         return retval
 
     def getfolder(self, foldername):
-        return folder.LocalStatus.LocalStatusFolder(self.getfolderfilename(foldername))
+        return folder.LocalStatus.LocalStatusFolder(self.directory, foldername)
+
 
     
 
