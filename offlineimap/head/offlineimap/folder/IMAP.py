@@ -26,6 +26,10 @@ from copy import copy
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
+        self.config = imapserver.config
+        self.expunge = 1
+        if self.config.has_option(accountname, 'expunge'):
+           self.expunge = self.config.getboolean(accountname, 'expunge')
         self.name = imaputil.dequote(name)
         self.root = None # imapserver.root
         self.sep = imapserver.delim
@@ -85,7 +89,9 @@ class IMAPFolder(BaseFolder):
             else:
                 uid = long(options['UID'])
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
-                self.messagelist[uid] = {'uid': uid, 'flags': flags}
+                # Skip messages already flagged for deletion on the server.
+                if not 'T' in flags:
+                    self.messagelist[uid] = {'uid': uid, 'flags': flags}
 
     def getmessagelist(self):
         return self.messagelist
@@ -249,7 +255,8 @@ class IMAPFolder(BaseFolder):
             except imapobj.readonly:
                 UIBase.getglobalui().deletereadonly(self, uidlist)
                 return
-            assert(imapobj.expunge()[0] == 'OK')
+            if self.expunge:
+                assert(imapobj.expunge()[0] == 'OK')
         finally:
             self.imapserver.releaseconnection(imapobj)
         for uid in uidlist:

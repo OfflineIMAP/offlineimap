@@ -1,3 +1,9 @@
+offlineimap (3.99.5) unstable; urgency=low
+
+  * Added ability to disable expunging on the server.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 12 Nov 2002 09:29:31 -0600
+
 offlineimap (3.99.4) unstable; urgency=low
 
   * Fixed setup.py installation instructions.
