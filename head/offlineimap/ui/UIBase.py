@@ -35,6 +35,12 @@ class UIBase:
         # Strip off extra stuff.
         return re.sub('(Folder|Repository)', '', prelimname)
 
+    def isusable(s):
+        """Returns true if this UI object is usable in the current
+        environment.  For instance, an X GUI would return true if it's
+        being run in X with a valid DISPLAY setting, and false otherwise."""
+        return 1
+
     ################################################## INPUT
 
     def getpass(s, accountname, config):
@@ -46,7 +52,10 @@ class UIBase:
     ################################################## MESSAGES
 
     def init_banner(s):
-        "Display the copyright banner."
+        """Called when the UI starts.  Must be called before any other UI
+        call except isusable().  Displays the copyright banner.  This is
+        where the UI should do its setup -- TK, for instance, would
+        create the application window here."""
 	s._msg(offlineimap.version.banner)
 
     def acct(s, accountname):
