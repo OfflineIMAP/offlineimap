@@ -5,6 +5,9 @@ offlineimap (3.0.0) unstable; urgency=low
   * The TTY user interface now also displays thread names.
   * Program-wide, new threads are given descriptive names to aid in
     debugging and status messages.
+  * Added new module offlineimap/ui/detect.py that is used to detect
+    which user interface to select for a given session.  Its operation
+    is governed by the ui config option and the -u command-line option.
   * Made IMAP folder addmessagesflags() resiliant to a server refusing
     to return a full set of new message flags.  Closes: #152587.
   * Completely rewrote documentation.  OfflineIMAP now has an
