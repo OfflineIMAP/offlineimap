@@ -16,7 +16,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import re
+import re, string
+quotere = re.compile('^("(?:[^"]|\\\\")*")')
 
 def dequote(string):
     """Takes a string which may or may not be quoted and returns it, unquoted.
@@ -46,7 +47,7 @@ def options2hash(list):
 def flags2hash(string):
     return options2hash(flagsplit(string))
 
-def imapsplit(string):
+def imapsplit(imapstring):
     """Takes a string from an IMAP conversation and returns a list containing
     its components.  One example string is:
 
@@ -56,23 +57,36 @@ def imapsplit(string):
 
     ['(\\HasNoChildren)', '"."', '"INBOX.Sent"']"""
     
-    workstr = string
+    workstr = imapstring.strip()
     retval = []
     while len(workstr):
-        if re.search('^\s', workstr):
-            workstr = re.search('^\s(.*)$', workstr).group(1)
-        elif workstr[0] == '(':
-            parenlist = re.search('^(\(.*\))', workstr).group(1)
-            workstr = workstr[len(parenlist):]
+        if workstr[0] == '(':
+            # Needs rindex to properly process eg (FLAGS () UID 123)
+            rpareni = workstr.rindex(')') + 1
+            parenlist = workstr[0:rpareni]
+            workstr = workstr[rpareni:].lstrip()
             retval.append(parenlist)
         elif workstr[0] == '"':
-            quotelist = re.search('^("(?:[^"]|\\\\")*")', workstr).group(1)
-            workstr = workstr[len(quotelist):]
+            quotelist = quotere.search(workstr).group(1)
+            workstr = workstr[len(quotelist):].lstrip()
             retval.append(quotelist)
         else:
-            unq = re.search('^(\S+)', workstr).group(1)
-            workstr = workstr[len(unq):]
-            retval.append(unq)
+            splits = string.split(workstr, maxsplit = 1)
+            splitslen = len(splits)
+            # The unquoted word is splits[0]; the remainder is splits[1]
+            if splitslen == 2:
+                # There's an unquoted word, and more string follows.
+                retval.append(splits[0])
+                workstr = splits[1]    # split will have already lstripped it
+                continue
+            elif splitslen == 1:
+                # We got a last unquoted word, but nothing else
+                retval.append(splits[0])
+                # Nothing remains.  workstr would be ''
+                break
+            elif splitslen == 0:
+                # There was not even an unquoted word.
+                break
     return retval
             
 def flagsimap2maildir(string):

@@ -80,7 +80,7 @@ def exitnotifymonitorloop(callback):
             exitcondition.wait(1)
 
         while len(exitthreads):
-            callback(exitthreads.pop())
+            callback(exitthreads.pop(0)) # Pull off in order added!
         exitcondition.release()
 
 class ExitNotifyThread(Thread):

@@ -1,3 +1,13 @@
+offlineimap (3.1.1) unstable; urgency=low
+
+  * Modified imaputil.py and folder/Maildir.py to run faster.  Eliminated
+    many regular expressions; pre-compiled many others.
+  * Fixed threadutil's exitnotifyloop to always handle threads in the order
+    they exited, rather than sometimes in the inverse order.  This way,
+    make sure to handle thread's exception messages before a thread exited.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 23 Jul 2002 06:53:16 -0500
+
 offlineimap (3.1.0) unstable; urgency=low
 
   * When uploading messages from a Maildir, now convert \r\n to \n in case

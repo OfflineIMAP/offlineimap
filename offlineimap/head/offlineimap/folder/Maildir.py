@@ -20,6 +20,10 @@ from Base import BaseFolder
 from offlineimap import imaputil
 import os.path, os, re, time, socket, md5
 
+foldermatchre = re.compile(',FMD5=([0-9a-f]{32})')
+uidmatchre = re.compile(',U=(\d+)')
+flagmatchre = re.compile(':.*2,([A-Z]+)')
+
 timeseq = 0
 lasttime = long(0)
 
@@ -84,7 +88,7 @@ class MaildirFolder(BaseFolder):
                           filename in os.listdir(fulldirname)])
         for file in files:
             messagename = os.path.basename(file)
-            foldermatch = re.search(',FMD5=([0-9a-f]{32})', messagename)
+            foldermatch = foldermatchre.search(messagename)
             if (not foldermatch) or \
                md5.new(self.getvisiblename()).hexdigest() \
                != foldermatch.group(1):
@@ -94,14 +98,14 @@ class MaildirFolder(BaseFolder):
                 uid = nouidcounter
                 nouidcounter -= 1
             else:                       # It comes from our folder.
-                uidmatch = re.search(',U=(\d+)', messagename)
+                uidmatch = uidmatchre.search(messagename)
                 uid = None
                 if not uidmatch:
                     uid = nouidcounter
                     nouidcounter -= 1
                 else:
                     uid = long(uidmatch.group(1))
-            flagmatch = re.search(':.*2,([A-Z]+)', messagename)
+            flagmatch = flagmatchre.search(messagename)
             flags = []
             if flagmatch:
                 flags = [x for x in flagmatch.group(1)]
