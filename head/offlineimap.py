@@ -58,6 +58,10 @@ threadutil.initInstanceLimit("ACCOUNTLIMIT", config.getint("general",
 for account in accounts:
     if config.has_option(account, "remotepass"):
         passwords[account] = config.get(account, "remotepass")
+    elif config.has_option(account, "remotepassfile"):
+        passfile = os.path.expanduser(config.get(account, "remotepassfile"))
+        passwords[account] = passfile.readline().strip()
+        passfile.close()
     else:
         passwords[account] = ui.getpass(account, config)
     for instancename in ["FOLDER_" + account, "MSGCOPY_" + account]:
