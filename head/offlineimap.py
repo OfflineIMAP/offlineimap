@@ -135,11 +135,8 @@ syncitall()
 if config.has_option('general', 'autorefresh'):
     refreshperiod = config.getint('general', 'autorefresh') * 60
     while 1:
-        sleepamount = refreshperiod
-        abortsleep = 0
-        while sleepamount > 0 and not abortsleep:
-            abortsleep = ui.sleeping(1, sleepamount)
-            sleepamount -= 1
-        ui.sleeping(0, 0)        # Done sleeping.
-        syncitall()
+        if ui.sleep(refreshperiod) == 2:
+            break
+        else:
+            syncitall()
         

@@ -25,18 +25,25 @@ class TTYUI(UIBase):
         if s.verbose:
             UIBase.messagelistloaded(s, repos, folder, count)
 
+    def sleep(s, sleepsecs):
+        try:
+            UIBase.sleep(s, sleepsecs)
+        except KeyboardInterrupt:
+            sys.stdout.write("Timer interrupted at user request; program terminating.             \n")
+            return 2
+
     def sleeping(s, sleepsecs, remainingsecs):
         if remainingsecs > 0:
-            sys.stdout.write("Next sync in %d:%02d (press Enter to sync now)   \r" % \
+            sys.stdout.write("Next sync in %d:%02d (press Enter to sync now, Ctrl-C to abort)   \r" % \
                              (remainingsecs / 60, remainingsecs % 60))
             sys.stdout.flush()
         else:
-            sys.stdout.write("Wait done, proceeding with sync....            \n")
+            sys.stdout.write("Wait done, proceeding with sync....                                \n")
 
         if sleepsecs > 0:
             if len(select.select([sys.stdin], [], [], sleepsecs)[0]):
                 sys.stdin.readline()
                 return 1
         return 0
-    
+            
             

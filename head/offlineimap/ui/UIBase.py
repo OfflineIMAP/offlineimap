@@ -110,6 +110,21 @@ class UIBase:
 
     ################################################## Other
 
+    def sleep(s, sleepsecs):
+        """This function does not actually output anything, but handles
+        the overall sleep, dealing with updates as necessary.  It will,
+        however, call sleeping() which DOES output something.
+
+        Returns 0 if timeout expired, 1 if there is a request to cancel
+        the timer, and 2 if there is a request to abort the program."""
+
+        abortsleep = 0
+        while sleepsecs > 0 and not abortsleep:
+            abortsleep = s.sleeping(1, sleepsecs)
+            sleepsecs -= 1
+        s.sleeping(0, 0)               # Done sleeping.
+        return abortsleep
+
     def sleeping(s, sleepsecs, remainingsecs):
         """Sleep for sleepsecs, remainingsecs to go.
         If sleepsecs is 0, indicates we're done sleeping.
