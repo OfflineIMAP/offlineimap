@@ -1,7 +1,8 @@
 productname = 'OfflineIMAP'
 versionstr = "3.0.2"
-revstr = '$Rev: 127 $'
-datestr = '$Date: 2002-07-17 13:01:53 -0500 (Wed, 17 Jul 2002) $'
+revno = long('$Rev: 128 $'[6:-2])
+revstr = "Rev %d" % revno
+datestr = '$Date: 2002-07-17 13:06:27 -0500 (Wed, 17 Jul 2002) $'
 
 versionlist = versionstr.split(".")
 major = versionlist[0]
@@ -11,7 +12,8 @@ copyright = "Copyright (C) 2002 John Goerzen"
 author = "John Goerzen"
 author_email = "jgoerzen@complete.org"
 description = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
-bigcopyright = "%(productname)s %(versionstr)s, %(copyright)s <%(author_email)s>" % locals()
+bigcopyright = """%(productname)s %(versionstr)s (%(revstr)s)
+%(copyright)s <%(author_email)s>""" % locals()
 
 banner = bigcopyright + """
 This software comes with ABSOLUTELY NO WARRANTY; see the file
