@@ -309,6 +309,51 @@ Add these lines to your
 .B set spoolfile=+Personal/INBOX
 .PP
 That's it!
+.SS UW-IMAPD AND REFERENCES
+Some users with a UW-IMAPD server need to use
+.B OfflineIMAP's
+"reference" feature to get at their mailboxes, specifying a reference
+of "~/Mail" or "#mh/" depending on the configuration.  The below
+configuration from docwhat@gerf.org
+shows using a reference of Mail, a nametrans that strips
+the leading Mail/ off incoming folder names, and a folderfilter that
+limits the folders synced to just three.
+.PP
+.B [Gerf]
+.br
+.B localfolders = ~/Mail
+.br
+.B remotehost = gerf.org
+.br
+.B ssl = yes
+.br
+.B remoteuser = docwhat
+.br
+.B reference = Mail
+.br
+.B # Trims off the preceeding Mail on all the folder names.
+.br
+.B nametrans = lambda foldername: \\\\
+.br
+.B "            re.sub('^Mail/', '', foldername)"
+.br
+.B # Yeah, you have to mention the Mail dir, even though it
+.br
+.B # would seem intuitive that reference would trim it.
+.br
+.B folderfilter = lambda foldername: foldername in [
+.br
+.B "       'Mail/INBOX',"
+.br
+.B "       'Mail/list/zaurus-general',"
+.br
+.B "       'Mail/list/zaurus-dev',"
+.br
+.B "       ]"
+.br
+.B maxconnections = 1
+.br
+.B holdconnectionopen = no
 .SH ERRORS
 If you get one of some frequently-encountered or confusing errors,
 please check this section.
@@ -532,6 +577,8 @@ or submitted on-line using the Web interface at
 .UR http://bugs.complete.org/
 http://bugs.complete.org/.
 .UE
+The Web site also lists all current bugs, where you can check their
+status or contribute to fixing them.
 .SH COPYRIGHT
 OfflineIMAP is Copyright (C) 2002 John Goerzen.
 .PP
