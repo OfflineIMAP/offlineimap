@@ -1,3 +1,13 @@
+offlineimap (3.2.4) unstable; urgency=low
+
+  * When using nested folders, the Maildir repository handler now properly
+    deals with folders that are nested inside "noselect" folders -- ones
+    that do not actually contain messages and are not provided in the
+    server's LIST response.  Fixes [complete.org #32] and, for Debian,
+    Closes: #155866.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu,  8 Aug 2002 17:54:44 -0500
+
 offlineimap (3.2.3) unstable; urgency=low
 
   * -d now takes a parameter: imap or maildir (or both) to specify
