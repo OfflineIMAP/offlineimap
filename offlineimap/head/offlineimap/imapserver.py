@@ -135,8 +135,13 @@ class IMAPServer:
             imapobj.login(self.username, self.password)
 
         if self.delim == None:
+            listres = imapobj.list(self.reference, '""')[1]
+            if listres == [None] or listres == None:
+                # Some buggy IMAP servers do not respond well to LIST "" ""
+                # Work around them.
+                listres = imapobj.list(self.reference, '"*"')[1]
             self.delim, self.root = \
-                        imaputil.imapsplit(imapobj.list(self.reference, '""')[1][0])[1:]
+                        imaputil.imapsplit(listres[0])[1:]
             self.delim = imaputil.dequote(self.delim)
             self.root = imaputil.dequote(self.root)
 
