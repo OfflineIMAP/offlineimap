@@ -1,3 +1,9 @@
+offlineimap (3.0.4) unstable; urgency=low
+
+  * Placeholder
+
+ -- John Goerzen <jgoerzen@complete.org>  Sun, 21 Jul 2002 16:09:42 -0500
+
 offlineimap (3.0.3) unstable; urgency=low
 
   * No longer throws an exception when updating messages with strange
