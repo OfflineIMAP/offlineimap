@@ -136,7 +136,7 @@ def syncaccount(accountname, *args):
         remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
 
         # Connect to the Maildirs.
-        localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(config.get(accountname, "localfolders")))
+        localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(config.get(accountname, "localfolders")), accountname, config)
 
         # Connect to the local cache.
         statusrepos = repository.LocalStatus.LocalStatusRepository(accountmetadata)
