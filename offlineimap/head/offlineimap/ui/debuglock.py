@@ -19,6 +19,7 @@
 from threading import *
 import traceback
 logfile = open("/tmp/logfile", "wt")
+loglock = Lock()
 
 class DebuggingLock:
     def __init__(self, name):
@@ -28,16 +29,21 @@ class DebuggingLock:
     def acquire(self, blocking = 1):
         self.print_tb("Acquire lock")
         self.lock.acquire(blocking)
-        logfile.write("===== %s: Thread %s acquired lock\n" % (self.name, currentThread().getName()))
+        self.logmsg("===== %s: Thread %s acquired lock\n" % (self.name, currentThread().getName()))
 
     def release(self):
         self.print_tb("Release lock")
         self.lock.release()
 
-    def print_tb(self, msg):
-        logfile.write("==== %s: Thread %s attempting to %s\n" % \
-                           (self.name, currentThread().getName(), msg))
-        logfile.write("\n".join(traceback.format_list(traceback.extract_stack())))
-        logfile.write("\n")
+    def logmsg(self, msg):
+        loglock.acquire()
+        logfile.write(msg + "\n")
         logfile.flush()
+        loglock.release()
+
+    def print_tb(self, msg):
+        self.logmsg(".... %s: Thread %s attempting to %s\n" % \
+                    (self.name, currentThread().getName(), msg) + \
+                    "\n".join(traceback.format_list(traceback.extract_stack())))
+        
 

@@ -19,7 +19,9 @@
 from Blinkenlights import BlinkenBase
 from UIBase import UIBase
 from threading import *
+import thread
 from offlineimap import version, threadutil
+from offlineimap.threadutil import MultiLock
 
 import curses, curses.panel, curses.textpad, curses.wrapper
 from debuglock import DebuggingLock
@@ -31,6 +33,27 @@ class CursesUtil:
         self.start()
         self.nextpair = 1
         self.pairlock = Lock()
+        self.iolock = MultiLock()
+
+    def lock(self):
+        self.iolock.acquire()
+
+    def unlock(self):
+        self.iolock.release()
+        
+    def locked(self, target, *args, **kwargs):
+        """Perform an operation with full locking."""
+        self.lock()
+        try:
+            apply(target, args, kwargs)
+        finally:
+            self.unlock()
+
+    def refresh(self):
+        def lockedstuff():
+            curses.panel.update_panels()
+            curses.doupdate()
+        self.locked(lockedstuff)
 
     def isactive(self):
         return hasattr(self, 'stdscr')
@@ -85,31 +108,29 @@ class CursesUtil:
         self.start()
 
 class CursesAccountFrame:
-    def __init__(s, master, accountname, iolock):
-        s.iolock = iolock
+    def __init__(s, master, accountname):
         s.c = master
         s.children = []
         s.accountname = accountname
 
-    def setwindow(s, window, lock = 1):
+    def setwindow(s, window):
         s.window = window
         acctstr = '%15.15s: ' % s.accountname
         s.window.addstr(0, 0, acctstr)
         s.location = len(acctstr)
         for child in s.children:
-            child.update(window, 0, s.location, lock)
+            child.update(window, 0, s.location)
             s.location += 1
 
-    def getnewthreadframe(s, lock = 1):
-        tf = CursesThreadFrame(s.c, s.window, 0, s.location, s.iolock, lock)
+    def getnewthreadframe(s):
+        tf = CursesThreadFrame(s.c, s.window, 0, s.location)
         s.location += 1
         s.children.append(tf)
         return tf
 
 class CursesThreadFrame:
-    def __init__(s, master, window, y, x, iolock, lock = 1):
+    def __init__(s, master, window, y, x):
         """master should be a CursesUtil object."""
-        s.iolock = iolock
         s.c = master
         s.window = window
         s.x = x
@@ -128,34 +149,30 @@ class CursesThreadFrame:
                          'yellow': curses.A_BOLD | s.c.getpair(curses.COLOR_YELLOW, bg),
                          'pink': curses.A_BOLD | s.c.getpair(curses.COLOR_RED, bg)}
         #s.setcolor('gray')
-        s.setcolor('black', lock)
+        s.setcolor('black')
 
-    def setcolor(self, color, lock = 1):
+    def setcolor(self, color):
         self.color = self.colormap[color]
-        self.display(lock)
+        self.display()
 
-    def display(self, lock = 1):
-        if lock:
-            self.iolock.acquire()
-        try:
+    def display(self):
+        def lockedstuff():
             self.window.addstr(self.y, self.x, '.', self.color)
             self.c.stdscr.move(self.c.height - 1, self.c.width - 1)
             self.window.refresh()
-        finally:
-            if lock:
-                self.iolock.release()
+        self.c.locked(lockedstuff)
 
     def getcolor(self):
         return self.color
 
-    def update(self, window, y, x, lock = 1):
+    def update(self, window, y, x):
         self.window = window
         self.y = y
         self.x = x
-        self.display(lock)
+        self.display()
 
-    def setthread(self, newthread, lock = 1):
-        self.setcolor('black', lock)
+    def setthread(self, newthread):
+        self.setcolor('black')
         #if newthread:
         #    self.setcolor('gray')
         #else:
@@ -234,13 +251,12 @@ class InputHandler:
         
 class Blinkenlights(BlinkenBase, UIBase):
     def init_banner(s):
-        s.iolock = DebuggingLock('iolock')
         s.af = {}
         s.aflock = DebuggingLock('aflock')
         s.c = CursesUtil()
         s.text = []
         BlinkenBase.init_banner(s)
-        s.setupwindows(dolock = 0)
+        s.setupwindows()
         s.inputhandler = InputHandler(s.c)
         s.gettf().setcolor('red')
         s._msg(version.banner)
@@ -251,22 +267,26 @@ class Blinkenlights(BlinkenBase, UIBase):
 
     def getpass(s, accountname, config, errmsg = None):
         s.inputhandler.input_acquire()
-        s.iolock.acquire()
+
+        # See comment on _msg for info on why both locks are obtained.
+        
+        s.tflock.acquire()
+        s.c.lock()
         try:
-            s.gettf(lock = 0).setcolor('white', lock = 0)
-            s._addline_unlocked(" *** Input Required", s.gettf().getcolor())
-            s._addline_unlocked(" *** Please enter password for account %s: " % accountname,
-                   s.gettf(lock = 0).getcolor())
+            s.gettf().setcolor('white')
+            s._addline(" *** Input Required", s.gettf().getcolor())
+            s._addline(" *** Please enter password for account %s: " % accountname,
+                   s.gettf().getcolor())
             s.logwindow.refresh()
             password = s.logwindow.getstr()
         finally:
-            s.iolock.release()
+            s.tflock.release()
+            s.c.unlock()
             s.inputhandler.input_release()
         return password
 
-    def setupwindows(s, dolock = 1):
-        if dolock:
-            s.iolock.acquire()
+    def setupwindows(s):
+        s.c.lock()
         try:
             s.bannerwindow = curses.newwin(1, s.c.width, 0, 0)
             s.setupwindow_drawbanner()
@@ -282,13 +302,12 @@ class Blinkenlights(BlinkenBase, UIBase):
             pos = s.c.height - 1
             for account in accounts:
                 accountwindow = curses.newwin(1, s.c.width, pos, 0)
-                s.af[account].setwindow(accountwindow, lock = 0)
+                s.af[account].setwindow(accountwindow)
                 pos -= 1
 
             curses.doupdate()
         finally:
-            if dolock:
-                s.iolock.release()
+            s.c.unlock()
 
     def setupwindow_drawbanner(s):
         s.bannerwindow.bkgd(' ', curses.A_BOLD | \
@@ -315,11 +334,13 @@ class Blinkenlights(BlinkenBase, UIBase):
                 return s.af[accountname]
 
             # New one.
-            s.af[accountname] = CursesAccountFrame(s.c, accountname, s.iolock)
-            s.iolock.acquire()
-            s.c.reset()
-            s.setupwindows(dolock = 0)
-            s.iolock.release()
+            s.af[accountname] = CursesAccountFrame(s.c, accountname)
+            s.c.lock()
+            try:
+                s.c.reset()
+                s.setupwindows()
+            finally:
+                s.c.unlock()
         finally:
             s.aflock.release()
         return s.af[accountname]
@@ -330,25 +351,37 @@ class Blinkenlights(BlinkenBase, UIBase):
             for thisline in msg.split("\n"):
                 s._msg(thisline)
             return
-        s.iolock.acquire()
+
+        # We must acquire both locks.  Otherwise, deadlock can result.
+        # This can happen if one thread calls _msg (locking curses, then
+        # tf) and another tries to set the color (locking tf, then curses)
+        #
+        # By locking both up-front here, in this order, we prevent deadlock.
+        
+        s.tflock.acquire()
+        s.c.lock()
         try:
             if not s.c.isactive():
                 # For dumping out exceptions and stuff.
                 print msg
                 return
             if color:
-                s.gettf(lock = 0).setcolor(color, lock = 0)
-            s._addline_unlocked(msg, s.gettf(lock = 0).getcolor())
+                s.gettf().setcolor(color)
+            s._addline(msg, s.gettf().getcolor())
             s.logwindow.refresh()
         finally:
-            s.iolock.release()
+            s.c.unlock()
+            s.tflock.release()
 
-    def _addline_unlocked(s, msg, color):
-        s.logwindow.addstr(msg + "\n", color)
-        s.text.append((msg, color))
-        while len(s.text) > s.logheight:
-            s.text = s.text[1:]
-        
+    def _addline(s, msg, color):
+        s.c.lock()
+        try:
+            s.logwindow.addstr(msg + "\n", color)
+            s.text.append((msg, color))
+            while len(s.text) > s.logheight:
+                s.text = s.text[1:]
+        finally:
+            s.c.unlock()
 
     def terminate(s, exitstatus = 0):
         s.c.stop()

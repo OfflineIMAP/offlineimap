@@ -19,6 +19,7 @@
 from threading import *
 from offlineimap.ui.UIBase import UIBase
 import thread
+from offlineimap.threadutil import MultiLock
 
 from debuglock import DebuggingLock
 
@@ -75,7 +76,7 @@ class BlinkenBase:
     def init_banner(s):
         s.availablethreadframes = {}
         s.threadframes = {}
-        s.tflock = DebuggingLock('tflock')
+        s.tflock = MultiLock()
 
     def threadExited(s, thread):
         threadid = thread.threadid
@@ -92,12 +93,11 @@ class BlinkenBase:
 
         UIBase.threadExited(s, thread)
 
-    def gettf(s, lock = 1):
+    def gettf(s):
         threadid = thread.get_ident()
         accountname = s.getthreadaccount()
 
-        if lock:
-            s.tflock.acquire()
+        s.tflock.acquire()
 
         try:
             if not accountname in s.threadframes:
@@ -111,14 +111,12 @@ class BlinkenBase:
 
             if len(s.availablethreadframes[accountname]):
                 tf = s.availablethreadframes[accountname].pop(0)
-                tf.setthread(currentThread(), lock)
+                tf.setthread(currentThread())
             else:
-                tf = s.getaccountframe().getnewthreadframe(lock)
+                tf = s.getaccountframe().getnewthreadframe()
             s.threadframes[accountname][threadid] = tf
             return tf
-        
         finally:
-            if lock:
-                s.tflock.release()
-        
+            s.tflock.release()
+            
 

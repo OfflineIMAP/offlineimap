@@ -236,3 +236,54 @@ class InstanceLimitedThread(ExitNotifyThread):
             instancelimitedsems[self.instancename].release()
         
     
+######################################################################
+# Multi-lock -- capable of handling a single thread requesting a lock
+# multiple times
+######################################################################
+
+class MultiLock:
+    def __init__(self):
+        self.lock = Lock()
+        self.statuslock = Lock()
+        self.locksheld = {}
+
+    def acquire(self):
+        """Obtain a lock.  Provides nice support for a single
+        thread trying to lock it several times -- as may be the case
+        if one I/O-using object calls others, while wanting to make it all
+        an atomic operation.  Keeps a "lock request count" for the current
+        thread, and acquires the lock when it goes above zero, releases when
+        it goes below one.
+
+        This call is always blocking."""
+        
+        # First, check to see if this thread already has a lock.
+        # If so, increment the lock count and just return.
+        self.statuslock.acquire()
+        try:
+            threadid = thread.get_ident()
+
+            if threadid in self.locksheld:
+                self.locksheld[threadid] += 1
+                return
+            else:
+                # This is safe because it is a per-thread structure
+                self.locksheld[threadid] = 1
+        finally:
+            self.statuslock.release()
+        self.lock.acquire()
+
+    def release(self):
+        self.statuslock.acquire()
+        try:
+            threadid = thread.get_ident()
+            if self.locksheld[threadid] > 1:
+                self.locksheld[threadid] -= 1
+                return
+            else:
+                del self.locksheld[threadid]
+                self.lock.release()
+        finally:
+            self.statuslock.release()
+
+        
