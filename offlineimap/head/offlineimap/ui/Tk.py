@@ -19,7 +19,7 @@
 from Tkinter import *
 import tkFont
 from threading import *
-import thread, traceback, time
+import thread, traceback, time, threading
 from StringIO import StringIO
 from ScrolledText import ScrolledText
 from offlineimap import threadutil, version
@@ -152,17 +152,19 @@ class VerboseUI(UIBase):
             return 0
 
     def _createTopWindow(self, doidlevac = 1):
-        self.top = Tk()
-        self.top.title(version.productname + " " + version.versionstr)
         self.threadframes = {}
         self.availablethreadframes = []
         self.tflock = Lock()
         self.notdeleted = 1
+        self.created = threading.Event()
 
         t = threadutil.ExitNotifyThread(target = self._runmainloop,
                                         name = "Tk Mainloop")
         t.setDaemon(1)
         t.start()
+
+        self.created.wait()
+        del self.created
 
         if doidlevac:
             t = threadutil.ExitNotifyThread(target = self.idlevacuum,
@@ -171,6 +173,9 @@ class VerboseUI(UIBase):
             t.start()
 
     def _runmainloop(s):
+        s.top = Tk()
+        s.top.title(version.productname + " " + version.versionstr)
+        s.created.set()
         s.top.mainloop()
         s.notdeleted = 0
     
@@ -364,6 +369,7 @@ class Blinkenlights(VerboseUI):
             s.fontfamily = config.get('ui.Tk.Blinkenlights', 'fontfamily')
         if config.has_option('ui.Tk.Blinkenlights', 'fontsize'):
             s.fontsize = config.getint('ui.Tk.Blinkenlights', 'fontsize')
+
     def _createTopWindow(self):
         VerboseUI._createTopWindow(self, 0)
         #self.top.resizable(width = 0, height = 0)
