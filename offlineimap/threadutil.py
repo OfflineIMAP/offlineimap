@@ -18,7 +18,7 @@
 
 from threading import *
 from StringIO import StringIO
-import sys, traceback, thread, profile
+import sys, traceback, thread
 from offlineimap.ui import UIBase       # for getglobalui()
 
 profiledir = None
@@ -152,6 +152,7 @@ class ExitNotifyThread(Thread):
             if not profiledir:          # normal case
                 Thread.run(self)
             else:
+                import profile
                 prof = profile.Profile()
                 try:
                     prof = prof.runctx("Thread.run(self)", globals(), locals())
