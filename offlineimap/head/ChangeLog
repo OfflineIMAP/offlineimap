@@ -1,4 +1,32 @@
 ------------------------------------------------------------------------
+rev 252:  jgoerzen | 2002-09-30 10:48:45 -0500 (Mon, 30 Sep 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/version.py
+
+Prepare for 3.2.8
+
+------------------------------------------------------------------------
+rev 251:  jgoerzen | 2002-09-30 10:47:05 -0500 (Mon, 30 Sep 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/imapserver.py
+
+Checked in a work-around for IMAP servers that misbehave with LIST "" ""
+
+------------------------------------------------------------------------
+rev 249:  jgoerzen | 2002-09-26 11:27:23 -0500 (Thu, 26 Sep 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/rules
+
+No longer has to rename due to new naming.
+
+------------------------------------------------------------------------
+rev 248:  jgoerzen | 2002-09-26 11:12:52 -0500 (Thu, 26 Sep 2002) | 1 line
+Changed paths:
+   M /offlineimap/head/ChangeLog
+
+
+------------------------------------------------------------------------
 rev 247:  jgoerzen | 2002-09-26 11:08:04 -0500 (Thu, 26 Sep 2002) | 2 lines
 Changed paths:
    M /offlineimap/head/ChangeLog
