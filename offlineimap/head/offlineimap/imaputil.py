@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import re, string
+import re, string, types
 quotere = re.compile('^("(?:[^"]|\\\\")*")')
 import __main__
 
@@ -69,6 +69,45 @@ def imapsplit(imapstring):
     ['(\\HasNoChildren)', '"."', '"INBOX.Sent"']"""
 
     debug("imapsplit() called with input:", imapstring)
+    if type(imapstring) != types.StringType:
+        debug("imapsplit() got a non-string input; working around.")
+        # Sometimes, imaplib will throw us a tuple if the input
+        # contains a literal.  See Python bug
+        # #619732 at https://sourceforge.net/tracker/index.php?func=detail&aid=619732&group_id=5470&atid=105470
+        # One example is:
+        # result[0] = '() "\\\\" Admin'
+        # result[1] = ('() "\\\\" {19}', 'Folder\\2')
+        #
+        # This function will effectively get result[0] or result[1], so
+        # if we get the result[1] version, we need to parse apart the tuple
+        # and figure out what to do with it.  Each even-numbered
+        # part of it should end with the {} number, and each odd-numbered
+        # part should be directly a part of the result.  We'll
+        # artificially quote it to help out.
+        retval = []
+        for i in range(len(imapstring)):
+            if i % 2:                   # Odd: quote then append.
+                arg = imapstring[i]
+                # Quote code lifted from imaplib
+                arg = arg.replace('\\', '\\\\')
+                arg = arg.replace('"', '\\"')
+                arg = '"%s"' % arg
+                debug("imapsplit() non-string [%d]: Appending %s" %\
+                      (i, arg))
+                retval.append(arg)
+            else:
+                # Even -- we have a string that ends with a literal
+                # size specifier.  We need to strip off that, then run
+                # what remains through the regular imapsplit parser.
+                # Recursion to the rescue.
+                arg = imapstring[i]
+                arg = re.replace('\{\d+\}$', '', arg)
+                debug("imapsplit() non-string [%d]: Feeding %s to recursion" %\
+                      arg)
+                retval.extend(imapsplit(imapstring[i]))
+        debug("imapsplit() non-string: returning %s" % str(retval))
+        return retval
+        
     workstr = imapstring.strip()
     retval = []
     while len(workstr):
