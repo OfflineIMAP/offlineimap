@@ -16,6 +16,11 @@ offlineimap (3.99.0) unstable; urgency=low
   * Moved __main__.ui to functions in UIBase: getglobalui() and
     setglobalui().
   * Added license comments to some source files that were missing them.
+  * Moved some code from offlineimap/init.py to new file
+    offlineimap/syncmaster.py to help dileneate between code that
+    performs different functions.
+  * Moved threadexited from offlineimap/init.py to
+    offlineimap/threadutil.py.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 30 Sep 2002 12:08:08 -0500
 
