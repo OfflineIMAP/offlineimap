@@ -13,6 +13,8 @@ offlineimap (3.2.1) unstable; urgency=low
     a Show Log or a Hide Log menu option.  No sub-menus necessary anymore.
     This presents a much cleaner feel, more intuitive operation, and
     faster navigation.
+  * Fix for account name interpolation in dot warning from 3.2.0 from
+    Martijn Pieters.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 17:04:04 -0500
 

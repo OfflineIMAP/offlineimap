@@ -350,7 +350,7 @@ class LEDThreadFrame:
 class Blinkenlights(VerboseUI):
     def _createTopWindow(self):
         VerboseUI._createTopWindow(self, 0)
-        self.top.resizable(width = 0, height = 0)
+        #self.top.resizable(width = 0, height = 0)
         self.top.configure(background = 'black', bd = 0)
         c = LEDCanvas(self.top, background = 'black', height = 20, bd = 0,
                       highlightthickness = 0)
@@ -381,7 +381,6 @@ class Blinkenlights(VerboseUI):
         self.textenabled = 0
         self.tags = []
         self.textlock = Lock()
-        self.oldtextheight = 0
 
     def gettf(s, newtype=LEDThreadFrame):
         return VerboseUI.gettf(s, newtype, s.canvas)
@@ -401,22 +400,19 @@ class Blinkenlights(VerboseUI):
         s.gettf().setcolor('red')
         s._msg(version.banner)
         s.text.see(END)
-        #s.top.minsize(s.top.winfo_reqwidth(),
-        #              s.top.winfo_reqheight() + s.menubar.winfo_reqheight())
+        s.top.resizable(width = 0, height = 0)
         if s.config.has_option("ui.Tk.Blinkenlights", "showlog") and \
            s.config.getboolean("ui.Tk.Blinkenlights", "showlog"):
             s._togglelog()
 
     def _togglelog(s):
-        print "togglelog"
         if s.textenabled:
             s.oldtextheight = s.text.winfo_height()
             s.text.pack_forget()
             s.textenabled = 0
             s.menubar.entryconfig('Hide Log', label = 'Show Log')
             s.top.update()
-            s.top.geometry("%dx%d" % (s.top.winfo_reqwidth(),
-                                      s.top.winfo_reqheight()))
+            s.top.geometry("")
             s.top.update()
             s.top.resizable(width = 0, height = 0)
             s.top.update()
@@ -425,8 +421,7 @@ class Blinkenlights(VerboseUI):
             s.text.pack(side = BOTTOM, expand = 1, fill = BOTH)
             s.textenabled = 1
             s.top.update()
-            s.top.geometry("%dx%d" % (s.top.winfo_reqwidth(),
-                                      s.top.winfo_height() + s.oldtextheight))
+            s.top.geometry("")
             s.menubar.entryconfig('Show Log', label = 'Hide Log')
             s._rescroll()
             s.top.resizable(width = 1, height = 1)
