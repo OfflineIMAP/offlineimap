@@ -2,7 +2,7 @@ offlineimap (3.99.15) unstable; urgency=low
 
   * Backed out removal of SYNC_WITH_TIMER_TERMINATE code to deal with
     completed syncs.  Without this code, -o broke because the app would
-    never terminate.  Closes: #FIXME.
+    never terminate.  Closes: #190063.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 28 Apr 2003 14:00:32 -0500
 
