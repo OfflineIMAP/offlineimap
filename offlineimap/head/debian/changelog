@@ -7,8 +7,11 @@ offlineimap (3.1.1) unstable; urgency=low
     make sure to handle thread's exception messages before a thread exited.
   * Replaced imaplib.py's braindead readline() with a more efficient one.
   * More optimizations to imaputil and folders for faster operation.
+  * These optimizations, all together, have resulted in OfflineIMAP
+    using approximately half the CPU time of previous versions, fixing
+    [complete.org #6], and... Closes: #153503.
 
- -- John Goerzen <jgoerzen@complete.org>  Tue, 23 Jul 2002 06:53:16 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 06:53:16 -0500
 
 offlineimap (3.1.0) unstable; urgency=low
 

@@ -202,7 +202,7 @@ OPTIONS
               states  that  it  cannot  be.  Use this option with
               care.
 
-              The pre-defined options are  Tk.TKUI  (a  graphical
+              The pre-defined options are  Tk.TkUI  (a  graphical
               interface), TTY.TTYUI (a text-mode interface), Non-
               interactive.Basic (a non-interactive mode  suitable
               for  cronning),  and  Noninteractive.Quiet  (a mode
