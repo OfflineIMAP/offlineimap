@@ -159,6 +159,7 @@ class IMAPServer:
             # Generate a new connection.
             if self.tunnel:
                 imapobj = UsefulIMAP4_Tunnel(self.tunnel)
+                success = 1
             elif self.usessl:
                 imapobj = UsefulIMAP4_SSL(self.hostname, self.port)
             else:

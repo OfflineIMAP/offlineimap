@@ -1,6 +1,7 @@
 offlineimap (3.99.5) unstable; urgency=low
 
   * Added ability to disable expunging on the server.
+  * Fixed infinite loop with preauth.  Closes: #169514.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue, 12 Nov 2002 09:29:31 -0600
 
