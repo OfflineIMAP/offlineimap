@@ -1,4 +1,20 @@
 ------------------------------------------------------------------------
+r590 | jgoerzen | 2004-07-26 10:47:36 -0500 (Mon, 26 Jul 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/debian/control
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.py
+
+Preparing 4.0.6
+------------------------------------------------------------------------
 r589 | jgoerzen | 2004-07-26 10:37:45 -0500 (Mon, 26 Jul 2004) | 1 line
 Changed paths:
    M /offlineimap/head/ChangeLog
