@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+SHELL=/bin/bash
 
 clean:
 	-python2.2 setup.py clean --all
@@ -28,3 +29,9 @@ changelog:
 	cvs2cl
 	cvs commit ChangeLog
 	rm ChangeLog.bak
+
+docs:
+	man -t -l offlineimap.1 > manual.ps
+	ps2pdf manual.ps
+	groff -Tascii -man offlineimap.1 | sed $$'s/.\b//g' > manual.txt
+	groff -Thtml -man offlineimap.1 > manual.html
