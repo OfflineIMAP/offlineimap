@@ -198,6 +198,15 @@ class IMAPFolder(BaseFolder):
         self.addmessagesflags([uid], flags)
 
     def addmessagesflags(self, uidlist, flags):
+        self.processmessagesflags('+', uidlist, flags)
+
+    def deletemessageflags(self, uid, flags):
+        self.deletemessagesflags([uid], flags)
+
+    def deletemessagesflags(self, uidlist, flags):
+        self.processmessagesflags('-', uidlist, flags)
+
+    def processmessagesflags(self, operation, uidlist, flags):
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
@@ -207,7 +216,7 @@ class IMAPFolder(BaseFolder):
                 return
             r = imapobj.uid('store',
                             imaputil.listjoin(uidlist),
-                            '+FLAGS',
+                            operation + 'FLAGS',
                             imaputil.flagsmaildir2imap(flags))
             assert r[0] == 'OK', 'Error with store: ' + r[1]
             r = r[1]
@@ -234,10 +243,15 @@ class IMAPFolder(BaseFolder):
             except ValueError:          # Let it slide if it's not in the list
                 pass
         for uid in needupdate:
-            for flag in flags:
-                if not flag in self.messagelist[uid]['flags']:
-                    self.messagelist[uid]['flags'].append(flag)
-                self.messagelist[uid]['flags'].sort()
+            if operation == '+':
+                for flag in flags:
+                    if not flag in self.messagelist[uid]['flags']:
+                        self.messagelist[uid]['flags'].append(flag)
+                    self.messagelist[uid]['flags'].sort()
+            elif operation == '-':
+                for flag in flags:
+                    if flag in self.messagelist[uid]['flags']:
+                        self.messagelist[uid]['flags'].remove(flag)
 
     def deletemessage(self, uid):
         self.deletemessages([uid])

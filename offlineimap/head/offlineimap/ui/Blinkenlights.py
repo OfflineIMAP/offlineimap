@@ -63,13 +63,13 @@ class BlinkenBase:
         s.gettf().setcolor('red')
         s.__class__.__bases__[-1].deletingmessage(s, uid, destlist)
 
-    def addingflags(s, uid, flags, destlist):
+    def addingflags(s, uidlist, flags, destlist):
         s.gettf().setcolor('yellow')
-        s.__class__.__bases__[-1].addingflags(s, uid, flags, destlist)
+        s.__class__.__bases__[-1].addingflags(s, uidlist, flags, destlist)
 
-    def deletingflags(s, uid, flags, destlist):
+    def deletingflags(s, uidlist, flags, destlist):
         s.gettf().setcolor('pink')
-        s.__class__.__bases__[-1].deletingflags(s, uid, flags, destlist)
+        s.__class__.__bases__[-1].deletingflags(s, uidlist, flags, destlist)
 
     def init_banner(s):
         s.availablethreadframes = {}

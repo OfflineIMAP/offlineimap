@@ -1,3 +1,33 @@
+offlineimap (3.99.7) unstable; urgency=low
+
+  * This is a 4.0 TRACK release, and may be unstable or in flux!
+  * Converted entire manual to DocBook SGML so it will be easier to
+    expand in the future.  The HTML manual, also, looks far nicer now
+    than it did before.
+  * Fixed the Tk.VerboseUI -- small, silly error introduced in 3.99.6.
+  * Multiple performance and reliability enhancements to syncing
+    algorithms, as described below.
+  * The process of uploading new messages from local folders to the IMAP
+    server was not internally multi-threaded previously.  Now it is.
+    This means that if you have a single folder with lots of new messages
+    locally, the processing time should be dramatically sped up.  Moreover,
+    the process should be more reliable because we do not risk connections
+    going dead.
+  * The process of synchronizing flags has been overhauled and optimized.
+    Previously, for each message where a flag (seen, replied, etc.) was
+    changed, we'd issue a separate command to the IMAP server to adjust
+    things.  Now, we issue one command for each flag.  In other words,
+    instead of seing 45 messages saying something like "Adding flag S to
+    message 1421", you now see one message saying "Adding flag S to 45 
+    messages" -- and the interaction with the IMAP server may well be
+    almost 45 times faster on this.  We will now issue at most four
+    commands per flag operation (add or remove) per folder, where before,
+    we may have issued as many as two per message.  Should be a
+    large speedup in most cases, but a small slowdown in a few.
+  * Potentially increased the reliability of writing files to the Maildir.
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed,  8 Jan 2003 07:05:01 -0600
+
 offlineimap (3.99.6) unstable; urgency=low
 
   * This a 4.0 TRACK release, and may be unstable or in flux!

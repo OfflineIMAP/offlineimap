@@ -131,7 +131,7 @@ class BaseFolder:
 
     def addmessagesflags(self, uidlist, flags):
         for uid in uidlist:
-            self.addmessageflags(uid)
+            self.addmessageflags(uid, flags)
 
     def deletemessageflags(self, uid, flags):
         """Removes each flag given from the message's flag set.  If a given
@@ -143,12 +143,45 @@ class BaseFolder:
         newflags.sort()
         self.savemessageflags(uid, newflags)
 
+    def deletemessagesflags(self, uidlist, flags):
+        for uid in uidlist:
+            self.deletemessageflags(uid, flags)
+
     def deletemessage(self, uid):
         raise NotImplementedException
 
     def deletemessages(self, uidlist):
         for uid in uidlist:
             self.deletemessage(uid)
+
+    def syncmessagesto_neguid_msg(self, uid, dest, applyto, register = 1):
+        if register:
+            UIBase.getglobalui().registerthread(self.getaccountname())
+        UIBase.getglobalui().copyingmessage(uid, self, applyto)
+        successobject = None
+        successuid = None
+        message = self.getmessage(uid)
+        flags = self.getmessageflags(uid)
+        for tryappend in applyto:
+            successuid = tryappend.savemessage(uid, message, flags)
+            if successuid >= 0:
+                successobject = tryappend
+                break
+        # Did we succeed?
+        if successobject != None:
+            if successuid:       # Only if IMAP actually assigned a UID
+                # Copy the message to the other remote servers.
+                for appendserver in \
+                        [x for x in applyto if x != successobject]:
+                    appendserver.savemessage(successuid, message, flags)
+                    # Copy to its new name on the local server and delete
+                    # the one without a UID.
+                    self.savemessage(successuid, message, flags)
+            self.deletemessage(uid) # It'll be re-downloaded.
+        else:
+            # Did not find any server to take this message.  Ignore.
+            pass
+        
 
     def syncmessagesto_neguid(self, dest, applyto):
         """Pass 1 of folder synchronization.
@@ -158,33 +191,28 @@ class BaseFolder:
         and once that succeeds, get the UID, add it to the others for real,
         add it to local for real, and delete the fake one."""
 
-        for uid in self.getmessagelist().keys():
-            if uid >= 0:
-                continue
-            UIBase.getglobalui().copyingmessage(uid, self, applyto)
-            successobject = None
-            successuid = None
-            message = self.getmessage(uid)
-            flags = self.getmessageflags(uid)
-            for tryappend in applyto:
-                successuid = tryappend.savemessage(uid, message, flags)
-                if successuid >= 0:
-                    successobject = tryappend
-                    break
-            # Did we succeed?
-            if successobject != None:
-                if successuid:       # Only if IMAP actually assigned a UID
-                    # Copy the message to the other remote servers.
-                    for appendserver in \
-                            [x for x in applyto if x != successobject]:
-                        appendserver.savemessage(successuid, message, flags)
-                        # Copy to its new name on the local server and delete
-                        # the one without a UID.
-                        self.savemessage(successuid, message, flags)
-                self.deletemessage(uid) # It'll be re-downloaded.
+        uidlist = [uid for uid in self.getmessagelist().keys() if uid < 0]
+        threads = []
+
+        usethread = None
+        if applyto != None:
+            usethread = applyto[0]
+        
+        for uid in uidlist:
+            if usethread:
+                usethread.waitforthread()
+                thread = InstanceLimitedThread(\
+                    usethread.getcopyinstancelimit(),
+                    target = self.syncmessagesto_neguid_msg,
+                    name = "New msg sync from %s" % self.getvisiblename(),
+                    args = (uid, dest, applyto))
+                thread.setDaemon(1)
+                thread.start()
+                threads.append(thread)
             else:
-                # Did not find any server to take this message.  Ignore.
-                pass
+                self.syncmessagesto_neguid_msg(uid, dest, applyto, register = 0)
+        for thread in threads:
+            thread.join()
 
     def copymessageto(self, uid, applyto, register = 1):
         # Sometimes, it could be the case that if a sync takes awhile,
@@ -260,6 +288,17 @@ class BaseFolder:
 
         Look for any flag matching issues -- set dest message to have the
         same flags that we have."""
+
+        # As an optimization over previous versions, we store up which flags
+        # are being used for an add or a delete.  For each flag, we store
+        # a list of uids to which it should be added.  Then, we can call
+        # addmessagesflags() to apply them in bulk, rather than one
+        # call per message as before.  This should result in some significant
+        # performance improvements.
+
+        addflaglist = {}
+        delflaglist = {}
+        
         for uid in self.getmessagelist().keys():
             if uid < 0:                 # Ignore messages missed by pass 1
                 continue
@@ -267,17 +306,26 @@ class BaseFolder:
             destflags = dest.getmessageflags(uid)
 
             addflags = [x for x in selfflags if x not in destflags]
-            if len(addflags):
-                UIBase.getglobalui().addingflags(uid, addflags, applyto)
-                for object in applyto:
-                    object.addmessageflags(uid, addflags)
+
+            for flag in addflags:
+                if not flag in addflaglist:
+                    addflaglist[flag] = []
+                addflaglist[flag].append(uid)
 
             delflags = [x for x in destflags if x not in selfflags]
-            if len(delflags):
-                UIBase.getglobalui().deletingflags(uid, delflags, applyto)
-                for object in applyto:
-                    object.deletemessageflags(uid, delflags)
+            for flag in delflags:
+                if not flag in delflaglist:
+                    delflaglist[flag] = []
+                delflaglist[flag].append(uid)
 
+        for object in applyto:
+            for flag in addflaglist.keys():
+                UIBase.getglobalui().addingflags(addflaglist[flag], flag, [object])
+                object.addmessagesflags(addflaglist[flag], [flag])
+            for flag in delflaglist.keys():
+                UIBase.getglobalui().deletingflags(addflaglist[flag], flag, [object])
+                object.deletemessagesflags(delflaglist[flag], [flag])
+                
     def syncmessagesto(self, dest, applyto = None):
         """Syncs messages in this folder to the destination.
         If applyto is specified, it should be a list of folders (don't forget

@@ -170,12 +170,13 @@ class MaildirFolder(BaseFolder):
                 attempts += 1
             else:
                 break
-        file = open(os.path.join(tmpdir, messagename), "wt")
+        tmpmessagename = messagename.split(',')[0]
+        file = open(os.path.join(tmpdir, tmpmessagename), "wt")
         file.write(content)
         file.close()
-        os.link(os.path.join(tmpdir, messagename),
+        os.link(os.path.join(tmpdir, tmpmessagename),
                 os.path.join(newdir, messagename))
-        os.unlink(os.path.join(tmpdir, messagename))
+        os.unlink(os.path.join(tmpdir, tmpmessagename))
         self.messagelist[uid] = {'uid': uid, 'flags': [],
                                  'filename': os.path.join(newdir, messagename)}
         self.savemessageflags(uid, flags)
