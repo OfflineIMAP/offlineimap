@@ -115,7 +115,7 @@ def syncaccount(accountname, *args):
             thread = InstanceLimitedThread(\
                 instancename = 'FOLDER_' + accountname,
                 target = syncfolder,
-                name = "syncfolder-%s-%s" % \
+                name = "Folder sync %s[%s]" % \
                 (accountname, remotefolder.getvisiblename()),
                 args = (accountname, remoterepos, remotefolder, localrepos,
                         statusrepos))
@@ -189,7 +189,7 @@ def syncitall():
     for accountname in accounts:
         thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                        target = syncaccount,
-                                       name = "syncaccount-%s" % accountname,
+                                       name = "Account sync %s" % accountname,
                                        args = (accountname,))
         thread.setDaemon(1)
         thread.start()
@@ -214,6 +214,7 @@ def sync_with_timer():
                     event = Event()
                     kaevents[accountname] = event
                     thread = ExitNotifyThread(target = servers[accountname].keepalive,
+                                              name = "Keep alive " + accountname,
                                               args = (config.getint(accountname, 'keepalive'), event))
                     thread.setDaemon(1)
                     thread.start()

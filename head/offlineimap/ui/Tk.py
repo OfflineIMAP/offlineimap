@@ -73,25 +73,46 @@ class TextOKDialog:
 
 class ThreadFrame(Frame):
     def __init__(self, master=None):
+        self.threadextraframe = None
         self.thread = currentThread()
         self.threadid = thread.get_ident()
         Frame.__init__(self, master, relief = RIDGE, borderwidth = 2)
         self.pack(fill = 'x')
-        #self.threadlabel = Label(self, foreground = '#FF0000',
-        #                         text ="Thread %d (%s)" % (self.threadid,
-        #                                             self.thread.getName()))
-        #self.threadlabel.pack()
+        self.threadlabel = Label(self, foreground = '#FF0000',
+                                 text ="Thread %d (%s)" % (self.threadid,
+                                                     self.thread.getName()))
+        self.threadlabel.pack()
+        self.setthread(currentThread())
 
         self.account = "Unknown"
         self.mailbox = "Unknown"
-        self.loclabel = Label(self, foreground = '#0000FF',
+        self.loclabel = Label(self,
                               text = "Account/mailbox information unknown")
         #self.loclabel.pack()
 
         self.updateloclabel()
 
-        self.message = Label(self, text="Messages will appear here.\n")
-        self.message.pack(side = LEFT)
+        self.message = Label(self, text="Messages will appear here.\n",
+                             foreground = '#0000FF')
+        self.message.pack(fill = 'x')
+
+    def setthread(self, newthread):
+        if newthread:
+            self.threadlabel['text'] = newthread.getName()
+        else:
+            self.threadlabel['text'] = "No thread"
+        self.destroythreadextraframe()
+
+    def destroythreadextraframe(self):
+        if self.threadextraframe:
+            self.threadextraframe.destroy()
+            self.threadextraframe = None
+
+    def getthreadextraframe(self):
+        if self.threadextraframe:
+            return self.threadextraframe
+        self.threadextraframe = Frame()
+        self.threadextraframe.pack(fill = 'x')
 
     def setaccount(self, account):
         self.account = account
@@ -150,6 +171,7 @@ class TkUI(UIBase):
                 return s.threadframes[threadid]
             if len(s.availablethreadframes):
                 tf = s.availablethreadframes.pop(0)
+                tf.setthread(currentThread())
             else:
                 tf = ThreadFrame(s.top)
             s.threadframes[threadid] = tf
@@ -167,6 +189,7 @@ class TkUI(UIBase):
         if threadid in s.threadframes:
             print "Removing thread %d" % threadid
             tf = s.threadframes[threadid]
+            tf.setthread(None)
             tf.setaccount("Unknown")
             tf.setmessage("Idle")
             s.availablethreadframes.append(tf)

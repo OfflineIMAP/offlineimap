@@ -199,6 +199,8 @@ class BaseFolder:
                     thread = InstanceLimitedThread(\
                         self.getcopyinstancelimit(),
                         target = self.copymessageto,
+                        name = "Copy message %d from %s" % (uid,
+                                                            self.getvisiblename()),
                         args = (uid, applyto))
                     thread.setDaemon(1)
                     thread.start()
