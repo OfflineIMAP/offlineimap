@@ -1,4 +1,98 @@
 ------------------------------------------------------------------------
+rev 262:  jgoerzen | 2002-10-07 11:30:35 -0500 (Mon, 07 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.1
+   A /offlineimap/head/offlineimap.py
+
+Final prep for 3.99.0
+
+------------------------------------------------------------------------
+rev 261:  jgoerzen | 2002-10-07 11:17:13 -0500 (Mon, 07 Oct 2002) | 7 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/init.py
+   A /offlineimap/head/offlineimap/syncmaster.py
+   M /offlineimap/head/offlineimap/threadutil.py
+
+  * Moved some code from offlineimap/init.py to new file
+    offlineimap/syncmaster.py to help dileneate between code that
+    performs different functions.
+  * Moved threadexited from offlineimap/init.py to
+    offlineimap/threadutil.py.
+
+
+------------------------------------------------------------------------
+rev 260:  jgoerzen | 2002-10-07 11:11:19 -0500 (Mon, 07 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/localeval.py
+
+Updated -- the init changes now actually work.
+
+------------------------------------------------------------------------
+rev 259:  jgoerzen | 2002-10-07 10:59:02 -0500 (Mon, 07 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/Base.py
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/imaplib.py
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap/imaputil.py
+   A /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/repository/Maildir.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+
+Initial commit on initialization reorganization
+
+------------------------------------------------------------------------
+rev 258:  jgoerzen | 2002-10-07 10:18:02 -0500 (Mon, 07 Oct 2002) | 4 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imaputil.py
+
+  * Added a workaround to imaputil.py to deal with a bug in imaplib.py's
+    tuple when a response contains a literal in certain cases.
+
+
+------------------------------------------------------------------------
+rev 257:  jgoerzen | 2002-10-01 08:57:56 -0500 (Tue, 01 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imaputil.py
+
+Added more debugging to the IMAP debug stream
+
+------------------------------------------------------------------------
+rev 256:  jgoerzen | 2002-09-30 12:10:46 -0500 (Mon, 30 Sep 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap.1
+
+Fixed manual to reflect single-user startup
+
+------------------------------------------------------------------------
+rev 255:  jgoerzen | 2002-09-30 12:09:27 -0500 (Mon, 30 Sep 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/mbnames.py
+   M /offlineimap/head/offlineimap.conf
+
+Added folderfilter capability to the mbnames section
+
+------------------------------------------------------------------------
+rev 253:  jgoerzen | 2002-09-30 10:49:01 -0500 (Mon, 30 Sep 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+
+Final 3.2.8 work
+
+------------------------------------------------------------------------
 rev 252:  jgoerzen | 2002-09-30 10:48:45 -0500 (Mon, 30 Sep 2002) | 2 lines
 Changed paths:
    M /offlineimap/head/debian/changelog
