@@ -18,7 +18,7 @@
 
 from Base import BaseFolder
 from offlineimap import imaputil, imaplib
-import rfc822
+import rfc822, time
 from StringIO import StringIO
 from copy import copy
 
@@ -105,7 +105,10 @@ class IMAPFolder(BaseFolder):
 
             message = rfc822.Message(StringIO(content))
             mid = imapobj._quote(message.getheader('Message-Id'))
-            date = imaplib.Time2Internaldate(rfc822.parsedate(message.getheader('Date')))
+            datetuple = rfc822.parsedate(message.getheader('Date'))
+            if datetuple == None:
+                datetuple = time.localtime()
+            date = imaplib.Time2Internaldate(datetuple)
 
             if content.find("\r\n") == -1:  # Convert line endings if not already
                 content = content.replace("\n", "\r\n")

@@ -1,6 +1,8 @@
 offlineimap (3.0.3) unstable; urgency=low
 
-  * Placeholder.
+  * No longer throws an exception when updating messages with strange
+    Date headers; will just set IMAP Internaldate to the current date.
+    Closes: #153425.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 18 Jul 2002 17:46:13 -0500
 
