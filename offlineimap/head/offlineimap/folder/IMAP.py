@@ -89,9 +89,7 @@ class IMAPFolder(BaseFolder):
             else:
                 uid = long(options['UID'])
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
-                # Skip messages already flagged for deletion on the server.
-                if not 'T' in flags:
-                    self.messagelist[uid] = {'uid': uid, 'flags': flags}
+                self.messagelist[uid] = {'uid': uid, 'flags': flags}
 
     def getmessagelist(self):
         return self.messagelist

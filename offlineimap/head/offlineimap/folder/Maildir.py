@@ -116,17 +116,9 @@ class MaildirFolder(BaseFolder):
             if flagmatch:
                 flags = [x for x in flagmatch.group(1)]
             flags.sort()
-            if 'T' in flags:
-                # Message is marked for deletion; just delete it now.
-                # Otherwise, the T flag will be propogated to the IMAP
-                # server, and then expunged there, and then deleted here.
-                # Might as well just delete it now, to help make things
-                # more robust.
-                os.unlink(file)
-            else:
-                retval[uid] = {'uid': uid,
-                               'flags': flags,
-                               'filename': file}
+            retval[uid] = {'uid': uid,
+                           'flags': flags,
+                           'filename': file}
         return retval
 
     def cachemessagelist(self):
