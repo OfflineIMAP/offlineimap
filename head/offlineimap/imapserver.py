@@ -18,6 +18,7 @@
 
 from offlineimap import imaplib, imaputil, threadutil
 from threading import *
+import thread
 
 class UsefulIMAPMixIn:
     def getstate(self):
@@ -64,6 +65,7 @@ class IMAPServer:
         self.maxconnections = maxconnections
         self.availableconnections = []
         self.assignedconnections = []
+        self.lastowner = {}
         self.semaphore = BoundedSemaphore(self.maxconnections)
         self.connectionlock = Lock()
         self.reference = reference
@@ -97,9 +99,22 @@ class IMAPServer:
         imapobj = None
 
         if len(self.availableconnections): # One is available.
-            imapobj = self.availableconnections[0]
+            # Try to find one that previously belonged to this thread
+            # as an optimization.  Start from the back since that's where
+            # they're popped on.
+            threadid = thread.get_ident()
+            imapobj = None
+            for i in range(len(self.availableconnections) - 1, -1, -1):
+                tryobj = self.availableconnections[i]
+                if self.lastowner[tryobj] == threadid:
+                    imapobj = tryobj
+                    del(self.availableconnections[i])
+                    break
+            if not imapobj:
+                imapobj = self.availableconnections[0]
+                del(self.availableconnections[0])
             self.assignedconnections.append(imapobj)
-            del(self.availableconnections[0])
+            self.lastowner[imapobj] = thread.get_ident()
             self.connectionlock.release()
             return imapobj
         
@@ -124,6 +139,7 @@ class IMAPServer:
 
         self.connectionlock.acquire()
         self.assignedconnections.append(imapobj)
+        self.lastowner[imapobj] = thread.get_ident()
         self.connectionlock.release()
         return imapobj
     
@@ -146,6 +162,7 @@ class IMAPServer:
             imapobj.logout()
         self.assignedconnections = []
         self.availableconnections = []
+        self.lastowner = {}
         self.connectionlock.release()
 
     def keepalive(self, timeout, event):
@@ -168,14 +185,14 @@ class IMAPServer:
             for i in range(numconnections):
                 imapobj = self.acquireconnection()
                 imapobjs.append(imapobj)
-                thread = threadutil.ExitNotifyThread(target = imapobj.noop)
-                thread.setDaemon(1)
-                thread.start()
-                threads.append(thread)
+                thr = threadutil.ExitNotifyThread(target = imapobj.noop)
+                thr.setDaemon(1)
+                thr.start()
+                threads.append(thr)
 
-            for thread in threads:
+            for thr in threads:
                 # Make sure all the commands have completed.
-                thread.join()
+                thr.join()
 
             for imapobj in imapobjs:
                 self.releaseconnection(imapobj)

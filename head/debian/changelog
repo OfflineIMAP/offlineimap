@@ -8,8 +8,9 @@ offlineimap (2.0.8) unstable; urgency=low
     bug.
   * Modified Maildir folder to unlink messages with T flag in
     cachemessagelist()
+  * My own box now syncs in 3 seconds.
 
- -- John Goerzen <jgoerzen@complete.org>  Wed, 10 Jul 2002 12:29:30 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 9 Jul 2002 23:29:30 -0500
 
 offlineimap (2.0.7) unstable; urgency=low
 
