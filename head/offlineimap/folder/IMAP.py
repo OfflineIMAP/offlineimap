@@ -46,29 +46,23 @@ class IMAPFolder(BaseFolder):
     def getuidvalidity(self):
         imapobj = self.imapserver.acquireconnection()
         x = None
+        readonlysave = imapobj.is_readonly
+        imapobj.is_readonly = 1
         try:
-            try:
-                x = imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
-            except imapobj.readonly:
-                x = imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
+            x = imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
         finally:
             self.imapserver.releaseconnection(imapobj)
+            imapobj.is_readonly = readonlysave
         uidstring = imaputil.imapsplit(x)[1]
         return long(imaputil.flagsplit(uidstring)[1])
     
     def cachemessagelist(self):
         imapobj = self.imapserver.acquireconnection()
         try:
-            try:
-                imapobj.select(self.getfullname()) # Needed for fetch below
-            except imapobj.readonly:
-                pass
+            # Needed for fetch below
+            imapobj.select(self.getfullname(), readonly = 1)
             self.messagelist = {}
-            response = None
-            try:
-                response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
-            except imapobj.readonly:
-                response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
+            response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
             result = imaputil.imapsplit(response)[1]
             maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
             if (maxmsgid < 1):
@@ -93,10 +87,7 @@ class IMAPFolder(BaseFolder):
     def getmessage(self, uid):
         imapobj = self.imapserver.acquireconnection()
         try:
-            try:
-                imapobj.select(self.getfullname())
-            except imapobj.readonly:
-                pass
+            imapobj.select(self.getfullname(), readonly = 1)
             return imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')[1][0][1].replace("\r\n", "\n")
         finally:
             self.imapserver.releaseconnection(imapobj)
