@@ -2,6 +2,10 @@ offlineimap (3.2.5) unstable; urgency=low
 
   * Now handles uploading messages without Message-Id headers.
     Closes: #156022.
+  * Applied patch from Tommi Virtanen that adds two new config file
+    options: pythonfile and foldersort.  Fixes [complete.org #29], and
+    for Debian, Closes: #155637.
+  * Added documentation for the above features.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri,  9 Aug 2002 17:54:01 -0500
 

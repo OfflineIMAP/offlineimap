@@ -418,35 +418,37 @@ passwords must be specified using one of the configuration file options.
 .\".TP
 .\".B \-v, \-\-version
 .\"Show version of program.
+.\"**********************************************************************
 .SH EXAMPLES
 Here is an example configuration for a particularly complex situation;
 more examples will be added later.
+.\"********************
 .SS MULTIPLE ACCOUNTS WITH MUTT
 This example shows you how to set up
 .B OfflineIMAP
 to synchronize multiple accounts with the mutt mail reader.
-.PP
+
 Start by creating a directory to hold your folders:
 .br
 .B mkdir ~/Mail
-.PP
+
 In your
 .I ~/.offlineimaprc,
 specify this:
 .br
 .B accounts = Personal, Work
-.PP
+
 Make sure that you have both a
 .B [Personal]
 and a
 .B [Work]
 section, with different localfolder pathnames and enable
 .B [mbnames].
-.PP
+
 In each account section, do something like this:
 .br
 .B localfolders = ~/Mail/Personal
-.PP
+
 Add these lines to your
 .I ~/.muttrc:
 .br
@@ -461,8 +463,9 @@ Add these lines to your
 .B set folder=$HOME/Mail
 .br
 .B set spoolfile=+Personal/INBOX
-.PP
+
 That's it!
+.\"********************
 .SS UW-IMAPD AND REFERENCES
 Some users with a UW-IMAPD server need to use
 .B OfflineIMAP's
@@ -472,7 +475,7 @@ configuration from docwhat@gerf.org
 shows using a reference of Mail, a nametrans that strips
 the leading Mail/ off incoming folder names, and a folderfilter that
 limits the folders synced to just three.
-.PP
+
 .B [Gerf]
 .br
 .B localfolders = ~/Mail
@@ -508,6 +511,55 @@ limits the folders synced to just three.
 .B maxconnections = 1
 .br
 .B holdconnectionopen = no
+.\"********************
+.SS PYTHONFILE CONFIGURATION FILE OPTION
+You can have OfflineIMAP load up a Python file before evaluating the
+configuration file options that are Python expressions.  This example
+is based on one supplied by Tommi Virtanen for this feature.
+
+In \fI~/.offlineimap.rc\fP, he adds these options:
+
+.B [general]
+.br
+.B pythonfile=~/.offlineimap.py
+.br
+.br
+.B [foo]
+.br
+.B foldersort=mycmp
+
+Then, the \fI~/.offlineimap.py\fP file will contain:
+
+.B prioritized = ['INBOX', 'personal', 'announce', 'list']
+
+.B def mycmp(x, y):
+.br
+.B "   for prefix in prioritized:"
+.br
+.B "       if x.startswith(prefix):"
+.br
+.B "           return -1"
+.br
+.B "       elif y.startswith(prefix):"
+.br
+.B "           return +1"
+.br
+.B "   return cmp(x, y)"
+
+.B def test_mycmp():
+.br
+.B "   import os, os.path"
+.br
+.B "   folders=os.listdir(os.path.expanduser('~/data/mail/tv@hq.yok.utu.fi'))"
+.br
+.B "   folders.sort(mycmp)"
+.br
+.B "   print folders"
+
+This code snippet illustrates how the \fBfoldersort\fP option can be
+customized with a Python function from the \fBpythonfile\fP to always
+synchronize certain folders first.
+.\"**********************************************************************
 .SH ERRORS
 If you get one of some frequently-encountered or confusing errors,
 please check this section.
