@@ -1,0 +1,127 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH OFFLINEIMAP 1 "July 11, 2002" "quux.org" "OfflineIMAP manual"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+OfflineIMAP \- IMAP/Maildir synchronization and reader support
+.SH SYNOPSIS
+.B offlineimap
+[
+.BI -1
+]
+[
+.BI -a \ accountlist
+]
+[
+.BI -c \ configfile
+]
+.br
+[
+.BI -d
+]
+[
+.BI -u " interface"
+]
+
+.\".RI [ -c \ foo ]
+.\".RI [ options ] " files" ...
+.br
+.B offlineimap
+.B -h
+.\".RI [ options ] " files" ...
+.SH DESCRIPTION
+.B OfflineIMAP
+is a tool to simplify your e-mail reading.  With 
+.B OfflineIMAP,
+you can read the same mailbox from multiple computers.  You get a
+current copy of your messages on each computer, and changes you make
+one place will be visible on all other systems.  For instance, you can
+delete a message on your home computer, and it will appear deleted on
+your work computer as well.
+.B OfflineIMAP
+is also useful if you want to use a mail reader that does not have
+IMAP support, has poor IMAP support, or does not provide disconnected
+operation.
+.PP
+.B OfflineIMAP
+is
+.I FAST;
+it synchronizes my two accounts with over 50 folders in 3 seconds.
+Other similar tools might take over a minute, and achieve a
+less-reliable result.  Some mail readers can take over 10 minutes to
+do the same thing, and some don't even support it at all.  Unlike
+other mail tools,
+.B OfflineIMAP
+features a multi-threaded synchronization algorithm that can
+dramatically speed up performance in many situations by synchronizing
+several different things simultaneously.
+.PP
+.B OfflineIMAP
+is
+.I FLEXIBLE;
+you can customize which folders are synced via regular expressions, lists, or
+Python expressions; a versatile and comprehensive configuration file
+is used to control behavior; two user interfaces are built-in;
+fine-tuning of synchronization performance is possible; internal or
+external automation is supported; SSL and PREAUTH tunnels are both
+supported; offline (or "unplugged") reading is supported; and
+esoteric IMAP features are supported to ensure compatibility with the
+widest variety of IMAP servers.
+.PP
+.B OfflineIMAP
+is
+.I SAFE;
+it uses an algorithm designed to prevent mail loss at all costs.
+Because of the design of this algorithm, even programming errors
+should not result in loss of mail.  I am so confident in the algorithm
+that I use my own personal and work accounts for testing of
+.B OfflineIMAP
+pre-release, development, and beta releases.
+.PP
+This manual page documents briefly the
+.B offlineimap
+and
+.B bar
+commands.
+This manual page was written for the Debian distribution
+because the original program does not have a manual page.
+Instead, it has documentation in the GNU Info format; see below.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+\fBofflineimap\fP is a program that...
+.SH OPTIONS
+These programs follow the usual GNU command line syntax, with long
+options starting with two dashes (`-').
+A summary of options is included below.
+For a complete description, see the Info files.
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-v, \-\-version
+Show version of program.
+.SH SEE ALSO
+.BR bar (1),
+.BR baz (1).
+.br
+The programs are documented fully by
+.IR "The Rise and Fall of a Fooish Bar" ,
+available via the Info system.
+.SH AUTHOR
+This manual page was written by John Goerzen <jgoerzen@complete.org>,
+for the Debian GNU/Linux system (but may be used by others).

@@ -20,19 +20,21 @@ from offlineimap.ui import *
 import sys
 
 def findUI(config):
-    uistrlist = ['Tk.TKUI', 'TTY.TTYUI']
+    uistrlist = ['Tk.TkUI', 'TTY.TTYUI']
     if config.has_option("general", "ui"):
         uistrlist = config.get("general", "ui").replace(" ", "").split(",")
     for uistr in uistrlist:
         uimod = getUImod(uistr)
-        if uimod and uimod.isusable():
-            return uimod
+        if uimod:
+            uiinstance = uimod()
+            if uiinstance.isusable():
+                return uiinstance
     sys.stderr.write("ERROR: No UIs were found usable!\n")
     sys.exit(200)
     
 def getUImod(uistr):
     try:
         uimod = eval(uistr)
-    except AttributeError, NameError:
+    except (AttributeError, NameError):
         return None
     return uimod

@@ -23,12 +23,9 @@ import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
 
+
 if '-d' in sys.argv:
     imaplib.Debug = 5
-
-ui = offlineimap.ui.TTY.TTYUI()
-#ui = offlineimap.ui.Tk.TkUI()
-ui.init_banner()
 
 config = ConfigParser()
 configfilename = os.path.expanduser("~/.offlineimaprc")
@@ -37,6 +34,10 @@ if not os.path.exists(configfilename):
     sys.exit(1)
     
 config.read(configfilename)
+
+ui = offlineimap.ui.detector.findUI(config)
+ui.init_banner()
+
 
 metadatadir = os.path.expanduser(config.get("general", "metadata"))
 if not os.path.exists(metadatadir):
