@@ -147,7 +147,7 @@ class VerboseUI(UIBase):
         except TclError:
             return 0
 
-    def _createTopWindow(self):
+    def _createTopWindow(self, doidlevac = 1):
         self.top = Tk()
         self.top.title(version.productname + " " + version.versionstr)
         self.threadframes = {}
@@ -160,10 +160,11 @@ class VerboseUI(UIBase):
         t.setDaemon(1)
         t.start()
 
-        t = threadutil.ExitNotifyThread(target = self.idlevacuum,
-                                        name = "Tk idle vacuum")
-        t.setDaemon(1)
-        t.start()
+        if doidlevac:
+            t = threadutil.ExitNotifyThread(target = self.idlevacuum,
+                                            name = "Tk idle vacuum")
+            t.setDaemon(1)
+            t.start()
 
     def _runmainloop(s):
         s.top.mainloop()
@@ -238,18 +239,20 @@ class VerboseUI(UIBase):
     def warn(s, msg):
         TextOKDialog("OfflineIMAP Warning", msg)
 
+    def showlicense(s):
+        TextOKDialog(version.productname + " License",
+                     version.bigcopyright + "\n" +
+                     version.homepage + "\n\n" + version.license,
+                     blocking = 0, master = s.top)
+
+
     def init_banner(s):
         s._createTopWindow()
         s._msg(version.productname + " " + version.versionstr + ", " +\
                version.copyright)
         tf = s.gettf().getthreadextraframe()
 
-        def showlicense():
-            TextOKDialog(version.productname + " License",
-                         version.bigcopyright + "\n" +
-                         version.homepage + "\n\n" + version.license,
-                         blocking = 0, master = tf)
-        b = Button(tf, text = "About", command = showlicense)
+        b = Button(tf, text = "About", command = s.showlicense)
         b.pack(side = LEFT)
         
         b = Button(tf, text = "Exit", command = s.terminate)
@@ -310,14 +313,14 @@ class LEDThreadFrame:
                                               10, fill = 'gray',
                                               outline = '#303030')
 
-    def _setcolor(self, newcolor):
+    def setcolor(self, newcolor):
         self.canvas.itemconfigure(self.ovalid, fill = newcolor)
 
     def setthread(self, newthread):
         if newthread:
-            self._setcolor('gray')
+            self.setcolor('gray')
         else:
-            self._setcolor('black')
+            self.setcolor('black')
 
     def destroythreadextraframe(self):
         pass
@@ -339,8 +342,10 @@ class LEDThreadFrame:
 
 class Blinkenlights(VerboseUI):
     def _createTopWindow(self):
-        VerboseUI._createTopWindow(self)
-        c = LEDCanvas(self.top, background = 'black', height = 20)
+        VerboseUI._createTopWindow(self, 0)
+        self.top.configure(background = 'black', bd = 0)
+        c = LEDCanvas(self.top, background = 'black', height = 20, bd = 0,
+                      highlightthickness = 0)
         c.setLEDCount(0)
         c.createLEDLock()
         self.canvas = c
@@ -351,6 +356,56 @@ class Blinkenlights(VerboseUI):
 
     def init_banner(s):
         s._createTopWindow()
+        menubar = Menu(s.top, activebackground = "black",
+                       activeforeground = "white",
+                       background = "black", foreground = "blue",
+                       font = ("Helvetica", 8), bd = 0)
+        menubar.add_command(label = "About", command = s.showlicense)
+        menubar.add_command(label = "Exit", command = s.terminate)
+        s.top.config(menu = menubar)
+        s.menubar = menubar
+        s.gettf().setcolor('red')
+        s._msg(version.banner)
+
+    def acct(s, accountname):
+        s.gettf().setcolor('brown')
+        VerboseUI.acct(s, accountname)
+
+    def syncfolders(s, srcrepos, destrepos):
+        s.gettf().setcolor('blue')
+        VerboseUI.syncfolders(s, srcrepos, destrepos)
+
+    def syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder):
+        s.gettf().setcolor('cyan')
+        VerboseUI.syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder)
+
+    def loadmessagelist(s, repos, folder):
+        s.gettf().setcolor('green')
+        VerboseUI.loadmessagelist(s, repos, folder)
+
+    def syncingmessages(s, sr, sf, dr, df):
+        s.gettf().setcolor('blue')
+        VerboseUI.syncingmessages(s, sr, sf, dr, df)
+
+    def copyingmessage(s, uid, src, destlist):
+        s.gettf().setcolor('orange')
+        VerboseUI.copyingmessage(s, uid, src, destlist)
+
+    def deletingmessages(s, uidlist, destlist):
+        s.gettf().setcolor('red')
+        VerboseUI.deletingmessages(s, uidlist, destlist)
+
+    def deletingmessage(s, uid, destlist):
+        s.gettf().setcolor('red')
+        VerboseUI.deletingmessage(s, uid, destlist)
+
+    def addingflags(s, uid, flags, destlist):
+        s.gettf().setcolor('yellow')
+        VerboseUI.addingflags(s, uid, flags, destlist)
+
+    def deletingflags(s, uid, flags, destlist):
+        s.gettf().setcolor('pink')
+        VerboseUI.deletingflags(s, uid, flags, destlist)
 
     def threadExited(s, thread):
         threadid = thread.threadid
