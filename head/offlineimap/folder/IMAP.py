@@ -127,11 +127,19 @@ class IMAPFolder(BaseFolder):
         try:
             imapobj.select(self.getfullname())
             result = imapobj.uid('store', '%d' % uid, 'FLAGS',
-                                 imaputil.flagsmaildir2imap(flags))[1][0]
+                                 imaputil.flagsmaildir2imap(flags))
+            assert result[0] == 'OK', 'Error with store: ' + r[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
-        flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
-        self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
+        result = result[1][0]
+        if not result:
+            self.messagelist[uid]['flags'] = flags
+        else:
+            flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
+            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
+
+    def addmessageflags(self, uid, flags):
+        self.addmessagesflags([uid], flags)
 
     def addmessagesflags(self, uidlist, flags):
         imapobj = self.imapserver.acquireconnection()

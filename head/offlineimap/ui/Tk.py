@@ -236,6 +236,9 @@ class TkUI(UIBase):
         s.top = None
         TextOKDialog("Main Program Exception", msg)
 
+    def warn(s, msg):
+        TextOKDialog("OfflineIMAP Warning", msg)
+
     def init_banner(s):
         s._createTopWindow()
         s._msg(version.productname + " " + version.versionstr + ", " +\

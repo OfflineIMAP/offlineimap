@@ -2,6 +2,9 @@ offlineimap (3.0.0) unstable; urgency=low
 
   * Introduced a new graphical user interface written with Tkinter.
     It features a nice view of multi-threaded displays.
+  * The TTY user interface now also displays thread names.
+  * Program-wide, new threads are given descriptive names to aid in
+    debugging and status messages.
   * Made IMAP folder addmessagesflags() resiliant to a server refusing
     to return a full set of new message flags.  Closes: #152587.
   * Completely rewrote documentation.  OfflineIMAP now has an
@@ -12,8 +15,15 @@ offlineimap (3.0.0) unstable; urgency=low
     -u to force a particular UI
     -a to specify which accounts to sync
     -h to print help
+    -c to specify an alternate config file
+  * Added a workaround for UW IMAP problem wherein the server loses
+    uidvalidity whenever a folder is emptied.  Now, the program
+    will not consider it a problem if uidvalidity is lost when a folder
+    and the local status cache are both completely empty, since we do
+    not really need to preserve uidvalidity in that case anyway.
+    Closes: #152079.
 
- -- John Goerzen <jgoerzen@complete.org>  Thu, 11 Jul 2002 08:35:42 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 11 Jul 2002 22:35:42 -0500
 
 offlineimap (2.0.8) unstable; urgency=low
 
