@@ -1,3 +1,15 @@
+offlineimap (3.2.1) unstable; urgency=low
+
+  * There is a new "connecting" event that will appear in all but the
+    Quiet UIs.  It has a gray color in Blinkenlights.  This event indicates
+    the the program is connecting to a remote server.
+  * Blinkenlights UI log window is now scrolled and has a new
+    config file option "bufferlines" to specify the size of the scroll
+    buffer.
+  * Make the Blinkenlights window non-resizable.
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 17:04:04 -0500
+
 offlineimap (3.2.0) unstable; urgency=low
 
   * New BLINKENLIGHTS interface!  Mesmerising, isn't it?

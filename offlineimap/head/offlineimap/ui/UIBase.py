@@ -63,6 +63,18 @@ class UIBase:
         if s.verbose >= 0:
             s._msg(offlineimap.version.banner)
 
+    def connecting(s, hostname, port):
+        if s.verbose < 0:
+            return
+        if hostname == None:
+            hostname = ''
+        if port != None:
+            port = ":%d" % port
+        displaystr = ' to %s%s.' % (hostname, port)
+        if hostname == '' and port == None:
+            displaystr = '.'
+        s._msg("Establishing connection" + displaystr)
+
     def acct(s, accountname):
         if s.verbose >= 0:
             s._msg("***** Processing account %s" % accountname)

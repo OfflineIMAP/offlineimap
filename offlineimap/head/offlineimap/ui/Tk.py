@@ -350,25 +350,38 @@ class LEDThreadFrame:
 class Blinkenlights(VerboseUI):
     def _createTopWindow(self):
         VerboseUI._createTopWindow(self, 0)
+        #self.top.resizable(width = 0, height = 0)
         self.top.configure(background = 'black', bd = 0)
         c = LEDCanvas(self.top, background = 'black', height = 20, bd = 0,
                       highlightthickness = 0)
         c.setLEDCount(0)
         c.createLEDLock()
         self.canvas = c
-        c.pack(side = BOTTOM, expand = 1)
+        c.pack(side = BOTTOM, expand = 0, fill = X)
         widthmetric = tkFont.Font(family = 'Helvetica', size = 8).measure("0")
         self.loglines = 5
         if self.config.has_option("ui.Tk.Blinkenlights", "loglines"):
             self.loglines = self.config.getint("ui.Tk.Blinkenlights",
                                                "loglines")
-        self.text = Text(self.top, bg = 'black', font = ("Helvetica", 8),
+        self.bufferlines = 500
+        if self.config.has_option("ui.Tk.Blinkenlights", "bufferlines"):
+            self.bufferlines = self.config.getint("ui.tk.Blinkenlights",
+                                                  "bufferlines")
+        self.text = ScrolledText(self.top, bg = 'black', #scrollbar = 'y',
+                                 font = ("Helvetica", 8),
                          bd = 0, highlightthickness = 0, setgrid = 0,
                          state = DISABLED, height = self.loglines, wrap = NONE,
                          width = int(c.cget('width')) / widthmetric)
+        self.text.vbar.configure(background = '#000050',
+                                 activebackground = 'blue',
+                                 highlightbackground = 'black',
+                                 troughcolor = "black", bd = 0,
+                                 elementborderwidth = 2)
+                                 
         self.textenabled = 0
         self.tags = []
         self.textlock = Lock()
+        self.oldtextheight = 0
 
     def gettf(s, newtype=LEDThreadFrame):
         return VerboseUI.gettf(s, newtype, s.canvas)
@@ -386,6 +399,7 @@ class Blinkenlights(VerboseUI):
         s.menubar = menubar
         s.gettf().setcolor('red')
         s._msg(version.banner)
+        s.text.see(END)
         if s.config.has_option("ui.Tk.Blinkenlights", "showlog") and \
            s.config.getboolean("ui.Tk.Blinkenlights", "showlog"):
             s._togglelog()
@@ -401,14 +415,27 @@ class Blinkenlights(VerboseUI):
 
     def _togglelog(s):
         if s.textenabled:
+            s.oldtextheight = s.text.winfo_height()
             s.text.pack_forget()
             s.textenabled = 0
             s.menubar.delete('Log')
             s.menubar.insert_command('Exit', label = 'Show Log',
                                      command = s._togglelog)
+            s.top.update()
+            print s.top.winfo_reqheight(), s.top.winfo_reqwidth()
+            #s.top.configure(height = s.top.winfo_reqheight(),
+            #                width = s.top.winfo_reqwidth())
+            s.top.geometry("%dx%d" % (s.top.winfo_reqwidth(),
+                                      s.top.winfo_reqheight()))
+            s.top.pack_propagate(1)
+            s.text.pack_propagate(1)
+        
         else:
-            s.text.pack(side = BOTTOM, expand = 1)
+            s.text.pack(side = BOTTOM, expand = 1, fill = BOTH)
             s.textenabled = 1
+            s.top.update()
+            s.top.geometry("%dx%d" % (s.top.winfo_reqwidth(),
+                                      s.top.winfo_height() + s.oldtextheight))
             s.menubar.delete('Show Log')
 
             logmenu = Menu(s.menubar, tearoff = 0,
@@ -420,10 +447,15 @@ class Blinkenlights(VerboseUI):
             logmenu.add_command(label = "Larger Log", command = s._largerlog)
             logmenu.add_command(label = "Smaller Log", command = s._smallerlog)
             s.menubar.insert_cascade('Exit', label = "Log", menu = logmenu)
+            s._rescroll()
 
     def acct(s, accountname):
         s.gettf().setcolor('purple')
         VerboseUI.acct(s, accountname)
+
+    def connecting(s, hostname, port):
+        s.gettf().setcolor('gray')
+        VerboseUI.connecting(s, hostname, port)
 
     def syncfolders(s, srcrepos, destrepos):
         s.gettf().setcolor('blue')
@@ -481,6 +513,11 @@ class Blinkenlights(VerboseUI):
         s._msg("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
         UIBase.sleep(s, sleepsecs)
 
+    def _rescroll(s):
+        s.text.see(END)
+        lo, hi = s.text.vbar.get()
+        s.text.vbar.set(1.0 - (hi - lo), 1.0)
+
     def _msg(s, msg):
         if "\n" in msg:
             for thisline in msg.split("\n"):
@@ -488,6 +525,10 @@ class Blinkenlights(VerboseUI):
             return
         VerboseUI._msg(s, msg)
         color = s.gettf().getcolor()
+        rescroll = 1
+        #print s.text.vbar.get()[1]
+        if s.text.vbar.get()[1] != 1.0:
+            rescroll = 0
 
         s.textlock.acquire()
         try:
@@ -495,12 +536,15 @@ class Blinkenlights(VerboseUI):
             if not color in s.tags:
                 s.text.tag_config(color, foreground = color)
                 s.tags.append(color)
-            s.text.insert(END, msg + "\n", color)
+            s.text.insert(END, "\n" + msg, color)
 
             # Trim down.  Not quite sure why I have to say 7 instead of 5,
             # but so it is.
-            while float(s.text.index(END)) > s.loglines + 2.0:
+            while float(s.text.index(END)) > s.bufferlines + 2.0:
                 s.text.delete(1.0, 2.0)
+
+            if rescroll:
+                s._rescroll()
         finally:
             s.text.config(state = DISABLED)
             s.textlock.release()

@@ -19,6 +19,7 @@
 from offlineimap import imaplib, imaputil, threadutil
 from threading import *
 import thread
+import __main__
 
 class UsefulIMAPMixIn:
     def getstate(self):
@@ -119,6 +120,8 @@ class IMAPServer:
             return imapobj
         
         self.connectionlock.release()   # Release until need to modify data
+
+        __main__.ui.connecting(self.hostname, self.port)
 
         # Generate a new connection.
         if self.tunnel:
