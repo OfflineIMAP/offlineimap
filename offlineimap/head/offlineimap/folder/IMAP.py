@@ -106,9 +106,15 @@ class IMAPFolder(BaseFolder):
             message = rfc822.Message(StringIO(content))
             mid = imapobj._quote(message.getheader('Message-Id'))
             datetuple = rfc822.parsedate(message.getheader('Date'))
+            # Will be None if missing or not in a valid format.
             if datetuple == None:
                 datetuple = time.localtime()
-            date = imaplib.Time2Internaldate(datetuple)
+            try:
+                date = imaplib.Time2Internaldate(datetuple)
+            except ValueError:
+                # Argh, sometimes it's a valid format but year is 0102
+                # or something.  Argh.
+                date = imaplib.Time2Internaldate(time.localtime())
 
             if content.find("\r\n") == -1:  # Convert line endings if not already
                 content = content.replace("\n", "\r\n")
