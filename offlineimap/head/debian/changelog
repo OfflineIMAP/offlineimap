@@ -1,3 +1,9 @@
+offlineimap (4.0.5) unstable; urgency=low
+
+  * Added python to build-deps.  Closes: #259118.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 13 Jul 2004 10:20:59 -0500
+
 offlineimap (4.0.4) unstable; urgency=low
 
   * Reverted the header insertion point patch applied in 4.0.3.  It
