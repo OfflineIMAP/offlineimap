@@ -18,10 +18,12 @@
 
 import os.path
 import re                               # for folderfilter
+from threading import *
 
 boxes = {}
 config = None
 accounts = None
+mblock = Lock()
 
 def init(conf, accts):
     global config, accounts
@@ -45,25 +47,28 @@ def write():
 def genmbnames():
     """Takes a configparser object and a boxlist, which is a list of hashes
     containing 'accountname' and 'foldername' keys."""
-    localeval = config.getlocaleval()
-    if not config.getboolean("mbnames", "enabled"):
-        return
-    file = open(os.path.expanduser(config.get("mbnames", "filename")), "wt")
-    file.write(localeval.eval(config.get("mbnames", "header")))
-    folderfilter = lambda accountname, foldername: 1
-    if config.has_option("mbnames", "folderfilter"):
-        folderfilter = localeval.eval(config.get("mbnames", "folderfilter"),
-                                      {'re': re})
-    itemlist = []
-    for accountname in boxes.keys():
-        for foldername in boxes[accountname]:
-            if folderfilter(accountname, foldername):
-                itemlist.append(config.get("mbnames", "peritem", raw=1) % \
-                                {'accountname': accountname,
-                                 'foldername': foldername})
-    file.write(localeval.eval(config.get("mbnames", "sep")).join(itemlist))
-    file.write(localeval.eval(config.get("mbnames", "footer")))
-    file.close()
-    
+    mblock.acquire()
+    try:
+        localeval = config.getlocaleval()
+        if not config.getboolean("mbnames", "enabled"):
+            return
+        file = open(os.path.expanduser(config.get("mbnames", "filename")), "wt")
+        file.write(localeval.eval(config.get("mbnames", "header")))
+        folderfilter = lambda accountname, foldername: 1
+        if config.has_option("mbnames", "folderfilter"):
+            folderfilter = localeval.eval(config.get("mbnames", "folderfilter"),
+                                          {'re': re})
+        itemlist = []
+        for accountname in boxes.keys():
+            for foldername in boxes[accountname]:
+                if folderfilter(accountname, foldername):
+                    itemlist.append(config.get("mbnames", "peritem", raw=1) % \
+                                    {'accountname': accountname,
+                                     'foldername': foldername})
+        file.write(localeval.eval(config.get("mbnames", "sep")).join(itemlist))
+        file.write(localeval.eval(config.get("mbnames", "footer")))
+        file.close()
+    finally:
+        mblock.release()
     
     
