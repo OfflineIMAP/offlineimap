@@ -2,6 +2,18 @@
 # arch-tag: automatic-ChangeLog--jgoerzen@complete.org--projects/offlineimap--head--1.0
 #
 
+2004-11-16 16:41:09 GMT	John Goerzen <jgoerzen@complete.org>	patch-4
+
+    Summary:
+      Added code to limit command line length for very large mailboxes
+    Revision:
+      offlineimap--head--1.0--patch-4
+
+
+    modified files:
+     ChangeLog offlineimap/folder/IMAP.py
+
+
 2004-10-18 14:01:50 GMT	John Goerzen <jgoerzen@complete.org>	patch-3
 
     Summary:

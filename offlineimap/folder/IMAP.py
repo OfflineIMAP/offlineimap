@@ -282,6 +282,12 @@ class IMAPFolder(BaseFolder):
         self.processmessagesflags('-', uidlist, flags)
 
     def processmessagesflags(self, operation, uidlist, flags):
+        if len(uidlist) > 101:
+            # Hack for those IMAP ervers with a limited line length
+            self.processmessagesflags(operation, uidlist[:100], flags)
+            self.processmessagesflags(operation, uidlist[100:], flags)
+            return
+        
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
