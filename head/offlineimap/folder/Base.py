@@ -32,3 +32,24 @@ class BaseFolder:
     def getfullname(self):
         return self.getroot() + self.getsep() + self.getname()
     
+    def isuidvalidityok(self, remotefolder):
+        raise NotImplementedException
+
+    def getuidvalidity(self):
+        raise NotImplementedException
+
+    def saveuidvalidity(self, newval):
+        raise NotImplementedException
+
+    def cachemessagelist(self):
+        """Reads the message list from disk or network and stores it in
+        memory for later use.  This list will not be re-read from disk or
+        memory unless this function is called again."""
+        raise NotImplementedException
+
+    def getmessagelist(self):
+        """Gets the current message list.  If cachemessagelist has not yet
+        been called, it will be called."""
+        raise NotImplementedException
+
+    
