@@ -140,7 +140,12 @@ class MaildirFolder(BaseFolder):
             # We already have it.
             self.savemessageflags(uid, flags)
             return uid
-        newdir = os.path.join(self.getfullname(), 'new')
+        if 'S' in flags:
+            # If a message has been seen, it goes into the cur
+            # directory.  CR debian#152482, [complete.org #4]
+            newdir = os.path.join(self.getfullname(), 'cur')
+        else:
+            newdir = os.path.join(self.getfullname(), 'new')
         tmpdir = os.path.join(self.getfullname(), 'tmp')
         messagename = None
         attempts = 0

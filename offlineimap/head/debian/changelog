@@ -5,6 +5,8 @@ offlineimap (3.0.3) unstable; urgency=low
     Closes: #153425.
   * No longer doubles-up reference names for mailboxes.  Closes: #153515.
   * Noted new bug-tracking system in manual and rebuilt manual files.
+  * Now stores incoming messages in 'cur' instead of 'new' if they have
+    the S flag.  Closes: #152482.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 18 Jul 2002 17:46:13 -0500
 
