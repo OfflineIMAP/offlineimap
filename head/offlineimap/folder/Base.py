@@ -114,21 +114,13 @@ class BaseFolder:
         for uid in uidlist:
             self.deletemessage(uid)
 
-    def syncmessagesto(self, dest, applyto = None):
-        """Syncs messages in this folder to the destination.
-        If applyto is specified, it should be a list of folders (don't forget
-        to include dest!) to which all write actions should be applied.
-        It defaults to [dest] if not specified.  It is important that
-        the UID generator be listed first in applyto; that is, the other
-        applyto ones should be the ones that "copy" the main action."""
-        if applyto == None:
-            applyto = [dest]
+    def syncmessagesto_neguid(self, dest, applyto):
+        """Pass 1 of folder synchronization.
 
-        # Pass 1 -- Look for messages in self with a negative uid.
-        # These are messages in Maildirs that were not added by us.
-        # Try to add them to the dests, and once that succeeds, get the
-        # UID, add it to the others for real, add it to local for real,
-        # and delete the fake one.
+        Look for messages in self with a negative uid.  These are messages in
+        Maildirs that were not added by us.  Try to add them to the dests,
+        and once that succeeds, get the UID, add it to the others for real,
+        add it to local for real, and delete the fake one."""
 
         for uid in self.getmessagelist().keys():
             if uid >= 0:
@@ -156,8 +148,11 @@ class BaseFolder:
                 # Did not find any server to take this message.  Ignore.
                 pass
 
-        # Pass 2 -- Look for messages present in self but not in dest.
-        # If any, add them to dest.
+    def syncmessagesto_copy(self, dest, applyto):
+        """Pass 2 of folder synchronization.
+
+        Look for messages present in self but not in dest.  If any, add
+        them to dest."""
         
         for uid in self.getmessagelist().keys():
             if uid < 0:                 # Ignore messages that pass 1 missed.
@@ -168,15 +163,17 @@ class BaseFolder:
                 flags = self.getmessageflags(uid)
                 for object in applyto:
                     newuid = object.savemessage(uid, message, flags)
-                    if newuid != uid:
+                    if newuid > 0 and newuid != uid:
                         # Change the local uid.
                         self.savemessage(newuid, message, flags)
                         self.deletemessage(uid)
                         uid = newuid
 
-        # Pass 3 -- Look for message present in dest but not in self.
-        # If any, delete them.
+    def syncmessagesto_delete(self, dest, applyto):
+        """Pass 3 of folder synchronization.
 
+        Look for message present in dest but not in self.
+        If any, delete them."""
         for uid in dest.getmessagelist().keys():
             if uid < 0:
                 continue
@@ -185,13 +182,11 @@ class BaseFolder:
                 for object in applyto:
                     object.deletemessage(uid)
 
-        # Now, the message lists should be identical wrt the uids present.
-        # (except for potential negative uids that couldn't be placed
-        # anywhere)
+    def syncmessagesto_flags(self, dest, applyto):
+        """Pass 4 of folder synchronization.
 
-        # Pass 4 -- Look for any flag identity issues -- set dest messages
-        # to have the same flags that we have here.
-
+        Look for any flag matching issues -- set dest message to have the
+        same flags that we have."""
         for uid in self.getmessagelist().keys():
             if uid < 0:                 # Ignore messages missed by pass 1
                 continue
@@ -210,4 +205,24 @@ class BaseFolder:
                 for object in applyto:
                     object.deletemessageflags(uid, delflags)
 
+    def syncmessagesto(self, dest, applyto = None):
+        """Syncs messages in this folder to the destination.
+        If applyto is specified, it should be a list of folders (don't forget
+        to include dest!) to which all write actions should be applied.
+        It defaults to [dest] if not specified.  It is important that
+        the UID generator be listed first in applyto; that is, the other
+        applyto ones should be the ones that "copy" the main action."""
+        if applyto == None:
+            applyto = [dest]
+            
+        self.syncmessagesto_neguid(dest, applyto)
+        self.syncmessagesto_copy(dest, applyto)
+        self.syncmessagesto_delete(dest, applyto)
+        
+        # Now, the message lists should be identical wrt the uids present.
+        # (except for potential negative uids that couldn't be placed
+        # anywhere)
+
+        self.syncmessagesto_flags(dest, applyto)
+        
             
