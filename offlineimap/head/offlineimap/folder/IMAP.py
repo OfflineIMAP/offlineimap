@@ -98,7 +98,13 @@ class IMAPFolder(BaseFolder):
     def savemessage(self, uid, content, flags):
         imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj.select(self.getfullname()) # Needed for search
+            try:
+                imapobj.select(self.getfullname()) # Needed for search
+            except imapobj.readonly:
+                __main__.ui.msgtoreadonly(self, uid, content, flags)
+                # Return indicating message taken, but no UID assigned.
+                # Fudge it.
+                return 0
             
             # This backend always assigns a new uid, so the uid arg is ignored.
             # In order to get the new uid, we need to save off the message ID.
@@ -147,7 +153,11 @@ class IMAPFolder(BaseFolder):
     def savemessageflags(self, uid, flags):
         imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj.select(self.getfullname())
+            try:
+                imapobj.select(self.getfullname())
+            except imapobj.readonly:
+                __main__.ui.flagstoreadonly(self, [uid], flags)
+                return
             result = imapobj.uid('store', '%d' % uid, 'FLAGS',
                                  imaputil.flagsmaildir2imap(flags))
             assert result[0] == 'OK', 'Error with store: ' + r[1]
@@ -166,7 +176,11 @@ class IMAPFolder(BaseFolder):
     def addmessagesflags(self, uidlist, flags):
         imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj.select(self.getfullname())
+            try:
+                imapobj.select(self.getfullname())
+            except imapobj.readonly:
+                __main__.ui.flagstoreadonly(self, uidlist, flags)
+                return
             r = imapobj.uid('store',
                             imaputil.listjoin(uidlist),
                             '+FLAGS',
@@ -213,7 +227,11 @@ class IMAPFolder(BaseFolder):
         self.addmessagesflags(uidlist, ['T'])
         imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj.select(self.getfullname())
+            try:
+                imapobj.select(self.getfullname())
+            except imapobj.readonly:
+                __main__.ui.deletereadonly(self, uidlist)
+                return
             assert(imapobj.expunge()[0] == 'OK')
         finally:
             self.imapserver.releaseconnection(imapobj)

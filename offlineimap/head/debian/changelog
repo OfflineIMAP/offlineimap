@@ -3,6 +3,10 @@ offlineimap (3.2.2) unstable; urgency=low
   * Updated manual to show new Gray color.
   * Scrolling behavior is better now; sometimes, with fast-scrolling text,
     the log would stop scrolling.
+  * Better handling of read-only folders.  We will now warn if there is
+    a change, but not propogate it.  New config variable ignore-readonly
+    can suppress the warnings.  This fixes [complete.org #10] and,
+    for Debian, Closes: #154769.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 25 Jul 2002 08:22:25 -0500
 
