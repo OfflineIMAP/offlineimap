@@ -11,7 +11,7 @@
     <refentryinfo>
       <address><email>jgoerzen@complete.org</email></address>
       <author><firstname>John</firstname><surname>Goerzen</surname></author>
-      <date> $Date: 2003-01-08 09:13:21 -0600 (Wed, 08 Jan 2003) $ </date>
+      <date> $Date: 2003-01-08 10:12:49 -0600 (Wed, 08 Jan 2003) $ </date>
     </refentryinfo>
 
     <refmeta>
@@ -290,7 +290,7 @@ cd offlineimap-x.y.z</ProgramListing>
 	&OfflineIMAP;.
       </para>
 
-      <variablelist><title>OfflineIMAP arguments</title>
+      <variablelist>
         <varlistentry><term>-1</term>
           <listitem><para>Disable most multithreading operations and use
 	    solely a single-connection
@@ -398,7 +398,7 @@ cd offlineimap-x.y.z</ProgramListing>
 	  is performing right now.  The colors indicate what task
 	  the particular thread is performing, and are as follows:
 	</para>
-	<variablelist><title>Blinkenlights Colors</title>
+	<variablelist>
 	  <varlistentry>
 	    <term>Black</term>
 	    <listitem><para>indicates that this light's thread has terminated; it will light up
@@ -734,10 +734,289 @@ rm -r ~/.offlineimap/AccountName/INBOX</programlisting>
 	</para>
       </refsect2>
     </refsect1>
+    <refsect1>
+      <title>Other Frequently Asked Questions</title>
+      <para>There are some other FAQs that might not fit into another section
+	of the document, so they are discussed here.
+      </para>
+
+      <variablelist>
+	<varlistentry><term>What platforms does &OfflineIMAP; run on?</term>
+	  <listitem><para>
+	    It should run on most platforms supported by Python, which are quite a
+	    few.
+	  </para></listitem>
+        </varlistentry>
+
+	<varlistentry><term>I'm using Mutt.  Other IMAP sync programs require me to use "set maildir_trash=yes".  Do I need to do that with &OfflineIMAP;?</term>
+	  <listitem><para>
+	    No.  &OfflineIMAP; is smart enough to figure out message deletion without this extra
+	    crutch.  You'll get the best results if you don't use this setting, in
+	    fact.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>How do I specify the names of my folders?</term>
+  	  <listitem><para>
+	    You do not need to.  &OfflineIMAP; is smart
+	    enough to automatically figure out what folders are present
+	    on the IMAP server and synchronize them.  You can use the
+	    <property>folderfilter</property> and <property>foldertrans</property>
+	    configuration file options to request certain folders and rename them
+	    as they come in if you like.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>How can I prevent certain folders from being synced?</term>
+	  <listitem><para>
+	    Use the <property>folderfilter</property> option in the configuration file.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>How can I add or delete a folder?</term>
+	  <listitem><para>
+	    &OfflineIMAP; does not currently provide this feature, but if you create a new
+	    folder on the IMAP server, it will be created locally automatically.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>Are there any other warnings that I should be aware of?</term>
+	  <listitem><para>
+	    Yes; see the Notes section below.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>What is the mailbox name recorder (mbnames) for?</term>
+	  <listitem><para>Some mail readers, such as Mutt, are not capable
+	    of automatically determining the names of your mailboxes.
+	    &OfflineIMAP; can help these programs by writing the names
+	    of the folders ni a format you specify.  See the example
+	    <filename>offlineimap.conf</filename> for details.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>Can I synchronize multiple accounts with &OfflineIMAP?</term>
+	  <listitem><para>Sure.  Just name them all in the
+	    <property>accounts</property> line in the <property>general</property>
+	    section of the configuration file, and add a per-account section
+	    for each one.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>Does &OfflineIMAP; support POP?</term>
+	  <listitem><para>No.  POP is not robust enough to do a completely reliable
+	    multi-machine synchronization like &OfflineIMAP; can do.  &OfflineIMAP;
+	    will not support it.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>Does &OfflineIMAP; support mailbox formats other than Maildir?</term>
+	  <listitem><para>Not at present.  There is no technical reason not to; just no
+	    demand yet.  Maildir is a superior format anyway.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>[technical] Why are your Maildir message filenames so huge?</term>
+	  <listitem><para>&OfflineIMAP; has two relevant principles: 1) never modifying your
+	    messages in any way and 2) ensuring 100% reliable synchronizations.
+	    In order to do a reliable sync, &OfflineIMAP;
+	    must have a way to
+	    uniquely identify each e-mail.  Three pieces of information are
+	    required to do this: your account name, the folder name, and the
+	    message UID.  The account name can be calculated from the path in
+	    which your messages are.  The folder name can usually be as well, BUT
+	    some mail clients move messages between folders by simply moving the
+	    file, leaving the name intact.
+	  </para>
+	  <para>
+	    So, &OfflineIMAP; must store both a UID folder ID.  The folder ID is
+	    necessary so &OfflineIMAP; can detect a message moved to a different
+	    folder.  &OfflineIMAP; stores the UID (U= number) and an md5sum of the
+	    foldername (FMD5= number) to facilitate this.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>What is the speed of &OfflineIMAP;'s sync?</term>
+	  <listitem><para>OfflineIMAP
+	    versions 2.0 and above contain a multithreaded system.  A good way to
+	    experiment is by setting <property>maxsyncaccounts</property> to 3 and <property>maxconnections</property> to 3
+	    in each account clause.
+	  </para>
+	  <para>This lets OfflineIMAP open up multiple connections simultaneously.
+	    That will let it process multiple folders and messages at once.  In
+	    most cases, this will increase performance of the sync.
+	  </para>
+	  <para>Don't set the number too high.  If you do that, things might actually
+	    slow down as your link gets saturated.  Also, too many connections can
+	    cause mail servers to have excessive load.  Administrators might take
+	    unkindly to this, and the server might bog down.  There are many
+	    variables in the optimal setting; experimentation may help.
+	  </para>
+	  <para>An informal benchmark yields these results for my setup:
+	  </para>
+	  <itemizedlist>
+	    <listitem><para>10 minutes with MacOS X Mail.app "manual cache"
+	      </para></listitem>
+	    <listitem><para>5 minutes with GNUS agent sync</para></listitem>
+	    <listitem><para>20 seconds with OfflineIMAP 1.x</para></listitem>
+	    <listitem><para>9 seconds with OfflineIMAP 2.x</para></listitem>
+	    <listitem><para>3 seconds with OfflineIMAP 3.x "cold start"</para></listitem>
+	    <listitem><para>2 seconds with OfflineIMAP 3.x "held connection"</para></listitem>
+	  </itemizedlist>
+	</listitem></varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1>
+      <title>Conforming To</title>
+      <itemizedlist>
+	<listitem><para>Internet Message Access Protocol version 4rev1 (IMAP 4rev1) as
+	  specified in RFC2060</para></listitem>
+	<listitem><para>CRAM-MD5 as specified in RFC2195</para></listitem>
+	<listitem><para>Maildir as specified in
+	  <ulink url="http://www.qmail.org/qmail-manual-html/man5/maildir.html">the Maildir manpage</ulink> and
+	  <ulink url="http://cr.yp.to/proto/maildir.html">the qmail website</ulink>.</para></listitem>
+	<listitem><para>Standard Python 2.2.1 as implemented on POSIX-compliant systems.</para></listitem>
+      </itemizedlist>
+    </refsect1>
+
+    <refsect1>
+      <title>Notes</title>
+      <refsect2>
+	<title>Deleting Local Folders</title>
+	<para>&OfflineIMAP; does a two-way synchronization.  That is, if you
+	  make a change to the mail on the server, it will be propogated to your
+	  local copy, and vise-versa.  Some people might think that it would be
+	  wise to just delete all their local mail folders periodically.  If you
+	  do this with &OfflineIMAP;, remember to also remove your local status
+	  cache (<filename>~/.offlineimap</filename> by default).  Otherwise, &OfflineIMAP; will take
+	  this as an intentional deletion of many messages and will interpret
+	  your action as requesting them to be deleted from the server as well.
+	  (If you don't understand this, don't worry; you probably won't
+	  encounter this situation)
+	</para>
+      </refsect2>
+
+      <refsect2>
+	<title>Copying Messages Between Folders</title>
+	<para>
+	  Normally, when you copy a message between folders or add a new message
+	  to a folder locally, &OfflineIMAP;
+	  will just do the right thing.  However, sometimes this can be tricky
+	  -- if your IMAP server does not provide the SEARCH command, or does
+	  not return something useful, &OfflineIMAP;
+	  cannot determine the new UID of the message.  So, in these rare
+	  instances, OfflineIMAP will upload the message to the IMAP server and
+	  delete it from your local folder.  Then, on your next sync, the
+	  message will be re-downloaded with the proper UID.
+	  &OfflineIMAP; makes sure that the message was properly uploaded before deleting it,
+	  so there should be no risk of data loss.
+	</para>
+      </refsect2>
+
+      <refsect2>
+	<title>Use with Evolution</title>
+	<para>&OfflineIMAP; can work with Evolution.  To do so, first configure
+	  your &OfflineIMAP; account to have
+	  <option>sep = /</option> in its configuration.  Then, configure
+	  Evolution with the
+	  "Maildir-format mail directories" server type.  For the path, you will need to
+	  specify the name of the top-level folder
+	  <emphasis>inside</emphasis> your &OfflineIMAP; storage location.
+	  You're now set!
+	</para>
+      </refsect2>
+
+      <refsect2>
+	<title>Use with KMail</title>
+	<para>At this time, I believe that &OfflineIMAP; is not compatible
+	  with KMail.  KMail cannot work in any mode other than to move
+	  all messages out of all folders immediately, which (besides being annoying
+	  and fundamentally broken) is incompatible with &OfflineIMAP;.
+	</para>
+      </refsect2>
+
+      <refsect2>
+	<title>Mailing List</title>
+	<para>There is an OfflineIMAP mailing list available.
+	  To subscribe, send the text "Subscribe" in the subject of a mail to
+	  offlineimap-request@complete.org.  To post, send the message to
+	  offlineimap@complete.org.
+	</para>
+      </refsect2>
+
+      <refsect2>
+	<title>Bugs</title>
+	<para>Reports of bugs should be sent via e-mail to the
+	  &OfflineIMAP; bug-tracking system (BTS) at
+	  offlineimap@bugs.complete.org or submitted online using
+	  the <ulink url="http://bugs.complete.org/">web interface</ulink>.
+	</para>
+	<para>
+	  The Web site also lists all current bugs, where you can check their
+	  status or contribute to fixing them.
+	</para>
+      </refsect2>
+    </refsect1>
+
+    <refsect1>
+      <title>Copyright</title>
+      <para>OfflineIMAP, and this manual, are Copyright &copy; 2002, 2003 John Goerzen.</para>
+
+      <para>
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+      </para>
+
+      <para>
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+      </para>
+
+      <para>
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</para>
+
+      <para>imaplib.py comes from the Python dev tree and is licensed under
+	the GPL-compatible PSF license as stated in the file
+	<filename>COPYRIGHT</filename> in the &OfflineIMAP;
+         distribution.
+      </para>
+    </refsect1>
+
+    <refsect1>
+      <title>Author</title>
+      <para>&OfflineIMAP;, its libraries, documentation, and all included files, except where
+	noted, was written by John Goerzen (<address>jgoerzen@complete.org</address>) and
+	copyright is held as stated in the COPYRIGHT section.
+      </para>
+
+      <para>
+	&OfflineIMAP; may be downloaded, and information found, from is
+	hopepage via either <ulink url="gopher://quux.org/1/devel/offlineimap">Gopher</ulink>
+	or <ulink url="http://quux.org/devel/offlineimap">HTTP</ulink>.
+      </para>
+
+      <para>
+	&OfflineIMAP; may also be downloaded using Subversion.  Additionally,
+	the distributed tar.gz may be updated with a simple "svn update"
+	command; it is ready to go.  For information on getting OfflineIMAP
+	with Subversion, please visit the
+	<ulink url="http://svn.complete.org/">complete.org Subversion page</ulink>.
+      </para>
+
+    </refsect1>
 
     <refsect1>
       <title>See Also</title>
-      <para>This is also a test.  Foo bar.</para>
+      <para><application>mutt</application>(1),
+	<application>python</application>(1)
+      </para>
     </refsect1>
   </refentry>
 </reference>
