@@ -67,7 +67,6 @@ def startup(revno):
     ui = offlineimap.ui.detector.findUI(config, localeval, options.get('-u'))
     ui.init_banner()
     UIBase.setglobalui(ui)
-    print "UI is", UIBase.getglobalui()
 
     if '-d' in options:
         for debugtype in options['-d'].split(','):
@@ -104,7 +103,6 @@ def startup(revno):
     # asking for passwords simultaneously.
 
     for account in accounts:
-        print "Processing account", account
         #if '.' in account:
         #    raise ValueError, "Account '%s' contains a dot; dots are not " \
         #        "allowed in account names." % account
@@ -130,7 +128,13 @@ def startup(revno):
 
     threadutil.initexitnotify()
     t = ExitNotifyThread(target=sync_with_timer,
-                         name='Sync Runner')
+                         name='Sync Runner',
+                         kwargs = {'accounts': accounts,
+                                   'metadatadir': metadatadir,
+                                   'servers': servers,
+                                   'config': config,
+                                   'passwords': passwords,
+                                   'localeval': localeval})
     t.setDaemon(1)
     t.start()
     try:
@@ -140,7 +144,8 @@ def startup(revno):
     except:
         ui.mainException()                  # Also expected to terminate.
 
-def syncaccount(accountname, *args):
+def syncaccount(accountname, metadatadir, servers, config, passwords,
+                localeval, *args):
     ui = UIBase.getglobalui()
     # We don't need an account lock because syncitall() goes through
     # each account once, then waits for all to finish.
@@ -263,7 +268,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
 
     
 
-def syncitall():
+def syncitall(accounts, metadatadir, servers, config, passwords, localeval):
     ui = UIBase.getglobalui()
     global mailboxes
     mailboxes = []                      # Reset.
@@ -272,7 +277,9 @@ def syncitall():
         thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                        target = syncaccount,
                                        name = "Account sync %s" % accountname,
-                                       args = (accountname,))
+                                       args = (accountname, metadatadir,
+                                               servers, config, passwords,
+                                               localeval))
         thread.setDaemon(1)
         thread.start()
         threads.append(thread)
@@ -280,10 +287,11 @@ def syncitall():
     threadutil.threadsreset(threads)
     mbnames.genmbnames(config, localeval, mailboxes)
 
-def sync_with_timer():
+def sync_with_timer(accounts, metadatadir, servers, config, passwords,
+                    localeval):
     ui = UIBase.getglobalui()
     currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
-    syncitall()
+    syncitall(accounts, metadatadir, servers, config, passwords, localeval)
     if config.has_option('general', 'autorefresh'):
         refreshperiod = config.getint('general', 'autorefresh') * 60
         while 1:
@@ -313,7 +321,8 @@ def sync_with_timer():
                     event.set()
                 for thread in kathreads.values():
                     thread.join()
-                syncitall()
+                syncitall(accounts, metadatadir, servers, config, passwords,
+                          localeval)
         
 def threadexited(thread):
     ui = UIBase.getglobalui()
