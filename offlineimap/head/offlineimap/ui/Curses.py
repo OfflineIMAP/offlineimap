@@ -194,6 +194,22 @@ class Blinkenlights(BlinkenBase, UIBase):
     def keypress(s, key):
         s._msg("Key pressed: " + str(key))
 
+    def getpass(s, accountname, config, errmsg = None):
+        s.inputhandler.input_acquire()
+        s.iolock.acquire()
+        try:
+            s.gettf().setcolor('white')
+            s._addline_unlocked(" *** Input Required", s.gettf().getcolor())
+            s._addline_unlocked(" *** Please enter password for account %s: ", accountname,
+                   s.gettf().getcolor())
+            s.logwindow.refresh()
+            password = s.logwindow.getstr()
+        finally:
+            s.iolock.release()
+            s.inputhandler.input_release()
+        s._msg(" Got password '%s'" % password)
+        return password
+
     def setupwindows(s):
         s.bannerwindow = curses.newwin(1, s.c.width, 0, 0)
         s.drawbanner()
@@ -216,15 +232,19 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.bannerwindow.noutrefresh()
 
     def drawlog(s):
-        s.logwindow.bkgd(' ', s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK))
-        for line, color in s.text:
-            s.logwindow.addstr(line + "\n", color)
-            s.logwindow.noutrefresh()
+        s.iolock.acquire()
+        try:
+            s.logwindow.bkgd(' ', s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK))
+            for line, color in s.text:
+                s.logwindow.addstr(line + "\n", color)
+                s.logwindow.noutrefresh()
+        finally:
+            s.iolock.release()
 
     def gettf(s):
         return s.tf
 
-    def _msg(s, msg):
+    def _msg(s, msg, color = None):
         if "\n" in msg:
             for thisline in msg.split("\n"):
                 s._msg(thisline)
@@ -235,14 +255,19 @@ class Blinkenlights(BlinkenBase, UIBase):
                 # For dumping out exceptions and stuff.
                 print msg
                 return
-            color = s.gettf().getcolor()
-            s.logwindow.addstr(msg + "\n", color)
-            s.text.append((msg, color))
-            while len(s.text) > s.logheight:
-                s.text = s.text[1:]
+            if color:
+                s.gettf().setcolor(color)
+            s._addline_unlocked(msg, s.gettf().getcolor())
             s.logwindow.refresh()
         finally:
             s.iolock.release()
+
+    def _addline_unlocked(s, msg, color):
+        s.logwindow.addstr(msg + "\n", color)
+        s.text.append((msg, color))
+        while len(s.text) > s.logheight:
+            s.text = s.text[1:]
+        
 
     def terminate(s, exitstatus = 0):
         s.c.stop()
@@ -254,7 +279,7 @@ class Blinkenlights(BlinkenBase, UIBase):
 
     def mainException(s):
         s.c.stop()
-        UIBase.mainException()
+        UIBase.mainException(s)
             
 if __name__ == '__main__':
     x = Blinkenlights(None)
