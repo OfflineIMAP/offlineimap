@@ -8,6 +8,7 @@ class TTYUI(UIBase):
         
     def _msg(s, msg):
         print msg
+        sys.stdout.flush()
 
     def getpass(s, accountname, config):
         return getpass("%s: Enter password for %s on %s: " %

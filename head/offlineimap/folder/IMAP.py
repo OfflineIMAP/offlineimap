@@ -127,7 +127,7 @@ class IMAPFolder(BaseFolder):
         self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
 
     def addmessagesflags(self, uidlist, flags):
-        imapobj = self.imapserver.acquireconnection(imapobj)
+        imapobj = self.imapserver.acquireconnection()
         try:
             imapobj.select(self.getfullname())
             r = imapobj.uid('store',

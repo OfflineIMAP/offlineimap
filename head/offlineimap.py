@@ -85,7 +85,8 @@ def syncaccount(accountname, *args):
 
         # Connect to the remote server.
         server = imapserver.IMAPServer(user, passwords[accountname],
-                                       host, port, ssl)
+                                       host, port, ssl,
+                                       config.getint(accountname, "maxconnections"))
         remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
 
         # Connect to the Maildirs.

@@ -18,6 +18,7 @@
 
 from offlineimap import imaplib, imaputil, threadutil
 from threading import *
+import sys
 
 class UsefulIMAPMixIn:
     def getstate(self):
@@ -81,6 +82,8 @@ class IMAPServer:
         self.availableconnections.append(connection)
         self.connectionlock.release()
         self.semaphore.release()
+        print "%d connections used after release" % len(self.assignedconnections)
+        sys.stdout.flush()
             
 
     def acquireconnection(self):
@@ -98,6 +101,8 @@ class IMAPServer:
             self.assignedconnections.append(imapobj)
             del(self.availableconnections[0])
             self.connectionlock.release()
+            print "%d connections used after acquire" % len(self.assignedconnections)
+            sys.stdout.flush()
             return imapobj
         
         self.connectionlock.release()   # Release until need to modify data
@@ -119,6 +124,8 @@ class IMAPServer:
         self.connectionlock.acquire()
         self.assignedconnections.append(imapobj)
         self.connectionlock.release()
+        print "%d connections used after acquire" % len(self.assignedconnections)
+        sys.stdout.flush()
         return imapobj
     
     def connectionwait(self):
