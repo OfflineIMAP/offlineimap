@@ -21,7 +21,6 @@ from imapsync import imaplib, imaputil, imapserver, repository, folder
 import re, getpass, os, os.path
 from ConfigParser import ConfigParser
 
-imaplib.Debug = 5
 config = ConfigParser()
 config.read("imapsync.conf")
 metadatadir = os.path.expanduser(config.get("general", "metadata"))
@@ -67,11 +66,12 @@ for accountname in accounts:
         #if not localfolder.isuidvalidityok(remotefolder):
         #    print 'UID validity is a problem for this folder; skipping.'
         #    continue
-        #print "Reading remote message list...",
-        #remotefolder.cachemessagelist()
-        #print len(remotefolder.getmessagelist().keys()), "messages."
+        print "Reading remote message list...",
+        remotefolder.cachemessagelist()
+        print len(remotefolder.getmessagelist().keys()), "messages."
         print "Reading local message list...",
         localfolder.cachemessagelist()
         print len(localfolder.getmessagelist().keys()), "messages."
-        print "Synchronizing locally-made changes..."
+        print "Synchronizing remote to local..."
+        remotefolder.syncmessagesto(localfolder)
         

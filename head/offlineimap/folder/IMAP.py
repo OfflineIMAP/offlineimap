@@ -39,6 +39,9 @@ class IMAPFolder(BaseFolder):
         response = self.imapobj.status(self.getfullname(), ('MESSAGES'))[1][0]
         result = imaputil.imapsplit(response)[1]
         maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
+        if (maxmsgid < 1):
+            # No messages?  return.
+            return
 
         # Now, get the flags and UIDs for these.
         response = self.imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
