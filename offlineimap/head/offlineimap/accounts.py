@@ -15,7 +15,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import repository, threadutil, mbnames, CustomConfig
+from offlineimap import threadutil, mbnames, CustomConfig
+import offlineimap.repository.Base, offlineimap.repository.LocalStatus
 from offlineimap.ui import UIBase
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from threading import Event
@@ -100,13 +101,13 @@ class AccountSynchronizationMixin:
         if not os.path.exists(accountmetadata):
             os.mkdir(accountmetadata, 0700)            
 
-        self.remoterepos = repository.Base.LoadRepository(self.getconf('remoterepository'), self, 'remote')
+        self.remoterepos = offlineimap.repository.Base.LoadRepository(self.getconf('remoterepository'), self, 'remote')
 
         # Connect to the local repository.
-        self.localrepos = repository.Base.LoadRepository(self.getconf('localrepository'), self, 'local')
+        self.localrepos = offlineimap.repository.Base.LoadRepository(self.getconf('localrepository'), self, 'local')
 
         # Connect to the local cache.
-        self.statusrepos = repository.LocalStatus.LocalStatusRepository(self.getconf('localrepository'), self)
+        self.statusrepos = offlineimap.repository.LocalStatus.LocalStatusRepository(self.getconf('localrepository'), self)
             
         if not self.refreshperiod:
             self.sync()

@@ -1,1 +1,1 @@
-import IMAP, Base, Maildir, LocalStatus
+__all__ = ['IMAP', 'Base', 'Maildir', 'LocalStatus']
