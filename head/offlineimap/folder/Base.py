@@ -97,6 +97,10 @@ class BaseFolder:
         newflags.sort()
         self.savemessageflags(uid, newflags)
 
+    def addmessagesflags(self, uidlist, flags):
+        for uid in uidlist:
+            self.addmessageflags(uid)
+
     def deletemessageflags(self, uid, flags):
         """Removes each flag given from the message's flag set.  If a given
         flag is already removed, no action will be taken for that flag."""
@@ -174,13 +178,16 @@ class BaseFolder:
 
         Look for message present in dest but not in self.
         If any, delete them."""
+        deletelist = []
         for uid in dest.getmessagelist().keys():
             if uid < 0:
                 continue
             if not uid in self.getmessagelist():
-                __main__.ui.deletingmessage(uid, applyto)
-                for object in applyto:
-                    object.deletemessage(uid)
+                deletelist.append(uid)
+        if len(deletelist):
+            __main__.ui.deletingmessages(uidlist, applyto)
+            for object in applyto:
+                object.deletemessages(uidlist)
 
     def syncmessagesto_flags(self, dest, applyto):
         """Pass 4 of folder synchronization.

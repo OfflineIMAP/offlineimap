@@ -102,12 +102,32 @@ class IMAPFolder(BaseFolder):
         flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
         self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
 
+    def addmessagesflags(self, uidlist, flags):
+        assert(self.imapobj.select(self.getfullname())[0] == 'OK')
+        r = self.imapobj.uid('store',
+                             ','.join([str(uid) for uid in uidlist]),
+                             '+FLAGS',
+                             imaputil.flagsmaildir2imap(flags))[1]
+        resultcount = 0
+        for result in r:
+            resultcount += 1
+            flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
+            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
+        assert resultcount == len(uidlist), "Got incorrect number of results back"
+
     def deletemessage(self, uid):
-        if not uid in self.messagelist:
-            return
-        self.addmessageflags(uid, ['T'])
+        self.deletemessages([uid])
+
+    def deletemessage(self, uidlist):
+        # Weed out ones not in self.messagelist
+        uidlist = [uid for uid in uidlist if uid in self.messagelist]
+        if not len(uidlist):
+            return        
+        
+        self.addmessagesflags(uidlist, ['T'])
         assert(self.imapobj.select(self.getfullname())[0] == 'OK')
         assert(self.imapobj.expunge()[0] == 'OK')
-        del(self.messagelist[uid])
+        for uid in uidlist:
+            del(self.messagelist[uid])
         
         

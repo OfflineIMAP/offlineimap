@@ -91,6 +91,13 @@ class UIBase:
         ds = s.folderlist(destlist)
         s._msg("Deleting message %d in %s" % (uid, ds))
 
+    def deletingmessages(s, uidlist, destlist):
+        ds = s.folderlist(destlist)
+        s._msg("Deleting %d messages (%s) in %s" % \
+               (len(uidlist),
+                ", ".join([str(u) for u in uidlist]),
+                ds))
+
     def addingflags(s, uid, flags, destlist):
         ds = s.folderlist(destlist)
         s._msg("Adding flags %s to message %d on %s" % \
