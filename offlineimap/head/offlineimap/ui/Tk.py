@@ -303,6 +303,7 @@ class LEDCanvas(Canvas):
 class LEDThreadFrame:
     def __init__(self, master):
         self.canvas = master
+        self.color = ''
         try:
             self.canvas.acquireLEDLock()
             startpos = 5 + self.canvas.getLEDCount() * 10
@@ -314,7 +315,12 @@ class LEDThreadFrame:
                                               outline = '#303030')
 
     def setcolor(self, newcolor):
-        self.canvas.itemconfigure(self.ovalid, fill = newcolor)
+        if newcolor != self.color:
+            self.canvas.itemconfigure(self.ovalid, fill = newcolor)
+            self.color = newcolor
+
+    def getcolor(self):
+        return self.color
 
     def setthread(self, newthread):
         if newthread:
@@ -368,7 +374,7 @@ class Blinkenlights(VerboseUI):
         s._msg(version.banner)
 
     def acct(s, accountname):
-        s.gettf().setcolor('brown')
+        s.gettf().setcolor('purple')
         VerboseUI.acct(s, accountname)
 
     def syncfolders(s, srcrepos, destrepos):
@@ -418,3 +424,22 @@ class Blinkenlights(VerboseUI):
                 tf.setthread(None)
         finally:
             s.tflock.release()
+
+    def sleep(s, sleepsecs):
+        s.sleeping_abort = 0
+        s.menubar.add_command(label = "Sync now", command = s._sleep_cancel)
+        UIBase.sleep(s, sleepsecs)
+
+    def sleeping(s, sleepsecs, remainingsecs):
+        if remainingsecs:
+            s.menubar.entryconfig('end', label = "Sync now (%d:%02d remain)" % \
+                          (remainingsecs / 60, remainingsecs % 60))
+        else:
+            s.menubar.delete('end')
+        if s.gettf().getcolor() == 'red':
+            s.gettf().setcolor('black')
+        else:
+            s.gettf().setcolor('red')
+        time.sleep(sleepsecs)
+        return s.sleeping_abort
+    

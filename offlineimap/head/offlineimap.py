@@ -140,6 +140,7 @@ def syncaccount(accountname, *args):
 
         ui.syncfolders(remoterepos, localrepos)
         remoterepos.syncfoldersto(localrepos)
+        ui.acct(accountname)
 
         folderthreads = []
         for remotefolder in remoterepos.getfolders():
