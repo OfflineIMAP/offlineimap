@@ -27,7 +27,7 @@ import __main__
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname):
         self.name = imaputil.dequote(name)
-        self.root = imapserver.root
+        self.root = None # imapserver.root
         self.sep = imapserver.delim
         self.imapserver = imapserver
         self.messagelist = None

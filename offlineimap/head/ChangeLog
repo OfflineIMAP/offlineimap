@@ -1,4 +1,64 @@
 ------------------------------------------------------------------------
+rev 141:  jgoerzen | 2002-07-17 16:13:10 -0500 (Wed, 17 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/TODO
+
+Updated
+
+------------------------------------------------------------------------
+rev 140:  jgoerzen | 2002-07-17 15:12:42 -0500 (Wed, 17 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/manual.html
+   U /offlineimap/head/manual.pdf
+   U /offlineimap/head/manual.ps
+   U /offlineimap/head/manual.txt
+
+Forgot to update the docs.  This should have gone into 3.0.2.  Ooops.
+
+------------------------------------------------------------------------
+rev 138:  jgoerzen | 2002-07-17 15:00:59 -0500 (Wed, 17 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap.1
+
+Added a final note about Subversion.
+
+------------------------------------------------------------------------
+rev 137:  jgoerzen | 2002-07-17 14:59:10 -0500 (Wed, 17 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/rules
+
+Forgot to make this executable
+
+------------------------------------------------------------------------
+rev 136:  jgoerzen | 2002-07-17 14:57:45 -0500 (Wed, 17 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+
+OK, this is 3.0.2.  Forgot to mention version.py change.
+
+------------------------------------------------------------------------
+rev 135:  jgoerzen | 2002-07-17 14:57:07 -0500 (Wed, 17 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/version.py
+
+Final prep for 3.0.2!
+
+------------------------------------------------------------------------
+rev 134:  jgoerzen | 2002-07-17 14:56:25 -0500 (Wed, 17 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/Makefile
+
+Re-added changelog target; svn log works nicely
+
+------------------------------------------------------------------------
+rev 133:  jgoerzen | 2002-07-17 14:55:39 -0500 (Wed, 17 Jul 2002) | 2 lines
+Changed paths:
+   A /offlineimap/head/ChangeLog
+
+Re-added -- we can now use SVN to manage this.
+
+------------------------------------------------------------------------
 rev 132:  jgoerzen | 2002-07-17 14:52:38 -0500 (Wed, 17 Jul 2002) | 2 lines
 Changed paths:
    U /offlineimap/head/Makefile
