@@ -2,3 +2,8 @@
 to the IMAP server fails, or there is another socket error.
 
 * Force unidirectional sync for read-only folders.
+
+* Fix Tk warn()
+
+* Fix uidvalidity workaround for empty folders in UW IMAP
+
