@@ -217,8 +217,16 @@ class IMAP4:
         """
         self.host = host
         self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((host, port))
+        #This connects to the first ip found ipv4/ipv6
+        #Added by Adriaan Peeters <apeeters@lashout.net> based on a socket
+        #example from the python documentation:
+        #http://www.python.org/doc/lib/socket-example.html
+        res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
+                                 socket.SOCK_STREAM)
+        af, socktype, proto, canonname, sa = res[0]
+        self.sock = socket.socket(af, socktype, proto)
+        self.sock.connect(sa)
+        
         self.file = self.sock.makefile('rb')
 
 
