@@ -60,7 +60,7 @@ if not os.path.exists(configfilename):
 config.read(configfilename)
 
 if '-u' in options:
-    ui = offlineimap.ui.detector.getUImod(options['-u'])()
+    ui = offlineimap.ui.detector.getUImod(options['-u'])(config)
 else:
     ui = offlineimap.ui.detector.findUI(config)
 ui.init_banner()
@@ -94,6 +94,8 @@ else:
 # asking for passwords simultaneously.
 
 for account in accounts:
+    if '.' in account:
+        raise ValueError, "Account '%s' contains a dot; dots are not allowed in account names."
     if config.has_option(account, "preauthtunnel"):
         tunnels[account] = config.get(account, "preauthtunnel")
     elif config.has_option(account, "remotepass"):

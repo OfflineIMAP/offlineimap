@@ -27,7 +27,7 @@ def findUI(config):
     for uistr in uistrlist:
         uimod = getUImod(uistr)
         if uimod:
-            uiinstance = uimod()
+            uiinstance = uimod(config)
             if uiinstance.isusable():
                 return uiinstance
     sys.stderr.write("ERROR: No UIs were found usable!\n")

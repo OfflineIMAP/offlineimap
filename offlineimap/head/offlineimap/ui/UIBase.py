@@ -22,8 +22,9 @@ import re, time, sys, traceback
 from StringIO import StringIO
 
 class UIBase:
-    def __init__(s, verbose = 0):
+    def __init__(s, config, verbose = 0):
         s.verbose = verbose
+        s.config = config
     
     ################################################## UTILS
     def _msg(s, msg):

@@ -358,14 +358,16 @@ class Blinkenlights(VerboseUI):
         self.canvas = c
         c.pack(side = BOTTOM, expand = 1)
         widthmetric = tkFont.Font(family = 'Helvetica', size = 8).measure("0")
+        self.loglines = 5
+        if s.config.has_option("ui.Tk.Blinkenlights", "loglines"):
+            self.loglines = s.config.getint("ui.Tk.Blinkenlights", "loglines")
         self.text = Text(self.top, bg = 'black', font = ("Helvetica", 8),
                          bd = 0, highlightthickness = 0, setgrid = 0,
-                         state = DISABLED, height = 5, wrap = NONE,
+                         state = DISABLED, height = self.loglines, wrap = NONE,
                          width = int(c.cget('width')) / widthmetric)
         self.textenabled = 0
         self.tags = []
         self.textlock = Lock()
-        self.loglines = 5
 
     def gettf(s, newtype=LEDThreadFrame):
         return VerboseUI.gettf(s, newtype, s.canvas)
@@ -383,6 +385,9 @@ class Blinkenlights(VerboseUI):
         s.menubar = menubar
         s.gettf().setcolor('red')
         s._msg(version.banner)
+        if s.config.has_option("ui.Tk.Blinkenlights", "showlog") and \
+           s.config.getboolean("ui.Tk.Blinkenlights", "showlog"):
+            s._togglelog()
 
     def _largerlog(s):
         s.loglines += 1

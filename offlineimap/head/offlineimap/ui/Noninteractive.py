@@ -40,5 +40,5 @@ class Basic(UIBase):
         return 0
 
 class Quiet(Basic):
-    def __init__(s, verbose = -1):
-        Basic.__init__(s, verbose)
+    def __init__(s, config, verbose = -1):
+        Basic.__init__(s, config, verbose)
