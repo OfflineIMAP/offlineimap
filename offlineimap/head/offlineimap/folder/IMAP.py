@@ -69,7 +69,7 @@ class IMAPFolder(BaseFolder):
 
         try:
             # Primes untagged_responses
-            imapobj.select(self.getfullname(), readonly = 1)
+            imapobj.select(self.getfullname(), readonly = 1, force = 1)
             try:
                 # Some mail servers do not return an EXISTS response if
                 # the folder is empty.
