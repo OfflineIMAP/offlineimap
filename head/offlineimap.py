@@ -28,28 +28,6 @@ passwd = getpass.getpass('Password: ')
 imapobj = imaplib.IMAP4_SSL(host)
 imapobj.login(user, passwd)
 
-def imapsplit(string):
-    workstr = string
-    retval = []
-    while len(workstr):
-        if re.search('^\s', workstr):
-            workstr = re.search('^\s(.*)$', workstr).group(1)
-        elif workstr[0] == '(':
-            parenlist = re.search('^(\([^)]*\))', workstr).group(1)
-            workstr = workstr[len(parenlist):]
-            retval.append(parenlist)
-        elif workstr[0] == '"':
-            quotelist = re.search('^("[^"]*")', workstr).group(1)
-            workstr = workstr[len(quotelist):]
-            retval.append(quotelist)
-        else:
-            unq = re.search('^(\S+)', workstr).group(1)
-            workstr = workstr[len(unq):]
-            retval.append(unq)
-    return retval
-            
-            
-
 def parselistresult(liststr):
     return re.match('^(\(.*\))\s+(\".*\")\s+(\".*\")$', liststr).groups()
 
