@@ -106,9 +106,17 @@ class MaildirFolder(BaseFolder):
             if flagmatch:
                 flags = [x for x in flagmatch.group(1)]
             flags.sort()
-            self.messagelist[uid] = {'uid': uid,
-                                     'flags': flags,
-                                     'filename': file}
+            if 'T' in flags:
+                # Message is marked for deletion; just delete it now.
+                # Otherwise, the T flag will be propogated to the IMAP
+                # server, and then expunged there, and then deleted here.
+                # Might as well just delete it now, to help make things
+                # more robust.
+                os.unlink(file)
+            else:
+                self.messagelist[uid] = {'uid': uid,
+                                         'flags': flags,
+                                         'filename': file}
             
     def getmessagelist(self):
         return self.messagelist

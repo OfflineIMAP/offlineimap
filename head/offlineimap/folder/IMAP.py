@@ -45,30 +45,25 @@ class IMAPFolder(BaseFolder):
 
     def getuidvalidity(self):
         imapobj = self.imapserver.acquireconnection()
-        x = None
-        readonlysave = imapobj.is_readonly
-        imapobj.is_readonly = 1
         try:
-            x = imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
+            # Primes untagged_responses
+            imapobj.select(self.getfullname(), readonly = 1)
+            return long(imapobj.untagged_responses['UIDVALIDITY'][0])
         finally:
             self.imapserver.releaseconnection(imapobj)
-            imapobj.is_readonly = readonlysave
-        uidstring = imaputil.imapsplit(x)[1]
-        return long(imaputil.flagsplit(uidstring)[1])
     
     def cachemessagelist(self):
         imapobj = self.imapserver.acquireconnection()
+        self.messagelist = {}
+
         try:
-            self.messagelist = {}
-            response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
-            result = imaputil.imapsplit(response)[1]
-            maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
-            if (maxmsgid < 1):
-                # No messages?  return.
+            # Primes untagged_responses
+            imapobj.select(self.getfullname(), readonly = 1)
+            maxmsgid = long(imapobj.untagged_responses['EXISTS'][0])
+            if maxmsgid < 1:
+                # No messages; return
                 return
 
-            # Needed for fetch below
-            imapobj.select(self.getfullname(), readonly = 1)
             # Now, get the flags and UIDs for these.
             response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
         finally:
@@ -98,6 +93,8 @@ class IMAPFolder(BaseFolder):
     def savemessage(self, uid, content, flags):
         imapobj = self.imapserver.acquireconnection()
         try:
+            imapobj.select(self.getfullname()) # Needed for search
+            
             # This backend always assigns a new uid, so the uid arg is ignored.
             # In order to get the new uid, we need to save off the message ID.
 

@@ -1,3 +1,16 @@
+offlineimap (2.0.8) unstable; urgency=low
+
+  * Modified the IMAP folder to use SELECT rather than STATUS more often.
+    Makes the code more robust; handles better with read-only folders;
+    and runs faster, especially for non-threaded useres, where it
+    may eliminate up to 2-3 commands per folder.
+  * Made sure IMAP folder savemessage() does a select.  This was a possible
+    bug.
+  * Modified Maildir folder to unlink messages with T flag in
+    cachemessagelist()
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 10 Jul 2002 12:29:30 -0500
+
 offlineimap (2.0.7) unstable; urgency=low
 
   * Fixed imaplib.py to work better with read-only folders.
