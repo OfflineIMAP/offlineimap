@@ -18,20 +18,27 @@
 
 from Base import BaseRepository
 from imapsync import folder, imaputil
+import re
 
 class IMAPRepository(BaseRepository):
-    def __init__(self, imapserver):
+    def __init__(self, config, accountname, imapserver):
         """Initialize an IMAPRepository object.  Takes an IMAPServer
         object."""
         self.imapserver = imapserver
+        self.config = config
+        self.accountname = accountname
         self.imapobj = imapserver.makeconnection()
         self.folders = None
+        self.nametrans = lambda foldername: foldername
+        if config.has_option(accountname, 'nametrans'):
+            self.nametrans = eval(config.get(accountname, 'nametrans'))
 
     def getsep(self):
         return self.imapserver.delim
 
     def getfolder(self, foldername):
-        return folder.IMAP.IMAPFolder(self.imapserver, foldername)
+        return folder.IMAP.IMAPFolder(self.imapserver, foldername,
+                                      self.nametrans(foldername))
 
     def getfolders(self):
         if self.folders != None:
@@ -41,6 +48,7 @@ class IMAPRepository(BaseRepository):
             flags, delim, name = imaputil.imapsplit(string)
             if '\\Noselect' in imaputil.flagsplit(flags):
                 continue
-            retval.append(folder.IMAP.IMAPFolder(self.imapserver, name))
+            retval.append(folder.IMAP.IMAPFolder(self.imapserver, name,
+                                                 self.nametrans(imaputil.dequote(name))))
         self.folders = retval
         return retval

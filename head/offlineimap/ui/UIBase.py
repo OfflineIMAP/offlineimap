@@ -38,6 +38,9 @@ class UIBase:
     def getpass(s, accountname, host, port, user):
         raise NotImplementedException
 
+    def folderlist(s, list):
+        return ', '.join(["%s[%s]" % (s.getnicename(x), x.getname()) for x in list])
+
     ################################################## MESSAGES
 
     def init_banner(s):
@@ -81,21 +84,21 @@ class UIBase:
                                                       df.getname()))
 
     def copyingmessage(s, uid, src, destlist):
-        ds = ["%s[%s]" % (s.getnicename(x), x.getname()) for x in destlist].join(', ')
+        ds = s.folderlist(destlist)
         s._msg("Copy message %d %s[%s] -> %s" % (uid, s.getnicename(src),
                                                  src.getname(), ds))
 
     def deletingmessage(s, uid, destlist):
-        ds = ["%s[%s]" % (s.getnicename(x), x.getname()) for x in destlist].join(', ')
+        ds = s.folderlist(destlist)
         s._msg("Deleting message %d in %s" % (uid, ds))
 
     def addingflags(s, uid, flags, destlist):
-        ds = ["%s[%s]" % (s.getnicename(x), x.getname()) for x in destlist].join(', ')
+        ds = s.folderlist(destlist)
         s._msg("Adding flags %s to message %d on %s" % \
                (flags.join(", "), uid, ds))
 
     def deletingflags(s, uid, flags, destlist):
-        ds = ["%s[%s]" % (s.getnicename(x), x.getname()) for x in destlist].join(', ')
+        ds = s.folderlist(destlist)
         s._msg("Deleting flags %s to message %d on %s" % \
                (flags.join(", "), uid, ds))
 

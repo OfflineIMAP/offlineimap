@@ -45,11 +45,11 @@ class BaseRepository:
 
         srchash = {}
         for folder in srcfolders:
-            srchash[folder.getname().replace(src.getsep(), dest.getsep())] = \
+            srchash[folder.getvisiblename().replace(src.getsep(), dest.getsep())] = \
                                                            folder
         desthash = {}
         for folder in destfolders:
-            desthash[folder.getname()] = folder
+            desthash[folder.getvisiblename()] = folder
 
         #
         # Find new folders.

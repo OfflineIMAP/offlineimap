@@ -22,13 +22,17 @@ import rfc822
 from StringIO import StringIO
 
 class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name):
+    def __init__(self, imapserver, name, visiblename):
         self.name = imaputil.dequote(name)
         self.root = imapserver.root
         self.sep = imapserver.delim
         self.imapserver = imapserver
         self.imapobj = self.imapserver.makeconnection()
         self.messagelist = None
+        self.visiblename = visiblename
+
+    def getvisiblename(self):
+        return self.visiblename
 
     def getuidvalidity(self):
         x = self.imapobj.status(self.getfullname(), ('UIDVALIDITY'))[1][0]

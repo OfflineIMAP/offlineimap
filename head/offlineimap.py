@@ -17,7 +17,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from imapsync import imaplib, imaputil, imapserver, repository, folder
+from imapsync import imaplib, imaputil, imapserver, repository, folder, mbnames
 import re, os, os.path, imapsync, sys
 from ConfigParser import ConfigParser
 
@@ -43,6 +43,7 @@ accounts = accounts.split(",")
 server = None
 remoterepos = None
 localrepos = None
+mailboxes = []
 
 for accountname in accounts:
     ui.acct(accountname)
@@ -63,7 +64,7 @@ for accountname in accounts:
 
     # Connect to the remote server.
     server = imapserver.IMAPServer(user, password, host, port, ssl)
-    remoterepos = repository.IMAP.IMAPRepository(server)
+    remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
 
     # Connect to the Maildirs.
     localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(config.get(accountname, "localfolders")))
@@ -75,8 +76,10 @@ for accountname in accounts:
     remoterepos.syncfoldersto(localrepos)
 
     for remotefolder in remoterepos.getfolders():
+        mailboxes.append({'accountname': accountname,
+                          'foldername': remotefolder.getvisiblename()})
         # Load local folder.
-        localfolder = localrepos.getfolder(remotefolder.getname())
+        localfolder = localrepos.getfolder(remotefolder.getvisiblename())
         if not localfolder.isuidvalidityok(remotefolder):
             ui.validityproblem(remotefolder)
             continue
@@ -92,7 +95,7 @@ for accountname in accounts:
                              len(remotefolder.getmessagelist().keys()))
 
         # Load status folder.
-        statusfolder = statusrepos.getfolder(remotefolder.getname())
+        statusfolder = statusrepos.getfolder(remotefolder.getvisiblename())
         statusfolder.cachemessagelist()
         
         if not statusfolder.isnewfolder():
@@ -109,3 +112,4 @@ for accountname in accounts:
         statusfolder.save()
         
         
+mbnames.genmbnames(config, mailboxes)
