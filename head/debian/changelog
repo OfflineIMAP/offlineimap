@@ -1,3 +1,9 @@
+offlineimap (3.0.1) unstable; urgency=low
+
+  * Detabified the source.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 12 Jul 2002 07:28:24 -0500
+
 offlineimap (3.0.0) unstable; urgency=low
 
   * Introduced a new graphical user interface written with Tkinter.
