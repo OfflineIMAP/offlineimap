@@ -22,7 +22,8 @@ import select, sys
 from threading import *
 
 class TTYUI(UIBase):
-    def __init__(s, verbose = 0):
+    def __init__(s, config, verbose = 0):
+        s.config = config
         s.verbose = verbose
         s.iswaiting = 0
 
