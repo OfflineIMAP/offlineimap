@@ -65,21 +65,48 @@ class MaildirRepository(BaseRepository):
         return folder.Maildir.MaildirFolder(self.root, foldername,
                                             self.getsep())
     
-    def getfolders(self):
-        if self.folders != None:
-            return self.folders
-
+    def _getfolders_scandir(self, root, extension = None):
+        # extension willl only be non-None when called recursively when
+        # getsep() returns '/'.
         retval = []
-        for dirname in os.listdir(self.root):
-            fullname = os.path.join(self.root, dirname)
+
+        # Configure the full path to this repository -- "toppath"
+
+        if extension == None:
+            toppath = root
+        else:
+            toppath = os.path.join(root, extension)
+
+        # Iterate over directories in top.
+        for dirname in os.listdir(toppath):
+            if dirname in ['cur', 'new', 'tmp', 'offlineimap.uidvalidity']:
+                # Bypass special files.
+                continue
+            fullname = os.path.join(toppath, dirname)
             if not os.path.isdir(fullname):
+                # Not a directory -- not a folder.
                 continue
             if not (os.path.isdir(os.path.join(fullname, 'cur')) and
                     os.path.isdir(os.path.join(fullname, 'new')) and
                     os.path.isdir(os.path.join(fullname, 'tmp'))):
+                # Doesn't have maildir stuff -- not a folder.
                 continue
-            retval.append(folder.Maildir.MaildirFolder(self.root, dirname,
+            
+            foldername = dirname
+            if extension != None:
+                foldername = os.path.join(extension, dirname)
+
+            retval.append(folder.Maildir.MaildirFolder(self.root, foldername,
                                                        self.getsep()))
-        self.folders = retval
+            if self.getsep() == '/':
+                # Check sub-directories for folders.
+                retval.extend(self._getfolders_scandir(os.path.join(root,
+                                                                    foldername)))
+            
         return retval
+    
+    def getfolders(self):
+        if self.folders == None:
+            self.folders = self._getfolders_scandir(self.root)
+        return self.folders
     
