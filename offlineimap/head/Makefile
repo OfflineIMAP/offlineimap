@@ -25,6 +25,7 @@ clean:
 	-rm -f `find . -name "*.bak"`
 	-rm -f `find . -name ".cache*"`
 	-find . -name auth -exec rm -vf {}/password {}/username \;
+	-svn cleanup
 
 changelog:
 	svn log -v > ChangeLog
