@@ -215,12 +215,8 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.c = CursesUtil()
         s.text = []
         BlinkenBase.init_banner(s)
-        print 217
         s.setupwindows(dolock = 0)
-        print '219a'
         s.inputhandler = InputHandler(s.c)
-        print 219
-        print 221
         
         s._msg(version.banner)
         s._msg(str(dir(s.c.stdscr)))
@@ -245,7 +241,6 @@ class Blinkenlights(BlinkenBase, UIBase):
         return password
 
     def setupwindows(s, dolock = 1):
-        print 244
         if dolock:
             s.iolock.acquire()
         try:
@@ -257,13 +252,9 @@ class Blinkenlights(BlinkenBase, UIBase):
             s.logwindow.scrollok(1)
             s.setupwindow_drawlog()
 
-            print 258
-
             accounts = s.af.keys()
             accounts.sort()
             accounts.reverse()
-
-            print 264
 
             pos = s.c.height - 1
             for account in accounts:
@@ -271,11 +262,8 @@ class Blinkenlights(BlinkenBase, UIBase):
                 s.af[account].setwindow(accountwindow)
                 pos -= 1
 
-            print 272
-            
             curses.doupdate()
 
-            print 276
         finally:
             if dolock:
                 s.iolock.release()
@@ -299,9 +287,7 @@ class Blinkenlights(BlinkenBase, UIBase):
 
     def getaccountframe(s):
         accountname = s.getthreadaccount()
-        print 'c302: ', accountname
         s.aflock.acquire()
-        print 'c304'
         try:
             if accountname in s.af:
                 return s.af[accountname]
@@ -309,10 +295,8 @@ class Blinkenlights(BlinkenBase, UIBase):
             # New one.
             s.af[accountname] = CursesAccountFrame(s.c)
             #s.iolock.acquire()
-            print 297
             s.c.reset()
             s.setupwindows(dolock = 0)
-            print 300
             #s.iolock.release()
         finally:
             s.aflock.release()
@@ -325,7 +309,6 @@ class Blinkenlights(BlinkenBase, UIBase):
                 s._msg(thisline)
             return
         s.iolock.acquire()
-        print 326
         try:
             if not s.c.isactive():
                 # For dumping out exceptions and stuff.
@@ -335,7 +318,6 @@ class Blinkenlights(BlinkenBase, UIBase):
                 s.gettf().setcolor(color)
             s._addline_unlocked(msg, s.gettf().getcolor())
             s.logwindow.refresh()
-            print 336
         finally:
             s.iolock.release()
 

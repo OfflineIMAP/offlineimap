@@ -95,8 +95,6 @@ class BlinkenBase:
         
         s.tflock.acquire()
 
-        print "b98"
-
         try:
             if not accountname in s.threadframes:
                 s.threadframes[accountname] = {}
@@ -104,20 +102,14 @@ class BlinkenBase:
             if threadid in s.threadframes[accountname]:
                 return s.threadframes[accountname][threadid]
 
-            print 'b107'
-
             if not accountname in s.availablethreadframes:
                 s.availablethreadframes[accountname] = []
-
-            print 'b112'
 
             if len(s.availablethreadframes[accountname]):
                 tf = s.availablethreadframes[accountname].pop(0)
                 tf.setthread(currentThread())
             else:
-                print 'b118'
                 tf = s.getaccountframe().getnewthreadframe()
-                print 'b120'
             s.threadframes[accountname][threadid] = tf
             return tf
         
