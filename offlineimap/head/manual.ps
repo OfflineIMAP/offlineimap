@@ -1,16 +1,16 @@
 %!PS-Adobe-3.0
-%%Creator: groff version 1.17.2
-%%CreationDate: Fri Aug  9 15:51:31 2002
+%%Creator: groff version 1.18
+%%CreationDate: Sat Nov  2 10:25:19 2002
 %%DocumentNeededResources: font Times-Roman
 %%+ font Times-Bold
 %%+ font Times-Italic
-%%DocumentSuppliedResources: procset grops 1.17 2
+%%DocumentSuppliedResources: procset grops 1.18 0
 %%Pages: 9
 %%PageOrder: Ascend
 %%Orientation: Portrait
 %%EndComments
 %%BeginProlog
-%%BeginResource: procset grops 1.17 2
+%%BeginResource: procset grops 1.18 0
 /setpacking where{
 pop
 currentpacking
@@ -108,11 +108,20 @@ TM setmatrix
 /ST/stroke load def
 /MT/moveto load def
 /CL/closepath load def
-/FL{
-currentgray exch setgray fill setgray
+/Fr{
+setrgbcolor fill
 }bind def
-/BL/fill load def
+/Fk{
+setcmykcolor fill
+}bind def
+/Fg{
+setgray fill
+}bind def
+/FL/fill load def
 /LW/setlinewidth load def
+/Cr/setrgbcolor load def
+/Ck/setcmykcolor load def
+/Cg/setgray load def
 /RE{
 findfont
 dup maxlength 1 index/FontName known not{1 add}if dict begin
@@ -171,7 +180,7 @@ setpacking
 %%IncludeResource: font Times-Italic
 grops begin/DEFS 1 dict def DEFS begin/u{.001 mul}bind def end/RES 72
 def/PL 792 def/LS false def/ENC0[/asciicircum/asciitilde/Scaron/Zcaron
-/scaron/zcaron/Ydieresis/trademark/quotesingle/.notdef/.notdef/.notdef
+/scaron/zcaron/Ydieresis/trademark/quotesingle/Euro/.notdef/.notdef
 /.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef
 /.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef
 /.notdef/.notdef/space/exclam/quotedbl/numbersign/dollar/percent
@@ -248,9 +257,9 @@ F -.15(ve)-.15 G 3.216(r5).15 G 3.216(0f)-3.216 G .716
 orithm that can dramatically speed up performance in man)108 302.4 R
 2.821(ys)-.15 G(itu-)-2.821 E(ations by synchronizing se)108 314.4 Q
 -.15(ve)-.25 G(ral dif).15 E(ferent things simultaneously)-.25 E(.)-.65
-E F2(Of\215ineIMAP)108 331.2 Q F0(is)3.066 E F3(FLEXIBLE;)3.066 E F0
-.566(you can customize which folders are synced via re)3.066 F .565
-(gular e)-.15 F .565(xpressions, lists, or)-.15 F .733(Python e)108
+E F2(Of\215ineIMAP)108 331.2 Q F0(is)3.036 E F3(FLEXIBLE;)3.456 E F0
+.536(you can customize which folders are synced via re)3.036 F .535
+(gular e)-.15 F .535(xpressions, lists, or)-.15 F .733(Python e)108
 343.2 R .733(xpressions; a v)-.15 F .733(ersatile and comprehensi)-.15 F
 1.033 -.15(ve c)-.25 H .734
 (on\214guration \214le is used to control beha).15 F .734(vior; tw)-.2 F
@@ -262,9 +271,9 @@ E F2(Of\215ineIMAP)108 331.2 Q F0(is)3.066 E F3(FLEXIBLE;)3.066 E F0
 (\215ine \(or "unplugged"\) reading is sup-)-.25 F .543(ported; and eso\
 teric IMAP features are supported to ensure compatibility with the wide\
 st v)108 379.2 R .543(ariety of IMAP)-.25 F(serv)108 391.2 Q(ers.)-.15 E
-F2(Of\215ineIMAP)108 408 Q F0(is)4.064 E F3(SAFE;)4.064 E F0 1.565
-(it uses an algorithm designed to pre)4.064 F -.15(ve)-.25 G 1.565
-(nt mail loss at all costs.).15 F 1.565(Because of the)6.565 F .011
+F2(Of\215ineIMAP)108 408 Q F0(is)4.045 E F3(SAFE;)4.375 E F0 1.545
+(it uses an algorithm designed to pre)4.045 F -.15(ve)-.25 G 1.545
+(nt mail loss at all costs.).15 F 1.546(Because of the)6.546 F .011
 (design of this algorithm, e)108 420 R -.15(ve)-.25 G 2.511(np).15 G
 .011(rogramming errors should not result in loss of mail.)-2.511 F 2.51
 (Ia)5.01 G 2.51(ms)-2.51 G 2.51(oc)-2.51 G .01(on\214dent in the)-2.51 F
@@ -318,7 +327,7 @@ G(ilable.).25 E 32.5<8359>108 660 S .086(ou must ha)-33.6 F .386 -.15
 (installed. If)144 708 R .36(you intend to use the SSL interf)2.86 F
 .359(ace, your Python must ha)-.1 F .659 -.15(ve b)-.2 H .359(een b).15
 F .359(uilt with SSL sup-)-.2 F(port.)144 720 Q(John Goerzen)72 768 Q
-(July 12, 2002)151.655 E(1)201.915 E EP
+(July 12, 2002)151.655 E(1)201.915 E 0 Cg EP
 %%Page: 2 2
 %%BeginPageSetup
 BP
@@ -359,24 +368,25 @@ BP
 (TION)-.95 E F0(Do)108 333.6 Q(wnload the tar)-.25 E(.gz v)-.55 E
 (ersion of the package from the website.)-.15 E
 (Then run these commands:)5 E F1(tar -zxvf of\215ineimap-x.y)108 350.4 Q
-(.z.tar)-.7 E(.gz)-1 E(cd of\215ineimap-x.y)108 362.4 Q(.z)-.7 E F0 .148
-(When you w)108 379.2 R .148(ant to run)-.1 F F1(Of\215ineIMAP)2.648 E
-(,)-.92 E F0 .148(you will issue the)2.648 F F1(cd)2.648 E F0 .148
-(command as abo)2.648 F .449 -.15(ve a)-.15 H .149(nd then type).15 F F1
-(./of\215ineimap;)2.649 E F0(there is no installation step necessary)108
-391.2 Q(.)-.65 E/F2 10.95/Times-Bold@0 SF(CONFIGURA)72 408 Q(TION)-1.04
-E F1(Of\215ineIMAP)108 420 Q F0 .509(is re)3.009 F .508
+(.z.tar)-.7 E(.gz)-1 E(cd of\215ineimap-x.y)108 362.4 Q(.z)-.7 E F0
+3.873(When you w)108 379.2 R 3.873(ant to run)-.1 F F1(Of\215ineIMAP)
+6.373 E(,)-.92 E F0 3.873(you will issue the)6.373 F F1(cd)6.373 E F0
+3.873(command as abo)6.373 F 4.173 -.15(ve a)-.15 H 3.874(nd then type)
+.15 F F1(./of\215ineimap.py;)108 391.2 Q F0
+(there is no installation step necessary)2.5 E(.)-.65 E/F2 10.95
+/Times-Bold@0 SF(CONFIGURA)72 408 Q(TION)-1.04 E F1(Of\215ineIMAP)108
+420 Q F0 .547(is re)3.047 F .547
 (gulated by a con\214guration \214le that is normally stored in)-.15 F
-/F3 10/Times-Italic@0 SF(~/.of)3.008 E(\215ineimapr)-.18 E(c.)-.37 E F1
-(Of\215ineIMAP)5.508 E F0 .003(ships with a \214le named)108 432 R F3
-(of)2.503 E(\215ineimap.conf)-.18 E F0 .003(that you should cop)2.503 F
-2.503(yt)-.1 G 2.503(ot)-2.503 G .003(hat location and then edit.)-2.503
-F .004(This \214le is vital)5.003 F .256
-(to proper operation of the system; it sets e)108 444 R -.15(ve)-.25 G
-.256(rything you need to run).15 F F1(Of\215ineIMAP)2.755 E(.)-1.1 E F0
-.255(Full documentation for)5.255 F
-(the con\214guration \214le is included within the sample \214le.)108
-456 Q F2(OPTIONS)72 472.8 Q F0 .061
+/F3 10/Times-Italic@0 SF(~/.of)2.547 E(\215ineimapr)-.18 E(c.)-.37 E F1
+(Of\215ineIMAP)5.546 E F0 1.008(ships with a \214le named)108 432 R F3
+(of)3.738 E(\215ineimap.conf)-.18 E F0 1.008(that you should cop)5.468 F
+3.508(yt)-.1 G 3.508(ot)-3.508 G 1.009(hat location and then edit.)
+-3.508 F 1.009(This \214le is)6.009 F .638
+(vital to proper operation of the system; it sets e)108 444 R -.15(ve)
+-.25 G .637(rything you need to run).15 F F1(Of\215ineIMAP)3.137 E(.)
+-1.1 E F0 .637(Full documenta-)5.637 F(tion for the con\214guration \
+\214le is included within the sample \214le.)108 456 Q F2(OPTIONS)72
+472.8 Q F0 .061
 (Most con\214guration is done via the con\214guration \214le.)108 484.8
 R(Ne)5.061 E -.15(ve)-.25 G .061(rtheless, there are a fe).15 F 2.561
 (wo)-.25 G .062(ptions that you may set)-2.561 F(for)108 496.8 Q F1
@@ -410,8 +420,8 @@ E(.)-1.1 E<ad61>108 631.2 Q F3(accountlist)2.5 E F0(Ov)144 643.2 Q .84
 (accounts, or to sync some accounts that you normally prefer not to.)144
 667.2 Q F1<ad63>108 684 Q F3(con\214g\214le)2.5 E F0
 (Speci\214es a con\214guration \214le to use in lieu of the def)144 696
-Q(ault,)-.1 E F3(~/.of)2.5 E(\215ineimapr)-.18 E(c.)-.37 E F0
-(John Goerzen)72 768 Q(July 12, 2002)151.655 E(2)201.915 E EP
+Q(ault,)-.1 E F3(~/.of)2 E(\215ineimapr)-.18 E(c.)-.37 E F0
+(John Goerzen)72 768 Q(July 12, 2002)151.655 E(2)201.915 E 0 Cg EP
 %%Page: 3 3
 %%BeginPageSetup
 BP
@@ -460,13 +470,13 @@ SF(USER INTERF)72 312 Q -.602(AC)-.986 G(ES).602 E F1(Of\215ineIMAP)108
 (There are tw)5.023 F 2.523(og)-.1 G .024(raphical interf)-2.523 F .024
 (aces, one terminal interf)-.1 F .024(ace, and tw)-.1 F 2.524(on)-.1 G
 (oninteracti)-2.524 E .324 -.15(ve i)-.25 H(nter).15 E(-)-.2 E -.1(fa)
-108 348 S 1.002(ces suitable for scripting or logging purposes.).1 F
-(The)6.002 E F2(ui)3.502 E F0 1.002
-(option in the con\214guration \214le speci\214es the user)3.502 F
-(interf)108 360 Q .475(ace preferences.)-.1 F(The)5.475 E F2<ad75>2.975
-E F0 .475(command-line option can o)2.975 F -.15(ve)-.15 G .476
-(rride the con\214guration \214le.).15 F .476(The a)5.476 F -.25(va)-.2
-G .476(ilable v).25 F(al-)-.25 E(ues for the con\214guration \214le or \
+108 348 S .975(ces suitable for scripting or logging purposes.).1 F(The)
+5.974 E F2(ui)3.554 E F0 .974
+(option in the con\214guration \214le speci\214es the user)3.834 F
+(interf)108 360 Q .483(ace preferences.)-.1 F(The)5.483 E F2<ad75>2.624
+E F0 .484(command-line option can o)3.234 F -.15(ve)-.15 G .484
+(rride the con\214guration \214le.).15 F .484(The a)5.484 F -.25(va)-.2
+G .484(ilable v).25 F(al-)-.25 E(ues for the con\214guration \214le or \
 command-line are describef in this section.)108 372 Q F1(Tk.Blink)87
 388.8 Q(enlights)-.1 E F0 1.709(This is an interf)108 400.8 R 1.709
 (ace designed to be sleek, fun to w)-.1 F 1.709(atch, and informati)-.1
@@ -487,9 +497,9 @@ ry small, so it uses little desktop space, yet it is quite functional.)
 (-coded to match the)-.2 F(color of the lights.)108 460.8 Q(Tk.Blink)108
 477.6 Q 5.224(enlights is the only user interf)-.1 F 5.224
 (ace that has con\214gurable parameters; see the e)-.1 F(xample)-.15 E
-F2(of)108 489.6 Q(\215ineimap.conf)-.18 E F0(for more details.)2.5 E .43
-(Each light in the Tk.Blink)108 506.4 R .43(enlights interf)-.1 F .429
-(ace represents a thread of e)-.1 F -.15(xe)-.15 G .429
+F2(of)108.23 489.6 Q(\215ineimap.conf)-.18 E F0(for more details.)4.46 E
+.43(Each light in the Tk.Blink)108 506.4 R .43(enlights interf)-.1 F
+.429(ace represents a thread of e)-.1 F -.15(xe)-.15 G .429
 (cution -- that is, a particular task that).15 F F1(Of\215ineIMAP)108
 518.4 Q F0 .866(is performing right no)3.366 F 4.666 -.65(w. T)-.25 H
 .867(he color indicates what task the particular thread is performing,)
@@ -502,7 +512,7 @@ F1(Red \(Meaning 1\))108 576 Q F0 .442
 (is the color of the main program')144 588 R 2.942(st)-.55 G .442
 (hread, which basically does nothing b)-2.942 F .442
 (ut monitor the others.)-.2 F(It)5.442 E
-(might remind you of HAL 9000 in)144 600 Q F2(2001.)2.5 E F1(Gray)108
+(might remind you of HAL 9000 in)144 600 Q F2(2001.)2.88 E F1(Gray)108
 616.8 Q F0(indicates that the thread is establishing a ne)13.78 E 2.5
 (wc)-.25 G(onnection to the IMAP serv)-2.5 E(er)-.15 E(.)-.55 E F1(Pur)
 108 633.6 Q(ple)-.1 E F0 .656(is the color of an account synchronizatio\
@@ -512,7 +522,7 @@ F1(Cyan)108 662.4 Q F0(indicates that the thread is syncing a folder)
 13.22 E(.)-.55 E F1(Gr)108 679.2 Q(een)-.18 E F0(means that a folder')
 9.52 E 2.5(sm)-.55 G(essage list is being loaded.)-2.5 E F1(Blue)108 696
 Q F0(is the color of a message synchronization controller thread.)16.55
-E(John Goerzen)72 768 Q(July 12, 2002)151.655 E(3)201.915 E EP
+E(John Goerzen)72 768 Q(July 12, 2002)151.655 E(3)201.915 E 0 Cg EP
 %%Page: 4 4
 %%BeginPageSetup
 BP
@@ -528,11 +538,11 @@ E F1(Pink)108 158.4 Q F0
 (\(bright red\) indicates that message \215ags are being remo)15.99 E
 -.15(ve)-.15 G(d.).15 E F1(Red / Black Flashing)108 175.2 Q F0
 (corresponds to the countdo)144 187.2 Q
-(wn timer that runs between synchronizations.)-.25 E 1.316
-(The name of this interf)108 204 R 1.316(ace deri)-.1 F -.15(ve)-.25 G
-3.816(sf).15 G 1.316(rom a bit of computer science history)-3.816 F
-6.317(.E)-.65 G 1.317(ric Raymond')-6.317 F(s)-.55 E/F2 10
-/Times-Italic@0 SF -.35(Ja)3.817 G -.37(rg).35 G 1.317(on F).37 F(ile)
+(wn timer that runs between synchronizations.)-.25 E 1.305
+(The name of this interf)108 204 R 1.305(ace deri)-.1 F -.15(ve)-.25 G
+3.805(sf).15 G 1.305(rom a bit of computer science history)-3.805 F
+6.305(.E)-.65 G 1.305(ric Raymond')-6.305 F(s)-.55 E/F2 10
+/Times-Italic@0 SF -.35(Ja)3.805 G -.37(rg).35 G 1.305(on F).37 F(ile)
 -.45 E F0(de\214nes blink)108 216 Q(enlights, in part, as:)-.1 E .132
 (Front-panel diagnostic lights on a computer)144 232.8 R 2.632(,e)-.4 G
 .132(sp. a dinosaur)-2.632 F 2.632(.N)-.55 G .632 -.25(ow t)-2.632 H
@@ -603,14 +613,14 @@ G(oninteracti)-3.934 E -.15(ve)-.25 G 1.434(.Basic, this user).15 F
 (to synchronize multiple accounts with the mutt mail)3.014 F(reader)108
 672 Q(.)-.55 E(Start by creating a directory to hold your folders:)108
 696 Q F1(mkdir ~/Mail)108 708 Q F0(John Goerzen)72 768 Q(July 12, 2002)
-151.655 E(4)201.915 E EP
+151.655 E(4)201.915 E 0 Cg EP
 %%Page: 5 5
 %%BeginPageSetup
 BP
 %%EndPageSetup
 /F0 10/Times-Roman@0 SF 111.22(OFFLINEIMAP\(1\) Of)72 48 R
 (\215ineIMAP manual)-.25 E(OFFLINEIMAP\(1\))113.72 E(In your)108 84 Q/F1
-10/Times-Italic@0 SF(~/.of)2.5 E(\215ineimapr)-.18 E(c,)-.37 E F0
+10/Times-Italic@0 SF(~/.of)2 E(\215ineimapr)-.18 E(c,)-.37 E F0
 (specify this:)2.5 E/F2 10/Times-Bold@0 SF(accounts = P)108 96 Q
 (ersonal, W)-.2 E(ork)-.75 E F0(Mak)108 120 Q 2.821(es)-.1 G .321
 (ure that you ha)-2.821 F .621 -.15(ve b)-.2 H .321(oth a).15 F F2([P)
@@ -619,11 +629,11 @@ F0 .32(section, with dif)2.82 F .32(ferent localfolder pathnames and)
 -.25 F(enable)108 132 Q F2([mbnames].)2.5 E F0
 (In each account section, do something lik)108 156 Q 2.5(et)-.1 G(his:)
 -2.5 E F2(localf)108 168 Q(olders = ~/Mail/P)-.25 E(ersonal)-.2 E F0
-(Add these lines to your)108 192 Q F1(~/.muttr)2.5 E(c:)-.37 E F2(sour)
-108 204 Q(ce ~/path-to-mbnames-muttr)-.18 E(c-mailboxes)-.18 E -.25(fo)
-108 216 S(lder).25 E(-hook P)-.37 E(ersonal set fr)-.2 E(om="y)-.18 E
-(our)-.25 E(email@personal.com")-.18 E -.25(fo)108 228 S(lder).25 E
-(-hook W)-.37 E(ork set fr)-.75 E(om="y)-.18 E(our)-.25 E(email@w)-.18 E
+(Add these lines to your)108 192 Q F1(~/.muttr)2 E(c:)-.37 E F2(sour)108
+204 Q(ce ~/path-to-mbnames-muttr)-.18 E(c-mailboxes)-.18 E -.25(fo)108
+216 S(lder).25 E(-hook P)-.37 E(ersonal set fr)-.2 E(om="y)-.18 E(our)
+-.25 E(email@personal.com")-.18 E -.25(fo)108 228 S(lder).25 E(-hook W)
+-.37 E(ork set fr)-.75 E(om="y)-.18 E(our)-.25 E(email@w)-.18 E
 (ork.com")-.1 E(set mbox_type=Maildir)108 240 Q(set f)108 252 Q
 (older=$HOME/Mail)-.25 E(set spool\214le=+P)108 264 Q(ersonal/INBO)-.2 E
 (X)-.4 E F0(That')108 288 Q 2.5(si)-.55 G(t!)-2.5 E F2(UW)87 304.8 Q
@@ -665,7 +675,7 @@ E -.18(re)108 436.8 S(fer).18 E(ence = Mail)-.18 E 2.5(#T)108 448.8 S
 (python\214le=~/.of\215ineimap.py)108 681.6 Q([f)108 693.6 Q(oo])-.25 E
 -.25(fo)108 705.6 S(ldersort=mycmp).25 E F0(Then, the)108 729.6 Q F1
 (~/.of)2.5 E(\215ineimap.py)-.18 E F0(\214le will contain:)2.5 E
-(John Goerzen)72 768 Q(July 12, 2002)151.655 E(5)201.915 E EP
+(John Goerzen)72 768 Q(July 12, 2002)151.655 E(5)201.915 E 0 Cg EP
 %%Page: 6 6
 %%BeginPageSetup
 BP
@@ -712,16 +722,16 @@ E F0 1.638(IMAP serv)108 345.6 R 1.637
 (vious folder by the same name stored.)-.25 F F1(Of\215ineIMAP)5.303 E
 F0 .303(will detect this)2.803 F(condition and skip the folder)108 434.4
 Q 5(.T)-.55 G(his is GOOD, because it pre)-5 E -.15(ve)-.25 G
-(nts data loss.).15 E -1.1(Yo)108 451.2 S 2.827(uc)1.1 G .327
-(an \214x it by remo)-2.827 F .327
-(ving your local folder and cache data.)-.15 F -.15(Fo)5.327 G 2.827(ri)
-.15 G .327(nstance, if your folders are under)-2.827 F/F3 10
-/Times-Italic@0 SF(~/F)2.826 E(old-)-1.05 E(er)108 463.2 Q(s)-.1 E F0
-(and the folder with the problem is INBO)2.5 E(X, you')-.4 E 2.5(dt)-.5
+(nts data loss.).15 E -1.1(Yo)108 451.2 S 2.854(uc)1.1 G .354
+(an \214x it by remo)-2.854 F .353
+(ving your local folder and cache data.)-.15 F -.15(Fo)5.353 G 2.853(ri)
+.15 G .353(nstance, if your folders are under)-2.853 F/F3 10
+/Times-Italic@0 SF(~/F)2.353 E(old-)-1.05 E(er)108 463.2 Q(s)-.1 E F0
+(and the folder with the problem is INBO)2.77 E(X, you')-.4 E 2.5(dt)-.5
 G(ype this:)-2.5 E F1(rm -r ~/F)108 480 Q(olders/INBO)-.25 E(X)-.4 E
 (rm ~/.of\215ineimap/AccountName/INBO)108 492 Q(X)-.4 E F0
 (\(replacing AccountName with the account name as speci\214ed in)108
-508.8 Q F3(~/.of)2.5 E(\215ineimapr)-.18 E(c\))-.37 E F0(Ne)108 525.6 Q
+508.8 Q F3(~/.of)2 E(\215ineimapr)-.18 E(c\))-.37 E F0(Ne)108 525.6 Q
 .801(xt time you run)-.15 F F1(Of\215ineIMAP)3.301 E(,)-.92 E F0 .802
 (it will re-do)3.302 F .802(wnload the folder with the ne)-.25 F 3.302
 (wU)-.25 G 3.302(IDs. Note)-3.302 F .802(that the proce-)3.302 F
@@ -756,7 +766,7 @@ F0(It should run on most platforms supported by Python, which are quite\
 (Of\215ineIMAP)7.27 E F0 2.27
 (is smart enough to \214gure out message deletion without this e)4.77 F
 2.27(xtra crutch.)-.15 F(John Goerzen)72 768 Q(July 12, 2002)151.655 E
-(6)201.915 E EP
+(6)201.915 E 0 Cg EP
 %%Page: 7 7
 %%BeginPageSetup
 BP
@@ -856,7 +866,7 @@ G .132(onnections can cause mail serv)-2.633 F .132(ers to ha)-.15 F
 (10 minutes with MacOS X Mail.app "manual cache")144 696 Q 2.5(5m)144
 708 S(inutes with GNUS agent sync)-2.5 E(20 seconds with Of)144 720 Q
 (\215ineIMAP 1.x)-.25 E(John Goerzen)72 768 Q(July 12, 2002)151.655 E(7)
-201.915 E EP
+201.915 E 0 Cg EP
 %%Page: 8 8
 %%BeginPageSetup
 BP
@@ -868,88 +878,88 @@ BP
 108 S(econds with Of)-2.5 E(\215ineIMAP 3.x "held connection")-.25 E/F1
 10.95/Times-Bold@0 SF(CONFORMING T)72 124.8 Q(O)-.197 E F0 32.5<8349>108
 136.8 S(nternet Message Access Protocol v)-32.5 E(ersion 4re)-.15 E
-(v1 \(IMAP 4re)-.25 E(v1\) as speci\214ed in RFC2060)-.25 E 32.5<834d>
-108 153.6 S 8.92(aildir as speci\214ed in http://www)-32.5 F(.qmail.or)
--.65 E(g/qmail-manual-html/man5/maildir)-.18 E 8.92(.html and)-.55 F
-(http://cr)144 165.6 Q(.yp.to/proto/maildir)-.55 E(.html.)-.55 E 32.5
-<8353>108 182.4 S
+(v1 \(IMAP 4re)-.25 E(v1\) as speci\214ed in RFC2060)-.25 E 32.5<8343>
+108 153.6 S(RAM-MD5 as speci\214ed in RFC2195)-32.5 E 32.5<834d>108
+170.4 S 8.92(aildir as speci\214ed in http://www)-32.5 F(.qmail.or)-.65
+E(g/qmail-manual-html/man5/maildir)-.18 E 8.92(.html and)-.55 F
+(http://cr)144 182.4 Q(.yp.to/proto/maildir)-.55 E(.html.)-.55 E 32.5
+<8353>108 199.2 S
 (tandard Python 2.2.1 as implemented on POSIX-compliant systems.)-32.5 E
-F1(NO)72 199.2 Q(TES)-.438 E/F2 10/Times-Bold@0 SF
-(DELETING LOCAL FOLDERS)87 211.2 Q(Of\215ineIMAP)108 223.2 Q F0 .532
-(does a tw)3.032 F(o-w)-.1 E .532(ay synchronization.)-.1 F .532
-(That is, if you mak)5.532 F 3.032(eac)-.1 G .532
-(hange to the mail on the serv)-3.032 F(er)-.15 E 3.033(,i)-.4 G(t)
--3.033 E .897(will be propog)108 235.2 R .897(ated to your local cop)
--.05 F 2.197 -.65(y, a)-.1 H .897(nd vise-v).65 F 3.397(ersa. Some)-.15
-F .896(people might think that it w)3.397 F .896(ould be wise to)-.1 F
-1.59(just delete all their local mail folders periodically)108 247.2 R
-6.59(.I)-.65 G 4.09(fy)-6.59 G 1.59(ou do this with Of)-4.09 F
-(\215ineIMAP)-.25 E 4.09(,r)-1.11 G 1.59(emember to also)-4.09 F(remo)
-108 259.2 Q 1.67 -.15(ve y)-.15 H 1.37(our local status cache \(~/.of)
-.15 F 1.37(\215ineimap by def)-.25 F 3.87(ault\). Otherwise,)-.1 F(Of)
-3.87 E 1.37(\215ineIMAP will tak)-.25 F 3.87(et)-.1 G 1.37(his as an)
--3.87 F .415(intentional deletion of man)108 271.2 R 2.915(ym)-.15 G
-.416(essages and will interpret your action as requesting them to be de\
-leted from)-2.915 F(the serv)108 283.2 Q(er as well.)-.15 E
-(\(If you don')5 E 2.5(tu)-.18 G(nderstand this, don')-2.5 E 2.5(tw)-.18
-G(orry; you probably w)-2.6 E(on')-.1 E 2.5(te)-.18 G
-(ncounter this situation\))-2.5 E F2(COPYING MESSA)87 300 Q
-(GES BETWEEN FOLDERS)-.55 E F0(Normally)108 312 Q 5.859(,w)-.65 G 3.359
-(hen you cop)-5.859 F 5.859(yam)-.1 G 3.359
+F1(NO)72 216 Q(TES)-.438 E/F2 10/Times-Bold@0 SF(DELETING LOCAL FOLDERS)
+87 228 Q(Of\215ineIMAP)108 240 Q F0 .532(does a tw)3.032 F(o-w)-.1 E
+.532(ay synchronization.)-.1 F .532(That is, if you mak)5.532 F 3.032
+(eac)-.1 G .532(hange to the mail on the serv)-3.032 F(er)-.15 E 3.033
+(,i)-.4 G(t)-3.033 E .897(will be propog)108 252 R .897
+(ated to your local cop)-.05 F 2.197 -.65(y, a)-.1 H .897(nd vise-v).65
+F 3.397(ersa. Some)-.15 F .896(people might think that it w)3.397 F .896
+(ould be wise to)-.1 F 1.59
+(just delete all their local mail folders periodically)108 264 R 6.59
+(.I)-.65 G 4.09(fy)-6.59 G 1.59(ou do this with Of)-4.09 F(\215ineIMAP)
+-.25 E 4.09(,r)-1.11 G 1.59(emember to also)-4.09 F(remo)108 276 Q 1.67
+-.15(ve y)-.15 H 1.37(our local status cache \(~/.of).15 F 1.37
+(\215ineimap by def)-.25 F 3.87(ault\). Otherwise,)-.1 F(Of)3.87 E 1.37
+(\215ineIMAP will tak)-.25 F 3.87(et)-.1 G 1.37(his as an)-3.87 F .415
+(intentional deletion of man)108 288 R 2.915(ym)-.15 G .416(essages and\
+ will interpret your action as requesting them to be deleted from)-2.915
+F(the serv)108 300 Q(er as well.)-.15 E(\(If you don')5 E 2.5(tu)-.18 G
+(nderstand this, don')-2.5 E 2.5(tw)-.18 G(orry; you probably w)-2.6 E
+(on')-.1 E 2.5(te)-.18 G(ncounter this situation\))-2.5 E F2
+(COPYING MESSA)87 316.8 Q(GES BETWEEN FOLDERS)-.55 E F0(Normally)108
+328.8 Q 5.859(,w)-.65 G 3.359(hen you cop)-5.859 F 5.859(yam)-.1 G 3.359
 (essage between folders or add a ne)-5.859 F 5.859(wm)-.25 G 3.358
-(essage to a folder locally)-5.859 F(,)-.65 E F2(Of\215ineIMAP)108 324 Q
-F0 .853(will just do the right thing.)3.352 F(Ho)5.853 E(we)-.25 E -.15
-(ve)-.25 G 1.653 -.4(r, s).15 H .853(ometimes this can be trick).4 F
+(essage to a folder locally)-5.859 F(,)-.65 E F2(Of\215ineIMAP)108 340.8
+Q F0 .853(will just do the right thing.)3.352 F(Ho)5.853 E(we)-.25 E
+-.15(ve)-.25 G 1.653 -.4(r, s).15 H .853(ometimes this can be trick).4 F
 3.353(y-)-.15 G 3.353(-i)-3.353 G 3.353(fy)-3.353 G .853(our IMAP serv)
--3.353 F(er)-.15 E .29(does not pro)108 336 R .29
+-3.353 F(er)-.15 E .29(does not pro)108 352.8 R .29
 (vide the SEARCH command, or does not return something useful,)-.15 F F2
 (Of\215ineIMAP)2.79 E F0 .29(cannot deter)2.79 F(-)-.2 E .173
-(mine the ne)108 348 R 2.673(wU)-.25 G .173(ID of the message.)-2.673 F
-.173(So, in these rare instances, Of)5.173 F .174
-(\215ineIMAP will upload the message to the)-.25 F .64(IMAP serv)108 360
-R .64(er and delete it from your local folder)-.15 F 5.64(.T)-.55 G .64
-(hen, on your ne)-5.64 F .64(xt sync, the message will be re-do)-.15 F
-(wn-)-.25 E 1.472(loaded with the proper UID.)108 372 R F2
+(mine the ne)108 364.8 R 2.673(wU)-.25 G .173(ID of the message.)-2.673
+F .173(So, in these rare instances, Of)5.173 F .174
+(\215ineIMAP will upload the message to the)-.25 F .64(IMAP serv)108
+376.8 R .64(er and delete it from your local folder)-.15 F 5.64(.T)-.55
+G .64(hen, on your ne)-5.64 F .64(xt sync, the message will be re-do)
+-.15 F(wn-)-.25 E 1.472(loaded with the proper UID.)108 388.8 R F2
 (Of\215ineIMAP)6.473 E F0(mak)3.973 E 1.473(es sure that the message w)
 -.1 F 1.473(as properly uploaded before)-.1 F
-(deleting it, so there should be no risk of data loss.)108 384 Q F2
-(MAILING LIST)87 400.8 Q F0(There is an Of)108 412.8 Q
+(deleting it, so there should be no risk of data loss.)108 400.8 Q F2
+(MAILING LIST)87 417.6 Q F0(There is an Of)108 429.6 Q
 (\215ineIMAP mailing list a)-.25 E -.25(va)-.2 G(ilable.).25 E 2.448 -.8
-(To s)108 429.6 T .847(ubscribe, send the te).8 F .847
+(To s)108 446.4 T .847(ubscribe, send the te).8 F .847
 (xt "Subscribe" in the subject of a mail to of)-.15 F
 (\215ineimap-request@complete.or)-.25 E 3.347(g. T)-.18 F(o)-.8 E
-(post, send the message to of)108 441.6 Q(\215ineimap@complete.or)-.25 E
-(g.)-.18 E F1 -.11(BU)72 458.4 S(GS).11 E F0 4.419(Reports of b)108
-470.4 R 4.419(ugs should be sent via e-mail to the)-.2 F F2
+(post, send the message to of)108 458.4 Q(\215ineimap@complete.or)-.25 E
+(g.)-.18 E F1 -.11(BU)72 475.2 S(GS).11 E F0 4.419(Reports of b)108
+487.2 R 4.419(ugs should be sent via e-mail to the)-.2 F F2
 (Of\215ineIMAP)6.919 E F0 -.2(bu)6.92 G 4.42
-(g-tracking system \(BTS\) at).2 F(of)108 482.4 Q(\215ineimap@b)-.25 E
+(g-tracking system \(BTS\) at).2 F(of)108 499.2 Q(\215ineimap@b)-.25 E
 (ugs.complete.or)-.2 E 3.397(go)-.18 G 3.397(rs)-3.397 G .897
 (ubmitted on-line using the W)-3.397 F .896(eb interf)-.8 F .896
-(ace at http://b)-.1 F(ugs.complete.or)-.2 E(g/.)-.18 E(The W)108 494.4
+(ace at http://b)-.1 F(ugs.complete.or)-.2 E(g/.)-.18 E(The W)108 511.2
 Q(eb site also lists all current b)-.8 E
 (ugs, where you can check their status or contrib)-.2 E
-(ute to \214xing them.)-.2 E F1(COPYRIGHT)72 511.2 Q F0(Of)108 523.2 Q
+(ute to \214xing them.)-.2 E F1(COPYRIGHT)72 528 Q F0(Of)108 540 Q
 (\215ineIMAP is Cop)-.25 E(yright \(C\) 2002 John Goerzen.)-.1 E .286
-(This program is free softw)108 540 R .286(are; you can redistrib)-.1 F
-.287(ute it and/or modify it under the terms of the GNU General)-.2 F
-.766(Public License as published by the Free Softw)108 552 R .766(are F)
--.1 F .766(oundation; either v)-.15 F .766
-(ersion 2 of the License, or \(at your)-.15 F(option\) an)108 564 Q 2.5
-(yl)-.15 G(ater v)-2.5 E(ersion.)-.15 E .579(This program is distrib)108
-580.8 R .579(uted in the hope that it will be useful, b)-.2 F .58
+(This program is free softw)108 556.8 R .286(are; you can redistrib)-.1
+F .287(ute it and/or modify it under the terms of the GNU General)-.2 F
+.766(Public License as published by the Free Softw)108 568.8 R .766
+(are F)-.1 F .766(oundation; either v)-.15 F .766
+(ersion 2 of the License, or \(at your)-.15 F(option\) an)108 580.8 Q
+2.5(yl)-.15 G(ater v)-2.5 E(ersion.)-.15 E .579(This program is distrib)
+108 597.6 R .579(uted in the hope that it will be useful, b)-.2 F .58
 (ut WITHOUT ANY W)-.2 F(ARRANTY)-1.2 E 3.08(;w)-.92 G(ithout)-3.08 E
--2.15 -.25(ev e)108 592.8 T 2.73(nt).25 G .23(he implied w)-2.73 F .229
+-2.15 -.25(ev e)108 609.6 T 2.73(nt).25 G .23(he implied w)-2.73 F .229
 (arranty of MERCHANT)-.1 F .229(ABILITY or FITNESS FOR A P)-.93 F(AR)
 -.92 E .229(TICULAR PURPOSE.)-.6 F(See)5.229 E
-(the GNU General Public License for more details.)108 604.8 Q -1.1(Yo)
-108 621.6 S 2.77(us)1.1 G .27(hould ha)-2.77 F .57 -.15(ve r)-.2 H(ecei)
+(the GNU General Public License for more details.)108 621.6 Q -1.1(Yo)
+108 638.4 S 2.77(us)1.1 G .27(hould ha)-2.77 F .57 -.15(ve r)-.2 H(ecei)
 .15 E -.15(ve)-.25 G 2.77(dac).15 G(op)-2.77 E 2.77(yo)-.1 G 2.77(ft)
 -2.77 G .27
 (he GNU General Public License along with this program; if not, write)
--2.77 F(to:)108 633.6 Q(Free Softw)108 650.4 Q(are F)-.1 E
-(oundation, Inc.)-.15 E(59 T)108 662.4 Q(emple Place)-.7 E(Suite 330)108
-674.4 Q(Boston, MA)108 686.4 Q(02111-1307)5 E(USA)108 698.4 Q
-(John Goerzen)72 768 Q(July 12, 2002)151.655 E(8)201.915 E EP
+-2.77 F(to:)108 650.4 Q(Free Softw)108 667.2 Q(are F)-.1 E
+(oundation, Inc.)-.15 E(59 T)108 679.2 Q(emple Place)-.7 E(Suite 330)108
+691.2 Q(Boston, MA)108 703.2 Q(02111-1307)5 E(USA)108 715.2 Q
+(John Goerzen)72 768 Q(July 12, 2002)151.655 E(8)201.915 E 0 Cg EP
 %%Page: 9 9
 %%BeginPageSetup
 BP
@@ -975,7 +985,8 @@ F 2.528(wnloaded using Sub)-.25 F -.15(ve)-.15 G 5.028
 -3.217 F(\215ineIMAP)-.25 E(with Sub)108 194.4 Q -.15(ve)-.15 G
 (rsion, please visit:).15 E(http://svn.complete.or)108 211.2 Q(g/)-.18 E
 F1(SEE ALSO)72 228 Q F2(mutt)108 240 Q F0(\(1\),)A F2(python)2.5 E F0
-(\(1\).)A(John Goerzen)72 768 Q(July 12, 2002)151.655 E(9)201.915 E EP
+(\(1\).)A(John Goerzen)72 768 Q(July 12, 2002)151.655 E(9)201.915 E 0 Cg
+EP
 %%Trailer
 end
 %%EOF

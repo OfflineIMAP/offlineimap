@@ -6,8 +6,15 @@ offlineimap (3.99.2) unstable; urgency=low
     session.  This way, even unexpected and non-repeatable errors stand
     a chance of getting a more detailed log.
   * Handle uidvalidity file in an atomic fashion.  CLoses: #165600.
+  * Supports CRAM-MD5 authentication.  Fixes [complete.org #38], and for
+    Debian, Closes: #154165.
+  * Noted CRAM-MD5 support in the "CONFORMING TO" section of the manual.
+  * Certain servers may not always return the UID flag for new messages.
+    This causes an OfflineIMAP exception, though rerunning will fix it.
+    Now, OfflineIMAP will detect the condition and ignore the offending
+    messages (without an exception) until the next sync.
 
- -- John Goerzen <jgoerzen@complete.org>  Tue, 15 Oct 2002 12:35:42 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Sat, 02 Nov 2002 10:23:10 -0600
 
 offlineimap (3.99.1) unstable; urgency=low
 

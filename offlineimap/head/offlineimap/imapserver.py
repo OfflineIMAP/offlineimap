@@ -19,7 +19,7 @@
 from offlineimap import imaplib, imaputil, threadutil
 from offlineimap.ui import UIBase
 from threading import *
-import thread, hmac, base64
+import thread, hmac
 
 
 class UsefulIMAPMixIn:
@@ -91,17 +91,14 @@ class IMAPServer:
         self.semaphore.release()
 
     def md5handler(self, response):
-        print "md5handler: got", response
-        response = response.strip()
-        challenge = base64.decodestring(response).strip()
+        challenge = response.strip()
         msg = self.password
         while len(msg) < 64:
             msg += "\0"
 
         reply = hmac.new(challenge, msg)
-        retval = base64.encodestring(self.username + ' ' + \
-                                     reply.hexdigest())
-        print "md5handler: returning", retval
+        retval = self.username + ' ' + \
+                     reply.hexdigest()
         return retval
 
     def acquireconnection(self):
@@ -147,9 +144,13 @@ class IMAPServer:
             imapobj = UsefulIMAP4(self.hostname, self.port)
 
         if not self.tunnel:
-            try:
+            if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+                UIBase.getglobalui().debug('imap',
+                                           'Attempting CRAM-MD5 authentication')
                 imapobj.authenticate('CRAM-MD5', self.md5handler)
-            except:
+            else:
+                UIBase.getglobalui().debug('imap',
+                                           'Attempting plain authentication')
                 imapobj.login(self.username, self.password)
 
         if self.delim == None:
