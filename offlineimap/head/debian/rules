@@ -9,7 +9,7 @@
 # This is the debhelper compatibility version to use.
 export DH_COMPAT=3
 
-PYTHON=python2.3
+PYTHON=python2.2
 PACKAGE=offlineimap
 
 
