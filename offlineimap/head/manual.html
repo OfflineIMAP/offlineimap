@@ -25,7 +25,7 @@
 
 <hr>
 <!-- Creator     : groff version 1.17.2 -->
-<!-- CreationDate: Mon Jul 15 11:26:37 2002 -->
+<!-- CreationDate: Wed Jul 17 15:12:19 2002 -->
 <a name="NAME"></a>
 <h2>NAME</h2>
 <table width="100%" border=0 rules="none" frame="void"
@@ -873,6 +873,30 @@ situation)</td></table>
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="4%"></td><td width="96%">
+<b>COPYING MESSAGES BETWEEN FOLDERS</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+Normally, when you copy a message between folders or add a
+new message to a folder locally, <b>OfflineIMAP</b> will
+just do the right thing. However, sometimes this can be
+tricky -- if your IMAP server does not provide the SEARCH
+command, or does not return something useful,
+<b>OfflineIMAP</b> cannot determine the new UID of the
+message. So, in these rare instances, OfflineIMAP will
+upload the message to the IMAP server and delete it from
+your local folder. Then, on your next sync, the message will
+be re-downloaded with the proper UID. <b>OfflineIMAP</b>
+makes sure that the message was properly uploaded before
+deleting it, so there should be no risk of data
+loss.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="4%"></td><td width="96%">
 <b>MAILING LIST</b></td></table>
 
 <table width="100%" border=0 rules="none" frame="void"
@@ -969,6 +993,22 @@ its homepage via either Gopher or HTTP:</td></table>
 <td width="10%"></td><td width="90%">
 gopher://quux.org/1/devel/offlineimap<br>
 http://quux.org/devel/offlineimap</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+OfflineIMAP may also be downloaded using Subversion.
+Additionally, the distributed tar.gz may be updated with a
+simple &quot;svn update&quot; command; it is ready to go.
+For information on getting OfflineIMAP with Subversion,
+please visit:</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+http://svn.complete.org/</td></table>
 <a name="SEE ALSO"></a>
 <h2>SEE ALSO</h2>
 

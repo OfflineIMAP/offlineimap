@@ -406,33 +406,47 @@ NOTES
        understand this, don't worry; you probably won't encounter
        this situation)
 
+   COPYING MESSAGES BETWEEN FOLDERS
+       Normally, when you copy a message between folders or add a
+       new message to a folder locally, OfflineIMAP will just  do
+       the right thing.  However, sometimes this can be tricky --
+       if your IMAP server does not provide the  SEARCH  command,
+       or  does  not  return something useful, OfflineIMAP cannot
+       determine the new UID of the message.  So, in  these  rare
+       instances, OfflineIMAP will upload the message to the IMAP
+       server and delete it from your  local  folder.   Then,  on
+       your next sync, the message will be re-downloaded with the
+       proper UID.  OfflineIMAP makes sure that the  message  was
+       properly  uploaded  before deleting it, so there should be
+       no risk of data loss.
+
    MAILING LIST
        There is an OfflineIMAP mailing list available.
 
-       To  subscribe, send the text "Subscribe" in the subject of
+       To subscribe, send the text "Subscribe" in the subject  of
        a mail to offlineimap-request@complete.org.  To post, send
        the message to offlineimap@complete.org.
 
 BUGS
-       Should  be reported to the author at the address specified
+       Should be reported to the author at the address  specified
        below.
 
 COPYRIGHT
        OfflineIMAP is Copyright (C) 2002 John Goerzen.
 
-       This program is free software;  you  can  redistribute  it
+       This  program  is  free  software; you can redistribute it
        and/or modify it under the terms of the GNU General Public
-       License as published  by  the  Free  Software  Foundation;
-       either  version  2 of the License, or (at your option) any
+       License  as  published  by  the  Free Software Foundation;
+       either version 2 of the License, or (at your  option)  any
        later version.
 
-       This program is distributed in the hope that  it  will  be
+       This  program  is  distributed in the hope that it will be
        useful, but WITHOUT ANY WARRANTY; without even the implied
-       warranty of MERCHANTABILITY or FITNESS  FOR  A  PARTICULAR
-       PURPOSE.   See  the  GNU  General  Public License for more
+       warranty  of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+       PURPOSE.  See the GNU  General  Public  License  for  more
        details.
 
-       You should have received a copy of the GNU General  Public
+       You  should have received a copy of the GNU General Public
        License along with this program; if not, write to:
 
        Free Software Foundation, Inc.
@@ -442,9 +456,9 @@ COPYRIGHT
        USA
 
 AUTHOR
-       OfflineIMAP,   its   libraries,   documentation,  and  all
-       included files, except where noted, was  written  by  John
-       Goerzen  <jgoerzen@complete.org>  and copyright is held as
+       OfflineIMAP,  its  libraries,   documentation,   and   all
+       included  files,  except  where noted, was written by John
+       Goerzen <jgoerzen@complete.org> and copyright is  held  as
        stated in the COPYRIGHT section.
 
        OfflineIMAP may be downloaded, and information found, from
@@ -453,6 +467,13 @@ AUTHOR
        gopher://quux.org/1/devel/offlineimap
        http://quux.org/devel/offlineimap
 
+       OfflineIMAP  may  also  be  downloaded  using  Subversion.
+       Additionally, the distributed tar.gz may be updated with a
+       simple "svn update" command;  it  is  ready  to  go.   For
+       information on getting OfflineIMAP with Subversion, please
+       visit:
+
+       http://svn.complete.org/
 
 SEE ALSO
        mutt(1), python(1).
