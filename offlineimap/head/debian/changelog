@@ -1,3 +1,10 @@
+offlineimap (3.2.5) unstable; urgency=low
+
+  * Now handles uploading messages without Message-Id headers.
+    Closes: #156022.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri,  9 Aug 2002 17:54:01 -0500
+
 offlineimap (3.2.4) unstable; urgency=low
 
   * When using nested folders, the Maildir repository handler now properly

@@ -110,7 +110,9 @@ class IMAPFolder(BaseFolder):
             # In order to get the new uid, we need to save off the message ID.
 
             message = rfc822.Message(StringIO(content))
-            mid = imapobj._quote(message.getheader('Message-Id'))
+            mid = message.getheader('Message-Id')
+            if mid != None:
+                mid = imapobj._quote(mid)
             datetuple = rfc822.parsedate(message.getheader('Date'))
             # Will be None if missing or not in a valid format.
             if datetuple == None:
@@ -130,6 +132,10 @@ class IMAPFolder(BaseFolder):
                                        date, content)[0] == 'OK')
             # Checkpoint.  Let it write out the messages, etc.
             assert(imapobj.check()[0] == 'OK')
+            if mid == None:
+                # No message ID in original message -- no sense trying to
+                # search for it.
+                return 0
             # Now find the UID it got.
             try:
                 matchinguids = imapobj.uid('search', None,
