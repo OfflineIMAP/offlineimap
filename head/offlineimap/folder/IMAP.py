@@ -35,14 +35,14 @@ class IMAPFolder(BaseFolder):
         return self.visiblename
 
     def getuidvalidity(self):
-        x = self.imapobj.status(self.getfullname(), ('UIDVALIDITY'))[1][0]
+        x = self.imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
         uidstring = imaputil.imapsplit(x)[1]
         return long(imaputil.flagsplit(uidstring)[1])
     
     def cachemessagelist(self):
         assert(self.imapobj.select(self.getfullname())[0] == 'OK')
         self.messagelist = {}
-        response = self.imapobj.status(self.getfullname(), ('MESSAGES'))[1][0]
+        response = self.imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
         result = imaputil.imapsplit(response)[1]
         maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
         if (maxmsgid < 1):
