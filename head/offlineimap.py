@@ -73,7 +73,6 @@ def addmailbox(accountname, remotefolder):
     mailboxlock.release()    
     
 def syncaccount(accountname, *args):
-    print args
     # We don't need an account lock because syncitall() goes through
     # each account once, then waits for all to finish.
     try:
