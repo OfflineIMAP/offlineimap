@@ -19,7 +19,7 @@
 from Base import BaseFolder
 from offlineimap import imaputil, imaplib
 from offlineimap.ui import UIBase
-import rfc822, time, string
+import rfc822, time, string, random, binascii
 from StringIO import StringIO
 from copy import copy
 
@@ -27,9 +27,7 @@ from copy import copy
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
         self.config = imapserver.config
-        self.expunge = 1
-        if self.config.has_option(accountname, 'expunge'):
-           self.expunge = self.config.getboolean(accountname, 'expunge')
+        self.expunge = repository.getexpunge()
         self.name = imaputil.dequote(name)
         self.root = None # imapserver.root
         self.sep = imapserver.delim
@@ -38,6 +36,8 @@ class IMAPFolder(BaseFolder):
         self.visiblename = visiblename
         self.accountname = accountname
         self.repository = repository
+        self.randomgenerator = random.Random()
+        BaseFolder.__init__(self)
 
     def getaccountname(self):
         return self.accountname
@@ -49,7 +49,7 @@ class IMAPFolder(BaseFolder):
         self.imapserver.connectionwait()
 
     def getcopyinstancelimit(self):
-        return 'MSGCOPY_' + self.accountname
+        return 'MSGCOPY_' + self.repository.getname()
 
     def getvisiblename(self):
         return self.visiblename
@@ -70,7 +70,12 @@ class IMAPFolder(BaseFolder):
         try:
             # Primes untagged_responses
             imapobj.select(self.getfullname(), readonly = 1)
-            maxmsgid = long(imapobj.untagged_responses['EXISTS'][0])
+            try:
+                # Some mail servers do not return an EXISTS response if
+                # the folder is empty.
+                maxmsgid = long(imapobj.untagged_responses['EXISTS'][0])
+            except KeyError:
+                return
             if maxmsgid < 1:
                 # No messages; return
                 return
@@ -107,7 +112,37 @@ class IMAPFolder(BaseFolder):
     
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
-    
+
+    def savemessage_getnewheader(self, content):
+        headername = 'X-OfflineIMAP-%s-' % str(binascii.crc32(content)).replace('-', 'x')
+        headername += binascii.hexlify(self.repository.getname()) + '-'
+        headername += binascii.hexlify(self.getname())
+        headervalue= '%d-' % long(time.time())
+        headervalue += str(self.randomgenerator.random()).replace('.', '')
+        return (headername, headervalue)
+
+    def savemessage_addheader(self, content, headername, headervalue):
+        insertionpoint = content.find("\r\n")
+        leader = content[0:insertionpoint]
+        newline = "\r\n%s: %s" % (headername, headervalue)
+        trailer = content[insertionpoint:]
+        return leader + newline + trailer
+
+    def savemessage_searchforheader(self, imapobj, headername, headervalue):
+        # Now find the UID it got.
+        headervalue = imapobj._quote(headervalue)
+        try:
+            matchinguids = imapobj.uid('search', None,
+                                       '(HEADER %s %s)' % (headername, headervalue))[1][0]
+        except imapobj.error:
+            # IMAP server doesn't implement search or had a problem.
+            return 0
+        matchinguids = matchinguids.split(' ')
+        if len(matchinguids) != 1 or matchinguids[0] == None:
+            raise ValueError, "While attempting to find UID for message with header %s, got wrong-sized matchinguids of %s" % (headername, str(matchinguids))
+        matchinguids.sort()
+        return long(matchinguids[0])
+
     def savemessage(self, uid, content, flags):
         imapobj = self.imapserver.acquireconnection()
         try:
@@ -123,9 +158,6 @@ class IMAPFolder(BaseFolder):
             # In order to get the new uid, we need to save off the message ID.
 
             message = rfc822.Message(StringIO(content))
-            mid = message.getheader('Message-Id')
-            if mid != None:
-                mid = imapobj._quote(mid)
             datetuple = rfc822.parsedate(message.getheader('Date'))
             # Will be None if missing or not in a valid format.
             if datetuple == None:
@@ -145,34 +177,30 @@ class IMAPFolder(BaseFolder):
             if content.find("\r\n") == -1:  # Convert line endings if not already
                 content = content.replace("\n", "\r\n")
 
+            (headername, headervalue) = self.savemessage_getnewheader(content)
+            content = self.savemessage_addheader(content, headername,
+                                                 headervalue)
+
             assert(imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)[0] == 'OK')
+
             # Checkpoint.  Let it write out the messages, etc.
             assert(imapobj.check()[0] == 'OK')
-            if mid == None:
-                # No message ID in original message -- no sense trying to
-                # search for it.
-                return 0
-            # Now find the UID it got.
+
+            # Keep trying until we get the UID.
             try:
-                matchinguids = imapobj.uid('search', None,
-                                           '(HEADER Message-Id %s)' % mid)[1][0]
-            except imapobj.error:
-                # IMAP server doesn't implement search or had a problem.
-                return 0
-            matchinguids = matchinguids.split(' ')
-            if len(matchinguids) != 1 or matchinguids[0] == None:
-                return 0
-            matchinguids.sort()
-            try:
-                uid = long(matchinguids[-1])
+                uid = self.savemessage_searchforheader(imapobj, headername,
+                                                       headervalue)
             except ValueError:
-                return 0
-            self.messagelist[uid] = {'uid': uid, 'flags': flags}
-            return uid
+                assert(imapobj.noop()[0] == 'OK')
+                uid = self.savemessage_searchforheader(imapobj, headername,
+                                                       headervalue)
         finally:
             self.imapserver.releaseconnection(imapobj)
+
+        self.messagelist[uid] = {'uid': uid, 'flags': flags}
+        return uid
 
     def savemessageflags(self, uid, flags):
         imapobj = self.imapserver.acquireconnection()
@@ -197,8 +225,14 @@ class IMAPFolder(BaseFolder):
     def addmessageflags(self, uid, flags):
         self.addmessagesflags([uid], flags)
 
-    def addmessagesflags(self, uidlist, flags):
+    def addmessagesflags_noconvert(self, uidlist, flags):
         self.processmessagesflags('+', uidlist, flags)
+
+    def addmessagesflags(self, uidlist, flags):
+        """This is here for the sake of UIDMaps.py -- deletemessages must
+        add flags and get a converted UID, and if we don't have noconvert,
+        then UIDMaps will try to convert it twice."""
+        self.addmessagesflags_noconvert(uidlist, flags)
 
     def deletemessageflags(self, uid, flags):
         self.deletemessagesflags([uid], flags)
@@ -254,15 +288,18 @@ class IMAPFolder(BaseFolder):
                         self.messagelist[uid]['flags'].remove(flag)
 
     def deletemessage(self, uid):
-        self.deletemessages([uid])
+        self.deletemessages_noconvert([uid])
 
     def deletemessages(self, uidlist):
+        self.deletemessages_noconvert(uidlist)
+
+    def deletemessages_noconvert(self, uidlist):
         # Weed out ones not in self.messagelist
         uidlist = [uid for uid in uidlist if uid in self.messagelist]
         if not len(uidlist):
             return        
 
-        self.addmessagesflags(uidlist, ['T'])
+        self.addmessagesflags_noconvert(uidlist, ['T'])
         imapobj = self.imapserver.acquireconnection()
         try:
             try:

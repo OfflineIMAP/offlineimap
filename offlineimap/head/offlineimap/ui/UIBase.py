@@ -155,7 +155,7 @@ class UIBase:
         if hostname == None:
             hostname = ''
         if port != None:
-            port = ":%d" % port
+            port = ":%s" % str(port)
         displaystr = ' to %s%s.' % (hostname, port)
         if hostname == '' and port == None:
             displaystr = '.'
@@ -182,9 +182,9 @@ class UIBase:
                                              s.getnicename(srcrepos),
                                              s.getnicename(destrepos)))
 
-    def validityproblem(s, folder):
-        s.warn("UID validity problem for folder %s; skipping it" % \
-               folder.getname())
+    def validityproblem(s, folder, saved, new):
+        s.warn("UID validity problem for folder %s (saved %d; got %d); skipping it" % \
+               (folder.getname(), saved, new))
 
     def loadmessagelist(s, repos, folder):
         if s.verbose > 0:

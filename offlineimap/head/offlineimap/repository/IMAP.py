@@ -17,38 +17,116 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from Base import BaseRepository
-from offlineimap import folder, imaputil
+from offlineimap import folder, imaputil, imapserver
+from offlineimap.folder.UIDMaps import MappedIMAPFolder
+from offlineimap.threadutil import ExitNotifyThread
 import re, types
 from threading import *
 
 class IMAPRepository(BaseRepository):
-    def __init__(self, config, localeval, accountname, imapserver):
-        """Initialize an IMAPRepository object.  Takes an IMAPServer
-        object."""
-        self.imapserver = imapserver
-        self.config = config
-        self.accountname = accountname
+    def __init__(self, reposname, account):
+        """Initialize an IMAPRepository object."""
+        BaseRepository.__init__(self, reposname, account)
+        self.imapserver = imapserver.ConfigedIMAPServer(self)
         self.folders = None
         self.nametrans = lambda foldername: foldername
         self.folderfilter = lambda foldername: 1
         self.folderincludes = []
         self.foldersort = cmp
-        if config.has_option(accountname, 'nametrans'):
-            self.nametrans = localeval.eval(config.get(accountname, 'nametrans'), {'re': re})
-        if config.has_option(accountname, 'folderfilter'):
-            self.folderfilter = localeval.eval(config.get(accountname, 'folderfilter'), {'re': re})
-        if config.has_option(accountname, 'folderincludes'):
-            self.folderincludes = localeval.eval(config.get(accountname, 'folderincludes'), {'re': re})
-        if config.has_option(accountname, 'foldersort'):
-            self.foldersort = localeval.eval(config.get(accountname, 'foldersort'), {'re': re})
+        localeval = self.localeval
+        if self.config.has_option(self.getsection(), 'nametrans'):
+            self.nametrans = localeval.eval(self.getconf('nametrans'),
+                                            {'re': re})
+        if self.config.has_option(self.getsection(), 'folderfilter'):
+            self.folderfilter = localeval.eval(self.getconf('folderfilter'),
+                                               {'re': re})
+        if self.config.has_option(self.getsection(), 'folderincludes'):
+            self.folderincludes = localeval.eval(self.getconf('folderincludes'),
+                                                 {'re': re})
+        if self.config.has_option(self.getsection(), 'foldersort'):
+            self.foldersort = localeval.eval(self.getconf('foldersort'),
+                                             {'re': re})
+
+    def startkeepalive(self):
+        keepalivetime = self.getkeepalive()
+        if not keepalivetime: return
+        self.kaevent = Event()
+        self.kathread = ExitNotifyThread(target = self.imapserver.keepalive,
+                                         name = "Keep alive " + self.getname(),
+                                         args = (keepalivetime, self.kaevent))
+        self.kathread.setDaemon(1)
+        self.kathread.start()
+
+    def stopkeepalive(self, abrupt = 0):
+        if not hasattr(self, 'kaevent'):
+            # Keepalive is not active.
+            return
+
+        self.kaevent.set()
+        if not abrupt:
+            self.kathread.join()
+        del self.kathread
+        del self.kaevent
+
+    def holdordropconnections(self):
+        if not self.getholdconnectionopen():
+            self.dropconnections()
+
+    def dropconnections(self):
+        self.imapserver.close()
+
+    def getholdconnectionopen(self):
+        return self.getconfboolean("holdconnectionopen", 0)
+
+    def getkeepalive(self):
+        return self.getconfint("keepalive", 0)
 
     def getsep(self):
         return self.imapserver.delim
 
+    def gethost(self):
+        return self.getconf('remotehost')
+
+    def getuser(self):
+        return self.getconf('remoteuser')
+
+    def getport(self):
+        return self.getconfint('remoteport', None)
+
+    def getssl(self):
+        return self.getconfboolean('ssl', 0)
+
+    def getpreauthtunnel(self):
+        return self.getconf('preauthtunnel', None)
+
+    def getreference(self):
+        return self.getconf('reference', '""')
+
+    def getmaxconnections(self):
+        return self.getconfint('maxconnections', 1)
+
+    def getexpunge(self):
+        return self.getconfboolean('expunge', 1)
+
+    def getpassword(self):
+        password = self.getconf('remotepass', None)
+        if password != None:
+            return password
+        passfile = self.getconf('remotepassfile', None)
+        if passfile != None:
+            fd = open(os.path.expanduser(passfile))
+            password = passfile.readline().strip()
+            passfile.close()
+            return password
+        return None
+
     def getfolder(self, foldername):
-        return folder.IMAP.IMAPFolder(self.imapserver, foldername,
-                                      self.nametrans(foldername),
-                                      accountname, self)
+        return self.getfoldertype()(self.imapserver, foldername,
+                                    self.nametrans(foldername),
+                                    self.accountname, self)
+
+    def getfoldertype(self):
+        return folder.IMAP.IMAPFolder
 
     def getfolders(self):
         if self.folders != None:
@@ -60,7 +138,8 @@ class IMAPRepository(BaseRepository):
         finally:
             self.imapserver.releaseconnection(imapobj)
         for string in listresult:
-            if type(string) == types.StringType and string == '':
+            if string == None or \
+                   (type(string) == types.StringType and string == ''):
                 # Bug in imaplib: empty strings in results from
                 # literals.
                 continue
@@ -71,13 +150,31 @@ class IMAPRepository(BaseRepository):
             foldername = imaputil.dequote(name)
             if not self.folderfilter(foldername):
                 continue
-            retval.append(folder.IMAP.IMAPFolder(self.imapserver, foldername,
-                                                 self.nametrans(foldername),
-                                                 self.accountname, self))
+            retval.append(self.getfoldertype()(self.imapserver, foldername,
+                                               self.nametrans(foldername),
+                                               self.accountname, self))
         for foldername in self.folderincludes:
-            retval.append(folder.IMAP.IMAPFolder(self.imapserver, foldername,
-                                                 self.nametrans(foldername),
-                                                 self.accountname, self))
+            retval.append(self.getfoldertype()(self.imapserver, foldername,
+                                               self.nametrans(foldername),
+                                               self.accountname, self))
         retval.sort(lambda x, y: self.foldersort(x.getvisiblename(), y.getvisiblename()))
         self.folders = retval
         return retval
+
+    def makefolder(self, foldername):
+        #if self.getreference() != '""':
+        #    newname = self.getreference() + self.getsep() + foldername
+        #else:
+        #    newname = foldername
+        newname = foldername
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            result = imapobj.create(newname)
+            if result[0] != 'OK':
+                raise RuntimeError, "Repository %s could not create folder %s: %s" % (self.getname(), foldername, str(result))
+        finally:
+            self.imapserver.releaseconnection(imapobj)
+            
+class MappedIMAPRepository(IMAPRepository):
+    def getfoldertype(self):
+        return MappedIMAPFolder

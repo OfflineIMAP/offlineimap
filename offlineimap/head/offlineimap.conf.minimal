@@ -4,7 +4,15 @@
 [general]
 accounts = Test
 
-[Test]
+[Account Test]
+localrepository = Main
+remoterepository = Example
+
+[Repository Main]
+type = Maildir
 localfolders = ~/Test
+
+[Repository Example]
+type = IMAP
 remotehost = examplehost
 remoteuser = jgoerzen

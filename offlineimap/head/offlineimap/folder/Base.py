@@ -20,8 +20,12 @@ from threading import *
 from offlineimap import threadutil
 from offlineimap.threadutil import InstanceLimitedThread
 from offlineimap.ui import UIBase
+import os.path, re
 
 class BaseFolder:
+    def __init__(self):
+        self.uidlock = Lock()
+        
     def getname(self):
         """Returns name"""
         return self.name
@@ -68,13 +72,50 @@ class BaseFolder:
         else:
             return self.getname()
     
-    def isuidvalidityok(self, remotefolder):
-        raise NotImplementedException
+    def getfolderbasename(self):
+        foldername = self.getname()
+        foldername = foldername.replace(self.repository.getsep(), '.')
+        foldername = re.sub('/\.$', '/dot', foldername)
+        foldername = re.sub('^\.$', 'dot', foldername)
+        return foldername
+
+    def isuidvalidityok(self):
+        if self.getsaveduidvalidity() != None:
+            return self.getsaveduidvalidity() == self.getuidvalidity()
+        else:
+            self.saveuidvalidity()
+            return 1
+
+    def _getuidfilename(self):
+        return os.path.join(self.repository.getuiddir(),
+                            self.getfolderbasename())
+            
+    def getsaveduidvalidity(self):
+        if hasattr(self, '_base_saved_uidvalidity'):
+            return self._base_saved_uidvalidity
+        uidfilename = self._getuidfilename()
+        if not os.path.exists(uidfilename):
+            self._base_saved_uidvalidity = None
+        else:
+            file = open(uidfilename, "rt")
+            self._base_saved_uidvalidity = long(file.readline().strip())
+            file.close()
+        return self._base_saved_uidvalidity
+
+    def saveuidvalidity(self):
+        newval = self.getuidvalidity()
+        uidfilename = self._getuidfilename()
+        self.uidlock.acquire()
+        try:
+            file = open(uidfilename + ".tmp", "wt")
+            file.write("%d\n" % newval)
+            file.close()
+            os.rename(uidfilename + ".tmp", uidfilename)
+            self._base_saved_uidvalidity = newval
+        finally:
+            self.uidlock.release()
 
     def getuidvalidity(self):
-        raise NotImplementedException
-
-    def saveuidvalidity(self, newval):
         raise NotImplementedException
 
     def cachemessagelist(self):

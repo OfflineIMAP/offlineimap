@@ -43,10 +43,10 @@ class MaildirFolder(BaseFolder):
         self.name = name
         self.root = root
         self.sep = sep
-        self.uidfilename = os.path.join(self.getfullname(), "offlineimap.uidvalidity")
         self.messagelist = None
         self.repository = repository
         self.accountname = accountname
+        BaseFolder.__init__(self)
 
     def getaccountname(self):
         return self.accountname
@@ -55,31 +55,10 @@ class MaildirFolder(BaseFolder):
         return os.path.join(self.getroot(), self.getname())
 
     def getuidvalidity(self):
-        if hasattr(self, 'uidvalidity'):
-            return self.uidvalidity
-        if not os.path.exists(self.uidfilename):
-            self.uidvalidity = None
-        else:
-            file = open(self.uidfilename, "rt")
-            self.uidvalidity = long(file.readline().strip())
-            file.close()
-        return self.uidvalidity
+        """Maildirs have no notion of uidvalidity, so we just return a magic
+        token."""
+        return 42
 
-    def saveuidvalidity(self, newval):
-        file = open(self.uidfilename + ".tmp", "wt")
-        file.write("%d\n" % newval)
-        file.close()
-        os.rename(self.uidfilename + ".tmp", self.uidfilename)
-        self.uidvalidity = newval
-
-    def isuidvalidityok(self, remotefolder):
-        myval = self.getuidvalidity()
-        if myval != None:
-            return myval == remotefolder.getuidvalidity()
-        else:
-            self.saveuidvalidity(remotefolder.getuidvalidity())
-            return 1
-            
     def _scanfolder(self):
         """Cache the message list.  Maildir flags are:
         R (replied)

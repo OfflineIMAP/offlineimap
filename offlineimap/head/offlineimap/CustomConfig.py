@@ -54,6 +54,40 @@ class CustomConfigParser(ConfigParser):
             path = None
         return LocalEval(path)
 
-    def getaccountlist(self):
-        return [x for x in self.sections() if x != 'general']
+    def getsectionlist(self, key):
+        """Returns a list of sections that start with key + " ".  That is,
+        if key is "Account", returns all section names that start with
+        "Account ", but strips off the "Account ".  For instance, for
+        "Account Test", returns "Test"."""
+
+        key = key + ' '
+        return [x[len(key):] for x in self.sections() \
+                if x.startswith(key)]
+
+def CustomConfigDefault():
+    """Just a sample constant that won't occur anywhere else to use for the
+    default."""
+    pass
+
+class ConfigHelperMixin:
+    def _confighelper_runner(self, option, default, defaultfunc, mainfunc):
+        if default != CustomConfigDefault:
+            return apply(defaultfunc, [self.getsection(), option, default])
+        else:
+            return apply(mainfunc, [self.getsection(), option])
+
+    def getconf(self, option, default = CustomConfigDefault):
+        return self._confighelper_runner(option, default,
+                                         self.getconfig().getdefault,
+                                         self.getconfig().get)
+
+    def getconfboolean(self, option, default = CustomConfigDefault):
+        return self._confighelper_runner(option, default,
+                                         self.getconfig().getdefaultboolean,
+                                         self.getconfig().getboolean)
+
+    def getconfint(self, option, default = CustomConfigDefault):
+        return self._confighelper_runner(option, default,
+                                         self.getconfig().getdefaultint,
+                                         self.getconfig().getint)
     

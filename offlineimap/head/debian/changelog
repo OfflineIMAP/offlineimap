@@ -1,3 +1,38 @@
+offlineimap (3.99.12) unstable; urgency=low
+
+  * This is a 4.0 TRACK release, and may be unstable or in flux!
+  * Big news: OfflineIMAP can now sync two remote IMAP servers to each
+    other, with no need to write a Maildir at all.
+  * WARNING: the format of the configuration file *AND* the local
+    status area changes with this release!
+  * Major reworking of internal management of accounts.  Previously, the
+    account defined a local Maildir and a remote IMAP server.  Now, the
+    account is simply a connection between two repositories.  For
+    traditional ones, an account basically specifies a refresh interval,
+    a Maildir repository, and an IMAP repository.
+  * Added a notion of a repository to the configuration file.  Repositories
+    currently available are IMAP and Maildir.  Combined with the new account
+    system, this lets the user define powerful combinations without
+    duplicating information.
+  * When uploading messages to an IMAP server, OfflineIMAP generates its
+    own X-OfflineIMAP header rather than trying to guess the new message UID
+    based on the Message-Id header.  This leads to greater reliability when
+    uploading messages, especially when dealing with duplicate messages.
+    This change was required to permit reliable IMAP-to-IMAP syncing, but
+    helps with regular IMAP-to-Maildir syncing as well.
+  * Local status area under ~/.offlineimap revamped.  It now contains
+    separate subdirectories for each account and repository, and they
+    contain UID validity information, UID mapping (for IMAP-to-IMAP
+    syncing).  UID validity information is no longer stored in the Maildir
+    itself.
+  * New debug type: "thread" to debug multithreading.
+  * preauth tunnels no longer require remoteuser, remotepass, host,
+    or port in the configuration file.
+  * Logging for preauth tunnels is more sensible.
+  * Fixed a logic error for syncs with a reference that returns no folders.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 17 Apr 2003 17:20:08 -0500
+
 offlineimap (3.99.11) unstable; urgency=low
 
   * Curses interface can now be resized.  Closes: #176342.

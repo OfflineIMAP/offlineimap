@@ -1,4 +1,4 @@
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002, 2003 John Goerzen
 # Thread support module
 # <jgoerzen@complete.org>
 #
@@ -113,12 +113,14 @@ def exitnotifymonitorloop(callback):
     global exitcondition, exitthreads
     while 1:                            # Loop forever.
         exitcondition.acquire()
-        while not len(exitthreads):
-            exitcondition.wait(1)
+        try:
+            while not len(exitthreads):
+                exitcondition.wait(1)
 
-        while len(exitthreads):
-            callback(exitthreads.pop(0)) # Pull off in order added!
-        exitcondition.release()
+            while len(exitthreads):
+                callback(exitthreads.pop(0)) # Pull off in order added!
+        finally:
+            exitcondition.release()
 
 def threadexited(thread):
     """Called when a thread exits."""
@@ -131,11 +133,6 @@ def threadexited(thread):
             raise SystemExit
         ui.threadException(thread)      # Expected to terminate
         sys.exit(100)                   # Just in case...
-        os._exit(100)
-    elif thread.getExitMessage() == 'SYNC_WITH_TIMER_TERMINATE':
-        ui.terminate()
-        # Just in case...
-        sys.exit(100)
         os._exit(100)
     else:
         ui.threadExited(thread)

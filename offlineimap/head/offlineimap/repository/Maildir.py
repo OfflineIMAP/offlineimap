@@ -23,25 +23,24 @@ from mailbox import Maildir
 import os
 
 class MaildirRepository(BaseRepository):
-    def __init__(self, root, accountname, config):
+    def __init__(self, reposname, account):
         """Initialize a MaildirRepository object.  Takes a path name
         to the directory holding all the Maildir directories."""
+        BaseRepository.__init__(self, reposname, account)
 
-        self.root = root
+        self.root = self.getlocalroot()
         self.folders = None
-        self.accountname = accountname
-        self.config = config
         self.ui = UIBase.getglobalui()
         self.debug("MaildirRepository initialized, sep is " + repr(self.getsep()))
+
+    def getlocalroot(self):
+        return os.path.expanduser(self.getconf('localfolders'))
 
     def debug(self, msg):
         self.ui.debug('maildir', msg)
 
     def getsep(self):
-        if self.config.has_option(self.accountname, 'sep'):
-            return self.config.get(self.accountname, 'sep').strip()
-        else:
-            return '.'
+        return self.getconf('sep', '.').strip()
 
     def makefolder(self, foldername):
         self.debug("makefolder called with arg " + repr(foldername))
@@ -65,7 +64,8 @@ class MaildirRepository(BaseRepository):
         # makedirs will fail because the higher-up dir already exists.
         # So, check to see if this is indeed the case.
 
-        if self.getsep() == '/' and os.path.isdir(foldername):
+        if (self.getsep() == '/' or self.getconfboolean('existsok', 0)) \
+            and os.path.isdir(foldername):
             self.debug("makefolder: %s already is a directory" % foldername)
             # Already exists.  Sanity-check that it's not a Maildir.
             for subdir in ['cur', 'new', 'tmp']:

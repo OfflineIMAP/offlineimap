@@ -1,4 +1,3 @@
-<!-- -*- DocBook -*- -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
   <!ENTITY OfflineIMAP "<application>OfflineIMAP</application>">
 ]>
@@ -11,7 +10,7 @@
     <refentryinfo>
       <address><email>jgoerzen@complete.org</email></address>
       <author><firstname>John</firstname><surname>Goerzen</surname></author>
-      <date> $Date: 2003-04-16 09:23:45 -0500 (Wed, 16 Apr 2003) $ </date>
+      <date> $Date: 2003-04-17 13:25:30 -0500 (Thu, 17 Apr 2003) $ </date>
     </refentryinfo>
 
     <refmeta>
@@ -333,13 +332,15 @@ cd offlineimap-x.y.z</ProgramListing>
 
 	    <para><option>-d</option> requires one or more debugtypes,
 	      separated by commas.  These define what exactly will be
-	      debugged, and include two options: <property>imap</property>
-	      and <property>maildir</property>.  The <property>imap</property>
+	      debugged, and include three options: <property>imap</property>,
+	      <property>maildir</property>, and <property>thread</property>.
+	      The <property>imap</property>
 	      option will enable IMAP protocol stream and parsing debugging.  Note
 	      that the output may contain passwords, so take care to remove that
 	      from the debugging output before sending it to anyone else.  The
 	      <property>maildir</property> option will enable debugging for
-	      certain Maildir operations.
+	      certain Maildir operations.  And <property>thread</property>
+	      will debug the threading model.
 	    </para></listitem>
 	  </varlistentry>
 	  <varlistentry><term>-o</term>
@@ -1032,3 +1033,10 @@ rm -r ~/.offlineimap/AccountName/INBOX</programlisting>
     </refsect1>
   </refentry>
 </reference>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-set-face: T
+End:
+-->

@@ -1,5 +1,5 @@
 # OfflineIMAP initialization code
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002, 2003 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,13 +16,14 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import imaplib, imapserver, repository, folder, mbnames, threadutil, version, syncmaster
+from offlineimap import imaplib, imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
 from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from offlineimap.ui import UIBase
 import re, os, os.path, offlineimap, sys, fcntl
 from offlineimap.CustomConfig import CustomConfigParser
 from threading import *
+import threading
 from getopt import getopt
 
 lockfd = None
@@ -78,18 +79,26 @@ def startup(versionno):
             ui.add_debug(debugtype.strip())
             if debugtype == 'imap':
                 imaplib.Debug = 5
+            if debugtype == 'thread':
+                threading._VERBOSE = 1
 
     if '-o' in options:
-        for section in config.getaccountlist():
-            config.remove_option(section, "autorefresh")
+        # FIXME: maybe need a better
+        for section in accounts.getaccountlist(config):
+            config.remove_option('Account ' + section, "autorefresh")
 
     lock(config, ui)
 
-    accounts = config.get("general", "accounts")
+    activeaccounts = config.get("general", "accounts")
     if '-a' in options:
-        accounts = options['-a']
-    accounts = accounts.replace(" ", "")
-    accounts = accounts.split(",")
+        activeaccounts = options['-a']
+    activeaccounts = activeaccounts.replace(" ", "")
+    activeaccounts = activeaccounts.split(",")
+    allaccounts = accounts.AccountHashGenerator(config)
+
+    syncaccounts = {}
+    for account in activeaccounts:
+        syncaccounts[account] = allaccounts[account]
 
     server = None
     remoterepos = None
@@ -101,18 +110,19 @@ def startup(versionno):
         threadutil.initInstanceLimit("ACCOUNTLIMIT",
                                      config.getdefaultint("general", "maxsyncaccounts", 1))
 
-    for account in accounts:
-        for instancename in ["FOLDER_" + account, "MSGCOPY_" + account]:
+    for reposname in config.getsectionlist('Repository'):
+        for instancename in ["FOLDER_" + reposname,
+                             "MSGCOPY_" + reposname]:
             if '-1' in options:
                 threadutil.initInstanceLimit(instancename, 1)
             else:
                 threadutil.initInstanceLimit(instancename,
-                                             config.getdefaultint(account, "maxconnections", 1))
+                                             config.getdefaultint('Repository ' + reposname, "maxconnections", 1))
 
     threadutil.initexitnotify()
     t = ExitNotifyThread(target=syncmaster.syncitall,
                          name='Sync Runner',
-                         kwargs = {'accounts': accounts,
+                         kwargs = {'accounts': syncaccounts,
                                    'config': config})
     t.setDaemon(1)
     t.start()

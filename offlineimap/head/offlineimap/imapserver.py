@@ -1,5 +1,5 @@
 # IMAP server support
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002, 2003 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -48,11 +48,11 @@ class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL): pass
 class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplib.IMAP4_Tunnel): pass
 
 class IMAPServer:
-    def __init__(self, config, accountname,
+    def __init__(self, config, reposname,
                  username = None, password = None, hostname = None,
                  port = None, ssl = 1, maxconnections = 1, tunnel = None,
                  reference = '""'):
-        self.account = accountname
+        self.reposname = reposname
         self.config = config
         self.username = username
         self.password = password
@@ -80,7 +80,8 @@ class IMAPServer:
         if self.password != None and self.passworderror == None:
             return self.password
 
-        self.password = UIBase.getglobalui().getpass(self.account, self.config,
+        self.password = UIBase.getglobalui().getpass(self.reposname,
+                                                     self.config,
                                                      self.passworderror)
         self.passworderror = None
 
@@ -152,17 +153,18 @@ class IMAPServer:
         
         self.connectionlock.release()   # Release until need to modify data
 
-        UIBase.getglobalui().connecting(self.hostname, self.port)
-
         success = 0
         while not success:
             # Generate a new connection.
             if self.tunnel:
+                UIBase.getglobalui().connecting('tunnel', self.tunnel)
                 imapobj = UsefulIMAP4_Tunnel(self.tunnel)
                 success = 1
             elif self.usessl:
+                UIBase.getglobalui().connecting(self.hostname, self.port)
                 imapobj = UsefulIMAP4_SSL(self.hostname, self.port)
             else:
+                UIBase.getglobalui().connecting(self.hostname, self.port)
                 imapobj = UsefulIMAP4(self.hostname, self.port)
 
             if not self.tunnel:
@@ -258,39 +260,34 @@ class ConfigedIMAPServer(IMAPServer):
     object and an account name.  The passwordhash is used if
     passwords for certain accounts are known.  If the password for this
     account is listed, it will be obtained from there."""
-    def __init__(self, config, accountname, passwordhash = {}):
+    def __init__(self, repository, passwordhash = {}):
         """Initialize the object.  If the account is not a tunnel,
         the password is required."""
-        host = config.get(accountname, "remotehost")
-        user = config.get(accountname, "remoteuser")
-        port = None
-        if config.has_option(accountname, "remoteport"):
-            port = config.getint(accountname, "remoteport")
-        ssl = config.getdefaultboolean(accountname, "ssl", 0)
-        usetunnel = config.has_option(accountname, "preauthtunnel")
-        reference = '""'
-        if config.has_option(accountname, "reference"):
-            reference = config.get(accountname, "reference")
+        self.repos = repository
+        self.config = self.repos.getconfig()
+        usetunnel = self.repos.getpreauthtunnel()
+        if not usetunnel:
+            host = self.repos.gethost()
+            user = self.repos.getuser()
+            port = self.repos.getport()
+            ssl = self.repos.getssl()
+        reference = self.repos.getreference()
         server = None
         password = None
-        if accountname in passwordhash:
-            password = passwordhash[accountname]
+        
+        if repository.getname() in passwordhash:
+            password = passwordhash[repository.getname()]
 
         # Connect to the remote server.
         if usetunnel:
-            IMAPServer.__init__(self, config, accountname,
-                                tunnel = config.get(accountname, "preauthtunnel"),
+            IMAPServer.__init__(self, self.config, self.repos.getname(),
+                                tunnel = usetunnel,
                                 reference = reference,
-                                maxconnections = config.getint(accountname, "maxconnections"))
+                                maxconnections = self.repos.getmaxconnections())
         else:
             if not password:
-                if config.has_option(accountname, 'remotepass'):
-                    password = config.get(accountname, 'remotepass')
-                elif config.has_option(accountname, 'remotepassfile'):
-                    passfile = open(os.path.expanduser(config.get(accountname, "remotepassfile")))
-                    password = passfile.readline().strip()
-                    passfile.close()
-            IMAPServer.__init__(self, config, accountname,
+                password = self.repos.getpassword()
+            IMAPServer.__init__(self, self.config, self.repos.getname(),
                                 user, password, host, port, ssl,
-                                config.getdefaultint(accountname, "maxconnections", 1),
+                                self.repos.getmaxconnections(),
                                 reference = reference)

@@ -18,18 +18,22 @@
 
 from Base import BaseRepository
 from offlineimap import folder
-import os
+import os, re
 
 class LocalStatusRepository(BaseRepository):
-    def __init__(self, directory, accountname):
-        self.directory = directory
+    def __init__(self, reposname, account):
+        BaseRepository.__init__(self, reposname, account)
+        self.directory = os.path.join(account.getaccountmeta(), 'LocalStatus')
+        if not os.path.exists(self.directory):
+            os.mkdir(self.directory, 0700)
         self.folders = None
-        self.accountname = accountname
 
     def getsep(self):
         return '.'
 
     def getfolderfilename(self, foldername):
+        foldername = re.sub('/\.$', '/dot', foldername)
+        foldername = re.sub('^\.$', 'dot', foldername)
         return os.path.join(self.directory, foldername)
 
     def makefolder(self, foldername):

@@ -27,11 +27,13 @@ class LocalStatusFolder(BaseFolder):
         self.root = root
         self.sep = '.'
         self.filename = os.path.join(root, name)
+        self.filename = repository.getfolderfilename(name)
         self.messagelist = None
         self.repository = repository
         self.savelock = threading.Lock()
         self.doautosave = 1
         self.accountname = accountname
+        BaseFolder.__init__(self)
 
     def getaccountname(self):
         return self.accountname
