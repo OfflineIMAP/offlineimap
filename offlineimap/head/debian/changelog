@@ -1,6 +1,7 @@
 offlineimap (4.0.1) unstable; urgency=low
 
   * Fixed a typo.  Closes: #201497.
+  * Include UPGRADING in Debian package.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri, 18 Jul 2003 19:58:30 -0500
 
