@@ -47,7 +47,7 @@ class MaildirRepository(BaseRepository):
                 for component in foldername.split('/'):
                     assert component != invalid, "When using nested folders (/ as a separator in the account config), your folder names may not contain 'new', 'cur', 'tmp', or 'offlineimap.uidvalidity'."
 
-        assert oldername.find('./') == -1, "Folder names may not contain ../"
+        assert foldername.find('./') == -1, "Folder names may not contain ../"
         assert not foldername.startswith('/'), "Folder names may not begin with /"
         oldcwd = os.getcwd()
         os.chdir(self.root)
