@@ -401,50 +401,33 @@ class Blinkenlights(VerboseUI):
         s.gettf().setcolor('red')
         s._msg(version.banner)
         s.text.see(END)
+        #s.top.minsize(s.top.winfo_reqwidth(),
+        #              s.top.winfo_reqheight() + s.menubar.winfo_reqheight())
         if s.config.has_option("ui.Tk.Blinkenlights", "showlog") and \
            s.config.getboolean("ui.Tk.Blinkenlights", "showlog"):
             s._togglelog()
 
-    def _largerlog(s):
-        s.loglines += 1
-        s.text.configure(height = s.loglines)
-
-    def _smallerlog(s):
-        if s.loglines >= 2:
-            s.loglines -= 1
-            s.text.configure(height = s.loglines)
-
     def _togglelog(s):
+        print "togglelog"
         if s.textenabled:
             s.oldtextheight = s.text.winfo_height()
             s.text.pack_forget()
             s.textenabled = 0
-            s.menubar.delete('Log')
-            s.menubar.insert_command('Exit', label = 'Show Log',
-                                     command = s._togglelog)
+            s.menubar.entryconfig('Hide Log', label = 'Show Log')
             s.top.update()
             s.top.geometry("%dx%d" % (s.top.winfo_reqwidth(),
                                       s.top.winfo_reqheight()))
             s.top.update()
             s.top.resizable(width = 0, height = 0)
+            s.top.update()
         
-        else:
+        else: 
             s.text.pack(side = BOTTOM, expand = 1, fill = BOTH)
             s.textenabled = 1
             s.top.update()
             s.top.geometry("%dx%d" % (s.top.winfo_reqwidth(),
                                       s.top.winfo_height() + s.oldtextheight))
-            s.menubar.delete('Show Log')
-
-            logmenu = Menu(s.menubar, tearoff = 0,
-                           activebackground = "#000030",
-                           background = "#000030", foreground = "blue",
-                           activeforeground = "white",
-                           font = ("Helvetica", 8))
-            logmenu.add_command(label = "Hide Log", command = s._togglelog)
-            logmenu.add_command(label = "Larger Log", command = s._largerlog)
-            logmenu.add_command(label = "Smaller Log", command = s._smallerlog)
-            s.menubar.insert_cascade('Exit', label = "Log", menu = logmenu)
+            s.menubar.entryconfig('Show Log', label = 'Hide Log')
             s._rescroll()
             s.top.resizable(width = 1, height = 1)
 

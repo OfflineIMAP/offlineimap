@@ -6,7 +6,13 @@ offlineimap (3.2.1) unstable; urgency=low
   * Blinkenlights UI log window is now scrolled and has a new
     config file option "bufferlines" to specify the size of the scroll
     buffer.
-  * Make the Blinkenlights window non-resizable.
+  * The Blinkenlights window is now non-resizable when the log is disabled.
+    When the log is enabled, the window is resizable, and the changes in
+    size are reflected in the log widget.  Therefore, the Bigger Log
+    and Smaller Log items can disappear, and the Log menu now becomes
+    a Show Log or a Hide Log menu option.  No sub-menus necessary anymore.
+    This presents a much cleaner feel, more intuitive operation, and
+    faster navigation.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 17:04:04 -0500
 
