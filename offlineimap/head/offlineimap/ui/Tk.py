@@ -330,13 +330,13 @@ class LEDAccountFrame:
         self.fontfamily = fontfamily
         self.fontsize = fontsize
         self.frame = Frame(self.top, background = 'black')
-        self.frame.pack(side = BOTTOM, expand = 0, fill = X)
+        self.frame.pack(side = BOTTOM, expand = 1, fill = X)
         self._createcanvas(self.frame)
 
         self.label = Label(self.frame, text = accountname,
                            background = "black", foreground = "blue",
                            font = (self.fontfamily, self.fontsize))
-        self.label.pack(side = LEFT)
+        self.label.grid(sticky = E, row = 0, column = 1)
 
     def getnewthreadframe(s):
         return LEDThreadFrame(s.canvas)
@@ -344,7 +344,8 @@ class LEDAccountFrame:
     def _createcanvas(self, parent):
         c = LEDFrame(parent)
         self.canvas = c
-        c.pack(side = LEFT, expand = 0, fill = X)
+        c.grid(sticky = E, row = 0, column = 0)
+        parent.grid_columnconfigure(1, weight = 1)
         #c.pack(side = LEFT, expand = 0, fill = X)
 
     def startsleep(s, sleepsecs):
@@ -356,7 +357,7 @@ class LEDAccountFrame:
                           padx = 0, pady = 0,
                           font = (s.fontfamily, s.fontsize), borderwidth = 0,
                           relief = 'solid')
-        s.button.pack(side = LEFT)
+        s.button.grid(sticky = E, row = 0, column = 2)
 
     def syncnow(s):
         s.sleeping_abort = 1
