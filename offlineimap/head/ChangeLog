@@ -1,4 +1,46 @@
 ------------------------------------------------------------------------
+rev 225:  jgoerzen | 2002-08-08 15:58:14 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/version.py
+
+Preparing for 3.2.4
+
+------------------------------------------------------------------------
+rev 224:  jgoerzen | 2002-08-08 15:53:57 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Fix syntax
+
+------------------------------------------------------------------------
+rev 223:  jgoerzen | 2002-08-08 15:53:05 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+First stab at fixing nested mailbox bug
+
+------------------------------------------------------------------------
+rev 222:  jgoerzen | 2002-08-08 13:35:35 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/Makefile
+   U /offlineimap/head/offlineimap.1
+
+Typo fix.
+
+------------------------------------------------------------------------
+rev 221:  jgoerzen | 2002-08-08 10:21:56 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+   U /offlineimap/head/manual.html
+   U /offlineimap/head/manual.pdf
+   U /offlineimap/head/manual.ps
+   U /offlineimap/head/manual.txt
+   U /offlineimap/head/offlineimap/version.py
+
+Readying 3.2.3.  Updated docs, version, etc.
+
+------------------------------------------------------------------------
 rev 220:  jgoerzen | 2002-08-08 10:18:45 -0500 (Thu, 08 Aug 2002) | 2 lines
 Changed paths:
    U /offlineimap/head/offlineimap/repository/Maildir.py
