@@ -668,34 +668,35 @@ COPYRIGHT
 
        This program is free software; you can redistribute it and/or modify it
        under the terms of the GNU General Public License as published  by  the
-       Free Software Foundation; version 2 of the License.
+       Free  Software Foundation; either version 2 of the License, or (at your
+       option) any later version.
 
-       This  program  is  distributed  in the hope that it will be useful, but
-       WITHOUT ANY  WARRANTY;  without  even  the  implied  warranty  of  MER-
-       CHANTABILITY  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+       This program is distributed in the hope that it  will  be  useful,  but
+       WITHOUT  ANY  WARRANTY;  without  even  the  implied  warranty  of MER-
+       CHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  General
        Public License for more details.
 
        You should have received a copy of the GNU General Public License along
        with this program; if not, write to the Free Software Foundation, Inc.,
        59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-       imaplib.py comes from the Python dev tree and  is  licensed  under  the
-       GPL-compatible  PSF  license  as  stated  in  the file COPYRIGHT in the
+       imaplib.py  comes  from  the  Python dev tree and is licensed under the
+       GPL-compatible PSF license as stated  in  the  file  COPYRIGHT  in  the
        OfflineIMAP distribution.
 
 AUTHOR
-       OfflineIMAP, its libraries,  documentation,  and  all  included  files,
+       OfflineIMAP,  its  libraries,  documentation,  and  all included files,
        except where noted, was written by John Goerzen <jgoerzen@complete.org>
        and copyright is held as stated in the COPYRIGHT section.
 
        OfflineIMAP may be downloaded, and information found, from its homepage
-       via  either  Gopher <URL:gopher://quux.org/1/devel/offlineimap> or HTTP
+       via either Gopher <URL:gopher://quux.org/1/devel/offlineimap>  or  HTTP
        <URL:http://quux.org/devel/offlineimap>.
 
        OfflineIMAP may also be downloaded using Subversion.  Additionally, the
-       distributed  tar.gz  may be updated with a simple "svn update" command;
+       distributed tar.gz may be updated with a simple "svn  update"  command;
        it is ready to go.  For information on getting OfflineIMAP with Subver-
-       sion,     please     visit    the    complete.org    Subversion    page
+       sion,    please    visit    the    complete.org     Subversion     page
        <URL:http://svn.complete.org/>.
 
 SEE ALSO
@@ -703,4 +704,4 @@ SEE ALSO
 
 
 
-John Goerzen                     04 March 2003                  OFFLINEIMAP(1)
+John Goerzen                   05 February 2003                 OFFLINEIMAP(1)
