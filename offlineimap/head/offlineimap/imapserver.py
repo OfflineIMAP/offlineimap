@@ -115,6 +115,12 @@ class IMAPServer:
                      reply.hexdigest()
         return retval
 
+    def plainauth(self, imapobj):
+        UIBase.getglobalui().debug('imap',
+                                   'Attempting plain authentication')
+        imapobj.login(self.username, self.getpassword())
+        
+
     def acquireconnection(self):
         """Fetches a connection from the pool, making sure to create a new one
         if needed, to obey the maximum connection limits, etc.
@@ -164,11 +170,12 @@ class IMAPServer:
                     if 'AUTH=CRAM-MD5' in imapobj.capabilities:
                         UIBase.getglobalui().debug('imap',
                                                    'Attempting CRAM-MD5 authentication')
-                        imapobj.authenticate('CRAM-MD5', self.md5handler)
+                        try:
+                            imapobj.authenticate('CRAM-MD5', self.md5handler)
+                        except imapobj.error, val:
+                            self.plainauth(imapobj)
                     else:
-                        UIBase.getglobalui().debug('imap',
-                                                   'Attempting plain authentication')
-                        imapobj.login(self.username, self.getpassword())
+                        self.plainauth(imapobj)
                     # Would bail by here if there was a failure.
                     success = 1
                 except imapobj.error, val:

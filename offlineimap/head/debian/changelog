@@ -3,6 +3,7 @@ offlineimap (3.99.3) unstable; urgency=low
   * Moved password promting into imapserver.py.  Passwords are now asked
     for on-demand and typos will no longer crash the program (the user
     will be re-prompted).  Closes: #162672.
+  * Falls back to plain-text auth if CRAM-MD5 fails.  Fixes [complete.org #42]
 
  -- John Goerzen <jgoerzen@complete.org>  Mon,  4 Nov 2002 11:16:11 -0600
 
