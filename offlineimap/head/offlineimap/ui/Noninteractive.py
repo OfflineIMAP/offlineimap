@@ -23,7 +23,7 @@ class Basic(UIBase):
     def getpass(s, accountname, config, errmsg = None):
         raise NotImplementedError, "Prompting for a password is not supported in noninteractive mode."
 
-    def _msg(s, msg):
+    def _display(s, msg):
         print msg
         sys.stdout.flush()
 
