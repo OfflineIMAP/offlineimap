@@ -1,4 +1,15 @@
 ------------------------------------------------------------------------
+r589 | jgoerzen | 2004-07-26 10:37:45 -0500 (Mon, 26 Jul 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap.sgml
+
+Various bug fixes and enhancements
+------------------------------------------------------------------------
 r588 | jgoerzen | 2004-07-13 10:25:27 -0500 (Tue, 13 Jul 2004) | 1 line
 Changed paths:
    M /offlineimap/head/bin/offlineimap

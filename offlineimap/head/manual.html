@@ -262,7 +262,7 @@ CLASS="FILENAME"
 >offlineimap.conf.minimal</TT
 >
 	  (Debian users
-	  may find this at
+        may find this at
           <TT
 CLASS="FILENAME"
 >/usr/share/doc/offlineimap/examples/offlineimap.conf.minimal</TT
@@ -1470,7 +1470,8 @@ CLASS="APPLICATION"
 ><DD
 ><P
 >	    It should run on most platforms supported by Python, which are quite a
-	    few.
+	    few.  I do not support Windows myself, but some have made
+	  it work there; see the FAQ entry for that platform.
 	  </P
 ></DD
 ><DT
@@ -1725,13 +1726,69 @@ CLASS="PROPERTY"
 ></LI
 ></UL
 ></DD
+><DT
+>Can I use <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> on Windows?</DT
+><DD
+><P
+>              These answers have been reported by <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+              users.  I do not run <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> on Windows myself, so
+              I can't directly address their accuracy.
+            </P
+><P
+>              The basic answer is that it's possible and doesn't
+              require hacking <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> source code.  However,
+              it's not necessarily trivial.  The information below is
+              based in instructions submitted by Chris Walker.
+            </P
+><P
+>              First, you must run <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> in the <A
+HREF="http://www.cygwin.com/"
+TARGET="_top"
+>Cygwin</A
+>
+              environment.  
+            </P
+><P
+>              Next, you'll need to mount your Maildir directory in a
+              special way.  There is information for doing that at
+              <A
+HREF="http://barnson.org/node/view/295"
+TARGET="_top"
+>http://barnson.org/node/view/295</A
+>.
+              That site gives this example:
+            </P
+><PRE
+CLASS="PROGRAMLISTING"
+>mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
+            </PRE
+><P
+>              That URL also has more details on making OfflineIMAP
+              work with Windows.
+            </P
+></DD
 ></DL
 ></DIV
 ></DIV
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN484"
+NAME="AEN500"
 ></A
 ><H2
 >Conforming To</H2
@@ -1770,14 +1827,14 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN497"
+NAME="AEN513"
 ></A
 ><H2
 >Notes</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN499"
+NAME="AEN515"
 ></A
 ><H3
 >Deleting Local Folders</H3
@@ -1809,7 +1866,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN506"
+NAME="AEN522"
 ></A
 ><H3
 >Multiple Instances</H3
@@ -1838,7 +1895,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN513"
+NAME="AEN529"
 ></A
 ><H3
 >Copying Messages Between Folders</H3
@@ -1868,7 +1925,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN519"
+NAME="AEN535"
 ></A
 ><H3
 >Use with Evolution</H3
@@ -1904,7 +1961,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN527"
+NAME="AEN543"
 ></A
 ><H3
 >Use with KMail</H3
@@ -1938,7 +1995,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN535"
+NAME="AEN551"
 ></A
 ><H3
 >Mailing List</H3
@@ -1957,7 +2014,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN539"
+NAME="AEN555"
 ></A
 ><H3
 >Bugs</H3
@@ -2046,7 +2103,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN559"
+NAME="AEN575"
 ></A
 ><H2
 >Copyright</H2
@@ -2084,7 +2141,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN568"
+NAME="AEN584"
 ></A
 ><H2
 >Author</H2
@@ -2136,7 +2193,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN580"
+NAME="AEN596"
 ></A
 ><H2
 >See Also</H2
@@ -2154,7 +2211,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN585"
+NAME="AEN601"
 ></A
 ><H2
 >History</H2

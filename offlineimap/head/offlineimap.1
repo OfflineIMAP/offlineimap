@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "04 June 2004" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "26 July 2004" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
@@ -643,7 +643,8 @@ of the document, so they are discussed here.
 .TP
 \fBWhat platforms does OfflineIMAP run on?\fR
 It should run on most platforms supported by Python, which are quite a
-few.
+few.  I do not support Windows myself, but some have made
+it work there; see the FAQ entry for that platform.
 .TP
 \fBI'm using Mutt.  Other IMAP sync programs require me to use "set maildir_trash=yes".  Do I need to do that with OfflineIMAP?\fR
 No.  \fBOfflineIMAP\fR is smart enough to figure out message deletion without this extra
@@ -753,6 +754,32 @@ An informal benchmark yields these results for my setup:
 \(bu
 2 seconds with OfflineIMAP 3.x "held connection"
 .RE
+.TP
+\fBCan I use OfflineIMAP on Windows?\fR
+These answers have been reported by \fBOfflineIMAP\fR
+users.  I do not run \fBOfflineIMAP\fR on Windows myself, so
+I can't directly address their accuracy.
+
+The basic answer is that it's possible and doesn't
+require hacking \fBOfflineIMAP\fR source code.  However,
+it's not necessarily trivial.  The information below is
+based in instructions submitted by Chris Walker.
+
+First, you must run \fBOfflineIMAP\fR in the Cygwin <URL:http://www.cygwin.com/>
+environment.  
+
+Next, you'll need to mount your Maildir directory in a
+special way.  There is information for doing that at
+ <URL:http://barnson.org/node/view/295>.
+That site gives this example:
+
+.nf
+mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
+            
+.fi
+
+That URL also has more details on making OfflineIMAP
+work with Windows.
 .SH "CONFORMING TO"
 .TP 0.2i
 \(bu

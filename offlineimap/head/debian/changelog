@@ -4,6 +4,8 @@ offlineimap (4.0.6) unstable; urgency=low
   * Added version to generated header.  Closes: #257893.
   * Fixed warn() in Tk (reported by Martin Pool).
   * Added Windows documentation from Chris Walker to the FAQ.
+  * Added Build-Conflicts for docbook-ebnf; it can mess up the doc
+    building.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 26 Jul 2004 10:04:06 -0500
 
