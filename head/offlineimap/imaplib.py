@@ -860,7 +860,6 @@ class IMAP4:
                     if self.debug >= 4:
                         self._mesg('read literal size %s' % size)
                 data = self.read(size)
-                print "Got data size %d" % len(data)
 
                 # Store response with literal as tuple
 
@@ -1076,7 +1075,10 @@ class IMAP4_SSL(IMAP4):
 
     def send(self, data):
         """Send data to remote."""
-        self.sslobj.write(data)
+        byteswritten = 0
+        bytestowrite = len(data)
+        while byteswritten < bytestowrite:
+            byteswritten += self.sslobj.write(data[byteswritten:])
 
 
     def shutdown(self):
