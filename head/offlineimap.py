@@ -168,6 +168,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     
 
 def syncitall():
+    global mailboxes
     mailboxes = []                      # Reset.
     threads = []
     for accountname in accounts:
@@ -179,7 +180,6 @@ def syncitall():
         threads.append(thread)
     # Wait for the threads to finish.
     threadutil.threadsreset(threads)
-
     mbnames.genmbnames(config, mailboxes)
 
 syncitall()
