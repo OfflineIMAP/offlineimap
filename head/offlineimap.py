@@ -68,16 +68,36 @@ for accountname in accounts:
     print "Done."
     for remotefolder in remoterepos.getfolders():
         print "*** SYNCHRONIZING FOLDER %s" % remotefolder.getname()
+        # Load local folder.
         localfolder = localrepos.getfolder(remotefolder.getname())
-        #if not localfolder.isuidvalidityok(remotefolder):
-        #    print 'UID validity is a problem for this folder; skipping.'
-        #    continue
-        print "Reading remote message list...",
-        remotefolder.cachemessagelist()
-        print len(remotefolder.getmessagelist().keys()), "messages."
+        if not localfolder.isuidvalidityok(remotefolder):
+            print 'UID validity is a problem for this folder; skipping.'
+            continue
         print "Reading local message list...",
         localfolder.cachemessagelist()
         print len(localfolder.getmessagelist().keys()), "messages."
+
+        # Load remote folder.
+        print "Reading remote message list...",        
+        remotefolder.cachemessagelist()
+        print len(remotefolder.getmessagelist().keys()), "messages."
+
+        # Load status folder.
+        statusfolder = statusrepos.getfolder(remotefolder.getname())
+        
+        if statusfolder.isnewfolder():
+            print "Local status folder is new; ignoring."
+        else:
+            print "Synchronizing local changes."
+            localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
+        
+        # Synchronize remote changes.
         print "Synchronizing remote to local..."
-        remotefolder.syncmessagesto(localfolder)
+        remotefolder.syncmessagesto(localfolder, [localfolder, statusfolder])
+
+        # Make sure the status folder is up-to-date.
+        print "Updating local status cache..."
+        localfolder.syncmessagesto(statusfolder)
+        statusfolder.save()
+        
         
