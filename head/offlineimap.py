@@ -17,9 +17,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames
+from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil
 import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
+from threading import *
 
 # imaplib.Debug = 5
 
@@ -45,6 +46,17 @@ accounts = accounts.split(",")
 server = None
 remoterepos = None
 localrepos = None
+passwords = {}
+accountsemaphore = BoundedSemaphore(config.getint("general", "maxsyncaccounts"))
+
+# We have to gather passwords here -- don't want to have two threads
+# asking for passwords simultaneously.
+
+for account in accounts:
+    if config.has_option(accountname, "remotepass"):
+        passwords[account] = config.get(accountname, "remotepass")
+    else:
+        passwords[account] = ui.getpass(accountname, config)
 
 def syncitall():
     mailboxes = []
@@ -58,17 +70,11 @@ def syncitall():
         port = None
         if config.has_option(accountname, "remoteport"):
             port = config.getint(accountname, "remoteport")
-        password = None
-        if config.has_option(accountname, "remotepass"):
-            password = config.get(accountname, "remotepass")
-        else:
-            password = ui.getpass(accountname, host, port, user)
-            # Save it for future reference.
-            config.set(accountname, "remotepass", password)
         ssl = config.getboolean(accountname, "ssl")
 
         # Connect to the remote server.
-        server = imapserver.IMAPServer(user, password, host, port, ssl)
+        server = imapserver.IMAPServer(user, passwords[accountname],
+                                       host, port, ssl)
         remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
 
         # Connect to the Maildirs.

@@ -9,9 +9,10 @@ class TTYUI(UIBase):
     def _msg(s, msg):
         print msg
 
-    def getpass(s, accountname, host, port, user):
+    def getpass(s, accountname, config):
         return getpass("%s: Enter password for %s on %s: " %
-                       (accountname, user, host))
+                       (accountname, config.get(accountname, "remoteuser"),
+                        config.get(accountname, "remotehost")))
 
     def syncingmessages(s, sr, sf, dr, df):
         if s.verbose:

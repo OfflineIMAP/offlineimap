@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import imaplib, imaputil
+from offlineimap import imaplib, imaputil, threadutil
 from threading import *
 
 class UsefulIMAPMixIn:
@@ -129,21 +129,17 @@ class IMAPServer:
         to copy messages, then have them all wait for 3 available connections.
         It's OK if we have maxconnections + 1 or 2 threads, which is what
         this will help us do."""
-        self.semaphore.acquire()
-        self.semaphore.release()
+        threadutil.semaphorewait(self.semaphore)
 
     def close(self):
         # Make sure I own all the semaphores.  Let the threads finish
         # their stuff.  This is a blocking method.
         self.connectionlock.acquire()
-        for i in range(self.maxconnections):
-            self.semaphore.acquire()
+        threadutil.semaphorereset(self.semaphore, self.maxconnections)
         for imapobj in self.assignedconnections + self.availableconnections:
             imapobj.logout()
         self.assignedconnections = []
         self.availableconnections = []
-        for i in range(self.maxconnections):
-            self.semaphore.release()
         self.connectionlock.release()
         
 

@@ -36,7 +36,7 @@ class UIBase:
 
     ################################################## INPUT
 
-    def getpass(s, accountname, host, port, user):
+    def getpass(s, accountname, config):
         raise NotImplementedException
 
     def folderlist(s, list):
