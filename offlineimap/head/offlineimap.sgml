@@ -282,7 +282,18 @@ cd offlineimap-x.y.z</ProgramListing>
       </para>
     </refsect1>
 
+    <refsect1>
+      <title>Options</title>
+      <para>
+	Most configuration is done via the configuration file.  Nevertheless,
+	there are a few command-line options that you may set for
+	&OfflineIMAP;.
+      </para>
 
+      <variablelist><title>OfflineIMAP arguments</title>
+      <varlistentry><term>-1</term>
+      <listitem><para>This is a test</para></listitem></varlistentry>
+      </variablelist>
 
     <refsect1>
       <title>See Also</title>
