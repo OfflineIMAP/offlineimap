@@ -3,4 +3,7 @@ to the IMAP server fails, or there is another socket error.
 
 * Force unidirectional sync for read-only folders.
 
-* Add a -checkins mailing list.
+* Handle local messages with \r\n line endings.
+
+* Add ability to filter incoming messages.
+
