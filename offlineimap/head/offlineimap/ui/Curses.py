@@ -329,7 +329,6 @@ class Blinkenlights(BlinkenBase, UIBase):
         if not s.resizelock.acquire(0):
             s.resizecount += 1
             return
-        else:
         signal.signal(signal.SIGWINCH, signal.SIG_IGN)
         s.aflock.acquire()
         s.c.lock()
