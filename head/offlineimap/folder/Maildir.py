@@ -18,7 +18,20 @@
 
 from Base import BaseFolder
 from offlineimap import imaputil
-import os.path, os, re, time, socket
+import os.path, os, re, time, socket, md5
+
+timeseq = 0
+lasttime = long(0)
+
+def gettimeseq():
+    thistime = long(time.time())
+    if thistime == lasttime:
+        timeseq += 1
+        return timeseq
+    else:
+        lasttime = long(time.time())
+        timeseq = 0
+        return timeseq
 
 class MaildirFolder(BaseFolder):
     def __init__(self, root, name):
@@ -70,13 +83,23 @@ class MaildirFolder(BaseFolder):
                           filename in os.listdir(fulldirname)])
         for file in files:
             messagename = os.path.basename(file)
-            uidmatch = re.search(',U=(\d+)', messagename)
-            uid = None
-            if not uidmatch:
+            foldermatch = re.search(',FMD5=([0-9a-f]{32})', messagename)
+            if (not foldermatch) or \
+               md5.new(self.getvisiblename()).hexdigest() \
+               != foldermatch.group(1):
+                # If there is no folder MD5 specified, or if it mismatches,
+                # assume it is a foreign (new) message and generate a
+                # negative uid for it
                 uid = nouidcounter
-                nouidcounter -= 1
-            else:
-                uid = long(uidmatch.group(1))
+                nouidcountr -= 1
+            else:                       # It comes from our folder.
+                uidmatch = re.search(',U=(\d+)', messagename)
+                uid = None
+                if not uidmatch:
+                    uid = nouidcounter
+                    nouidcounter -= 1
+                else:
+                    uid = long(uidmatch.group(1))
             flagmatch = re.search(':.*2,([A-Z]+)', messagename)
             flags = []
             if flagmatch:
@@ -111,11 +134,13 @@ class MaildirFolder(BaseFolder):
         while 1:
             if attempts > 15:
                 raise IOError, "Couldn't write to file %s" % messagename
-            messagename = '%d.%d.%s,U=%d' % \
+            messagename = '%d_%d.%d.%s,U=%d,FMD5=%s' % \
                           (long(time.time()),
+                           gettimeseq(),
                            os.getpid(),
                            socket.gethostname(),
-                           uid)
+                           uid,
+                           md5.new(self.getvisiblename()).hexdigest())
             if os.path.exists(os.path.join(tmpdir, messagename)):
                 time.sleep(2)
                 attempts += 1
