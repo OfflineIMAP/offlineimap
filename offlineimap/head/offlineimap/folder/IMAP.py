@@ -22,6 +22,8 @@ import rfc822
 from StringIO import StringIO
 from copy import copy
 
+import __main__
+
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname):
         self.name = imaputil.dequote(name)
@@ -114,11 +116,20 @@ class IMAPFolder(BaseFolder):
             # Checkpoint.  Let it write out the messages, etc.
             assert(imapobj.check()[0] == 'OK')
             # Now find the UID it got.
-            matchinguids = imapobj.uid('search', None,
-                                       '(HEADER Message-Id %s)' % mid)[1][0]
+            try:
+                matchinguids = imapobj.uid('search', None,
+                                           '(HEADER Message-Id %s)' % mid)[1][0]
+            except imapobj.error:
+                # IMAP server doesn't implement search or had a problem.
+                return 0
             matchinguids = matchinguids.split(' ')
+            if len(matchinguids) != 1 or matchinguids[0] == None:
+                return 0
             matchinguids.sort()
-            uid = long(matchinguids[-1])
+            try:
+                uid = long(matchinguids[-1])
+            except ValueError:
+                return 0
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
             return uid
         finally:

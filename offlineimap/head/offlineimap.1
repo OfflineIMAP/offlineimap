@@ -500,6 +500,21 @@ this as an intentional deletion of many messages and will interpret
 your action as requesting them to be deleted from the server as well.
 (If you don't understand this, don't worry; you probably won't
 encounter this situation)
+.SS COPYING MESSAGES BETWEEN FOLDERS
+Normally, when you copy a message between folders or add a new message
+to a folder locally,
+.B OfflineIMAP
+will just do the right thing.  However, sometimes this can be tricky
+-- if your IMAP server does not provide the SEARCH command, or does
+not return something useful,
+.B OfflineIMAP
+cannot determine the new UID of the message.  So, in these rare
+instances, OfflineIMAP will upload the message to the IMAP server and
+delete it from your local folder.  Then, on your next sync, the
+message will be re-downloaded with the proper UID.
+.B OfflineIMAP
+makes sure that the message was properly uploaded before deleting it,
+so there should be no risk of data loss.
 .SS MAILING LIST
 There is an OfflineIMAP mailing list available.
 .PP

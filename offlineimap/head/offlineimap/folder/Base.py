@@ -94,6 +94,10 @@ class BaseFolder:
 
         If the backend cannot assign a new uid, it returns the uid passed in
         WITHOUT saving the message.
+
+        If the backend CAN assign a new uid, but cannot find out what this UID
+        is (as is the case with many IMAP servers), it returns 0 but DOES save
+        the message.
         
         IMAP backend should be the only one that can assign a new uid.
 
@@ -160,18 +164,20 @@ class BaseFolder:
             flags = self.getmessageflags(uid)
             for tryappend in applyto:
                 successuid = tryappend.savemessage(uid, message, flags)
-                if successuid > 0:
+                if successuid >= 0:
                     successobject = tryappend
                     break
             # Did we succeed?
             if successobject != None:
-                # Copy the message to the other remote servers.
-                for appendserver in [x for x in applyto if x != successobject]:
-                    appendserver.savemessage(successuid, message, flags)
-                # Copy it to its new name on the local server and delete
-                # the one without a UID.
-                self.savemessage(successuid, message, flags)
-                self.deletemessage(uid)
+                if successuid:       # Only if IMAP actually assigned a UID
+                    # Copy the message to the other remote servers.
+                    for appendserver in \
+                            [x for x in applyto if x != successobject]:
+                        appendserver.savemessage(successuid, message, flags)
+                        # Copy to its new name on the local server and delete
+                        # the one without a UID.
+                        self.savemessage(successuid, message, flags)
+                self.deletemessage(uid) # It'll be re-downloaded.
             else:
                 # Did not find any server to take this message.  Ignore.
                 pass

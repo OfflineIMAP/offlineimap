@@ -4,6 +4,10 @@ offlineimap (3.0.2) unstable; urgency=low
     than remotefolder.getvisiblename()
   * Fixed remotepassfile option.  Closes: #153119.  Used 1-line patch from
     Tommi Virtanen.
+  * Now handles cases of not being able to get UID for an uploaded message
+    more gracefully.  This could occur if the server doesn't support
+    SEARCH, can't find the message ID, or finds multiple message IDs.
+    Closes: #153241.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 15 Jul 2002 19:43:36 -0500
 
