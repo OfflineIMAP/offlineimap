@@ -18,11 +18,11 @@
 
 from Base import BaseFolder
 from offlineimap import imaputil, imaplib
+from offlineimap.ui import UIBase
 import rfc822, time, string
 from StringIO import StringIO
 from copy import copy
 
-import __main__
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
@@ -102,7 +102,7 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname()) # Needed for search
             except imapobj.readonly:
-                __main__.ui.msgtoreadonly(self, uid, content, flags)
+                UIBase.getglobalui().msgtoreadonly(self, uid, content, flags)
                 # Return indicating message taken, but no UID assigned.
                 # Fudge it.
                 return 0
@@ -168,7 +168,7 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-                __main__.ui.flagstoreadonly(self, [uid], flags)
+                UIBase.getglobalui().flagstoreadonly(self, [uid], flags)
                 return
             result = imapobj.uid('store', '%d' % uid, 'FLAGS',
                                  imaputil.flagsmaildir2imap(flags))
@@ -191,7 +191,7 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-                __main__.ui.flagstoreadonly(self, uidlist, flags)
+                UIBase.getglobalui().flagstoreadonly(self, uidlist, flags)
                 return
             r = imapobj.uid('store',
                             imaputil.listjoin(uidlist),
@@ -242,7 +242,7 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-                __main__.ui.deletereadonly(self, uidlist)
+                UIBase.getglobalui().deletereadonly(self, uidlist)
                 return
             assert(imapobj.expunge()[0] == 'OK')
         finally:

@@ -16,13 +16,20 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import repository
 import offlineimap.version
 import re, time, sys, traceback
 from StringIO import StringIO
 
 debugtypes = {'imap': 'IMAP protocol debugging',
               'maildir': 'Maildir repository debugging'}
+
+globalui = None
+def setglobalui(newui):
+    global globalui
+    globalui = newui
+def getglobalui():
+    global globalui
+    return globalui
 
 class UIBase:
     def __init__(s, config, verbose = 0):

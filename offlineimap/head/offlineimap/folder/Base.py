@@ -16,10 +16,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import __main__
 from threading import *
 from offlineimap import threadutil
 from offlineimap.threadutil import InstanceLimitedThread
+from offlineimap.ui import UIBase
 
 class BaseFolder:
     def getname(self):
@@ -161,7 +161,7 @@ class BaseFolder:
         for uid in self.getmessagelist().keys():
             if uid >= 0:
                 continue
-            __main__.ui.copyingmessage(uid, self, applyto)
+            UIBase.getglobalui().copyingmessage(uid, self, applyto)
             successobject = None
             successuid = None
             message = self.getmessage(uid)
@@ -192,7 +192,7 @@ class BaseFolder:
         # synced to the status cache.  This is only a problem with
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
-        __main__.ui.copyingmessage(uid, self, applyto)
+        UIBase.getglobalui().copyingmessage(uid, self, applyto)
         message = ''
         # If any of the destinations actually stores the message body,
         # load it up.
@@ -249,7 +249,7 @@ class BaseFolder:
             if not uid in self.getmessagelist():
                 deletelist.append(uid)
         if len(deletelist):
-            __main__.ui.deletingmessages(deletelist, applyto)
+            UIBase.getglobalui().deletingmessages(deletelist, applyto)
             for object in applyto:
                 object.deletemessages(deletelist)
 
@@ -266,13 +266,13 @@ class BaseFolder:
 
             addflags = [x for x in selfflags if x not in destflags]
             if len(addflags):
-                __main__.ui.addingflags(uid, addflags, applyto)
+                UIBase.getglobalui().addingflags(uid, addflags, applyto)
                 for object in applyto:
                     object.addmessageflags(uid, addflags)
 
             delflags = [x for x in destflags if x not in selfflags]
             if len(delflags):
-                __main__.ui.deletingflags(uid, delflags, applyto)
+                UIBase.getglobalui().deletingflags(uid, delflags, applyto)
                 for object in applyto:
                     object.deletemessageflags(uid, delflags)
 

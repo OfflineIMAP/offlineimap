@@ -17,9 +17,10 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from offlineimap import imaplib, imaputil, threadutil
+from offlineimap.ui import UIBase
 from threading import *
 import thread
-import __main__
+
 
 class UsefulIMAPMixIn:
     def getstate(self):
@@ -121,7 +122,7 @@ class IMAPServer:
         
         self.connectionlock.release()   # Release until need to modify data
 
-        __main__.ui.connecting(self.hostname, self.port)
+        UIBase.getglobalui().connecting(self.hostname, self.port)
 
         # Generate a new connection.
         if self.tunnel:

@@ -17,14 +17,14 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import re, string, types
+from offlineimap.ui import UIBase
 quotere = re.compile('^("(?:[^"]|\\\\")*")')
-import __main__
 
 def debug(*args):
     msg = []
     for arg in args:
         msg.append(str(arg))
-    __main__.ui.debug('imap', " ".join(msg))
+    UIBase.getglobalui().debug('imap', " ".join(msg))
 
 def dequote(string):
     """Takes a string which may or may not be quoted and returns it, unquoted.

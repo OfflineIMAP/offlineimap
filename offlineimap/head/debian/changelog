@@ -1,10 +1,20 @@
-offlineimap (3.2.9) unstable; urgency=low
+offlineimap (3.99.0) unstable; urgency=low
 
+  * The next few releases are adding features and reorganizing
+    code in preparation for 4.0.0.
   * imaputil.py now logs information with IMAP debugging is enabled.
   * Added folderfilter capability to mbnames recorder.  You can now omit
     specified folders from the mbnames output.
   * Added a workaround to imaputil.py to deal with a bug in imaplib.py's
     tuple when a response contains a literal in certain cases.
+  * Split out the code in bin/offlineimap into offlineimap/init.py.
+    Retaining bin/offlineimap as a skeletal piece only.  Contains
+    about three lines of code now.  This will make many things
+    easier, including debugging.
+  * Added library version check to bin/offlineimap and
+    offlineimap/init.py.
+  * Moved __main__.ui to functions in UIBase: getglobalui() and
+    setglobalui().
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 30 Sep 2002 12:08:08 -0500
 

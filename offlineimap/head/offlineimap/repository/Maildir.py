@@ -18,9 +18,9 @@
 
 from Base import BaseRepository
 from offlineimap import folder, imaputil
+from offlineimap.ui import UIBase
 from mailbox import Maildir
 import os
-import __main__
 
 class MaildirRepository(BaseRepository):
     def __init__(self, root, accountname, config):
@@ -31,7 +31,7 @@ class MaildirRepository(BaseRepository):
         self.folders = None
         self.accountname = accountname
         self.config = config
-        self.ui = __main__.ui
+        self.ui = UIBase.getglobalui()
         self.debug("MaildirRepository initialized, sep is " + repr(self.getsep()))
 
     def debug(self, msg):
