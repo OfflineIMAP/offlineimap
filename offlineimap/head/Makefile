@@ -32,7 +32,7 @@ clean:
 	-svn cleanup
 
 changelog:
-	svn log -v > ChangeLog
+	svn log -v --stop-on-copy > ChangeLog
 
 doc:
 	docbook2man offlineimap.sgml
