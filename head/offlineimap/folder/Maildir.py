@@ -96,9 +96,12 @@ class MaildirFolder(BaseFolder):
         return retval
 
     def savemessage(self, uid, content):
+        if uid < 0:
+            # We cannot assign a new uid.
+            return uid
         if uid in self.getmessagelist():
             # We already have it.
-            return
+            return uid
         newdir = os.path.join(self.getfullname(), 'new')
         tmpdir = os.path.join(self.getfullname(), 'tmp')
         messagename = None
@@ -124,7 +127,7 @@ class MaildirFolder(BaseFolder):
         os.unlink(os.path.join(tmpdir, messagename))
         self.messagelist[uid] = {'uid': uid, 'flags': [],
                                  'filename': os.path.join(newdir, messagename)}
-        
+        return uid
         
     def getmessageflags(self, uid):
         return self.getmessagelist()[uid]['flags']
