@@ -1,4 +1,38 @@
 ------------------------------------------------------------------------
+r582 | jgoerzen | 2004-06-04 11:04:29 -0500 (Fri, 04 Jun 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/COPYRIGHT
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/debian/copyright
+   M /offlineimap/head/offlineimap/version.py
+
+Updated copyright info
+------------------------------------------------------------------------
+r581 | jgoerzen | 2004-06-04 10:50:57 -0500 (Fri, 04 Jun 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/debian/rules
+   M /offlineimap/head/offlineimap/version.py
+
+Use dh_python
+------------------------------------------------------------------------
+r580 | jgoerzen | 2004-06-04 10:47:21 -0500 (Fri, 04 Jun 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/Makefile
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/debian/control
+   M /offlineimap/head/debian/rules
+   M /offlineimap/head/offlineimap/version.py
+
+Final changes before 4.0.3
+------------------------------------------------------------------------
+r579 | jgoerzen | 2004-06-04 10:42:52 -0500 (Fri, 04 Jun 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/Makefile
+
+Preparing 4.0.3
+------------------------------------------------------------------------
 r578 | jgoerzen | 2004-06-04 10:29:24 -0500 (Fri, 04 Jun 2004) | 2 lines
 Changed paths:
    M /offlineimap/head/debian/changelog
