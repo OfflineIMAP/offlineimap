@@ -19,7 +19,7 @@
 from Blinkenlights import BlinkenBase
 from UIBase import UIBase
 from threading import *
-import thread, time
+import thread, time, sys, os
 from offlineimap import version, threadutil
 from offlineimap.threadutil import MultiLock
 
@@ -308,6 +308,32 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.gettf().setcolor('red')
         s._msg(version.banner)
         s.inputhandler.set_bgchar(s.keypress)
+
+    def isusable(s):
+        # Not a terminal?  Can't use curses.
+        if not sys.stdout.isatty() and sys.stdin.isatty():
+            return 0
+
+        # No TERM specified?  Can't use curses.
+        try:
+            if not len(os.environ['TERM']):
+                return 0
+        except: return 0
+
+        # ncurses doesn't want to start?  Can't use curses.
+        # This test is nasty because initscr() actually EXITS on error.
+        # grr.
+
+        pid = os.fork()
+        if pid:
+            # parent
+            return not os.WEXITSTATUS(os.waitpid(pid, 0)[1])
+        else:
+            # child
+            curses.initscr()
+            curses.endwin()
+            # If we didn't die by here, indicate success.
+            sys.exit(0)
 
     def keypress(s, key):
         if key > 255:

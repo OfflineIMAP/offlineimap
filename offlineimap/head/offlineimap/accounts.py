@@ -130,7 +130,7 @@ class AccountSynchronizationMixin:
             threadutil.threadsreset(folderthreads)
             mbnames.write()
             if not self.hold:
-                server.close()
+                self.server.close()
         finally:
             pass
     

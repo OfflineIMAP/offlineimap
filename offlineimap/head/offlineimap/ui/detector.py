@@ -20,7 +20,8 @@ import offlineimap.ui
 import sys
 
 def findUI(config, chosenUI=None):
-    uistrlist = ['Tk.Blinkenlights', 'Tk.VerboseUI', 'TTY.TTYUI',
+    uistrlist = ['Tk.Blinkenlights', 'Tk.VerboseUI',
+                 'Curses.Blinkenlights', 'TTY.TTYUI',
                  'Noninteractive.Basic', 'Noninteractive.Quiet']
     namespace={}
     for ui in dir(offlineimap.ui):

@@ -50,7 +50,7 @@ def genmbnames():
     mblock.acquire()
     try:
         localeval = config.getlocaleval()
-        if not config.getboolean("mbnames", "enabled"):
+        if not config.getdefaultboolean("mbnames", "enabled", 0):
             return
         file = open(os.path.expanduser(config.get("mbnames", "filename")), "wt")
         file.write(localeval.eval(config.get("mbnames", "header")))

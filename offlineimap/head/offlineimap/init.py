@@ -86,7 +86,7 @@ def startup(versionno):
         threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
     else:
         threadutil.initInstanceLimit("ACCOUNTLIMIT",
-                                     config.getint("general", "maxsyncaccounts"))
+                                     config.getdefaultint("general", "maxsyncaccounts", 1))
 
     for account in accounts:
         for instancename in ["FOLDER_" + account, "MSGCOPY_" + account]:
@@ -94,7 +94,7 @@ def startup(versionno):
                 threadutil.initInstanceLimit(instancename, 1)
             else:
                 threadutil.initInstanceLimit(instancename,
-                                             config.getint(account, "maxconnections"))
+                                             config.getdefaultint(account, "maxconnections", 1))
 
     threadutil.initexitnotify()
     t = ExitNotifyThread(target=syncmaster.syncitall,

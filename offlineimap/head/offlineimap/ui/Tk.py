@@ -29,6 +29,8 @@ from Queue import Queue
 from UIBase import UIBase
 from offlineimap.ui.Blinkenlights import BlinkenBase
 
+usabletest = None
+
 class PasswordDialog:
     def __init__(self, accountname, config, master=None, errmsg = None):
         self.top = Toplevel(master)
@@ -148,12 +150,17 @@ class ThreadFrame(Frame):
 
 class VerboseUI(UIBase):
     def isusable(s):
+        global usabletest
+        if usabletest != None:
+            return usabletest
+
         try:
             Tk().destroy()
-            return 1
+            usabletest = 1
         except TclError:
-            return 0
-
+            usabletest = 0
+        return usabletest
+    
     def _createTopWindow(self, doidlevac = 1):
         self.notdeleted = 1
         self.created = threading.Event()
@@ -414,20 +421,19 @@ class Blinkenlights(BlinkenBase, VerboseUI):
         if config.has_option('ui.Tk.Blinkenlights', 'fontsize'):
             s.fontsize = config.getint('ui.Tk.Blinkenlights', 'fontsize')
 
+    def isusable(s):
+        return VerboseUI.isusable(s)
+
     def _createTopWindow(self):
         VerboseUI._createTopWindow(self, 0)
         #self.top.resizable(width = 0, height = 0)
         self.top.configure(background = 'black', bd = 0)
 
         widthmetric = tkFont.Font(family = self.fontfamily, size = self.fontsize).measure("0")
-        self.loglines = 5
-        if self.config.has_option("ui.Tk.Blinkenlights", "loglines"):
-            self.loglines = self.config.getint("ui.Tk.Blinkenlights",
-                                               "loglines")
-        self.bufferlines = 500
-        if self.config.has_option("ui.Tk.Blinkenlights", "bufferlines"):
-            self.bufferlines = self.config.getint("ui.Tk.Blinkenlights",
-                                                  "bufferlines")
+        self.loglines = self.config.getdefaultint("ui.Tk.Blinkenlights",
+                                                  "loglines", 5)
+        self.bufferlines = self.config.getdefaultint("ui.Tk.Blinkenlights",
+                                                     "bufferlines", 500)
         self.text = ScrolledText(self.top, bg = 'black', #scrollbar = 'y',
                                  font = (self.fontfamily, self.fontsize),
                                  bd = 0, highlightthickness = 0, setgrid = 0,
@@ -457,8 +463,7 @@ class Blinkenlights(BlinkenBase, VerboseUI):
         s.top.config(menu = menubar)
         s.menubar = menubar
         s.text.see(END)
-        if s.config.has_option("ui.Tk.Blinkenlights", "showlog") and \
-           s.config.getboolean("ui.Tk.Blinkenlights", "showlog"):
+        if s.config.getdefaultboolean("ui.Tk.Blinkenlights", "showlog", 1):
             s._togglelog()
         s.gettf().setcolor('red')
         s.top.resizable(width = 0, height = 0)

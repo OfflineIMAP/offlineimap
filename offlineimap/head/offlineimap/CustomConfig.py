@@ -28,6 +28,19 @@ class CustomConfigParser(ConfigParser):
         else:
             return default
     
+    def getdefaultint(self, section, option, default, *args, **kwargs):
+        if self.has_option(section, option):
+            return apply(self.getint, [section, option] + list(args), kwargs)
+        else:
+            return default
+
+    def getdefaultboolean(self, section, option, default, *args, **kwargs):
+        if self.has_option(section, option):
+            return apply(self.getboolean, [section, option] + list(args),
+                         kwargs)
+        else:
+            return default
+
     def getmetadatadir(self):
         metadatadir = os.path.expanduser(self.getdefault("general", "metadata", "~/.offlineimap"))
         if not os.path.exists(metadatadir):

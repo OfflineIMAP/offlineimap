@@ -266,7 +266,7 @@ class ConfigedIMAPServer(IMAPServer):
         port = None
         if config.has_option(accountname, "remoteport"):
             port = config.getint(accountname, "remoteport")
-        ssl = config.getboolean(accountname, "ssl")
+        ssl = config.getdefaultboolean(accountname, "ssl", 0)
         usetunnel = config.has_option(accountname, "preauthtunnel")
         reference = '""'
         if config.has_option(accountname, "reference"):
@@ -292,5 +292,5 @@ class ConfigedIMAPServer(IMAPServer):
                     passfile.close()
             IMAPServer.__init__(self, config, accountname,
                                 user, password, host, port, ssl,
-                                config.getint(accountname, "maxconnections"),
+                                config.getdefaultint(accountname, "maxconnections", 1),
                                 reference = reference)
