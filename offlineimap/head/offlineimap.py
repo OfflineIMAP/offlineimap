@@ -48,7 +48,7 @@ if '-P' in options:
     profiledir = options['-P']
     os.mkdir(profiledir)
     threadutil.setprofiledir(profiledir)
-    sys.stderr.write("WARNING: profile mode engaged;\n{otentially large data will be created in " + profiledir + "\n")
+    sys.stderr.write("WARNING: profile mode engaged;\nPotentially large data will be created in " + profiledir + "\n")
 
 
 
@@ -94,9 +94,9 @@ else:
 # asking for passwords simultaneously.
 
 for account in accounts:
-    if '.' in account:
-        raise ValueError, "Account '%s' contains a dot; dots are not " \
-            "allowed in account names." % account
+    #if '.' in account:
+    #    raise ValueError, "Account '%s' contains a dot; dots are not " \
+    #        "allowed in account names." % account
     if config.has_option(account, "preauthtunnel"):
         tunnels[account] = config.get(account, "preauthtunnel")
     elif config.has_option(account, "remotepass"):

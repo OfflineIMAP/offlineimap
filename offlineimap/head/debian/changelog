@@ -15,6 +15,9 @@ offlineimap (3.2.1) unstable; urgency=low
     faster navigation.
   * Fix for account name interpolation in dot warning from 3.2.0 from
     Martijn Pieters.
+  * Backed out check for . in account names for now.  Will put it back in
+    when we have a consensus on what exactly to do.  Doubt that anyone
+    has a foldername that would conflict with Blinkenlights anyway.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 17:04:04 -0500
 
