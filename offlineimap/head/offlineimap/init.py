@@ -82,6 +82,9 @@ def startup(versionno):
             if debugtype == 'thread':
                 threading._VERBOSE = 1
 
+    if '-l' in options:
+        ui.setlogfd(open(options['-l'], 'wt'))
+
     if '-o' in options:
         # FIXME: maybe need a better
         for section in accounts.getaccountlist(config):

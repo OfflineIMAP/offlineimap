@@ -1,6 +1,9 @@
 offlineimap (3.99.18) unstable; urgency=low
 
   * Made a fix for Python2.3 compatibility.
+    This application now defaults to Python2.3!  If you do not have Python
+    2.3, things may not work as expected.
+  * Removed warning when thread debug is specified.  Closes: #195739.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue, 27 May 2003 16:58:54 -0500
 

@@ -3,13 +3,13 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "22 April 2003" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "02 June 2003" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
 .SH SYNOPSIS
 
-\fBofflineimap\fR [ \fB-1\fR ] [ \fB-P \fIprofiledir\fB\fR ] [ \fB-a \fIaccountlist\fB\fR ] [ \fB-c \fIconfigfile\fB\fR ] [ \fB-d \fIdebugtype[,...]\fB\fR ] [ \fB-o\fR ] [ \fB-u \fIinterface\fB\fR ]
+\fBofflineimap\fR [ \fB-1\fR ] [ \fB-P \fIprofiledir\fB\fR ] [ \fB-a \fIaccountlist\fB\fR ] [ \fB-c \fIconfigfile\fB\fR ] [ \fB-d \fIdebugtype[,...]\fB\fR ] [ \fB-l \fIfilename\fB\fR ] [ \fB-o\fR ] [ \fB-u \fIinterface\fB\fR ]
 
 
 \fBofflineimap\fR \fB-h\fR | \fB--help\fR
@@ -286,6 +286,13 @@ from the debugging output before sending it to anyone else.  The
 \fImaildir\fR option will enable debugging for
 certain Maildir operations.  And \fIthread\fR
 will debug the threading model.
+.TP
+\fB-l \fIfilename\fB\fR
+Enables logging to filename.  This will log everything
+that goes to the screen to the specified file.
+Additionally, if any debugging is specified with -d,
+then debug messages will not go to the screen, but
+instead to the logfile only.
 .TP
 \fB-o\fR
 Run only once, ignoring all
@@ -827,7 +834,7 @@ The Web site also lists all current bugs, where you can check their
 status or contribute to fixing them.
 .SH "COPYRIGHT"
 .PP
-OfflineIMAP, and this manual, are Copyright © 2002, 2003 John Goerzen.
+OfflineIMAP, and this manual, are Copyright (C) 2002, 2003 John Goerzen.
 .PP
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

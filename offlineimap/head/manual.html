@@ -5,7 +5,7 @@
 >OfflineIMAP Manual</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.77+"></HEAD
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"></HEAD
 ><BODY
 CLASS="REFERENCE"
 BGCOLOR="#FFFFFF"
@@ -64,31 +64,24 @@ NAME="AEN18"
 ><B
 CLASS="COMMAND"
 >offlineimap</B
->  [-1] [-P <TT
+>  [-1] [-P <VAR
 CLASS="REPLACEABLE"
-><I
->profiledir</I
-></TT
->] [-a <TT
+>profiledir</VAR
+>] [-a <VAR
 CLASS="REPLACEABLE"
-><I
->accountlist</I
-></TT
->] [-c <TT
+>accountlist</VAR
+>] [-c <VAR
 CLASS="REPLACEABLE"
-><I
->configfile</I
-></TT
->] [-d <TT
+>configfile</VAR
+>] [-d <VAR
 CLASS="REPLACEABLE"
-><I
->debugtype[,...]</I
-></TT
->] [-o] [-u <TT
+>debugtype[,...]</VAR
+>] [-l <VAR
 CLASS="REPLACEABLE"
-><I
->interface</I
-></TT
+>filename</VAR
+>] [-o] [-u <VAR
+CLASS="REPLACEABLE"
+>interface</VAR
 >]</P
 ><P
 ><B
@@ -99,7 +92,7 @@ CLASS="COMMAND"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN38"
+NAME="AEN40"
 ></A
 ><H2
 >Description</H2
@@ -196,7 +189,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN56"
+NAME="AEN58"
 ></A
 ><H3
 >Method of Operation</H3
@@ -243,7 +236,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN65"
+NAME="AEN67"
 ></A
 ><H2
 >Quick Start</H2
@@ -348,7 +341,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN87"
+NAME="AEN89"
 ></A
 ><H2
 >Installation</H2
@@ -376,7 +369,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN93"
+NAME="AEN95"
 ></A
 ><H3
 >Prerequisites</H3
@@ -440,7 +433,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN107"
+NAME="AEN109"
 ></A
 ><H3
 >System-Wide Installation, Debian</H3
@@ -486,7 +479,7 @@ CLASS="COMMAND"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN119"
+NAME="AEN121"
 ></A
 ><H3
 >System-Wide Installation, Other</H3
@@ -529,7 +522,7 @@ CLASS="COMMAND"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN129"
+NAME="AEN131"
 ></A
 ><H3
 >Single-Account Installation</H3
@@ -614,7 +607,7 @@ CLASS="FILENAME"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN150"
+NAME="AEN152"
 ></A
 ><H2
 >Options</H2
@@ -650,11 +643,9 @@ CLASS="PROPERTY"
 	  </P
 ></DD
 ><DT
->-P <TT
+>-P <VAR
 CLASS="REPLACEABLE"
-><I
->profiledir</I
-></TT
+>profiledir</VAR
 ></DT
 ><DD
 ><P
@@ -662,11 +653,9 @@ CLASS="REPLACEABLE"
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 > into profile mode.  The program
-	    will create <TT
+	    will create <VAR
 CLASS="REPLACEABLE"
-><I
->profiledir</I
-></TT
+>profiledir</VAR
 >
 	    (it must not already exist).  As it runs, Python profiling 
 	    information
@@ -674,22 +663,20 @@ CLASS="REPLACEABLE"
 	    is present for debugging and optimization only, and should NOT be used
 	    unless you have a specific reason to do so.  It will significantly
 	    slow program performance, may reduce reliability, and can generate
-	    huge amounts of data.  You must use the <TT
+	    huge amounts of data.  You must use the <VAR
 CLASS="OPTION"
->-1</TT
+>-1</VAR
 > option when
-	    you use <TT
+	    you use <VAR
 CLASS="OPTION"
->-P</TT
+>-P</VAR
 >.
 	  </P
 ></DD
 ><DT
->-a <TT
+>-a <VAR
 CLASS="REPLACEABLE"
-><I
->accountlist</I
-></TT
+>accountlist</VAR
 ></DT
 ><DD
 ><P
@@ -707,11 +694,9 @@ CLASS="PROPERTY"
 	  </P
 ></DD
 ><DT
->-c <TT
+>-c <VAR
 CLASS="REPLACEABLE"
-><I
->configfile</I
-></TT
+>configfile</VAR
 ></DT
 ><DD
 ><P
@@ -723,25 +708,23 @@ CLASS="FILENAME"
 	  </P
 ></DD
 ><DT
->-d <TT
+>-d <VAR
 CLASS="REPLACEABLE"
-><I
->debugtype[,...]</I
-></TT
+>debugtype[,...]</VAR
 ></DT
 ><DD
 ><P
 >Enables debugging for OfflineIMAP.  This is useful if
 	    you are trying to track down a malfunction or figure out what is going
 	    on under the hood.  I suggest that you use this with
-	    <TT
+	    <VAR
 CLASS="OPTION"
->-1</TT
+>-1</VAR
 > to make the results more sensible.</P
 ><P
-><TT
+><VAR
 CLASS="OPTION"
->-d</TT
+>-d</VAR
 > requires one or more debugtypes,
 	      separated by commas.  These define what exactly will be
 	      debugged, and include three options: <SPAN
@@ -774,6 +757,20 @@ CLASS="PROPERTY"
 	    </P
 ></DD
 ><DT
+>-l
+	  <VAR
+CLASS="REPLACEABLE"
+>filename</VAR
+></DT
+><DD
+><P
+>	      Enables logging to filename.  This will log everything
+	      that goes to the screen to the specified file.
+	      Additionally, if any debugging is specified with -d,
+	      then debug messages will not go to the screen, but
+	      instead to the logfile only.</P
+></DD
+><DT
 >-o</DT
 ><DD
 ><P
@@ -791,11 +788,9 @@ CLASS="PROPERTY"
 >Show summary of options.</P
 ></DD
 ><DT
->-u <TT
+>-u <VAR
 CLASS="REPLACEABLE"
-><I
->interface</I
-></TT
+>interface</VAR
 ></DT
 ><DD
 ><P
@@ -810,7 +805,7 @@ CLASS="REPLACEABLE"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN212"
+NAME="AEN219"
 ></A
 ><H2
 >User Interfaces</H2
@@ -826,9 +821,9 @@ CLASS="APPLICATION"
 CLASS="PROPERTY"
 >ui</SPAN
 > option in the configuration file specifies
-	user interface preferences.  The <TT
+	user interface preferences.  The <VAR
 CLASS="OPTION"
->-u</TT
+>-u</VAR
 > command-line
 	option can override the configuration file setting.  The available
 	values for the configuration file or command-line are described
@@ -836,7 +831,7 @@ CLASS="OPTION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN218"
+NAME="AEN225"
 ></A
 ><H3
 >Tk.Blinkenlights</H3
@@ -992,7 +987,7 @@ CLASS="FIRSTTERM"
 >, in part, as:
 	</P
 ><A
-NAME="AEN281"
+NAME="AEN288"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -1029,7 +1024,7 @@ CLASS="EMPHASIS"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN287"
+NAME="AEN294"
 ></A
 ><H3
 >Curses.Blinkenlights</H3
@@ -1047,7 +1042,7 @@ NAME="AEN287"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN291"
+NAME="AEN298"
 ></A
 ><H3
 >Tk.VerboseUI</H3
@@ -1064,7 +1059,7 @@ NAME="AEN291"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN294"
+NAME="AEN301"
 ></A
 ><H3
 >TTY.TTYUI</H3
@@ -1077,7 +1072,7 @@ NAME="AEN294"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN297"
+NAME="AEN304"
 ></A
 ><H3
 >Noninteractive.Basic</H3
@@ -1097,7 +1092,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN301"
+NAME="AEN308"
 ></A
 ><H3
 >Noninteractive.Quiet</H3
@@ -1114,7 +1109,7 @@ NAME="AEN301"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN304"
+NAME="AEN311"
 ></A
 ><H2
 >Examples</H2
@@ -1126,7 +1121,7 @@ NAME="AEN304"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN307"
+NAME="AEN314"
 ></A
 ><H3
 >Multiple Accounts with Mutt</H3
@@ -1199,7 +1194,7 @@ spoolfile=+Personal/INBOX</PRE
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN326"
+NAME="AEN333"
 ></A
 ><H3
 >UW-IMAPD and References</H3
@@ -1258,7 +1253,7 @@ holdconnectionopen = no</PRE
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN334"
+NAME="AEN341"
 ></A
 ><H3
 >pythonfile Configuration File Option</H3
@@ -1324,7 +1319,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN347"
+NAME="AEN354"
 ></A
 ><H2
 >Errors</H2
@@ -1335,7 +1330,7 @@ NAME="AEN347"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN350"
+NAME="AEN357"
 ></A
 ><H3
 >UID validity problem for folder</H3
@@ -1382,17 +1377,13 @@ CLASS="FILENAME"
 ><PRE
 CLASS="PROGRAMLISTING"
 >rm -r ~/Folders/INBOX
-rm -r ~/.offlineimap/Account-<TT
+rm -r ~/.offlineimap/Account-<VAR
 CLASS="REPLACEABLE"
-><I
->AccountName</I
-></TT
+>AccountName</VAR
 >
-rm -r ~/.offlineimap/Repository-<TT
+rm -r ~/.offlineimap/Repository-<VAR
 CLASS="REPLACEABLE"
-><I
->RepositoryName</I
-></TT
+>RepositoryName</VAR
 ></PRE
 ><P
 >	  (Of course, replace AccountName and RepositoryName 
@@ -1452,7 +1443,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN375"
+NAME="AEN382"
 ></A
 ><H2
 >Other Frequently Asked Questions</H2
@@ -1721,7 +1712,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN471"
+NAME="AEN478"
 ></A
 ><H2
 >Conforming To</H2
@@ -1760,14 +1751,14 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN484"
+NAME="AEN491"
 ></A
 ><H2
 >Notes</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN486"
+NAME="AEN493"
 ></A
 ><H3
 >Deleting Local Folders</H3
@@ -1799,7 +1790,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN493"
+NAME="AEN500"
 ></A
 ><H3
 >Multiple Instances</H3
@@ -1828,7 +1819,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN500"
+NAME="AEN507"
 ></A
 ><H3
 >Copying Messages Between Folders</H3
@@ -1858,7 +1849,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN506"
+NAME="AEN513"
 ></A
 ><H3
 >Use with Evolution</H3
@@ -1871,9 +1862,9 @@ CLASS="APPLICATION"
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 > account to have
-	  <TT
+	  <VAR
 CLASS="OPTION"
->sep = /</TT
+>sep = /</VAR
 > in its configuration.  Then, configure
 	  Evolution with the
 	  "Maildir-format mail directories" server type.  For the path, you will need to
@@ -1894,7 +1885,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN514"
+NAME="AEN521"
 ></A
 ><H3
 >Use with KMail</H3
@@ -1928,7 +1919,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN522"
+NAME="AEN529"
 ></A
 ><H3
 >Mailing List</H3
@@ -1947,7 +1938,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN526"
+NAME="AEN533"
 ></A
 ><H3
 >Bugs</H3
@@ -1973,12 +1964,12 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN532"
+NAME="AEN539"
 ></A
 ><H2
 >Copyright</H2
 ><P
->OfflineIMAP, and this manual, are Copyright © 2002, 2003 John Goerzen.</P
+>OfflineIMAP, and this manual, are Copyright &copy; 2002, 2003 John Goerzen.</P
 ><P
 >	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -2011,7 +2002,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN541"
+NAME="AEN548"
 ></A
 ><H2
 >Author</H2
@@ -2020,12 +2011,12 @@ NAME="AEN541"
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 >, its libraries, documentation, and all included files, except where
-	noted, was written by John Goerzen <TT
+	noted, was written by John Goerzen <CODE
 CLASS="EMAIL"
 >&#60;<A
 HREF="mailto:jgoerzen@complete.org"
 >jgoerzen@complete.org</A
->&#62;</TT
+>&#62;</CODE
 > and
 	copyright is held as stated in the COPYRIGHT section.
       </P
@@ -2063,7 +2054,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN553"
+NAME="AEN560"
 ></A
 ><H2
 >See Also</H2

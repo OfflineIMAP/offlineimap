@@ -229,31 +229,47 @@ class IMAPServer:
         until the Event object as passed is true.  This method is expected
         to be invoked in a separate thread, which should be join()'d after
         the event is set."""
+        ui = UIBase.getglobalui()
+        ui.debug('imap', 'keepalive thread started')
         while 1:
+            ui.debug('imap', 'keepalive: top of loop')
             event.wait(timeout)
+            ui.debug('imap', 'keepalive: after wait')
             if event.isSet():
+                ui.debug('imap', 'keepalive: event is set; exiting')
                 return
+            ui.debug('imap', 'keepalive: acquiring connectionlock')
             self.connectionlock.acquire()
             numconnections = len(self.assignedconnections) + \
                              len(self.availableconnections)
             self.connectionlock.release()
+            ui.debug('imap', 'keepalive: connectionlock released')
             threads = []
             imapobjs = []
         
             for i in range(numconnections):
+                ui.debug('imap', 'keepalive: processing connection %d of %d' % (i, numconnections))
                 imapobj = self.acquireconnection()
+                ui.debug('imap', 'keepalive: connection %d acquired' % i)
                 imapobjs.append(imapobj)
                 thr = threadutil.ExitNotifyThread(target = imapobj.noop)
                 thr.setDaemon(1)
                 thr.start()
                 threads.append(thr)
+                ui.debug('imap', 'keepalive: thread started')
+
+            ui.debug('imap', 'keepalive: joining threads')
 
             for thr in threads:
                 # Make sure all the commands have completed.
                 thr.join()
 
+            ui.debug('imap', 'keepalive: releasing connections')
+
             for imapobj in imapobjs:
                 self.releaseconnection(imapobj)
+
+            ui.debug('imap', 'keepalive: bottom of loop')
 
 class ConfigedIMAPServer(IMAPServer):
     """This class is designed for easier initialization given a ConfigParser

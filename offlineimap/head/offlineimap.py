@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.2
+#!/usr/bin/env python2.3
 # Startup from single-user installation
 # Copyright (C) 2002, 2003 John Goerzen
 # <jgoerzen@complete.org>

@@ -222,7 +222,7 @@ class VerboseUI(UIBase):
         finally:
             s.tflock.release()
 
-    def _msg(s, msg):
+    def _display(s, msg):
         s.gettf().setmessage(msg)
 
     def threadExited(s, thread):
@@ -504,7 +504,7 @@ class Blinkenlights(BlinkenBase, VerboseUI):
         lo, hi = s.text.vbar.get()
         s.text.vbar.set(1.0 - (hi - lo), 1.0)
 
-    def _msg(s, msg):
+    def _display(s, msg):
         if "\n" in msg:
             for thisline in msg.split("\n"):
                 s._msg(thisline)

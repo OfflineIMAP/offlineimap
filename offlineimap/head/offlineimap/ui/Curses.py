@@ -488,7 +488,7 @@ class Blinkenlights(BlinkenBase, UIBase):
         return s.af[accountname]
 
 
-    def _msg(s, msg, color = None):
+    def _display(s, msg, color = None):
         if "\n" in msg:
             for thisline in msg.split("\n"):
                 s._msg(thisline)

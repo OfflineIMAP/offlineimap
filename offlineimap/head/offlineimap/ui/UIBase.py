@@ -21,7 +21,8 @@ import re, time, sys, traceback, threading, thread
 from StringIO import StringIO
 
 debugtypes = {'imap': 'IMAP protocol debugging',
-              'maildir': 'Maildir repository debugging'}
+              'maildir': 'Maildir repository debugging',
+              'thread': 'Threading debugging'}
 
 globalui = None
 def setglobalui(newui):
@@ -39,10 +40,27 @@ class UIBase:
         s.debugmessages = {}
         s.debugmsglen = 50
         s.threadaccounts = {}
+        s.logfile = None
     
     ################################################## UTILS
     def _msg(s, msg):
         """Generic tool called when no other works."""
+        s._log(msg)
+        s._display(msg)
+
+    def _log(s, msg):
+        """Log it to disk.  Returns true if it wrote something; false
+        otherwise."""
+        if s.logfile:
+            s.logfile.write("%s: %s\n" % (threading.currentThread().getName(),
+                                          msg))
+        return s.logfile
+
+    def setlogfd(s, logfd):
+        s.logfile = logfd
+
+    def _display(s, msg):
+        """Display a message."""
         raise NotImplementedError
 
     def warn(s, msg, minor = 0):
@@ -81,9 +99,10 @@ class UIBase:
 
         while len(s.debugmessages[thisthread]) > s.debugmsglen:
             s.debugmessages[thisthread] = s.debugmessages[thisthread][1:]
-            
-        if debugtype in s.debuglist:
-            s._msg("DEBUG[%s]: %s" % (debugtype, msg))
+
+        if not s._log("DEBUG[%s]: %s"):
+            if debugtype in s.debuglist:
+                s._display("DEBUG[%s]: %s" % (debugtype, msg))
 
     def add_debug(s, debugtype):
         global debugtypes

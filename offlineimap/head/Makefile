@@ -17,7 +17,7 @@
 SHELL=/bin/bash
 
 clean:
-	-python2.2 setup.py clean --all
+	-python2.3 setup.py clean --all
 	-rm -f `find . -name "*~"`
 	-rm -f `find . -name "*.tmp"`
 	-rm -f bin/offlineimapc
@@ -34,7 +34,7 @@ clean:
 changelog:
 	svn log -v > ChangeLog
 
-docs:
+doc:
 	docbook2man offlineimap.sgml
 	docbook2man offlineimap.sgml
 	docbook2html -u offlineimap.sgml

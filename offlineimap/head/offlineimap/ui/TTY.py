@@ -30,7 +30,7 @@ class TTYUI(UIBase):
     def isusable(s):
         return sys.stdout.isatty() and sys.stdin.isatty()
         
-    def _msg(s, msg):
+    def _display(s, msg):
         s.outputlock.acquire()
         try:
             if (currentThread().getName() == 'MainThread'):

@@ -2,13 +2,13 @@ Source: offlineimap
 Section: mail
 Priority: optional
 Maintainer: John Goerzen <jgoerzen@complete.org>
-Build-Depends-Indep: debhelper (>> 3.0.0), python2.2 (>= 2.2.1-4), python2.2-dev (>= 2.2.1-4), groff, docbook-utils
+Build-Depends-Indep: debhelper (>> 3.0.0), python2.3 (>= 2.2.104), python2.3-dev (>= 2.2.104), groff, docbook-utils
 Standards-Version: 3.5.2
 
 Package: offlineimap
 Architecture: all
-Depends: python2.2
-Suggests: python2.2-tk
+Depends: python2.3
+Suggests: python2.3-tk
 Description: IMAP/Maildir synchronization and reader support
  OfflineIMAP is a tool to simplify your e-mail reading.  With
  OfflimeIMAP, you can:
