@@ -13,6 +13,7 @@ offlineimap (3.99.15) unstable; urgency=low
   * Made OfflineIMAP IPv6-aware.  Used the short patch from
     Adriaan Peeters <apeeters@lashout.net> in Debian bug report 186636.
     Closes: #186636.
+  * autorefresh may now be a floating-point value.  Closes: #190060.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 28 Apr 2003 14:00:32 -0500
 

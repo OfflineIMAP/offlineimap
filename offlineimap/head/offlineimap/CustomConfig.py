@@ -34,6 +34,12 @@ class CustomConfigParser(ConfigParser):
         else:
             return default
 
+    def getdefaultfloat(self, section, option, default, *args, **kwargs):
+        if self.has_option(section, option):
+            return apply(self.getfloat, [section, option] + list(args), kwargs)
+        else:
+            return default
+
     def getdefaultboolean(self, section, option, default, *args, **kwargs):
         if self.has_option(section, option):
             return apply(self.getboolean, [section, option] + list(args),
@@ -90,4 +96,9 @@ class ConfigHelperMixin:
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultint,
                                          self.getconfig().getint)
+    
+    def getconffloat(self, option, default = CustomConfigDefault):
+        return self._confighelper_runner(option, default,
+                                         self.getconfig().getdefaultfloat,
+                                         self.getconfig().getfloat)
     

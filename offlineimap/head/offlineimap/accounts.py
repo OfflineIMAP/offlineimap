@@ -43,8 +43,8 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.metadatadir = config.getmetadatadir()
         self.localeval = config.getlocaleval()
         self.ui = UIBase.getglobalui()
-        self.refreshperiod = self.getconfint('autorefresh', 0)
-        if self.refreshperiod == 0:
+        self.refreshperiod = self.getconffloat('autorefresh', 0.0)
+        if self.refreshperiod == 0.0:
             self.refreshperiod = None
 
     def getlocaleval(self):
@@ -79,7 +79,7 @@ class Account(CustomConfig.ConfigHelperMixin):
         for item in kaobjs:
             item.startkeepalive()
         
-        refreshperiod = self.refreshperiod * 60
+        refreshperiod = int(self.refreshperiod * 60)
         sleepresult = self.ui.sleep(refreshperiod)
         if sleepresult == 2:
             # Cancel keep-alive, but don't bother terminating threads
