@@ -53,10 +53,10 @@ accountsemaphore = BoundedSemaphore(config.getint("general", "maxsyncaccounts"))
 # asking for passwords simultaneously.
 
 for account in accounts:
-    if config.has_option(accountname, "remotepass"):
-        passwords[account] = config.get(accountname, "remotepass")
+    if config.has_option(account, "remotepass"):
+        passwords[account] = config.get(account, "remotepass")
     else:
-        passwords[account] = ui.getpass(accountname, config)
+        passwords[account] = ui.getpass(account, config)
 
 mailboxes = []
 mailboxlock = Lock()
@@ -66,7 +66,8 @@ def addmailbox(accountname, remotefolder):
                       'foldername': remotefolder.getvisiblename()})
     mailboxlock.release()    
     
-def syncaccount(accountname):
+def syncaccount(accountname, *args):
+    print args
     # We don't need an account lock because syncitall() goes through
     # each account once, then waits for all to finish.
     accountsemaphore.acquire()
@@ -96,55 +97,69 @@ def syncaccount(accountname):
         ui.syncfolders(remoterepos, localrepos)
         remoterepos.syncfoldersto(localrepos)
 
+        folderthreads = []
         for remotefolder in remoterepos.getfolders():
-            mailboxes.append({'accountname': accountname,
-                              'foldername': remotefolder.getvisiblename()})
-            # Load local folder.
-            localfolder = localrepos.getfolder(remotefolder.getvisiblename())
-            if not localfolder.isuidvalidityok(remotefolder):
-                ui.validityproblem(remotefolder)
-                continue
-            ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
-            ui.loadmessagelist(localrepos, localfolder)
-            localfolder.cachemessagelist()
-            ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
-
-            # Load remote folder.
-            ui.loadmessagelist(remoterepos, remotefolder)
-            remotefolder.cachemessagelist()
-            ui.messagelistloaded(remoterepos, remotefolder,
-                                 len(remotefolder.getmessagelist().keys()))
-
-            # Load status folder.
-            statusfolder = statusrepos.getfolder(remotefolder.getvisiblename())
-            statusfolder.cachemessagelist()
-
-            #
-
-            if not statusfolder.isnewfolder():
-                # Delete local copies of remote messages.  This way,
-                # if a message's flag is modified locally but it has been
-                # deleted remotely, we'll delete it locally.  Otherwise, we
-                # try to modify a deleted message's flags!  This step
-                # need only be taken if a statusfolder is present; otherwise,
-                # there is no action taken *to* the remote repository.
-
-                remotefolder.syncmessagesto_delete(localfolder, [localfolder,
-                                                                 statusfolder])
-                ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
-                localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
-
-            # Synchronize remote changes.
-            ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
-            remotefolder.syncmessagesto(localfolder)
-
-            # Make sure the status folder is up-to-date.
-            ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
-            localfolder.syncmessagesto(statusfolder)
-            statusfolder.save()
+            server.connectionwait()
+            thread = Thread(target = syncfolder,
+                            name = "syncfolder-%s-%s" % \
+                            (accountname, remotefolder.getvisiblename()),
+                            args = (accountname, remoterepos,
+                                    remotefolder, localrepos, statusrepos))
+            thread.start()
+            folderthreads.append(thread)
+        threadutil.threadsreset(folderthreads)
         server.close()
     finally:
         accountsemaphore.release()
+
+def syncfolder(accountname, remoterepos, remotefolder, localrepos,
+               statusrepos):
+    mailboxes.append({'accountname': accountname,
+                      'foldername': remotefolder.getvisiblename()})
+    # Load local folder.
+    localfolder = localrepos.getfolder(remotefolder.getvisiblename())
+    if not localfolder.isuidvalidityok(remotefolder):
+        ui.validityproblem(remotefolder)
+        return
+    ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
+    ui.loadmessagelist(localrepos, localfolder)
+    localfolder.cachemessagelist()
+    ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
+
+    # Load remote folder.
+    ui.loadmessagelist(remoterepos, remotefolder)
+    remotefolder.cachemessagelist()
+    ui.messagelistloaded(remoterepos, remotefolder,
+                         len(remotefolder.getmessagelist().keys()))
+
+    # Load status folder.
+    statusfolder = statusrepos.getfolder(remotefolder.getvisiblename())
+    statusfolder.cachemessagelist()
+
+    #
+
+    if not statusfolder.isnewfolder():
+        # Delete local copies of remote messages.  This way,
+        # if a message's flag is modified locally but it has been
+        # deleted remotely, we'll delete it locally.  Otherwise, we
+        # try to modify a deleted message's flags!  This step
+        # need only be taken if a statusfolder is present; otherwise,
+        # there is no action taken *to* the remote repository.
+
+        remotefolder.syncmessagesto_delete(localfolder, [localfolder,
+                                                         statusfolder])
+        ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
+        localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
+
+    # Synchronize remote changes.
+    ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
+    remotefolder.syncmessagesto(localfolder)
+
+    # Make sure the status folder is up-to-date.
+    ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
+    localfolder.syncmessagesto(statusfolder)
+    statusfolder.save()
+    
 
 def syncitall():
     mailboxes = []                      # Reset.
@@ -152,12 +167,12 @@ def syncitall():
     for accountname in accounts:        
         threadutil.semaphorewait(accountsemaphore)
         thread = Thread(target = syncaccount,
-                        name = "syncaccount %s" % accountname,
-                        args = (accountname))
+                        name = "syncaccount-%s" % accountname,
+                        args = (accountname,))
         thread.start()
         threads.append(thread)
     # Wait for the threads to finish.
-    threadutil.threadreset(threads)
+    threadutil.threadsreset(threads)
 
     mbnames.genmbnames(config, mailboxes)
 

@@ -53,7 +53,7 @@ class IMAPFolder(BaseFolder):
         try:
             imapobj.select(self.getfullname())
             self.messagelist = {}
-            response = self.imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
+            response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
             result = imaputil.imapsplit(response)[1]
             maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
             if (maxmsgid < 1):
