@@ -26,6 +26,8 @@ clean:
 	-rm -f `find . -name "*.class"`
 	-rm -f `find . -name "*.bak"`
 	-rm -f `find . -name ".cache*"`
+	-rm manpage.links
+	-rm manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 	-svn cleanup
 
@@ -33,7 +35,12 @@ changelog:
 	svn log -v > ChangeLog
 
 docs:
+	docbook2man offlineimap.sgml
+	docbook2man offlineimap.sgml
+	docbook2html -u offlineimap.sgml
+	mv offlineimap.html manual.html
 	man -t -l offlineimap.1 > manual.ps
 	ps2pdf manual.ps
 	groff -Tascii -man offlineimap.1 | sed $$'s/.\b//g' > manual.txt
-	groff -Thtml -man offlineimap.1 > manual.html
+	-rm manpage.links manpage.refs
+

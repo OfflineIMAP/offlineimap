@@ -1,1667 +1,1938 @@
-<!-- Creator     : groff version 1.18.1 -->
-<!-- CreationDate: Mon Jan  6 15:32:30 2003 -->
-<html>
-<head>
-<meta name="generator" content="groff -Thtml, see www.gnu.org">
-<meta name="Content-Style" content="text/css">
-<title>OFFLINEIMAP</title>
-</head>
-<body>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>OfflineIMAP Manual</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.77+"></HEAD
+><BODY
+CLASS="REFERENCE"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="REFERENCE"
+><A
+NAME="AEN1"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+>I. OfflineIMAP Manual</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="#AEN3"
+>offlineimap</A
+>&nbsp;--&nbsp;Powerful IMAP/Maildir synchronization
+	and reader support</DT
+></DL
+></DIV
+></DIV
+><H1
+><A
+NAME="AEN3"
+></A
+>offlineimap</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN15"
+></A
+><H2
+>Name</H2
+>OfflineIMAP&nbsp;--&nbsp;Powerful IMAP/Maildir synchronization
+	and reader support</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN18"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>offlineimap</B
+>  [-1] [-P <TT
+CLASS="REPLACEABLE"
+><I
+>profiledir</I
+></TT
+>] [-a <TT
+CLASS="REPLACEABLE"
+><I
+>accountlist</I
+></TT
+>] [-c <TT
+CLASS="REPLACEABLE"
+><I
+>configfile</I
+></TT
+>] [-d <TT
+CLASS="REPLACEABLE"
+><I
+>debugtype[,...]</I
+></TT
+>] [-o] [-u <TT
+CLASS="REPLACEABLE"
+><I
+>interface</I
+></TT
+>]</P
+><P
+><B
+CLASS="COMMAND"
+>offlineimap</B
+>   -h | --help </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN38"
+></A
+><H2
+>Description</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is  a  tool  to  simplify  your  e-mail
+	reading.  With <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>, you can read the same mailbox
+	from multiple computers.  You get a current copy of your
+	messages on each computer, and changes you make one place will be
+	visible on all other systems.  For instance, you can delete a message
+	on your home computer, and it will appear deleted on your work
+	computer as well.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is also useful if you want to
+	use a mail reader that does not have IMAP support, has poor IMAP
+	support, or does not provide disconnected operation.
+      </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>FAST</I
+></SPAN
+>; it synchronizes
+        my two accounts with over 50 folders in 3 seconds.  Other
+        similar tools might take over a minute, and achieve a
+        less-reliable result.  Some mail readers can take over 10
+        minutes to do the same thing, and some don't even support it
+        at all.  Unlike other mail tools, <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> features a
+        multi-threaded synchronization algorithm that can dramatically
+        speed up performance in many situations by synchronizing
+        several different things simultaneously.
+      </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>FLEXIBLE</I
+></SPAN
+>; you can
+        customize which folders are synced via regular expressions,
+        lists, or Python expressions; a versatile and comprehensive
+        configuration file is used to control behavior; two user
+        interfaces are built-in; fine-tuning of synchronization
+        performance is possible; internal or external automation is
+        supported; SSL and PREAUTH tunnels are both supported; offline
+        (or "unplugged") reading is supported; and esoteric IMAP
+        features are supported to ensure compatibility with the widest
+        variety of IMAP servers.
+      </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>SAFE</I
+></SPAN
+>; it uses an
+        algorithm designed to prevent mail loss at all costs.  Because
+        of the design of this algorithm, even programming errors
+        should not result in loss of mail.  I am so confident in the
+        algorithm that I use my own personal and work accounts for
+        testing of <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> pre-release, development, and beta
+	releases.  Of course, legally speaking, <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> comes
+        with no warranty, so I am not responsible if this turns out
+        to be wrong.
+      </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN56"
+></A
+><H3
+>Method of Operation</H3
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> operates by maintaining a hierarchy of
+	  mail folders in Maildir format locally.  Your own mail
+	  reader will read mail from this tree, and need never know
+	  that the mail comes from IMAP.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> will detect
+	  changes to the mail folders on your IMAP server and your own
+	  computer and bi-directionally synchronize them, copying,
+	  marking, and deleting messages as necessary.
+        </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61"
+></A
+><H2
+>Quick Start</H2
+><P
+>If you have already installed <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> system-wide,
+        or your system adminstrator has done that for you, your task
+        for setting up <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> for the first time is quite
+        simple.  You just need to set up your configuration file, make
+        your folder directory, and run it!
+      </P
+><P
+>You can quickly set up your configuration file.  The distribution
+	  includes a file <TT
+CLASS="FILENAME"
+>offlineimap.conf.minimal</TT
+>
+	  (Debian users
+	  may find this at
+          <TT
+CLASS="FILENAME"
+>/usr/share/doc/offlineimap/examples/offlineimap.conf.minimal</TT
+>) that is a basic example of setting of <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>.  You can
+	  simply copy this file into your home directory and name it
+	  <TT
+CLASS="FILENAME"
+>.offlineimaprc</TT
+> (note the leading period).  A
+	  command such as <B
+CLASS="COMMAND"
+>cp offlineimap.conf.minimal ~/.offlineimaprc</B
+> will do it.  Or, if you prefer, you can just copy this text to
+	  <TT
+CLASS="FILENAME"
+>~/.offlineimaprc</TT
+>:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>[general]
+accounts = Test
 
-<h1 align=center>OFFLINEIMAP</h1>
-<a href="#NAME">NAME</a><br>
-<a href="#SYNOPSIS">SYNOPSIS</a><br>
-<a href="#DESCRIPTION">DESCRIPTION</a><br>
-<a href="#INSTALLATION">INSTALLATION</a><br>
-<a href="#CONFIGURATION">CONFIGURATION</a><br>
-<a href="#OPTIONS">OPTIONS</a><br>
-<a href="#USER INTERFACES">USER INTERFACES</a><br>
-<a href="#EXAMPLES">EXAMPLES</a><br>
-<a href="#ERRORS">ERRORS</a><br>
-<a href="#OTHER FREQUENTLY ASKED QUESTIONS">OTHER FREQUENTLY ASKED QUESTIONS</a><br>
-<a href="#CONFORMING TO">CONFORMING TO</a><br>
-<a href="#NOTES">NOTES</a><br>
-<a href="#BUGS">BUGS</a><br>
-<a href="#COPYRIGHT">COPYRIGHT</a><br>
-<a href="#AUTHOR">AUTHOR</a><br>
-<a href="#SEE ALSO">SEE ALSO</a><br>
+[Test]
+localfolders = ~/Test
+remotehost = examplehost
+remoteuser = jgoerzen</PRE
+><P
+>Now, edit the <TT
+CLASS="FILENAME"
+>~/.offlineimaprc</TT
+> file with
+	  your favorite editor.  All you have to do is specify a directory
+	  for your folders to be in (on the <SPAN
+CLASS="PROPERTY"
+>localfolders</SPAN
+>
+	  line), the host name of your IMAP server (on the
+	  <SPAN
+CLASS="PROPERTY"
+>remotehost</SPAN
+> line), and your login name on
+	  the remote (on the <SPAN
+CLASS="PROPERTY"
+>remoteuser</SPAN
+> line).  That's
+	  it!</P
+><P
+>To run <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>, you just have to say
+	  <B
+CLASS="COMMAND"
+>offlineimap</B
+> -- it will fire up, ask you for
+	  a login password if necessary, synchronize your folders, and exit.
+	  See?  You can just throw away the rest of this finely-crafted,
+	  perfectly-honed manual!  Of course, if you want to see how you can
+	  make <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> FIVE TIMES FASTER FOR JUST $19.95 (err, well,
+	  $0), you have to read on!
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN83"
+></A
+><H2
+>Installation</H2
+><P
+>If you are reading this document via the "man" command, it is
+	likely
+	that you have no installation tasks to perform; your system
+	administrator has already installed it.  If you need to install it
+	yourself, you have three options: a system-wide installation with
+	Debian, system-wide installation with other systems, and a single-user
+	installation.  You can download the latest version of <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> from
+	<A
+HREF="http://quux.org/devel/offlineimap/"
+TARGET="_top"
+>the <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	website</A
+>.
+      </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN89"
+></A
+><H3
+>Prerequisites</H3
+><P
+>In order to use <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>, you need to have these conditions
+	  satisfied:
+	</P
+><P
+></P
+><UL
+><LI
+><P
+>Your mail server must support IMAP.  Most Internet Service
+	      Providers
+	      and corporate networks do, and most operating systems
+	      have an IMAP
+	      implementation readily available.
+	    </P
+></LI
+><LI
+><P
+>	      You must have Python version 2.2.1 or above installed.
+	      If you are
+	      running on Debian GNU/Linux, this requirement will automatically be
+	      taken care of for you.  If you do not have Python already, check with
+	      your system administrator or operating system vendor; or, download it from
+	      <A
+HREF="http://www.python.org/"
+TARGET="_top"
+>the Python website</A
+>.
+	      If you intend to use the Tk interface, you must have Tkinter
+		(python-tk) installed.  If you intend to use the SSL interface, your
+		Python must have been built with SSL support.
+	    </P
+></LI
+><LI
+><P
+>	      Have a mail reader that supports the Maildir mailbox format.  Most
+	      modern mail readers have this support built-in, so you can choose from
+	      a wide variety of mail servers.  This format is also known as the
+	      "qmail" format, so any mail reader compatible with it will work with
+	      <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>.
+	</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN102"
+></A
+><H3
+>System-Wide Installation, Debian</H3
+><P
+>	  If you are tracking Debian unstable, you may install
+	  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> by simply running the following command as root:
+	</P
+><P
+>	  <B
+CLASS="COMMAND"
+>apt-get install offlineimap</B
+>
+	</P
+><P
+>	  If you are not tracking Debian unstable, download the Debian .deb
+	  package from the <A
+HREF="http://quux.org/devel/offlineimap/"
+TARGET="_top"
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> website</A
+>
+	  and then run <B
+CLASS="COMMAND"
+>dpkg -i</B
+> to install the downloaded
+	  package.  Then, skip to <A
+HREF="#CONFIGURATION"
+><I
+>Configruation</I
+></A
+> below.  You will type <B
+CLASS="COMMAND"
+>offlineimap</B
+> to
+	  invoke the program.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN114"
+></A
+><H3
+>System-Wide Installation, Other</H3
+><P
+>	  Download the tar.gz version of the package from the
+	  <A
+HREF="http://quux.org/devel/offlineimap/"
+TARGET="_top"
+>website</A
+>.
+	  Then run
+	  these commands, making sure that you are the "root" user first:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>tar -zxvf offlineimap_x.y.z.tar.gz
+cd offlineimap-x.y.z
+python2.2 setup.py install</PRE
+><P
+>On some systems, you will need to use
+	  <B
+CLASS="COMMAND"
+>python</B
+> instead of <B
+CLASS="COMMAND"
+>python2.2</B
+>.
+	  Next, proceed to <A
+HREF="#CONFIGURATION"
+><I
+>Configruation</I
+></A
+> below.  You will type <B
+CLASS="COMMAND"
+>offlineimap</B
+> to
+	  invoke the program.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN124"
+></A
+><H3
+>Single-Account Installation</H3
+><P
+>	  Download the tar.gz version of the package from the
+	  <A
+HREF="http://quux.org/devel/offlineimap/"
+TARGET="_top"
+>website</A
+>.
+	  Then run these commands:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>tar -zxvf offlineimap_x.y.z.tar.gz
+cd offlineimap-x.y.z</PRE
+><P
+>When you want to run <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>, you will issue the
+	  <B
+CLASS="COMMAND"
+>cd</B
+> command as above and then type
+	  <B
+CLASS="COMMAND"
+>./offlineimap.py</B
+>; there is no installation
+	  step necessary.
+	</P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="CONFIGURATION"
+></A
+><H2
+>Configruation</H2
+><P
+>	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is regulated by a configuration file that is normally 
+	stored in <TT
+CLASS="FILENAME"
+>~/.offlineimaprc</TT
+>.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	ships with a file named <TT
+CLASS="FILENAME"
+>offlineimap.conf</TT
+>
+	that you should copy to that location and then edit.  This file is
+	vital to proper operation of the system; it sets everything you need
+	to run <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>.  Full documentation for the configuration file
+	is included within the sample file.
+      </P
+><P
+>	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> also ships a file named
+	<TT
+CLASS="FILENAME"
+>offlineimap.conf.minimal</TT
+> that you can also try.
+	  It's useful if you want to get started with
+	  the most basic feature set, and you can read about other features
+	  later with <TT
+CLASS="FILENAME"
+>offlineimap.conf</TT
+>.
+      </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN145"
+></A
+><H2
+>Options</H2
+><P
+>	Most configuration is done via the configuration file.  Nevertheless,
+	there are a few command-line options that you may set for
+	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>.
+      </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>-1</DT
+><DD
+><P
+>Disable most multithreading operations and use
+	    solely a single-connection
+	    sync.  This effectively sets the <SPAN
+CLASS="PROPERTY"
+>maxsyncaccounts</SPAN
+>
+	    and all <SPAN
+CLASS="PROPERTY"
+>maxconnections</SPAN
+> configuration file
+	    variables to 1.
+	  </P
+></DD
+><DT
+>-P <TT
+CLASS="REPLACEABLE"
+><I
+>profiledir</I
+></TT
+></DT
+><DD
+><P
+>Sets <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> into profile mode.  The program
+	    will create <TT
+CLASS="REPLACEABLE"
+><I
+>profiledir</I
+></TT
+>
+	    (it must not already exist).  As it runs, Python profiling 
+	    information
+	    about each thread is logged into profiledir.  Please note: This option
+	    is present for debugging and optimization only, and should NOT be used
+	    unless you have a specific reason to do so.  It will significantly
+	    slow program performance, may reduce reliability, and can generate
+	    huge amounts of data.  You must use the <TT
+CLASS="OPTION"
+>-1</TT
+> option when
+	    you use <TT
+CLASS="OPTION"
+>-P</TT
+>.
+	  </P
+></DD
+><DT
+>-a <TT
+CLASS="REPLACEABLE"
+><I
+>accountlist</I
+></TT
+></DT
+><DD
+><P
+>Overrides the <SPAN
+CLASS="PROPERTY"
+>accounts</SPAN
+> option
+	    in the <SPAN
+CLASS="PROPERTY"
+>general</SPAN
+> section of the configuration
+	    file.  You might use this to exclude certain accounts, or to sync
+	    some accounts that you normally prefer not to.  Separate the
+	    accounts by commas, and use no embedded spaces.
+	  </P
+></DD
+><DT
+>-c <TT
+CLASS="REPLACEABLE"
+><I
+>configfile</I
+></TT
+></DT
+><DD
+><P
+>Specifies a configuration file to use in lieu of
+	    the default, <TT
+CLASS="FILENAME"
+>~/.offlineimaprc</TT
+>.
+	  </P
+></DD
+><DT
+>-d <TT
+CLASS="REPLACEABLE"
+><I
+>debugtype[,...]</I
+></TT
+></DT
+><DD
+><P
+>Enables debugging for OfflineIMAP.  This is useful if
+	    you are trying to track down a malfunction or figure out what is going
+	    on under the hood.  I suggest that you use this with
+	    <TT
+CLASS="OPTION"
+>-1</TT
+> to make the results more sensible.</P
+><P
+><TT
+CLASS="OPTION"
+>-d</TT
+> requires one or more debugtypes,
+	      separated by commas.  These define what exactly will be
+	      debugged, and include two options: <SPAN
+CLASS="PROPERTY"
+>imap</SPAN
+>
+	      and <SPAN
+CLASS="PROPERTY"
+>maildir</SPAN
+>.  The <SPAN
+CLASS="PROPERTY"
+>imap</SPAN
+>
+	      option will enable IMAP protocol stream and parsing debugging.  Note
+	      that the output may contain passwords, so take care to remove that
+	      from the debugging output before sending it to anyone else.  The
+	      <SPAN
+CLASS="PROPERTY"
+>maildir</SPAN
+> option will enable debugging for
+	      certain Maildir operations.
+	    </P
+></DD
+><DT
+>-o</DT
+><DD
+><P
+>Run only once, ignoring all
+	      <SPAN
+CLASS="PROPERTY"
+>autorefresh</SPAN
+> settings in the configuration
+	      file.</P
+></DD
+><DT
+>-h, --help</DT
+><DD
+><P
+>Show summary of options.</P
+></DD
+><DT
+>-u <TT
+CLASS="REPLACEABLE"
+><I
+>interface</I
+></TT
+></DT
+><DD
+><P
+>Specifies an alternative user interface module
+	      to use.  This overrides the defailt specified in the
+	      configuration file.  The pre-defined options are listed in
+	      the User Interfaces section.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN205"
+></A
+><H2
+>User Interfaces</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> has a pluggable user interface system that lets you choose how the
+	program communicates information to you.  There are two graphical
+	interfaces, two terminal interfaces, and two noninteractive interfaces
+	suitable for scripting or logging purposes.  The
+	<SPAN
+CLASS="PROPERTY"
+>ui</SPAN
+> option in the configuration file specifies
+	user interface preferences.  The <TT
+CLASS="OPTION"
+>-u</TT
+> command-line
+	option can override the configuration file setting.  The available
+	values for the configuration file or command-line are described
+	in this section.</P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN211"
+></A
+><H3
+>Tk.Blinkenlights</H3
+><P
+>Tk.Blinkenlights is an interface designed to be sleek, fun to watch, and
+	  informative of the overall picture of what <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	  is doing.  I consider it to be the best general-purpose interface in
+	  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>.
+	</P
+><P
+>	  Tk.Blinkenlights contains, by default, a small window with a row of
+	  LEDs, a small log, and a row of command buttons.
+	  The total size of the window is
+	  very small, so it uses little desktop space, yet it is quite
+	  functional.  The optional, toggleable, log shows more
+	  detail about what is happening and is color-coded to match the color
+	  of the lights.
+	</P
+><P
+>	  Tk.Blinkenlights is the only user interface that has configurable
+	  parameters; see the example <TT
+CLASS="FILENAME"
+>offlineimap.conf</TT
+>
+	  for more details.
+	</P
+><P
+>	  Each light in the Blinkenlights interface represents a thread
+	  of execution -- that is, a particular task that <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	  is performing right now.  The colors indicate what task
+	  the particular thread is performing, and are as follows:
+	</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Black</DT
+><DD
+><P
+>indicates that this light's thread has terminated; it will light up
+	      again later when new threads start up.  So, black indicates no
+	      activity.
+	    </P
+></DD
+><DT
+>Red (Meaning 1)</DT
+><DD
+><P
+>is the color of the main program's thread, which basically does
+	      nothing but monitor the others.  It might remind you of HAL 9000 in
+	      [<SPAN
+CLASS="CITATION"
+>2001</SPAN
+>].
+	    </P
+></DD
+><DT
+>Gray</DT
+><DD
+><P
+>indicates that the thread is establishing a new connection to the IMAP
+	      server.
+	    </P
+></DD
+><DT
+>Purple</DT
+><DD
+><P
+>is the color of an account synchronization thread that is monitoring
+	      the progress of the folders in that account (not generating any I/O).
+	    </P
+></DD
+><DT
+>Cyan</DT
+><DD
+><P
+>indicates that the thread is syncing a folder.
+	    </P
+></DD
+><DT
+>Green</DT
+><DD
+><P
+>means that a folder's message list is being loaded.
+	    </P
+></DD
+><DT
+>Blue</DT
+><DD
+><P
+>is the color of a message synchronization controller thread.
+	    </P
+></DD
+><DT
+>Orange</DT
+><DD
+><P
+>indicates that an actual message is being copied.
+	      (We use fuschia for fake messages.)
+	    </P
+></DD
+><DT
+>Red (meaning 2)</DT
+><DD
+><P
+>indicates that a message is being deleted.
+	    </P
+></DD
+><DT
+>Yellow / bright orange</DT
+><DD
+><P
+>indicates that message flags are being added.
+	    </P
+></DD
+><DT
+>Pink / bright red</DT
+><DD
+><P
+>indicates that message flags are being removed.
+	    </P
+></DD
+><DT
+>Red / Black Flashing</DT
+><DD
+><P
+>corresponds to the countdown timer that runs between
+	      synchronizations.
+	    </P
+></DD
+></DL
+></DIV
+><P
+>The name of this interfaces derives from a bit of computer
+	  history.  Eric Raymond's [<SPAN
+CLASS="CITATION"
+>Jargon File</SPAN
+>] defines
+	  <I
+CLASS="FIRSTTERM"
+>blinkenlights</I
+>, in part, as:
+	</P
+><A
+NAME="AEN274"
+></A
+><BLOCKQUOTE
+CLASS="BLOCKQUOTE"
+><P
+>Front-panel diagnostic
+	    lights on a computer, esp. a dinosaur. Now that dinosaurs are rare,
+	    this term usually refers to status lights on a modem, network hub, or
+	    the like.
+	  </P
+><P
+>	    This term derives from the last word of the famous blackletter-Gothic
+	    sign in mangled pseudo-German that once graced about half the computer
+	    rooms in the English-speaking world. One version ran in its entirety as
+	    follows:
+	  </P
+><P
+>	    <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ACHTUNG!  ALLES LOOKENSPEEPERS!</I
+></SPAN
+>
+	  </P
+><P
+>	    Das computermachine ist nicht fuer gefingerpoken und mittengrabben.
+	    Ist easy schnappen der springenwerk, blowenfusen und poppencorken
+	    mit spitzensparken.  Ist nicht fuer gewerken bei das dumpkopfen.
+	    Das rubbernecken sichtseeren keepen das cotten-pickenen hans in das
+	    pockets muss; relaxen und watchen das blinkenlichten.
+	  </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN280"
+></A
+><H3
+>Curses.Blinkenlights</H3
+><P
+>	  Curses.Blinkenlights is an interface very similar to Tk.Blinkenlights,
+	  but is designed to be run in a console window (an xterm, Linux virtual
+	  terminal, etc.)  Since it doesn't have access to graphics, it isn't
+	  quite as pretty, but it still gets the job done.
+	</P
+><P
+>Please see the Tk.Blinkenlights section above for more
+	  information about the colors used in this interface.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN284"
+></A
+><H3
+>Tk.VerboseUI</H3
+><P
+>	  Tk.VerboseUI (formerly known as Tk.TkUI) is a graphical interface
+	  that presents a variable-sized window.  In the window, each
+	  currently-executing thread has a section where its name and current
+	  status are displayed.  This interface is best suited to people running
+	  on slower connections, as you get a lot of detail, but for fast
+	  connections, the detail may go by too quickly to be useful.  People
+	  with fast connections may wish to use Tk.Blinkenlights instead.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN287"
+></A
+><H3
+>TTY.TTYUI</H3
+><P
+>	  TTY.TTYUI interface is for people running in basic, non-color terminals.  It
+	  prints out basic status messages and is generally friendly to use on a console
+	  or xterm.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN290"
+></A
+><H3
+>Noninteractive.Basic</H3
+><P
+>	  Noninteractive.Basic is designed for situations in which <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	  will be run non-attended and the status of its execution will be
+	  logged.  You might use it, for instance, to have the system run
+	  automatically and
+	  e-mail you the results of the synchronization.  This user interface
+	  is not capable of reading a password from the keyboard; account
+	  passwords must be specified using one of the configuration file options.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN294"
+></A
+><H3
+>Noninteractive.Quiet</H3
+><P
+>	  Noninteractive.Quiet is designed for non-attended running in situations
+	  where normal status messages are not desired.  It will output nothing
+	  except errors and serious warnings.  Like Noninteractive.Basic,
+	  this user interface
+	  is not capable of reading a password from the keyboard; account
+	  passwords must be specified using one of the configuration file options.
+	</P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN297"
+></A
+><H2
+>Examples</H2
+><P
+>Here are some example configurations for various situations.
+	Please e-mail any other examples you have that may be useful to
+	me.
+      </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN300"
+></A
+><H3
+>Multiple Accounts with Mutt</H3
+><P
+>	  This example shows you how to set up <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> to
+	  synchronize multiple accounts with the mutt mail reader.
+	</P
+><P
+>	  Start by creating a directory to hold your folders by running
+	  <B
+CLASS="COMMAND"
+>mkdir ~/Mail</B
+>.  Then, in your
+	  <TT
+CLASS="FILENAME"
+>~/.offlineimaprc</TT
+>, specify:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>accounts = Personal, Work</PRE
+><P
+>	  Make sure that you have both a <SPAN
+CLASS="PROPERTY"
+>[Personal]</SPAN
+>
+	  and a <SPAN
+CLASS="PROPERTY"
+>[Work]</SPAN
+> section, each with different
+	  <SPAN
+CLASS="PROPERTY"
+>localfolder</SPAN
+> path names.  Also, make sure
+	  to enable <SPAN
+CLASS="PROPERTY"
+>[mbnames]</SPAN
+>.
+	</P
+><P
+>	  In each account section, write something like this:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>localfolders = ~/Mail/Personal</PRE
+><P
+>	  Finally, add these lines to your <TT
+CLASS="FILENAME"
+>~/.muttrc</TT
+>:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>source ~/path-to-mbnames-muttrc-mailboxes
+folder-hook Personal set from="youremail@personal.com"
+folder-hook Work set from="youremail@work.com"
+set mbox_type=Maildir
+set folder=$HOME/Mail
+spoolfile=+Personal/INBOX</PRE
+><P
+>	  That's it!
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN319"
+></A
+><H3
+>UW-IMAPD and References</H3
+><P
+>Some users with a UW-IMAPD server need to use <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>'s
+	  "reference" feature to get at their mailboxes, specifying a reference
+	  of "~/Mail" or "#mh/" depending on the configuration.  The below
+	  configuration from docwhat@gerf.org
+	  shows using a <SPAN
+CLASS="PROPERTY"
+>reference</SPAN
+> of Mail, a <SPAN
+CLASS="PROPERTY"
+>nametrans</SPAN
+>
+	  that strips
+	  the leading Mail/ off incoming folder names, and a
+	  <SPAN
+CLASS="PROPERTY"
+>folderfilter</SPAN
+> that
+	  limits the folders synced to just three.
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>[Gerf]
+localfolders = ~/Mail
+remotehost = gerf.org
+ssl = yes
+remoteuser = docwhat
+reference = Mail
+# Trims off the preceeding Mail on all the folder names.
+nametrans = lambda foldername: \
+            re.sub('^Mail/', '', foldername)
+# Yeah, you have to mention the Mail dir, even though it
+# would seem intuitive that reference would trim it.
+folderfilter = lambda foldername: foldername in [
+      'Mail/INBOX',
+      'Mail/list/zaurus-general',
+      'Mail/list/zaurus-dev',
+      ]
+maxconnections = 1
+holdconnectionopen = no</PRE
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN327"
+></A
+><H3
+>pythonfile Configuration File Option</H3
+><P
+>You can have <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	  load up a Python file before evaluating the
+	  configuration file options that are Python expressions.  This example
+	  is based on one supplied by Tommi Virtanen for this feature.
+	</P
+><P
+>	  In <TT
+CLASS="FILENAME"
+>~/.offlineimap.rc</TT
+>, he adds these options:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>[general]
+pythonfile=~/.offlineimap.py
+[foo]
+foldersort=mycmp</PRE
+><P
+>	  Then, the <TT
+CLASS="FILENAME"
+>~/.offlineimap.py</TT
+> file will
+	  contain:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>prioritized = ['INBOX', 'personal', 'announce', 'list']
 
-<hr>
-<a name="NAME"></a>
-<h2>NAME</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>OfflineIMAP &minus; Powerful IMAP/Maildir synchronization
-and reader support</p>
-</td>
-</table>
-<a name="SYNOPSIS"></a>
-<h2>SYNOPSIS</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>offlineimap</b> [ <b>&minus;1</b> ] [ <b>&minus;P</b>
-<i>profiledir</i> ] [ <b>&minus;a</b> <i>accountlist</i> ] [
-<b>&minus;c</b> <i>configfile</i> ] [ <b>&minus;d</b>
-<i>debugtype[,debugtype...]</i> ] [ <b>&minus;o</b> ] [
-<b>&minus;u</b> <i>interface</i> ]</p>
-<!-- INDENTATION -->
-<p><b>offlineimap &minus;h</b> |
-<b>&minus;&minus;help</b></p>
-</td>
-</table>
-<a name="DESCRIPTION"></a>
-<h2>DESCRIPTION</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>OfflineIMAP</b> is a tool to simplify your e-mail
-reading. With <b>OfflineIMAP,</b> you can read the same
-mailbox from multiple computers. You get a current copy of
-your messages on each computer, and changes you make one
-place will be visible on all other systems. For instance,
-you can delete a message on your home computer, and it will
-appear deleted on your work computer as well.
-<b>OfflineIMAP</b> is also useful if you want to use a mail
-reader that does not have IMAP support, has poor IMAP
-support, or does not provide disconnected operation.</p>
-<!-- INDENTATION -->
-<p><b>OfflineIMAP</b> is <i>FAST;</i> it synchronizes my two
-accounts with over 50 folders in 3 seconds. Other similar
-tools might take over a minute, and achieve a less-reliable
-result. Some mail readers can take over 10 minutes to do the
-same thing, and some don&rsquo;t even support it at all.
-Unlike other mail tools, <b>OfflineIMAP</b> features a
-multi-threaded synchronization algorithm that can
-dramatically speed up performance in many situations by
-synchronizing several different things simultaneously.</p>
-<!-- INDENTATION -->
-<p><b>OfflineIMAP</b> is <i>FLEXIBLE;</i> you can customize
-which folders are synced via regular expressions, lists, or
-Python expressions; a versatile and comprehensive
-configuration file is used to control behavior; two user
-interfaces are built-in; fine-tuning of synchronization
-performance is possible; internal or external automation is
-supported; SSL and PREAUTH tunnels are both supported;
-offline (or &quot;unplugged&quot;) reading is supported; and
-esoteric IMAP features are supported to ensure compatibility
-with the widest variety of IMAP servers.</p>
-<!-- INDENTATION -->
-<p><b>OfflineIMAP</b> is <i>SAFE;</i> it uses an algorithm
-designed to prevent mail loss at all costs. Because of the
-design of this algorithm, even programming errors should not
-result in loss of mail. I am so confident in the algorithm
-that I use my own personal and work accounts for testing of
-<b>OfflineIMAP</b> pre-release, development, and beta
-releases.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>METHOD OF OPERATION</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>OfflineIMAP</b> operates by maintaining a hierarchy of
-mail folders in Maildir format locally. Your own mail reader
-will read mail from this tree, and need never know that the
-mail comes from IMAP. <b>OfflineIMAP</b> will detect changes
-to the mail folders on your IMAP server and your own
-computer and bi-directionally synchronize them, copying,
-marking, and deleting messages as necessary.</p>
-</td>
-</table>
-<a name="INSTALLATION"></a>
-<h2>INSTALLATION</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>If you are reading this document via the &quot;man&quot;
-command, it is likely that you have no installation tasks to
-perform; your system administrator has already installed it.
-If you need to install it yourself, you have three options:
-a system-wide installation with Debian, system-wide
-installation with other systems, and a single-user
-installation. You can download the latest version of
-OfflineIMAP from http://quux.org/devel/offlineimap/.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>PREREQUISITES</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>In order to use OfflineIMAP, you need to have these
-conditions satisfied:</p>
-</td>
-</table>
-<!-- TABS -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="4" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="1%">
+def mycmp(x, y):
+   for prefix in prioritized:
+       if x.startswith(prefix):
+           return -1
+       elif y.startswith(prefix):
+           return +1
+   return cmp(x, y)
 
-<p>&bull;</p>
-</td>
-<td width="8%"></td>
-<td width="77%">
-
-<p>Your mail server must support IMAP. Most Internet
-Service Providers and corporate networks do, and most
-operating systems have an IMAP implementation readily
-available.</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="1%">
-
-<p>&bull;</p>
-</td>
-<td width="8%"></td>
-<td width="77%">
-
-<p>You must have Python version 2.2.1 or above installed.
-If you are running on Debian GNU/Linux, this requirement
-will automatically be taken care of for you. If you do not
-have Python already, check with your system administrator or
-operating system vendor; or, download it from
-http://www.python.org/. If you intend to use the Tk
-interface, you must have Tkinter (python-tk) installed. If
-you intend to use the SSL interface, your Python must have
-been built with SSL support.</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="1%">
-
-<p>&bull;</p>
-</td>
-<td width="8%"></td>
-<td width="77%">
-
-<p>Have a mail reader that supports the Maildir mailbox
-format. Most modern mail readers have this support built-in,
-so you can choose from a wide variety of mail servers. This
-format is also known as the &quot;qmail&quot; format, so any
-mail reader compatible with it will work with
-OfflineIMAP.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>DEBIAN SYSTEM-WIDE INSTALLATION</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>If you are tracking Debian unstable, you may install
-<b>OfflineIMAP</b> by simply running the following command
-as root:</p>
-<!-- INDENTATION -->
-<p><b>apt-get install offlineimap</b></p>
-<!-- INDENTATION -->
-<p>If you are not tracking Debian unstable, download the
-Debian .deb package from the OfflineIMAP website and then
-run <b>dpkg -i</b> to install the downloaded package. Then,
-go to CONFIGURATION below. You will type <b>offlineimap</b>
-to invoke the program.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>OTHER SYSTEM-WIDE INSTALLATION</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>Download the tar.gz version of the package from the
-website. Then run these commands, making sure that you are
-the &quot;root&quot; user first:</p>
-<!-- INDENTATION -->
-<p><b>tar -zxvf offlineimap_x.y.z.tar.gz<br>
-cd offlineimap-x.y.z<br>
-python2.2 setup.py install</b></p>
-<!-- INDENTATION -->
-<p>Some systems will need to use <b>python</b> instead of
-<b>python2.2.</b> Next, proceed to configuration. You will
-type <b>offlineimap</b> to invoke the program.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>SINGLE-ACCOUNT INSTALLATION</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>Download the tar.gz version of the package from the
-website. Then run these commands:</p>
-<!-- INDENTATION -->
-<p><b>tar -zxvf offlineimap-x.y.z.tar.gz<br>
-cd offlineimap-x.y.z</b></p>
-<!-- INDENTATION -->
-<p>When you want to run <b>OfflineIMAP,</b> you will issue
-the <b>cd</b> command as above and then type
-<b>./offlineimap.py;</b> there is no installation step
-necessary.</p>
-</td>
-</table>
-<a name="CONFIGURATION"></a>
-<h2>CONFIGURATION</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>OfflineIMAP</b> is regulated by a configuration file
-that is normally stored in <i>~/.offlineimaprc.</i>
-<b>OfflineIMAP</b> ships with a file named
-<i>offlineimap.conf</i> that you should copy to that
-location and then edit. This file is vital to proper
-operation of the system; it sets everything you need to run
-<b>OfflineIMAP.</b> Full documentation for the configuration
-file is included within the sample file.</p>
-<!-- INDENTATION -->
-<p><b>OfflineIMAP</b> also ships a file named
-<i>offlineimap.conf.minimal</i> that you can also try.
-It&rsquo;s useful if you want to get started with the most
-basic feature set, and you can read about other features
-later with <i>offlineimap.conf.</i></p>
-</td>
-</table>
-<a name="OPTIONS"></a>
-<h2>OPTIONS</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>Most configuration is done via the configuration file.
-Nevertheless, there are a few options that you may set for
-<b>OfflineIMAP.</b></p>
-</td>
-</table>
-<!-- TABS -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="4" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="13%"></td>
-<td width="2%">
-
-<p><b>&minus;1</b></p>
-</td>
-<td width="5%"></td>
-<td width="77%">
-
-<p>Disable all multithreading operations and use solely a
-single-thread sync. This effectively sets the
-<b>maxsyncaccounts</b> and all <b>maxconnections</b>
-configuration file variables to 1.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>&minus;P</b> <i>profiledir</i></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Sets <b>OfflineIMAP</b> into profile mode. The program
-will create <b>profiledir</b> (it must not already exist).
-As it runs, Python profiling information about each thread
-is logged into profiledir. Please note: This option is
-present for debugging and optimization only, and should NOT
-be used unless you have a specific reason to do so. It will
-significantly slow program performance, may reduce
-reliability, and can generate huge amounts of data. You must
-use the <b>&minus;1</b> option when you use <b>-P.</b></p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>&minus;a</b> <i>accountlist</i></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Overrides the <b>accounts</b> section in the config file.
-Lets you specify a particular account or set of accounts to
-sync without having to edit the config file. You might use
-this to exclude certain accounts, or to sync some accounts
-that you normally prefer not to.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>&minus;c</b> <i>configfile</i></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Specifies a configuration file to use in lieu of the
-default, <i>~/.offlineimaprc.</i></p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>&minus;d</b> <i>debugtype[,debugtype...]</i></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Enables debugging for OfflineIMAP. This is useful if you
-are trying to track down a malfunction or figure out what is
-going on under the hood. I suggest that you use this with
-<b>&minus;1</b> in order to make the results more
-sensible.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="20%"></td>
-<td width="79%">
-<p>-d now requires one or more debugtypes, separated by
-commas. These define what exactly will be debugged, and so
-far include two options: <b>imap</b> and <b>maildir.</b> The
-<b>imap</b> option will enable IMAP protocol stream and
-parsing debugging. Note that the output may contain
-passwords, so take care to remove that from the debugging
-output before sending it to anyone else. The <b>maildir</b>
-option will enable debugging for certain Maildir
-operations.</p>
-</td>
-</table>
-<!-- TABS -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="4" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="2%">
-
-<p><b>&minus;o</b></p>
-</td>
-<td width="7%"></td>
-<td width="77%">
-
-<p>Run only once, ignoring any autorefresh setting in the
-config file.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>&minus;h, &minus;&minus;help</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Show summary of options.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>&minus;u</b> <i>interface</i></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Specifies an alternative user interface module to use.
-This overrides the default specified in the configuration
-file. The UI specified with <b>-u</b> will be forced to be
-used, even if its <b>isuable()</b> method states that it
-cannot be. Use this option with care. The pre-defined
-options are listed in the USER INTERFACES section.</p>
-</td>
-</table>
-<a name="USER INTERFACES"></a>
-<h2>USER INTERFACES</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>OfflineIMAP</b> has a pluggable user interface system
-that lets you choose how the program communicates
-information to you. There are two graphical interfaces, two
-terminal interfaces, and two noninteractive interfaces
-suitable for scripting or logging purposes. The <i>ui</i>
-option in the configuration file specifies the user
-interface preferences. The <i>&minus;u</i> command-line
-option can override the configuration file. The available
-values for the configuration file or command-line are
-describef in this section.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>Tk.Blinkenlights or Curses.Blinkenlights</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>This is an interface designed to be sleek, fun to watch,
-and informative of the overall picture of what
-<b>OfflineIMAP</b> is doing. I consider it to be the best
-general-purpose interface in <b>OfflineIMAP.</b>
-Tk.Blinkenlights contains, by default, a small window with a
-row of LEDs and a row of command buttons. The total size of
-the window is very small, so it uses little desktop space,
-yet it is quite functional. There is also an optional,
-toggable, log that shows more detail about what is happening
-and is color-coded to match the color of the lights.</p>
-<!-- INDENTATION -->
-<p>Curses.Blinkenlights is an interface very similar to
-Tk.Blinkenlights, but is designed to be run in a console
-window (an xterm, Linux virtual terminal, etc.) Since it
-doesn&rsquo;t have access to graphics, it isn&rsquo;t quite
-as pretty, but it still gets the job done.</p>
-<!-- INDENTATION -->
-<p>Tk.Blinkenlights is the only user interface that has
-configurable parameters; see the example
-<i>offlineimap.conf</i> for more details.</p>
-<!-- INDENTATION -->
-<p>Each light in the Tk.Blinkenlights or
-Curses.Blinkenlights interface represents a thread of
-execution -- that is, a particular task that
-<b>OfflineIMAP</b> is performing right now. The color
-indicates what task the particular thread is performing, and
-are as follows:</p>
-</td>
-</table>
-<!-- TABS -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="4" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="7%">
-
-<p><b>Black</b></p>
-</td>
-<td width="2%"></td>
-<td width="77%">
-
-<p>indicates that this light&rsquo;s thread has terminated;
-it will light up again later when new threads start up. So,
-black indicates no activity.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>Red (Meaning 1)</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>is the color of the main program&rsquo;s thread, which
-basically does nothing but monitor the others. It might
-remind you of HAL 9000 in <i>2001.</i></p>
-</td>
-</table>
-<!-- TABS -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="3" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="10%">
-
-<p><b>Gray</b></p>
-</td>
-<td width="77%">
-
-<p>indicates that the thread is establishing a new
-connection to the IMAP server.</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="10%">
-
-<p><b>Purple</b></p>
-</td>
-<td width="77%">
-
-<p>is the color of an account synchronization thread that
-is monitoring the progress of the folders in that account
-(not generating any I/O).</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="10%">
-
-<p><b>Cyan</b></p>
-</td>
-<td width="77%">
-
-<p>indicates that the thread is syncing a folder.</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="10%">
-
-<p><b>Green</b></p>
-</td>
-<td width="77%">
-
-<p>means that a folder&rsquo;s message list is being
-loaded.</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="10%">
-
-<p><b>Blue</b></p>
-</td>
-<td width="77%">
-
-<p>is the color of a message synchronization controller
-thread.</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="10%">
-
-<p><b>Orange</b></p>
-</td>
-<td width="77%">
-
-<p>indicates that an actual message is being copied.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>Red (Meaning 2)</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>indicates that a message is being deleted.</p>
-</td>
-</table>
-<!-- TABS -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="4" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="8%">
-
-<p><b>Yellow</b></p>
-</td>
-<td width="1%"></td>
-<td width="77%">
-
-<p>(bright orange) indicates that message flags are being
-added.</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="8%">
-
-<p><b>Pink</b></p>
-</td>
-<td width="1%"></td>
-<td width="77%">
-
-<p>(bright red) indicates that message flags are being
-removed.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>Red / Black Flashing</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>corresponds to the countdown timer that runs between
-synchronizations.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>The name of this interface derives from a bit of computer
-science history. Eric Raymond&rsquo;s <i>Jargon File</i>
-defines blinkenlights, in part, as:</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="20%"></td>
-<td width="79%">
-<p>Front-panel diagnostic lights on a computer, esp. a
-dinosaur. Now that dinosaurs are rare, this term usually
-refers to status lights on a modem, network hub, or the
-like.</p>
-<!-- INDENTATION -->
-<p>This term derives from the last word of the famous
-blackletter-Gothic sign in mangled pseudo-German that once
-graced about half the computer rooms in the English-speaking
-world. One version ran in its entirety as follows:</p>
-<!-- INDENTATION -->
-<p><b>ACHTUNG! ALLES LOOKENSPEEPERS!</b></p>
-<!-- INDENTATION -->
-<p>Das computermachine ist nicht fuer gefingerpoken und
-mittengrabben. Ist easy schnappen der springenwerk,
-blowenfusen und poppencorken mit spitzensparken. Ist nicht
-fuer gewerken bei das dumpkopfen. Das rubbernecken
-sichtseeren keepen das cotten-pickenen hans in das pockets
-muss; relaxen und watchen das blinkenlichten.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>Tk.VerboseUI</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>This interface (formerly known as Tk.TkUI) is a graphical
-interface that presents a variable-sized window. In the
-window, each currently-executing thread has a section where
-its name and current status are displayed. This interface is
-best suited to people running on slower connections, as you
-get a lot of detail, but for fast connections, the detail
-may go by too quickly to be useful. People with fast
-connections may wish to use Tk.Blinkenlights instead.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>TTY.TTYUI</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>This interface is the default for people running in
-terminals. It prints out basic status messages and is
-generally friendly to use on a console or xterm.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>Noninteractive.Basic</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>This interface is designed for situations where
-<b>OfflineIMAP</b> will be run non-attended and the status
-of its execution will be logged. You might use it, for
-instance, to have the system run automatically and e-mail
-you the results of the synchronization. This user interface
-is not capable of reading a password from the keyboard;
-account passwords must be specified using one of the
-configuration file options.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>Noninteractive.Quiet</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>This interface is designed for non-attended running in
-situations where normal status messages are not desired. It
-will output nothing except errors and serious warnings. Like
-Noninteractive.Basic, this user interface is not capable of
-reading a password from the keyboard; account passwords must
-be specified using one of the configuration file
-options.</p>
-</td>
-</table>
-<a name="EXAMPLES"></a>
-<h2>EXAMPLES</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>Here is an example configuration for a particularly
-complex situation; more examples will be added later.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>MULTIPLE ACCOUNTS WITH MUTT</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>This example shows you how to set up <b>OfflineIMAP</b>
-to synchronize multiple accounts with the mutt mail
-reader.</p>
-<!-- INDENTATION -->
-<p>Start by creating a directory to hold your
-folders:<b><br>
-mkdir ~/Mail</b></p>
-<!-- INDENTATION -->
-<p>In your <i>~/.offlineimaprc,</i> specify this:<b><br>
-accounts = Personal, Work</b></p>
-<!-- INDENTATION -->
-<p>Make sure that you have both a <b>[Personal]</b> and a
-<b>[Work]</b> section, with different localfolder pathnames
-and enable <b>[mbnames].</b></p>
-<!-- INDENTATION -->
-<p>In each account section, do something like this:<b><br>
-localfolders = ~/Mail/Personal</b></p>
-<!-- INDENTATION -->
-<p>Add these lines to your <i>~/.muttrc:</i><b><br>
-source ~/path-to-mbnames-muttrc-mailboxes<br>
-folder-hook Personal set
-from=&quot;youremail@personal.com&quot;<br>
-folder-hook Work set from=&quot;youremail@work.com&quot;<br>
-set mbox_type=Maildir<br>
-set folder=$HOME/Mail<br>
-set spoolfile=+Personal/INBOX</b></p>
-<!-- INDENTATION -->
-<p>That&rsquo;s it!</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>UW-IMAPD AND REFERENCES</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>Some users with a UW-IMAPD server need to use
-<b>OfflineIMAP&rsquo;s</b> &quot;reference&quot; feature to
-get at their mailboxes, specifying a reference of
-&quot;~/Mail&quot; or &quot;#mh/&quot; depending on the
-configuration. The below configuration from docwhat@gerf.org
-shows using a reference of Mail, a nametrans that strips the
-leading Mail/ off incoming folder names, and a folderfilter
-that limits the folders synced to just three.</p>
-<!-- INDENTATION -->
-<p><b>[Gerf]<br>
-localfolders = ~/Mail<br>
-remotehost = gerf.org<br>
-ssl = yes<br>
-remoteuser = docwhat<br>
-reference = Mail<br>
-# Trims off the preceeding Mail on all the folder names.<br>
-nametrans = lambda foldername: \<br>
-re.sub(&rsquo;^Mail/&rsquo;, &rsquo;&rsquo;, foldername)<br>
-# Yeah, you have to mention the Mail dir, even though it<br>
-# would seem intuitive that reference would trim it.<br>
-folderfilter = lambda foldername: foldername in [<br>
-&rsquo;Mail/INBOX&rsquo;,<br>
-&rsquo;Mail/list/zaurus-general&rsquo;,<br>
-&rsquo;Mail/list/zaurus-dev&rsquo;,<br>
-]<br>
-maxconnections = 1<br>
-holdconnectionopen = no</b></p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>PYTHONFILE CONFIGURATION FILE OPTION</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>You can have OfflineIMAP load up a Python file before
-evaluating the configuration file options that are Python
-expressions. This example is based on one supplied by Tommi
-Virtanen for this feature.</p>
-<!-- INDENTATION -->
-<p>In <i>~/.offlineimap.rc</i>, he adds these options:</p>
-<!-- INDENTATION -->
-<p><b>[general]<br>
-pythonfile=~/.offlineimap.py<br>
-[foo]<br>
-foldersort=mycmp</b></p>
-<!-- INDENTATION -->
-<p>Then, the <i>~/.offlineimap.py</i> file will contain:</p>
-<!-- INDENTATION -->
-<p><b>prioritized = [&rsquo;INBOX&rsquo;,
-&rsquo;personal&rsquo;, &rsquo;announce&rsquo;,
-&rsquo;list&rsquo;]</b></p>
-<!-- INDENTATION -->
-<p><b>def mycmp(x, y):<br>
-for prefix in prioritized:<br>
-if x.startswith(prefix):<br>
-return -1<br>
-elif y.startswith(prefix):<br>
-return +1<br>
-return cmp(x, y)</b></p>
-<!-- INDENTATION -->
-<p><b>def test_mycmp():<br>
-import os, os.path<br>
-
-folders=os.listdir(os.path.expanduser(&rsquo;~/data/mail/tv@hq.yok.utu.fi&rsquo;))<br>
-folders.sort(mycmp)<br>
-print folders</b></p>
-<!-- INDENTATION -->
-<p>This code snippet illustrates how the <b>foldersort</b>
-option can be customized with a Python function from the
-<b>pythonfile</b> to always synchronize certain folders
-first.</p>
-</td>
-</table>
-<a name="ERRORS"></a>
-<h2>ERRORS</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>If you get one of some frequently-encountered or
-confusing errors, please check this section.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>UID validity problem for folder</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>IMAP servers use a unique ID (UID) to refer to a specific
-message. This number is guaranteed to be unique to a
-particular message FOREVER. No other message in the same
-folder will ever get the same UID. UIDs are an integral part
-of OfflineIMAP&rsquo;s synchronization scheme; they are used
-to match up messages on your computer to messages on the
-server.</p>
-<!-- INDENTATION -->
-<p>Sometimes, the UIDs on the server might get reset.
-Usually this will happen if you delete and then recreate a
-folder. When you create a folder, the server will often
-start the UID back from 1. But <b>OfflineIMAP</b> might
-still have the UIDs from the previous folder by the same
-name stored. <b>OfflineIMAP</b> will detect this condition
-and skip the folder. This is GOOD, because it prevents data
-loss.</p>
-<!-- INDENTATION -->
-<p>You can fix it by removing your local folder and cache
-data. For instance, if your folders are under
-<i>~/Folders</i> and the folder with the problem is INBOX,
-you&rsquo;d type this:</p>
-<!-- INDENTATION -->
-<p><b>rm -r ~/Folders/INBOX<br>
-rm ~/.offlineimap/AccountName/INBOX</b></p>
-<!-- INDENTATION -->
-<p>(replacing AccountName with the account name as specified
-in <i>~/.offlineimaprc)</i></p>
-<!-- INDENTATION -->
-<p>Next time you run <b>OfflineIMAP,</b> it will re-download
-the folder with the new UIDs. Note that the procedure
-specified above will lose any local changes made to the
-folder.</p>
-<!-- INDENTATION -->
-<p>Some IMAP servers are broken and do not support UIDs
-properly. If you continue to get this error for all your
-folders even after performing the above procedure, it is
-likely that your IMAP server falls into this category.
-<b>OfflineIMAP</b> is incompatible with such servers. Using
-<b>OfflineIMAP</b> with them will not destroy any mail, but
-at the same time, it will not actually synchronize it
-either. (OfflineIMAP will detect this condition and abort
-prior to synchronization)</p>
-</td>
-</table>
-<a name="OTHER FREQUENTLY ASKED QUESTIONS"></a>
-<h2>OTHER FREQUENTLY ASKED QUESTIONS</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>There are some other FAQs that might not fit into another
-section of this document, and they are enumerated here.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>What platforms does OfflineIMAP run on?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>It should run on most platforms supported by Python,
-which are quite a few.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>I&rsquo;m using Mutt. Other IMAP sync programs require
-me to use set maildir_trash=yes . Do I need to do that with
-OfflineIMAP?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>No. <b>OfflineIMAP</b> is smart enough to figure out
-message deletion without this extra crutch. You&rsquo;ll get
-the best results if you don&rsquo;t use this setting, in
-fact.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>How do I specify the names of my folders?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>You do not need to. <b>OfflineIMAP</b> is smart enough to
-automatically figure out what folders are present on the
-IMAP server and synchronize them. You can use the
-<b>folderfilter</b> and <b>foldertrans</b> configuration
-file options to request certain folders and rename them as
-they come in if you like.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>How can I prevent certain folders from being
-synced?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Use the <b>folderfilter</b> option in the configuration
-file.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>How can I add or delete a folder?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p><b>OfflineIMAP</b> does not currently provide this
-feature, but if you create a new folder on the IMAP server,
-it will be created locally automatically.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>Are there any other warnings that I should be aware
-of?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Yes; see the NOTES section below.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>What is the mailbox name recorder (mbnames)
-for?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>The Mutt mail reader is not capable of automatically
-determining the names of your mailboxes. OfflineIMAP can
-help it (or many other) programs out be writing these names
-out in a format you specify. See the example
-offlineimap.conf file for details.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>Can I synchronize multiple accounts with
-OfflineIMAP?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Sure. Just name them all in the accounts line in the
-general section of the config file, and add a per-account
-section for each one.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>Does OfflineIMAP support POP?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>No. POP is not robust enough to do a completely reliable
-multi-machine synchronization like OfflineIMAP can do.
-OfflineIMAP will not support it.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>Do you support mailbox formats other than
-Maildir?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p>Not at present. There is no technical reason not to; just
-no demand yet. Maildir is a superior format anyway.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>[technical] Why are your Maildir message filenames so
-huge?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p><b>OfflineIMAP</b> has two relevant principles: 1) never
-modifying your messages in any way and 2) ensuring 100%
-reliable synchronizations. In order to do a reliable sync,
-<b>OfflineIMAP</b> must have a way to uniquely identify each
-e-mail. Three pieces of information are required to do this:
-your account name, the folder name, and the message UID. The
-account name can be calculated from the path in which your
-messages are. The folder name can usually be as well, BUT
-some mail clients move messages between folders by simply
-moving the file, leaving the name intact.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="20%"></td>
-<td width="79%">
-<p>So, <b>OfflineIMAP</b> must store both a UID folder ID.
-The folder ID is necessary so <b>OfflineIMAP</b> can detect
-a message moved to a different folder. <b>OfflineIMAP</b>
-stores the UID (U= number) and an md5sum of the foldername
-(FMD5= number) to facilitate this.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>What is the speed of OfflineIMAP&rsquo;s
-sync?</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="21%"></td>
-<td width="77%">
-<p><b>OfflineIMAP</b> versions 2.0 and above contain a
-multithreaded system. A good way to experiment is by setting
-maxsyncaccounts to 3 and maxconnections to 3 in each account
-clause.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="20%"></td>
-<td width="79%">
-<p>This lets OfflineIMAP open up multiple connections
-simultaneously. That will let it process multiple folders
-and messages at once. In most cases, this will increase
-performance of the sync.</p>
-<!-- INDENTATION -->
-<p>Don&rsquo;t set the number too high. If you do that,
-things might actually slow down as your link gets saturated.
-Also, too many connections can cause mail servers to have
-excessive load. Administrators might take unkindly to this,
-and the server might bog down. There are many variables in
-the optimal setting; experimentation may help.</p>
-<!-- INDENTATION -->
-<p>An informal benchmark yields these results for my
-setup:</p>
-<!-- INDENTATION -->
-<p>10 minutes with MacOS X Mail.app &quot;manual
-cache&quot;<br>
-5 minutes with GNUS agent sync<br>
-20 seconds with OfflineIMAP 1.x<br>
-9 seconds with OfflineIMAP 2.x<br>
-3 seconds with OfflineIMAP 3.x &quot;cold start&quot;<br>
-2 seconds with OfflineIMAP 3.x &quot;held
-connection&quot;</p>
-</td>
-</table>
-<a name="CONFORMING TO"></a>
-<h2>CONFORMING TO</h2>
-<!-- TABS -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="4" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="1%">
-
-<p>&bull;</p>
-</td>
-<td width="8%"></td>
-<td width="77%">
-
-<p>Internet Message Access Protocol version 4rev1 (IMAP
-4rev1) as specified in RFC2060</p>
-</td>
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="1%">
-
-<p>&bull;</p>
-</td>
-<td width="8%"></td>
-<td width="77%">
-
-<p>CRAM-MD5 as specified in RFC2195</p>
-</td>
-</table>
-<!-- TABS -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="4" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="13%"></td>
-<td width="1%">
-
-<p>&bull;</p>
-</td>
-<td width="7%"></td>
-<td width="77%">
-
-<p>Maildir as specified in
-http://www.qmail.org/qmail-manual-html/man5/maildir.html and
-http://cr.yp.to/proto/maildir.html.</p>
-</td>
-<tr valign="top" align="left">
-<td width="13%"></td>
-<td width="1%">
-
-<p>&bull;</p>
-</td>
-<td width="7%"></td>
-<td width="77%">
-
-<p>Standard Python 2.2.1 as implemented on POSIX-compliant
-systems.</p>
-</td>
-</table>
-<a name="NOTES"></a>
-<h2>NOTES</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>DELETING LOCAL FOLDERS</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>OfflineIMAP</b> does a two-way synchronization. That
-is, if you make a change to the mail on the server, it will
-be propogated to your local copy, and vise-versa. Some
-people might think that it would be wise to just delete all
-their local mail folders periodically. If you do this with
-OfflineIMAP, remember to also remove your local status cache
-(~/.offlineimap by default). Otherwise, OfflineIMAP will
-take this as an intentional deletion of many messages and
-will interpret your action as requesting them to be deleted
-from the server as well. (If you don&rsquo;t understand
-this, don&rsquo;t worry; you probably won&rsquo;t encounter
-this situation)</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>COPYING MESSAGES BETWEEN FOLDERS</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>Normally, when you copy a message between folders or add
-a new message to a folder locally, <b>OfflineIMAP</b> will
-just do the right thing. However, sometimes this can be
-tricky -- if your IMAP server does not provide the SEARCH
-command, or does not return something useful,
-<b>OfflineIMAP</b> cannot determine the new UID of the
-message. So, in these rare instances, OfflineIMAP will
-upload the message to the IMAP server and delete it from
-your local folder. Then, on your next sync, the message will
-be re-downloaded with the proper UID. <b>OfflineIMAP</b>
-makes sure that the message was properly uploaded before
-deleting it, so there should be no risk of data loss.</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>USE WITH EVOLUTION</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>OfflineIMAP can work with Evolution. To do so, first
-configure your OfflineIMAP account to have:<b><br>
-sep = /</b><br>
-in its configuration. Then, configure Evolution with the
-&quot;Maildir-format mail directories&quot; server type. For
-the path, you will need to specify the name of the top-level
-folder <b>inside</b> your OfflineIMAP storage location.
-You&rsquo;re now set!</p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>USE WITH KMAIL</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>At this time, I believe that <b>OfflineIMAP</b> is not
-compatible with KMail. KMail cannot work in any mode other
-than to move all messages out of all folders immediately,
-which (besides being annoying and fundamentally broken) is
-incompatible with <b>OfflineIMAP.</b></p>
-</td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="4%"></td>
-<td width="95%">
-<p><b>MAILING LIST</b></p></td>
-</table>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>There is an OfflineIMAP mailing list available.</p>
-<!-- INDENTATION -->
-<p>To subscribe, send the text &quot;Subscribe&quot; in the
-subject of a mail to offlineimap-request@complete.org. To
-post, send the message to offlineimap@complete.org.</p>
-</td>
-</table>
-<a name="BUGS"></a>
-<h2>BUGS</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>Reports of bugs should be sent via e-mail to the
-<b>OfflineIMAP</b> bug-tracking system (BTS) at
-offlineimap@bugs.complete.org or submitted on-line using the
-Web interface at http://bugs.complete.org/. The Web site
-also lists all current bugs, where you can check their
-status or contribute to fixing them.</p>
-</td>
-</table>
-<a name="COPYRIGHT"></a>
-<h2>COPYRIGHT</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p>OfflineIMAP, and this manual, are Copyright (C) 2002,
-2003 John Goerzen.</p>
-<!-- INDENTATION -->
-<p>This program is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public
-License as published by the Free Software Foundation; either
-version 2 of the License, or (at your option) any later
-version.</p>
-<!-- INDENTATION -->
-<p>This program is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE. See the GNU General Public License for more
-details.</p>
-<!-- INDENTATION -->
-<p>You should have received a copy of the GNU General Public
-License along with this program; if not, write to:</p>
-<!-- INDENTATION -->
-<p>Free Software Foundation, Inc.<br>
-59 Temple Place<br>
-Suite 330<br>
-Boston, MA 02111-1307<br>
-USA</p>
-</td>
-</table>
-<a name="AUTHOR"></a>
-<h2>AUTHOR</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>OfflineIMAP,</b> its libraries, documentation, and all
-included files, except where noted, was written by John
-Goerzen &lt;jgoerzen@complete.org&gt; and copyright is held
-as stated in the COPYRIGHT section.</p>
-<!-- INDENTATION -->
-<p>OfflineIMAP may be downloaded, and information found,
-from its homepage via either Gopher or HTTP:</p>
-<!-- INDENTATION -->
-<p>gopher://quux.org/1/devel/offlineimap<br>
-http://quux.org/devel/offlineimap</p>
-<!-- INDENTATION -->
-<p>OfflineIMAP may also be downloaded using Subversion.
-Additionally, the distributed tar.gz may be updated with a
-simple &quot;svn update&quot; command; it is ready to go.
-For information on getting OfflineIMAP with Subversion,
-please visit:</p>
-<!-- INDENTATION -->
-<p>http://svn.complete.org/</p>
-</td>
-</table>
-<a name="SEE ALSO"></a>
-<h2>SEE ALSO</h2>
-<!-- INDENTATION -->
-<table width="100%" border=0 rules="none" frame="void"
-       cols="2" cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="10%"></td>
-<td width="89%">
-<p><b>mutt</b>(1), <b>python</b>(1).</p>
-</td>
-</table>
-<hr>
-</body>
-</html>
+def test_mycmp():
+   import os, os.path
+   folders=os.listdir(os.path.expanduser('~/data/mail/tv@hq.yok.utu.fi'))
+   folders.sort(mycmp)
+   print folders</PRE
+><P
+>	  This code snippet illustrates how the <SPAN
+CLASS="PROPERTY"
+>foldersort</SPAN
+>
+	  option can be customized with a Python function from the
+	  <SPAN
+CLASS="PROPERTY"
+>pythonfile</SPAN
+> to always synchronize certain
+	  folders first.
+	</P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN340"
+></A
+><H2
+>Errors</H2
+><P
+>	If you get one of some frequently-encountered or confusing errors,
+	please check this section.
+      </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN343"
+></A
+><H3
+>UID validity problem for folder</H3
+><P
+>IMAP servers use a unique ID (UID) to refer to a specific message.
+	  This number is guaranteed to be unique to a particular message
+	  <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>forever</I
+></SPAN
+>.
+	  No other message in the same folder will ever get the same
+	  UID.  UIDs are an integral part of <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>'s synchronization
+	  scheme; they are used to match up messages on your computer to
+	  messages on the server.
+	</P
+><P
+>	  Sometimes, the UIDs on the server might get reset.  Usually this will
+	  happen if you delete and then recreate a folder.  When you create a
+	  folder, the server will often start the UID back from 1.  But
+	  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> might still have the UIDs from the previous folder by the
+	  same name stored.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> will detect this condition and skip the
+	  folder.  This is GOOD, because it prevents data loss.
+	</P
+><P
+>	  You can fix it by removing your local folder and cache data.  For
+	  instance, if your folders are under <TT
+CLASS="FILENAME"
+>~/Folders</TT
+>
+	  and the folder with the problem is INBOX, you'd type this:
+	</P
+><PRE
+CLASS="PROGRAMLISTING"
+>rm -r ~/Folders/INBOX
+rm -r ~/.offlineimap/AccountName/INBOX</PRE
+><P
+>	  (Of course, replace AccountName with the account name as specified
+	  in <TT
+CLASS="FILENAME"
+>~/.offlineimaprc</TT
+>).
+	</P
+><P
+>Next time you run <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>, it will re-download
+	  the folder with the
+	  new UIDs.  Note that the procedure specified above will lose any local
+	  changes made to the folder.
+	</P
+><P
+>	  Some IMAP servers are broken and do not support UIDs properly.  If you
+	  continue to get this error for all your folders even after performing
+	  the above procedure, it is likely that your IMAP server falls into
+	  this category.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is incompatible with such servers.
+	  Using <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> with them will not destroy any mail, but at the same time,
+	  it will not actually synchronize it either.  (<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> will detect
+	  this condition and abort prior to synchronization.)
+	</P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN362"
+></A
+><H2
+>Other Frequently Asked Questions</H2
+><P
+>There are some other FAQs that might not fit into another section
+	of the document, so they are discussed here.
+      </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>What platforms does <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> run on?</DT
+><DD
+><P
+>	    It should run on most platforms supported by Python, which are quite a
+	    few.
+	  </P
+></DD
+><DT
+>I'm using Mutt.  Other IMAP sync programs require me to use "set maildir_trash=yes".  Do I need to do that with <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>?</DT
+><DD
+><P
+>	    No.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is smart enough to figure out message deletion without this extra
+	    crutch.  You'll get the best results if you don't use this setting, in
+	    fact.
+	  </P
+></DD
+><DT
+>How do I specify the names of my folders?</DT
+><DD
+><P
+>	    You do not need to.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is smart
+	    enough to automatically figure out what folders are present
+	    on the IMAP server and synchronize them.  You can use the
+	    <SPAN
+CLASS="PROPERTY"
+>folderfilter</SPAN
+> and <SPAN
+CLASS="PROPERTY"
+>foldertrans</SPAN
+>
+	    configuration file options to request certain folders and rename them
+	    as they come in if you like.
+	  </P
+></DD
+><DT
+>How can I prevent certain folders from being synced?</DT
+><DD
+><P
+>	    Use the <SPAN
+CLASS="PROPERTY"
+>folderfilter</SPAN
+> option in the configuration file.
+	  </P
+></DD
+><DT
+>How can I add or delete a folder?</DT
+><DD
+><P
+>	    <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> does not currently provide this feature, but if you create a new
+	    folder on the IMAP server, it will be created locally automatically.
+	  </P
+></DD
+><DT
+>Are there any other warnings that I should be aware of?</DT
+><DD
+><P
+>	    Yes; see the Notes section below.
+	  </P
+></DD
+><DT
+>What is the mailbox name recorder (mbnames) for?</DT
+><DD
+><P
+>Some mail readers, such as Mutt, are not capable
+	    of automatically determining the names of your mailboxes.
+	    <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> can help these programs by writing the names
+	    of the folders ni a format you specify.  See the example
+	    <TT
+CLASS="FILENAME"
+>offlineimap.conf</TT
+> for details.
+	  </P
+></DD
+><DT
+>Can I synchronize multiple accounts with <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>?</DT
+><DD
+><P
+>Sure.  Just name them all in the
+	    <SPAN
+CLASS="PROPERTY"
+>accounts</SPAN
+> line in the <SPAN
+CLASS="PROPERTY"
+>general</SPAN
+>
+	    section of the configuration file, and add a per-account section
+	    for each one.
+	  </P
+></DD
+><DT
+>Does <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> support POP?</DT
+><DD
+><P
+>No.  POP is not robust enough to do a completely reliable
+	    multi-machine synchronization like <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> can do.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	    will not support it.
+	  </P
+></DD
+><DT
+>Does <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> support mailbox formats other than Maildir?</DT
+><DD
+><P
+>Not at present.  There is no technical reason not to; just no
+	    demand yet.  Maildir is a superior format anyway.
+	  </P
+></DD
+><DT
+>[technical] Why are your Maildir message filenames so huge?</DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> has two relevant principles: 1) never modifying your
+	    messages in any way and 2) ensuring 100% reliable synchronizations.
+	    In order to do a reliable sync, <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	    must have a way to
+	    uniquely identify each e-mail.  Three pieces of information are
+	    required to do this: your account name, the folder name, and the
+	    message UID.  The account name can be calculated from the path in
+	    which your messages are.  The folder name can usually be as well, BUT
+	    some mail clients move messages between folders by simply moving the
+	    file, leaving the name intact.
+	  </P
+><P
+>	    So, <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> must store both a UID folder ID.  The folder ID is
+	    necessary so <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> can detect a message moved to a different
+	    folder.  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> stores the UID (U= number) and an md5sum of the
+	    foldername (FMD5= number) to facilitate this.
+	  </P
+></DD
+><DT
+>What is the speed of <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>'s sync?</DT
+><DD
+><P
+>OfflineIMAP
+	    versions 2.0 and above contain a multithreaded system.  A good way to
+	    experiment is by setting <SPAN
+CLASS="PROPERTY"
+>maxsyncaccounts</SPAN
+> to 3 and <SPAN
+CLASS="PROPERTY"
+>maxconnections</SPAN
+> to 3
+	    in each account clause.
+	  </P
+><P
+>This lets OfflineIMAP open up multiple connections simultaneously.
+	    That will let it process multiple folders and messages at once.  In
+	    most cases, this will increase performance of the sync.
+	  </P
+><P
+>Don't set the number too high.  If you do that, things might actually
+	    slow down as your link gets saturated.  Also, too many connections can
+	    cause mail servers to have excessive load.  Administrators might take
+	    unkindly to this, and the server might bog down.  There are many
+	    variables in the optimal setting; experimentation may help.
+	  </P
+><P
+>An informal benchmark yields these results for my setup:
+	  </P
+><P
+></P
+><UL
+><LI
+><P
+>10 minutes with MacOS X Mail.app "manual cache"
+	      </P
+></LI
+><LI
+><P
+>5 minutes with GNUS agent sync</P
+></LI
+><LI
+><P
+>20 seconds with OfflineIMAP 1.x</P
+></LI
+><LI
+><P
+>9 seconds with OfflineIMAP 2.x</P
+></LI
+><LI
+><P
+>3 seconds with OfflineIMAP 3.x "cold start"</P
+></LI
+><LI
+><P
+>2 seconds with OfflineIMAP 3.x "held connection"</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN456"
+></A
+><H2
+>Conforming To</H2
+><P
+></P
+><UL
+><LI
+><P
+>Internet Message Access Protocol version 4rev1 (IMAP 4rev1) as
+	  specified in RFC2060</P
+></LI
+><LI
+><P
+>CRAM-MD5 as specified in RFC2195</P
+></LI
+><LI
+><P
+>Maildir as specified in
+	  <A
+HREF="http://www.qmail.org/qmail-manual-html/man5/maildir.html"
+TARGET="_top"
+>the Maildir manpage</A
+> and
+	  <A
+HREF="http://cr.yp.to/proto/maildir.html"
+TARGET="_top"
+>the qmail website</A
+>.</P
+></LI
+><LI
+><P
+>Standard Python 2.2.1 as implemented on POSIX-compliant systems.</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN469"
+></A
+><H2
+>Notes</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN471"
+></A
+><H3
+>Deleting Local Folders</H3
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> does a two-way synchronization.  That is, if you
+	  make a change to the mail on the server, it will be propogated to your
+	  local copy, and vise-versa.  Some people might think that it would be
+	  wise to just delete all their local mail folders periodically.  If you
+	  do this with <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>, remember to also remove your local status
+	  cache (<TT
+CLASS="FILENAME"
+>~/.offlineimap</TT
+> by default).  Otherwise, <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> will take
+	  this as an intentional deletion of many messages and will interpret
+	  your action as requesting them to be deleted from the server as well.
+	  (If you don't understand this, don't worry; you probably won't
+	  encounter this situation)
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN478"
+></A
+><H3
+>Copying Messages Between Folders</H3
+><P
+>	  Normally, when you copy a message between folders or add a new message
+	  to a folder locally, <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	  will just do the right thing.  However, sometimes this can be tricky
+	  -- if your IMAP server does not provide the SEARCH command, or does
+	  not return something useful, <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	  cannot determine the new UID of the message.  So, in these rare
+	  instances, OfflineIMAP will upload the message to the IMAP server and
+	  delete it from your local folder.  Then, on your next sync, the
+	  message will be re-downloaded with the proper UID.
+	  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> makes sure that the message was properly uploaded before deleting it,
+	  so there should be no risk of data loss.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN484"
+></A
+><H3
+>Use with Evolution</H3
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> can work with Evolution.  To do so, first configure
+	  your <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> account to have
+	  <TT
+CLASS="OPTION"
+>sep = /</TT
+> in its configuration.  Then, configure
+	  Evolution with the
+	  "Maildir-format mail directories" server type.  For the path, you will need to
+	  specify the name of the top-level folder
+	  <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>inside</I
+></SPAN
+> your <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> storage location.
+	  You're now set!
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN492"
+></A
+><H3
+>Use with KMail</H3
+><P
+>At this time, I believe that <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is not compatible
+	  with KMail.  KMail cannot work in any mode other than to move
+	  all messages out of all folders immediately, which (besides being annoying
+	  and fundamentally broken) is incompatible with <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN497"
+></A
+><H3
+>Mailing List</H3
+><P
+>There is an OfflineIMAP mailing list available.
+	  To subscribe, send the text "Subscribe" in the subject of a mail to
+	  offlineimap-request@complete.org.  To post, send the message to
+	  offlineimap@complete.org.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN500"
+></A
+><H3
+>Bugs</H3
+><P
+>Reports of bugs should be sent via e-mail to the
+	  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> bug-tracking system (BTS) at
+	  offlineimap@bugs.complete.org or submitted online using
+	  the <A
+HREF="http://bugs.complete.org/"
+TARGET="_top"
+>web interface</A
+>.
+	</P
+><P
+>	  The Web site also lists all current bugs, where you can check their
+	  status or contribute to fixing them.
+	</P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN506"
+></A
+><H2
+>Copyright</H2
+><P
+>OfflineIMAP, and this manual, are Copyright &copy; 2002, 2003 John Goerzen.</P
+><P
+>	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+      </P
+><P
+>	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+      </P
+><P
+>	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</P
+><P
+>imaplib.py comes from the Python dev tree and is licensed under
+	the GPL-compatible PSF license as stated in the file
+	<TT
+CLASS="FILENAME"
+>COPYRIGHT</TT
+> in the <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+         distribution.
+      </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN515"
+></A
+><H2
+>Author</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>, its libraries, documentation, and all included files, except where
+	noted, was written by John Goerzen <TT
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:jgoerzen@complete.org"
+>jgoerzen@complete.org</A
+>&#62;</TT
+> and
+	copyright is held as stated in the COPYRIGHT section.
+      </P
+><P
+>	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> may be downloaded, and information found, from is
+	homepage via either <A
+HREF="gopher://quux.org/1/devel/offlineimap"
+TARGET="_top"
+>Gopher</A
+>
+	or <A
+HREF="http://quux.org/devel/offlineimap"
+TARGET="_top"
+>HTTP</A
+>.
+      </P
+><P
+>	<SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> may also be downloaded using Subversion.  Additionally,
+	the distributed tar.gz may be updated with a simple "svn update"
+	command; it is ready to go.  For information on getting OfflineIMAP
+	with Subversion, please visit the
+	<A
+HREF="http://svn.complete.org/"
+TARGET="_top"
+>complete.org Subversion page</A
+>.
+      </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN527"
+></A
+><H2
+>See Also</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>mutt</SPAN
+>(1),
+	<SPAN
+CLASS="APPLICATION"
+>python</SPAN
+>(1)
+      </P
+></DIV
+></DIV
+></BODY
+></HTML
+>
