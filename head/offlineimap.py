@@ -123,7 +123,9 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     mailboxes.append({'accountname': accountname,
                       'foldername': remotefolder.getvisiblename()})
     # Load local folder.
-    localfolder = localrepos.getfolder(remotefolder.getvisiblename())
+    localfolder = localrepos.\
+                  getfolder(remotefolder.getvisiblename().\
+                            replace(remoterepos.getsep(), localrepos.getsep()))
     if not localfolder.isuidvalidityok(remotefolder):
         ui.validityproblem(remotefolder)
         return
