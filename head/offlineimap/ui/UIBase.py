@@ -56,7 +56,7 @@ class UIBase:
         call except isusable().  Displays the copyright banner.  This is
         where the UI should do its setup -- TK, for instance, would
         create the application window here."""
-	s._msg(offlineimap.version.banner)
+        s._msg(offlineimap.version.banner)
 
     def acct(s, accountname):
         s._msg("***** Processing account %s" % accountname)
