@@ -101,6 +101,9 @@ class UIBase:
     def invaliddebug(s, debugtype):
         s.warn("Invalid debug type: %s" % debugtype)
 
+    def locked(s):
+        s.warn("Another OfflineIMAP is running with the same metadatadir; exiting.")
+
     def getnicename(s, object):
         prelimname = str(object.__class__).split('.')[-1]
         # Strip off extra stuff.

@@ -20,10 +20,21 @@ from offlineimap import imaplib, imapserver, repository, folder, mbnames, thread
 from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from offlineimap.ui import UIBase
-import re, os, os.path, offlineimap, sys
+import re, os, os.path, offlineimap, sys, fcntl
 from offlineimap.CustomConfig import CustomConfigParser
 from threading import *
 from getopt import getopt
+
+lockfd = None
+
+def lock(config, ui):
+    global lockfd
+    lockfd = open(config.getmetadatadir() + "/lock", "w")
+    try:
+        fcntl.flock(lockfd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except IOError:
+        ui.locked()
+        ui.terminate(1)
 
 def startup(versionno):
     assert versionno == version.versionstr, "Revision of main program (%d) does not match that of library (%d).  Please double-check your PYTHONPATH and installation locations." % (revno, version.revno)
@@ -71,6 +82,8 @@ def startup(versionno):
     if '-o' in options:
         for section in config.getaccountlist():
             config.remove_option(section, "autorefresh")
+
+    lock(config, ui)
 
     accounts = config.get("general", "accounts")
     if '-a' in options:
