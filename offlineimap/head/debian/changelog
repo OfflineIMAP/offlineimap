@@ -12,6 +12,7 @@ offlineimap (4.0.3) unstable; urgency=low
   * Applied patch from Daniel James to adjust the insertion point
     for a new header.
   * Now calls dh_python and build-deps on newer debhelper.
+  * Updated copyright information.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri,  4 Jun 2004 07:10:00 -0500
 

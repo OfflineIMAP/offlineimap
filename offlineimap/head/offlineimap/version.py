@@ -1,8 +1,8 @@
 productname = 'OfflineIMAP'
 versionstr = "4.0.3"
-revno = long('$Rev: 581 $'[6:-2])
+revno = long('$Rev: 582 $'[6:-2])
 revstr = "Rev %d" % revno
-datestr = '$Date: 2004-06-04 10:50:57 -0500 (Fri, 04 Jun 2004) $'
+datestr = '$Date: 2004-06-04 11:04:29 -0500 (Fri, 04 Jun 2004) $'
 
 versionlist = versionstr.split(".")
 major = versionlist[0]
@@ -22,7 +22,7 @@ to distribute it under the conditions laid out in COPYING."""
 
 homepage = "http://www.quux.org/devel/offlineimap"
 homegopher = "gopher://quux.org/1/devel/offlineimap"
-license = """Copyright (C) 2002, 2003 John Goerzen <jgoerzen@complete.org>
+license = """Copyright (C) 2002 - 2004 John Goerzen <jgoerzen@complete.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
