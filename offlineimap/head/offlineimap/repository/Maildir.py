@@ -42,7 +42,7 @@ class MaildirRepository(BaseRepository):
         # self.root directory (we'd prefer to raise an error in that case),
         # but will make the (relative) paths underneath it.  Need to use
         # makedirs to support a / separator.
-        if os.getsep() == '/':
+        if self.getsep() == '/':
             for invalid in ['new', 'cur', 'tmp', 'offlineimap.uidvalidity']:
                 for component in foldername.split('/'):
                     assert component != invalid, "When using nested folders (/ as a separator in the account config), your folder names may not contain 'new', 'cur', 'tmp', or 'offlineimap.uidvalidity'."
