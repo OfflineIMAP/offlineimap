@@ -1,3 +1,23 @@
+2002-07-05 09:22  jgoerzen
+
+	* TODO, debian/changelog, offlineimap/imaputil.py,
+	offlineimap/folder/IMAP.py, offlineimap/repository/IMAP.py: Fixed
+	read-only folders and UW flag case-sensitivity.  Readied 2.0.4.
+
+2002-07-04 21:32  jgoerzen
+
+	* offlineimap/version.py: Updated for 2.0.3
+
+2002-07-04 20:46  jgoerzen
+
+	* offlineimap.conf, offlineimap.py, debian/changelog,
+	offlineimap/imapserver.py, offlineimap/repository/IMAP.py: Modified
+	to allow specifying a reference
+
+2002-07-04 15:36  jgoerzen
+
+	* ChangeLog: Built for 2.0.2
+
 2002-07-04 15:36  jgoerzen
 
 	* debian/changelog: Updated with tunnel feature

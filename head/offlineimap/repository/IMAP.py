@@ -55,7 +55,8 @@ class IMAPRepository(BaseRepository):
             self.imapserver.releaseconnection(imapobj)
         for string in listresult:
             flags, delim, name = imaputil.imapsplit(string)
-            if '\\Noselect' in imaputil.flagsplit(flags):
+            flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
+            if '\\noselect' in flaglist:
                 continue
             foldername = imaputil.dequote(name)
             if not self.folderfilter(foldername):

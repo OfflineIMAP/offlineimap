@@ -55,7 +55,10 @@ class IMAPFolder(BaseFolder):
     def cachemessagelist(self):
         imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj.select(self.getfullname())
+            try:
+                imapobj.select(self.getfullname()) # Needed for fetch below
+            except imapobj.readonly:
+                pass
             self.messagelist = {}
             response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
             result = imaputil.imapsplit(response)[1]
@@ -82,7 +85,10 @@ class IMAPFolder(BaseFolder):
     def getmessage(self, uid):
         imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj.select(self.getfullname())
+            try:
+                imapobj.select(self.getfullname())
+            except imapobj.readonly:
+                pass
             return imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')[1][0][1].replace("\r\n", "\n")
         finally:
             self.imapserver.releaseconnection(imapobj)
