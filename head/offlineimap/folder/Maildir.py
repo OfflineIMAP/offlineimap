@@ -158,6 +158,8 @@ class MaildirFolder(BaseFolder):
         return self.getmessagelist()[uid]['flags']
 
     def deletemessage(self, uid):
+        if not uid in self.messagelist:
+            return
         filename = self.getmessagelist()[uid]['filename']
         os.unlink(filename)
         del(self.messagelist[uid])

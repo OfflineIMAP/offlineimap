@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from Base import BaseFolder
-from imapsync import imaputil
+from imapsync import imaputil, imaplib
 import rfc822
 from StringIO import StringIO
 
@@ -61,7 +61,7 @@ class IMAPFolder(BaseFolder):
     def getmessage(self, uid):
         print "***************** GETMESSAGE %d" % uid
         assert(self.imapobj.select(self.getfullname())[0] == 'OK')
-        return self.imapobj.uid('fetch', '%d' % uid, '(RFC822)')[1][0][1]
+        return self.imapobj.uid('fetch', '%d' % uid, '(RFC822)')[1][0][1].replace("\r\n", "\n")
     
     def getmessageflags(self, uid):
         return self.getmessagelist()[uid]['flags']
@@ -74,6 +74,9 @@ class IMAPFolder(BaseFolder):
         message = rfc822.Message(StringIO(content))
         mid = self.imapobj._quote(message.getheader('Message-Id'))
         date = imaplib.Time2Internaldate(rfc822.parsedate(message.getheader('Date')))
+
+        if content.find("\r\n") == -1:  # Convert line endings if not already
+            content = content.replace("\n", "\r\n")
 
         assert(self.imapobj.append(self.getfullname(),
                                    imaputil.flagsmaildir2imap(flags),
@@ -96,8 +99,11 @@ class IMAPFolder(BaseFolder):
         self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
 
     def deletemessage(self, uid):
-        self.addmessagesflags(uid, ['T'])
+        if not uid in self.messagelist:
+            return
+        self.addmessageflags(uid, ['T'])
         assert(self.imapobj.select(self.getfullname())[0] == 'OK')
         assert(self.imapobj.expunge()[0] == 'OK')
+        del(self.messagelist[uid])
         
         

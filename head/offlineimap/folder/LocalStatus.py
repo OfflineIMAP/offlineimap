@@ -53,6 +53,7 @@ class LocalStatusFolder(BaseFolder):
         line = file.readline().strip()
         assert(line == magicline)
         for line in file.xreadlines():
+            line = line.strip()
             uid, flags = line.split(':')
             uid = long(uid)
             flags = [x for x in flags]
@@ -91,5 +92,7 @@ class LocalStatusFolder(BaseFolder):
         self.messagelist[uid]['flags'] = flags
 
     def deletemessage(self, uid):
+        if not uid in self.messagelist:
+            return
         del(self.messagelist[uid])
 

@@ -119,6 +119,8 @@ class BaseFolder:
         if applyto == None:
             applyto = [dest]
 
+        print "Pass 1"
+            
         # Pass 1 -- Look for messages in self with a negative uid.
         # These are messages in Maildirs that were not added by us.
         # Try to add them to the dests, and once that succeeds, get the
@@ -128,6 +130,7 @@ class BaseFolder:
         for uid in self.getmessagelist().keys():
             if uid >= 0:
                 continue
+            print "Uploading new message %d" % uid
             successobject = None
             successuid = None
             message = self.getmessage(uid)
@@ -150,6 +153,8 @@ class BaseFolder:
                 # Did not find any server to take this message.  Ignore.
                 pass
 
+        print "Pass 2"
+
         # Pass 2 -- Look for messages present in self but not in dest.
         # If any, add them to dest.
         
@@ -157,6 +162,7 @@ class BaseFolder:
             if uid < 0:                 # Ignore messages that pass 1 missed.
                 continue
             if not uid in dest.getmessagelist():
+                print "Uploading new message %d" % uid
                 message = self.getmessage(uid)
                 flags = self.getmessageflags(uid)
                 for object in applyto:
@@ -167,6 +173,8 @@ class BaseFolder:
                         self.deletemessage(uid)
                         uid = newuid
 
+        print "Pass 3"
+
         # Pass 3 -- Look for message present in dest but not in self.
         # If any, delete them.
 
@@ -174,14 +182,17 @@ class BaseFolder:
             if uid < 0:
                 continue
             if not uid in self.getmessagelist():
+                print "Deleting message %d" % uid
                 for object in applyto:
                     object.deletemessage(uid)
 
         # Now, the message lists should be identical wrt the uids present.
         # (except for potential negative uids that couldn't be placed
         # anywhere)
+
+        print "Pass 4"
         
-        # Pass 3 -- Look for any flag identity issues -- set dest messages
+        # Pass 4 -- Look for any flag identity issues -- set dest messages
         # to have the same flags that we have here.
 
         for uid in self.getmessagelist().keys():
@@ -192,11 +203,13 @@ class BaseFolder:
 
             addflags = [x for x in selfflags if x not in destflags]
             if len(addflags):
+                print "Adding flags to %d" % uid, addflags
                 for object in applyto:
                     object.addmessageflags(uid, addflags)
 
             delflags = [x for x in destflags if x not in selfflags]
             if len(delflags):
+                print "Deleting flags from %d" % uid, delflags
                 for object in applyto:
                     object.deletemessageflags(uid, delflags)
 
