@@ -1,11 +1,11 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
 <HTML
 ><HEAD
 ><TITLE
 >OfflineIMAP Manual</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.7"></HEAD
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
 ><BODY
 CLASS="REFERENCE"
 BGCOLOR="#FFFFFF"
@@ -64,24 +64,36 @@ NAME="AEN18"
 ><B
 CLASS="COMMAND"
 >offlineimap</B
->  [-1] [-P <VAR
+>  [-1] [-P <TT
 CLASS="REPLACEABLE"
->profiledir</VAR
->] [-a <VAR
+><I
+>profiledir</I
+></TT
+>] [-a <TT
 CLASS="REPLACEABLE"
->accountlist</VAR
->] [-c <VAR
+><I
+>accountlist</I
+></TT
+>] [-c <TT
 CLASS="REPLACEABLE"
->configfile</VAR
->] [-d <VAR
+><I
+>configfile</I
+></TT
+>] [-d <TT
 CLASS="REPLACEABLE"
->debugtype[,...]</VAR
->] [-l <VAR
+><I
+>debugtype[,...]</I
+></TT
+>] [-l <TT
 CLASS="REPLACEABLE"
->filename</VAR
->] [-o] [-u <VAR
+><I
+>filename</I
+></TT
+>] [-o] [-u <TT
 CLASS="REPLACEABLE"
->interface</VAR
+><I
+>interface</I
+></TT
 >]</P
 ><P
 ><B
@@ -645,9 +657,11 @@ CLASS="PROPERTY"
 	  </P
 ></DD
 ><DT
->-P <VAR
+>-P <TT
 CLASS="REPLACEABLE"
->profiledir</VAR
+><I
+>profiledir</I
+></TT
 ></DT
 ><DD
 ><P
@@ -655,9 +669,11 @@ CLASS="REPLACEABLE"
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 > into profile mode.  The program
-	    will create <VAR
+	    will create <TT
 CLASS="REPLACEABLE"
->profiledir</VAR
+><I
+>profiledir</I
+></TT
 >
 	    (it must not already exist).  As it runs, Python profiling 
 	    information
@@ -665,20 +681,22 @@ CLASS="REPLACEABLE"
 	    is present for debugging and optimization only, and should NOT be used
 	    unless you have a specific reason to do so.  It will significantly
 	    slow program performance, may reduce reliability, and can generate
-	    huge amounts of data.  You must use the <VAR
+	    huge amounts of data.  You must use the <CODE
 CLASS="OPTION"
->-1</VAR
+>-1</CODE
 > option when
-	    you use <VAR
+	    you use <CODE
 CLASS="OPTION"
->-P</VAR
+>-P</CODE
 >.
 	  </P
 ></DD
 ><DT
->-a <VAR
+>-a <TT
 CLASS="REPLACEABLE"
->accountlist</VAR
+><I
+>accountlist</I
+></TT
 ></DT
 ><DD
 ><P
@@ -696,9 +714,11 @@ CLASS="PROPERTY"
 	  </P
 ></DD
 ><DT
->-c <VAR
+>-c <TT
 CLASS="REPLACEABLE"
->configfile</VAR
+><I
+>configfile</I
+></TT
 ></DT
 ><DD
 ><P
@@ -710,23 +730,25 @@ CLASS="FILENAME"
 	  </P
 ></DD
 ><DT
->-d <VAR
+>-d <TT
 CLASS="REPLACEABLE"
->debugtype[,...]</VAR
+><I
+>debugtype[,...]</I
+></TT
 ></DT
 ><DD
 ><P
 >Enables debugging for OfflineIMAP.  This is useful if
 	    you are trying to track down a malfunction or figure out what is going
 	    on under the hood.  I suggest that you use this with
-	    <VAR
+	    <CODE
 CLASS="OPTION"
->-1</VAR
+>-1</CODE
 > to make the results more sensible.</P
 ><P
-><VAR
+><CODE
 CLASS="OPTION"
->-d</VAR
+>-d</CODE
 > requires one or more debugtypes,
 	      separated by commas.  These define what exactly will be
 	      debugged, and include three options: <SPAN
@@ -760,9 +782,11 @@ CLASS="PROPERTY"
 ></DD
 ><DT
 >-l
-	  <VAR
+	  <TT
 CLASS="REPLACEABLE"
->filename</VAR
+><I
+>filename</I
+></TT
 ></DT
 ><DD
 ><P
@@ -790,9 +814,11 @@ CLASS="PROPERTY"
 >Show summary of options.</P
 ></DD
 ><DT
->-u <VAR
+>-u <TT
 CLASS="REPLACEABLE"
->interface</VAR
+><I
+>interface</I
+></TT
 ></DT
 ><DD
 ><P
@@ -823,9 +849,9 @@ CLASS="APPLICATION"
 CLASS="PROPERTY"
 >ui</SPAN
 > option in the configuration file specifies
-	user interface preferences.  The <VAR
+	user interface preferences.  The <CODE
 CLASS="OPTION"
->-u</VAR
+>-u</CODE
 > command-line
 	option can override the configuration file setting.  The available
 	values for the configuration file or command-line are described
@@ -1383,13 +1409,17 @@ CLASS="FILENAME"
 ><PRE
 CLASS="PROGRAMLISTING"
 >rm -r ~/Folders/INBOX
-rm -r ~/.offlineimap/Account-<VAR
+rm -r ~/.offlineimap/Account-<TT
 CLASS="REPLACEABLE"
->AccountName</VAR
+><I
+>AccountName</I
+></TT
 >
-rm -r ~/.offlineimap/Repository-<VAR
+rm -r ~/.offlineimap/Repository-<TT
 CLASS="REPLACEABLE"
->RepositoryName</VAR
+><I
+>RepositoryName</I
+></TT
 ></PRE
 ><P
 >	  (Of course, replace AccountName and RepositoryName 
@@ -1938,9 +1968,9 @@ CLASS="APPLICATION"
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 > account to have
-	  <VAR
+	  <CODE
 CLASS="OPTION"
->sep = /</VAR
+>sep = /</CODE
 > in its configuration.  Then, configure
 	  Evolution with the
 	  "Maildir-format mail directories" server type.  For the path, you will need to
@@ -2023,17 +2053,10 @@ NAME="AEN555"
 	  <SPAN
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
-> bug-tracking system (BTS) at
-	  offlineimap@bugs.complete.org or submitted online using
-	  the <A
-HREF="http://bugs.complete.org/"
-TARGET="_top"
->web interface</A
->.
-	</P
-><P
->	  The Web site also lists all current bugs, where you can check their
-	  status or contribute to fixing them.
+> mailing list at offlineimap at complete
+          dot org.  Debian users are encouraged to instead use the
+	Debian
+          bug-tracking system.
 	</P
 ></DIV
 ></DIV
@@ -2103,7 +2126,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN575"
+NAME="AEN573"
 ></A
 ><H2
 >Copyright</H2
@@ -2141,7 +2164,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN584"
+NAME="AEN582"
 ></A
 ><H2
 >Author</H2
@@ -2193,7 +2216,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN596"
+NAME="AEN594"
 ></A
 ><H2
 >See Also</H2
@@ -2211,7 +2234,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN601"
+NAME="AEN599"
 ></A
 ><H2
 >History</H2

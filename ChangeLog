@@ -2,6 +2,19 @@
 # arch-tag: automatic-ChangeLog--jgoerzen@complete.org--projects/offlineimap--head--1.0
 #
 
+2004-11-16 17:14:17 GMT	John Goerzen <jgoerzen@complete.org>	patch-6
+
+    Summary:
+      Removed old bugs.complete.org info and rebuilt docs
+    Revision:
+      offlineimap--head--1.0--patch-6
+
+
+    modified files:
+     ChangeLog manual.html manual.pdf manual.ps manual.txt
+     offlineimap.1 offlineimap.sgml
+
+
 2004-11-16 16:44:41 GMT	John Goerzen <jgoerzen@complete.org>	patch-5
 
     Summary:

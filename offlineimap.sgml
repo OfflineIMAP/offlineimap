@@ -1083,13 +1083,10 @@ mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
       <refsect2>
 	<title>Bugs</title>
 	<para>Reports of bugs should be sent via e-mail to the
-	  &OfflineIMAP; bug-tracking system (BTS) at
-	  offlineimap@bugs.complete.org or submitted online using
-	  the <ulink url="http://bugs.complete.org/">web interface</ulink>.
-	</para>
-	<para>
-	  The Web site also lists all current bugs, where you can check their
-	  status or contribute to fixing them.
+	  &OfflineIMAP; mailing list at offlineimap at complete
+          dot org.  Debian users are encouraged to instead use the
+	Debian
+          bug-tracking system.
 	</para>
       </refsect2>
     </refsect1>
