@@ -58,13 +58,21 @@ class MaildirFolder(BaseFolder):
         and must occur in ASCII order."""
         self.messagelist = {}
         files = []
+        nouidcounter = -1               # Messages without UIDs get
+                                        # negative UID numbers.
         for dirannex in ['new', 'cur']:
             fulldirname = os.path.join(self.getfullname(), dirannex)
             files.append([os.path.join(fulldirname, filename) for
                           filename in os.listdir(fulldirname)])
         for file in files:
             messagename = os.path.basename(file)
-            uid = int(re.search(',U=(\d+)', messagename).group(1))
+            uidmatch = re.search(',U=(\d+)', messagename)
+            uid = None
+            if not uidmatch:
+                uid = nouidcounter
+                nouidcounter -= 1
+            else:
+                uid = int(uidmatch.group(1))
             flagmatch = re.search(':.*2,([A-Z]+)')
             flags = []
             if flagmatch:
@@ -74,8 +82,6 @@ class MaildirFolder(BaseFolder):
                                      'filename': messagename}
             
     def getmessagelist(self):
-        if self.messagelist == None:
-            self.cachemessagelist()
         return self.messagelist
 
     

@@ -84,16 +84,22 @@ class BaseFolder:
         
         for uid in self.getmessagelist().keys():
             if not uid in dest.getmessagelist():
-                dest.savemessage(uid, self.getmessage(uid))
-                dest.savemessageflags(uid, self.getmessageflags(uid))
+                message = self.getmessage(uid)
+                flags = self.getmessageflags(uid)
+                for object in applyto:
+                    object.savemessage(uid, message)
+                    object.savemessageflags(uid, flags)
 
         # Pass 2 -- Look for message present in dest but not in self.
         # If any, delete them.
 
         for uid in dest.getmessagelist().keys():
             if not uid in self.getmessagelist():
-                dest.deletemessage(uid)
+                for object in applyto:
+                    object.deletemessage(uid)
 
         # Now, the message lists should be identical wrt the uids present.
 
-        # Pass 3 -- Look for any 
+        # Pass 3 -- Look for any flag identity issues.
+
+        
