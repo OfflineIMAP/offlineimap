@@ -1,3 +1,10 @@
+offlineimap (1.0.3) unstable; urgency=low
+
+  * Fixed a bug when a message was deleted on the IMAP side and modified
+    on the local side.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 24 Jun 2002 14:08:21 -0500
+
 offlineimap (1.0.2) unstable; urgency=low
 
   * Made sure that LocalStatus does writing atomically.  If the program

@@ -1,3 +1,21 @@
+2002-06-24 14:08  jgoerzen
+
+	* debian/changelog: REL 1.0.3 PREP
+
+2002-06-24 13:55  jgoerzen
+
+	* offlineimap.py: Modified to use new syncing capabilities
+
+2002-06-24 13:47  jgoerzen
+
+	* offlineimap/folder/Base.py: Split up syncmessagesto() into
+	individual components so we can control the synchronization process
+	with finer detail from above.
+
+2002-06-24 09:58  jgoerzen
+
+	* ChangeLog: RELEASE 1.0.2
+
 2002-06-24 09:58  jgoerzen
 
 	* debian/changelog, offlineimap/version.py: Preparation for 1.0.2
