@@ -350,7 +350,7 @@ class LEDThreadFrame:
 class Blinkenlights(VerboseUI):
     def _createTopWindow(self):
         VerboseUI._createTopWindow(self, 0)
-        #self.top.resizable(width = 0, height = 0)
+        self.top.resizable(width = 0, height = 0)
         self.top.configure(background = 'black', bd = 0)
         c = LEDCanvas(self.top, background = 'black', height = 20, bd = 0,
                       highlightthickness = 0)
@@ -369,9 +369,9 @@ class Blinkenlights(VerboseUI):
                                                   "bufferlines")
         self.text = ScrolledText(self.top, bg = 'black', #scrollbar = 'y',
                                  font = ("Helvetica", 8),
-                         bd = 0, highlightthickness = 0, setgrid = 0,
-                         state = DISABLED, height = self.loglines, wrap = NONE,
-                         width = int(c.cget('width')) / widthmetric)
+                                 bd = 0, highlightthickness = 0, setgrid = 0,
+                                 state = DISABLED, height = self.loglines,
+                                 wrap = NONE, width = 10)
         self.text.vbar.configure(background = '#000050',
                                  activebackground = 'blue',
                                  highlightbackground = 'black',
@@ -390,6 +390,7 @@ class Blinkenlights(VerboseUI):
         s._createTopWindow()
         menubar = Menu(s.top, activebackground = "black",
                        activeforeground = "white",
+                       activeborderwidth = 0,
                        background = "black", foreground = "blue",
                        font = ("Helvetica", 8), bd = 0)
         menubar.add_command(label = "About", command = s.showlicense)
@@ -422,13 +423,10 @@ class Blinkenlights(VerboseUI):
             s.menubar.insert_command('Exit', label = 'Show Log',
                                      command = s._togglelog)
             s.top.update()
-            print s.top.winfo_reqheight(), s.top.winfo_reqwidth()
-            #s.top.configure(height = s.top.winfo_reqheight(),
-            #                width = s.top.winfo_reqwidth())
             s.top.geometry("%dx%d" % (s.top.winfo_reqwidth(),
                                       s.top.winfo_reqheight()))
-            s.top.pack_propagate(1)
-            s.text.pack_propagate(1)
+            s.top.update()
+            s.top.resizable(width = 0, height = 0)
         
         else:
             s.text.pack(side = BOTTOM, expand = 1, fill = BOTH)
@@ -448,6 +446,8 @@ class Blinkenlights(VerboseUI):
             logmenu.add_command(label = "Smaller Log", command = s._smallerlog)
             s.menubar.insert_cascade('Exit', label = "Log", menu = logmenu)
             s._rescroll()
+            s.top.resizable(width = 1, height = 1)
+
 
     def acct(s, accountname):
         s.gettf().setcolor('purple')
