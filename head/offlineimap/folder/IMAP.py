@@ -112,13 +112,14 @@ class IMAPFolder(BaseFolder):
         for result in r:
             resultcount += 1
             flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
+            uid = long(imaputil.flags2hash(imaputil.imapsplit(result)[1])['UID'])
             self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
         assert resultcount == len(uidlist), "Got incorrect number of results back"
 
     def deletemessage(self, uid):
         self.deletemessages([uid])
 
-    def deletemessage(self, uidlist):
+    def deletemessages(self, uidlist):
         # Weed out ones not in self.messagelist
         uidlist = [uid for uid in uidlist if uid in self.messagelist]
         if not len(uidlist):

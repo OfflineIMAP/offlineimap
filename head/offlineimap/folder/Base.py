@@ -185,9 +185,9 @@ class BaseFolder:
             if not uid in self.getmessagelist():
                 deletelist.append(uid)
         if len(deletelist):
-            __main__.ui.deletingmessages(uidlist, applyto)
+            __main__.ui.deletingmessages(deletelist, applyto)
             for object in applyto:
-                object.deletemessages(uidlist)
+                object.deletemessages(deletelist)
 
     def syncmessagesto_flags(self, dest, applyto):
         """Pass 4 of folder synchronization.

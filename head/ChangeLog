@@ -1,3 +1,25 @@
+2002-07-02 14:16  jgoerzen
+
+	* debian/changelog, offlineimap/version.py: Preparation for 1.0.4
+
+2002-07-02 14:13  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Removed debugging code
+
+2002-07-02 14:11  jgoerzen
+
+	* offlineimap/folder/: Base.py, IMAP.py: Fixed the deleted message
+	caching.
+
+2002-07-02 14:05  jgoerzen
+
+	* offlineimap/: folder/Base.py, folder/IMAP.py, ui/UIBase.py: First
+	stab at optimization of message deletion
+
+2002-06-24 14:09  jgoerzen
+
+	* ChangeLog: REL 1.0.3
+
 2002-06-24 14:08  jgoerzen
 
 	* debian/changelog: REL 1.0.3 PREP
@@ -396,14 +418,9 @@
 
 	* offlineimap/repository/: Base.py, __init__.py: Added
 
-2002-06-18 13:28  jgoerzen
-
-	* offlineimap/mailbox/__init__.py: [no log message]
-
 2002-06-18 13:26  jgoerzen
 
-	* offlineimap/: folder/__init__.py, mailbox/__init__.py,
-	repository/Base.py: Updated
+	* offlineimap/: folder/__init__.py, repository/Base.py: Updated
 
 2002-06-18 13:09  jgoerzen
 
