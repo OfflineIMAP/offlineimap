@@ -27,7 +27,10 @@ class TTYUI(UIBase):
         self.iswaiting = 0
         
     def _msg(s, msg):
-        print msg
+        if currentThread().getName() == 'MainThread':
+            print msg
+        else:
+            print "%-30s %s" % (currentThread().getName(), msg)
         sys.stdout.flush()
 
     def getpass(s, accountname, config):
