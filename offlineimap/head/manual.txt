@@ -49,12 +49,22 @@ DESCRIPTION
        responsible if this turns out to be wrong.
 
    METHOD OF OPERATION
-       OfflineIMAP operates by maintaining a  hierarchy  of  mail  folders  in
-       Maildir  format locally.  Your own mail reader will read mail from this
-       tree, and need never know that the mail comes from  IMAP.   OfflineIMAP
-       will  detect  changes  to the mail folders on your IMAP server and your
-       own computer and bi-directionally synchronize them,  copying,  marking,
-       and deleting messages as necessary.
+       OfflineIMAP traditionally operates by maintaining a hierarchy  of  mail
+       folders in Maildir format locally.  Your own mail reader will read mail
+       from this tree, and need never know that  the  mail  comes  from  IMAP.
+       OfflineIMAP will detect changes to the mail folders on your IMAP server
+       and your own computer and bi-directionally synchronize  them,  copying,
+       marking, and deleting messages as necessary.
+
+       With OfflineIMAP 4.0, a powerful new ability has been introduced -- the
+       program can now synchronize two IMAP servers with each other,  with  no
+       need  to have a Maildir layer in-between.  Many people use this if they
+       use a mail  reader  on  their  local  machine  that  does  not  support
+       Maildirs.   People  may  install an IMAP server on their local machine,
+       and point both OfflineIMAP and their mail reader of choice at it.  This
+       is  often  preferable  to  the  mail  reader's  own  IMAP support since
+       OfflineIMAP supports many features (offline reading, for one) that most
+       IMAP-aware readers don't.
 
 QUICK START
        If  you  have already installed OfflineIMAP system-wide, or your system
@@ -74,8 +84,16 @@ QUICK START
        [general]
        accounts = Test
 
-       [Test]
+       [Account Test]
+       localrepository = Local
+       remoterepository = Remote
+
+       [Repository Local]
+       type = Maildir
        localfolders = ~/Test
+
+       [Repository Remote]
+       type = IMAP
        remotehost = examplehost
        remoteuser = jgoerzen
 
@@ -122,7 +140,9 @@ INSTALLATION
          modern  mail  readers  have  this support built-in, so you can choose
          from a wide variety of mail servers.  This format is  also  known  as
          the  "qmail"  format, so any mail reader compatible with it will work
-         with OfflineIMAP.
+         with OfflineIMAP.  If you do not have a  mail  reader  that  supports
+         Maildir,  you  can  often  install a local IMAP server and point both
+         OfflineIMAP and your mail reader at it.
 
    SYSTEM-WIDE INSTALLATION, DEBIAN
        If you are tracking Debian unstable, you  may  install  OfflineIMAP  by
@@ -209,12 +229,13 @@ OPTIONS
               the results more sensible.
 
               -d  requires one or more debugtypes, separated by commas.  These
-              define what exactly will be debugged, and include  two  options:
-              imap  and  maildir.   The  imap option will enable IMAP protocol
-              stream and parsing debugging.  Note that the output may  contain
-              passwords, so take care to remove that from the debugging output
-              before sending it to  anyone  else.   The  maildir  option  will
-              enable debugging for certain Maildir operations.
+              define what exactly will be debugged, and include three options:
+              imap,  maildir,  and  thread.   The imap option will enable IMAP
+              protocol stream and parsing debugging.  Note that the output may
+              contain  passwords,  so take care to remove that from the debug-
+              ging output before sending  it  to  anyone  else.   The  maildir
+              option  will  enable  debugging  for certain Maildir operations.
+              And thread will debug the threading model.
 
        -o     Run only once, ignoring all autorefresh settings in the configu-
               ration file.
@@ -224,52 +245,52 @@ OPTIONS
        --help Show summary of options.
 
        -u interface
-              Specifies an alternative user interface  module  to  use.   This
-              overrides  the defailt specified in the configuration file.  The
+              Specifies  an  alternative  user  interface module to use.  This
+              overrides the defailt specified in the configuration file.   The
               pre-defined options are listed in the User Interfaces section.
 
 USER INTERFACES
-       OfflineIMAP has a pluggable user interface system that lets you  choose
+       OfflineIMAP  has a pluggable user interface system that lets you choose
        how the program communicates information to you.  There are two graphi-
-       cal interfaces, two terminal interfaces, and two noninteractive  inter-
+       cal  interfaces, two terminal interfaces, and two noninteractive inter-
        faces suitable for scripting or logging purposes.  The ui option in the
-       configuration file specifies user interface preferences.  The  -u  com-
-       mand-line  option  can  override  the  configuration file setting.  The
+       configuration  file  specifies user interface preferences.  The -u com-
+       mand-line option can override  the  configuration  file  setting.   The
        available  values  for  the  configuration  file  or  command-line  are
        described in this section.
 
    TK.BLINKENLIGHTS
-       Tk.Blinkenlights  is  an  interface designed to be sleek, fun to watch,
+       Tk.Blinkenlights is an interface designed to be sleek,  fun  to  watch,
        and informative of the overall picture of what OfflineIMAP is doing.  I
        consider it to be the best general-purpose interface in OfflineIMAP.
 
-       Tk.Blinkenlights  contains,  by  default,  a small window with a row of
+       Tk.Blinkenlights contains, by default, a small window  with  a  row  of
        LEDs, a small log, and a row of command buttons.  The total size of the
-       window  is very small, so it uses little desktop space, yet it is quite
+       window is very small, so it uses little desktop space, yet it is  quite
        functional.  The optional, toggleable, log shows more detail about what
        is happening and is color-coded to match the color of the lights.
 
-       Tk.Blinkenlights  is  the  only  user  interface  that has configurable
+       Tk.Blinkenlights is the  only  user  interface  that  has  configurable
        parameters; see the example offlineimap.conf for more details.
 
        Each light in the Blinkenlights interface represents a thread of execu-
        tion -- that is, a particular task that OfflineIMAP is performing right
-       now.  The colors indicate what task the particular thread  is  perform-
+       now.   The  colors indicate what task the particular thread is perform-
        ing, and are as follows:
 
        Black  indicates that this light's thread has terminated; it will light
-              up again later when new threads start up.  So,  black  indicates
+              up  again  later when new threads start up.  So, black indicates
               no activity.
 
        Red (Meaning 1)
-              is  the color of the main program's thread, which basically does
+              is the color of the main program's thread, which basically  does
               nothing but monitor the others.  It might remind you of HAL 9000
               in 2001.
 
-       Gray   indicates  that  the  thread is establishing a new connection to
+       Gray   indicates that the thread is establishing a  new  connection  to
               the IMAP server.
 
-       Purple is the color of an account synchronization thread that is  moni-
+       Purple is  the color of an account synchronization thread that is moni-
               toring the progress of the folders in that account (not generat-
               ing any I/O).
 
@@ -279,7 +300,7 @@ USER INTERFACES
 
        Blue   is the color of a message synchronization controller thread.
 
-       Orange indicates that an actual  message  is  being  copied.   (We  use
+       Orange indicates  that  an  actual  message  is  being copied.  (We use
               fuschia for fake messages.)
 
        Red (meaning 2)
@@ -292,68 +313,68 @@ USER INTERFACES
               indicates that message flags are being removed.
 
        Red / Black Flashing
-              corresponds  to  the  countdown timer that runs between synchro-
+              corresponds to the countdown timer that  runs  between  synchro-
               nizations.
 
-       The name of this interfaces derives from a  bit  of  computer  history.
+       The  name  of  this  interfaces derives from a bit of computer history.
        Eric Raymond's Jargon File defines blinkenlights, in part, as:
 
 
-              Front-panel  diagnostic  lights  on a computer, esp. a dinosaur.
-              Now that dinosaurs are rare, this term usually refers to  status
+              Front-panel diagnostic lights on a computer,  esp.  a  dinosaur.
+              Now  that dinosaurs are rare, this term usually refers to status
               lights on a modem, network hub, or the like.
 
-              This  term derives from the last word of the famous blackletter-
+              This term derives from the last word of the famous  blackletter-
               Gothic sign in mangled pseudo-German that once graced about half
-              the  computer  rooms  in the English-speaking world. One version
+              the computer rooms in the English-speaking  world.  One  version
               ran in its entirety as follows:
 
               ACHTUNG!  ALLES LOOKENSPEEPERS!
 
-              Das computermachine ist nicht  fuer  gefingerpoken  und  mitten-
-              grabben.   Ist  easy schnappen der springenwerk, blowenfusen und
-              poppencorken mit spitzensparken.  Ist nicht  fuer  gewerken  bei
+              Das  computermachine  ist  nicht  fuer gefingerpoken und mitten-
+              grabben.  Ist easy schnappen der springenwerk,  blowenfusen  und
+              poppencorken  mit  spitzensparken.   Ist nicht fuer gewerken bei
               das dumpkopfen.  Das rubbernecken sichtseeren keepen das cotten-
-              pickenen hans in das  pockets  muss;  relaxen  und  watchen  das
+              pickenen  hans  in  das  pockets  muss;  relaxen und watchen das
               blinkenlichten.
 
    CURSES.BLINKENLIGHTS
-       Curses.Blinkenlights  is an interface very similar to Tk.Blinkenlights,
-       but is designed to be run in a console window (an xterm, Linux  virtual
-       terminal,  etc.)   Since  it  doesn't have access to graphics, it isn't
+       Curses.Blinkenlights is an interface very similar to  Tk.Blinkenlights,
+       but  is designed to be run in a console window (an xterm, Linux virtual
+       terminal, etc.)  Since it doesn't have access  to  graphics,  it  isn't
        quite as pretty, but it still gets the job done.
 
-       Please see the Tk.Blinkenlights  section  above  for  more  information
+       Please  see  the  Tk.Blinkenlights  section  above for more information
        about the colors used in this interface.
 
    TK.VERBOSEUI
-       Tk.VerboseUI  (formerly known as Tk.TkUI) is a graphical interface that
-       presents a variable-sized window.  In the window,  each  currently-exe-
-       cuting  thread has a section where its name and current status are dis-
+       Tk.VerboseUI (formerly known as Tk.TkUI) is a graphical interface  that
+       presents  a  variable-sized window.  In the window, each currently-exe-
+       cuting thread has a section where its name and current status are  dis-
        played.  This interface is best suited to people running on slower con-
-       nections,  as  you  get  a lot of detail, but for fast connections, the
-       detail may go by too quickly to be useful.  People  with  fast  connec-
+       nections, as you get a lot of detail, but  for  fast  connections,  the
+       detail  may  go  by too quickly to be useful.  People with fast connec-
        tions may wish to use Tk.Blinkenlights instead.
 
    TTY.TTYUI
-       TTY.TTYUI  interface  is  for people running in basic, non-color termi-
+       TTY.TTYUI interface is for people running in  basic,  non-color  termi-
        nals.  It prints out basic status messages and is generally friendly to
        use on a console or xterm.
 
    NONINTERACTIVE.BASIC
-       Noninteractive.Basic  is  designed  for situations in which OfflineIMAP
-       will be run non-attended and  the  status  of  its  execution  will  be
-       logged.   You  might use it, for instance, to have the system run auto-
+       Noninteractive.Basic is designed for situations  in  which  OfflineIMAP
+       will  be  run  non-attended  and  the  status  of its execution will be
+       logged.  You might use it, for instance, to have the system  run  auto-
        matically and e-mail you the results of the synchronization.  This user
-       interface  is  not  capable  of  reading  a password from the keyboard;
+       interface is not capable of  reading  a  password  from  the  keyboard;
        account passwords must be specified using one of the configuration file
        options.
 
    NONINTERACTIVE.QUIET
        Noninteractive.Quiet is designed for non-attended running in situations
-       where normal status messages are not desired.  It will  output  nothing
-       except  errors  and  serious warnings.  Like Noninteractive.Basic, this
-       user interface is not capable of reading a password from the  keyboard;
+       where  normal  status messages are not desired.  It will output nothing
+       except errors and serious warnings.   Like  Noninteractive.Basic,  this
+       user  interface is not capable of reading a password from the keyboard;
        account passwords must be specified using one of the configuration file
        options.
 
@@ -362,19 +383,19 @@ EXAMPLES
        mail any other examples you have that may be useful to me.
 
    MULTIPLE ACCOUNTS WITH MUTT
-       This  example shows you how to set up OfflineIMAP to synchronize multi-
+       This example shows you how to set up OfflineIMAP to synchronize  multi-
        ple accounts with the mutt mail reader.
 
-       Start by creating a directory to hold your  folders  by  running  mkdir
+       Start  by  creating  a  directory to hold your folders by running mkdir
        ~/Mail.  Then, in your ~/.offlineimaprc, specify:
 
        accounts = Personal, Work
 
-       Make  sure  that  you have both a [Personal] and a [Work] section, each
-       with different localfolder path  names.   Also,  make  sure  to  enable
-       [mbnames].
+       Make sure that you have both an  [Account  Personal]  and  an  [Account
+       Work] section.  The local repository for each account must have differ-
+       ent localfolder path names.  Also, make sure to enable [mbnames].
 
-       In each account section, write something like this:
+       In each local repository section, write something like this:
 
        localfolders = ~/Mail/Personal
 
@@ -391,14 +412,22 @@ EXAMPLES
 
    UW-IMAPD AND REFERENCES
        Some users with a UW-IMAPD server need to use OfflineIMAP's "reference"
-       feature to get at their mailboxes, specifying a reference  of  "~/Mail"
+       feature  to  get at their mailboxes, specifying a reference of "~/Mail"
        or "#mh/" depending on the configuration.  The below configuration from
-       docwhat@gerf.org shows using a reference  of  Mail,  a  nametrans  that
-       strips  the leading Mail/ off incoming folder names, and a folderfilter
-       that limits the folders synced to just three.
+       (originally  from  docwhat@gerf.org) shows using a reference of Mail, a
+       nametrans that strips the leading Mail/ off incoming folder names,  and
+       a folderfilter that limits the folders synced to just three.
 
-       [Gerf]
+       [Account Gerf]
+       localrepository = GerfLocal
+       remoterepository = GerfRemote
+
+       [Repository GerfLocal]
+       type = Maildir
        localfolders = ~/Mail
+
+       [Repository GerfRemote]
+       type = IMAP
        remotehost = gerf.org
        ssl = yes
        remoteuser = docwhat
@@ -417,15 +446,15 @@ EXAMPLES
        holdconnectionopen = no
 
    PYTHONFILE CONFIGURATION FILE OPTION
-       You can have OfflineIMAP load up a Python file  before  evaluating  the
-       configuration  file  options that are Python expressions.  This example
+       You  can  have  OfflineIMAP load up a Python file before evaluating the
+       configuration file options that are Python expressions.   This  example
        is based on one supplied by Tommi Virtanen for this feature.
 
        In ~/.offlineimap.rc, he adds these options:
 
        [general]
        pythonfile=~/.offlineimap.py
-       [foo]
+       [Repository foo]
        foldersort=mycmp
 
        Then, the ~/.offlineimap.py file will contain:
@@ -446,68 +475,75 @@ EXAMPLES
           folders.sort(mycmp)
           print folders
 
-       This code snippet illustrates how the foldersort  option  can  be  cus-
-       tomized  with  a Python function from the pythonfile to always synchro-
+       This  code  snippet  illustrates  how the foldersort option can be cus-
+       tomized with a Python function from the pythonfile to  always  synchro-
        nize certain folders first.
 
 ERRORS
-       If you get one of  some  frequently-encountered  or  confusing  errors,
+       If  you  get  one  of  some frequently-encountered or confusing errors,
        please check this section.
 
    UID VALIDITY PROBLEM FOR FOLDER
-       IMAP  servers  use  a  unique  ID (UID) to refer to a specific message.
+       IMAP servers use a unique ID (UID) to  refer  to  a  specific  message.
        This number is guaranteed to be unique to a particular message forever.
-       No  other  message in the same folder will ever get the same UID.  UIDs
-       are an integral part of OfflineIMAP's synchronization scheme; they  are
+       No other message in the same folder will ever get the same  UID.   UIDs
+       are  an integral part of OfflineIMAP's synchronization scheme; they are
        used to match up messages on your computer to messages on the server.
 
-       Sometimes,  the  UIDs on the server might get reset.  Usually this will
-       happen if you delete and then recreate a folder.   When  you  create  a
-       folder,  the  server  will  often  start  the  UID  back  from  1.  But
-       OfflineIMAP might still have the UIDs from the previous folder  by  the
-       same  name stored.  OfflineIMAP will detect this condition and skip the
+       Sometimes, the UIDs on the server might get reset.  Usually  this  will
+       happen  if  you  delete  and then recreate a folder.  When you create a
+       folder, the  server  will  often  start  the  UID  back  from  1.   But
+       OfflineIMAP  might  still have the UIDs from the previous folder by the
+       same name stored.  OfflineIMAP will detect this condition and skip  the
        folder.  This is GOOD, because it prevents data loss.
 
-       You can fix it by removing your  local  folder  and  cache  data.   For
-       instance,  if  your folders are under ~/Folders and the folder with the
+       You  can  fix  it  by  removing  your local folder and cache data.  For
+       instance, if your folders are under ~/Folders and the folder  with  the
        problem is INBOX, you'd type this:
 
        rm -r ~/Folders/INBOX
-       rm -r ~/.offlineimap/AccountName/INBOX
+       rm -r ~/.offlineimap/Account-AccountName
+       rm -r ~/.offlineimap/Repository-RepositoryName
 
-       (Of course, replace AccountName with the account name as  specified  in
-       ~/.offlineimaprc).
+       (Of  course,  replace  AccountName and RepositoryName with the names as
+       specified in ~/.offlineimaprc).
 
-       Next  time you run OfflineIMAP, it will re-download the folder with the
-       new UIDs.  Note that the procedure specified above will lose any  local
+       Next time you run OfflineIMAP, it will re-download the folder with  the
+       new  UIDs.  Note that the procedure specified above will lose any local
        changes made to the folder.
 
-       Some  IMAP servers are broken and do not support UIDs properly.  If you
-       continue to get this error for all your folders even  after  performing
+       Some IMAP servers are broken and do not support UIDs properly.  If  you
+       continue  to  get this error for all your folders even after performing
        the above procedure, it is likely that your IMAP server falls into this
        category.   OfflineIMAP  is  incompatible  with  such  servers.   Using
-       OfflineIMAP  with them will not destroy any mail, but at the same time,
-       it will not actually synchronize it either.  (OfflineIMAP  will  detect
+       OfflineIMAP with them will not destroy any mail, but at the same  time,
+       it  will  not actually synchronize it either.  (OfflineIMAP will detect
        this condition and abort prior to synchronization.)
 
+       This question comes up  frequently  on  the  OfflineIMAP  mailing  list
+       <URL:http://lists.complete.org/offlineimap@complete.org/>.    You   can
+       find      a      detailed       discussion       <URL:http://lists.com-
+       plete.org/offlineimap@complete.org/2003/04/msg00012.html.gz>   of   the
+       problem there.
+
 OTHER FREQUENTLY ASKED QUESTIONS
-       There  are  some  other FAQs that might not fit into another section of
+       There are some other FAQs that might not fit into  another  section  of
        the document, so they are discussed here.
 
        What platforms does OfflineIMAP run on?
-              It should run on most platforms supported by Python,  which  are
+              It  should  run on most platforms supported by Python, which are
               quite a few.
 
-       I'm  using  Mutt.   Other  IMAP  sync  programs  require me to use "set
+       I'm using Mutt.  Other IMAP  sync  programs  require  me  to  use  "set
        maildir_trash=yes".  Do I need to do that with OfflineIMAP?
-              No.   OfflineIMAP is smart enough to figure out message deletion
-              without this extra crutch.  You'll get the best results  if  you
+              No.  OfflineIMAP is smart enough to figure out message  deletion
+              without  this  extra crutch.  You'll get the best results if you
               don't use this setting, in fact.
 
        How do I specify the names of my folders?
-              You  do  not  need to.  OfflineIMAP is smart enough to automati-
+              You do not need to.  OfflineIMAP is smart  enough  to  automati-
               cally figure out what folders are present on the IMAP server and
-              synchronize  them.  You can use the folderfilter and foldertrans
+              synchronize them.  You can use the folderfilter and  foldertrans
               configuration file options to request certain folders and rename
               them as they come in if you like.
 
@@ -515,33 +551,36 @@ OTHER FREQUENTLY ASKED QUESTIONS
               Use the folderfilter option in the configuration file.
 
        How can I add or delete a folder?
-              OfflineIMAP  does not currently provide this feature, but if you
-              create a new folder on the  IMAP  server,  it  will  be  created
+              OfflineIMAP does not currently provide this feature, but if  you
+              create  a  new  folder  on  the  IMAP server, it will be created
               locally automatically.
 
        Are there any other warnings that I should be aware of?
               Yes; see the Notes section below.
 
        What is the mailbox name recorder (mbnames) for?
-              Some  mail  readers,  such as Mutt, are not capable of automati-
-              cally determining the names of your mailboxes.  OfflineIMAP  can
-              help  these  programs  by  writing the names of the folders ni a
+              Some mail readers, such as Mutt, are not  capable  of  automati-
+              cally  determining the names of your mailboxes.  OfflineIMAP can
+              help these programs by writing the names of  the  folders  ni  a
               format  you  specify.   See  the  example  offlineimap.conf  for
               details.
 
        Can I synchronize multiple accounts with OfflineIMAP?
-              Sure.   Just  name  them all in the accounts line in the general
+              Sure.  Just name them all in the accounts line  in  the  general
               section of the configuration file, and add a per-account section
               for each one.
 
        Does OfflineIMAP support POP?
               No.  POP is not robust enough to do a completely reliable multi-
-              machine synchronization like OfflineIMAP  can  do.   OfflineIMAP
+              machine  synchronization  like  OfflineIMAP can do.  OfflineIMAP
               will not support it.
 
        Does OfflineIMAP support mailbox formats other than Maildir?
-              Not  at  present.   There is no technical reason not to; just no
-              demand yet.  Maildir is a superior format anyway.
+              Not at present.  There is no technical reason not  to;  just  no
+              demand  yet.   Maildir  is  a  superior format anyway.  However,
+              OfflineIMAP can sync between two IMAP  servers,  and  some  IMAP
+              servers support other formats.  You could install an IMAP server
+              on your local machine and have OfflineIMAP sync to that.
 
        [technical] Why are your Maildir message filenames so huge?
               OfflineIMAP has two relevant principles: 1) never modifying your
@@ -644,27 +683,32 @@ NOTES
        folder inside your OfflineIMAP storage location.  You're now set!
 
    USE WITH KMAIL
-       At this time, I believe that OfflineIMAP is not compatible with  KMail.
-       KMail  cannot  work  in any mode other than to move all messages out of
-       all folders immediately, which (besides being  annoying  and  fundamen-
-       tally broken) is incompatible with OfflineIMAP.
+       At this time, I believe that OfflineIMAP with Maildirs is not  compati-
+       ble  with  KMail.  KMail cannot work in any mode other than to move all
+       messages out of all folders immediately, which (besides being  annoying
+       and fundamentally broken) is incompatible with OfflineIMAP.
+
+       However,  I  have  made  KMail  version 3 work well with OfflineIMAP by
+       installing an IMAP server on my local machine, having OfflineIMAP  sync
+       to that, and pointing KMail at the same server.
 
    MAILING LIST
        There is an OfflineIMAP mailing list available.  To subscribe, send the
        text "Subscribe" in the subject of a mail  to  offlineimap-request@com-
-       plete.org.  To post, send the message to offlineimap@complete.org.
+       plete.org.   To  post,  send  the  message to offlineimap@complete.org.
+       Archives are available at
+        <URL:http://lists.complete.org/offlineimap@complete.org/>.
 
    BUGS
        Reports of bugs should be sent via e-mail to the OfflineIMAP bug-track-
-       ing system (BTS) at offlineimap@bugs.complete.org or  submitted  online
+       ing  system  (BTS) at offlineimap@bugs.complete.org or submitted online
        using the web interface <URL:http://bugs.complete.org/>.
 
-       The  Web  site  also  lists all current bugs, where you can check their
+       The Web site also lists all current bugs, where  you  can  check  their
        status or contribute to fixing them.
 
 COPYRIGHT
-       OfflineIMAP, and  this  manual,  are  Copyright  (C)  2002,  2003  John
-       Goerzen.
+       OfflineIMAP, and this manual, are Copyright  2002, 2003 John Goerzen.
 
        This program is free software; you can redistribute it and/or modify it
        under the terms of the GNU General Public License as published  by  the
@@ -704,4 +748,4 @@ SEE ALSO
 
 
 
-John Goerzen                   05 February 2003                 OFFLINEIMAP(1)
+John Goerzen                     22 April 2003                  OFFLINEIMAP(1)

@@ -204,7 +204,8 @@ NAME="AEN56"
 ><SPAN
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
-> operates by maintaining a hierarchy of
+> traditionally 
+	  operates by maintaining a hierarchy of
 	  mail folders in Maildir format locally.  Your own mail
 	  reader will read mail from this tree, and need never know
 	  that the mail comes from IMAP.  <SPAN
@@ -215,12 +216,34 @@ CLASS="APPLICATION"
 	  computer and bi-directionally synchronize them, copying,
 	  marking, and deleting messages as necessary.
         </P
+><P
+>	  With <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> 4.0, a powerful new ability has been
+	  introduced -- the program can now synchronize two IMAP
+	  servers with each other, with no need to have a Maildir
+	  layer in-between.  Many people use this if they use a mail
+	  reader on their local machine that does not support
+	  Maildirs.  People may install an IMAP server on their local
+	  machine, and point both <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> and their mail reader
+	  of choice at it.  This is often preferable to the mail
+	  reader's own IMAP support since <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> supports many
+	  features (offline reading, for one) that most IMAP-aware
+	  readers don't.
+	</P
 ></DIV
 ></DIV
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN61"
+NAME="AEN65"
 ></A
 ><H2
 >Quick Start</H2
@@ -271,8 +294,16 @@ CLASS="PROGRAMLISTING"
 >[general]
 accounts = Test
 
-[Test]
+[Account Test]
+localrepository = Local
+remoterepository = Remote
+
+[Repository Local]
+type = Maildir
 localfolders = ~/Test
+
+[Repository Remote]
+type = IMAP
 remotehost = examplehost
 remoteuser = jgoerzen</PRE
 ><P
@@ -317,7 +348,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN83"
+NAME="AEN87"
 ></A
 ><H2
 >Installation</H2
@@ -345,7 +376,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN89"
+NAME="AEN93"
 ></A
 ><H3
 >Prerequisites</H3
@@ -387,22 +418,29 @@ TARGET="_top"
 ></LI
 ><LI
 ><P
->	      Have a mail reader that supports the Maildir mailbox format.  Most
-	      modern mail readers have this support built-in, so you can choose from
-	      a wide variety of mail servers.  This format is also known as the
-	      "qmail" format, so any mail reader compatible with it will work with
-	      <SPAN
+>	      Have a mail reader that supports the Maildir mailbox
+	      format.  Most modern mail readers have this support
+	      built-in, so you can choose from a wide variety of mail
+	      servers.  This format is also known as the "qmail"
+	      format, so any mail reader compatible with it will work
+	      with <SPAN
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
->.
-	</P
+>.  If you do not have a mail reader
+	      that supports Maildir, you can often install a local
+	      IMAP server and point both <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> and your mail
+	      reader at it.
+	    </P
 ></LI
 ></UL
 ></DIV
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN102"
+NAME="AEN107"
 ></A
 ><H3
 >System-Wide Installation, Debian</H3
@@ -448,7 +486,7 @@ CLASS="COMMAND"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN114"
+NAME="AEN119"
 ></A
 ><H3
 >System-Wide Installation, Other</H3
@@ -491,7 +529,7 @@ CLASS="COMMAND"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN124"
+NAME="AEN129"
 ></A
 ><H3
 >Single-Account Installation</H3
@@ -576,7 +614,7 @@ CLASS="FILENAME"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN145"
+NAME="AEN150"
 ></A
 ><H2
 >Options</H2
@@ -599,7 +637,8 @@ CLASS="VARIABLELIST"
 ><P
 >Disable most multithreading operations and use
 	    solely a single-connection
-	    sync.  This effectively sets the <SPAN
+	    sync.  This effectively sets the
+	      <SPAN
 CLASS="PROPERTY"
 >maxsyncaccounts</SPAN
 >
@@ -705,14 +744,18 @@ CLASS="OPTION"
 >-d</TT
 > requires one or more debugtypes,
 	      separated by commas.  These define what exactly will be
-	      debugged, and include two options: <SPAN
+	      debugged, and include three options: <SPAN
 CLASS="PROPERTY"
 >imap</SPAN
->
-	      and <SPAN
+>,
+	      <SPAN
 CLASS="PROPERTY"
 >maildir</SPAN
->.  The <SPAN
+>, and <SPAN
+CLASS="PROPERTY"
+>thread</SPAN
+>.
+	      The <SPAN
 CLASS="PROPERTY"
 >imap</SPAN
 >
@@ -723,7 +766,11 @@ CLASS="PROPERTY"
 CLASS="PROPERTY"
 >maildir</SPAN
 > option will enable debugging for
-	      certain Maildir operations.
+	      certain Maildir operations.  And <SPAN
+CLASS="PROPERTY"
+>thread</SPAN
+>
+	      will debug the threading model.
 	    </P
 ></DD
 ><DT
@@ -763,7 +810,7 @@ CLASS="REPLACEABLE"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN205"
+NAME="AEN212"
 ></A
 ><H2
 >User Interfaces</H2
@@ -789,7 +836,7 @@ CLASS="OPTION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN211"
+NAME="AEN218"
 ></A
 ><H3
 >Tk.Blinkenlights</H3
@@ -945,7 +992,7 @@ CLASS="FIRSTTERM"
 >, in part, as:
 	</P
 ><A
-NAME="AEN274"
+NAME="AEN281"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -982,7 +1029,7 @@ CLASS="EMPHASIS"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN280"
+NAME="AEN287"
 ></A
 ><H3
 >Curses.Blinkenlights</H3
@@ -1000,7 +1047,7 @@ NAME="AEN280"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN284"
+NAME="AEN291"
 ></A
 ><H3
 >Tk.VerboseUI</H3
@@ -1017,7 +1064,7 @@ NAME="AEN284"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN287"
+NAME="AEN294"
 ></A
 ><H3
 >TTY.TTYUI</H3
@@ -1030,7 +1077,7 @@ NAME="AEN287"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN290"
+NAME="AEN297"
 ></A
 ><H3
 >Noninteractive.Basic</H3
@@ -1050,7 +1097,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN294"
+NAME="AEN301"
 ></A
 ><H3
 >Noninteractive.Quiet</H3
@@ -1067,7 +1114,7 @@ NAME="AEN294"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN297"
+NAME="AEN304"
 ></A
 ><H2
 >Examples</H2
@@ -1079,7 +1126,7 @@ NAME="AEN297"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN300"
+NAME="AEN307"
 ></A
 ><H3
 >Multiple Accounts with Mutt</H3
@@ -1105,25 +1152,28 @@ CLASS="FILENAME"
 CLASS="PROGRAMLISTING"
 >accounts = Personal, Work</PRE
 ><P
->	  Make sure that you have both a <SPAN
+>	  Make sure that you have both an
+	  <SPAN
 CLASS="PROPERTY"
->[Personal]</SPAN
+>[Account Personal]</SPAN
 >
-	  and a <SPAN
+	  and an <SPAN
 CLASS="PROPERTY"
->[Work]</SPAN
-> section, each with different
+>[Account Work]</SPAN
+> section.  The
+	  local repository for each account must have different
 	  <SPAN
 CLASS="PROPERTY"
 >localfolder</SPAN
-> path names.  Also, make sure
+> path names.
+	  Also, make sure
 	  to enable <SPAN
 CLASS="PROPERTY"
 >[mbnames]</SPAN
 >.
 	</P
 ><P
->	  In each account section, write something like this:
+>	  In each local repository section, write something like this:
 	</P
 ><PRE
 CLASS="PROGRAMLISTING"
@@ -1149,7 +1199,7 @@ spoolfile=+Personal/INBOX</PRE
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN319"
+NAME="AEN326"
 ></A
 ><H3
 >UW-IMAPD and References</H3
@@ -1160,7 +1210,7 @@ CLASS="APPLICATION"
 >'s
 	  "reference" feature to get at their mailboxes, specifying a reference
 	  of "~/Mail" or "#mh/" depending on the configuration.  The below
-	  configuration from docwhat@gerf.org
+	  configuration from (originally from docwhat@gerf.org)
 	  shows using a <SPAN
 CLASS="PROPERTY"
 >reference</SPAN
@@ -1178,8 +1228,16 @@ CLASS="PROPERTY"
 	</P
 ><PRE
 CLASS="PROGRAMLISTING"
->[Gerf]
+>[Account Gerf]
+localrepository = GerfLocal
+remoterepository = GerfRemote
+
+[Repository GerfLocal]
+type = Maildir
 localfolders = ~/Mail
+
+[Repository GerfRemote]
+type = IMAP
 remotehost = gerf.org
 ssl = yes
 remoteuser = docwhat
@@ -1200,7 +1258,7 @@ holdconnectionopen = no</PRE
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN327"
+NAME="AEN334"
 ></A
 ><H3
 >pythonfile Configuration File Option</H3
@@ -1223,7 +1281,7 @@ CLASS="FILENAME"
 CLASS="PROGRAMLISTING"
 >[general]
 pythonfile=~/.offlineimap.py
-[foo]
+[Repository foo]
 foldersort=mycmp</PRE
 ><P
 >	  Then, the <TT
@@ -1266,7 +1324,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN340"
+NAME="AEN347"
 ></A
 ><H2
 >Errors</H2
@@ -1277,7 +1335,7 @@ NAME="AEN340"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN343"
+NAME="AEN350"
 ></A
 ><H3
 >UID validity problem for folder</H3
@@ -1324,9 +1382,21 @@ CLASS="FILENAME"
 ><PRE
 CLASS="PROGRAMLISTING"
 >rm -r ~/Folders/INBOX
-rm -r ~/.offlineimap/AccountName/INBOX</PRE
+rm -r ~/.offlineimap/Account-<TT
+CLASS="REPLACEABLE"
+><I
+>AccountName</I
+></TT
+>
+rm -r ~/.offlineimap/Repository-<TT
+CLASS="REPLACEABLE"
+><I
+>RepositoryName</I
+></TT
+></PRE
 ><P
->	  (Of course, replace AccountName with the account name as specified
+>	  (Of course, replace AccountName and RepositoryName 
+	  with the names as specified
 	  in <TT
 CLASS="FILENAME"
 >~/.offlineimaprc</TT
@@ -1359,12 +1429,30 @@ CLASS="APPLICATION"
 > will detect
 	  this condition and abort prior to synchronization.)
 	</P
+><P
+>	  This question comes up frequently on the
+	  <A
+HREF="http://lists.complete.org/offlineimap@complete.org/"
+TARGET="_top"
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+>
+	  mailing list</A
+>.  You can find a
+	  <A
+HREF="http://lists.complete.org/offlineimap@complete.org/2003/04/msg00012.html.gz"
+TARGET="_top"
+>detailed
+	  discussion</A
+> of the problem there.
+	</P
 ></DIV
 ></DIV
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN362"
+NAME="AEN375"
 ></A
 ><H2
 >Other Frequently Asked Questions</H2
@@ -1515,6 +1603,16 @@ CLASS="APPLICATION"
 ><P
 >Not at present.  There is no technical reason not to; just no
 	    demand yet.  Maildir is a superior format anyway.
+	      However, <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> can sync between two IMAP
+	  servers, and some IMAP servers support other formats.  You
+	  could install an IMAP server on your local machine and have
+	  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> sync to that.
 	  </P
 ></DD
 ><DT
@@ -1623,7 +1721,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN456"
+NAME="AEN471"
 ></A
 ><H2
 >Conforming To</H2
@@ -1662,14 +1760,14 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN469"
+NAME="AEN484"
 ></A
 ><H2
 >Notes</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN471"
+NAME="AEN486"
 ></A
 ><H3
 >Deleting Local Folders</H3
@@ -1701,7 +1799,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN478"
+NAME="AEN493"
 ></A
 ><H3
 >Multiple Instances</H3
@@ -1730,7 +1828,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN485"
+NAME="AEN500"
 ></A
 ><H3
 >Copying Messages Between Folders</H3
@@ -1760,7 +1858,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN491"
+NAME="AEN506"
 ></A
 ><H3
 >Use with Evolution</H3
@@ -1796,7 +1894,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN499"
+NAME="AEN514"
 ></A
 ><H3
 >Use with KMail</H3
@@ -1804,19 +1902,33 @@ NAME="AEN499"
 >At this time, I believe that <SPAN
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
-> is not compatible
+> with Maildirs
+	  is not compatible
 	  with KMail.  KMail cannot work in any mode other than to move
 	  all messages out of all folders immediately, which (besides being annoying
-	  and fundamentally broken) is incompatible with <SPAN
+	  and fundamentally broken) is incompatible with
+	<SPAN
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
 >.
+	</P
+><P
+>	  However, I have made KMail version 3 work well with
+	  <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> by installing an IMAP server on my local
+	  machine, having <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> sync to that, and pointing
+	  KMail at the same server.
 	</P
 ></DIV
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN504"
+NAME="AEN522"
 ></A
 ><H3
 >Mailing List</H3
@@ -1824,13 +1936,18 @@ NAME="AEN504"
 >There is an OfflineIMAP mailing list available.
 	  To subscribe, send the text "Subscribe" in the subject of a mail to
 	  offlineimap-request@complete.org.  To post, send the message to
-	  offlineimap@complete.org.
+	  offlineimap@complete.org.  Archives are available at
+	  <A
+HREF="http://lists.complete.org/offlineimap@complete.org/"
+TARGET="_top"
+>http://lists.complete.org/offlineimap@complete.org/</A
+>.
 	</P
 ></DIV
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN507"
+NAME="AEN526"
 ></A
 ><H3
 >Bugs</H3
@@ -1856,12 +1973,12 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN513"
+NAME="AEN532"
 ></A
 ><H2
 >Copyright</H2
 ><P
->OfflineIMAP, and this manual, are Copyright &copy; 2002, 2003 John Goerzen.</P
+>OfflineIMAP, and this manual, are Copyright © 2002, 2003 John Goerzen.</P
 ><P
 >	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -1894,7 +2011,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN522"
+NAME="AEN541"
 ></A
 ><H2
 >Author</H2
@@ -1946,7 +2063,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN534"
+NAME="AEN553"
 ></A
 ><H2
 >See Also</H2

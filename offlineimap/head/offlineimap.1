@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "05 February 2003" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "22 April 2003" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
@@ -58,13 +58,26 @@ with no warranty, so I am not responsible if this turns out
 to be wrong.
 .SS "METHOD OF OPERATION"
 .PP
-\fBOfflineIMAP\fR operates by maintaining a hierarchy of
+\fBOfflineIMAP\fR traditionally 
+operates by maintaining a hierarchy of
 mail folders in Maildir format locally.  Your own mail
 reader will read mail from this tree, and need never know
 that the mail comes from IMAP.  \fBOfflineIMAP\fR will detect
 changes to the mail folders on your IMAP server and your own
 computer and bi-directionally synchronize them, copying,
 marking, and deleting messages as necessary.
+.PP
+With \fBOfflineIMAP\fR 4.0, a powerful new ability has been
+introduced -- the program can now synchronize two IMAP
+servers with each other, with no need to have a Maildir
+layer in-between.  Many people use this if they use a mail
+reader on their local machine that does not support
+Maildirs.  People may install an IMAP server on their local
+machine, and point both \fBOfflineIMAP\fR and their mail reader
+of choice at it.  This is often preferable to the mail
+reader's own IMAP support since \fBOfflineIMAP\fR supports many
+features (offline reading, for one) that most IMAP-aware
+readers don't.
 .SH "QUICK START"
 .PP
 If you have already installed \fBOfflineIMAP\fR system-wide,
@@ -87,8 +100,16 @@ command such as \fBcp offlineimap.conf.minimal ~/.offlineimaprc\fR will do it.  
 [general]
 accounts = Test
 
-[Test]
+[Account Test]
+localrepository = Local
+remoterepository = Remote
+
+[Repository Local]
+type = Maildir
 localfolders = ~/Test
+
+[Repository Remote]
+type = IMAP
 remotehost = examplehost
 remoteuser = jgoerzen
 .fi
@@ -143,11 +164,15 @@ If you intend to use the Tk interface, you must have Tkinter
 Python must have been built with SSL support.
 .TP 0.2i
 \(bu
-Have a mail reader that supports the Maildir mailbox format.  Most
-modern mail readers have this support built-in, so you can choose from
-a wide variety of mail servers.  This format is also known as the
-"qmail" format, so any mail reader compatible with it will work with
-\fBOfflineIMAP\fR.
+Have a mail reader that supports the Maildir mailbox
+format.  Most modern mail readers have this support
+built-in, so you can choose from a wide variety of mail
+servers.  This format is also known as the "qmail"
+format, so any mail reader compatible with it will work
+with \fBOfflineIMAP\fR.  If you do not have a mail reader
+that supports Maildir, you can often install a local
+IMAP server and point both \fBOfflineIMAP\fR and your mail
+reader at it.
 .SS "SYSTEM-WIDE INSTALLATION, DEBIAN"
 .PP
 If you are tracking Debian unstable, you may install
@@ -216,7 +241,8 @@ there are a few command-line options that you may set for
 \fB-1\fR
 Disable most multithreading operations and use
 solely a single-connection
-sync.  This effectively sets the \fImaxsyncaccounts\fR
+sync.  This effectively sets the
+\fImaxsyncaccounts\fR
 and all \fImaxconnections\fR configuration file
 variables to 1.
 .TP
@@ -251,13 +277,15 @@ on under the hood.  I suggest that you use this with
 
 \fB-d\fR requires one or more debugtypes,
 separated by commas.  These define what exactly will be
-debugged, and include two options: \fIimap\fR
-and \fImaildir\fR.  The \fIimap\fR
+debugged, and include three options: \fIimap\fR,
+\fImaildir\fR, and \fIthread\fR.
+The \fIimap\fR
 option will enable IMAP protocol stream and parsing debugging.  Note
 that the output may contain passwords, so take care to remove that
 from the debugging output before sending it to anyone else.  The
 \fImaildir\fR option will enable debugging for
-certain Maildir operations.
+certain Maildir operations.  And \fIthread\fR
+will debug the threading model.
 .TP
 \fB-o\fR
 Run only once, ignoring all
@@ -435,12 +463,15 @@ Start by creating a directory to hold your folders by running
 accounts = Personal, Work
 .fi
 .PP
-Make sure that you have both a \fI[Personal]\fR
-and a \fI[Work]\fR section, each with different
-\fIlocalfolder\fR path names.  Also, make sure
+Make sure that you have both an
+\fI[Account Personal]\fR
+and an \fI[Account Work]\fR section.  The
+local repository for each account must have different
+\fIlocalfolder\fR path names.
+Also, make sure
 to enable \fI[mbnames]\fR.
 .PP
-In each account section, write something like this:
+In each local repository section, write something like this:
 
 .nf
 localfolders = ~/Mail/Personal
@@ -463,7 +494,7 @@ That's it!
 Some users with a UW-IMAPD server need to use \fBOfflineIMAP\fR's
 "reference" feature to get at their mailboxes, specifying a reference
 of "~/Mail" or "#mh/" depending on the configuration.  The below
-configuration from docwhat@gerf.org
+configuration from (originally from docwhat@gerf.org)
 shows using a \fIreference\fR of Mail, a \fInametrans\fR
 that strips
 the leading Mail/ off incoming folder names, and a
@@ -471,8 +502,16 @@ the leading Mail/ off incoming folder names, and a
 limits the folders synced to just three.
 
 .nf
-[Gerf]
+[Account Gerf]
+localrepository = GerfLocal
+remoterepository = GerfRemote
+
+[Repository GerfLocal]
+type = Maildir
 localfolders = ~/Mail
+
+[Repository GerfRemote]
+type = IMAP
 remotehost = gerf.org
 ssl = yes
 remoteuser = docwhat
@@ -502,7 +541,7 @@ In \fI~/.offlineimap.rc\fR, he adds these options:
 .nf
 [general]
 pythonfile=~/.offlineimap.py
-[foo]
+[Repository foo]
 foldersort=mycmp
 .fi
 .PP
@@ -558,10 +597,12 @@ and the folder with the problem is INBOX, you'd type this:
 
 .nf
 rm -r ~/Folders/INBOX
-rm -r ~/.offlineimap/AccountName/INBOX
+rm -r ~/.offlineimap/Account-\fIAccountName\fR
+rm -r ~/.offlineimap/Repository-\fIRepositoryName\fR
 .fi
 .PP
-(Of course, replace AccountName with the account name as specified
+(Of course, replace AccountName and RepositoryName 
+with the names as specified
 in \fI~/.offlineimaprc\fR).
 .PP
 Next time you run \fBOfflineIMAP\fR, it will re-download
@@ -576,6 +617,12 @@ this category.  \fBOfflineIMAP\fR is incompatible with such servers.
 Using \fBOfflineIMAP\fR with them will not destroy any mail, but at the same time,
 it will not actually synchronize it either.  (\fBOfflineIMAP\fR will detect
 this condition and abort prior to synchronization.)
+.PP
+This question comes up frequently on the
+\fBOfflineIMAP\fR
+mailing list <URL:http://lists.complete.org/offlineimap@complete.org/>.  You can find a
+detailed
+discussion <URL:http://lists.complete.org/offlineimap@complete.org/2003/04/msg00012.html.gz> of the problem there.
 .SH "OTHER FREQUENTLY ASKED QUESTIONS"
 .PP
 There are some other FAQs that might not fit into another section
@@ -629,6 +676,10 @@ will not support it.
 \fBDoes OfflineIMAP support mailbox formats other than Maildir?\fR
 Not at present.  There is no technical reason not to; just no
 demand yet.  Maildir is a superior format anyway.
+However, \fBOfflineIMAP\fR can sync between two IMAP
+servers, and some IMAP servers support other formats.  You
+could install an IMAP server on your local machine and have
+\fBOfflineIMAP\fR sync to that.
 .TP
 \fB[technical] Why are your Maildir message filenames so huge?\fR
 \fBOfflineIMAP\fR has two relevant principles: 1) never modifying your
@@ -747,16 +798,24 @@ specify the name of the top-level folder
 You're now set!
 .SS "USE WITH KMAIL"
 .PP
-At this time, I believe that \fBOfflineIMAP\fR is not compatible
+At this time, I believe that \fBOfflineIMAP\fR with Maildirs
+is not compatible
 with KMail.  KMail cannot work in any mode other than to move
 all messages out of all folders immediately, which (besides being annoying
-and fundamentally broken) is incompatible with \fBOfflineIMAP\fR.
+and fundamentally broken) is incompatible with
+\fBOfflineIMAP\fR.
+.PP
+However, I have made KMail version 3 work well with
+\fBOfflineIMAP\fR by installing an IMAP server on my local
+machine, having \fBOfflineIMAP\fR sync to that, and pointing
+KMail at the same server.
 .SS "MAILING LIST"
 .PP
 There is an OfflineIMAP mailing list available.
 To subscribe, send the text "Subscribe" in the subject of a mail to
 offlineimap-request@complete.org.  To post, send the message to
-offlineimap@complete.org.
+offlineimap@complete.org.  Archives are available at
+ <URL:http://lists.complete.org/offlineimap@complete.org/>.
 .SS "BUGS"
 .PP
 Reports of bugs should be sent via e-mail to the
@@ -768,7 +827,7 @@ The Web site also lists all current bugs, where you can check their
 status or contribute to fixing them.
 .SH "COPYRIGHT"
 .PP
-OfflineIMAP, and this manual, are Copyright (C) 2002, 2003 John Goerzen.
+OfflineIMAP, and this manual, are Copyright © 2002, 2003 John Goerzen.
 .PP
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -5,14 +5,14 @@
 accounts = Test
 
 [Account Test]
-localrepository = Main
-remoterepository = Example
+localrepository = Local
+remoterepository = Remote
 
-[Repository Main]
+[Repository Local]
 type = Maildir
 localfolders = ~/Test
 
-[Repository Example]
+[Repository Remote]
 type = IMAP
 remotehost = examplehost
 remoteuser = jgoerzen

@@ -4,6 +4,15 @@ offlineimap (3.99.14) unstable; urgency=low
     ".".  Useful for generating Maildir trees for a Courier server.
   * Fixed the regular expression that fixes line endings to make sure to
     deal with \n\n properly.
+  * Slight renaming in offlineimap.conf.minimal to clarify things.
+  * Documentation updated with information about new features.
+    Closes: #189771.
+    + Described IMAP-IMAP syncing
+    + Updated minimal example with new offlineimap.conf.minimal
+    + Updated UID information.  Added link to recent mailing list
+      discussion.
+    + Described KMail syncing, which now works.
+    + Added link to mailing list archives.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 17 Apr 2003 21:13:27 -0500
 
