@@ -3,12 +3,13 @@
 <!--      "file:///usr/share/sgml/docbook/dtd/xml/4.2/docbookx.dtd"> -->
 
 <reference>
+  <!--
   <docinfo>
     <address><email>jgoerzen@complete.org</email></address>
     <author><firstname>John</firstname><surname>Goerzen</surname></author>
     <date>$Date$</date>
     <title>OfflineIMAP Manual</title>
-  </docinfo>
+  </docinfo> -->
 
   <title>OfflineIMAP Manual</title>
 
