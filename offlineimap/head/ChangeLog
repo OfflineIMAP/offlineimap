@@ -1,4 +1,33 @@
 ------------------------------------------------------------------------
+rev 283:  jgoerzen | 2002-11-05 08:07:45 -0600 (Tue, 05 Nov 2002) | 3 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap.1
+
+  * Fixed setup.py installation instructions.
+
+
+------------------------------------------------------------------------
+rev 282:  jgoerzen | 2002-11-04 19:11:28 -0600 (Mon, 04 Nov 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/imapserver.py
+
+Updated with more md5 debugging
+
+------------------------------------------------------------------------
+rev 281:  jgoerzen | 2002-11-04 13:24:41 -0600 (Mon, 04 Nov 2002) | 3 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+  * Fixed CRAM-MD5 auth so it actually works now.
+This is 3.99.3
+
+------------------------------------------------------------------------
 rev 280:  jgoerzen | 2002-11-04 11:38:39 -0600 (Mon, 04 Nov 2002) | 3 lines
 Changed paths:
    M /offlineimap/head/debian/changelog

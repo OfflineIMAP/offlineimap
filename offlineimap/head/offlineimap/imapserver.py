@@ -19,7 +19,7 @@
 from offlineimap import imaplib, imaputil, threadutil
 from offlineimap.ui import UIBase
 from threading import *
-import thread, hmac
+import thread, hmac, os
 
 
 class UsefulIMAPMixIn:

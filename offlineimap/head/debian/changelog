@@ -1,6 +1,10 @@
 offlineimap (3.99.4) unstable; urgency=low
 
   * Fixed setup.py installation instructions.
+  * Added more debugging to the CRAM-MD5 authentication module.
+  * CRAM-MD5 *really* fixed this time.  Thanks to MJ for the patch.
+  * Adding missing import os to imapserver.py.  Thanks to John Wiegley
+    for catching that.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue,  5 Nov 2002 08:06:45 -0600
 
