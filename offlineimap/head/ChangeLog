@@ -1,4 +1,69 @@
 ------------------------------------------------------------------------
+rev 290:  jgoerzen | 2002-12-03 10:25:06 -0600 (Tue, 03 Dec 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+
+Updated for today's release
+
+------------------------------------------------------------------------
+rev 289:  jgoerzen | 2002-11-19 16:57:45 -0600 (Tue, 19 Nov 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap.1
+
+Fixed infinite loop in imapserver.py with preauth
+
+------------------------------------------------------------------------
+rev 288:  jgoerzen | 2002-11-19 16:34:09 -0600 (Tue, 19 Nov 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.py
+
+Updated for 3.99.5
+
+------------------------------------------------------------------------
+rev 287:  jgoerzen | 2002-11-12 09:40:40 -0600 (Tue, 12 Nov 2002) | 4 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/folder/Maildir.py
+
+Alter handling of messages flagged for deletion -- no longer automatically
+delete them if expunge is 0.  In Maildir folder, we will now ignore the T
+flag entirely, and just pass it back and forth with IMAP.
+
+------------------------------------------------------------------------
+rev 286:  jgoerzen | 2002-11-12 09:36:34 -0600 (Tue, 12 Nov 2002) | 3 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap.conf
+
+  * Added ability to disable expunging on the server.
+
+
+------------------------------------------------------------------------
+rev 285:  jgoerzen | 2002-11-05 13:38:11 -0600 (Tue, 05 Nov 2002) | 5 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imapserver.py
+
+  * Adding missing import os to imapserver.py.  Thanks to John Wiegley
+    for catching that.
+
+Updated changelog
+
+------------------------------------------------------------------------
+rev 284:  mj | 2002-11-05 13:10:14 -0600 (Tue, 05 Nov 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/imapserver.py
+
+Working (and tested) CRAM-MD5 implementation.
+
+------------------------------------------------------------------------
 rev 283:  jgoerzen | 2002-11-05 08:07:45 -0600 (Tue, 05 Nov 2002) | 3 lines
 Changed paths:
    M /offlineimap/head/debian/changelog
