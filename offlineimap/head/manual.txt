@@ -97,11 +97,11 @@ INSTALLATION
 
    OTHER SYSTEM-WIDE INSTALLATION
        Download  the tar.gz version of the package from the website.  Then run
-       these commands:
+       these commands, making sure that you are the "root" user first:
 
-       tar -zxvf offlineimap-x.y.z.tar.gz
+       tar -zxvf offlineimap_x.y.z.tar.gz
        cd offlineimap-x.y.z
-       python2.2 setup.py
+       python2.2 setup.py install
 
        Some systems will need to use python instead of python2.2.  Next,  pro-
        ceed  to  configuration.   You will type offlineimap to invoke the pro-
@@ -187,14 +187,14 @@ OPTIONS
 USER INTERFACES
        OfflineIMAP has a pluggable user interface system that lets you  choose
        how the program communicates information to you.  There are two graphi-
-       cal interfaces, one terminal interface, and two  noninteractive  inter-
+       cal interfaces, two terminal interfaces, and two noninteractive  inter-
        faces suitable for scripting or logging purposes.  The ui option in the
        configuration file specifies the user interface  preferences.   The  -u
        command-line option can override the configuration file.  The available
        values for the configuration file or command-line are describef in this
        section.
 
-   Tk.Blinkenlights
+   Tk.Blinkenlights or Curses.Blinkenlights
        This  is  an interface designed to be sleek, fun to watch, and informa-
        tive of the overall picture of what OfflineIMAP is doing.   I  consider
        it   to   be   the   best  general-purpose  interface  in  OfflineIMAP.
@@ -205,27 +205,32 @@ USER INTERFACES
        detail about what is happening and is color-coded to match the color of
        the lights.
 
-       Tk.Blinkenlights  is  the  only  user  interface  that has configurable
+       Curses.Blinkenlights  is an interface very similar to Tk.Blinkenlights,
+       but is designed to be run in a console window (an xterm, Linux  virtual
+       terminal,  etc.)   Since  it  doesn't have access to graphics, it isn't
+       quite as pretty, but it still gets the job done.
+
+       Tk.Blinkenlights is the  only  user  interface  that  has  configurable
        parameters; see the example offlineimap.conf for more details.
 
-       Each light in the Tk.Blinkenlights interface  represents  a  thread  of
-       execution  -- that is, a particular task that OfflineIMAP is performing
-       right now.  The color indicates what task the particular thread is per-
-       forming, and are as follows:
+       Each  light  in  the Tk.Blinkenlights or Curses.Blinkenlights interface
+       represents a thread of execution -- that is,  a  particular  task  that
+       OfflineIMAP is performing right now.  The color indicates what task the
+       particular thread is performing, and are as follows:
 
        Black  indicates that this light's thread has terminated; it will light
-              up again later when new threads start up.  So,  black  indicates
+              up  again  later when new threads start up.  So, black indicates
               no activity.
 
        Red (Meaning 1)
-              is  the color of the main program's thread, which basically does
+              is the color of the main program's thread, which basically  does
               nothing but monitor the others.  It might remind you of HAL 9000
               in 2001.
 
-       Gray   indicates  that  the  thread is establishing a new connection to
+       Gray   indicates that the thread is establishing a  new  connection  to
               the IMAP server.
 
-       Purple is the color of an account synchronization thread that is  moni-
+       Purple is  the color of an account synchronization thread that is moni-
               toring the progress of the folders in that account (not generat-
               ing any I/O).
 
@@ -245,44 +250,43 @@ USER INTERFACES
        Pink   (bright red) indicates that message flags are being removed.
 
        Red / Black Flashing
-              corresponds to the countdown timer that  runs  between  synchro-
+              corresponds  to  the  countdown timer that runs between synchro-
               nizations.
 
-       The  name of this interface derives from a bit of computer science his-
+       The name of this interface derives from a bit of computer science  his-
        tory.  Eric Raymond's Jargon File defines blinkenlights, in part, as:
 
-              Front-panel diagnostic lights on a computer,  esp.  a  dinosaur.
-              Now  that dinosaurs are rare, this term usually refers to status
+              Front-panel  diagnostic  lights  on a computer, esp. a dinosaur.
+              Now that dinosaurs are rare, this term usually refers to  status
               lights on a modem, network hub, or the like.
 
-              This term derives from the last word of the famous  blackletter-
+              This  term derives from the last word of the famous blackletter-
               Gothic sign in mangled pseudo-German that once graced about half
-              the computer rooms in the English-speaking  world.  One  version
+              the  computer  rooms  in the English-speaking world. One version
               ran in its entirety as follows:
 
               ACHTUNG! ALLES LOOKENSPEEPERS!
 
-              Das  computermachine  ist  nicht  fuer gefingerpoken und mitten-
-              grabben.  Ist easy schnappen der springenwerk,  blowenfusen  und
-              poppencorken  mit  spitzensparken.   Ist nicht fuer gewerken bei
+              Das computermachine ist nicht  fuer  gefingerpoken  und  mitten-
+              grabben.   Ist  easy schnappen der springenwerk, blowenfusen und
+              poppencorken mit spitzensparken.  Ist nicht  fuer  gewerken  bei
               das dumpkopfen.  Das rubbernecken sichtseeren keepen das cotten-
-              pickenen  hans  in  das  pockets  muss;  relaxen und watchen das
+              pickenen hans in das  pockets  muss;  relaxen  und  watchen  das
               blinkenlichten.
 
    Tk.VerboseUI
-       This interface (formerly known as Tk.TkUI)  is  a  graphical  interface
-       that  presents a variable-sized window.  In the window, each currently-
-       executing thread has a section where its name and  current  status  are
-       displayed.   This  interface is best suited to people running on slower
-       connections, as you get a lot of detail, but for fast connections,  the
-       detail  may  go  by too quickly to be useful.  People with fast connec-
+       This  interface  (formerly  known  as Tk.TkUI) is a graphical interface
+       that presents a variable-sized window.  In the window, each  currently-
+       executing  thread  has  a section where its name and current status are
+       displayed.  This interface is best suited to people running  on  slower
+       connections,  as you get a lot of detail, but for fast connections, the
+       detail may go by too quickly to be useful.  People  with  fast  connec-
        tions may wish to use Tk.Blinkenlights instead.
 
    TTY.TTYUI
-       This interface is the default for  people  running  in  terminals.   It
-       prints  out  basic status messages, has an interruptible timer like the
-       graphical interfaces do, and is generally friendly to use on a  console
-       or xterm.
+       This  interface  is  the  default  for people running in terminals.  It
+       prints out basic status messages and is generally friendly to use on  a
+       console or xterm.
 
    Noninteractive.Basic
        This interface is designed for situations where OfflineIMAP will be run
@@ -563,22 +567,38 @@ NOTES
        sure that the message was properly  uploaded  before  deleting  it,  so
        there should be no risk of data loss.
 
+   USE WITH EVOLUTION
+       OfflineIMAP  can  work  with Evolution.  To do so, first configure your
+       OfflineIMAP account to have:
+       sep = /
+       in its configuration.  Then, configure Evolution with the "Maildir-for-
+       mat  mail  directories"  server  type.   For the path, you will need to
+       specify the name of the top-level folder inside your OfflineIMAP  stor-
+       age location.  You're now set!
+
+   USE WITH KMAIL
+       At  this time, I believe that OfflineIMAP is not compatible with KMail.
+       KMail cannot work in any mode other than to move all  messages  out  of
+       all  folders  immediately,  which (besides being annoying and fundamen-
+       tally broken) is incompatible with OfflineIMAP.
+
    MAILING LIST
        There is an OfflineIMAP mailing list available.
 
-       To  subscribe,  send  the  text "Subscribe" in the subject of a mail to
-       offlineimap-request@complete.org.   To  post,  send  the   message   to
+       To subscribe, send the text "Subscribe" in the subject  of  a  mail  to
+       offlineimap-request@complete.org.    To   post,  send  the  message  to
        offlineimap@complete.org.
 
 BUGS
        Reports of bugs should be sent via e-mail to the OfflineIMAP bug-track-
-       ing system (BTS) at offlineimap@bugs.complete.org or submitted  on-line
-       using  the  Web  interface  at http://bugs.complete.org/.  The Web site
-       also lists all current bugs, where you can check their status  or  con-
+       ing  system (BTS) at offlineimap@bugs.complete.org or submitted on-line
+       using the Web interface at  http://bugs.complete.org/.   The  Web  site
+       also  lists  all current bugs, where you can check their status or con-
        tribute to fixing them.
 
 COPYRIGHT
-       OfflineIMAP is Copyright (C) 2002 John Goerzen.
+       OfflineIMAP, and  this  manual,  are  Copyright  (C)  2002,  2003  John
+       Goerzen.
 
        This program is free software; you can redistribute it and/or modify it
        under the terms of the GNU General Public License as published  by  the
@@ -612,8 +632,8 @@ AUTHOR
 
        OfflineIMAP may also be downloaded using Subversion.  Additionally, the
        distributed tar.gz may be updated with a simple "svn  update"  command;
-       it  is  ready  to  go.   For  information  on  getting OfflineIMAP with
-       Subversion, please visit:
+       it is ready to go.  For information on getting OfflineIMAP with Subver-
+       sion, please visit:
 
        http://svn.complete.org/
 

@@ -13,6 +13,14 @@ offlineimap (3.99.6) unstable; urgency=low
     *** NOTE *** THIS CHANGE BREAKS COMPATIBILITY WITH OLDER VERSIONS.
   * New color console interface: Curses.Blinkenlights!  Try it out!
     Closes: #167357.
+  * Due to possibly having one account sleep while another is reading a
+    password, and other tricky situations, support for nice updating and
+    cancelling of a sleep in TTY.TTYUI has been removed.  (Sleep will
+    still work; there is just no way to cancel it early.)
+    .
+    However, this is not going to be a huge problem because the new Curses
+    Blinkenlights interface has this support, and does it a lot better than
+    TTY.TTYUI ever could have.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu,  2 Jan 2003 13:59:44 -0600
 

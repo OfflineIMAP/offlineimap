@@ -288,7 +288,7 @@ The pre-defined options are listed in the USER INTERFACES section.
 .B OfflineIMAP
 has a pluggable user interface system that lets you choose how the
 program communicates information to you.  There are two graphical
-interfaces, one terminal interface, and two noninteractive interfaces
+interfaces, two terminal interfaces, and two noninteractive interfaces
 suitable for scripting or logging purposes.  The
 .I ui
 option in the configuration file specifies the user interface
@@ -297,7 +297,7 @@ preferences.  The
 command-line option can override the configuration file.  The
 available values for the configuration file or command-line are
 describef in this section.
-.SS Tk.Blinkenlights
+.SS Tk.Blinkenlights or Curses.Blinkenlights
 This is an interface designed to be sleek, fun to watch, and
 informative of the overall picture of what
 .B OfflineIMAP
@@ -310,12 +310,18 @@ functional.  There is also an optional, toggable, log that shows more
 detail about what is happening and is color-coded to match the color
 of the lights.
 .PP
+Curses.Blinkenlights is an interface very similar to Tk.Blinkenlights,
+but is designed to be run in a console window (an xterm, Linux virtual
+terminal, etc.)  Since it doesn't have access to graphics, it isn't
+quite as pretty, but it still gets the job done.
+.PP
 Tk.Blinkenlights is the only user interface that has configurable
 parameters; see the example
 .I offlineimap.conf
 for more details.
 .PP
-Each light in the Tk.Blinkenlights interface represents a thread of
+Each light in the Tk.Blinkenlights or Curses.Blinkenlights 
+interface represents a thread of
 execution -- that is, a particular task that
 .B OfflineIMAP
 is performing right now.  The color indicates what task the particular
@@ -396,8 +402,7 @@ connections, the detail may go by too quickly to be useful.  People
 with fast connections may wish to use Tk.Blinkenlights instead.
 .SS TTY.TTYUI
 This interface is the default for people running in terminals.  It
-prints out basic status messages, has an interruptible timer like the
-graphical interfaces do, and is generally friendly to use on a console
+prints out basic status messages and is generally friendly to use on a console
 or xterm.
 .SS Noninteractive.Basic
 This interface is designed for situations where
