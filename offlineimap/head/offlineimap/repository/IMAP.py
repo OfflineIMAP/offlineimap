@@ -18,7 +18,7 @@
 
 from Base import BaseRepository
 from offlineimap import folder, imaputil
-import re
+import re, types
 from threading import *
 
 class IMAPRepository(BaseRepository):
@@ -60,6 +60,10 @@ class IMAPRepository(BaseRepository):
         finally:
             self.imapserver.releaseconnection(imapobj)
         for string in listresult:
+            if type(string) == types.StringType and string == '':
+                # Bug in imaplib: empty strings in results from
+                # literals.
+                continue
             flags, delim, name = imaputil.imapsplit(string)
             flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
             if '\\noselect' in flaglist:
