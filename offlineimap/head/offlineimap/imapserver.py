@@ -106,10 +106,12 @@ class IMAPServer:
 
     def md5handler(self, response):
         challenge = response.strip()
-        msg = self.getpassword()
-        while len(msg) < 64:
-            msg += "\0"
+        while len(challenge) < 64:
+            challenge += "\0"
 
+        if len(challenge) > 64:
+            challenge = md5.new(challenge).digest()
+        msg = self.getpassword()
         reply = hmac.new(challenge, msg)
         retval = self.username + ' ' + \
                      reply.hexdigest()

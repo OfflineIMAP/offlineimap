@@ -1,4 +1,124 @@
 ------------------------------------------------------------------------
+rev 280:  jgoerzen | 2002-11-04 11:38:39 -0600 (Mon, 04 Nov 2002) | 3 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imapserver.py
+
+  * Falls back to plain-text auth if CRAM-MD5 fails.  Fixes [complete.org #42]
+
+
+------------------------------------------------------------------------
+rev 279:  jgoerzen | 2002-11-04 11:29:39 -0600 (Mon, 04 Nov 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+
+Test commit to test offlineimap-commits
+
+------------------------------------------------------------------------
+rev 278:  jgoerzen | 2002-11-04 11:15:42 -0600 (Mon, 04 Nov 2002) | 5 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/syncmaster.py
+   M /offlineimap/head/offlineimap/ui/TTY.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+
+  * Moved password promting into imapserver.py.  Passwords are now asked
+    for on-demand and typos will no longer crash the program (the user
+    will be re-prompted).  Closes: #162672.
+
+
+------------------------------------------------------------------------
+rev 276:  jgoerzen | 2002-11-02 10:30:41 -0600 (Sat, 02 Nov 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.py
+
+Updated 
+
+------------------------------------------------------------------------
+rev 275:  jgoerzen | 2002-11-02 10:14:02 -0600 (Sat, 02 Nov 2002) | 3 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/imapserver.py
+
+Trial cram-md5 support
+
+
+------------------------------------------------------------------------
+rev 274:  jgoerzen | 2002-10-29 16:26:49 -0600 (Tue, 29 Oct 2002) | 1 line
+Changed paths:
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/ui/Noninteractive.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+
+
+------------------------------------------------------------------------
+rev 273:  jgoerzen | 2002-10-21 11:40:31 -0500 (Mon, 21 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/Maildir.py
+
+Handle uidvalidity file in an atomic fashion
+
+------------------------------------------------------------------------
+rev 272:  jgoerzen | 2002-10-16 13:27:27 -0500 (Wed, 16 Oct 2002) | 6 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+
+  * When an exception occurs, OfflineIMAP will attempt to print the last
+    50 debug messages, whether or not debugging was enabled for this
+    session.  This way, even unexpected and non-repeatable errors stand
+    a chance of getting a more detailed log.
+
+
+------------------------------------------------------------------------
+rev 271:  jgoerzen | 2002-10-15 19:43:02 -0500 (Tue, 15 Oct 2002) | 3 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/repository/IMAP.py
+
+More work-arounds for imaplib
+
+
+------------------------------------------------------------------------
+rev 270:  jgoerzen | 2002-10-15 13:07:02 -0500 (Tue, 15 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imaputil.py
+
+Another attempt at dealing with bogus IMAP stuff
+
+------------------------------------------------------------------------
+rev 269:  jgoerzen | 2002-10-09 19:38:55 -0500 (Wed, 09 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+This is 3.99.1
+
+------------------------------------------------------------------------
+rev 268:  jgoerzen | 2002-10-09 19:37:37 -0500 (Wed, 09 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/imaputil.py
+
+Various bugfixes
+
+------------------------------------------------------------------------
 rev 267:  mj | 2002-10-09 10:55:34 -0500 (Wed, 09 Oct 2002) | 2 lines
 Changed paths:
    M /offlineimap/head/offlineimap/mbnames.py
