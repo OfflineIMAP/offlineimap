@@ -33,7 +33,18 @@ def dequote(string):
 def flagsplit(string):
     if string[0] != '(' or string[-1] != ')':
         raise ValueError, "Passed string '%s' is not a flag list" % string
-    return string[1:-1].split(" ")
+    return imapsplit(string[1:-1])
+
+def options2hash(list):
+    retval = {}
+    counter = 0
+    while (counter < len(list)):
+        retval[list[counter]] = list[counter + 1]
+        counter += 2
+    return retval
+
+def flags2hash(string):
+    return options2hash(flagsplit(string))
 
 def imapsplit(string):
     """Takes a string from an IMAP conversation and returns a list containing
@@ -51,11 +62,11 @@ def imapsplit(string):
         if re.search('^\s', workstr):
             workstr = re.search('^\s(.*)$', workstr).group(1)
         elif workstr[0] == '(':
-            parenlist = re.search('^(\([^)]*\))', workstr).group(1)
+            parenlist = re.search('^(\(.*\))', workstr).group(1)
             workstr = workstr[len(parenlist):]
             retval.append(parenlist)
         elif workstr[0] == '"':
-            quotelist = re.search('^("[^"]*")', workstr).group(1)
+            quotelist = re.search('^("([^"]|\\")*")', workstr).group(1)
             workstr = workstr[len(quotelist):]
             retval.append(quotelist)
         else:

@@ -31,6 +31,10 @@ accounts = config.get("general", "accounts")
 accounts = accounts.replace(" ", "")
 accounts = accounts.split(",")
 
+server = None
+remoterepos = None
+localrepos = None
+
 for accountname in accounts:
     print "Processing account " + accountname
     accountmetadata = os.path.join(metadatadir, accountname)
@@ -59,4 +63,14 @@ for accountname in accounts:
     for remotefolder in remoterepos.getfolders():
         print "*** SYNCHRONIZING FOLDER %s" % remotefolder.getname()
         localfolder = localrepos.getfolder(remotefolder.getname())
+        #if not localfolder.isuidvalidityok(remotefolder):
+        #    print 'UID validity is a problem for this folder; skipping.'
+        #    continue
+        #print "Reading remote message list...",
+        #remotefolder.cachemessagelist()
+        #print len(remotefolder.getmessagelist().keys()), "messages."
+        print "Reading local message list...",
+        localfolder.cachemessagelist()
+        print len(localfolder.getmessagelist().keys()), "messages."
+        print "Synchronizing locally-made changes..."
         

@@ -30,7 +30,10 @@ class BaseFolder:
         return self.sep
 
     def getfullname(self):
-        return self.getroot() + self.getsep() + self.getname()
+        if self.getroot():
+            return self.getroot() + self.getsep() + self.getname()
+        else:
+            return self.getname()
     
     def isuidvalidityok(self, remotefolder):
         raise NotImplementedException
