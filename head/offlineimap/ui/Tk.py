@@ -18,7 +18,9 @@
 
 from Tkinter import *
 from threading import *
-import thread
+import thread, traceback
+from StringIO import StringIO
+from ScrolledText import ScrolledText
 from offlineimap import threadutil
 from Queue import Queue
 from UIBase import UIBase
@@ -44,11 +46,25 @@ class PasswordDialog:
         self.password = self.entry.get()
         self.top.destroy()
 
-    def createwidgets(self):
-        self.text = Text
-
     def getpassword(self):
         return self.password
+
+class TextOKDialog:
+    def __init__(self, title, message):
+        self.top = Tk()
+        self.text = ScrolledText(self.top, font = "Courier 10")
+        self.text.pack()
+        self.text.insert(END, message)
+        self.text['state'] = DISABLED
+        self.button = Button(self.top, text = "OK", command=self.ok)
+        self.button.pack()
+
+        self.top.wait_window(self.button)
+
+    def ok(self):
+        self.top.destroy()
+        
+                                 
 
 class ThreadFrame(Frame):
     def __init__(self, master=None):
@@ -56,10 +72,10 @@ class ThreadFrame(Frame):
         self.threadid = thread.get_ident()
         Frame.__init__(self, master, relief = RIDGE, borderwidth = 1)
         self.pack()
-        self.threadlabel = Label(self, foreground = '#FF0000',
-                                 text ="Thread %d (%s)" % (self.threadid,
-                                                     self.thread.getName()))
-        self.threadlabel.pack()
+        #self.threadlabel = Label(self, foreground = '#FF0000',
+        #                         text ="Thread %d (%s)" % (self.threadid,
+        #                                             self.thread.getName()))
+        #self.threadlabel.pack()
 
         self.account = "Unknown"
         self.mailbox = "Unknown"
@@ -93,7 +109,8 @@ class ThreadFrame(Frame):
         
 
 class TkUI(UIBase):
-    def __init__(self):
+    def __init__(self, verbose = 0):
+        self.verbose = verbose
         self.top = Tk()
         self.threadframes = {}
 
@@ -104,7 +121,7 @@ class TkUI(UIBase):
         print "TkUI mainloop started."
         
     def getpass(s, accountname, config):
-        pd = PasswordDialog(accountname, config, Tk())
+        pd = PasswordDialog(accountname, config)
         return pd.getpassword()
 
     def gettf(s):
@@ -119,10 +136,44 @@ class TkUI(UIBase):
         s.gettf().setmessage(msg)
 
     def threadExited(s, thread):
-        threadid = s.threadid
+        threadid = thread.threadid
+        print "Thread %d exited" % threadid
         if threadid in s.threadframes:
+            print "Removing thread %d" % threadid
             tf = s.threadframes[threadid]
             tf.destroy()
-            del tf[threadid]
+            del s.threadframes[threadid]
+            
+    def threadException(s, thread):
+        msg =  "Thread '%s' terminated with exception:\n%s" % \
+              (thread.getName(), thread.getExitStackTrace())
+        print msg
     
+        s.top.destroy()
+        TextOKDialog("Thread Exception", msg)
+        s.terminate(100)
+
+    def mainException(s):
+        sbuf = StringIO()
+        traceback.print_exc(file = sbuf)
+        msg = "Main program terminated with exception:\n" + sbuf.getvalue()
+        print msg
+
+        s.top.destroy()
+        TextOKDialog("Main Program Exception", msg)
+
+
+    ################################################## Copied from TTY
+
+    def syncingmessages(s, sr, sf, dr, df):
+        if s.verbose:
+            UIBase.syncingmessages(s, sr, sf, dr, df)
+
+    def loadmessagelist(s, repos, folder):
+        if s.verbose:
+            UIBase.syncingmessages(s, repos, folder)
     
+    def messagelistloaded(s, repos, folder, count):
+        if s.verbose:
+            UIBase.messagelistloaded(s, repos, folder, count)
+
