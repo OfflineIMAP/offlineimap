@@ -1,4 +1,80 @@
 ------------------------------------------------------------------------
+rev 195:  jgoerzen | 2002-07-24 21:41:56 -0500 (Wed, 24 Jul 2002) | 5 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap.py
+
+  * Backed out check for . in account names for now.  Will put it back in
+    when we have a consensus on what exactly to do.  Doubt that anyone
+    has a foldername that would conflict with Blinkenlights anyway.
+
+
+------------------------------------------------------------------------
+rev 194:  jgoerzen | 2002-07-24 21:36:24 -0500 (Wed, 24 Jul 2002) | 3 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/ui/Tk.py
+   U /offlineimap/head/offlineimap.conf
+
+Updated the changelog, added the new bufferlines value to offlineimap.conf,
+and worked out a few more bugs with the resizing support in Tk.py.
+
+------------------------------------------------------------------------
+rev 193:  mj | 2002-07-24 21:16:21 -0500 (Wed, 24 Jul 2002) | 3 lines
+Changed paths:
+   U /offlineimap/head/offlineimap.py
+
+Normalize exception message to 80 characters and fix account name
+interpolation.
+
+------------------------------------------------------------------------
+rev 192:  jgoerzen | 2002-07-24 19:37:54 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+Removed the old Log menu code; no longer necessary.
+
+------------------------------------------------------------------------
+rev 191:  jgoerzen | 2002-07-24 19:06:01 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+More tweaks
+
+------------------------------------------------------------------------
+rev 190:  jgoerzen | 2002-07-24 18:46:27 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/imapserver.py
+   U /offlineimap/head/offlineimap/ui/Tk.py
+   U /offlineimap/head/offlineimap/ui/UIBase.py
+
+Lots of updates; see changelog
+
+------------------------------------------------------------------------
+rev 189:  jgoerzen | 2002-07-24 14:40:58 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+Cleaned up color handling for timer
+
+------------------------------------------------------------------------
+rev 187:  jgoerzen | 2002-07-24 13:16:49 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/version.py
+
+Final prep for 3.2.0
+
+------------------------------------------------------------------------
+rev 186:  jgoerzen | 2002-07-24 13:16:05 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+
+Updated changelog for 3.2.0.
+
+------------------------------------------------------------------------
 rev 185:  jgoerzen | 2002-07-24 13:15:30 -0500 (Wed, 24 Jul 2002) | 2 lines
 Changed paths:
    U /offlineimap/head/offlineimap/ui/TTY.py
