@@ -1,3 +1,9 @@
+offlineimap (2.0.7) unstable; urgency=low
+
+  * Fixed imaplib.py to work better with read-only folders.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue,  9 Jul 2002 20:24:21 -0500
+
 offlineimap (2.0.6) unstable; urgency=low
 
   * Added support for holdconnectionopen and keepalive.  This feature

@@ -1,3 +1,15 @@
+2002-07-09 20:24  jgoerzen
+
+	* debian/changelog, offlineimap/version.py: Updated for 2.0.7
+
+2002-07-09 20:24  jgoerzen
+
+	* offlineimap/imaplib.py: Updated read-only support
+
+2002-07-09 20:18  jgoerzen
+
+	* ChangeLog: Updated for 2.0.6
+
 2002-07-09 20:17  jgoerzen
 
 	* offlineimap.conf, offlineimap.py, debian/changelog,
