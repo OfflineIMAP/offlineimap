@@ -25,7 +25,7 @@ from copy import copy
 import __main__
 
 class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name, visiblename, accountname):
+    def __init__(self, imapserver, name, visiblename, accountname, repository):
         self.name = imaputil.dequote(name)
         self.root = None # imapserver.root
         self.sep = imapserver.delim
@@ -33,6 +33,7 @@ class IMAPFolder(BaseFolder):
         self.messagelist = None
         self.visiblename = visiblename
         self.accountname = accountname
+        self.repository = repository
 
     def suggeststhreads(self):
         return 1

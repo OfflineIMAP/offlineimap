@@ -22,12 +22,13 @@ import os
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
 class LocalStatusFolder(BaseFolder):
-    def __init__(self, root, name):
+    def __init__(self, root, name, repository):
         self.name = name
         self.root = root
         self.sep = '.'
         self.filename = os.path.join(root, name)
         self.messagelist = None
+        self.repository = repository
 
     def storesmessages(self):
         return 0

@@ -48,7 +48,7 @@ class IMAPRepository(BaseRepository):
     def getfolder(self, foldername):
         return folder.IMAP.IMAPFolder(self.imapserver, foldername,
                                       self.nametrans(foldername),
-                                      accountname)
+                                      accountname, self)
 
     def getfolders(self):
         if self.folders != None:
@@ -69,11 +69,11 @@ class IMAPRepository(BaseRepository):
                 continue
             retval.append(folder.IMAP.IMAPFolder(self.imapserver, foldername,
                                                  self.nametrans(foldername),
-                                                 self.accountname))
+                                                 self.accountname, self))
         for foldername in self.folderincludes:
             retval.append(folder.IMAP.IMAPFolder(self.imapserver, foldername,
                                                  self.nametrans(foldername),
-                                                 self.accountname))
+                                                 self.accountname, self))
         retval.sort(lambda x, y: self.foldersort(x.getvisiblename(), y.getvisiblename()))
         self.folders = retval
         return retval

@@ -1,3 +1,9 @@
+offlineimap (3.3.0) unstable; urgency=low
+
+  * Placeholder
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 20 Aug 2002 10:46:56 -0500
+
 offlineimap (3.2.6) unstable; urgency=low
 
   * Changed indentation in debian/control.  Closes: #156327.

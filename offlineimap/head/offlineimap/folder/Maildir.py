@@ -39,12 +39,13 @@ def gettimeseq():
         return timeseq
 
 class MaildirFolder(BaseFolder):
-    def __init__(self, root, name, sep):
+    def __init__(self, root, name, sep, repository):
         self.name = name
         self.root = root
         self.sep = sep
         self.uidfilename = os.path.join(self.getfullname(), "offlineimap.uidvalidity")
         self.messagelist = None
+        self.repository = repository
 
     def getfullname(self):
         return os.path.join(self.getroot(), self.getname())

@@ -50,6 +50,10 @@ class BaseFolder:
     def getvisiblename(self):
         return self.name
 
+    def getrepository(self):
+        """Returns the repository object that this folder is within."""
+        return self.repository
+
     def getroot(self):
         """Returns the root of the folder, in a folder-specific fashion."""
         return self.root
