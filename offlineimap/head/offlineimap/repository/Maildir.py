@@ -119,14 +119,14 @@ class MaildirRepository(BaseRepository):
                 self.debug("  skipping this entry (not a directory)")
                 # Not a directory -- not a folder.
                 continue
+            foldername = dirname
+            if extension != None:
+                foldername = os.path.join(extension, dirname)
             if (os.path.isdir(os.path.join(fullname, 'cur')) and
                 os.path.isdir(os.path.join(fullname, 'new')) and
                 os.path.isdir(os.path.join(fullname, 'tmp'))):
                 # This directory has maildir stuff -- process
                 self.debug("  This is a maildir folder.")
-                foldername = dirname
-                if extension != None:
-                    foldername = os.path.join(extension, dirname)
 
                 self.debug("  foldername = %s" % foldername)
 
