@@ -1,3 +1,11 @@
+offlineimap (4.0.3) unstable; urgency=low
+
+  * Fixed version numbers to read 4.0.3.
+  * Switched defaults from Python 2.2 to Python 2.3.
+    Closes: #237560.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri,  4 Jun 2004 10:10:00 -0500
+
 offlineimap (4.0.2) unstable; urgency=low
 
   * Fixed missing definition of _display in Noninteractive.
