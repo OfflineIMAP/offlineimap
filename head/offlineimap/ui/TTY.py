@@ -31,10 +31,11 @@ class TTYUI(UIBase):
                              (remainingsecs / 60, remainingsecs % 60))
             sys.stdout.flush()
         else:
-            sys.stdout.write("Wait done, proceeding with sync....            ")
+            sys.stdout.write("Wait done, proceeding with sync....            \n")
 
         if sleepsecs > 0:
             if len(select.select([sys.stdin], [], [], sleepsecs)[0]):
+                sys.stdin.readline()
                 return 1
         return 0
     
