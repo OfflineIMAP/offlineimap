@@ -1,0 +1,2 @@
+* Add an option to handle the network exception that results if a connection
+to the IMAP server fails, or there is another socket error.
