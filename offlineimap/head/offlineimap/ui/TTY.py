@@ -23,7 +23,7 @@ from threading import *
 
 class TTYUI(UIBase):
     def __init__(s, verbose = 0):
-        s.verbose = 0
+        s.verbose = verbose
         s.iswaiting = 0
         
     def _msg(s, msg):
