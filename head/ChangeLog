@@ -1,3 +1,16 @@
+2002-07-02 15:50  jgoerzen
+
+	* debian/changelog: Updated for 1.0.4
+
+2002-07-02 15:49  jgoerzen
+
+	* offlineimap.py, offlineimap/ui/TTY.py, offlineimap/ui/UIBase.py:
+	Integrated more functional sleep commands
+
+2002-07-02 14:16  jgoerzen
+
+	* ChangeLog: Updated
+
 2002-07-02 14:16  jgoerzen
 
 	* debian/changelog, offlineimap/version.py: Preparation for 1.0.4
