@@ -17,4 +17,4 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from offlineimap import init
-init.startup('3.99.7')
+init.startup('3.99.10')
