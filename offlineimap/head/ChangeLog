@@ -1,4 +1,26 @@
 ------------------------------------------------------------------------
+r585 | jgoerzen | 2004-06-15 04:45:13 -0500 (Tue, 15 Jun 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/debian/changelog
+
+Updated changelog
+------------------------------------------------------------------------
+r584 | jgoerzen | 2004-06-15 04:44:05 -0500 (Tue, 15 Jun 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Preparing 4.0.4
+------------------------------------------------------------------------
+r583 | jgoerzen | 2004-06-15 04:43:14 -0500 (Tue, 15 Jun 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+
+Reverted patch from Daniel James and updated Changelog.
+------------------------------------------------------------------------
 r582 | jgoerzen | 2004-06-04 11:04:29 -0500 (Fri, 04 Jun 2004) | 1 line
 Changed paths:
    M /offlineimap/head/COPYRIGHT
