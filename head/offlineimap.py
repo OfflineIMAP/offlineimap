@@ -26,7 +26,7 @@ from threading import *
 if '-d' in sys.argv:
     imaplib.Debug = 5
 
-# ui = offlineimap.ui.TTY.TTYUI()
+#ui = offlineimap.ui.TTY.TTYUI()
 ui = offlineimap.ui.Tk.TkUI()
 ui.init_banner()
 

@@ -21,12 +21,12 @@ from threading import *
 import thread
 from offlineimap import threadutil
 from Queue import Queue
-import UIBase
+from UIBase import UIBase
 
 class PasswordDialog:
     def __init__(self, accountname, config, master=None):
         self.top = Toplevel(master)
-        self.label = Label(self.frame,
+        self.label = Label(self.top,
                            text = "%s: Enter password for %s on %s: " % \
                            (accountname, config.get(accountname, "remoteuser"),
                             config.get(accountname, "remotehost")))
@@ -54,21 +54,23 @@ class ThreadFrame(Frame):
     def __init__(self, master=None):
         self.thread = currentThread()
         self.threadid = thread.get_ident()
-        Frame.__init__(self, master)
+        Frame.__init__(self, master, relief = RIDGE, borderwidth = 1)
         self.pack()
-        self.threadlabel = Label(self, text ="Thread %d (%s)" % (self.threadid,
+        self.threadlabel = Label(self, foreground = '#FF0000',
+                                 text ="Thread %d (%s)" % (self.threadid,
                                                      self.thread.getName()))
         self.threadlabel.pack()
 
         self.account = "Unknown"
         self.mailbox = "Unknown"
-        self.loclabel = Label(self, text = "Account/mailbox information unknown")
+        self.loclabel = Label(self, foreground = '#0000FF',
+                              text = "Account/mailbox information unknown")
         self.loclabel.pack()
 
         self.updateloclabel()
 
-        self.messages = Label(self, text="Messages will appear here.\n")
-        self.messages.pack()
+        self.message = Label(self, text="Messages will appear here.\n")
+        self.message.pack()
 
     def setaccount(self, account):
         self.account = account
@@ -89,12 +91,17 @@ class ThreadFrame(Frame):
     def setmessage(self, newtext):
         self.message['text'] = newtext
         
-        
 
 class TkUI(UIBase):
     def __init__(self):
         self.top = Tk()
         self.threadframes = {}
+
+        t = threadutil.ExitNotifyThread(target = self.top.mainloop,
+                                        name = "Tk Mainloop")
+        t.setDaemon(1)
+        t.start()
+        print "TkUI mainloop started."
         
     def getpass(s, accountname, config):
         pd = PasswordDialog(accountname, config, Tk())
@@ -102,7 +109,7 @@ class TkUI(UIBase):
 
     def gettf(s):
         threadid = thread.get_ident()
-        if threadid in self.threadframes:
+        if threadid in s.threadframes:
             return s.threadframes[threadid]
         tf = ThreadFrame(s.top)
         s.threadframes[threadid] = tf
@@ -112,9 +119,9 @@ class TkUI(UIBase):
         s.gettf().setmessage(msg)
 
     def threadExited(s, thread):
-        threadid = self.threadid
-        if threadid in self.threadframes:
-            tf = self.threadframes[threadid]
+        threadid = s.threadid
+        if threadid in s.threadframes:
+            tf = s.threadframes[threadid]
             tf.destroy()
             del tf[threadid]
     
