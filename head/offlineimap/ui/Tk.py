@@ -18,16 +18,17 @@
 
 from Tkinter import *
 from threading import *
-import thread, traceback
+import thread, traceback, time
 from StringIO import StringIO
 from ScrolledText import ScrolledText
-from offlineimap import threadutil
+from offlineimap import threadutil, version
 from Queue import Queue
 from UIBase import UIBase
 
 class PasswordDialog:
     def __init__(self, accountname, config, master=None):
         self.top = Toplevel(master)
+        self.top.title(version.productname + " Password Entry")
         self.label = Label(self.top,
                            text = "%s: Enter password for %s on %s: " % \
                            (accountname, config.get(accountname, "remoteuser"),
@@ -35,14 +36,17 @@ class PasswordDialog:
         self.label.pack()
 
         self.entry = Entry(self.top, show='*')
+        self.entry.bind("<Return>", self.ok)
         self.entry.pack()
+        self.entry.focus_force()
 
         self.button = Button(self.top, text = "OK", command=self.ok)
         self.button.pack()
 
+        self.entry.focus_force()
         self.top.wait_window(self.label)
 
-    def ok(self):
+    def ok(self, args = None):
         self.password = self.entry.get()
         self.top.destroy()
 
@@ -52,6 +56,7 @@ class PasswordDialog:
 class TextOKDialog:
     def __init__(self, title, message):
         self.top = Tk()
+        self.top.title(title)
         self.text = ScrolledText(self.top, font = "Courier 10")
         self.text.pack()
         self.text.insert(END, message)
@@ -70,8 +75,8 @@ class ThreadFrame(Frame):
     def __init__(self, master=None):
         self.thread = currentThread()
         self.threadid = thread.get_ident()
-        Frame.__init__(self, master, relief = RIDGE, borderwidth = 1)
-        self.pack()
+        Frame.__init__(self, master, relief = RIDGE, borderwidth = 2)
+        self.pack(fill = 'x')
         #self.threadlabel = Label(self, foreground = '#FF0000',
         #                         text ="Thread %d (%s)" % (self.threadid,
         #                                             self.thread.getName()))
@@ -81,12 +86,12 @@ class ThreadFrame(Frame):
         self.mailbox = "Unknown"
         self.loclabel = Label(self, foreground = '#0000FF',
                               text = "Account/mailbox information unknown")
-        self.loclabel.pack()
+        #self.loclabel.pack()
 
         self.updateloclabel()
 
         self.message = Label(self, text="Messages will appear here.\n")
-        self.message.pack()
+        self.message.pack(side = LEFT)
 
     def setaccount(self, account):
         self.account = account
@@ -112,16 +117,27 @@ class TkUI(UIBase):
     def __init__(self, verbose = 0):
         self.verbose = verbose
         self.top = Tk()
+        self.top.title(version.productname + " " + version.versionstr)
         self.threadframes = {}
         self.availablethreadframes = []
         self.tflock = Lock()
+        self.notdeleted = 1
 
-        t = threadutil.ExitNotifyThread(target = self.top.mainloop,
+        t = threadutil.ExitNotifyThread(target = self.runmainloop,
                                         name = "Tk Mainloop")
         t.setDaemon(1)
         t.start()
+
+        t = threadutil.ExitNotifyThread(target = self.idlevacuum,
+                                        name = "Tk idle vacuum")
+        t.setDaemon(1)
+        t.start()
         print "TkUI mainloop started."
-        
+
+    def runmainloop(s):
+        s.top.mainloop()
+        s.notdeleted = 0
+    
     def getpass(s, accountname, config):
         pd = PasswordDialog(accountname, config)
         return pd.getpassword()
@@ -156,6 +172,15 @@ class TkUI(UIBase):
             s.availablethreadframes.append(tf)
             del s.threadframes[threadid]
         s.tflock.release()
+
+    def idlevacuum(s):
+        while s.notdeleted:
+            time.sleep(10)
+            s.tflock.acquire()
+            while len(s.availablethreadframes):
+                tf = s.availablethreadframes.pop()
+                tf.destroy()
+            s.tflock.release()
             
     def threadException(s, thread):
         msg =  "Thread '%s' terminated with exception:\n%s" % \
