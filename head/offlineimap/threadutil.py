@@ -18,7 +18,7 @@
 
 from threading import *
 from StringIO import StringIO
-import sys, traceback
+import sys, traceback, thread
 
 ######################################################################
 # General utilities
@@ -38,8 +38,8 @@ def semaphorewait(semaphore):
     semaphore.release()
     
 def threadsreset(threadlist):
-    for thread in threadlist:
-        thread.join()
+    for thr in threadlist:
+        thr.join()
 
 ######################################################################
 # Exit-notify threads
@@ -80,6 +80,7 @@ class ExitNotifyThread(Thread):
     exited and to provide for the ability for it to find out why."""
     def run(self):
         global exitcondition, exitthread
+        self.threadid = thread.get_ident()
         try:
             Thread.run(self)
         except:
