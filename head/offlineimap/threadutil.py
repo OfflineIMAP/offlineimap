@@ -46,7 +46,7 @@ def threadsreset(threadlist):
 ######################################################################
 
 exitcondition = Condition(Lock())
-exitthread = None
+exitthreads = []
 inited = 0
 
 def initexitnotify():
@@ -55,7 +55,7 @@ def initexitnotify():
     This SHOULD be called before the main thread starts any other
     ExitNotifyThreads, or else it may miss the ability to catch the exit
     status from them!"""
-    exitcondition.acquire()
+    pass
 
 def exitnotifymonitorloop(callback):
     """Enter an infinite "monitoring" loop.  The argument, callback,
@@ -67,19 +67,21 @@ def exitnotifymonitorloop(callback):
     an ExitNotifyThread, or else an infinite loop may result.  Furthermore,
     the monitor will hold the lock all the while the other thread is waiting.
     """
-    global exitcondition, exitthread
+    global exitcondition, exitthreads
     while 1:                            # Loop forever.
-        while exitthread == None:
+        exitcondition.acquire()
+        while not len(exitthreads):
             exitcondition.wait(1)
-        callback(exitthread)
-        exitthread = None
-    
+
+        while len(exitthreads):
+            callback(exitthreads.pop())
+        exitcondition.release()
 
 class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a thread has
     exited and to provide for the ability for it to find out why."""
     def run(self):
-        global exitcondition, exitthread
+        global exitcondition, exitthreads
         self.threadid = thread.get_ident()
         try:
             Thread.run(self)
@@ -94,7 +96,7 @@ class ExitNotifyThread(Thread):
         if not hasattr(self, 'exitmessage'):
             self.setExitMessage(None)
         exitcondition.acquire()
-        exitthread = self
+        exitthreads.append(self)
         exitcondition.notify()
         exitcondition.release()
 

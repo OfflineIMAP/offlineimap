@@ -156,7 +156,7 @@ class UIBase:
 
         Return 0 for normal sleep, or 1 to indicate a request
         to sync immediately."""
-        s._msg("Next refresh in %d seconds" % remainingsec)
+        s._msg("Next refresh in %d seconds" % remainingsecs)
         if sleepsecs > 0:
             time.sleep(sleepsecs)
         return 0

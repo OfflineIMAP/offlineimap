@@ -175,6 +175,9 @@ class TkUI(UIBase):
         s.top.destroy()
         TextOKDialog("Main Program Exception", msg)
 
+    def deletingmessages(s, uidlist, destlist):
+        ds = s.folderlist(destlist)
+        s._msg("Deleting %d messages in %s" % (len(uidlist), ds))
 
     ################################################## Copied from TTY
 
