@@ -1,7 +1,7 @@
+<!-- -*- DocBook -*- -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
   <!ENTITY OfflineIMAP "<application>OfflineIMAP</application>">
 ]>
-<!-- -*- DocBook -*- -->
 <!--      "file:///usr/share/sgml/docbook/dtd/xml/4.2/docbookx.dtd"> -->
 
 <reference>
@@ -11,7 +11,7 @@
     <refentryinfo>
       <address><email>jgoerzen@complete.org</email></address>
       <author><firstname>John</firstname><surname>Goerzen</surname></author>
-      <date> $Date: 2003-01-08 08:48:41 -0600 (Wed, 08 Jan 2003) $ </date>
+      <date> $Date: 2003-01-08 09:08:01 -0600 (Wed, 08 Jan 2003) $ </date>
     </refentryinfo>
 
     <refmeta>
@@ -558,6 +558,124 @@ cd offlineimap-x.y.z</ProgramListing>
       </refsect2>
 
     </refsect1>
+
+    <refsect1>
+      <title>Examples</title>
+      <para>Here are some example configurations for various situations.
+	Please e-mail any other examples you have that may be useful to
+	me.
+      </para>
+
+      <refsect2>
+	<title>Multiple Accounts with Mutt</title>
+	<para>
+	  This example shows you how to set up &OfflineIMAP; to
+	  synchronize multiple accounts with the mutt mail reader.
+	</para>
+	<para>
+	  Start by creating a directory to hold your folders by running
+	  <command>mkdir ~/Mail</command>.  Then, in your
+	  <filename>~/.offlineimaprc</filename>, specify:
+	</para>
+	<programlisting>accounts = Personal, Work</programlisting>
+	<para>
+	  Make sure that you have both a <property>[Personal]</property>
+	  and a <property>[Work]</property> section, each with different
+	  <property>localfolder</property> path names.  Also, make sure
+	  to enable <property>[mbnames]</property>.
+	</para>
+	<para>
+	  In each account section, write something like this:
+	</para>
+	<programlisting>localfolders = ~/Mail/Personal</programlisting>
+	<para>
+	  Finally, add these lines to your <filename>~/.muttrc</filename>:
+	</para>
+	<programlisting>source ~/path-to-mbnames-muttrc-mailboxes
+folder-hook Personal set from="youremail@personal.com"
+folder-hook Work set from="youremail@work.com"
+set mbox_type=Maildir
+set folder=$HOME/Mail
+spoolfile=+Personal/INBOX</programlisting>
+	<para>
+	  That's it!
+	</para>
+      </refsect2>
+
+      <refsect2>
+	<title>UW-IMAPD and References</title>
+	<para>Some users with a UW-IMAPD server need to use &OfflineIMAP;'s
+	  "reference" feature to get at their mailboxes, specifying a reference
+	  of "~/Mail" or "#mh/" depending on the configuration.  The below
+	  configuration from docwhat@gerf.org
+	  shows using a <property>reference</property> of Mail, a <property>nametrans</property>
+	  that strips
+	  the leading Mail/ off incoming folder names, and a
+	  <property>folderfilter</property> that
+	  limits the folders synced to just three.
+	</para>
+	<programlisting>[Gerf]
+localfolders = ~/Mail
+remotehost = gerf.org
+ssl = yes
+remoteuser = docwhat
+reference = Mail
+# Trims off the preceeding Mail on all the folder names.
+nametrans = lambda foldername: \
+            re.sub('^Mail/', '', foldername)
+# Yeah, you have to mention the Mail dir, even though it
+# would seem intuitive that reference would trim it.
+folderfilter = lambda foldername: foldername in [
+      'Mail/INBOX',
+      'Mail/list/zaurus-general',
+      'Mail/list/zaurus-dev',
+      ]
+maxconnections = 1
+holdconnectionopen = no</programlisting>
+      </refsect2>
+
+      <refsect2>
+	<title>pythonfile Configuration File Option</title>
+	<para>You can have &OfflineIMAP;
+	  load up a Python file before evaluating the
+	  configuration file options that are Python expressions.  This example
+	  is based on one supplied by Tommi Virtanen for this feature.
+	</para>
+	<para>
+	  In <filename>~/.offlineimap.rc</filename>, he adds these options:
+	</para>
+	<programlisting>[general]
+pythonfile=~/.offlineimap.py
+[foo]
+foldersort=mycmp</programlisting>
+	<para>
+	  Then, the <filename>~/.offlineimap.py</filename> file will
+	  contain:
+	</para>
+	<programlisting>prioritized = ['INBOX', 'personal', 'announce', 'list']
+
+def mycmp(x, y):
+   for prefix in prioritized:
+       if x.startswith(prefix):
+           return -1
+       elif y.startswith(prefix):
+           return +1
+   return cmp(x, y)
+
+def test_mycmp():
+   import os, os.path
+   folders=os.listdir(os.path.expanduser('~/data/mail/tv@hq.yok.utu.fi'))
+   folders.sort(mycmp)
+   print folders</programlisting>
+	<para>
+	  This code snippet illustrates how the <property>foldersort</property>
+	  option can be customized with a Python function from the
+	  <property>pythonfile</property> to always synchronize certain
+	  folders first.
+	</para>
+      </refsect2>
+    </refsect1>
+      
 
 
     <refsect1>
