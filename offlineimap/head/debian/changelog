@@ -1,3 +1,14 @@
+offlineimap (3.2.6) unstable; urgency=low
+
+  * Changed indentation in debian/control.  Closes: #156327.
+  * Removed calls to folder object deletions.  None have been implemented
+    anyway.
+  * folder/Maildir.py: unlink throws OSError, not IOError; fixed.
+    Now handles message deleting race condition properly.
+    Closes: #154497.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 16 Aug 2002 17:43:19 -0500
+
 offlineimap (3.2.5) unstable; urgency=low
 
   * Now handles uploading messages without Message-Id headers.

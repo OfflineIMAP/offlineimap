@@ -211,7 +211,7 @@ class MaildirFolder(BaseFolder):
         filename = self.messagelist[uid]['filename']
         try:
             os.unlink(filename)
-        except IOError:
+        except OSError:
             # Can't find the file -- maybe already deleted?
             newmsglist = self._scanfolder()
             if uid in newmsglist:       # Nope, try new filename.
