@@ -1,5 +1,6 @@
 offlineimap (3.99.15) unstable; urgency=low
 
+  * This is a 4.0 TRACK release, and may be unstable or in flux!
   * Backed out removal of SYNC_WITH_TIMER_TERMINATE code to deal with
     completed syncs.  Without this code, -o broke because the app would
     never terminate.  Closes: #190063.
@@ -15,10 +16,11 @@ offlineimap (3.99.15) unstable; urgency=low
     Closes: #186636.
   * autorefresh may now be a floating-point value.  Closes: #190060.
 
- -- John Goerzen <jgoerzen@complete.org>  Mon, 28 Apr 2003 14:00:32 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 28 Apr 2003 17:30:32 -0500
 
 offlineimap (3.99.14) unstable; urgency=low
 
+  * This is a 4.0 TRACK release, and may be unstable or in flux!
   * Added the ability to use the top level of a Maildir as folder named
     ".".  Useful for generating Maildir trees for a Courier server.
   * Fixed the regular expression that fixes line endings to make sure to
@@ -37,6 +39,7 @@ offlineimap (3.99.14) unstable; urgency=low
 
 offlineimap (3.99.13) unstable; urgency=low
 
+  * This is a 4.0 TRACK release, and may be unstable or in flux!
   * Fixed password prompting for non-Curses UIs.
   * Fixed line-ending code to deal with files with mixed \n and \r\n
     codes.  This is a rare case, but now is more onerous because we now
