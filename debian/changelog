@@ -1,3 +1,10 @@
+offlineimap (4.0.8) unstable; urgency=low
+
+  * Added code to limit number of messages that get their flags set at
+    once.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 16 Nov 2004 10:43:11 -0600
+
 offlineimap (4.0.7) unstable; urgency=low
 
   * Added additional debug logging when downloading messages in an attempt to
@@ -219,7 +226,7 @@ offlineimap (3.99.11) unstable; urgency=low
 
   * Curses interface can now be resized.  Closes: #176342.
 
- -- John Goerzen <jgoerzen@wile.excelhustler.com>  Thu, 13 Mar 2003 11:48:36 -0600
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 13 Mar 2003 11:48:36 -0600
 
 offlineimap (3.99.10) unstable; urgency=low
 

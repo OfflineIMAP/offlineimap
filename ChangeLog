@@ -2,6 +2,19 @@
 # arch-tag: automatic-ChangeLog--jgoerzen@complete.org--projects/offlineimap--head--1.0
 #
 
+2004-11-16 16:44:41 GMT	John Goerzen <jgoerzen@complete.org>	patch-5
+
+    Summary:
+      Checkpointing for .8
+    Revision:
+      offlineimap--head--1.0--patch-5
+
+
+    modified files:
+     ChangeLog bin/offlineimap debian/changelog offlineimap.py
+     offlineimap/version.py
+
+
 2004-11-16 16:41:09 GMT	John Goerzen <jgoerzen@complete.org>	patch-4
 
     Summary:
