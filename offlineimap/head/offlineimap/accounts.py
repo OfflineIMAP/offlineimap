@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import imapserver, repository, threadutil
+from offlineimap import imapserver, repository, threadutil, mbnames
 from offlineimap.ui import UIBase
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from threading import Event
@@ -128,6 +128,7 @@ class AccountSynchronizationMixin:
                 thread.start()
                 folderthreads.append(thread)
             threadutil.threadsreset(folderthreads)
+            mbnames.write()
             if not self.hold:
                 server.close()
         finally:
@@ -146,8 +147,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                   getfolder(remotefolder.getvisiblename().\
                             replace(remoterepos.getsep(), localrepos.getsep()))
     # Write the mailboxes
-    mailboxes.append({'accountname': accountname,
-                      'foldername': localfolder.getvisiblename()})
+    mbnames.add(accountname, localfolder.getvisiblename())
     # Load local folder
     ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
     ui.loadmessagelist(localrepos, localfolder)

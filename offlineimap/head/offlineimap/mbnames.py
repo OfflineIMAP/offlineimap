@@ -19,7 +19,30 @@
 import os.path
 import re                               # for folderfilter
 
-def genmbnames(config, boxlist):
+boxes = {}
+config = None
+accounts = None
+
+def init(conf, accts):
+    global config, accounts
+    config = conf
+    accounts = accts
+
+def add(accountname, foldername):
+    if not accountname in boxes:
+        boxes[accountname] = []
+    if not foldername in boxes[accountname]:
+        boxes[accountname].append(foldername)
+
+def write():
+    # See if we're ready to write it out.
+    for account in accounts:
+        if account not in boxes:
+            return
+
+    genmbnames()
+
+def genmbnames():
     """Takes a configparser object and a boxlist, which is a list of hashes
     containing 'accountname' and 'foldername' keys."""
     localeval = config.getlocaleval()
@@ -31,9 +54,13 @@ def genmbnames(config, boxlist):
     if config.has_option("mbnames", "folderfilter"):
         folderfilter = localeval.eval(config.get("mbnames", "folderfilter"),
                                       {'re': re})
-    itemlist = [localeval.eval(config.get("mbnames", "peritem", raw=1)) % item\
-                for item in boxlist \
-                if folderfilter(item['accountname'], item['foldername'])]
+    itemlist = []
+    for accountname in boxes.keys():
+        for foldername in boxes[accountname]:
+            if folderfilter(accountname, foldername):
+                itemlist.append(config.get("mbnames", "peritem", raw=1) % \
+                                {'accountname': accountname,
+                                 'foldername': foldername})
     file.write(localeval.eval(config.get("mbnames", "sep")).join(itemlist))
     file.write(localeval.eval(config.get("mbnames", "footer")))
     file.close()

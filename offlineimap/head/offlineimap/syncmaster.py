@@ -38,9 +38,8 @@ def syncitall(accounts, config):
     currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
     ui = UIBase.getglobalui()
     threads = threadutil.threadlist()
-    offlineimap.accounts.mailboxes = []             # Reset.
+    mbnames.init(config, accounts)
     for accountname in accounts:
         syncaccount(threads, config, accountname)
     # Wait for the threads to finish.
     threads.reset()
-    mbnames.genmbnames(config, offlineimap.accounts.mailboxes)
