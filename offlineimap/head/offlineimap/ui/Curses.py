@@ -386,7 +386,7 @@ class Blinkenlights(BlinkenBase, UIBase):
             # Key not a valid one: exit.
             return
 
-        if index > len(s.hotkeys):
+        if index >= len(s.hotkeys):
             # Not in our list of valid hotkeys.
             return
 

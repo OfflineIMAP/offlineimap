@@ -19,6 +19,7 @@
 from Base import BaseFolder
 from offlineimap import imaputil, imaplib
 from offlineimap.ui import UIBase
+from offlineimap.version import versionstr
 import rfc822, time, string, random, binascii, re
 from StringIO import StringIO
 from copy import copy
@@ -119,6 +120,7 @@ class IMAPFolder(BaseFolder):
         headername += binascii.hexlify(self.getname())
         headervalue= '%d-' % long(time.time())
         headervalue += str(self.randomgenerator.random()).replace('.', '')
+        headervalue += '-v' + versionstr
         return (headername, headervalue)
 
     def savemessage_addheader(self, content, headername, headervalue):

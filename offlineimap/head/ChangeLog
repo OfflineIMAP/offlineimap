@@ -1,4 +1,25 @@
 ------------------------------------------------------------------------
+r588 | jgoerzen | 2004-07-13 10:25:27 -0500 (Tue, 13 Jul 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Updated for 4.0.5
+------------------------------------------------------------------------
+r587 | jgoerzen | 2004-07-13 10:24:46 -0500 (Tue, 13 Jul 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/ChangeLog
+
+Updated ChangeLog
+------------------------------------------------------------------------
+r586 | jgoerzen | 2004-07-13 10:22:41 -0500 (Tue, 13 Jul 2004) | 1 line
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/debian/control
+
+Added python, python-dev to build-deps.
+------------------------------------------------------------------------
 r585 | jgoerzen | 2004-06-15 04:45:13 -0500 (Tue, 15 Jun 2004) | 1 line
 Changed paths:
    M /offlineimap/head/debian/changelog
