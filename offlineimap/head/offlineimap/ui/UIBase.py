@@ -28,7 +28,7 @@ class UIBase:
     ################################################## UTILS
     def _msg(s, msg):
         """Generic tool called when no other works."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def warn(s, msg):
         s._msg("WARNING: " + msg)
@@ -47,7 +47,7 @@ class UIBase:
     ################################################## INPUT
 
     def getpass(s, accountname, config):
-        raise NotImplementedException
+        raise NotImplementedError
 
     def folderlist(s, list):
         return ', '.join(["%s[%s]" % (s.getnicename(x), x.getname()) for x in list])
