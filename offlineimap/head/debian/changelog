@@ -1,3 +1,10 @@
+offlineimap (3.2.8) unstable; urgency=low
+
+  * Added a work-around for some IMAP servers that respond poorly
+    to LIST "" "".  It will now do LIST "" "*", for them only.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 30 Sep 2002 10:48:01 -0500
+
 offlineimap (3.2.7) unstable; urgency=low
 
   * Moved executable to bin/offlineimap.  This will allow setup.py to
