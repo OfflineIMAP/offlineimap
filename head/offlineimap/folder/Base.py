@@ -105,6 +105,10 @@ class BaseFolder:
     def deletemessage(self, uid):
         raise NotImplementedException
 
+    def deletemessages(self, uidlist):
+        for uid in uidlist:
+            self.deletemessage(uid)
+
     def syncmessagesto(self, dest, applyto = None):
         """Syncs messages in this folder to the destination.
         If applyto is specified, it should be a list of folders (don't forget

@@ -100,5 +100,5 @@ def flagsmaildir2imap(list):
         if flagmap.has_key(mdflag):
             retval.append(flagmap[mdflag])
     retval.sort()
-    return retval
+    return '(' + ' '.join(retval) + ')'
 
