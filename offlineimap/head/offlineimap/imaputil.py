@@ -89,14 +89,14 @@ def imapsplit(imapstring):
                 break
     return retval
             
-def flagsimap2maildir(string):
+def flagsimap2maildir(flagstring):
     flagmap = {'\\seen': 'S',
                '\\answered': 'R',
                '\\flagged': 'F',
                '\\deleted': 'T',
                '\\draft': 'D'}
     retval = []
-    imapflaglist = [x.lower() for x in flagsplit(string)]
+    imapflaglist = [x.lower() for x in flagstring[1:-1].split()]
     for imapflag in imapflaglist:
         if flagmap.has_key(imapflag):
             retval.append(flagmap[imapflag])

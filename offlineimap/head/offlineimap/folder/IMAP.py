@@ -18,7 +18,7 @@
 
 from Base import BaseFolder
 from offlineimap import imaputil, imaplib
-import rfc822, time
+import rfc822, time, string
 from StringIO import StringIO
 from copy import copy
 
@@ -75,7 +75,7 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
             # Discard the message number.
-            messagestr = imaputil.imapsplit(messagestr)[1]
+            messagestr = string.split(messagestr, maxsplit = 1)[1]
             options = imaputil.flags2hash(messagestr)
             uid = long(options['UID'])
             flags = imaputil.flagsimap2maildir(options['FLAGS'])

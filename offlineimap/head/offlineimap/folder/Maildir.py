@@ -130,7 +130,7 @@ class MaildirFolder(BaseFolder):
         return self.messagelist
 
     def getmessage(self, uid):
-        filename = self.getmessagelist()[uid]['filename']
+        filename = self.messagelist[uid]['filename']
         file = open(filename, 'rt')
         retval = file.read()
         file.close()
@@ -140,7 +140,7 @@ class MaildirFolder(BaseFolder):
         if uid < 0:
             # We cannot assign a new uid.
             return uid
-        if uid in self.getmessagelist():
+        if uid in self.messagelist:
             # We already have it.
             self.savemessageflags(uid, flags)
             return uid
@@ -180,10 +180,10 @@ class MaildirFolder(BaseFolder):
         return uid
         
     def getmessageflags(self, uid):
-        return self.getmessagelist()[uid]['flags']
+        return self.messagelist[uid]['flags']
 
     def savemessageflags(self, uid, flags):
-        oldfilename = self.getmessagelist()[uid]['filename']
+        oldfilename = self.messagelist[uid]['filename']
         newpath, newname = os.path.split(oldfilename)
         infostr = ':'
         infomatch = re.search('(:.*)$', newname)
@@ -198,16 +198,13 @@ class MaildirFolder(BaseFolder):
         newfilename = os.path.join(newpath, newname)
         if (newfilename != oldfilename):
             os.rename(oldfilename, newfilename)
-            self.getmessagelist()[uid]['flags'] = flags
-            self.getmessagelist()[uid]['filename'] = newfilename
-
-    def getmessageflags(self, uid):
-        return self.getmessagelist()[uid]['flags']
+            self.messagelist[uid]['flags'] = flags
+            self.messagelist[uid]['filename'] = newfilename
 
     def deletemessage(self, uid):
         if not uid in self.messagelist:
             return
-        filename = self.getmessagelist()[uid]['filename']
+        filename = self.messagelist[uid]['filename']
         try:
             os.unlink(filename)
         except IOError:
