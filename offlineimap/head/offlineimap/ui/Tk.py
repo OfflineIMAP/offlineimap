@@ -329,12 +329,14 @@ class LEDAccountFrame:
         self.accountname = accountname
         self.fontfamily = fontfamily
         self.fontsize = fontsize
-        self.frame = Frame(self.top)
+        self.frame = Frame(self.top, background = 'black')
         self.frame.pack(side = BOTTOM, expand = 0, fill = X)
         self._createcanvas(self.frame)
 
-        self.label = Label(self.frame, text = accountname)
-        self.label.pack()
+        self.label = Label(self.frame, text = accountname,
+                           background = "black", foreground = "blue",
+                           font = (self.fontfamily, self.fontsize))
+        self.label.pack(side = LEFT)
 
     def getnewthreadframe(s):
         return LEDThreadFrame(s.canvas)
@@ -350,8 +352,13 @@ class LEDAccountFrame:
     def startsleep(s, sleepsecs):
         print 351
         s.sleeping_abort = 0
-        s.button = Button(s.frame, text = "Sync now", command = s.syncnow)
-        s.button.pack()
+        s.button = Button(s.frame, text = "Sync now", command = s.syncnow,
+                          background = "black", activebackground = "black",
+                          activeforeground = "white",
+                          foreground = "blue",
+                          font = (s.fontfamily, s.fontsize), bd = 0,
+                          relief = FLAT)
+        s.button.pack(side = LEFT)
 
     def syncnow(s):
         print 357
