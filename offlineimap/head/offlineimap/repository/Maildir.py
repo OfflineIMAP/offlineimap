@@ -46,12 +46,14 @@ class MaildirRepository(BaseRepository):
             for invalid in ['new', 'cur', 'tmp', 'offlineimap.uidvalidity']:
                 for component in foldername.split('/'):
                     assert component != invalid, "When using nested folders (/ as a separator in the account config), your folder names may not contain 'new', 'cur', 'tmp', or 'offlineimap.uidvalidity'."
-                        
+
+        assert oldername.find('./') == -1, "Folder names may not contain ../"
+        assert not foldername.startswith('/'), "Folder names may not begin with /"
         oldcwd = os.getcwd()
         os.chdir(self.root)
-        os.makedirs(folderdir, 0700)
+        os.makedirs(foldername, 0700)
         for subdir in ['cur', 'new', 'tmp']:
-            os.mkdir(os.path.join(folderdir, subdir), 0700)
+            os.mkdir(os.path.join(foldername, subdir), 0700)
         # Invalidate the cache
         self.folders = None
         os.chdir(oldcwd)

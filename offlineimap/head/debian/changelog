@@ -13,6 +13,7 @@ offlineimap (3.2.2) unstable; urgency=low
   * Added support for /-separated Maildirs -- that is, hierarchical
     Maildir trees.  Fixes [complete.org #28] and, for Debian,
     Closes: #155460.
+  * Preventitive security: Folder names may not contain ./ or start with /.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 25 Jul 2002 08:22:25 -0500
 
