@@ -41,13 +41,15 @@ class UsefulIMAPMixIn:
 
 class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4): pass
 class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL): pass
+class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplib.IMAP4_Tunnel): pass
 
 class IMAPServer:
-    def __init__(self, username, password, hostname, port = None, ssl = 1,
-                 maxconnections = 1):
+    def __init__(self, username = None, password = None, hostname = None,
+                 port = None, ssl = 1, maxconnections = 1, tunnel = None):
         self.username = username
         self.password = password
         self.hostname = hostname
+        self.tunnel = tunnel
         self.port = port
         self.usessl = ssl
         self.delim = None
@@ -102,12 +104,15 @@ class IMAPServer:
         self.connectionlock.release()   # Release until need to modify data
 
         # Generate a new connection.
-        if self.usessl:
+        if self.tunnel:
+            imapobj = UsefulIMAP4_Tunnel(self.tunnel)
+        elif self.usessl:
             imapobj = UsefulIMAP4_SSL(self.hostname, self.port)
         else:
             imapobj = UsefulIMAP4(self.hostname, self.port)
-            
-        imapobj.login(self.username, self.password)
+
+        if not self.tunnel:
+            imapobj.login(self.username, self.password)
 
         if self.delim == None:
             self.delim, self.root = \

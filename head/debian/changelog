@@ -1,6 +1,7 @@
 offlineimap (2.0.2) unstable; urgency=low
 
   * Added support for remotepassfile.  Closes: #151943.
+  * Added support for preauth tunnels.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu,  4 Jul 2002 14:46:23 -0500
 

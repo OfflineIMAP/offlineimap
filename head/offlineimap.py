@@ -48,6 +48,7 @@ server = None
 remoterepos = None
 localrepos = None
 passwords = {}
+tunnels = {}
 
 threadutil.initInstanceLimit("ACCOUNTLIMIT", config.getint("general",
                                                            "maxsyncaccounts"))
@@ -56,7 +57,9 @@ threadutil.initInstanceLimit("ACCOUNTLIMIT", config.getint("general",
 # asking for passwords simultaneously.
 
 for account in accounts:
-    if config.has_option(account, "remotepass"):
+    if config.has_option(account, "preauthtunnel"):
+        tunnels[account] = config.get(account, "preauthtunnel")
+    elif config.has_option(account, "remotepass"):
         passwords[account] = config.get(account, "remotepass")
     elif config.has_option(account, "remotepassfile"):
         passfile = os.path.expanduser(config.get(account, "remotepassfile"))
@@ -90,11 +93,17 @@ def syncaccount(accountname, *args):
         if config.has_option(accountname, "remoteport"):
             port = config.getint(accountname, "remoteport")
         ssl = config.getboolean(accountname, "ssl")
+        usetunnel = config.has_option(accountname, "preauthtunnel")
 
+        server = None
         # Connect to the remote server.
-        server = imapserver.IMAPServer(user, passwords[accountname],
-                                       host, port, ssl,
-                                       config.getint(accountname, "maxconnections"))
+        if usetunnel:
+            server = imapserver.IMAPServer(tunnel = tunnels[accountname],
+                                           maxconnections = config.getint(accountname, "maxconnections"))
+        else:
+            server = imapserver.IMAPServer(user, passwords[accountname],
+                                           host, port, ssl,
+                                           config.getint(accountname, "maxconnections"))
         remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
 
         # Connect to the Maildirs.

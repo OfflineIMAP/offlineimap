@@ -17,10 +17,11 @@ Public functions:       Internaldate2tuple
 # GET/SETACL contributed by Anthony Baxter <anthony@interlink.com.au> April 2001.
 # IMAP4_SSL contributed by Tino Lange <Tino.Lange@isg.de> March 2002.
 # GET/SETQUOTA contributed by Andreas Zeidler <az@kreativkombinat.de> June 2002.
+# IMAP4_Tunnel contributed by John Goerzen <jgoerzen@complete.org> July 2002
 
 __version__ = "2.52"
 
-import binascii, re, socket, time, random, sys
+import binascii, re, socket, time, random, sys, os
 
 __all__ = ["IMAP4", "Internaldate2tuple",
            "Int2AP", "ParseFlags", "Time2Internaldate"]
@@ -1020,7 +1021,37 @@ class IMAP4:
                     i = 0
                 n -= 1
 
+class IMAP4_Tunnel(IMAP4):
+    """IMAP4 client class over a tunnel
 
+    Instantiate with: IMAP4_Tunnel(tunnelcmd)
+
+    tunnelcmd -- shell command to generate the tunnel.
+    The result will be in PREAUTH stage."""
+
+    def __init__(self, tunnelcmd):
+        IMAP4.__init__(self, tunnelcmd)
+
+    def open(self, host, port):
+        """The tunnelcmd comes in on host!"""
+        self.outfd, self.infd = os.popen2(host, "t", 0)
+
+    def read(self, size):
+        retval = ''
+        while len(retval) < size:
+            retval += self.infd.read(size - len(retval))
+        return retval
+
+    def readline(self):
+        return self.infd.readline()
+
+    def send(self, data):
+        self.outfd.write(data)
+
+    def shutdown(self):
+        self.infd.close()
+        self.outfd.close()
+        
 
 class IMAP4_SSL(IMAP4):
 

@@ -1,3 +1,30 @@
+2002-07-04 15:36  jgoerzen
+
+	* debian/changelog: Updated with tunnel feature
+
+2002-07-04 15:31  jgoerzen
+
+	* offlineimap/imapserver.py: Another tunnel fix
+
+2002-07-04 15:30  jgoerzen
+
+	* offlineimap.conf, offlineimap.py, offlineimap/imaplib.py,
+	offlineimap/imapserver.py: Updated with preliminary tunnel support
+
+2002-07-04 14:47  jgoerzen
+
+	* offlineimap.py, debian/changelog, offlineimap/version.py: Added
+	support for remotepassfile and bumped versions
+
+2002-07-04 14:44  jgoerzen
+
+	* offlineimap.conf: Added some more examples as well as
+	remotepassfile.
+
+2002-07-04 11:59  jgoerzen
+
+	* ChangeLog: Updated after 2.0.1
+
 2002-07-04 11:58  jgoerzen
 
 	* offlineimap.py, debian/changelog, offlineimap/version.py: Updated
