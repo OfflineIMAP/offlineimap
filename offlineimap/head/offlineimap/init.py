@@ -44,7 +44,7 @@ def startup(versionno):
         sys.stdout.write(version.cmdhelp + "\n")
         sys.exit(0)
 
-    for optlist in getopt(sys.argv[1:], 'P:1oa:c:d:u:h')[0]:
+    for optlist in getopt(sys.argv[1:], 'P:1oa:c:d:l:u:h')[0]:
         options[optlist[0]] = optlist[1]
 
     if '-h' in options:
