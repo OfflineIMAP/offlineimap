@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.2
-
+# Startup from system-wide installation
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
@@ -17,6 +17,5 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-revno = long('$Rev: 252 $'[6:-2])
 from offlineimap import init
-init.startup(revno)
+init.startup('3.99.0')

@@ -21,6 +21,8 @@ offlineimap (3.99.0) unstable; urgency=low
     performs different functions.
   * Moved threadexited from offlineimap/init.py to
     offlineimap/threadutil.py.
+  * offlineimap.py is back to ease the use of OfflineIMAP in single-user
+    installations.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 30 Sep 2002 12:08:08 -0500
 

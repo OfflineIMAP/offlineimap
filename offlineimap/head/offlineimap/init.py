@@ -25,8 +25,8 @@ from ConfigParser import ConfigParser
 from threading import *
 from getopt import getopt
 
-def startup(revno):
-    assert revno == version.revno, "Revision of main program (%d) does not match that of library (%d).  Please double-check your PYTHONPATH and installation locations." % (revno, version.revno)
+def startup(versionno):
+    assert versionno == version.versionstr, "Revision of main program (%d) does not match that of library (%d).  Please double-check your PYTHONPATH and installation locations." % (revno, version.revno)
     options = {}
     if '--help' in sys.argv[1:]:
         sys.stdout.write(version.cmdhelp + "\n")
