@@ -1,0 +1,12 @@
+Source: offlineimap
+Section: unknown
+Priority: optional
+Maintainer: John Goerzen <jgoerzen@complete.org>
+Build-Depends: debhelper (>> 3.0.0)
+Standards-Version: 3.5.2
+
+Package: offlineimap
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>

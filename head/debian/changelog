@@ -1,0 +1,9 @@
+offlineimap (1.0.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 21 Jun 2002 14:54:56 -0500
+
+Local variables:
+mode: debian-changelog
+End:

@@ -191,3 +191,72 @@ Q. Can I synchronize multiple accounts with OfflineIMAP?
 A. Sure.  Just name them all in the accounts line in the general
 section of the config file, and add a per-account section for each one.
 
+--------------------------------------------------
+
+Q. Do you support POP?
+
+A. No.  POP is not robust enough to do a completely reliable
+multi-machine synchronization like OfflineIMAP can do.  OfflineIMAP
+will not support it.
+
+--------------------------------------------------
+
+Q. Do you support mailbox formats other than Maildir?
+
+A. Not at present.  There is no technical reason not to; just no
+demand yet.  Maildir is a superior format anyway.
+
+--------------------------------------------------
+
+Q. [technical] Why are your Maildir message filenames so huge?
+
+A. OfflineIMAP has two relevant principles: 1) never modifying your
+messages in any way and 2) ensuring 100% reliable synchronizations.
+In order to do a reliable sync, OfflineIMAP must have a way to
+uniquely identify each e-mail.  Three pieces of information are
+required to do this: your account name, the folder name, and the
+message UID.  The account name can be calculated from the path in
+which your messages are.  The folder name can usually be as well, BUT
+some mail clients move messages between folders by simply moving the
+file, leaving the name intact.
+
+So, OfflineIMAP must store both a UID folder ID.  The folder ID is
+necessary so OfflineIMAP can detect a message moved to a different
+folder.  OfflineIMAP stores the UID (U= number) and an md5sum of the
+foldername (FMD5= number) to facilitate this.
+
+--------------------------------------------------
+
+Q. Can you provide an example of using OfflineIMAP with Mutt and
+multiple accounts?
+
+A. Sure.  I set it up to have a single Mail directory with additional
+directories under that for each account.  So, mkdir ~/Mail.  Then, 
+in your ~/.offlineimaprc:
+
+Set "accounts = Personal, Work"
+
+Make sure you have a [Personal] and a [Work] section, with different
+pathnames.  Enable [mbnames].
+
+In each account section, do something like this:
+
+localfolders = ~/Mail/Personal
+
+or
+
+localfolders = ~/Mail/Work
+
+In Mutt:
+
+add lines like this to your ~/.muttrc:
+
+source ~/path-to-mbnames-muttrc-mailboxes
+
+folder-hook Personal set from="youremail@personal.com"
+folder-hook Work set from="youremail@work.com"
+set mbox_type=Maildir
+set folder=$HOME/Mail
+set spoolfile=+Personal/INBOX
+
+That's it!
