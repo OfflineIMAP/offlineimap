@@ -11,7 +11,7 @@
     <refentryinfo>
       <address><email>jgoerzen@complete.org</email></address>
       <author><firstname>John</firstname><surname>Goerzen</surname></author>
-      <date> $Date: 2003-01-29 14:36:13 -0600 (Wed, 29 Jan 2003) $ </date>
+      <date> $Date: 2003-03-04 14:42:38 -0600 (Tue, 04 Mar 2003) $ </date>
     </refentryinfo>
 
     <refmeta>
@@ -978,8 +978,7 @@ rm -r ~/.offlineimap/AccountName/INBOX</programlisting>
       <para>
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	the Free Software Foundation; version 2 of the License.
       </para>
 
       <para>

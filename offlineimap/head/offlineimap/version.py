@@ -1,8 +1,8 @@
 productname = 'OfflineIMAP'
 versionstr = "3.99.7"
-revno = long('$Rev: 348 $'[6:-2])
+revno = long('$Rev: 360 $'[6:-2])
 revstr = "Rev %d" % revno
-datestr = '$Date: 2003-01-08 19:43:11 -0600 (Wed, 08 Jan 2003) $'
+datestr = '$Date: 2003-03-04 14:42:38 -0600 (Tue, 04 Mar 2003) $'
 
 versionlist = versionstr.split(".")
 major = versionlist[0]
@@ -26,8 +26,7 @@ license = """Copyright (C) 2002, 2003 John Goerzen <jgoerzen@complete.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+the Free Software Foundation; version 2 of the License.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
