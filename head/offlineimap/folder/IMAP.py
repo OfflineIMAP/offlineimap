@@ -47,6 +47,8 @@ class IMAPFolder(BaseFolder):
         imapobj = self.imapserver.acquireconnection()
         try:
             x = imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
+        except imapobj.readonly:
+            pass
         finally:
             self.imapserver.releaseconnection(imapobj)
         uidstring = imaputil.imapsplit(x)[1]
@@ -60,7 +62,10 @@ class IMAPFolder(BaseFolder):
             except imapobj.readonly:
                 pass
             self.messagelist = {}
-            response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
+            try:
+                response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
+            except imapobj.readonly:
+                pass
             result = imaputil.imapsplit(response)[1]
             maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
             if (maxmsgid < 1):

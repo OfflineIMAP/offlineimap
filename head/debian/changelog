@@ -1,3 +1,9 @@
+offlineimap (2.0.5) unstable; urgency=low
+
+  * Placeholder
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri,  5 Jul 2002 09:21:52 -0500
+
 offlineimap (2.0.4) unstable; urgency=low
 
   * Made OfflineIMAP at least rudimentarily compatible with read-only
