@@ -71,7 +71,7 @@ binary-indep: build install
 	dh_testroot
 #	dh_installdebconf	
 	dh_installdocs
-	dh_installexamples offlineimap.conf
+	dh_installexamples offlineimap.conf offlineimap.conf.minimal
 	dh_installmenu
 #	dh_installlogrotate
 #	dh_installemacsen

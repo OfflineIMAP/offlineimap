@@ -19,6 +19,8 @@ SHELL=/bin/bash
 clean:
 	-python2.2 setup.py clean --all
 	-rm -f `find . -name "*~"`
+	-rm -f `find . -name "*.tmp"`
+	-rm -f bin/offlineimapc
 	-rm -f `find . -name "*.pyc"`
 	-rm -f `find . -name "*.pygc"`
 	-rm -f `find . -name "*.class"`
