@@ -199,7 +199,7 @@ class BaseFolder:
             usethread = applyto[0]
         
         for uid in uidlist:
-            if usethread:
+            if usethread and usethread.suggeststhreads():
                 usethread.waitforthread()
                 thread = InstanceLimitedThread(\
                     usethread.getcopyinstancelimit(),

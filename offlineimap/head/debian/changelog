@@ -1,6 +1,8 @@
 offlineimap (3.99.10) unstable; urgency=low
 
   * Always do a flush in Noninteractive when writing out data.
+  * Fixed a bug in folder/Base.py relating to threads in
+    syncmessagesto_neguid.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri,  7 Feb 2003 14:12:17 -0600
 
