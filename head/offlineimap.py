@@ -18,7 +18,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from imapsync import imaplib, imaputil, imapserver, repository, folder
-import re, getpass, os, os.path
+import re, os, os.path, imapsync
 from ConfigParser import ConfigParser
 
 config = ConfigParser()
@@ -34,9 +34,10 @@ accounts = accounts.split(",")
 server = None
 remoterepos = None
 localrepos = None
+ui = imapsync.ui.TTY.TTYUI()
 
 for accountname in accounts:
-    print "Processing account " + accountname
+    ui.acct(accountname)
     accountmetadata = os.path.join(metadatadir, accountname)
     if not os.path.exists(accountmetadata):
         os.mkdir(accountmetadata, 0700)
@@ -49,7 +50,7 @@ for accountname in accounts:
     if config.has_option(accountname, "remotepass"):
         password = config.get(accountname, "remotepass")
     else:
-        password = getpass.getpass("Password for %s: " % accountname)
+        password = ui.getpass(accountname, host, port, user)
     ssl = config.getboolean(accountname, "ssl")
 
     # Connect to the remote server.
@@ -62,42 +63,40 @@ for accountname in accounts:
     # Connect to the local cache.
     statusrepos = repository.LocalStatus.LocalStatusRepository(accountmetadata)
     
-    
-    print "Synchronizing folder list..."
+    ui.syncfolders(remoterepos, localrepos)
     remoterepos.syncfoldersto(localrepos)
-    print "Done."
+
     for remotefolder in remoterepos.getfolders():
-        print "*** SYNCHRONIZING FOLDER %s" % remotefolder.getname()
         # Load local folder.
         localfolder = localrepos.getfolder(remotefolder.getname())
         if not localfolder.isuidvalidityok(remotefolder):
-            print 'UID validity is a problem for this folder; skipping.'
+            ui.validityproblem(remotefolder)
             continue
-        print "Reading local message list...",
+        ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
+        ui.loadmessagelist(localrepos, localfolder)
         localfolder.cachemessagelist()
-        print len(localfolder.getmessagelist().keys()), "messages."
-
+        ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
+        
         # Load remote folder.
-        print "Reading remote message list...",        
+        ui.loadmessagelist(remoterepos, remotefolder)
         remotefolder.cachemessagelist()
-        print len(remotefolder.getmessagelist().keys()), "messages."
+        ui.messagelistloaded(remoterepos, remotefolder,
+                             len(remotefolder.getmessagelist().keys()))
 
         # Load status folder.
         statusfolder = statusrepos.getfolder(remotefolder.getname())
         statusfolder.cachemessagelist()
         
-        if statusfolder.isnewfolder():
-            print "Local status folder is new; ignoring."
-        else:
-            print "Synchronizing local changes."
+        if not statusfolder.isnewfolder():
+            ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
             localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
         
         # Synchronize remote changes.
-        print "Synchronizing remote to local..."
+        ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
         remotefolder.syncmessagesto(localfolder)
 
         # Make sure the status folder is up-to-date.
-        print "Updating local status cache..."
+        ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
         localfolder.syncmessagesto(statusfolder)
         statusfolder.save()
         
