@@ -58,9 +58,19 @@ for account in accounts:
     else:
         passwords[account] = ui.getpass(accountname, config)
 
-def syncitall():
-    mailboxes = []
-    for accountname in accounts:
+mailboxes = []
+mailboxlock = Lock()
+def addmailbox(accountname, remotefolder):
+    mailboxlock.acquire()
+    mailboxes.append({'accountname' : accountname,
+                      'foldername': remotefolder.getvisiblename()})
+    mailboxlock.release()    
+    
+def syncaccount(accountname):
+    # We don't need an account lock because syncitall() goes through
+    # each account once, then waits for all to finish.
+    accountsemaphore.acquire()
+    try:
         ui.acct(accountname)
         accountmetadata = os.path.join(metadatadir, accountname)
         if not os.path.exists(accountmetadata):
@@ -133,7 +143,21 @@ def syncitall():
             localfolder.syncmessagesto(statusfolder)
             statusfolder.save()
         server.close()
+    finally:
+        accountsemaphore.release()
 
+def syncitall():
+    mailboxes = []                      # Reset.
+    threads = []
+    for accountname in accounts:        
+        threadutil.semaphorewait(accountsemaphore)
+        thread = Thread(target = syncaccount,
+                        name = "syncaccount %s" % accountname,
+                        args = (accountname))
+        thread.start()
+        threads.append(thread)
+    # Wait for the threads to finish.
+    threadutil.threadreset(threads)
 
     mbnames.genmbnames(config, mailboxes)
 

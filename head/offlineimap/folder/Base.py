@@ -23,6 +23,16 @@ class BaseFolder:
         """Returns name"""
         return self.name
 
+    def suggeststhreads(self):
+        """Returns true if this folder suggests using threads for actions;
+        false otherwise.  Probably only IMAP will return true."""
+        return 0
+
+    def waitforthread(self):
+        """For threading folders, waits until there is a resource available
+        before firing off a thread.  For all others, returns immediately."""
+        pass
+
     def getvisiblename(self):
         return self.name
 
@@ -152,26 +162,40 @@ class BaseFolder:
                 # Did not find any server to take this message.  Ignore.
                 pass
 
+    def copymessageto(self, uid, applyto):
+        __main__.ui.copyingmessage(uid, self, applyto)
+        message = self.getmessage(uid)
+        flags = self.getmessageflags(uid)
+        for object in applyto:
+            newuid = object.savemessage(uid, message, flags)
+            if newuid > 0 and newuid != uid:
+                # Change the local uid.
+                self.savemessage(newuid, message, flags)
+                self.deletemessage(uid)
+                uid = newuid
+        
+
     def syncmessagesto_copy(self, dest, applyto):
         """Pass 2 of folder synchronization.
 
         Look for messages present in self but not in dest.  If any, add
         them to dest."""
+        threads = []
         
         for uid in self.getmessagelist().keys():
             if uid < 0:                 # Ignore messages that pass 1 missed.
                 continue
             if not uid in dest.getmessagelist():
-                __main__.ui.copyingmessage(uid, self, applyto)
-                message = self.getmessage(uid)
-                flags = self.getmessageflags(uid)
-                for object in applyto:
-                    newuid = object.savemessage(uid, message, flags)
-                    if newuid > 0 and newuid != uid:
-                        # Change the local uid.
-                        self.savemessage(newuid, message, flags)
-                        self.deletemessage(uid)
-                        uid = newuid
+                if self.suggeststhreads():
+                    self.waitforthread()
+                    thread = Thread(target = self.copymessageto,
+                                    args = (uid, applyto))
+                    thread.start()
+                    threads.append(thread)
+                else:
+                    self.copymessageto(uid, applyto)
+        for thread in threads:
+            thread.join()
 
     def syncmessagesto_delete(self, dest, applyto):
         """Pass 3 of folder synchronization.

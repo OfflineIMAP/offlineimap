@@ -28,6 +28,7 @@ class UsefulIMAPMixIn:
         return None
 
     def select(self, mailbox='INBOX', readonly=None):
+        print "Mixin select"
         if self.getselectedfolder() == mailbox and not readonly:
             # No change; return.
             return

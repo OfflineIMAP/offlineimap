@@ -16,9 +16,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from Threading import *
+from threading import *
 
-def semaphorewait(semaphore, originalstate):
+def semaphorereset(semaphore, originalstate):
     """Wait until the semaphore gets back to its original state -- all acquired
     resources released."""
     for i in range(originalstate):
@@ -27,3 +27,10 @@ def semaphorewait(semaphore, originalstate):
     for i in range(originalstate):
         semaphore.release()
         
+def semaphorewait(semaphore):
+    semaphore.acquire()
+    semaphore.release()
+    
+def threadsreset(threadlist):
+    for thread in threadlist:
+        thread.join()

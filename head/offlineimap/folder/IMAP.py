@@ -27,30 +27,43 @@ class IMAPFolder(BaseFolder):
         self.root = imapserver.root
         self.sep = imapserver.delim
         self.imapserver = imapserver
-        self.imapobj = self.imapserver.makeconnection()
         self.messagelist = None
         self.visiblename = visiblename
+
+    def suggeststhreads(self):
+        return 1
+
+    def waitforthread(self):
+        self.imapserver.connectionwait()
 
     def getvisiblename(self):
         return self.visiblename
 
     def getuidvalidity(self):
-        x = self.imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            x = imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
+        finally:
+            self.imapserver.releaseconnection(imapobj)
         uidstring = imaputil.imapsplit(x)[1]
         return long(imaputil.flagsplit(uidstring)[1])
     
     def cachemessagelist(self):
-        assert(self.imapobj.select(self.getfullname())[0] == 'OK')
-        self.messagelist = {}
-        response = self.imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
-        result = imaputil.imapsplit(response)[1]
-        maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
-        if (maxmsgid < 1):
-            # No messages?  return.
-            return
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            imapobj.select(self.getfullname())
+            self.messagelist = {}
+            response = self.imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
+            result = imaputil.imapsplit(response)[1]
+            maxmsgid = long(imaputil.flags2hash(result)['MESSAGES'])
+            if (maxmsgid < 1):
+                # No messages?  return.
+                return
 
-        # Now, get the flags and UIDs for these.
-        response = self.imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
+            # Now, get the flags and UIDs for these.
+            response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
+        finally:
+            self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
             # Discard the message number.
             messagestr = imaputil.imapsplit(messagestr)[1]
@@ -63,51 +76,66 @@ class IMAPFolder(BaseFolder):
         return self.messagelist
 
     def getmessage(self, uid):
-        assert(self.imapobj.select(self.getfullname())[0] == 'OK')
-        return self.imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')[1][0][1].replace("\r\n", "\n")
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            imapobj.select(self.getfullname())
+            return imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')[1][0][1].replace("\r\n", "\n")
+        finally:
+            self.imapserver.releaseconnection(imapobj)
     
     def getmessageflags(self, uid):
-        return self.getmessagelist()[uid]['flags']
+        return self.messagelist[uid]['flags']
     
     def savemessage(self, uid, content, flags):
-        # This backend always assigns a new uid, so the uid arg is ignored.
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            # This backend always assigns a new uid, so the uid arg is ignored.
+            # In order to get the new uid, we need to save off the message ID.
 
-        # In order to get the new uid, we need to save off the message ID.
+            message = rfc822.Message(StringIO(content))
+            mid = imapobj._quote(message.getheader('Message-Id'))
+            date = imaplib.Time2Internaldate(rfc822.parsedate(message.getheader('Date')))
 
-        message = rfc822.Message(StringIO(content))
-        mid = self.imapobj._quote(message.getheader('Message-Id'))
-        date = imaplib.Time2Internaldate(rfc822.parsedate(message.getheader('Date')))
+            if content.find("\r\n") == -1:  # Convert line endings if not already
+                content = content.replace("\n", "\r\n")
 
-        if content.find("\r\n") == -1:  # Convert line endings if not already
-            content = content.replace("\n", "\r\n")
-
-        assert(self.imapobj.append(self.getfullname(),
-                                   imaputil.flagsmaildir2imap(flags),
-                                   date, content)[0] == 'OK')
-        # Checkpoint.  Let it write out the messages, etc.
-        assert(self.imapobj.check()[0] == 'OK')
-        # Now find the UID it got.
-        matchinguids = self.imapobj.uid('search', None,
-                                        '(HEADER Message-Id %s)' % mid)[1][0]
-        matchinguids = matchinguids.split(' ')
-        matchinguids.sort()
-        uid = long(matchinguids[-1])
-        self.messagelist[uid] = {'uid': uid, 'flags': flags}
-        return uid
+            assert(imapobj.append(self.getfullname(),
+                                       imaputil.flagsmaildir2imap(flags),
+                                       date, content)[0] == 'OK')
+            # Checkpoint.  Let it write out the messages, etc.
+            assert(imapobj.check()[0] == 'OK')
+            # Now find the UID it got.
+            matchinguids = imapobj.uid('search', None,
+                                       '(HEADER Message-Id %s)' % mid)[1][0]
+            matchinguids = matchinguids.split(' ')
+            matchinguids.sort()
+            uid = long(matchinguids[-1])
+            self.messagelist[uid] = {'uid': uid, 'flags': flags}
+            return uid
+        finally:
+            self.imapserver.releaseconnection(imapobj)
 
     def savemessageflags(self, uid, flags):
-        assert(self.imapobj.select(self.getfullname())[0] == 'OK')
-        result = self.imapobj.uid('store', '%d' % uid, 'FLAGS',
-                                  imaputil.flagsmaildir2imap(flags))[1][0]
+        imapobj = self.imapserver.acquireconnection(imapobj)
+        try:
+            imapobj.select(self.getfullname())
+            result = imapobj.uid('store', '%d' % uid, 'FLAGS',
+                                 imaputil.flagsmaildir2imap(flags))[1][0]
+        finally:
+            self.imapserver.releaseconnection(imapobj)
         flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
         self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
 
     def addmessagesflags(self, uidlist, flags):
-        assert(self.imapobj.select(self.getfullname())[0] == 'OK')
-        r = self.imapobj.uid('store',
-                             ','.join([str(uid) for uid in uidlist]),
-                             '+FLAGS',
-                             imaputil.flagsmaildir2imap(flags))[1]
+        imapobj = self.imapserver.acquireconnection(imapobj)
+        try:
+            imapobj.select(self.getfullname())
+            r = imapobj.uid('store',
+                            ','.join([str(uid) for uid in uidlist]),
+                            '+FLAGS',
+                            imaputil.flagsmaildir2imap(flags))[1]
+        finally:
+            self.imapserver.releaseconnection(imapobj)
         resultcount = 0
         for result in r:
             resultcount += 1
@@ -124,10 +152,14 @@ class IMAPFolder(BaseFolder):
         uidlist = [uid for uid in uidlist if uid in self.messagelist]
         if not len(uidlist):
             return        
-        
+
         self.addmessagesflags(uidlist, ['T'])
-        assert(self.imapobj.select(self.getfullname())[0] == 'OK')
-        assert(self.imapobj.expunge()[0] == 'OK')
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            imapobj.select(self.getfullname())
+            assert(imapobj.expunge()[0] == 'OK')
+        finally:
+            self.imapserver.releaseconnection(imapobj)
         for uid in uidlist:
             del(self.messagelist[uid])
         
