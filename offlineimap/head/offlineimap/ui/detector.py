@@ -20,8 +20,8 @@ from offlineimap.ui import *
 import sys
 
 def findUI(config):
-    uistrlist = ['Tk.TkUI', 'TTY.TTYUI', 'Noninteractive.Basic',
-                 'Noninteractive.Quiet']
+    uistrlist = ['Tk.Blinkenlights', 'Tk.VerboseUI', 'TTY.TTYUI',
+                 'Noninteractive.Basic', 'Noninteractive.Quiet']
     if config.has_option("general", "ui"):
         uistrlist = config.get("general", "ui").replace(" ", "").split(",")
     for uistr in uistrlist:

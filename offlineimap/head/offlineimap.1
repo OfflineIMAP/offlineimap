@@ -273,16 +273,134 @@ with
 will be forced to be used, even if its
 .B isuable()
 method states that it cannot be.  Use this option with care.
-.IP
-The pre-defined options are
-.B Tk.TkUI
-(a graphical interface),
-.B TTY.TTYUI
-(a text-mode interface),
-.B Noninteractive.Basic
-(a non-interactive mode suitable for cronning), and
-.B Noninteractive.Quiet
-(a mode that generates no output except for errors).
+The pre-defined options are listed in the USER INTERFACES section.
+.SH USER INTERFACES
+.B OfflineIMAP
+has a pluggable user interface system that lets you choose how the
+program communicates information to you.  There are two graphical
+interfaces, one terminal interface, and two noninteractive interfaces
+suitable for scripting or logging purposes.  The
+.I ui
+option in the configuration file specifies the user interface
+preferences.  The
+.I \-u
+command-line option can override the configuration file.  The
+available values for the configuration file or command-line are
+describef in this section.
+.SS Tk.Blinkenlights
+This is an interface designed to be sleek, fun to watch, and
+informative of the overall picture of what
+.B OfflineIMAP
+is doing.  I consider it to be the best general-purpose interface in
+.B OfflineIMAP.
+Tk.Blinkenlights contains, by default, a small window with a row of
+LEDs and a row of command buttons.  The total size of the window is
+very small, so it uses little desktop space, yet it is quite
+functional.  There is also an optional, toggable, log that shows more
+detail about what is happening and is color-coded to match the color
+of the lights.
+.PP
+Tk.Blinkenlights is the only user interface that has configurable
+parameters; see the example
+.I offlineimap.conf
+for more details.
+.PP
+Each light in the Tk.Blinkenlights interface represents a thread of
+execution -- that is, a particular task that
+.B OfflineIMAP
+is performing right now.  The color indicates what task the particular
+thread is performing, and are as follows:
+.TP
+.B Black
+indicates that this light's thread has terminated; it will light up
+again later when new threads start up.  So, black indicates no
+activity.
+.TP
+.B Red (Meaning 1)
+is the color of the main program's thread, which basically does
+nothing but monitor the others.  It might remind you of HAL 9000 in
+.I 2001.
+.TP
+.B Purple
+is the color of an account synchronization thread that is monitoring
+the progress of the folders in that account (not generating any I/O).
+.TP
+.B Cyan
+indicates that the thread is syncing a folder.
+.TP
+.B Green
+means that a folder's message list is being loaded.
+.TP
+.B Blue
+is the color of a message synchronization controller thread.
+.TP
+.B Orange
+indicates that an actual message is being copied.
+.TP
+.B Red (Meaning 2)
+indicates that a message is being deleted.
+.TP
+.B Yellow
+(bright orange) indicates that message flags are being added.
+.TP
+.B Pink
+(bright red) indicates that message flags are being removed.
+.TP
+.B Red / Black Flashing
+corresponds to the countdown timer that runs between synchronizations.
+.PP
+The name of this interface derives from a bit of computer science
+history.  Eric Raymond's
+.I Jargon File
+defines blinkenlights, in part, as:
+.PP
+.RS
+Front-panel diagnostic
+lights on a computer, esp. a dinosaur. Now that dinosaurs are rare,
+this term usually refers to status lights on a modem, network hub, or
+the like.
+.P
+This term derives from the last word of the famous blackletter-Gothic
+sign in mangled pseudo-German that once graced about half the computer
+rooms in the English-speaking world. One version ran in its entirety as
+follows:
+.P
+.B ACHTUNG!  ALLES LOOKENSPEEPERS!
+.P
+Das computermachine ist nicht fuer gefingerpoken und mittengrabben.
+Ist easy schnappen der springenwerk, blowenfusen und poppencorken
+mit spitzensparken.  Ist nicht fuer gewerken bei das dumpkopfen.
+Das rubbernecken sichtseeren keepen das cotten-pickenen hans in das
+pockets muss; relaxen und watchen das blinkenlichten.
+.SS Tk.VerboseUI
+This interface (formerly known as Tk.TkUI) is a graphical interface
+that presents a variable-sized window.  In the window, each
+currently-executing thread has a section where its name and current
+status are displayed.  This interface is best suited to people running
+on slower connections, as you get a lot of detail, but for fast
+connections, the detail may go by too quickly to be useful.  People
+with fast connections may wish to use Tk.Blinkenlights instead.
+.SS TTY.TTYUI
+This interface is the default for people running in terminals.  It
+prints out basic status messages, has an interruptible timer like the
+graphical interfaces do, and is generally friendly to use on a console
+or xterm.
+.SS Noninteractive.Basic
+This interface is designed for situations where
+.B OfflineIMAP
+will be run non-attended and the status of its execution will be
+logged.  You might use it, for instance, to have the system run
+automatically and
+e-mail you the results of the synchronization.  This user interface
+is not capable of reading a password from the keyboard; account
+passwords must be specified using one of the configuration file options.
+.SS Noninteractive.Quiet
+This interface is designed for non-attended running in situations
+where normal status messages are not desired.  It will output nothing
+except errors and serious warnings.  Like Noninteractive.Basic,
+this user interface
+is not capable of reading a password from the keyboard; account
+passwords must be specified using one of the configuration file options.
 .\".TP
 .\".B \-v, \-\-version
 .\"Show version of program.

@@ -200,13 +200,138 @@ OPTIONS
               configuration  file.  The UI specified with -u will
               be forced to be used, even if its isuable()  method
               states  that  it  cannot  be.  Use this option with
-              care.
+              care.  The pre-defined options are  listed  in  the
+              USER INTERFACES section.
 
-              The pre-defined options are  Tk.TkUI  (a  graphical
-              interface), TTY.TTYUI (a text-mode interface), Non-
-              interactive.Basic (a non-interactive mode  suitable
-              for  cronning),  and  Noninteractive.Quiet  (a mode
-              that generates no output except for errors).
+USER INTERFACES
+       OfflineIMAP  has  a  pluggable  user interface system that
+       lets you choose how the program  communicates  information
+       to  you.  There are two graphical interfaces, one terminal
+       interface, and two noninteractive interfaces suitable  for
+       scripting  or logging purposes.  The ui option in the con-
+       figuration file specifies the user interface  preferences.
+       The  -u command-line option can override the configuration
+       file.  The available values for the configuration file  or
+       command-line are describef in this section.
+
+   Tk.Blinkenlights
+       This  is  an interface designed to be sleek, fun to watch,
+       and informative of the overall picture of what OfflineIMAP
+       is  doing.   I  consider it to be the best general-purpose
+       interface in OfflineIMAP.  Tk.Blinkenlights  contains,  by
+       default,  a  small  window with a row of LEDs and a row of
+       command buttons.  The total size of  the  window  is  very
+       small,  so  it  uses little desktop space, yet it is quite
+       functional.  There is also an optional, toggable, log that
+       shows  more  detail  about what is happening and is color-
+       coded to match the color of the lights.
+
+       Tk.Blinkenlights is the only user interface that has  con-
+       figurable parameters; see the example offlineimap.conf for
+       more details.
+
+       Each light in the Tk.Blinkenlights interface represents  a
+       thread  of  execution  --  that is, a particular task that
+       OfflineIMAP is performing right now.  The color  indicates
+       what  task the particular thread is performing, and are as
+       follows:
+
+
+       Black  indicates that this light's thread has  terminated;
+              it will light up again later when new threads start
+              up.  So, black indicates no activity.
+
+       Red (Meaning 1)
+              is the color of the main  program's  thread,  which
+              basically  does nothing but monitor the others.  It
+              might remind you of HAL 9000 in 2001.
+
+       Purple is the color of an account  synchronization  thread
+              that  is  monitoring the progress of the folders in
+              that account (not generating any I/O).
+
+       Cyan   indicates that the thread is syncing a folder.
+
+       Green  means that a folder's message list is being loaded.
+
+       Blue   is  the  color  of  a  message synchronization con-
+              troller thread.
+
+       Orange indicates that an actual message is being copied.
+
+       Red (Meaning 2)
+              indicates that a message is being deleted.
+
+       Yellow (bright orange) indicates that  message  flags  are
+              being added.
+
+       Pink   (bright red) indicates that message flags are being
+              removed.
+
+       Red / Black Flashing
+              corresponds  to  the  countdown  timer  that   runs
+              between synchronizations.
+
+       The  name of this interface derives from a bit of computer
+       science  history.   Eric  Raymond's  Jargon  File  defines
+       blinkenlights, in part, as:
+
+              Front-panel diagnostic lights on a computer, esp. a
+              dinosaur. Now that dinosaurs are  rare,  this  term
+              usually refers to status lights on a modem, network
+              hub, or the like.
+
+              This term derives from the last word of the  famous
+              blackletter-Gothic  sign  in  mangled pseudo-German
+              that once graced about half the computer  rooms  in
+              the  English-speaking world. One version ran in its
+              entirety as follows:
+
+              ACHTUNG! ALLES LOOKENSPEEPERS!
+
+              Das computermachine ist  nicht  fuer  gefingerpoken
+              und  mittengrabben.   Ist easy schnappen der sprin-
+              genwerk,   blowenfusen   und    poppencorken    mit
+              spitzensparken.   Ist  nicht  fuer gewerken bei das
+              dumpkopfen.  Das  rubbernecken  sichtseeren  keepen
+              das  cotten-pickenen  hans  in  das  pockets  muss;
+              relaxen und watchen das blinkenlichten.
+
+   Tk.VerboseUI
+       This interface (formerly known as Tk.TkUI) is a  graphical
+       interface  that  presents a variable-sized window.  In the
+       window, each  currently-executing  thread  has  a  section
+       where  its  name  and  current status are displayed.  This
+       interface is best suited to people running on slower  con-
+       nections, as you get a lot of detail, but for fast connec-
+       tions, the detail may go by  too  quickly  to  be  useful.
+       People  with  fast connections may wish to use Tk.Blinken-
+       lights instead.
+
+   TTY.TTYUI
+       This interface is the default for people running in termi-
+       nals.   It prints out basic status messages, has an inter-
+       ruptible timer like the graphical interfaces  do,  and  is
+       generally friendly to use on a console or xterm.
+
+   Noninteractive.Basic
+       This   interface   is   designed   for   situations  where
+       OfflineIMAP will be run non-attended and the status of its
+       execution will be logged.  You might use it, for instance,
+       to have the system run automatically and  e-mail  you  the
+       results  of  the  synchronization.  This user interface is
+       not capable of  reading  a  password  from  the  keyboard;
+       account  passwords must be specified using one of the con-
+       figuration file options.
+
+   Noninteractive.Quiet
+       This interface is designed  for  non-attended  running  in
+       situations  where  normal status messages are not desired.
+       It will output nothing except errors and serious warnings.
+       Like  Noninteractive.Basic,  this  user  interface  is not
+       capable of reading a password from the  keyboard;  account
+       passwords must be specified using one of the configuration
+       file options.
 
 EXAMPLES
        Here is an example configuration for a  particularly  com-
@@ -393,8 +518,8 @@ OTHER FREQUENTLY ASKED QUESTIONS
               The  folder  ID  is  necessary  so  OfflineIMAP can
               detect a  message  moved  to  a  different  folder.
               OfflineIMAP  stores  the  UID  (U=  number)  and an
-              md5sum  of  the  foldername   (FMD5=   number)   to
-              facilitate this.
+              md5sum of the foldername (FMD5= number) to  facili-
+              tate this.
 
        What is the speed of OfflineIMAP's sync?
               OfflineIMAP versions 2.0 and above contain a multi-
@@ -529,3 +654,4 @@ SEE ALSO
 
 
 
+John Goerzen              July 12, 2002            OFFLINEIMAP(1)

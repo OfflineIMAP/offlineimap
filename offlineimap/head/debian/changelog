@@ -1,6 +1,10 @@
 offlineimap (3.2.0) unstable; urgency=low
 
-  * New BLINKENLIGHTS interface!
+  * New BLINKENLIGHTS interface!  Mesmerising, isn't it?
+  * New ui.Tk.Blinkenlights section in offlineimap.conf.
+  * New USER INTERFACES section in the manual.
+  * TTYUI isusable() now checks to see if stdout and stdin are TTYs.
+  * Added build-dependency on python2.2-dev.  Closes: #154167.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 07:53:20 -0500
 

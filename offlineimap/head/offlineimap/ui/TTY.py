@@ -25,6 +25,9 @@ class TTYUI(UIBase):
     def __init__(s, verbose = 0):
         s.verbose = verbose
         s.iswaiting = 0
+
+    def isusable(s):
+        return sys.stdout.isatty() and sys.stdin.isatty()
         
     def _msg(s, msg):
         if (currentThread().getName() == 'MainThread'):

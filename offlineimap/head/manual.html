@@ -13,6 +13,7 @@
 <a href="#INSTALLATION">INSTALLATION</a><br>
 <a href="#CONFIGURATION">CONFIGURATION</a><br>
 <a href="#OPTIONS">OPTIONS</a><br>
+<a href="#USER INTERFACES">USER INTERFACES</a><br>
 <a href="#EXAMPLES">EXAMPLES</a><br>
 <a href="#ERRORS">ERRORS</a><br>
 <a href="#OTHER FREQUENTLY ASKED QUESTIONS">OTHER FREQUENTLY ASKED QUESTIONS</a><br>
@@ -25,7 +26,7 @@
 
 <hr>
 <!-- Creator     : groff version 1.17.2 -->
-<!-- CreationDate: Wed Jul 24 07:44:16 2002 -->
+<!-- CreationDate: Wed Jul 24 13:00:08 2002 -->
 <a name="NAME"></a>
 <h2>NAME</h2>
 <table width="100%" border=0 rules="none" frame="void"
@@ -428,17 +429,326 @@ Specifies an alternative user interface module to use. This
 overrides the default specified in the configuration file.
 The UI specified with <b>-u</b> will be forced to be used,
 even if its <b>isuable()</b> method states that it cannot
-be. Use this option with care.</td></table>
+be. Use this option with care. The pre-defined options are
+listed in the USER INTERFACES section.</td></table>
+<a name="USER INTERFACES"></a>
+<h2>USER INTERFACES</h2>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>OfflineIMAP</b> has a pluggable user interface system
+that lets you choose how the program communicates
+information to you. There are two graphical interfaces, one
+terminal interface, and two noninteractive interfaces
+suitable for scripting or logging purposes. The <i>ui</i>
+option in the configuration file specifies the user
+interface preferences. The <i>-u</i> command-line option can
+override the configuration file. The available values for
+the configuration file or command-line are describef in this
+section.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="4%"></td><td width="96%">
+<b>Tk.Blinkenlights</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+This is an interface designed to be sleek, fun to watch, and
+informative of the overall picture of what
+<b>OfflineIMAP</b> is doing. I consider it to be the best
+general-purpose interface in <b>OfflineIMAP.</b>
+Tk.Blinkenlights contains, by default, a small window with a
+row of LEDs and a row of command buttons. The total size of
+the window is very small, so it uses little desktop space,
+yet it is quite functional. There is also an optional,
+toggable, log that shows more detail about what is happening
+and is color-coded to match the color of the
+lights.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+Tk.Blinkenlights is the only user interface that has
+configurable parameters; see the example
+<i>offlineimap.conf</i> for more details.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+Each light in the Tk.Blinkenlights interface represents a
+thread of execution -- that is, a particular task that
+<b>OfflineIMAP</b> is performing right now. The color
+indicates what task the particular thread is performing, and
+are as follows:</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Black</b></td></table>
 
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="21%"></td><td width="79%">
-The pre-defined options are <b>Tk.TkUI</b> (a graphical
-interface), <b>TTY.TTYUI</b> (a text-mode interface),
-<b>Noninteractive.Basic</b> (a non-interactive mode suitable
-for cronning), and <b>Noninteractive.Quiet</b> (a mode that
-generates no output except for errors).</td></table>
+indicates that this light's thread has terminated; it will
+light up again later when new threads start up. So, black
+indicates no activity.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Red (Meaning 1)</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+is the color of the main program's thread, which basically
+does nothing but monitor the others. It might remind you of
+HAL 9000 in <i>2001.</i></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Purple</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+is the color of an account synchronization thread that is
+monitoring the progress of the folders in that account (not
+generating any I/O).</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Cyan</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+indicates that the thread is syncing a folder.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Green</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+means that a folder's message list is being
+loaded.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Blue</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+is the color of a message synchronization controller
+thread.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Orange</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+indicates that an actual message is being
+copied.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Red (Meaning 2)</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+indicates that a message is being deleted.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Yellow</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+(bright orange) indicates that message flags are being
+added.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Pink</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+(bright red) indicates that message flags are being
+removed.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>Red / Black Flashing</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+corresponds to the countdown timer that runs between
+synchronizations.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+The name of this interface derives from a bit of computer
+science history. Eric Raymond's <i>Jargon File</i> defines
+blinkenlights, in part, as:</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+Front-panel diagnostic lights on a computer, esp. a
+dinosaur. Now that dinosaurs are rare, this term usually
+refers to status lights on a modem, network hub, or the
+like.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+This term derives from the last word of the famous
+blackletter-Gothic sign in mangled pseudo-German that once
+graced about half the computer rooms in the English-speaking
+world. One version ran in its entirety as
+follows:</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+<b>ACHTUNG! ALLES LOOKENSPEEPERS!</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+Das computermachine ist nicht fuer gefingerpoken und
+mittengrabben. Ist easy schnappen der springenwerk,
+blowenfusen und poppencorken mit spitzensparken. Ist nicht
+fuer gewerken bei das dumpkopfen. Das rubbernecken
+sichtseeren keepen das cotten-pickenen hans in das pockets
+muss; relaxen und watchen das blinkenlichten.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="4%"></td><td width="96%">
+<b>Tk.VerboseUI</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+This interface (formerly known as Tk.TkUI) is a graphical
+interface that presents a variable-sized window. In the
+window, each currently-executing thread has a section where
+its name and current status are displayed. This interface is
+best suited to people running on slower connections, as you
+get a lot of detail, but for fast connections, the detail
+may go by too quickly to be useful. People with fast
+connections may wish to use Tk.Blinkenlights
+instead.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="4%"></td><td width="96%">
+<b>TTY.TTYUI</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+This interface is the default for people running in
+terminals. It prints out basic status messages, has an
+interruptible timer like the graphical interfaces do, and is
+generally friendly to use on a console or
+xterm.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="4%"></td><td width="96%">
+<b>Noninteractive.Basic</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+This interface is designed for situations where
+<b>OfflineIMAP</b> will be run non-attended and the status
+of its execution will be logged. You might use it, for
+instance, to have the system run automatically and e-mail
+you the results of the synchronization. This user interface
+is not capable of reading a password from the keyboard;
+account passwords must be specified using one of the
+configuration file options.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="4%"></td><td width="96%">
+<b>Noninteractive.Quiet</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+This interface is designed for non-attended running in
+situations where normal status messages are not desired. It
+will output nothing except errors and serious warnings. Like
+Noninteractive.Basic, this user interface is not capable of
+reading a password from the keyboard; account passwords must
+be specified using one of the configuration file
+options.</td></table>
 <a name="EXAMPLES"></a>
 <h2>EXAMPLES</h2>
 

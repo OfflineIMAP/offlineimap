@@ -359,8 +359,9 @@ class Blinkenlights(VerboseUI):
         c.pack(side = BOTTOM, expand = 1)
         widthmetric = tkFont.Font(family = 'Helvetica', size = 8).measure("0")
         self.loglines = 5
-        if s.config.has_option("ui.Tk.Blinkenlights", "loglines"):
-            self.loglines = s.config.getint("ui.Tk.Blinkenlights", "loglines")
+        if self.config.has_option("ui.Tk.Blinkenlights", "loglines"):
+            self.loglines = self.config.getint("ui.Tk.Blinkenlights",
+                                               "loglines")
         self.text = Text(self.top, bg = 'black', font = ("Helvetica", 8),
                          bd = 0, highlightthickness = 0, setgrid = 0,
                          state = DISABLED, height = self.loglines, wrap = NONE,
