@@ -1,3 +1,9 @@
+offlineimap (3.99.11) unstable; urgency=low
+
+  * Curses interface can now be resized.  Closes: #176342.
+
+ -- John Goerzen <jgoerzen@wile.excelhustler.com>  Thu, 13 Mar 2003 11:48:36 -0600
+
 offlineimap (3.99.10) unstable; urgency=low
 
   * Always do a flush in Noninteractive when writing out data.

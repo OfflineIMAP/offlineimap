@@ -1,4 +1,88 @@
 ------------------------------------------------------------------------
+rev 365:  jgoerzen | 2003-03-13 11:48:42 -0600 (Thu, 13 Mar 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+Removed debug code
+
+------------------------------------------------------------------------
+rev 364:  jgoerzen | 2003-03-13 11:47:38 -0600 (Thu, 13 Mar 2003) | 3 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+Removed debug code
+
+
+------------------------------------------------------------------------
+rev 363:  jgoerzen | 2003-03-13 11:47:09 -0600 (Thu, 13 Mar 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/Curses.py
+
+Fixed ability to resize windows under Curses.
+
+------------------------------------------------------------------------
+rev 361:  jgoerzen | 2003-03-13 10:33:02 -0600 (Thu, 13 Mar 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Updated for 3.99.10
+
+------------------------------------------------------------------------
+rev 360:  jgoerzen | 2003-03-04 14:42:38 -0600 (Tue, 04 Mar 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/COPYRIGHT
+   M /offlineimap/head/Makefile
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/copyright
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap/CustomConfig.py
+   M /offlineimap/head/offlineimap/accounts.py
+   M /offlineimap/head/offlineimap/folder/Base.py
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/folder/LocalStatus.py
+   M /offlineimap/head/offlineimap/folder/Maildir.py
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap/imaputil.py
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/localeval.py
+   M /offlineimap/head/offlineimap/mbnames.py
+   M /offlineimap/head/offlineimap/repository/Base.py
+   M /offlineimap/head/offlineimap/repository/IMAP.py
+   M /offlineimap/head/offlineimap/repository/LocalStatus.py
+   M /offlineimap/head/offlineimap/repository/Maildir.py
+   M /offlineimap/head/offlineimap/syncmaster.py
+   M /offlineimap/head/offlineimap/threadutil.py
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/Noninteractive.py
+   M /offlineimap/head/offlineimap/ui/TTY.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+   M /offlineimap/head/offlineimap/ui/__init__.py
+   M /offlineimap/head/offlineimap/ui/debuglock.py
+   M /offlineimap/head/offlineimap/ui/detector.py
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.conf
+   M /offlineimap/head/offlineimap.py
+   M /offlineimap/head/offlineimap.sgml
+   M /offlineimap/head/setup.py
+
+Clarified license terms
+
+------------------------------------------------------------------------
+rev 359:  jgoerzen | 2003-03-03 10:44:37 -0600 (Mon, 03 Mar 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+
+Updated ChangeLog
+
+------------------------------------------------------------------------
 rev 358:  jgoerzen | 2003-03-01 09:31:30 -0600 (Sat, 01 Mar 2003) | 1 line
 Changed paths:
    M /offlineimap/head/debian/changelog
