@@ -11,8 +11,9 @@ offlineimap (4.0.3) unstable; urgency=low
   * Regenerated docs.
   * Applied patch from Daniel James to adjust the insertion point
     for a new header.
+  * Now calls dh_python.
 
- -- John Goerzen <jgoerzen@complete.org>  Fri,  4 Jun 2004 10:10:00 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Fri,  4 Jun 2004 07:10:00 -0500
 
 offlineimap (4.0.2) unstable; urgency=low
 
