@@ -16,6 +16,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from __future__ import nested_scopes
+
 from Tkinter import *
 import tkFont
 from threading import *
@@ -270,32 +272,39 @@ class VerboseUI(UIBase):
         
         b = Button(tf, text = "Exit", command = s.terminate)
         b.pack(side = RIGHT)
+        s.sleeping_abort = {}
 
     def deletingmessages(s, uidlist, destlist):
         ds = s.folderlist(destlist)
         s._msg("Deleting %d messages in %s" % (len(uidlist), ds))
 
     def _sleep_cancel(s, args = None):
-        s.sleeping_abort = 1
+        s.sleeping_abort[thread.get_ident()] = 1
 
     def sleep(s, sleepsecs):
-        s.sleeping_abort = 0
+        threadid = thread.get_ident()
+        s.sleeping_abort[threadid] = 0
         tf = s.gettf().getthreadextraframe()
 
+        def sleep_cancel():
+            s.sleeping_abort[threadid] = 1
+
         sleepbut = Button(tf, text = 'Sync immediately',
-                          command = s._sleep_cancel)
+                          command = sleep_cancel)
         sleepbut.pack()
         UIBase.sleep(s, sleepsecs)
         
     def sleeping(s, sleepsecs, remainingsecs):
+        retval = s.sleeping_abort[thread.get_ident()]
         if remainingsecs:
             s._msg("Next sync in %d:%02d" % (remainingsecs / 60,
                                              remainingsecs % 60))
         else:
             s._msg("Wait done; synchronizing now.")
             s.gettf().destroythreadextraframe()
+            del s.sleeping_abort[thread.get_ident()]
         time.sleep(sleepsecs)
-        return s.sleeping_abort
+        return retval
 
 TkUI = VerboseUI
 
