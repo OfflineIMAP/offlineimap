@@ -1,6 +1,8 @@
 offlineimap (3.99.6) unstable; urgency=low
 
-  * Beginnings of work to make it work with a threaded Tcl/Tk Tkinter.
+  * Completed work to make both graphical interfaces work 
+    with a threaded Tcl/Tk Tkinter.  A threaded Tcl/Tk actually makes
+    life MORE difficult for multi-threaded Python programs, argh.
   * Now properly handles folder names that contain parenthesis.  Used
     patch from Kyler Laird in
     http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=173895.
@@ -8,6 +10,9 @@ offlineimap (3.99.6) unstable; urgency=low
   * Changed to a more account-centric behavior.  The refresh time is now
     a per-account variable.  Implemented new account classes.  User
     interfaces must now be updated to take advantage of this.
+    *** NOTE *** THIS CHANGE BREAKS COMPATIBILITY WITH OLDER VERSIONS.
+  * New color console interface: Curses.Blinkenlights!  Try it out!
+    Closes: #167357.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu,  2 Jan 2003 13:59:44 -0600
 
