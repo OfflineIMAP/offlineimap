@@ -66,6 +66,8 @@ class IMAPFolder(BaseFolder):
                 return
 
             # Now, get the flags and UIDs for these.
+            # We could conceivably get rid of maxmsgid and just say
+            # '1:*' here.
             response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
@@ -146,7 +148,7 @@ class IMAPFolder(BaseFolder):
         try:
             imapobj.select(self.getfullname())
             r = imapobj.uid('store',
-                            ','.join([str(uid) for uid in uidlist]),
+                            imaputil.listjoin(uidlist),
                             '+FLAGS',
                             imaputil.flagsmaildir2imap(flags))
             assert r[0] == 'OK', 'Error with store: ' + r[1]

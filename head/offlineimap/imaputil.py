@@ -102,3 +102,38 @@ def flagsmaildir2imap(list):
     retval.sort()
     return '(' + ' '.join(retval) + ')'
 
+def listjoin(list):
+    start = None
+    end = None
+    retval = []
+
+    def getlist(start, end):
+        if start == end:
+            return(str(start))
+        else:
+            return(str(start) + ":" + str(end))
+        
+
+    for item in list:
+        if start == None:
+            # First item.
+            start = item
+            end = item
+        elif item == end + 1:
+            # An addition to the list.
+            end = item
+        else:
+            # Here on: starting a new list.
+            retval.append(getlist(start, end))
+            start = item
+            end = item
+
+    if start != None:
+        retval.append(getlist(start, end))
+
+    return ",".join(retval)
+
+
+
+            
+        
