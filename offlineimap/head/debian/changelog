@@ -2,6 +2,8 @@ offlineimap (3.99.14) unstable; urgency=low
 
   * Added the ability to use the top level of a Maildir as folder named
     ".".  Useful for generating Maildir trees for a Courier server.
+  * Fixed the regular expression that fixes line endings to make sure to
+    deal with \n\n properly.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 17 Apr 2003 21:13:27 -0500
 

@@ -174,7 +174,7 @@ class IMAPFolder(BaseFolder):
                 # but some IMAP servers nonetheless choke on 1902.
                 date = imaplib.Time2Internaldate(time.localtime())
 
-            content = re.sub("([^\r])\n", "\\1\r\n", content)
+            content = re.sub("(?<!\r)\n", "\r\n", content)
 
             (headername, headervalue) = self.savemessage_getnewheader(content)
             content = self.savemessage_addheader(content, headername,
