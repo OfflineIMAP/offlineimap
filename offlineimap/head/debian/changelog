@@ -1,3 +1,10 @@
+offlineimap (4.0.0) unstable; urgency=low
+
+  * Poof, this is 4.0.
+  * Added UPGRADING file and UPGRADING instructions.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 18 Jul 2003 17:31:14 -0500
+
 offlineimap (3.99.20) unstable; urgency=low
 
   * OfflineIMAP now moves messages between new and cur in Maildir when flags

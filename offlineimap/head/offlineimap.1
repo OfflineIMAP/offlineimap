@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "02 June 2003" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "18 July 2003" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
@@ -77,7 +77,9 @@ machine, and point both \fBOfflineIMAP\fR and their mail reader
 of choice at it.  This is often preferable to the mail
 reader's own IMAP support since \fBOfflineIMAP\fR supports many
 features (offline reading, for one) that most IMAP-aware
-readers don't.
+readers don't.  However, this feature is not as time-tested
+as traditional syncing, so my advice is to stick with normal
+methods of operation for the time being.
 .SH "QUICK START"
 .PP
 If you have already installed \fBOfflineIMAP\fR system-wide,
@@ -644,6 +646,11 @@ No.  \fBOfflineIMAP\fR is smart enough to figure out message deletion without th
 crutch.  You'll get the best results if you don't use this setting, in
 fact.
 .TP
+\fBI've upgraded and now OfflineIMAP crashes when I start it up!  Why?\fR
+You need to upgrade your configuration
+file.  See [XRef to UPGRADING.4.0] at the end of this
+manual.
+.TP
 \fBHow do I specify the names of my folders?\fR
 You do not need to.  \fBOfflineIMAP\fR is smart
 enough to automatically figure out what folders are present
@@ -746,7 +753,7 @@ An informal benchmark yields these results for my setup:
 .TP 0.2i
 \(bu
 Internet Message Access Protocol version 4rev1 (IMAP 4rev1) as
-specified in RFC2060
+specified in RFC2060 and RFC3501
 .TP 0.2i
 \(bu
 CRAM-MD5 as specified in RFC2195
@@ -832,6 +839,34 @@ the web interface <URL:http://bugs.complete.org/>.
 .PP
 The Web site also lists all current bugs, where you can check their
 status or contribute to fixing them.
+.SH "UPGRADING TO 4.0"
+.PP
+If you are upgrading from a version of \fBOfflineIMAP\fR prior to
+3.99.12, you will find that you will get errors when
+\fBOfflineIMAP\fR starts up (relating to ConfigParser or
+AccountHashGenerator) and the
+configuration file.  This is because the config file format
+had to change to accomodate new features in 4.0.  Fortunately,
+it's not difficult to adjust it to suit.
+.PP
+First thing you need to do is stop any running \fBOfflineIMAP\fR
+instance, making sure first that it's synced all your mail.
+Then, modify your
+\fI~/.offlineimaprc\fR file.  You'll need to
+split up each account section (make sure that it now starts
+with "Account ") into two Repository sections (one for the
+local side and another for the remote side.)  See the files
+\fIofflineimap.conf.minimal\fR and
+\fIofflineimap.conf\fR in the distribution if
+you need more assistance.
+.PP
+\fBOfflineIMAP\fR's status directory area has also changed.
+Therefore, you should delete everything in ~/.offlineimap as
+well as your local mail folders.
+.PP
+When you start up \fBOfflineIMAP\fR 4.0, it will re-download all
+your mail from the server and then you can continue using it
+like normal.
 .SH "COPYRIGHT"
 .PP
 OfflineIMAP, and this manual, are Copyright (C) 2002, 2003 John Goerzen.

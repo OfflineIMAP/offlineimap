@@ -10,7 +10,7 @@
     <refentryinfo>
       <address><email>jgoerzen@complete.org</email></address>
       <author><firstname>John</firstname><surname>Goerzen</surname></author>
-      <date> $Date: 2003-06-02 09:06:18 -0500 (Mon, 02 Jun 2003) $ </date>
+      <date> $Date: 2003-07-18 13:49:13 -0500 (Fri, 18 Jul 2003) $ </date>
     </refentryinfo>
 
     <refmeta>
@@ -114,7 +114,9 @@
 	  of choice at it.  This is often preferable to the mail
 	  reader's own IMAP support since &OfflineIMAP; supports many
 	  features (offline reading, for one) that most IMAP-aware
-	  readers don't.
+	  readers don't.  However, this feature is not as time-tested
+	  as traditional syncing, so my advice is to stick with normal
+	  methods of operation for the time being.
 	</para>
       </refsect2>
     </refsect1>
@@ -818,6 +820,15 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	  </para></listitem>
 	</varlistentry>
 
+	<varlistentry><term>I've upgraded and now &OfflineIMAP;
+	crashes when I start it up!  Why?</term>
+	  <listitem><para>You need to upgrade your configuration
+	file.  See <xref linkend="upgrading.4.0"> at the end of this
+	      manual.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
 	<varlistentry><term>How do I specify the names of my folders?</term>
   	  <listitem><para>
 	    You do not need to.  &OfflineIMAP; is smart
@@ -937,7 +948,7 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
       <title>Conforming To</title>
       <itemizedlist>
 	<listitem><para>Internet Message Access Protocol version 4rev1 (IMAP 4rev1) as
-	  specified in RFC2060</para></listitem>
+	  specified in RFC2060 and RFC3501</para></listitem>
 	<listitem><para>CRAM-MD5 as specified in RFC2195</para></listitem>
 	<listitem><para>Maildir as specified in
 	  <ulink url="http://www.qmail.org/qmail-manual-html/man5/maildir.html">the Maildir manpage</ulink> and
@@ -1045,6 +1056,42 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	</para>
       </refsect2>
     </refsect1>
+
+    <refsect1 id="upgrading.4.0">
+      <title>Upgrading to 4.0</title>
+      <para>
+	If you are upgrading from a version of &OfflineIMAP; prior to
+	3.99.12, you will find that you will get errors when
+	&OfflineIMAP; starts up (relating to ConfigParser or
+	AccountHashGenerator) and the
+	configuration file.  This is because the config file format
+	had to change to accomodate new features in 4.0.  Fortunately,
+	it's not difficult to adjust it to suit.
+      </para>
+      <para>
+	First thing you need to do is stop any running &OfflineIMAP;
+	instance, making sure first that it's synced all your mail.
+	Then, modify your
+	<filename>~/.offlineimaprc</filename> file.  You'll need to
+	split up each account section (make sure that it now starts
+	with "Account ") into two Repository sections (one for the
+	local side and another for the remote side.)  See the files
+	<filename>offlineimap.conf.minimal</filename> and
+	<filename>offlineimap.conf</filename> in the distribution if
+	you need more assistance.
+      </para>
+      <para>
+	&OfflineIMAP;'s status directory area has also changed.
+	Therefore, you should delete everything in ~/.offlineimap as
+	well as your local mail folders.
+      </para>
+      <para>
+	When you start up &OfflineIMAP; 4.0, it will re-download all
+	your mail from the server and then you can continue using it
+	like normal.
+      </para>
+    </refsect1>
+	
 
     <refsect1>
       <title>Copyright</title>
