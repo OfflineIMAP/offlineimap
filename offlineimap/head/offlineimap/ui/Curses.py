@@ -22,6 +22,7 @@ from threading import *
 from offlineimap import version, threadutil
 
 import curses, curses.panel, curses.textpad, curses.wrapper
+from debuglock import DebuggingLock
 
 class CursesUtil:
     def __init__(self):
@@ -138,6 +139,7 @@ class CursesThreadFrame:
             self.iolock.acquire()
         try:
             self.window.addstr(self.y, self.x, '.', self.color)
+            self.c.stdscr.move(self.c.height - 1, self.c.width - 1)
             self.window.refresh()
         finally:
             if lock:
@@ -163,9 +165,9 @@ class InputHandler:
     def __init__(s, util):
         s.c = util
         s.bgchar = None
-        s.inputlock = Lock()
+        s.inputlock = DebuggingLock('inputlock')
         s.lockheld = 0
-        s.statuslock = Lock()
+        s.statuslock = DebuggingLock('statuslock')
         s.startup = Event()
         s.startthread()
 
@@ -232,9 +234,9 @@ class InputHandler:
         
 class Blinkenlights(BlinkenBase, UIBase):
     def init_banner(s):
-        s.iolock = Lock()
+        s.iolock = DebuggingLock('iolock')
         s.af = {}
-        s.aflock = Lock()
+        s.aflock = DebuggingLock('aflock')
         s.c = CursesUtil()
         s.text = []
         BlinkenBase.init_banner(s)

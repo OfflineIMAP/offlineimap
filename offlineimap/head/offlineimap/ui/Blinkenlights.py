@@ -20,6 +20,8 @@ from threading import *
 from offlineimap.ui.UIBase import UIBase
 import thread
 
+from debuglock import DebuggingLock
+
 class BlinkenBase:
     """This is a mix-in class that should be mixed in with either UIBase
     or another appropriate base class.  The Tk interface, for instance,
@@ -73,7 +75,7 @@ class BlinkenBase:
     def init_banner(s):
         s.availablethreadframes = {}
         s.threadframes = {}
-        s.tflock = Lock()
+        s.tflock = DebuggingLock('tflock')
 
     def threadExited(s, thread):
         threadid = thread.threadid
@@ -93,8 +95,9 @@ class BlinkenBase:
     def gettf(s, lock = 1):
         threadid = thread.get_ident()
         accountname = s.getthreadaccount()
-        
-        s.tflock.acquire()
+
+        if lock:
+            s.tflock.acquire()
 
         try:
             if not accountname in s.threadframes:
@@ -115,6 +118,7 @@ class BlinkenBase:
             return tf
         
         finally:
-            s.tflock.release()
+            if lock:
+                s.tflock.release()
         
 
