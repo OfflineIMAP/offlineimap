@@ -17,6 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from imapsync import repository
+import re
 
 class UIBase:
     ################################################## UTILS
@@ -28,7 +29,9 @@ class UIBase:
         s._msg("WARNING: " + msg)
 
     def getnicename(s, object):
-        return str(object.__class__).split('.')[-1]
+        prelimname = str(object.__class__).split('.')[-1]
+        # Strip off extra stuff.
+        return re.sub('(Folder|Repository)', '', prelimname)
 
     ################################################## INPUT
 
@@ -44,7 +47,7 @@ class UIBase:
         This software comes with NO WARRANTY: see the file COPYING for details.""")
 
     def acct(s, accountname):
-        s._msg("Processing account %s" % accountname)
+        s._msg("***** Processing account %s" % accountname)
 
     def syncfolders(s, srcrepos, destrepos):
         s._msg("Copying folder structure from %s to %s" % \
@@ -53,8 +56,9 @@ class UIBase:
     ############################## Folder syncing
     def syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder):
         """Called when a folder sync operation is started."""
-        s._msg("Syncing %s[%s] -> %s[%s]" % (srcrepos, srcfolder,
-                                             destrepos, destfolder))
+        s._msg("Syncing %s: %s -> %s" % (srcfolder.getname(),
+                                         s.getnicename(srcrepos),
+                                         s.getnicename(destrepos)))
 
     def validityproblem(s, folder):
         s.warn("UID validity problem for folder %s; skipping it" % \
@@ -62,19 +66,19 @@ class UIBase:
 
     def loadmessagelist(s, repos, folder):
         s._msg("Loading message list for %s[%s]" % (s.getnicename(repos),
-                                                    s.getnicename(folder)))
+                                                    folder.getname()))
 
     def messagelistloaded(s, repos, folder, count):
         s._msg("Message list for %s[%s] loaded: %d messages" % \
-               (s.getnicename(repos), s.getnicename(folder), count))
+               (s.getnicename(repos), folder.getname(), count))
 
     ############################## Message syncing
 
     def syncingmessages(s, sr, sf, dr, df):
         s._msg("Syncing messages %s[%s] -> %s[%s]" % (s.getnicename(sr),
-                                                      s.getnicename(sf),
+                                                      sf.getname(),
                                                       s.getnicename(dr),
-                                                      s.getnicename(df)))
+                                                      df.getname()))
 
     def copyingmessage(s, uid, src, destlist):
         ds = ["%s[%s]" % (s.getnicename(x), x.getname()) for x in destlist].join(', ')
