@@ -18,7 +18,7 @@
 
 from Base import BaseFolder
 from imapsync import imaputil
-import os.path, os, re
+import os.path, os, re, time, socket
 
 class MaildirFolder(BaseFolder):
     def __init__(self, root, name):
@@ -77,6 +77,7 @@ class MaildirFolder(BaseFolder):
             flags = []
             if flagmatch:
                 flags = [f for x in flagmatch.group(1)]
+            flags.sort()
             self.messagelist[uid] = {'uid': uid,
                                      'flags': flags,
                                      'filename': messagename}
@@ -84,4 +85,42 @@ class MaildirFolder(BaseFolder):
     def getmessagelist(self):
         return self.messagelist
 
-    
+    def getmessage(self, uid):
+        filename = self.getmessagelist(uid)['filename']
+        file = open(filename, 'rt')
+        retval = file.read()
+        file.close()
+        return retval
+
+    def savemessage(self, uid, content):
+        if uid in self.getmessagelist():
+            # We already have it.
+            return
+        newdir = os.path.join(self.getfullname(), 'new')
+        tmpdir = os.path.join(self.getfullname(), 'tmp')
+        messagename = None
+        attempts = 0
+        while 1:
+            if attempts > 15:
+                raise IOError, "Couldn't write to file %s" % messagename
+            messagename = '%d.%d.%s,U=%d' % \
+                          (int(time.time()),
+                           os.getpid(),
+                           socket.gethostname(),
+                           uid)
+            if os.path.exists(os.path.join(tmpdir, messagename)):
+                time.sleep(2)
+                attempts += 1
+            else:
+                break
+        file = open(os.path.join(tmpdir, messagename), "wt")
+        file.write(content)
+        file.close()
+        os.link(os.path.join(tmpdir, messagename),
+                os.path.join(newdir, messagename))
+        os.unlink(os.path.join(tmpdir, messagename))
+        self.messagelist[uid] = {'uid': uid, 'flags': [],
+                                 'filename': os.path.join(newdir, messagename)}
+        
+        
+                
