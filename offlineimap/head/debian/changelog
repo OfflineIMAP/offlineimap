@@ -9,7 +9,7 @@ offlineimap (3.0.2) unstable; urgency=low
     SEARCH, can't find the message ID, or finds multiple message IDs.
     Closes: #153241.
 
- -- John Goerzen <jgoerzen@complete.org>  Mon, 15 Jul 2002 19:43:36 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 15 Jul 2002 06:43:36 -0500
 
 offlineimap (3.0.1) unstable; urgency=low
 
