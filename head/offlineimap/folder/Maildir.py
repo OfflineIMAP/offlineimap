@@ -1,4 +1,4 @@
-# IMAP repository support
+# IMAP folder support
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
@@ -16,25 +16,13 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from Base import BaseRepository
-from imapsync import folder, imaputil
+from Base import BaseFolder
+from imapsync import imaputil
 
-class IMAPRepository(BaseRepository):
-    def __init__(self, imapserver):
-        """Initialize an IMAPRepository object.  Takes an IMAPServer
-        object."""
+class IMAPFolder(BaseFolder):
+    def __init__(self, imapserver, name):
+        self.name = imaputil.dequote(name)
+        self.root = imapserver.root
+        self.sep = imapserver.delim
         self.imapserver = imapserver
-        self.imapobj = imapserver.makeconnection()
-        self.folders = None
-
-    def getfolders(self):
-        if self.folders != None:
-            return self.folders
-        retval = []
-        for string in self.imapobj.list(self.imapserver.root)[1]:
-            flags, delim, name = imaputil.imapsplit(string)
-            if '\\Noselect' in imaputil.flagsplit(flags):
-                continue
-            retval.append(folder.IMAP.IMAPFolder(self.imapserver, name))
-        self.folders = retval
-        return retval
+        
