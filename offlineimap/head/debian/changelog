@@ -1,4 +1,4 @@
-offlineimap (3.0.4) unstable; urgency=low
+offlineimap (3.1.0) unstable; urgency=low
 
   * When uploading messages from a Maildir, now convert \r\n to \n in case
     the message is stored weirdly.  That way, everything is uniform.
