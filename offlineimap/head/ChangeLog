@@ -1,4 +1,140 @@
 ------------------------------------------------------------------------
+rev 474:  jgoerzen | 2003-05-06 09:26:12 -0500 (Tue, 06 May 2003) | 17 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/Maildir.py
+
+offlineimap (3.99.17) unstable; urgency=low
+
+  * Fixed two potential obscure race conditions in folder/Maildir.py.
+    + Condition 1 involved the gettimeseq() function.  This function
+      accesses per-module variables but does not have a lock.  It may have  
+      been possible for this to have been called in such a way that timeseq 
+      was not properly updated.                           
+    + Condition 2 involved the call to gettimeseq().  Since the timeseq is  
+      based on the system clock, we now use the time as reported inside
+      timeseq() rather than outside.  This way, we can be assured that the
+      same value is in use both places.                   
+  * Added debug code to savemessage in folder/Maildir.py to try to track
+    down a mysterious 0-length file bug.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue,  6 May 2003 09:21:38 -0500
+
+
+------------------------------------------------------------------------
+rev 472:  jgoerzen | 2003-05-06 08:50:01 -0500 (Tue, 06 May 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Prepping for 3.99.16
+
+------------------------------------------------------------------------
+rev 471:  jgoerzen | 2003-05-06 08:41:13 -0500 (Tue, 06 May 2003) | 8 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+
+  * Added some significant debug code to folder/IMAP.py when saving a new
+    message with APPEND.  This should make it easier to track down bugs both
+    in OfflineIMAP and in mail servers that implement this poorly.
+  * Fixed adding of X-OfflineIMAP header when the message starts out with
+    no headers.  (This should not generally occur.)  This should help
+    with some "invalid literal for long()" problems.
+
+
+------------------------------------------------------------------------
+rev 470:  jgoerzen | 2003-04-29 16:54:07 -0500 (Tue, 29 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+
+Added a note about the Debian bug this closes.
+
+------------------------------------------------------------------------
+rev 469:  jgoerzen | 2003-04-29 15:18:17 -0500 (Tue, 29 Apr 2003) | 2 lines
+Changed paths:
+   A /offlineimap/head/docs/sgml-common
+   A /offlineimap/head/docs/sgml-common/Makefile.common
+   A /offlineimap/head/docs/sgml-common/ps2epsi
+
+Added from rev 5
+
+------------------------------------------------------------------------
+rev 468:  jgoerzen | 2003-04-29 14:44:17 -0500 (Tue, 29 Apr 2003) | 2 lines
+Changed paths:
+   A /offlineimap/head/docs
+
+Added
+
+------------------------------------------------------------------------
+rev 467:  jgoerzen | 2003-04-29 11:30:26 -0500 (Tue, 29 Apr 2003) | 13 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/repository/Maildir.py
+
+  * When sep was /, the new Maildir support code would recursively try to 
+    scan ., resulting in huge paths and an eventual crash.  Fixed with
+    a one-line patch to Maildir.py.
+
+Closes: [complete.org #60]
+
+Sergei,
+
+The below diff is going into 3.99.16.  You can apply it to 3.99.15 and it
+should work for you now.  Please let me know.  (Ignore any patch errors for
+debian/changelog).  Thanks for the report.
+
+
+------------------------------------------------------------------------
+rev 466:  jgoerzen | 2003-04-29 10:48:52 -0500 (Tue, 29 Apr 2003) | 1 line
+Changed paths:
+   M /offlineimap/head/README
+
+Testing bug mailing
+------------------------------------------------------------------------
+rev 465:  jgoerzen | 2003-04-29 10:46:05 -0500 (Tue, 29 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/head/README
+
+This is more testing.
+
+Closes: [complete.org #62]
+
+------------------------------------------------------------------------
+rev 464:  jgoerzen | 2003-04-29 10:38:05 -0500 (Tue, 29 Apr 2003) | 5 lines
+Changed paths:
+   M /offlineimap/head/README
+
+Testing BTS actions.
+
+Notify: jglt@complete.org
+Notify: [complete.org #62], [debian.org #154165]
+
+------------------------------------------------------------------------
+rev 463:  jgoerzen | 2003-04-29 08:13:52 -0500 (Tue, 29 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+
+Readying to accept changes, captain
+
+------------------------------------------------------------------------
+rev 462:  jgoerzen | 2003-04-28 22:38:20 -0500 (Mon, 28 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/head/README
+
+Updated copyright date.
+
+Notify: jgoerzen@complete.org, jgoerzen@debian.org
+
+------------------------------------------------------------------------
+rev 461:  jgoerzen | 2003-04-28 22:35:50 -0500 (Mon, 28 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+
+Updated the ChangeLog
+
+------------------------------------------------------------------------
 rev 459:  jgoerzen | 2003-04-28 16:41:50 -0500 (Mon, 28 Apr 2003) | 1 line
 Changed paths:
    M /offlineimap/head/ChangeLog
