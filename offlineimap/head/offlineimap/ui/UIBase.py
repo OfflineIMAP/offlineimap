@@ -22,6 +22,9 @@ import re, time, sys, traceback
 from StringIO import StringIO
 
 class UIBase:
+    def __init__(s, verbose = 0):
+        s.verbose = verbose]
+    
     ################################################## UTILS
     def _msg(s, msg):
         """Generic tool called when no other works."""
@@ -77,20 +80,23 @@ class UIBase:
                folder.getname())
 
     def loadmessagelist(s, repos, folder):
-        s._msg("Loading message list for %s[%s]" % (s.getnicename(repos),
-                                                    folder.getname()))
+        if s.verbose:
+            s._msg("Loading message list for %s[%s]" % (s.getnicename(repos),
+                                                        folder.getname()))
 
     def messagelistloaded(s, repos, folder, count):
-        s._msg("Message list for %s[%s] loaded: %d messages" % \
-               (s.getnicename(repos), folder.getname(), count))
+        if s.verbose:
+            s._msg("Message list for %s[%s] loaded: %d messages" % \
+                   (s.getnicename(repos), folder.getname(), count))
 
     ############################## Message syncing
 
     def syncingmessages(s, sr, sf, dr, df):
-        s._msg("Syncing messages %s[%s] -> %s[%s]" % (s.getnicename(sr),
-                                                      sf.getname(),
-                                                      s.getnicename(dr),
-                                                      df.getname()))
+        if s.verbose:
+            s._msg("Syncing messages %s[%s] -> %s[%s]" % (s.getnicename(sr),
+                                                          sf.getname(),
+                                                          s.getnicename(dr),
+                                                          df.getname()))
 
     def copyingmessage(s, uid, src, destlist):
         ds = s.folderlist(destlist)

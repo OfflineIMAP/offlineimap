@@ -140,9 +140,6 @@ class ThreadFrame(Frame):
         
 
 class TkUI(UIBase):
-    def __init__(self, verbose = 0):
-        self.verbose = verbose
-
     def isusable(s):
         try:
             Tk().destroy()
@@ -282,17 +279,4 @@ class TkUI(UIBase):
         time.sleep(sleepsecs)
         return s.sleeping_abort
 
-    ################################################## Copied from TTY
-
-    def syncingmessages(s, sr, sf, dr, df):
-        if s.verbose:
-            UIBase.syncingmessages(s, sr, sf, dr, df)
-
-    def loadmessagelist(s, repos, folder):
-        if s.verbose:
-            UIBase.syncingmessages(s, repos, folder)
-    
-    def messagelistloaded(s, repos, folder, count):
-        if s.verbose:
-            UIBase.messagelistloaded(s, repos, folder, count)
 

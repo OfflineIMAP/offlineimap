@@ -22,9 +22,9 @@ import select, sys
 from threading import *
 
 class TTYUI(UIBase):
-    def __init__(self, verbose = 0):
-        self.verbose = 0
-        self.iswaiting = 0
+    def __init__(s, verbose = 0):
+        s.verbose = 0
+        s.iswaiting = 0
         
     def _msg(s, msg):
         if (currentThread().getName() == 'MainThread'):
@@ -37,18 +37,6 @@ class TTYUI(UIBase):
         return getpass("%s: Enter password for %s on %s: " %
                        (accountname, config.get(accountname, "remoteuser"),
                         config.get(accountname, "remotehost")))
-
-    def syncingmessages(s, sr, sf, dr, df):
-        if s.verbose:
-            UIBase.syncingmessages(s, sr, sf, dr, df)
-
-    def loadmessagelist(s, repos, folder):
-        if s.verbose:
-            UIBase.syncingmessages(s, repos, folder)
-    
-    def messagelistloaded(s, repos, folder, count):
-        if s.verbose:
-            UIBase.messagelistloaded(s, repos, folder, count)
 
     def sleep(s, sleepsecs):
         s.iswaiting = 1
