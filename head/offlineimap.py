@@ -84,6 +84,7 @@ for accountname in accounts:
 
         # Load status folder.
         statusfolder = statusrepos.getfolder(remotefolder.getname())
+        statusfolder.cachemessagelist()
         
         if statusfolder.isnewfolder():
             print "Local status folder is new; ignoring."
@@ -93,7 +94,7 @@ for accountname in accounts:
         
         # Synchronize remote changes.
         print "Synchronizing remote to local..."
-        remotefolder.syncmessagesto(localfolder, [localfolder, statusfolder])
+        remotefolder.syncmessagesto(localfolder)
 
         # Make sure the status folder is up-to-date.
         print "Updating local status cache..."

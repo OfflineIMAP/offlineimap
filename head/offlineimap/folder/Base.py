@@ -193,11 +193,11 @@ class BaseFolder:
             addflags = [x for x in selfflags if x not in destflags]
             if len(addflags):
                 for object in applyto:
-                    object.addmessageflags(addflags)
+                    object.addmessageflags(uid, addflags)
 
             delflags = [x for x in destflags if x not in selfflags]
             if len(delflags):
                 for object in applyto:
-                    object.deletemessageflags(delflags)
+                    object.deletemessageflags(uid, delflags)
 
             

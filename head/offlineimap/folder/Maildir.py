@@ -41,7 +41,7 @@ class MaildirFolder(BaseFolder):
 
     def saveuidvalidity(self, newval):
         file = open(self.uidfilename, "wt")
-        file.write("%d\n", newval)
+        file.write("%d\n" % newval)
         file.close()
 
     def isuidvalidityok(self, remotefolder):
@@ -50,6 +50,7 @@ class MaildirFolder(BaseFolder):
             return myval == remotefolder.getuidvalidity()
         else:
             self.saveuidvalidity(remotefolder.getuidvalidity())
+            return 1
             
     def cachemessagelist(self):
         """Cache the message list.  Maildir flags are:
@@ -142,7 +143,7 @@ class MaildirFolder(BaseFolder):
         if infomatch:                   # If the info string is present..
             infostr = infomatch.group(1)
             newname = newname.split(':')[0] # Strip off the info string.
-        re.sub('2,[A-Z]*', '', infostr)
+        infostr = re.sub('2,[A-Z]*', '', infostr)
         flags.sort()
         infostr += '2,' + ''.join(flags)
         newname += infostr
@@ -151,6 +152,7 @@ class MaildirFolder(BaseFolder):
         if (newfilename != oldfilename):
             os.rename(oldfilename, newfilename)
             self.getmessagelist()[uid]['flags'] = flags
+            self.getmessagelist()[uid]['filename'] = newfilename
 
     def getmessageflags(self, uid):
         return self.getmessagelist()[uid]['flags']

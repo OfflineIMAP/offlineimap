@@ -92,7 +92,7 @@ class IMAPFolder(BaseFolder):
         assert(self.imapobj.select(self.getfullname())[0] == 'OK')
         result = self.imapobj.uid('store', '%d' % uid, 'FLAGS',
                                   imaputil.flagsmaildir2imap(flags))[1][0]
-        flags = imaputil.flags2hash(imaputil.imapsplit(result)[1]){'FLAGS'}
+        flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
         self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
 
     def deletemessage(self, uid):
