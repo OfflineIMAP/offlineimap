@@ -1,3 +1,53 @@
+2002-06-21 15:15  jgoerzen
+
+	* debian/changelog: Noted bug closing
+
+2002-06-21 15:12  jgoerzen
+
+	* ChangeLog: FINAL PREP FOR 1.0.0
+
+2002-06-21 15:11  jgoerzen
+
+	* debian/: control, copyright, cron.d.ex, docs,
+	ex.package.doc-base, manpage.1.ex, manpage.sgml.ex, menu.ex, docs:
+	Updated
+
+2002-06-21 15:07  jgoerzen
+
+	* debian/: README, README.Debian: Removed
+
+2002-06-21 15:06  jgoerzen
+
+	* debian/: conffiles.ex, emacsen-install.ex, emacsen-remove.ex,
+	emacsen-startup.ex, init.d.ex, postinst.ex, postrm.ex, preinst.ex,
+	prerm.ex, rules, watch.ex: Updated
+
+2002-06-21 14:55  jgoerzen
+
+	* debian/: README, README.Debian, changelog, conffiles.ex, control,
+	copyright, cron.d.ex, dirs, docs, emacsen-install.ex,
+	emacsen-remove.ex, emacsen-startup.ex, ex.package.doc-base,
+	init.d.ex, manpage.1.ex, manpage.sgml.ex, menu.ex, postinst.ex,
+	postrm.ex, preinst.ex, prerm.ex, rules, watch.ex: Added dh_make
+	files
+
+2002-06-21 14:51  jgoerzen
+
+	* README: Updated
+
+2002-06-21 14:29  jgoerzen
+
+	* README, offlineimap/version.py, offlineimap/ui/UIBase.py: Added,
+	minor tweaking
+
+2002-06-21 13:46  jgoerzen
+
+	* COPYRIGHT: Added program name
+
+2002-06-21 13:45  jgoerzen
+
+	* ChangeLog: Added.
+
 2002-06-21 13:44  jgoerzen
 
 	* Makefile: Using a more appropriate Makefile now
@@ -296,9 +346,14 @@
 
 	* offlineimap/repository/: Base.py, __init__.py: Added
 
+2002-06-18 13:28  jgoerzen
+
+	* offlineimap/mailbox/__init__.py: [no log message]
+
 2002-06-18 13:26  jgoerzen
 
-	* offlineimap/: folder/__init__.py, repository/Base.py: Updated
+	* offlineimap/: folder/__init__.py, mailbox/__init__.py,
+	repository/Base.py: Updated
 
 2002-06-18 13:09  jgoerzen
 

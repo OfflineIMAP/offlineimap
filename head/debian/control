@@ -1,12 +1,32 @@
 Source: offlineimap
-Section: unknown
+Section: mail
 Priority: optional
 Maintainer: John Goerzen <jgoerzen@complete.org>
-Build-Depends: debhelper (>> 3.0.0)
+Build-Depends-Indep: debhelper (>> 3.0.0), python2.2 (>= 2.2.1-4)
 Standards-Version: 3.5.2
 
 Package: offlineimap
-Architecture: any
-Depends: ${shlibs:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Architecture: all
+Depends: python2.2
+Description: IMAP/Maildir synchronization and reader support
+ OfflineIMAP is a tool to simplify your e-mail reading.  With
+ OfflimeIMAP, you can:
+ .
+ * Read the same mailbox from multiple computers, and have your
+   changes (deletions, etc.) be automatically reflected on
+   all computers
+ .
+ * Use various mail clients to read a single mail box
+ .
+ * Read mail while offline (on a laptop) and have all changes
+   synchronized when you get connected again
+ .
+ * Read IMAP mail with mail readers that do not support IMAP
+ .
+ * Use SSL (secure connections) to read IMAP mail even if you reader
+   doesn't support SSL
+ .
+ * Synchronize your mail using a completely safe and fault-tolerant
+   algorithm.  (At least I think it is!)
+ .
+ In short, OfflineIMAP is a tool to let you read mail how YOU want to.
