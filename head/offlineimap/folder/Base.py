@@ -57,7 +57,12 @@ class BaseFolder:
         raise NotImplementedException
 
     def savemessage(self, uid, content):
-        """Writes a new message, with the specified uid."""
+        """Writes a new message, with the specified uid.
+        If the uid is < 0, the backend should assign a new uid and return it.
+        If the backend cannot assign a new uid, it returns the uid passed in.
+        IMAP backend should be the only one that can assign a new uid.
+        If the uid is < 0 and the backend cannot assign a new UID, it is
+        required to TAKE NO ACTION other than returning the uid passed in."""
         raise NotImplementedException
 
     def getmessageflags(self, uid):
@@ -67,6 +72,26 @@ class BaseFolder:
     def savemessageflags(self, uid, flags):
         """Sets the specified message's flags to the given set."""
         raise NotImplementedException
+
+    def addmessageflags(self, uid, flags):
+        """Adds the specified flags to the message's flag set.  If a given
+        flag is already present, it will not be duplicated."""
+        newflags = self.getmessageflags(uid)
+        for flag in flags:
+            if not flag in newflags:
+                newflags.append(flag)
+        newflags.sort()
+        self.savemessageflags(uid, newflags)
+
+    def deletemessageflags(self, uid, flags):
+        """Removes each flag given from the message's flag set.  If a given
+        flag is already removed, no action will be taken for that flag."""
+        newflags = self.getmessageflags(uid)
+        for flag in flags:
+            if flag in newflags:
+                newflags.remove(flag)
+        newflags.sort()
+        self.savemessageflags(uid, newflags)
 
     def deletemessage(self, uid):
         raise NotImplementedException
@@ -79,10 +104,46 @@ class BaseFolder:
         if applyto == None:
             applyto = [dest]
 
-        # Pass 1 -- Look for messages present in self but not in dest.
+        # Pass 1 -- Look for messages in self with a negative uid.
+        # These are messages in Maildirs that were not added by us.
+        # Try to add them to the dests, and once that succeeds, get the
+        # UID, add it to the others for real, add it to local for real,
+        # and delete the fake one.
+
+        for uid in self.getmessagelist().keys():
+            if uid >= 0:
+                continue
+            successobject = None
+            successuid = None
+            message = self.getmessage(uid)
+            flags = self.getmessageflags(uid)
+            for tryappend in applyto:
+                successuid = tryappend.savemessage(uid, message)
+                if successuid > 0:
+                    tryappend.savemessageflags(uid, flags)
+                    successobject = tryappend
+                    break
+            # Did we succeed?
+            if successobject != None:
+                # Copy the message to the other remote servers.
+                for appendserver in [x for x in applyto if x != successobject]:
+                    appendserver.savemessage(successuid, message)
+                    appendserver.savemessageflags(successuid, flags)
+                # Copy it to its new name on the local server and delete
+                # the one without a UID.
+                self.savemessage(successuid, message)
+                self.savemessageflags(successuid, flags)
+                self.deletemessage(uid)
+            else:
+                # Did not find any server to take this message.  Delete
+                pass
+
+        # Pass 2 -- Look for messages present in self but not in dest.
         # If any, add them to dest.
         
         for uid in self.getmessagelist().keys():
+            if uid < 0:                 # Ignore messages that pass 1 missed.
+                continue
             if not uid in dest.getmessagelist():
                 message = self.getmessage(uid)
                 flags = self.getmessageflags(uid)
@@ -90,7 +151,7 @@ class BaseFolder:
                     object.savemessage(uid, message)
                     object.savemessageflags(uid, flags)
 
-        # Pass 2 -- Look for message present in dest but not in self.
+        # Pass 3 -- Look for message present in dest but not in self.
         # If any, delete them.
 
         for uid in dest.getmessagelist().keys():
@@ -99,7 +160,26 @@ class BaseFolder:
                     object.deletemessage(uid)
 
         # Now, the message lists should be identical wrt the uids present.
-
-        # Pass 3 -- Look for any flag identity issues.
-
+        # (except for potential negative uids that couldn't be placed
+        # anywhere)
         
+        # Pass 3 -- Look for any flag identity issues -- set dest messages
+        # to have the same flags that we have here.
+
+        for uid in self.getmessagelist().keys():
+            if uid < 0:                 # Ignore messages missed by pass 1
+                continue
+            selfflags = self.getmessageflags(uid)
+            destflags = dest.getmessageflags(uid)
+
+            addflags = [x for x in selfflags if x not in destflags]
+            if len(addflags):
+                for object in applyto:
+                    object.addmessageflags(addflags)
+
+            delflags = [x for x in destflags if x not in selfflags]
+            if len(delflags):
+                for object in applyto:
+                    object.deletemessageflags(delflags)
+
+            
