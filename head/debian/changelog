@@ -1,3 +1,16 @@
+offlineimap (2.0.6) unstable; urgency=low
+
+  * Added support for holdconnectionopen and keepalive.  This feature
+    allows for an IMAP server connection(s) to be held open until
+    the next sync process, permitting faster restart times.
+  * Another try at read-only folder support.  This is nasty because I
+    have no way to test it and imaplib's read-only support is weird.
+  * Closing out old bug; fixed in 1.0.2.  Closes: #150803.
+  * Optimized algorithm so that a SELECT is never issued for folders
+    that contain no messages.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue,  9 Jul 2002 20:05:24 -0500
+
 offlineimap (2.0.5) unstable; urgency=low
 
   * Fixed a folderfilter example.  Partially fixes #152079.

@@ -1,3 +1,22 @@
+2002-07-09 20:17  jgoerzen
+
+	* offlineimap.conf, offlineimap.py, debian/changelog,
+	offlineimap/imapserver.py, offlineimap/version.py,
+	offlineimap/folder/IMAP.py: Commited changes for 2.0.6
+
+2002-07-09 13:13  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Another attempt at the read-only bug
+
+2002-07-08 12:05  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Another attempt at fixing read-only
+	folders
+
+2002-07-08 11:38  jgoerzen
+
+	* ChangeLog: Updated for 2.0.5
+
 2002-07-08 11:32  jgoerzen
 
 	* debian/changelog, offlineimap/folder/IMAP.py,

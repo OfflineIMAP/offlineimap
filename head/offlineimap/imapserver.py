@@ -28,13 +28,14 @@ class UsefulIMAPMixIn:
         return None
 
     def select(self, mailbox='INBOX', readonly=None):
-        if self.getselectedfolder() == mailbox and not readonly:
+        if self.getselectedfolder() == mailbox:
+            self.is_readonly = readonly
             # No change; return.
             return
         result = self.__class__.__bases__[1].select(self, mailbox, readonly)
         if result[0] != 'OK':
             raise ValueError, "Error from select: %s" % str(result)
-        if self.getstate() == 'SELECTED' and not readonly:
+        if self.getstate() == 'SELECTED':
             self.selectedfolder = mailbox
         else:
             self.selectedfolder = None
@@ -146,5 +147,71 @@ class IMAPServer:
         self.assignedconnections = []
         self.availableconnections = []
         self.connectionlock.release()
-        
 
+    def keepalive(self, timeout, event):
+        """Sends a NOOP to each connection recorded.   It will wait a maximum
+        of timeout seconds between doing this, and will continue to do so
+        until the Event object as passed is true.  This method is expected
+        to be invoked in a separate thread, which should be join()'d after
+        the event is set."""
+        while 1:
+            event.wait(timeout)
+            if event.isSet():
+                return
+            self.connectionlock.acquire()
+            numconnections = len(self.assignedconnections) + \
+                             len(self.availableconnections)
+            self.connectionlock.release()
+            threads = []
+            imapobjs = []
+        
+            for i in range(numconnections):
+                imapobj = self.acquireconnection()
+                imapobjs.append(imapobj)
+                thread = threadutil.ExitNotifyThread(target = imapobj.noop)
+                thread.setDaemon(1)
+                thread.start()
+                threads.append(thread)
+
+            for thread in threads:
+                # Make sure all the commands have completed.
+                thread.join()
+
+            for imapobj in imapobjs:
+                self.releaseconnection(imapobj)
+
+class ConfigedIMAPServer(IMAPServer):
+    """This class is designed for easier initialization given a ConfigParser
+    object and an account name.  The passwordhash is used if
+    passwords for certain accounts are known.  If the password for this
+    account is listed, it will be obtained from there."""
+    def __init__(self, config, accountname, passwordhash = {}):
+        """Initialize the object.  If the account is not a tunnel,
+        the password is required."""
+        host = config.get(accountname, "remotehost")
+        user = config.get(accountname, "remoteuser")
+        port = None
+        if config.has_option(accountname, "remoteport"):
+            port = config.getint(accountname, "remoteport")
+        ssl = config.getboolean(accountname, "ssl")
+        usetunnel = config.has_option(accountname, "preauthtunnel")
+        reference = '""'
+        if config.has_option(accountname, "reference"):
+            reference = config.get(accountname, "reference")
+        server = None
+        password = None
+        if accountname in passwordhash:
+            password = passwordhash[accountname]
+
+        # Connect to the remote server.
+        if usetunnel:
+            IMAPServer.__init__(self,
+                                tunnel = config.get(accountname, "preauthtunnel"),
+                                reference = reference,
+                                maxconnections = config.getint(accountname, "maxconnections"))
+        else:
+            if not password:
+                password = config.get(accountname, 'remotepass')
+            IMAPServer.__init__(self, user, password, host, port, ssl,
+                                config.getint(accountname, "maxconnections"),
+                                reference = reference)

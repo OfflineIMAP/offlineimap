@@ -59,8 +59,6 @@ class IMAPFolder(BaseFolder):
     def cachemessagelist(self):
         imapobj = self.imapserver.acquireconnection()
         try:
-            # Needed for fetch below
-            imapobj.select(self.getfullname(), readonly = 1)
             self.messagelist = {}
             response = imapobj.status(self.getfullname(), '(MESSAGES)')[1][0]
             result = imaputil.imapsplit(response)[1]
@@ -69,6 +67,8 @@ class IMAPFolder(BaseFolder):
                 # No messages?  return.
                 return
 
+            # Needed for fetch below
+            imapobj.select(self.getfullname(), readonly = 1)
             # Now, get the flags and UIDs for these.
             response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
         finally:

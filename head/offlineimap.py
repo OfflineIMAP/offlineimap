@@ -74,6 +74,8 @@ for account in accounts:
 
 mailboxes = []
 mailboxlock = Lock()
+servers = {}
+
 def addmailbox(accountname, remotefolder):
     mailboxlock.acquire()
     mailboxes.append({'accountname' : accountname,
@@ -88,28 +90,14 @@ def syncaccount(accountname, *args):
         accountmetadata = os.path.join(metadatadir, accountname)
         if not os.path.exists(accountmetadata):
             os.mkdir(accountmetadata, 0700)
-        host = config.get(accountname, "remotehost")
-        user = config.get(accountname, "remoteuser")
-        port = None
-        if config.has_option(accountname, "remoteport"):
-            port = config.getint(accountname, "remoteport")
-        ssl = config.getboolean(accountname, "ssl")
-        usetunnel = config.has_option(accountname, "preauthtunnel")
-        reference = '""'
-        if config.has_option(accountname, "reference"):
-            reference = config.get(accountname, "reference")
 
         server = None
-        # Connect to the remote server.
-        if usetunnel:
-            server = imapserver.IMAPServer(tunnel = tunnels[accountname],
-                                           reference = reference,
-                                           maxconnections = config.getint(accountname, "maxconnections"))
+        if accountname in servers:
+            server = servers[accountname]
         else:
-            server = imapserver.IMAPServer(user, passwords[accountname],
-                                           host, port, ssl,
-                                           config.getint(accountname, "maxconnections"),
-                                           reference = reference)
+            server = imapserver.ConfigedIMAPServer(config, accountname, passwords)
+            servers[accountname] = server
+            
         remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
 
         # Connect to the Maildirs.
@@ -134,7 +122,9 @@ def syncaccount(accountname, *args):
             thread.start()
             folderthreads.append(thread)
         threadutil.threadsreset(folderthreads)
-        server.close()
+        if not (config.has_option(accountname, 'holdconnectionopen') and \
+           config.getboolean(accountname, 'holdconnectionopen')):
+            server.close()
     finally:
         pass
 
@@ -213,9 +203,31 @@ def sync_with_timer():
     if config.has_option('general', 'autorefresh'):
         refreshperiod = config.getint('general', 'autorefresh') * 60
         while 1:
+            # Set up keep-alives.
+            kaevents = {}
+            kathreads = {}
+            for accountname in accounts:
+                if config.has_option(accountname, 'holdconnectionopen') and \
+                   config.getboolean(accountname, 'holdconnectionopen') and \
+                   config.has_option(accountname, 'keepalive'):
+                    event = Event()
+                    kaevents[accountname] = event
+                    thread = ExitNotifyThread(target = servers[accountname].keepalive,
+                                              args = (config.getint(accountname, 'keepalive'), event))
+                    thread.setDaemon(1)
+                    thread.start()
+                    kathreads[accountname] = thread
             if ui.sleep(refreshperiod) == 2:
+                # Cancel keep-alives, but don't bother terminating threads
+                for event in kaevents.values():
+                    event.set()
                 break
             else:
+                # Cancel keep-alives and wait for threads to terminate.
+                for event in kaevents.values():
+                    event.set()
+                for thread in kathreads.values():
+                    thread.join()
                 syncitall()
         
 def threadexited(thread):
