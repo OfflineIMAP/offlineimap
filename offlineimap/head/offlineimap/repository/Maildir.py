@@ -106,7 +106,7 @@ class MaildirRepository(BaseRepository):
         self.debug("  toppath = %s" % toppath)
 
         # Iterate over directories in top.
-        for dirname in os.listdir(toppath):
+        for dirname in os.listdir(toppath) + ['.']:
             self.debug("  *** top of loop")
             self.debug("  dirname = %s" % dirname)
             if dirname in ['cur', 'new', 'tmp', 'offlineimap.uidvalidity']:
