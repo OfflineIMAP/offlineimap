@@ -5,6 +5,7 @@ offlineimap (3.99.2) unstable; urgency=low
     50 debug messages, whether or not debugging was enabled for this
     session.  This way, even unexpected and non-repeatable errors stand
     a chance of getting a more detailed log.
+  * Handle uidvalidity file in an atomic fashion.  CLoses: #165600.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue, 15 Oct 2002 12:35:42 -0500
 

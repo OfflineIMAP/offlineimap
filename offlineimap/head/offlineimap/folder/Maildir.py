@@ -62,9 +62,10 @@ class MaildirFolder(BaseFolder):
         return self.uidvalidity
 
     def saveuidvalidity(self, newval):
-        file = open(self.uidfilename, "wt")
+        file = open(self.uidfilename + ".tmp", "wt")
         file.write("%d\n" % newval)
         file.close()
+        os.rename(self.uidfilename + ".tmp", self.uidfilename)
         self.uidvalidity = newval
 
     def isuidvalidityok(self, remotefolder):
