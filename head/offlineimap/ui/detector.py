@@ -1,4 +1,4 @@
-# UI module directory
+# UI base class
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
@@ -16,14 +16,23 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from offlineimap.ui import *
+import sys
 
-import TTY, UIBase, detector
-availableUIs = {'TTY': TTY, 'UIBase': UIBase}
-try:
-    import Tkinter
-except ImportError:
-    pass
-else:
-    import Tk
-    availableUIs['Tk'] = Tk
-
+def findUI(config):
+    uistrlist = ['Tk.TKUI', 'TTY.TTYUI']
+    if config.has_option("general", "ui"):
+        uistrlist = config.get("general", "ui").replace(" ", "").split(",")
+    for uistr in uistrlist:
+        uimod = getUImod(uistr)
+        if uimod and uimod.isusable():
+            return uimod
+    sys.stderr.write("ERROR: No UIs were found usable!\n")
+    sys.exit(200)
+    
+def getUImod(uistr):
+    try:
+        uimod = eval(uistr)
+    except AttributeError, NameError:
+        return None
+    return uimod

@@ -142,6 +142,15 @@ class ThreadFrame(Frame):
 class TkUI(UIBase):
     def __init__(self, verbose = 0):
         self.verbose = verbose
+
+    def isusable(s):
+        try:
+            Tk().destroy()
+            return 1
+        except TclError:
+            return 0
+
+    def _createTopWindow(self):
         self.top = Tk()
         self.top.title(version.productname + " " + version.versionstr)
         self.threadframes = {}
@@ -149,7 +158,7 @@ class TkUI(UIBase):
         self.tflock = Lock()
         self.notdeleted = 1
 
-        t = threadutil.ExitNotifyThread(target = self.runmainloop,
+        t = threadutil.ExitNotifyThread(target = self._runmainloop,
                                         name = "Tk Mainloop")
         t.setDaemon(1)
         t.start()
@@ -159,7 +168,7 @@ class TkUI(UIBase):
         t.setDaemon(1)
         t.start()
 
-    def runmainloop(s):
+    def _runmainloop(s):
         s.top.mainloop()
         s.notdeleted = 0
     
@@ -228,6 +237,7 @@ class TkUI(UIBase):
         TextOKDialog("Main Program Exception", msg)
 
     def init_banner(s):
+        s._createTopWindow()
         s._msg(version.productname + " " + version.versionstr + ", " +\
                version.copyright)
         tf = s.gettf().getthreadextraframe()
