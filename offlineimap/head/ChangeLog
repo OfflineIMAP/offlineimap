@@ -1,4 +1,14 @@
 ------------------------------------------------------------------------
+rev 459:  jgoerzen | 2003-04-28 16:41:50 -0500 (Mon, 28 Apr 2003) | 1 line
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Preparing for 3.99.15
+------------------------------------------------------------------------
 rev 458:  jgoerzen | 2003-04-28 16:25:42 -0500 (Mon, 28 Apr 2003) | 3 lines
 Changed paths:
    M /offlineimap/head/debian/changelog
