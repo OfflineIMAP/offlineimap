@@ -4,6 +4,7 @@ offlineimap (3.99.16) unstable; urgency=low
   * When sep was /, the new Maildir support code would recursively try to 
     scan ., resulting in huge paths and an eventual crash.  Fixed with
     a one-line patch to Maildir.py.  Fixes [complete.org #60].
+    Closes: #191318.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue, 29 Apr 2003 08:10:17 -0500
 
