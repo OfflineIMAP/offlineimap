@@ -24,7 +24,6 @@ from offlineimap import version, threadutil
 from offlineimap.threadutil import MultiLock
 
 import curses, curses.panel, curses.textpad, curses.wrapper
-from debuglock import DebuggingLock
 
 acctkeys = '1234567890abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-=;/.,'
 
@@ -229,9 +228,9 @@ class InputHandler:
     def __init__(s, util):
         s.c = util
         s.bgchar = None
-        s.inputlock = DebuggingLock('inputlock')
+        s.inputlock = Lock()
         s.lockheld = 0
-        s.statuslock = DebuggingLock('statuslock')
+        s.statuslock = Lock()
         s.startup = Event()
         s.startthread()
 
@@ -299,7 +298,7 @@ class InputHandler:
 class Blinkenlights(BlinkenBase, UIBase):
     def init_banner(s):
         s.af = {}
-        s.aflock = DebuggingLock('aflock')
+        s.aflock = Lock()
         s.c = CursesUtil()
         s.text = []
         BlinkenBase.init_banner(s)

@@ -21,8 +21,6 @@ from offlineimap.ui.UIBase import UIBase
 import thread
 from offlineimap.threadutil import MultiLock
 
-from debuglock import DebuggingLock
-
 class BlinkenBase:
     """This is a mix-in class that should be mixed in with either UIBase
     or another appropriate base class.  The Tk interface, for instance,
