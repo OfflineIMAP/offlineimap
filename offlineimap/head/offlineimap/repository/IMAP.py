@@ -22,7 +22,7 @@ import re
 from threading import *
 
 class IMAPRepository(BaseRepository):
-    def __init__(self, config, accountname, imapserver):
+    def __init__(self, config, localeval, accountname, imapserver):
         """Initialize an IMAPRepository object.  Takes an IMAPServer
         object."""
         self.imapserver = imapserver
@@ -32,12 +32,15 @@ class IMAPRepository(BaseRepository):
         self.nametrans = lambda foldername: foldername
         self.folderfilter = lambda foldername: 1
         self.folderincludes = []
+        self.foldersort = cmp
         if config.has_option(accountname, 'nametrans'):
-            self.nametrans = eval(config.get(accountname, 'nametrans'))
+            self.nametrans = localeval.eval(config.get(accountname, 'nametrans'), {'re': re})
         if config.has_option(accountname, 'folderfilter'):
-            self.folderfilter = eval(config.get(accountname, 'folderfilter'))
+            self.folderfilter = localeval.eval(config.get(accountname, 'folderfilter'), {'re': re})
         if config.has_option(accountname, 'folderincludes'):
-            self.folderincludes = eval(config.get(accountname, 'folderincludes'))
+            self.folderincludes = localeval.eval(config.get(accountname, 'folderincludes'), {'re': re})
+        if config.has_option(accountname, 'foldersort'):
+            self.foldersort = localeval.eval(config.get(accountname, 'foldersort'), {'re': re})
 
     def getsep(self):
         return self.imapserver.delim
@@ -71,6 +74,6 @@ class IMAPRepository(BaseRepository):
             retval.append(folder.IMAP.IMAPFolder(self.imapserver, foldername,
                                                  self.nametrans(foldername),
                                                  self.accountname))
-        retval.sort(lambda x, y: cmp(x.getvisiblename(), y.getvisiblename()))
+        retval.sort(lambda x, y: self.foldersort(x.getvisiblename(), y.getvisiblename()))
         self.folders = retval
         return retval

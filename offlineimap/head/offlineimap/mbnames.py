@@ -18,16 +18,16 @@
 
 import os.path
 
-def genmbnames(config, boxlist):
+def genmbnames(config, localeval, boxlist):
     """Takes a configparser object and a boxlist, which is a list of hashes
     containing 'accountname' and 'foldername' keys."""
     if not config.getboolean("mbnames", "enabled"):
         return
     file = open(os.path.expanduser(config.get("mbnames", "filename")), "wt")
-    file.write(eval(config.get("mbnames", "header")))
-    itemlist = [eval(config.get("mbnames", "peritem", raw=1)) % item for item in boxlist]
-    file.write(eval(config.get("mbnames", "sep")).join(itemlist))
-    file.write(eval(config.get("mbnames", "footer")))
+    file.write(localeval.eval(config.get("mbnames", "header")))
+    itemlist = [localeval.eval(config.get("mbnames", "peritem", raw=1)) % item for item in boxlist]
+    file.write(localeval.eval(config.get("mbnames", "sep")).join(itemlist))
+    file.write(localeval.eval(config.get("mbnames", "footer")))
     file.close()
     
     

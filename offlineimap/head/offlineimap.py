@@ -17,7 +17,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil, version
+from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil, version, localeval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from offlineimap.ui import UIBase
 import re, os, os.path, offlineimap, sys
@@ -58,10 +58,16 @@ if not os.path.exists(configfilename):
     
 config.read(configfilename)
 
-if '-u' in options:
-    ui = offlineimap.ui.detector.getUImod(options['-u'])(config)
+if config.has_option("general", "pythonfile"):
+    path=os.path.expanduser(config.get("general", "pythonfile"))
 else:
-    ui = offlineimap.ui.detector.findUI(config)
+    path=None
+localeval = localeval.LocalEval(path)
+
+if '-u' in options:
+    ui = offlineimap.ui.detector.getUImod(options['-u'])(config, localeval)
+else:
+    ui = offlineimap.ui.detector.findUI(config, localeval)
 ui.init_banner()
 
 if '-d' in options:
@@ -138,7 +144,7 @@ def syncaccount(accountname, *args):
             server = imapserver.ConfigedIMAPServer(config, accountname, passwords)
             servers[accountname] = server
             
-        remoterepos = repository.IMAP.IMAPRepository(config, accountname, server)
+        remoterepos = repository.IMAP.IMAPRepository(config, localeval, accountname, server)
 
         # Connect to the Maildirs.
         localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(config.get(accountname, "localfolders")), accountname, config)
@@ -256,7 +262,7 @@ def syncitall():
         threads.append(thread)
     # Wait for the threads to finish.
     threadutil.threadsreset(threads)
-    mbnames.genmbnames(config, mailboxes)
+    mbnames.genmbnames(config, localeval, mailboxes)
 
 def sync_with_timer():
     currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')

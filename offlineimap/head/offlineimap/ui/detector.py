@@ -16,16 +16,21 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap.ui import *
+import offlineimap.ui
 import sys
 
-def findUI(config):
+def findUI(config, localeval):
     uistrlist = ['Tk.Blinkenlights', 'Tk.VerboseUI', 'TTY.TTYUI',
                  'Noninteractive.Basic', 'Noninteractive.Quiet']
+    namespace={}
+    for ui in dir(offlineimap.ui):
+        if ui.startswith('_') or ui=='detector':
+            continue
+        namespace[ui]=getattr(offlineimap.ui, ui)
     if config.has_option("general", "ui"):
         uistrlist = config.get("general", "ui").replace(" ", "").split(",")
     for uistr in uistrlist:
-        uimod = getUImod(uistr)
+        uimod = getUImod(uistr, localeval, namespace)
         if uimod:
             uiinstance = uimod(config)
             if uiinstance.isusable():
@@ -33,9 +38,9 @@ def findUI(config):
     sys.stderr.write("ERROR: No UIs were found usable!\n")
     sys.exit(200)
     
-def getUImod(uistr):
+def getUImod(uistr, localeval, namespace):
     try:
-        uimod = eval(uistr)
-    except (AttributeError, NameError):
+        uimod = localeval.eval(uistr, namespace)
+    except (AttributeError, NameError), e:
         return None
     return uimod
