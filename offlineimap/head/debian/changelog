@@ -6,6 +6,7 @@ offlineimap (3.2.5) unstable; urgency=low
     options: pythonfile and foldersort.  Fixes [complete.org #29], and
     for Debian, Closes: #155637.
   * Added documentation for the above features.
+  * Even more resiliant in the face of invalid Date headers.  Closes: #155994.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri,  9 Aug 2002 17:54:01 -0500
 

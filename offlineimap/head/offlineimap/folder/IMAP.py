@@ -118,10 +118,15 @@ class IMAPFolder(BaseFolder):
             if datetuple == None:
                 datetuple = time.localtime()
             try:
-                date = imaplib.Time2Internaldate(datetuple)
+                if datetuple[0] < 1981:
+                    raise ValueError
+                # This could raise a value error if it's not a valid format.
+                date = imaplib.Time2Internaldate(datetuple) 
             except ValueError:
                 # Argh, sometimes it's a valid format but year is 0102
-                # or something.  Argh.
+                # or something.  Argh.  It seems that Time2Internaldate
+                # will rause a ValueError if the year is 0102 but not 1902,
+                # but some IMAP servers nonetheless choke on 1902.
                 date = imaplib.Time2Internaldate(time.localtime())
 
             if content.find("\r\n") == -1:  # Convert line endings if not already
