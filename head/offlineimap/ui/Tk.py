@@ -54,8 +54,11 @@ class PasswordDialog:
         return self.password
 
 class TextOKDialog:
-    def __init__(self, title, message):
-        self.top = Tk()
+    def __init__(self, title, message, blocking = 1, master = None):
+        if not master:
+            self.top = Tk()
+        else:
+            self.top = Toplevel(master)
         self.top.title(title)
         self.text = ScrolledText(self.top, font = "Courier 10")
         self.text.pack()
@@ -64,7 +67,8 @@ class TextOKDialog:
         self.button = Button(self.top, text = "OK", command=self.ok)
         self.button.pack()
 
-        self.top.wait_window(self.button)
+        if blocking:
+            self.top.wait_window(self.button)
 
     def ok(self):
         self.top.destroy()
@@ -111,8 +115,9 @@ class ThreadFrame(Frame):
     def getthreadextraframe(self):
         if self.threadextraframe:
             return self.threadextraframe
-        self.threadextraframe = Frame()
+        self.threadextraframe = Frame(self)
         self.threadextraframe.pack(fill = 'x')
+        return self.threadextraframe
 
     def setaccount(self, account):
         self.account = account
@@ -153,7 +158,6 @@ class TkUI(UIBase):
                                         name = "Tk idle vacuum")
         t.setDaemon(1)
         t.start()
-        print "TkUI mainloop started."
 
     def runmainloop(s):
         s.top.mainloop()
@@ -184,10 +188,8 @@ class TkUI(UIBase):
 
     def threadExited(s, thread):
         threadid = thread.threadid
-        print "Thread %d exited" % threadid
         s.tflock.acquire()
         if threadid in s.threadframes:
-            print "Removing thread %d" % threadid
             tf = s.threadframes[threadid]
             tf.setthread(None)
             tf.setaccount("Unknown")
@@ -211,6 +213,7 @@ class TkUI(UIBase):
         print msg
     
         s.top.destroy()
+        s.top = None
         TextOKDialog("Thread Exception", msg)
         s.terminate(100)
 
@@ -221,11 +224,50 @@ class TkUI(UIBase):
         print msg
 
         s.top.destroy()
+        s.top = None
         TextOKDialog("Main Program Exception", msg)
+
+    def init_banner(s):
+        s._msg(version.productname + " " + version.versionstr + ", " +\
+               version.copyright)
+        tf = s.gettf().getthreadextraframe()
+
+        def showlicense():
+            TextOKDialog(version.productname + " License",
+                         version.bigcopyright + "\n" +
+                         version.homepage + "\n\n" + version.license,
+                         blocking = 0, master = tf)
+        b = Button(tf, text = "About", command = showlicense)
+        b.pack(side = LEFT)
+        
+        b = Button(tf, text = "Exit", command = s.terminate)
+        b.pack(side = RIGHT)
 
     def deletingmessages(s, uidlist, destlist):
         ds = s.folderlist(destlist)
         s._msg("Deleting %d messages in %s" % (len(uidlist), ds))
+
+    def _sleep_cancel(s, args = None):
+        s.sleeping_abort = 1
+
+    def sleep(s, sleepsecs):
+        s.sleeping_abort = 0
+        tf = s.gettf().getthreadextraframe()
+
+        sleepbut = Button(tf, text = 'Sync immediately',
+                          command = s._sleep_cancel)
+        sleepbut.pack()
+        UIBase.sleep(s, sleepsecs)
+        
+    def sleeping(s, sleepsecs, remainingsecs):
+        if remainingsecs:
+            s._msg("Next sync in %d:%02d" % (remainingsecs / 60,
+                                             remainingsecs % 60))
+        else:
+            s._msg("Wait done; synchronizing now.")
+            s.gettf().destroythreadextraframe()
+        time.sleep(sleepsecs)
+        return s.sleeping_abort
 
     ################################################## Copied from TTY
 

@@ -9,11 +9,12 @@ copyright = "Copyright (C) 2002 John Goerzen"
 author = "John Goerzen"
 author_email = "jgoerzen@complete.org"
 description = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
+bigcopyright = "%(productname)s %(versionstr)s, %(copyright)s <%(author_email)s>" % locals()
 
-banner = """%(productname)s %(versionstr)s, %(copyright)s <%(author_email)s>
+banner = bigcopyright + """
 This software comes with ABSOLUTELY NO WARRANTY; see the file
 COPYING for details.  This is free software, and you are welcome
-to distribute it under the conditions laid out in COPYING.""" % locals()
+to distribute it under the conditions laid out in COPYING."""
 
 homepage = "http://www.quux.org/devel/offlineimap"
 homegopher = "gopher://quux.org/1/devel/offlineimap"

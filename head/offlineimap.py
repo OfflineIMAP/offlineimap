@@ -234,6 +234,11 @@ def sync_with_timer():
         
 def threadexited(thread):
     if thread.getExitCause() == 'EXCEPTION':
+        if isinstance(thread.getExitException(), SystemExit):
+            # Bring a SystemExit into the main thread.
+            # Do not send it back to UI layer right now.
+            # Maybe later send it to ui.terminate?
+            raise SystemExit
         ui.threadException(thread)      # Expected to terminate
         sys.exit(100)                   # Just in case...
         os._exit(100)
@@ -246,7 +251,8 @@ def threadexited(thread):
         ui.threadExited(thread)
 
 threadutil.initexitnotify()
-t = ExitNotifyThread(target=sync_with_timer, name='sync_with_timer')
+t = ExitNotifyThread(target=sync_with_timer,
+                     name='Sync Runner')
 t.setDaemon(1)
 t.start()
 try:
@@ -255,6 +261,3 @@ except SystemExit:
     raise
 except:
     ui.mainException()                  # Also expected to terminate.
-
-
-    
