@@ -7,7 +7,7 @@ offlineimap (3.99.19) unstable; urgency=low
   * Applied patch from Joerg Wendland <joergland@debian.org> to use
     APPENDUID result from mail servers that provide it.  Closes: #198772.
 
- -- John Goerzen <jgoerzen@complete.org>  Mon,  2 Jun 2003 07:04:53 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 27 Jun 2003 07:04:53 -0500
 
 offlineimap (3.99.18) unstable; urgency=low
 
