@@ -24,6 +24,7 @@ clean:
 	-rm -f `find . -name "*.class"`
 	-rm -f `find . -name "*.bak"`
 	-rm -f `find . -name ".cache*"`
+	-find . -name auth -exec rm -vf {}/password {}/username \;
 
 changelog:
 	cvs2cl
