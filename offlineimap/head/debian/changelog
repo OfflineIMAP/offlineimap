@@ -1,3 +1,12 @@
+offlineimap (3.99.13) unstable; urgency=low
+
+  * Fixed password prompting for non-Curses UIs.
+  * Fixed line-ending code to deal with files with mixed \n and \r\n
+    codes.  This is a rare case, but now is more onerous because we now
+    have to find headers.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 17 Apr 2003 18:02:13 -0500
+
 offlineimap (3.99.12) unstable; urgency=low
 
   * This is a 4.0 TRACK release, and may be unstable or in flux!

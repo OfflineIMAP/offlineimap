@@ -174,8 +174,7 @@ class IMAPFolder(BaseFolder):
                 # but some IMAP servers nonetheless choke on 1902.
                 date = imaplib.Time2Internaldate(time.localtime())
 
-            if content.find("\r\n") == -1:  # Convert line endings if not already
-                content = content.replace("\n", "\r\n")
+            content = re.sub("[^\r]\n", "\r\n", content)
 
             (headername, headervalue) = self.savemessage_getnewheader(content)
             content = self.savemessage_addheader(content, headername,
