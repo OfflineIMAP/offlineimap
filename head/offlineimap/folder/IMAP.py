@@ -46,9 +46,10 @@ class IMAPFolder(BaseFolder):
     def getuidvalidity(self):
         imapobj = self.imapserver.acquireconnection()
         try:
-            x = imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
-        except imapobj.readonly:
-            pass
+            try:
+                x = imapobj.status(self.getfullname(), '(UIDVALIDITY)')[1][0]
+            except imapobj.readonly:
+                pass
         finally:
             self.imapserver.releaseconnection(imapobj)
         uidstring = imaputil.imapsplit(x)[1]

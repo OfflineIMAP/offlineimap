@@ -31,10 +31,13 @@ class IMAPRepository(BaseRepository):
         self.folders = None
         self.nametrans = lambda foldername: foldername
         self.folderfilter = lambda foldername: 1
+        self.folderincludes = []
         if config.has_option(accountname, 'nametrans'):
             self.nametrans = eval(config.get(accountname, 'nametrans'))
         if config.has_option(accountname, 'folderfilter'):
             self.folderfilter = eval(config.get(accountname, 'folderfilter'))
+        if config.has_option(accountname, 'folderincludes'):
+            self.folderincludes = eval(config.get(accountname, 'folderincludes'))
 
     def getsep(self):
         return self.imapserver.delim
@@ -61,7 +64,11 @@ class IMAPRepository(BaseRepository):
             foldername = imaputil.dequote(name)
             if not self.folderfilter(foldername):
                 continue
-            retval.append(folder.IMAP.IMAPFolder(self.imapserver, name,
+            retval.append(folder.IMAP.IMAPFolder(self.imapserver, foldername,
+                                                 self.nametrans(foldername),
+                                                 self.accountname))
+        for foldername in self.folderincludes:
+            retval.append(folder.IMAP.IMAPFolder(self.imapserver, foldername,
                                                  self.nametrans(foldername),
                                                  self.accountname))
         retval.sort(lambda x, y: cmp(x.getvisiblename(), y.getvisiblename()))

@@ -1,6 +1,8 @@
 offlineimap (2.0.5) unstable; urgency=low
 
-  * Placeholder
+  * Fixed a folderfilter example.  Partially fixes #152079.
+  * Added folderincludes capability.  Partially fixes #152079.
+  * More fixes for read-only folders.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri,  5 Jul 2002 09:21:52 -0500
 
