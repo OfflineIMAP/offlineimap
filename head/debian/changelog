@@ -9,6 +9,8 @@ offlineimap (2.0.8) unstable; urgency=low
   * Modified Maildir folder to unlink messages with T flag in
     cachemessagelist()
   * My own box now syncs in 3 seconds.
+  * Optimized acquireconnection() to try to give a thread back the
+    connection that it last used, if possible.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue, 9 Jul 2002 23:29:30 -0500
 

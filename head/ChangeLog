@@ -1,6 +1,18 @@
+2002-07-10 12:51  jgoerzen
+
+	* debian/changelog, offlineimap/imapserver.py: Optimized
+	acquireconnection to try to return the last connection owned by
+	this thread
+
+2002-07-10 12:31  jgoerzen
+
+	* debian/changelog, offlineimap/folder/IMAP.py,
+	offlineimap/folder/Maildir.py: Made several fixes for 2.0.8
+
 2002-07-09 20:24  jgoerzen
 
-	* debian/changelog, offlineimap/version.py: Updated for 2.0.7
+	* debian/changelog, offlineimap/version.py, ChangeLog: Updated for
+	2.0.7
 
 2002-07-09 20:24  jgoerzen
 
