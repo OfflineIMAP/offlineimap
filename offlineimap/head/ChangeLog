@@ -1,4 +1,89 @@
 ------------------------------------------------------------------------
+rev 151:  jgoerzen | 2002-07-21 15:43:04 -0500 (Sun, 21 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/Maildir.py
+
+Now put messages with 'S' flag into 'cur'.  [complete.org #4], deb#152482
+
+------------------------------------------------------------------------
+rev 150:  jgoerzen | 2002-07-21 10:38:28 -0500 (Sun, 21 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/TODO
+
+Moved contents into the BTS and noted this in the file.
+
+------------------------------------------------------------------------
+rev 149:  jgoerzen | 2002-07-19 22:35:48 -0500 (Fri, 19 Jul 2002) | 3 lines
+Changed paths:
+   U /offlineimap/head/TODO
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/manual.html
+   U /offlineimap/head/manual.pdf
+   U /offlineimap/head/manual.ps
+   U /offlineimap/head/manual.txt
+   U /offlineimap/head/offlineimap.1
+
+Noted new BTS in manual; rebuilt manual files; removed BTS-submitted items
+from TODO.
+
+------------------------------------------------------------------------
+rev 148:  jgoerzen | 2002-07-19 21:03:21 -0500 (Fri, 19 Jul 2002) | 4 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/IMAP.py
+
+Updated changelog.
+Set self.root to None in IMAP folder; we do not want to be doubling up the
+reference name.
+
+------------------------------------------------------------------------
+rev 147:  jgoerzen | 2002-07-18 14:15:29 -0500 (Thu, 18 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/TODO
+
+Committed new information
+
+------------------------------------------------------------------------
+rev 146:  jgoerzen | 2002-07-18 12:59:56 -0500 (Thu, 18 Jul 2002) | 3 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/folder/IMAP.py
+
+More date format workarounds.  Now accept a valid format but invalid data
+(ie, year 0102).
+
+------------------------------------------------------------------------
+rev 145:  jgoerzen | 2002-07-18 11:58:10 -0500 (Thu, 18 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/TODO
+
+Added new stuff.
+
+------------------------------------------------------------------------
+rev 144:  jgoerzen | 2002-07-18 11:56:27 -0500 (Thu, 18 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/TODO
+
+Updated with new items
+
+------------------------------------------------------------------------
+rev 143:  jgoerzen | 2002-07-18 11:50:50 -0500 (Thu, 18 Jul 2002) | 3 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/IMAP.py
+
+No longer throws an exception when updating messages with strange
+Date headers; will just set IMAP Internaldate to the current date.
+
+------------------------------------------------------------------------
+rev 142:  jgoerzen | 2002-07-18 11:46:33 -0500 (Thu, 18 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+
+New changelog
+
+------------------------------------------------------------------------
 rev 141:  jgoerzen | 2002-07-17 16:13:10 -0500 (Wed, 17 Jul 2002) | 2 lines
 Changed paths:
    U /offlineimap/head/TODO

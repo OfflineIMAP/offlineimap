@@ -8,7 +8,7 @@ offlineimap (3.0.3) unstable; urgency=low
   * Now stores incoming messages in 'cur' instead of 'new' if they have
     the S flag.  Closes: #152482.
 
- -- John Goerzen <jgoerzen@complete.org>  Thu, 18 Jul 2002 17:46:13 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Sun, 21 Jul 2002 13:46:13 -0500
 
 offlineimap (3.0.2) unstable; urgency=low
 
