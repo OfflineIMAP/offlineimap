@@ -18,6 +18,8 @@
 
 import __main__
 from threading import *
+from offlineimap import threadutil
+from offlineimap.threadutil import InstanceLimitedThread
 
 class BaseFolder:
     def getname(self):
@@ -33,6 +35,11 @@ class BaseFolder:
         """For threading folders, waits until there is a resource available
         before firing off a thread.  For all others, returns immediately."""
         pass
+
+    def getcopyinstancelimit(self):
+        """For threading folders, returns the instancelimitname for
+        InstanceLimitedThreads."""
+        raise NotImplementedException
 
     def getvisiblename(self):
         return self.name
@@ -189,8 +196,10 @@ class BaseFolder:
             if not uid in dest.getmessagelist():
                 if self.suggeststhreads():
                     self.waitforthread()
-                    thread = Thread(target = self.copymessageto,
-                                    args = (uid, applyto))
+                    thread = InstanceLimitedThread(\
+                        self.getcopyinstancelimit(),
+                        target = self.copymessageto,
+                        args = (uid, applyto))
                     thread.start()
                     threads.append(thread)
                 else:

@@ -22,19 +22,23 @@ import rfc822
 from StringIO import StringIO
 
 class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name, visiblename):
+    def __init__(self, imapserver, name, visiblename, accountname):
         self.name = imaputil.dequote(name)
         self.root = imapserver.root
         self.sep = imapserver.delim
         self.imapserver = imapserver
         self.messagelist = None
         self.visiblename = visiblename
+        self.accountname = accountname
 
     def suggeststhreads(self):
         return 1
 
     def waitforthread(self):
         self.imapserver.connectionwait()
+
+    def getcopyinstancelimit(self):
+        return 'MSGCOPY_' + self.accountname
 
     def getvisiblename(self):
         return self.visiblename
@@ -116,7 +120,7 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
 
     def savemessageflags(self, uid, flags):
-        imapobj = self.imapserver.acquireconnection(imapobj)
+        imapobj = self.imapserver.acquireconnection()
         try:
             imapobj.select(self.getfullname())
             result = imapobj.uid('store', '%d' % uid, 'FLAGS',

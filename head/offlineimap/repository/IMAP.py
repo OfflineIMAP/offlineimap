@@ -38,7 +38,8 @@ class IMAPRepository(BaseRepository):
 
     def getfolder(self, foldername):
         return folder.IMAP.IMAPFolder(self.imapserver, foldername,
-                                      self.nametrans(foldername))
+                                      self.nametrans(foldername),
+                                      accountname)
 
     def getfolders(self):
         if self.folders != None:
@@ -54,7 +55,8 @@ class IMAPRepository(BaseRepository):
             if '\\Noselect' in imaputil.flagsplit(flags):
                 continue
             retval.append(folder.IMAP.IMAPFolder(self.imapserver, name,
-                                                 self.nametrans(imaputil.dequote(name))))
+                                                 self.nametrans(imaputil.dequote(name)),
+                                                 self.accountname))
         retval.sort(lambda x, y: cmp(x.getvisiblename(), y.getvisiblename()))
         self.folders = retval
         return retval

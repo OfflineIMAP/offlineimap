@@ -18,6 +18,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil
+from offlineimap.threadutil import InstanceLimitedThread
 import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
@@ -47,7 +48,9 @@ server = None
 remoterepos = None
 localrepos = None
 passwords = {}
-accountsemaphore = BoundedSemaphore(config.getint("general", "maxsyncaccounts"))
+
+threadutil.initInstanceLimit("ACCOUNTLIMIT", config.getint("general",
+                                                           "maxsyncaccounts"))
 
 # We have to gather passwords here -- don't want to have two threads
 # asking for passwords simultaneously.
@@ -57,6 +60,9 @@ for account in accounts:
         passwords[account] = config.get(account, "remotepass")
     else:
         passwords[account] = ui.getpass(account, config)
+    for instancename in ["FOLDER_" + account, "MSGCOPY_" + account]:
+        threadutil.initInstanceLimit(instancename,
+                                     config.getint(account, "maxconnections"))
 
 mailboxes = []
 mailboxlock = Lock()
@@ -70,7 +76,6 @@ def syncaccount(accountname, *args):
     print args
     # We don't need an account lock because syncitall() goes through
     # each account once, then waits for all to finish.
-    accountsemaphore.acquire()
     try:
         ui.acct(accountname)
         accountmetadata = os.path.join(metadatadir, accountname)
@@ -101,17 +106,19 @@ def syncaccount(accountname, *args):
         folderthreads = []
         for remotefolder in remoterepos.getfolders():
             server.connectionwait()
-            thread = Thread(target = syncfolder,
-                            name = "syncfolder-%s-%s" % \
-                            (accountname, remotefolder.getvisiblename()),
-                            args = (accountname, remoterepos,
-                                    remotefolder, localrepos, statusrepos))
+            thread = InstanceLimitedThread(\
+                instancename = 'FOLDER_' + accountname,
+                target = syncfolder,
+                name = "syncfolder-%s-%s" % \
+                (accountname, remotefolder.getvisiblename()),
+                args = (accountname, remoterepos, remotefolder, localrepos,
+                        statusrepos))
             thread.start()
             folderthreads.append(thread)
         threadutil.threadsreset(folderthreads)
         server.close()
     finally:
-        accountsemaphore.release()
+        pass
 
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos):
@@ -166,10 +173,10 @@ def syncitall():
     mailboxes = []                      # Reset.
     threads = []
     for accountname in accounts:        
-        threadutil.semaphorewait(accountsemaphore)
-        thread = Thread(target = syncaccount,
-                        name = "syncaccount-%s" % accountname,
-                        args = (accountname,))
+        thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
+                                       target = syncaccount,
+                                       name = "syncaccount-%s" % accountname,
+                                       args = (accountname,))
         thread.start()
         threads.append(thread)
     # Wait for the threads to finish.

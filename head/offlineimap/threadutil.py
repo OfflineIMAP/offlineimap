@@ -34,3 +34,30 @@ def semaphorewait(semaphore):
 def threadsreset(threadlist):
     for thread in threadlist:
         thread.join()
+
+instancelimitedsems = {}
+instancelimitedlock = Lock()
+
+def initInstanceLimit(instancename, instancemax):
+    instancelimitedlock.acquire()
+    if not instancelimitedsems.has_key(instancename):
+        instancelimitedsems[instancename] = BoundedSemaphore(instancemax)
+    instancelimitedlock.release()
+
+class InstanceLimitedThread(Thread):
+    def __init__(self, instancename, *args, **kwargs):
+        self.instancename = instancename
+                                                   
+        apply(Thread.__init__, (self,) + args, kwargs)
+
+    def start(self):
+        instancelimitedsems[self.instancename].acquire()
+        Thread.start(self)
+        
+    def run(self):
+        try:
+            Thread.run(self)
+        finally:
+            instancelimitedsems[self.instancename].release()
+        
+    
