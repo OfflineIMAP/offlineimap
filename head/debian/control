@@ -23,7 +23,7 @@ Description: IMAP/Maildir synchronization and reader support
  .
  * Read IMAP mail with mail readers that do not support IMAP
  .
- * Use SSL (secure connections) to read IMAP mail even if you reader
+ * Use SSL (secure connections) to read IMAP mail even if your reader
    doesn't support SSL
  .
  * Synchronize your mail using a completely safe and fault-tolerant
