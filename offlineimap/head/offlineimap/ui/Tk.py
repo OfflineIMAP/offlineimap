@@ -350,6 +350,14 @@ class LEDThreadFrame:
          
 
 class Blinkenlights(VerboseUI):
+    def __init__(s, config, verbose = 0):
+        VerboseUI.__init__(s, config, verbose)
+        s.fontfamily = 'Helvetica'
+        s.fontsize = 8
+        if config.has_option('ui.Tk.Blinkenlights', 'fontfamily'):
+            s.fontfamily = config.get('ui.Tk.Blinkenlights', 'fontfamily')
+        if config.has_option('ui.Tk.Blinkenlights', 'fontsize'):
+            s.fontsize = config.getint('ui.Tk.Blinkenlights', 'fontsize')
     def _createTopWindow(self):
         VerboseUI._createTopWindow(self, 0)
         #self.top.resizable(width = 0, height = 0)
