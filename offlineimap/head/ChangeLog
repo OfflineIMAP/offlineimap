@@ -1,4 +1,28 @@
 ------------------------------------------------------------------------
+rev 328:  jgoerzen | 2003-01-06 15:47:15 -0600 (Mon, 06 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/Makefile
+   M /offlineimap/head/debian/rules
+
+Better cleaning up, install new example.
+
+------------------------------------------------------------------------
+rev 327:  jgoerzen | 2003-01-06 15:37:27 -0600 (Mon, 06 Jan 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.py
+
+Bumped version number to 3.99.6
+
+------------------------------------------------------------------------
 rev 326:  jgoerzen | 2003-01-06 15:30:37 -0600 (Mon, 06 Jan 2003) | 2 lines
 Changed paths:
    M /offlineimap/head/debian/changelog
