@@ -514,12 +514,10 @@ class Blinkenlights(VerboseUI):
         VerboseUI._msg(s, msg)
         color = s.gettf().getcolor()
         rescroll = 1
-        #print s.text.vbar.get()[1]
-        if s.text.vbar.get()[1] != 1.0:
-            rescroll = 0
-
         s.textlock.acquire()
         try:
+            if s.text.vbar.get()[1] != 1.0:
+                rescroll = 0
             s.text.config(state = NORMAL)
             if not color in s.tags:
                 s.text.tag_config(color, foreground = color)
