@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "18 July 2003" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "25 July 2003" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
@@ -908,3 +908,41 @@ complete.org Subversion page <URL:http://svn.complete.org/>.
 .PP
 \fBmutt\fR(1),
 \fBpython\fR(1)
+.SH "HISTORY"
+.PP
+Detailed history may be found in the file ChangeLog in the
+\fBOfflineIMAP\fR distribution.  Feature and bug histories may be
+found in the file debian/changelog which, despite its name, is
+not really Debian-specific.  This section provides a large
+overview.
+.PP
+Development on \fBOfflineIMAP\fR began on June 18, 2002.  Version
+1.0.0 was released three days later on June 21, 2002.  Point
+releases followed, including speed optimizations and some
+compatibility fixes.
+.PP
+Version 2.0.0 was released on July 3, 2002, and
+represented the first time the synchronization became
+multithreaded and, to the best of my knowledge, the first
+multithreaded IMAP syncrhonizing application in existance.
+The last 2.0.x release, 2.0.8, was made on July 9.
+.PP
+Version 3.0.0 was released on July 11, 2002, and introduced
+modular user interfaces and the first GUI interface for
+\fBOfflineIMAP\fR.  This manual also was introduced with 3.0.0,
+along with many command-line options.  Version 3.1.0 was
+released on July 21, adding the Noninteractive user
+interfaces, profiling support, and several bugfixes.  3.2.0
+was released on July 24, adding support for the Blinkenlights
+GUI interface.  \fBOfflineIMAP\fR entered maintenance mode for
+awhile, as it had reached a feature-complete milestone in my
+mind.
+.PP
+The 3.99.x branch began in on October 7, 2002, to begin work
+for 4.0.  The Curses.Blinkenlights interface was added in
+3.99.6, and many architectural changes were made.
+.PP
+4.0.0 was released on July 18, 2003, including the ability to
+synchronize directly between two IMAP servers, the first
+re-architecting of the configuration file to refine the
+notion of an account, and the new Curses interface.
