@@ -130,8 +130,9 @@ class IMAPFolder(BaseFolder):
         ui.debug('imap', 'savemessage_addheader: insertionpoint = %d' % insertionpoint)
         leader = content[0:insertionpoint]
         ui.debug('imap', 'savemessage_addheader: leader = %s' % repr(leader))
-        if insertionpoint == 0:
+        if insertionpoint == 0 or insertionpoint == -1:
             newline = ''
+            insertionpoint = 0
         else:
             newline = "\r\n"
         newline += "%s: %s" % (headername, headervalue)

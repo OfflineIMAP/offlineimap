@@ -1129,7 +1129,7 @@ class IMAP4_SSL(IMAP4):
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((host, port))
-        self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
+        self.sslobj = socket.ssl(self.sock._sock, self.keyfile, self.certfile)
         self.sslobj = sslwrapper(self.sslobj)
 
 
