@@ -19,12 +19,14 @@
 from Blinkenlights import BlinkenBase
 from UIBase import UIBase
 from threading import *
-import thread
+import thread, time
 from offlineimap import version, threadutil
 from offlineimap.threadutil import MultiLock
 
 import curses, curses.panel, curses.textpad, curses.wrapper
 from debuglock import DebuggingLock
+
+acctkeys = '1234567890abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-=;/.,'
 
 class CursesUtil:
     def __init__(self):
@@ -86,6 +88,12 @@ class CursesUtil:
         except:
             self.has_color = 0
 
+        self.oldcursor = None
+        try:
+            self.oldcursor = curses.curs_set(0)
+        except:
+            pass
+        
         self.stdscr.clear()
         self.stdscr.refresh()
         (self.height, self.width) = self.stdscr.getmaxyx()
@@ -96,6 +104,8 @@ class CursesUtil:
         #self.stdscr.addstr(self.height - 1, 0, "\n",
         #                   self.getpair(curses.COLOR_WHITE,
         #                                curses.COLOR_BLACK))
+        if self.oldcursor != None:
+            curses.curs_set(self.oldcursor)
         self.stdscr.refresh()
         self.stdscr.keypad(0)
         curses.nocbreak()
@@ -113,11 +123,20 @@ class CursesAccountFrame:
         s.children = []
         s.accountname = accountname
 
-    def setwindow(s, window):
-        s.window = window
-        acctstr = '%15.15s: ' % s.accountname
-        s.window.addstr(0, 0, acctstr)
+    def drawleadstr(s, secs = None):
+        if secs == None:
+            acctstr = '%s: [active] %13.13s: ' % (s.key, s.accountname)
+        else:
+            acctstr = '%s: [%3d:%02d] %13.13s: ' % (s.key,
+                                                    secs / 60, secs % 60,
+                                                    s.accountname)
+        s.c.locked(s.window.addstr, 0, 0, acctstr)
         s.location = len(acctstr)
+
+    def setwindow(s, window, key):
+        s.window = window
+        s.key = key
+        s.drawleadstr()
         for child in s.children:
             child.update(window, 0, s.location)
             s.location += 1
@@ -127,6 +146,30 @@ class CursesAccountFrame:
         s.location += 1
         s.children.append(tf)
         return tf
+
+    def startsleep(s, sleepsecs):
+        s.sleeping_abort = 0
+
+    def sleeping(s, sleepsecs, remainingsecs):
+        if remainingsecs:
+            s.c.lock()
+            try:
+                s.drawleadstr(remainingsecs)
+                s.window.refresh()
+            finally:
+                s.c.unlock()
+            time.sleep(sleepsecs)
+        else:
+            s.c.lock()
+            try:
+                s.drawleadstr()
+                s.window.refresh()
+            finally:
+                s.c.unlock()
+        return s.sleeping_abort
+
+    def syncnow(s):
+        s.sleeping_abort = 1
 
 class CursesThreadFrame:
     def __init__(s, master, window, y, x):
@@ -153,6 +196,7 @@ class CursesThreadFrame:
 
     def setcolor(self, color):
         self.color = self.colormap[color]
+        self.colorname = color
         self.display()
 
     def display(self):
@@ -163,6 +207,9 @@ class CursesThreadFrame:
         self.c.locked(lockedstuff)
 
     def getcolor(self):
+        return self.colorname
+
+    def getcolorpair(self):
         return self.color
 
     def update(self, window, y, x):
@@ -263,7 +310,26 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.inputhandler.set_bgchar(s.keypress)
 
     def keypress(s, key):
-        s._msg("Key pressed: " + str(key))
+        if key > 255:
+            return
+        
+        if chr(key) == 'q':
+            # Request to quit.
+            s.terminate()
+        
+        try:
+            index = acctkeys.index(chr(key))
+        except ValueError:
+            # Key not a valid one: exit.
+            return
+
+        if index > len(s.hotkeys):
+            # Not in our list of valid hotkeys.
+            return
+
+        # Trying to end sleep somewhere.
+
+        s.getaccountframe(s.hotkeys[index]).syncnow()
 
     def getpass(s, accountname, config, errmsg = None):
         s.inputhandler.input_acquire()
@@ -274,9 +340,9 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.c.lock()
         try:
             s.gettf().setcolor('white')
-            s._addline(" *** Input Required", s.gettf().getcolor())
+            s._addline(" *** Input Required", s.gettf().getcolorpair())
             s._addline(" *** Please enter password for account %s: " % accountname,
-                   s.gettf().getcolor())
+                   s.gettf().getcolorpair())
             s.logwindow.refresh()
             password = s.logwindow.getstr()
         finally:
@@ -294,15 +360,20 @@ class Blinkenlights(BlinkenBase, UIBase):
             s.logwindow = curses.newwin(s.logheight, s.c.width, 1, 0)
             s.logwindow.idlok(1)
             s.logwindow.scrollok(1)
+            s.logwindow.move(s.logheight - 1, 0)
             s.setupwindow_drawlog()
             accounts = s.af.keys()
             accounts.sort()
             accounts.reverse()
 
             pos = s.c.height - 1
+            index = 0
+            s.hotkeys = []
             for account in accounts:
                 accountwindow = curses.newwin(1, s.c.width, pos, 0)
-                s.af[account].setwindow(accountwindow)
+                s.af[account].setwindow(accountwindow, acctkeys[index])
+                s.hotkeys.append(account)
+                index += 1
                 pos -= 1
 
             curses.doupdate()
@@ -323,11 +394,12 @@ class Blinkenlights(BlinkenBase, UIBase):
     def setupwindow_drawlog(s):
         s.logwindow.bkgd(' ', s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK))
         for line, color in s.text:
-            s.logwindow.addstr(line + "\n", color)
+            s.logwindow.addstr("\n" + line, color)
         s.logwindow.noutrefresh()
 
-    def getaccountframe(s):
-        accountname = s.getthreadaccount()
+    def getaccountframe(s, accountname = None):
+        if accountname == None:
+            accountname = s.getthreadaccount()
         s.aflock.acquire()
         try:
             if accountname in s.af:
@@ -367,7 +439,7 @@ class Blinkenlights(BlinkenBase, UIBase):
                 return
             if color:
                 s.gettf().setcolor(color)
-            s._addline(msg, s.gettf().getcolor())
+            s._addline(msg, s.gettf().getcolorpair())
             s.logwindow.refresh()
         finally:
             s.c.unlock()
@@ -376,7 +448,7 @@ class Blinkenlights(BlinkenBase, UIBase):
     def _addline(s, msg, color):
         s.c.lock()
         try:
-            s.logwindow.addstr(msg + "\n", color)
+            s.logwindow.addstr("\n" + msg, color)
             s.text.append((msg, color))
             while len(s.text) > s.logheight:
                 s.text = s.text[1:]
@@ -394,6 +466,11 @@ class Blinkenlights(BlinkenBase, UIBase):
     def mainException(s):
         s.c.stop()
         UIBase.mainException(s)
+
+    def sleep(s, sleepsecs):
+        s.gettf().setcolor('red')
+        s._msg("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
+        BlinkenBase.sleep(s, sleepsecs)
             
 if __name__ == '__main__':
     x = Blinkenlights(None)
