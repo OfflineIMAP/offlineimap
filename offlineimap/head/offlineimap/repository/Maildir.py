@@ -137,7 +137,8 @@ class MaildirRepository(BaseRepository):
             if self.getsep() == '/':
                 # Check sub-directories for folders.
                 retval.extend(self._getfolders_scandir(root, foldername))
-        self.debug("_GETFOLDERS_SCANDIR RETURNING.")
+        self.debug("_GETFOLDERS_SCANDIR RETURNING %s" % \
+                   repr([x.getname() for x in retval]))
         return retval
     
     def getfolders(self):
