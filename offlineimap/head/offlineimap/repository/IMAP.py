@@ -20,7 +20,7 @@ from Base import BaseRepository
 from offlineimap import folder, imaputil, imapserver
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
-import re, types
+import re, types, os
 from threading import *
 
 class IMAPRepository(BaseRepository):
@@ -115,8 +115,8 @@ class IMAPRepository(BaseRepository):
         passfile = self.getconf('remotepassfile', None)
         if passfile != None:
             fd = open(os.path.expanduser(passfile))
-            password = passfile.readline().strip()
-            passfile.close()
+            password = fd.readline().strip()
+            fd.close()
             return password
         return None
 

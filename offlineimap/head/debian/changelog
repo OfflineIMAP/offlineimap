@@ -8,6 +8,8 @@ offlineimap (3.99.15) unstable; urgency=low
     the Curses.Blinkenlights interface, the Curses module will be stopped
     and the error message will be printed on the console.  Previously, this
     error message would not have been visible.  Closes: #185709.
+  * Fixed a silly error relating to handling of the remotepassfile.
+    Closes: #189935.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 28 Apr 2003 14:00:32 -0500
 
