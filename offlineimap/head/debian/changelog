@@ -1,6 +1,10 @@
 offlineimap (3.99.2) unstable; urgency=low
 
   * Further attempts to fix imapsplit problems.
+  * When an exception occurs, OfflineIMAP will attempt to print the last
+    50 debug messages, whether or not debugging was enabled for this
+    session.  This way, even unexpected and non-repeatable errors stand
+    a chance of getting a more detailed log.
 
  -- John Goerzen <jgoerzen@complete.org>  Tue, 15 Oct 2002 12:35:42 -0500
 

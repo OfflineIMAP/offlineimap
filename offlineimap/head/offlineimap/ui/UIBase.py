@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import offlineimap.version
-import re, time, sys, traceback
+import re, time, sys, traceback, threading
 from StringIO import StringIO
 
 debugtypes = {'imap': 'IMAP protocol debugging',
@@ -36,6 +36,8 @@ class UIBase:
         s.verbose = verbose
         s.config = config
         s.debuglist = []
+        s.debugmessages = {}
+        s.debugmsglen = 50
     
     ################################################## UTILS
     def _msg(s, msg):
@@ -46,6 +48,15 @@ class UIBase:
         s._msg("WARNING: " + msg)
 
     def debug(s, debugtype, msg):
+        thisthread = threading.currentThread()
+        if s.debugmessages.has_key(thisthread):
+            s.debugmessages[thisthread].append("%s: %s" % (debugtype, msg))
+        else:
+            s.debugmessages[thisthread] = ["%s: %s" % (debugtype, msg)]
+
+        while len(s.debugmessages[thisthread]) > s.debugmsglen:
+            s.debugmessages[thisthread] = s.debugmessages[thisthread][1:]
+            
         if debugtype in s.debuglist:
             s._msg("DEBUG[%s]: %s" % (debugtype, msg))
 
@@ -195,18 +206,42 @@ class UIBase:
 
     ################################################## Threads
 
+    def getThreadDebugLog(s, thread):
+        if s.debugmessages.has_key(thread):
+            message = "\nLast %d debug messages logged for %s prior to exception:\n"\
+                       % (len(s.debugmessages[thread]), thread.getName())
+            message += "\n".join(s.debugmessages[thread])
+        else:
+            message = "\nNo debug messages were logged for %s." % \
+                      thread.getName()
+        return message
+
+    def delThreadDebugLog(s, thread):
+        if s.debugmessages.has_key(thread):
+            del s.debugmessages[thread]
+
+    def getThreadExceptionString(s, thread):
+        message = "Thread '%s' terminated with exception:\n%s" % \
+                  (thread.getName(), thread.getExitStackTrace())
+        message += "\n" + s.getThreadDebugLog(thread)
+        return message
+
     def threadException(s, thread):
         """Called when a thread has terminated with an exception.
         The argument is the ExitNotifyThread that has so terminated."""
-        s._msg("Thread '%s' terminated with exception:\n%s" % \
-               (thread.getName(), thread.getExitStackTrace()))
+        s._msg(s.getThreadExceptionString(thread))
+        s.delThreadDebugLog(thread)
         s.terminate(100)
 
-    def mainException(s):
+    def getMainExceptionString(s):
         sbuf = StringIO()
         traceback.print_exc(file = sbuf)
-        s._msg("Main program terminated with exception:\n" +
-               sbuf.getvalue())
+        return "Main program terminated with exception:\n" + \
+               sbuf.getvalue() + "\n" + \
+               s.getThreadDebugLog(threading.currentThread())
+
+    def mainException(s):
+        s._msg(s.getMainExceptionString())
 
     def terminate(s, exitstatus = 0):
         """Called to terminate the application."""
@@ -215,7 +250,7 @@ class UIBase:
     def threadExited(s, thread):
         """Called when a thread has exited normally.  Many UIs will
         just ignore this."""
-        pass
+        s.delThreadDebugLog(thread)
 
     ################################################## Other
 

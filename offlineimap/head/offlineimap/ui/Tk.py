@@ -207,6 +207,7 @@ class VerboseUI(UIBase):
             s.availablethreadframes.append(tf)
             del s.threadframes[threadid]
         s.tflock.release()
+        UIBase.threadExited(s, thread)
 
     def idlevacuum(s):
         while s.notdeleted:
@@ -218,24 +219,22 @@ class VerboseUI(UIBase):
             s.tflock.release()
             
     def threadException(s, thread):
-        msg =  "Thread '%s' terminated with exception:\n%s" % \
-              (thread.getName(), thread.getExitStackTrace())
-        print msg
+        exceptionstr = s.getThreadExceptionString(thread)
+        print exceptionstr
     
         s.top.destroy()
         s.top = None
-        TextOKDialog("Thread Exception", msg)
+        TextOKDialog("Thread Exception", exceptionstr)
+        s.delThreadDebugLog(thread)
         s.terminate(100)
 
     def mainException(s):
-        sbuf = StringIO()
-        traceback.print_exc(file = sbuf)
-        msg = "Main program terminated with exception:\n" + sbuf.getvalue()
-        print msg
+        exceptionstr = s.getMainExceptionString()
+        print exceptionstr
 
         s.top.destroy()
         s.top = None
-        TextOKDialog("Main Program Exception", msg)
+        TextOKDialog("Main Program Exception", exceptionstr)
 
     def warn(s, msg):
         TextOKDialog("OfflineIMAP Warning", msg)
