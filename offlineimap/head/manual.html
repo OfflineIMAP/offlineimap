@@ -26,7 +26,7 @@
 
 <hr>
 <!-- Creator     : groff version 1.17.2 -->
-<!-- CreationDate: Wed Aug  7 20:27:02 2002 -->
+<!-- CreationDate: Thu Aug  8 10:19:22 2002 -->
 <a name="NAME"></a>
 <h2>NAME</h2>
 <table width="100%" border=0 rules="none" frame="void"
@@ -43,8 +43,9 @@ OfflineIMAP - Powerful IMAP/Maildir synchronization and reader support</td></tab
 <td width="10%"></td><td width="90%">
 <b>offlineimap</b> [ <b>-1</b> ] [ <b>-P</b>
 <i>profiledir</i> ] [ <b>-a</b> <i>accountlist</i> ] [
-<b>-c</b> <i>configfile</i> ] [ <b>-d</b> ] [ <b>-o</b> ] [
-<b>-u</b> <i>interface</i> ]</td></table>
+<b>-c</b> <i>configfile</i> ] [ <b>-d</b>
+<i>debugtype[,debugtype...]</i> ] [ <b>-o</b> ] [ <b>-u</b>
+<i>interface</i> ]</td></table>
 
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
@@ -375,20 +376,31 @@ default, <i>~/.offlineimaprc.</i></td></table>
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="10%"></td><td width="90%">
-<b>-d</b></td></table>
+<b>-d</b> <i>debugtype[,debugtype...]</i></td></table>
 
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="21%"></td><td width="79%">
-Enables IMAP protocol stream and parsing debugging. This is
-useful if you are trying to track down a malfunction or
-figure out what is going on under the hood. I suggest that
-you use this with <b>-1</b> in order to make the results
-more sensible. Note that this output will contain full IMAP
-protocol in plain text, including passwords, so take care to
-remove that from the debugging output before sending it to
-anyone else.</td></table>
+Enables debugging for OfflineIMAP. This is useful if you are
+trying to track down a malfunction or figure out what is
+going on under the hood. I suggest that you use this with
+<b>-1</b> in order to make the results more
+sensible.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="21%"></td><td width="79%">
+-d now requires one or more debugtypes, separated by commas.
+These define what exactly will be debugged, and so far
+include two options: <b>imap</b> and <b>maildir.</b> The
+<b>imap</b> option will enable IMAP protocol stream and
+parsing debugging. Note that the output may contain
+passwords, so take care to remove that from the debugging
+output before sending it to anyone else. The <b>maildir</b>
+option will enable debugging for certain Maildir
+operations.</td></table>
 
 <table width="100%" border=0 rules="none" frame="void"
        cols="2" cellspacing="0" cellpadding="0">

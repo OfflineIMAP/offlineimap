@@ -1,4 +1,53 @@
 ------------------------------------------------------------------------
+rev 220:  jgoerzen | 2002-08-08 10:18:45 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Now logs folder names of return value when debugging.
+
+------------------------------------------------------------------------
+rev 219:  jgoerzen | 2002-08-08 10:17:36 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Updated debugging
+
+------------------------------------------------------------------------
+rev 218:  jgoerzen | 2002-08-08 10:15:30 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Added maildir repository debug code
+
+------------------------------------------------------------------------
+rev 217:  jgoerzen | 2002-08-08 10:03:36 -0500 (Thu, 08 Aug 2002) | 4 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/imaplib.py
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+   U /offlineimap/head/offlineimap/ui/TTY.py
+   U /offlineimap/head/offlineimap/ui/UIBase.py
+   U /offlineimap/head/offlineimap.1
+   U /offlineimap/head/offlineimap.py
+
+-d now takes a parameter to specify what kind of debugging to do.
+imaplib now does debugging through the UI system.
+UIBase now has a debugging process.
+
+------------------------------------------------------------------------
+rev 215:  jgoerzen | 2002-08-07 20:28:34 -0500 (Wed, 07 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/manual.html
+   U /offlineimap/head/manual.pdf
+   U /offlineimap/head/manual.ps
+   U /offlineimap/head/manual.txt
+   U /offlineimap/head/offlineimap/version.py
+
+Readying version 3.2.2.
+
+------------------------------------------------------------------------
 rev 214:  jgoerzen | 2002-08-07 17:27:55 -0500 (Wed, 07 Aug 2002) | 2 lines
 Changed paths:
    U /offlineimap/head/offlineimap/repository/Maildir.py
