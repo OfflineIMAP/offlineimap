@@ -18,6 +18,8 @@
 
 from Base import BaseFolder
 from offlineimap import imaputil
+from offlineimap.ui import UIBase
+from threading import Lock
 import os.path, os, re, time, socket, md5
 
 foldermatchre = re.compile(',FMD5=([0-9a-f]{32})')
@@ -26,17 +28,22 @@ flagmatchre = re.compile(':.*2,([A-Z]+)')
 
 timeseq = 0
 lasttime = long(0)
+timelock = Lock()
 
 def gettimeseq():
-    global lasttime, timeseq
-    thistime = long(time.time())
-    if thistime == lasttime:
-        timeseq += 1
-        return timeseq
-    else:
-        lasttime = long(time.time())
-        timeseq = 0
-        return timeseq
+    global lasttime, timeseq, timelock
+    timelock.acquire()
+    try:
+        thistime = long(time.time())
+        if thistime == lasttime:
+            timeseq += 1
+            return (thistime, timeseq)
+        else:
+            lasttime = thistime
+            timeseq = 0
+            return (thistime, timeseq)
+    finally:
+        timelock.release()
 
 class MaildirFolder(BaseFolder):
     def __init__(self, root, name, sep, repository, accountname):
@@ -118,6 +125,9 @@ class MaildirFolder(BaseFolder):
         return retval.replace("\r\n", "\n")
 
     def savemessage(self, uid, content, flags):
+        ui = UIBase.getglobalui()
+        ui.debug('maildir', 'savemessage: called to write with flags %s and content %s' % \
+                 (repr(flags), repr(content)))
         if uid < 0:
             # We cannot assign a new uid.
             return uid
@@ -137,9 +147,10 @@ class MaildirFolder(BaseFolder):
         while 1:
             if attempts > 15:
                 raise IOError, "Couldn't write to file %s" % messagename
+            timeval, timeseq = gettimeseq()
             messagename = '%d_%d.%d.%s,U=%d,FMD5=%s' % \
-                          (long(time.time()),
-                           gettimeseq(),
+                          (timeval,
+                           timeseq,
                            os.getpid(),
                            socket.gethostname(),
                            uid,
@@ -150,15 +161,19 @@ class MaildirFolder(BaseFolder):
             else:
                 break
         tmpmessagename = messagename.split(',')[0]
+        ui.debug('maildir', 'savemessage: using temporary name %s' % tmpmessagename)
         file = open(os.path.join(tmpdir, tmpmessagename), "wt")
         file.write(content)
         file.close()
+        ui.debug('maildir', 'savemessage: moving from %s to %s' % \
+                 (tmpmessagename, messagename))
         os.link(os.path.join(tmpdir, tmpmessagename),
                 os.path.join(newdir, messagename))
         os.unlink(os.path.join(tmpdir, tmpmessagename))
         self.messagelist[uid] = {'uid': uid, 'flags': [],
                                  'filename': os.path.join(newdir, messagename)}
         self.savemessageflags(uid, flags)
+        ui.debug('maildir', 'savemessage: returning uid %d' % uid)
         return uid
         
     def getmessageflags(self, uid):
