@@ -6,7 +6,7 @@ offlineimap (3.2.0) unstable; urgency=low
   * TTYUI isusable() now checks to see if stdout and stdin are TTYs.
   * Added build-dependency on python2.2-dev.  Closes: #154167.
 
- -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 07:53:20 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 17:53:20 -0500
 
 offlineimap (3.1.1) unstable; urgency=low
 
