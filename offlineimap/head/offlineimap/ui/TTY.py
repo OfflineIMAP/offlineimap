@@ -52,13 +52,6 @@ class TTYUI(UIBase):
         finally:
             s.outputlock.release()
 
-    def sleep(s, sleepsecs):
-        s.iswaiting = 1
-        try:
-            UIBase.sleep(s, sleepsecs)
-        finally:
-            s.iswaiting = 0
-
     def mainException(s):
         if isinstance(sys.exc_info()[1], KeyboardInterrupt) and \
            s.iswaiting:
@@ -67,18 +60,3 @@ class TTYUI(UIBase):
         else:
             UIBase.mainException(s)
 
-    def sleeping(s, sleepsecs, remainingsecs):
-        if remainingsecs > 0:
-            sys.stdout.write("Next sync in %d:%02d (press Enter to sync now, Ctrl-C to abort)   \r" % \
-                             (remainingsecs / 60, remainingsecs % 60))
-            sys.stdout.flush()
-        else:
-            sys.stdout.write("Wait done, proceeding with sync....                                \n")
-
-        if sleepsecs > 0:
-            if len(select.select([sys.stdin], [], [], sleepsecs)[0]):
-                sys.stdin.readline()
-                return 1
-        return 0
-            
-            
