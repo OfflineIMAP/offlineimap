@@ -104,6 +104,7 @@ class IMAPFolder(BaseFolder):
         return self.messagelist
 
     def getmessage(self, uid):
+        ui = UIBase.getglobalui()
         imapobj = self.imapserver.acquireconnection()
         try:
             imapobj.select(self.getfullname(), readonly = 1)
