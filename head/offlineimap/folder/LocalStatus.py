@@ -19,7 +19,7 @@
 from Base import BaseFolder
 import os
 
-magicline = "IMAPSYNC LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
+magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
 class LocalStatusFolder(BaseFolder):
     def __init__(self, root, name):

@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from Base import BaseFolder
-from imapsync import imaputil
+from offlineimap import imaputil
 import os.path, os, re, time, socket
 
 class MaildirFolder(BaseFolder):
@@ -25,7 +25,7 @@ class MaildirFolder(BaseFolder):
         self.name = name
         self.root = root
         self.sep = '.'
-        self.uidfilename = os.path.join(self.getfullname(), "imapsync.uidvalidity")
+        self.uidfilename = os.path.join(self.getfullname(), "offlineimap.uidvalidity")
         self.messagelist = None
 
     def getfullname(self):

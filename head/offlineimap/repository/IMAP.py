@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from Base import BaseRepository
-from imapsync import folder, imaputil
+from offlineimap import folder, imaputil
 import re
 
 class IMAPRepository(BaseRepository):

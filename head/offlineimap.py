@@ -17,15 +17,15 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from imapsync import imaplib, imaputil, imapserver, repository, folder, mbnames
-import re, os, os.path, imapsync, sys
+from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames
+import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 
-ui = imapsync.ui.TTY.TTYUI()
+ui = offlineimap.ui.TTY.TTYUI()
 ui.init_banner()
 
 config = ConfigParser()
-configfilename = os.path.expanduser("~/.imapsyncrc")
+configfilename = os.path.expanduser("~/.offlineimaprc")
 if not os.path.exists(configfilename):
     sys.stderr.write(" *** Config file %s does not exist; aborting!\n" % configfilename)
     sys.exit(1)

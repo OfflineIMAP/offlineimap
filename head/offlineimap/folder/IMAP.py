@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from Base import BaseFolder
-from imapsync import imaputil, imaplib
+from offlineimap import imaputil, imaplib
 import rfc822
 from StringIO import StringIO
 

@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from imapsync import repository
+from offlineimap import repository
 import re, time
 
 class UIBase:
@@ -45,7 +45,7 @@ class UIBase:
 
     def init_banner(s):
         "Display the copyright banner."
-        s._msg("""imapsync
+        s._msg("""offlineimap
         Copyright (C) 2002 John Goerzen.  All rights reserved.
         This software comes with NO WARRANTY: see the file COPYING for details.""")
 
