@@ -142,6 +142,9 @@ class IMAPFolder(BaseFolder):
         return leader + newline + trailer
 
     def savemessage_searchforheader(self, imapobj, headername, headervalue):
+        if imapobj.untagged_responses.has_key('APPENDUID'):
+            return long(imapobj.untagged_responses['APPENDUID'][0].split(' ')[1])
+
         ui = UIBase.getglobalui()
         ui.debug('imap', 'savemessage_searchforheader called for %s: %s' % \
                  (headername, headervalue))

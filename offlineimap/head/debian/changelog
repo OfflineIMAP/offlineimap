@@ -4,6 +4,8 @@ offlineimap (3.99.19) unstable; urgency=low
     folder.  Per [complete.org #67], when cachemessagelist() was called
     on an object that was cached from a previous run, it would not
     re-issue the select().
+  * Applied patch from Joerg Wendland <joergland@debian.org> to use
+    APPENDUID result from mail servers that provide it.  Closes: #198772.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon,  2 Jun 2003 07:04:53 -0500
 
