@@ -1,3 +1,10 @@
+offlineimap (3.2.3) unstable; urgency=low
+
+  * -d now takes a parameter: imap or maildir (or both) to specify
+    what type of debugging to do.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu,  8 Aug 2002 10:02:36 -0500
+
 offlineimap (3.2.2) unstable; urgency=low
 
   * Updated manual to show new Gray color.

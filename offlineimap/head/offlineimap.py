@@ -19,6 +19,7 @@
 
 from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil, version
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
+from offlineimap.ui import UIBase
 import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
@@ -29,11 +30,9 @@ if '--help' in sys.argv[1:]:
     sys.stdout.write(version.cmdhelp + "\n")
     sys.exit(0)
     
-for optlist in getopt(sys.argv[1:], 'P:1oa:c:du:h')[0]:
+for optlist in getopt(sys.argv[1:], 'P:1oa:c:d:u:h')[0]:
     options[optlist[0]] = optlist[1]
 
-if '-d' in options:
-    imaplib.Debug = 5
 if '-h' in options:
     sys.stdout.write(version.cmdhelp)
     sys.stdout.write("\n")
@@ -64,6 +63,12 @@ if '-u' in options:
 else:
     ui = offlineimap.ui.detector.findUI(config)
 ui.init_banner()
+
+if '-d' in options:
+    for debugtype in options['-d'].split(','):
+        ui.add_debug(debugtype.strip())
+        if debugtype == 'imap':
+            imaplib.Debug = 5
 
 if '-o' in options and config.has_option("general", "autorefresh"):
     config.remove_option("general", "autorefresh")

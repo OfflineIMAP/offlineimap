@@ -22,6 +22,7 @@ Public functions:       Internaldate2tuple
 __version__ = "2.52"
 
 import binascii, re, socket, time, random, sys, os
+import __main__
 
 __all__ = ["IMAP4", "Internaldate2tuple",
            "Int2AP", "ParseFlags", "Time2Internaldate"]
@@ -987,8 +988,7 @@ class IMAP4:
             if secs is None:
                 secs = time.time()
             tm = time.strftime('%M:%S', time.localtime(secs))
-            sys.stderr.write('  %s.%02d %s\n' % (tm, (secs*100)%100, s))
-            sys.stderr.flush()
+            __main__.ui.debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
 
         def _dump_ur(self, dict):
             # Dump untagged responses (in `dict').

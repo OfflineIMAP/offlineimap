@@ -23,8 +23,7 @@ from threading import *
 
 class TTYUI(UIBase):
     def __init__(s, config, verbose = 0):
-        s.config = config
-        s.verbose = verbose
+        UIBase.__init__(s, config, verbose)
         s.iswaiting = 0
 
     def isusable(s):

@@ -33,7 +33,7 @@ OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
 ]
 .\".br
 [
-.BI \-d
+.BI \-d \ debugtype[,debugtype...]
 ]
 [
 .BI \-o
@@ -249,15 +249,25 @@ that you normally prefer not to.
 Specifies a configuration file to use in lieu of the default,
 .I ~/.offlineimaprc.
 .TP
-.BI \-d
-Enables IMAP protocol stream and parsing debugging.  This is useful if
+.BI \-d \ debugtype[,debugtype...]
+Enables debugging for OfflineIMAP.  This is useful if
 you are trying to track down a malfunction or figure out what is going
 on under the hood.  I suggest that you use this with
 .BI \-1
-in order to make the results more sensible.  Note that this output
-will contain full IMAP protocol in plain text, including passwords, so
-take care to remove that from the debugging output before sending it
-to anyone else.
+in order to make the results more sensible.
+.IP
+-d now requires one or more debugtypes, separated by commas.  These
+define what exactly will be debugged, and so far include two options:
+.B imap
+and
+.B maildir.
+The
+.B imap
+option will enable IMAP protocol stream and parsing debugging.  Note
+that the output may contain passwords, so take care to remove that
+from the debugging output before sending it to anyone else.  The
+.B maildir
+option will enable debugging for certain Maildir operations.
 .TP
 .B \-o
 Run only once, ignoring any autorefresh setting in the config file.  

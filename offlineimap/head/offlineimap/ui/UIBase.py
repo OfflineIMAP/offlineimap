@@ -21,10 +21,14 @@ import offlineimap.version
 import re, time, sys, traceback
 from StringIO import StringIO
 
+debugtypes = {'imap': 'IMAP protocol debugging',
+              'maildir': 'Maildir repository debugging'}
+
 class UIBase:
     def __init__(s, config, verbose = 0):
         s.verbose = verbose
         s.config = config
+        s.debuglist = []
     
     ################################################## UTILS
     def _msg(s, msg):
@@ -33,6 +37,26 @@ class UIBase:
 
     def warn(s, msg):
         s._msg("WARNING: " + msg)
+
+    def debug(s, debugtype, msg):
+        if debugtype in s.debuglist:
+            s._msg("DEBUG[%s]: %s" % (debugtype, msg))
+
+    def add_debug(s, debugtype):
+        global debugtypes
+        if debugtype in debugtypes:
+            if not debugtype in s.debuglist:
+                s.debuglist.append(debugtype)
+                s.debugging(debugtype)
+        else:
+            s.invaliddebug(debugtype)
+
+    def debugging(s, debugtype):
+        global debugtypes
+        s._msg("Now debugging for %s: %s" % (debugtype, debugtypes[debugtype]))
+
+    def invaliddebug(s, debugtype):
+        s.warn("Invalid debug type: %s" % debugtype)
 
     def getnicename(s, object):
         prelimname = str(object.__class__).split('.')[-1]
