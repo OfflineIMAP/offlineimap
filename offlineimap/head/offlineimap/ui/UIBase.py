@@ -59,70 +59,79 @@ class UIBase:
         call except isusable().  Displays the copyright banner.  This is
         where the UI should do its setup -- TK, for instance, would
         create the application window here."""
-        s._msg(offlineimap.version.banner)
+        if s.verbose >= 0:
+            s._msg(offlineimap.version.banner)
 
     def acct(s, accountname):
-        s._msg("***** Processing account %s" % accountname)
+        if s.verbose >= 0:
+            s._msg("***** Processing account %s" % accountname)
 
     def syncfolders(s, srcrepos, destrepos):
-        s._msg("Copying folder structure from %s to %s" % \
-               (s.getnicename(srcrepos), s.getnicename(destrepos)))
+        if s.verbose >= 0:
+            s._msg("Copying folder structure from %s to %s" % \
+                   (s.getnicename(srcrepos), s.getnicename(destrepos)))
 
     ############################## Folder syncing
     def syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder):
         """Called when a folder sync operation is started."""
-        s._msg("Syncing %s: %s -> %s" % (srcfolder.getname(),
-                                         s.getnicename(srcrepos),
-                                         s.getnicename(destrepos)))
+        if s.verbose >= 0:
+            s._msg("Syncing %s: %s -> %s" % (srcfolder.getname(),
+                                             s.getnicename(srcrepos),
+                                             s.getnicename(destrepos)))
 
     def validityproblem(s, folder):
         s.warn("UID validity problem for folder %s; skipping it" % \
                folder.getname())
 
     def loadmessagelist(s, repos, folder):
-        if s.verbose:
+        if s.verbose > 0:
             s._msg("Loading message list for %s[%s]" % (s.getnicename(repos),
                                                         folder.getname()))
 
     def messagelistloaded(s, repos, folder, count):
-        if s.verbose:
+        if s.verbose > 0:
             s._msg("Message list for %s[%s] loaded: %d messages" % \
                    (s.getnicename(repos), folder.getname(), count))
 
     ############################## Message syncing
 
     def syncingmessages(s, sr, sf, dr, df):
-        if s.verbose:
+        if s.verbose > 0:
             s._msg("Syncing messages %s[%s] -> %s[%s]" % (s.getnicename(sr),
                                                           sf.getname(),
                                                           s.getnicename(dr),
                                                           df.getname()))
 
     def copyingmessage(s, uid, src, destlist):
-        ds = s.folderlist(destlist)
-        s._msg("Copy message %d %s[%s] -> %s" % (uid, s.getnicename(src),
-                                                 src.getname(), ds))
+        if s.verbose >= 0:
+            ds = s.folderlist(destlist)
+            s._msg("Copy message %d %s[%s] -> %s" % (uid, s.getnicename(src),
+                                                     src.getname(), ds))
 
     def deletingmessage(s, uid, destlist):
-        ds = s.folderlist(destlist)
-        s._msg("Deleting message %d in %s" % (uid, ds))
+        if s.verbose >= 0:
+            ds = s.folderlist(destlist)
+            s._msg("Deleting message %d in %s" % (uid, ds))
 
     def deletingmessages(s, uidlist, destlist):
-        ds = s.folderlist(destlist)
-        s._msg("Deleting %d messages (%s) in %s" % \
-               (len(uidlist),
-                ", ".join([str(u) for u in uidlist]),
-                ds))
+        if s.verbose >= 0:
+            ds = s.folderlist(destlist)
+            s._msg("Deleting %d messages (%s) in %s" % \
+                   (len(uidlist),
+                    ", ".join([str(u) for u in uidlist]),
+                    ds))
 
     def addingflags(s, uid, flags, destlist):
-        ds = s.folderlist(destlist)
-        s._msg("Adding flags %s to message %d on %s" % \
-               (", ".join(flags), uid, ds))
+        if s.verbose >= 0:
+            ds = s.folderlist(destlist)
+            s._msg("Adding flags %s to message %d on %s" % \
+                   (", ".join(flags), uid, ds))
 
     def deletingflags(s, uid, flags, destlist):
-        ds = s.folderlist(destlist)
-        s._msg("Deleting flags %s to message %d on %s" % \
-               (", ".join(flags), uid, ds))
+        if s.verbose >= 0:
+            ds = s.folderlist(destlist)
+            s._msg("Deleting flags %s to message %d on %s" % \
+                   (", ".join(flags), uid, ds))
 
     ################################################## Threads
 

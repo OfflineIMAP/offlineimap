@@ -4,6 +4,8 @@ offlineimap (3.0.4) unstable; urgency=low
     the message is stored weirdly.  That way, everything is uniform.
     Fixes [complete.org #11].
   * Manual: added UW IMAPD example with references from docwhat@gerf.org.
+  * New UI modules: Noninteractive.Basic and Noninteractive.Quiet.
+    Fixes [complete.org #14].
 
  -- John Goerzen <jgoerzen@complete.org>  Sun, 21 Jul 2002 16:09:42 -0500
 

@@ -1,4 +1,4 @@
-# UI base class
+# Noninteractive UI
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
@@ -16,26 +16,29 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap.ui import *
-import sys
+import sys, time
+from UIBase import UIBase
 
-def findUI(config):
-    uistrlist = ['Tk.TkUI', 'TTY.TTYUI', 'Noninteractive.Basic',
-                 'Noninteractive.Quiet']
-    if config.has_option("general", "ui"):
-        uistrlist = config.get("general", "ui").replace(" ", "").split(",")
-    for uistr in uistrlist:
-        uimod = getUImod(uistr)
-        if uimod:
-            uiinstance = uimod()
-            if uiinstance.isusable():
-                return uiinstance
-    sys.stderr.write("ERROR: No UIs were found usable!\n")
-    sys.exit(200)
-    
-def getUImod(uistr):
-    try:
-        uimod = eval(uistr)
-    except (AttributeError, NameError):
-        return None
-    return uimod
+class Basic(UIBase):
+    def getpass(s, accountname, config):
+        raise NotImplementedError, "Prompting for a password is not supported in noninteractive mode."
+
+    def _msg(s, msg):
+        print msg
+
+    def warn(s, msg):
+        sys.stderr.write("WARNING: " + str(msg) + "\n")
+
+    def sleep(s, sleepsecs):
+        if s.verbose >= 0:
+            s._msg("Sleeping for %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
+        UIBase.sleep(s, sleepsecs)
+
+    def sleeping(s, sleepsecs, remainingsecs):
+        if sleepsecs > 0:
+            time.sleep(sleepsecs)
+        return 0
+
+class Quiet(Basic):
+    def __init__(s, verbose = -1):
+        Basic.__init__(s, verbose)

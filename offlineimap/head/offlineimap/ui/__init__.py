@@ -29,4 +29,8 @@ except ImportError:
 else:
     import Tk
 
+import Noninteractive
+
+# Must be last
 import detector
+
