@@ -153,10 +153,18 @@ class IMAPRepository(BaseRepository):
             retval.append(self.getfoldertype()(self.imapserver, foldername,
                                                self.nametrans(foldername),
                                                self.accountname, self))
-        for foldername in self.folderincludes:
-            retval.append(self.getfoldertype()(self.imapserver, foldername,
-                                               self.nametrans(foldername),
-                                               self.accountname, self))
+        if len(self.folderincludes):
+            imapobj = self.imapserver.acquireconnection()
+            try:
+                for foldername in self.folderincludes:
+                    if imapobj.select(foldername, readonly = 1)[0] == 'OK':
+                        retval.append(self.getfoldertype()(self.imapserver,
+                                                           foldername,
+                                                           self.nametrans(foldername),
+                                                           self.accountname, self))
+            finally:
+                self.imapserver.releaseconnection(imapobj)
+                
         retval.sort(lambda x, y: self.foldersort(x.getvisiblename(), y.getvisiblename()))
         self.folders = retval
         return retval

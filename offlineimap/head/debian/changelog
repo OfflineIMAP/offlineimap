@@ -4,6 +4,10 @@ offlineimap (3.99.13) unstable; urgency=low
   * Fixed line-ending code to deal with files with mixed \n and \r\n
     codes.  This is a rare case, but now is more onerous because we now
     have to find headers.
+  * Now checks that SELECT succeeded when entering a folder.
+  * Verifies that folders listed on folderincludes actually exist by trying
+    to enter them.  Thus, if they do not exist, they can be created on the
+    first run.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 17 Apr 2003 18:02:13 -0500
 
