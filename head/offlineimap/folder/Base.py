@@ -41,6 +41,12 @@ class BaseFolder:
         InstanceLimitedThreads."""
         raise NotImplementedException
 
+    def storesmessages(self):
+        """Should be true for any backend that actually saves message bodies.
+        (Almost all of them).  False for the LocalStatus backend.  Saves
+        us from having to slurp up messages just for localstatus purposes."""
+        return 1
+
     def getvisiblename(self):
         return self.name
 
@@ -171,8 +177,19 @@ class BaseFolder:
                 pass
 
     def copymessageto(self, uid, applyto):
+        # Sometimes, it could be the case that if a sync takes awhile,
+        # a message might be deleted from the maildir before it can be
+        # synced to the status cache.  This is only a problem with
+        # self.getmessage().  So, don't call self.getmessage unless
+        # really needed.
         __main__.ui.copyingmessage(uid, self, applyto)
-        message = self.getmessage(uid)
+        message = ''
+        # If any of the destinations actually stores the message body,
+        # load it up.
+        for object in applyto:
+            if object.storesmessages():
+                message = self.getmessage(uid)
+                break
         flags = self.getmessageflags(uid)
         for object in applyto:
             newuid = object.savemessage(uid, message, flags)

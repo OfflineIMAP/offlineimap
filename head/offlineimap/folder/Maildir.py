@@ -66,7 +66,7 @@ class MaildirFolder(BaseFolder):
             self.saveuidvalidity(remotefolder.getuidvalidity())
             return 1
             
-    def cachemessagelist(self):
+    def _scanfolder(self):
         """Cache the message list.  Maildir flags are:
         R (replied)
         S (seen)
@@ -74,7 +74,7 @@ class MaildirFolder(BaseFolder):
         D (draft)
         F (flagged)
         and must occur in ASCII order."""
-        self.messagelist = {}
+        retval = {}
         files = []
         nouidcounter = -1               # Messages without UIDs get
                                         # negative UID numbers.
@@ -114,9 +114,13 @@ class MaildirFolder(BaseFolder):
                 # more robust.
                 os.unlink(file)
             else:
-                self.messagelist[uid] = {'uid': uid,
-                                         'flags': flags,
-                                         'filename': file}
+                retval[uid] = {'uid': uid,
+                               'flags': flags,
+                               'filename': file}
+        return retval
+
+    def cachemessagelist(self):
+        self.messagelist = self._scanfolder()
             
     def getmessagelist(self):
         return self.messagelist
@@ -195,6 +199,13 @@ class MaildirFolder(BaseFolder):
         if not uid in self.messagelist:
             return
         filename = self.getmessagelist()[uid]['filename']
-        os.unlink(filename)
+        try:
+            os.unlink(filename)
+        except IOError:
+            # Can't find the file -- maybe already deleted?
+            newmsglist = self._scanfolder()
+            if uid in newmsglist:       # Nope, try new filename.
+                os.unlink(newmsglist[uid]['filename'])
+            # Yep -- return.
         del(self.messagelist[uid])
         

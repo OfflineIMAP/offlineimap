@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
        offlineimap [ -1 ] [ -a accountlist ] [ -c configfile ]
-       [ -d ] [ -u interface ]
+       [ -d ] [ -o ] [ -u interface ]
 
        offlineimap -h | --help
 
@@ -175,16 +175,22 @@ OPTIONS
               remove  that from the debugging output before send-
               ing it to anyone else.
 
+       -o     Run only once, ignoring any autorefresh setting  in
+              the config file.
+
        -h, --help
               Show summary of options.
 
        -u interface
-              Specifies an alternative user interface  module  to
-              use.   This  overrides the default specified in the
-              configuration file.  The UI specified with -u  will
-              be  forced to be used, even if its isuable() method
-              states that it cannot be.   Use  this  option  with
+              Specifies  an  alternative user interface module to
+              use.  This overrides the default specified  in  the
+              configuration  file.  The UI specified with -u will
+              be forced to be used, even if its isuable()  method
+              states  that  it  cannot  be.  Use this option with
               care.
+
+              The pre-defined options are  Tk.TKUI  (a  graphical
+              interface) and TTY.TTYUI (a text-mode interface).
 
 EXAMPLES
        Here  is  an example configuration for a particularly com-
@@ -453,4 +459,4 @@ SEE ALSO
 
 
 
-John Goerzen              July 11, 2002            OFFLINEIMAP(1)
+John Goerzen              July 12, 2002            OFFLINEIMAP(1)

@@ -29,6 +29,9 @@ class LocalStatusFolder(BaseFolder):
         self.filename = os.path.join(root, name)
         self.messagelist = None
 
+    def storesmessages(self):
+        return 0
+
     def isnewfolder(self):
         return not os.path.exists(self.filename)
 

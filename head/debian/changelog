@@ -5,6 +5,12 @@ offlineimap (3.0.1) unstable; urgency=low
   * Added -o (run only once) option with patch sent in by Martijn Pieters.
   * Optimized folder/IMAP.py addmessagesflags() with new listjoin() in
     imaputil.  Now, send the server 1:5,7 instead of 1,2,3,4,5,7.
+  * Made folder/Maildir.py/deletemessage() more tolerant if a message
+    asked to be deleted already has been.
+  * In Base.py/copymessageto(), no longer bother calling getmessage()
+    unless a folder's storemessages() returns true.  This will also help
+    with syncing to LocalStatus if the user deleted messages in the
+    Maildir since the cachemessagelist() was called.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri, 12 Jul 2002 07:28:24 -0500
 
