@@ -19,6 +19,7 @@
 from Base import BaseRepository
 from offlineimap import folder, imaputil
 import re
+from threading import *
 
 class IMAPRepository(BaseRepository):
     def __init__(self, config, accountname, imapserver):
@@ -30,6 +31,7 @@ class IMAPRepository(BaseRepository):
         self.imapobj = imapserver.makeconnection()
         self.folders = None
         self.nametrans = lambda foldername: foldername
+        self.maxconnections = config.getint(accountname, 'maxconnections')
         if config.has_option(accountname, 'nametrans'):
             self.nametrans = eval(config.get(accountname, 'nametrans'))
 
