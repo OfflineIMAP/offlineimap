@@ -1,4 +1,4 @@
-#!/usr/bin/python2.2 -i
+#!/usr/bin/python2.2
 
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
@@ -18,11 +18,20 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from imapsync import imaplib, imaputil, imapserver, repository, folder
-import re, os, os.path, imapsync
+import re, os, os.path, imapsync, sys
 from ConfigParser import ConfigParser
 
+ui = imapsync.ui.TTY.TTYUI()
+ui.init_banner()
+
 config = ConfigParser()
-config.read("imapsync.conf")
+configfilename = os.path.expanduser("~/.imapsyncrc")
+if not os.path.exists(configfilename):
+    sys.stderr.write(" *** Config file %s does not exist; aborting!\n" % configfilename)
+    sys.exit(1)
+    
+config.read(configfilename)
+
 metadatadir = os.path.expanduser(config.get("general", "metadata"))
 if not os.path.exists(metadatadir):
     os.mkdir(metadatadir, 0700)
@@ -34,7 +43,6 @@ accounts = accounts.split(",")
 server = None
 remoterepos = None
 localrepos = None
-ui = imapsync.ui.TTY.TTYUI()
 
 for accountname in accounts:
     ui.acct(accountname)
