@@ -1,3 +1,12 @@
+offlineimap (3.99.8) unstable; urgency=low
+
+  * This is a 4.0 TRACK release, and may be unstable or in flux!
+  * Fixed several problems with the Curses interface: colors showing
+    up very weird on FreeBSD and exceptions when running on non-color
+    terminals.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 10 Jan 2003 11:46:24 -0600
+
 offlineimap (3.99.7) unstable; urgency=low
 
   * This is a 4.0 TRACK release, and may be unstable or in flux!
