@@ -26,7 +26,7 @@ def genmbnames(config, localeval, boxlist):
         return
     file = open(os.path.expanduser(config.get("mbnames", "filename")), "wt")
     file.write(localeval.eval(config.get("mbnames", "header")))
-    folderfilter = lambda foldername: 1
+    folderfilter = lambda accountname, foldername: 1
     if config.has_option("mbnames", "folderfilter"):
         folderfilter = localeval.eval(config.get("mbnames", "folderfilter"),
                                       {'re': re})
