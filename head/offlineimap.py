@@ -164,13 +164,31 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     localfolder = localrepos.\
                   getfolder(remotefolder.getvisiblename().\
                             replace(remoterepos.getsep(), localrepos.getsep()))
-    if not localfolder.isuidvalidityok(remotefolder):
-        ui.validityproblem(remotefolder)
-        return
+    # Load local folder
     ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
     ui.loadmessagelist(localrepos, localfolder)
     localfolder.cachemessagelist()
     ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
+
+    # Load status folder.
+    statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
+                                         replace(remoterepos.getsep(),
+                                                 statusrepos.getsep()))
+    statusfolder.cachemessagelist()
+
+    
+    # If either the local or the status folder has messages and
+    # there is a UID validity problem, warn and abort.
+    # If there are no messages, UW IMAPd loses UIDVALIDITY.
+    # But we don't really need it if both local folders are empty.
+    # So, in that case, save it off.
+    if (len(localfolder.getmessagelist()) or \
+        len(statusfolder.getmessagelist())) and \
+        not localfolder.isuidvalidityok(remotefolder):
+        ui.validityproblem(remotefolder)
+        return
+    else:
+        localfolder.saveuidvalidity(remotefolder.getuidvalidity())
 
     # Load remote folder.
     ui.loadmessagelist(remoterepos, remotefolder)
@@ -178,11 +196,6 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     ui.messagelistloaded(remoterepos, remotefolder,
                          len(remotefolder.getmessagelist().keys()))
 
-    # Load status folder.
-    statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
-                                         replace(remoterepos.getsep(),
-                                                 statusrepos.getsep()))
-    statusfolder.cachemessagelist()
 
     #
 
