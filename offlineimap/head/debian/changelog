@@ -1,7 +1,7 @@
 offlineimap (3.99.9) unstable; urgency=low
 
   * Added check to make sure that two processes do not run in the same
-    directory at once.
+    directory at once.  Closes: #178939.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed, 29 Jan 2003 13:19:14 -0600
 
