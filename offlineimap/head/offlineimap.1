@@ -3,7 +3,8 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "08 January 2003" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "05 February 2003" "John Goerzen" "OfflineIMAP Manual"
+
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
 .SH SYNOPSIS
@@ -712,6 +713,15 @@ this as an intentional deletion of many messages and will interpret
 your action as requesting them to be deleted from the server as well.
 (If you don't understand this, don't worry; you probably won't
 encounter this situation)
+.SS "MULTIPLE INSTANCES"
+.PP
+\fBOfflineIMAP\fR is not designed to have several instances (for instance, a cron job and an interactive invocation) run over the same
+mailbox simultaneously.  It will perform a check on startup and
+abort if another \fBOfflineIMAP\fR is already running.  If you need
+to schedule synchronizations, please use the
+\fIautorefresh\fR settings rather than cron.
+Alternatively, you can set a separate \fImetadata\fR
+directory for each instance.
 .SS "COPYING MESSAGES BETWEEN FOLDERS"
 .PP
 Normally, when you copy a message between folders or add a new message
@@ -784,7 +794,7 @@ distribution.
 noted, was written by John Goerzen <jgoerzen@complete.org> and
 copyright is held as stated in the COPYRIGHT section.
 .PP
-\fBOfflineIMAP\fR may be downloaded, and information found, from is
+\fBOfflineIMAP\fR may be downloaded, and information found, from its
 homepage via either Gopher <URL:gopher://quux.org/1/devel/offlineimap>
 or HTTP <URL:http://quux.org/devel/offlineimap>.
 .PP

@@ -1704,6 +1704,35 @@ CLASS="REFSECT2"
 NAME="AEN478"
 ></A
 ><H3
+>Multiple Instances</H3
+><P
+><SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is not designed to have several instances (for instance, a cron job and an interactive invocation) run over the same
+	  mailbox simultaneously.  It will perform a check on startup and
+	  abort if another <SPAN
+CLASS="APPLICATION"
+>OfflineIMAP</SPAN
+> is already running.  If you need
+	  to schedule synchronizations, please use the
+	  <SPAN
+CLASS="PROPERTY"
+>autorefresh</SPAN
+> settings rather than cron.
+	  Alternatively, you can set a separate <SPAN
+CLASS="PROPERTY"
+>metadata</SPAN
+>
+	  directory for each instance.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN485"
+></A
+><H3
 >Copying Messages Between Folders</H3
 ><P
 >	  Normally, when you copy a message between folders or add a new message
@@ -1731,7 +1760,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN484"
+NAME="AEN491"
 ></A
 ><H3
 >Use with Evolution</H3
@@ -1767,7 +1796,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN492"
+NAME="AEN499"
 ></A
 ><H3
 >Use with KMail</H3
@@ -1787,7 +1816,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN497"
+NAME="AEN504"
 ></A
 ><H3
 >Mailing List</H3
@@ -1801,7 +1830,7 @@ NAME="AEN497"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN500"
+NAME="AEN507"
 ></A
 ><H3
 >Bugs</H3
@@ -1827,7 +1856,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN506"
+NAME="AEN513"
 ></A
 ><H2
 >Copyright</H2
@@ -1865,7 +1894,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN515"
+NAME="AEN522"
 ></A
 ><H2
 >Author</H2
@@ -1887,7 +1916,7 @@ HREF="mailto:jgoerzen@complete.org"
 >	<SPAN
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
-> may be downloaded, and information found, from is
+> may be downloaded, and information found, from its
 	homepage via either <A
 HREF="gopher://quux.org/1/devel/offlineimap"
 TARGET="_top"
@@ -1917,7 +1946,7 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN527"
+NAME="AEN534"
 ></A
 ><H2
 >See Also</H2

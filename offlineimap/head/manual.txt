@@ -615,6 +615,15 @@ NOTES
        don't understand this, don't worry; you probably won't  encounter  this
        situation)
 
+   MULTIPLE INSTANCES
+       OfflineIMAP  is not designed to have several instances (for instance, a
+       cron job and an interactive  invocation)  run  over  the  same  mailbox
+       simultaneously.   It  will  perform  a  check  on  startup and abort if
+       another OfflineIMAP is already running.  If you need to  schedule  syn-
+       chronizations,  please  use  the autorefresh settings rather than cron.
+       Alternatively, you can set  a  separate  metadata  directory  for  each
+       instance.
+
    COPYING MESSAGES BETWEEN FOLDERS
        Normally,  when you copy a message between folders or add a new message
        to a folder locally, OfflineIMAP will just do the  right  thing.   How-
@@ -680,7 +689,7 @@ AUTHOR
        except where noted, was written by John Goerzen <jgoerzen@complete.org>
        and copyright is held as stated in the COPYRIGHT section.
 
-       OfflineIMAP  may be downloaded, and information found, from is homepage
+       OfflineIMAP may be downloaded, and information found, from its homepage
        via either Gopher <URL:gopher://quux.org/1/devel/offlineimap>  or  HTTP
        <URL:http://quux.org/devel/offlineimap>.
 
@@ -695,4 +704,4 @@ SEE ALSO
 
 
 
-John Goerzen                    08 January 2003                 OFFLINEIMAP(1)
+John Goerzen                   05 February 2003                 OFFLINEIMAP(1)
