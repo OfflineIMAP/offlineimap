@@ -81,6 +81,7 @@ class Account:
             
 class AccountSynchronizationMixin:
     def syncrunner(self):
+        self.ui.registerthread(self.name)
         self.ui.acct(self.name)
         if not self.refreshperiod:
             self.sync()
@@ -109,7 +110,7 @@ class AccountSynchronizationMixin:
             localrepos = repository.Maildir.MaildirRepository(os.path.expanduser(self.config.get(self.name, "localfolders")), self.name, self.config)
 
             # Connect to the local cache.
-            statusrepos = repository.LocalStatus.LocalStatusRepository(accountmetadata)
+            statusrepos = repository.LocalStatus.LocalStatusRepository(accountmetadata, self.name)
 
             self.ui.syncfolders(remoterepos, localrepos)
             remoterepos.syncfoldersto(localrepos)
@@ -139,6 +140,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos):
     global mailboxes
     ui = UIBase.getglobalui()
+    ui.registerthread(accountname)
     # Load local folder.
     localfolder = localrepos.\
                   getfolder(remotefolder.getvisiblename().\

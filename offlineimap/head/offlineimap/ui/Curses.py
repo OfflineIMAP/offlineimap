@@ -84,19 +84,23 @@ class CursesUtil:
         self.start()
 
 class CursesAccountFrame:
-    def __init__(s, master):
+    def __init__(s, master, accountname):
         s.c = master
         s.children = []
+        s.accountname = accountname
 
     def setwindow(s, window):
         s.window = window
-        location = 0
+        acctstr = '%15.15s: ' % s.accountname
+        s.window.addstr(0, 0, acctstr)
+        s.location = len(acctstr)
         for child in s.children:
-            child.update(window, 0, location)
-            location += 1
+            child.update(window, 0, s.location)
+            s.location += 1
 
     def getnewthreadframe(s):
-        tf = CursesThreadFrame(s.c, s.window, 0, len(s.children))
+        tf = CursesThreadFrame(s.c, s.window, 0, s.location)
+        s.location += 1
         s.children.append(tf)
         return tf
 
@@ -120,21 +124,32 @@ class CursesThreadFrame:
                          'orange': s.c.getpair(curses.COLOR_YELLOW, bg),
                          'yellow': curses.A_BOLD | s.c.getpair(curses.COLOR_YELLOW, bg),
                          'pink': curses.A_BOLD | s.c.getpair(curses.COLOR_RED, bg)}
-        s.setcolor('gray')
+        #s.setcolor('gray')
+        s.setcolor('black')
 
     def setcolor(self, color):
         self.color = self.colormap[color]
+        self.display()
+
+    def display(self):
         self.window.addstr(self.y, self.x, '.', self.color)
         self.window.refresh()
 
     def getcolor(self):
         return self.color
 
+    def update(self, window, y, x):
+        self.window = window
+        self.y = y
+        self.x = x
+        self.display()
+
     def setthread(self, newthread):
-        if newthread:
-            self.setcolor('gray')
-        else:
-            self.setcolor('black')
+        self.setcolor('black')
+        #if newthread:
+        #    self.setcolor('gray')
+        #else:
+        #    self.setcolor('black')
 
 class InputHandler:
     def __init__(s, util):
@@ -293,7 +308,7 @@ class Blinkenlights(BlinkenBase, UIBase):
                 return s.af[accountname]
 
             # New one.
-            s.af[accountname] = CursesAccountFrame(s.c)
+            s.af[accountname] = CursesAccountFrame(s.c, accountname)
             #s.iolock.acquire()
             s.c.reset()
             s.setupwindows(dolock = 0)

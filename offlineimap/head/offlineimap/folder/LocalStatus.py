@@ -1,5 +1,5 @@
 # Local status cache virtual folder
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002 - 2003 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ import os, threading
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
 class LocalStatusFolder(BaseFolder):
-    def __init__(self, root, name, repository):
+    def __init__(self, root, name, repository, accountname):
         self.name = name
         self.root = root
         self.sep = '.'
@@ -31,6 +31,10 @@ class LocalStatusFolder(BaseFolder):
         self.repository = repository
         self.savelock = threading.Lock()
         self.doautosave = 1
+        self.accountname = accountname
+
+    def getaccountname(self):
+        return self.accountname
 
     def storesmessages(self):
         return 0

@@ -21,9 +21,10 @@ from offlineimap import folder
 import os
 
 class LocalStatusRepository(BaseRepository):
-    def __init__(self, directory):
+    def __init__(self, directory, accountname):
         self.directory = directory
         self.folders = None
+        self.accountname = accountname
 
     def getsep(self):
         return '.'
@@ -42,12 +43,12 @@ class LocalStatusRepository(BaseRepository):
         retval = []
         for folder in os.listdir(self.directory):
             retval.append(folder.LocalStatus.LocalStatusFolder(self.directory,
-                                                               folder, self))
+                                                               folder, self, self.accountname))
         return retval
 
     def getfolder(self, foldername):
         return folder.LocalStatus.LocalStatusFolder(self.directory, foldername,
-                                                    self)
+                                                    self, self.accountname)
 
 
     

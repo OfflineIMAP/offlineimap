@@ -39,6 +39,9 @@ class IMAPFolder(BaseFolder):
         self.accountname = accountname
         self.repository = repository
 
+    def getaccountname(self):
+        return self.accountname
+
     def suggeststhreads(self):
         return 1
 

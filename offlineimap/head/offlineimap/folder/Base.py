@@ -186,12 +186,14 @@ class BaseFolder:
                 # Did not find any server to take this message.  Ignore.
                 pass
 
-    def copymessageto(self, uid, applyto):
+    def copymessageto(self, uid, applyto, register = 1):
         # Sometimes, it could be the case that if a sync takes awhile,
         # a message might be deleted from the maildir before it can be
         # synced to the status cache.  This is only a problem with
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
+        if register:
+            UIBase.getglobalui().registerthread(self.getaccountname())
         UIBase.getglobalui().copyingmessage(uid, self, applyto)
         message = ''
         # If any of the destinations actually stores the message body,
@@ -233,7 +235,7 @@ class BaseFolder:
                     thread.start()
                     threads.append(thread)
                 else:
-                    self.copymessageto(uid, applyto)
+                    self.copymessageto(uid, applyto, register = 0)
         for thread in threads:
             thread.join()
 
