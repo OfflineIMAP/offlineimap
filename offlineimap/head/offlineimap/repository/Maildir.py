@@ -49,9 +49,23 @@ class MaildirRepository(BaseRepository):
 
         assert foldername.find('./') == -1, "Folder names may not contain ../"
         assert not foldername.startswith('/'), "Folder names may not begin with /"
+
         oldcwd = os.getcwd()
         os.chdir(self.root)
-        os.makedirs(foldername, 0700)
+
+        # If we're using hierarchical folders, it's possible that sub-folders
+        # may be created before higher-up ones.  If this is the case,
+        # makedirs will fail because the higher-up dir already exists.
+        # So, check to see if this is indeed the case.
+
+        if os.path.isdir(foldername):
+            # Already exists.  Sanity-check that it's not a Maildir.
+            for subdir in ['cur', 'new', 'tmp']:
+                assert not os.path.isdir(os.path.join(foldername, subdir)), \
+                       "Tried to create folder %s but it already had dir %s" %\
+                       (foldername, subdir)
+        else:
+            os.makedirs(foldername, 0700)
         for subdir in ['cur', 'new', 'tmp']:
             os.mkdir(os.path.join(foldername, subdir), 0700)
         # Invalidate the cache
