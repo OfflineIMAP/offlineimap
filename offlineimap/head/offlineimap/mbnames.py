@@ -17,6 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import os.path
+import re                               # for folderfilter
 
 def genmbnames(config, localeval, boxlist):
     """Takes a configparser object and a boxlist, which is a list of hashes
@@ -25,7 +26,13 @@ def genmbnames(config, localeval, boxlist):
         return
     file = open(os.path.expanduser(config.get("mbnames", "filename")), "wt")
     file.write(localeval.eval(config.get("mbnames", "header")))
-    itemlist = [localeval.eval(config.get("mbnames", "peritem", raw=1)) % item for item in boxlist]
+    folderfilter = lambda foldername: 1
+    if config.has_option("mbnames", "folderfilter"):
+        folderfilter = localeval.eval(config.get("mbnames", "folderfilter"),
+                                      {'re': re})
+    itemlist = [localeval.eval(config.get("mbnames", "peritem", raw=1)) % item\
+                for item in boxlist \
+                if folderfilter(item['accountname'], item['foldername'])]
     file.write(localeval.eval(config.get("mbnames", "sep")).join(itemlist))
     file.write(localeval.eval(config.get("mbnames", "footer")))
     file.close()

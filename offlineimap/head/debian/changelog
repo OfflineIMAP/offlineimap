@@ -1,3 +1,10 @@
+offlineimap (3.2.9) unstable; urgency=low
+
+  * Added folderfilter capability to mbnames recorder.  You can now omit
+    specified folders from the mbnames output.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 30 Sep 2002 12:08:08 -0500
+
 offlineimap (3.2.8) unstable; urgency=low
 
   * Added a work-around for some IMAP servers that respond poorly
