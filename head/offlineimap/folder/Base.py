@@ -113,7 +113,9 @@ class BaseFolder:
         """Syncs messages in this folder to the destination.
         If applyto is specified, it should be a list of folders (don't forget
         to include dest!) to which all write actions should be applied.
-        It defaults to [dest] if not specified."""
+        It defaults to [dest] if not specified.  It is important that
+        the UID generator be listed first in applyto; that is, the other
+        applyto ones should be the ones that "copy" the main action."""
         if applyto == None:
             applyto = [dest]
 
@@ -145,7 +147,7 @@ class BaseFolder:
                 self.savemessage(successuid, message, flags)
                 self.deletemessage(uid)
             else:
-                # Did not find any server to take this message.  Delete
+                # Did not find any server to take this message.  Ignore.
                 pass
 
         # Pass 2 -- Look for messages present in self but not in dest.
@@ -158,13 +160,19 @@ class BaseFolder:
                 message = self.getmessage(uid)
                 flags = self.getmessageflags(uid)
                 for object in applyto:
-                    object.savemessage(uid, message)
-                    object.savemessageflags(uid, flags)
+                    newuid = object.savemessage(uid, message, flags)
+                    if newuid != uid:
+                        # Change the local uid.
+                        self.savemessage(newuid, message, flags)
+                        self.deletemessage(uid)
+                        uid = newuid
 
         # Pass 3 -- Look for message present in dest but not in self.
         # If any, delete them.
 
         for uid in dest.getmessagelist().keys():
+            if uid < 0:
+                continue
             if not uid in self.getmessagelist():
                 for object in applyto:
                     object.deletemessage(uid)
