@@ -113,6 +113,8 @@ class TkUI(UIBase):
         self.verbose = verbose
         self.top = Tk()
         self.threadframes = {}
+        self.availablethreadframes = []
+        self.tflock = Lock()
 
         t = threadutil.ExitNotifyThread(target = self.top.mainloop,
                                         name = "Tk Mainloop")
@@ -126,11 +128,18 @@ class TkUI(UIBase):
 
     def gettf(s):
         threadid = thread.get_ident()
-        if threadid in s.threadframes:
-            return s.threadframes[threadid]
-        tf = ThreadFrame(s.top)
-        s.threadframes[threadid] = tf
-        return tf
+        s.tflock.acquire()
+        try:
+            if threadid in s.threadframes:
+                return s.threadframes[threadid]
+            if len(s.availablethreadframes):
+                tf = s.availablethreadframes.pop(0)
+            else:
+                tf = ThreadFrame(s.top)
+            s.threadframes[threadid] = tf
+            return tf
+        finally:
+            s.tflock.release()
 
     def _msg(s, msg):
         s.gettf().setmessage(msg)
@@ -138,11 +147,15 @@ class TkUI(UIBase):
     def threadExited(s, thread):
         threadid = thread.threadid
         print "Thread %d exited" % threadid
+        s.tflock.acquire()
         if threadid in s.threadframes:
             print "Removing thread %d" % threadid
             tf = s.threadframes[threadid]
-            tf.destroy()
+            tf.setaccount("Unknown")
+            tf.setmessage("Idle")
+            s.availablethreadframes.append(tf)
             del s.threadframes[threadid]
+        s.tflock.release()
             
     def threadException(s, thread):
         msg =  "Thread '%s' terminated with exception:\n%s" % \
