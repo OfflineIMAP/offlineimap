@@ -1,4 +1,72 @@
 ------------------------------------------------------------------------
+rev 185:  jgoerzen | 2002-07-24 13:15:30 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/TTY.py
+
+Fixed to take config as new init is proceeding.
+
+------------------------------------------------------------------------
+rev 184:  jgoerzen | 2002-07-24 13:13:09 -0500 (Wed, 24 Jul 2002) | 4 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/debian/control
+   U /offlineimap/head/manual.html
+   U /offlineimap/head/manual.pdf
+   U /offlineimap/head/manual.ps
+   U /offlineimap/head/manual.txt
+   U /offlineimap/head/offlineimap/ui/TTY.py
+   U /offlineimap/head/offlineimap/ui/Tk.py
+   U /offlineimap/head/offlineimap/ui/detector.py
+   U /offlineimap/head/offlineimap.1
+   U /offlineimap/head/offlineimap.conf
+
+Updated the manual with blinkenlights.
+Fixed build-dep to have python2.2-dev.
+Fixed TTY to has isusable() that requires TTYs on stdin and stdout.
+
+------------------------------------------------------------------------
+rev 183:  jgoerzen | 2002-07-24 12:20:42 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/Noninteractive.py
+   U /offlineimap/head/offlineimap/ui/Tk.py
+   U /offlineimap/head/offlineimap/ui/UIBase.py
+   U /offlineimap/head/offlineimap/ui/detector.py
+   U /offlineimap/head/offlineimap.conf
+   U /offlineimap/head/offlineimap.py
+
+Adding configuration information for Blinkenlights.
+
+------------------------------------------------------------------------
+rev 182:  jgoerzen | 2002-07-24 12:04:22 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+Added a logging option
+
+------------------------------------------------------------------------
+rev 181:  jgoerzen | 2002-07-24 11:00:02 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/Tk.py
+   U /offlineimap/head/offlineimap.py
+
+Basic Blinkenlights done.
+
+------------------------------------------------------------------------
+rev 179:  jgoerzen | 2002-07-24 10:38:40 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+More work on the Blinkenlights interface.
+
+------------------------------------------------------------------------
+rev 178:  jgoerzen | 2002-07-24 07:54:07 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+   U /offlineimap/head/debian/changelog
+
+Preparing for 3.2.0
+
+------------------------------------------------------------------------
 rev 176:  jgoerzen | 2002-07-24 07:46:18 -0500 (Wed, 24 Jul 2002) | 6 lines
 Changed paths:
    U /offlineimap/head/debian/changelog
