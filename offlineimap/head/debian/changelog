@@ -1,3 +1,10 @@
+offlineimap (4.0.7) unstable; urgency=low
+
+  * Added additional debug logging when downloading messages in an attempt to
+    get the info needed to address #199452.
+
+ -- John Goerzen <jgoerzen@complete.org>  Sun,  1 Aug 2004 16:48:15 -0500
+
 offlineimap (4.0.6) unstable; urgency=low
 
   * Corrected check for Curses.Blinkenlights hotkey press.  Closes: #256336.

@@ -1,5 +1,5 @@
 # IMAP folder support
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002-2004 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -107,7 +107,11 @@ class IMAPFolder(BaseFolder):
         imapobj = self.imapserver.acquireconnection()
         try:
             imapobj.select(self.getfullname(), readonly = 1)
-            return imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')[1][0][1].replace("\r\n", "\n")
+            initialresult = imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')
+            ui.debug('imap', 'Returned object from fetching %d: %s' % \
+                     (uid, str(initialresult)))
+            return initialresult[1][0][1].replace("\r\n", "\n")
+                
         finally:
             self.imapserver.releaseconnection(imapobj)
     
