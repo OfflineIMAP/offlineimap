@@ -428,8 +428,10 @@ NOTES
        the message to offlineimap@complete.org.
 
 BUGS
-       Should be reported to the author at the address  specified
-       below.
+       Reports  of  bugs  should  be  sent  via  e-mail  to   the
+       OfflineIMAP      bug-tracking      system     (BTS)     at
+       offlineimap@bugs.complete.org or submitted  on-line  using
+       the Web interface at http://bugs.complete.org/.
 
 COPYRIGHT
        OfflineIMAP is Copyright (C) 2002 John Goerzen.
