@@ -28,10 +28,8 @@ class IMAPRepository(BaseRepository):
         self.imapserver = imapserver
         self.config = config
         self.accountname = accountname
-        self.imapobj = imapserver.makeconnection()
         self.folders = None
         self.nametrans = lambda foldername: foldername
-        self.maxconnections = config.getint(accountname, 'maxconnections')
         if config.has_option(accountname, 'nametrans'):
             self.nametrans = eval(config.get(accountname, 'nametrans'))
 
@@ -46,7 +44,12 @@ class IMAPRepository(BaseRepository):
         if self.folders != None:
             return self.folders
         retval = []
-        for string in self.imapobj.list()[1]:
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            listresult = imapobj.list()[1]
+        finally:
+            self.imapserver.releaseconnection(imapobj)
+        for string in listresult:
             flags, delim, name = imaputil.imapsplit(string)
             if '\\Noselect' in imaputil.flagsplit(flags):
                 continue
