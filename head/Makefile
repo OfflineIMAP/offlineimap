@@ -15,13 +15,14 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-doc:
-	PYTHONPATH=`pwd` pydoc2.2 dictdlib > dictdlib.txt
-	PYTHONPATH=`pwd` pydoc2.2 -w dictdlib
-
 clean:
+	-python2.2 setup.py clean --all
 	-rm -f `find . -name "*~"`
 	-rm -f `find . -name "*.pyc"`
+	-rm -f `find . -name "*.pygc"`
+	-rm -f `find . -name "*.class"`
+	-rm -f `find . -name "*.bak"`
+	-rm -f `find . -name ".cache*"`
 
 changelog:
 	cvs2cl

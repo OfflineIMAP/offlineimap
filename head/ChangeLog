@@ -1,0 +1,328 @@
+2002-06-21 13:44  jgoerzen
+
+	* Makefile: Using a more appropriate Makefile now
+
+2002-06-21 13:39  jgoerzen
+
+	* offlineimap.py: Fix mailbox generation to not get duped ones when
+	auto-resyncing is enabled
+
+2002-06-21 13:37  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Fixed MD5 processing.
+
+2002-06-21 13:32  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Now store the folder MD5 to make
+	copies more robust
+
+2002-06-21 13:10  jgoerzen
+
+	* setup.py: Added.
+
+2002-06-21 13:09  jgoerzen
+
+	* offlineimap/version.py: Added
+
+2002-06-20 19:01  jgoerzen
+
+	* offlineimap.conf, offlineimap.py, offlineimap/imapserver.py,
+	offlineimap/folder/IMAP.py, offlineimap/folder/LocalStatus.py,
+	offlineimap/folder/Maildir.py, offlineimap/repository/IMAP.py,
+	offlineimap/repository/LocalStatus.py,
+	offlineimap/repository/Maildir.py, offlineimap/ui/UIBase.py:
+	Completed name change to offlineimap
+
+2002-06-20 18:55  jgoerzen
+
+	* offlineimap/: repository/IMAP.py, ui/TTY.py: [no log message]
+
+2002-06-20 16:25  jgoerzen
+
+	* offlineimap.conf, offlineimap.py, offlineimap/imapserver.py,
+	offlineimap/folder/IMAP.py, offlineimap/repository/IMAP.py,
+	offlineimap/ui/TTY.py, offlineimap/ui/UIBase.py: Updated
+
+2002-06-20 15:51  jgoerzen
+
+	* offlineimap.conf, offlineimap.py, offlineimap/__init__.py,
+	offlineimap/mbnames.py, offlineimap/folder/Base.py,
+	offlineimap/folder/IMAP.py, offlineimap/repository/Base.py,
+	offlineimap/repository/IMAP.py, offlineimap/ui/UIBase.py: More
+	updates
+
+2002-06-20 14:54  jgoerzen
+
+	* offlineimap.py: Removed -i
+
+2002-06-20 14:52  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Removed debug
+
+2002-06-20 14:42  jgoerzen
+
+	* offlineimap/ui/: TTY.py, UIBase.py: Updated!
+
+2002-06-20 14:29  jgoerzen
+
+	* offlineimap.py: Fixed syntax errors
+
+2002-06-20 14:28  jgoerzen
+
+	* offlineimap.py, offlineimap/__init__.py, offlineimap/ui/TTY.py,
+	offlineimap/ui/UIBase.py: Fixed more problems
+
+2002-06-20 14:25  jgoerzen
+
+	* offlineimap.py: Fixed syntax error
+
+2002-06-20 14:25  jgoerzen
+
+	* offlineimap.py, offlineimap/folder/Base.py,
+	offlineimap/ui/TTY.py, offlineimap/ui/UIBase.py,
+	offlineimap/ui/__init__.py: Updated.
+
+2002-06-20 13:30  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Fixed line ending problems
+
+2002-06-20 13:25  jgoerzen
+
+	* offlineimap/folder/: Base.py, IMAP.py, LocalStatus.py,
+	Maildir.py: THINGS ARE WORKING!
+
+2002-06-20 13:04  jgoerzen
+
+	* offlineimap/folder/Maildir.py: isuidvalidityok returns true when
+	no uid validity is known
+
+2002-06-20 13:04  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Fixed file naming problem
+
+2002-06-20 13:02  jgoerzen
+
+	* offlineimap.py, offlineimap/folder/Base.py: Updated
+
+2002-06-20 12:58  jgoerzen
+
+	* offlineimap/folder/LocalStatus.py: Fixed a syntax error
+
+2002-06-20 12:55  jgoerzen
+
+	* offlineimap/folder/: IMAP.py, Maildir.py: Fixed a syntax error
+
+2002-06-20 12:54  jgoerzen
+
+	* offlineimap/folder/LocalStatus.py: Updated
+
+2002-06-20 12:40  jgoerzen
+
+	* offlineimap/repository/LocalStatus.py: Updated to use new init
+	for LocalStatusFolder
+
+2002-06-20 11:31  jgoerzen
+
+	* offlineimap.py, offlineimap/folder/__init__.py: Updated
+
+2002-06-20 11:20  jgoerzen
+
+	* offlineimap/repository/LocalStatus.py: Added a missing import
+
+2002-06-20 11:19  jgoerzen
+
+	* offlineimap.py: Updated
+
+2002-06-20 11:17  jgoerzen
+
+	* offlineimap/repository/: LocalStatus.py, Maildir.py, __init__.py:
+	Added LocalStatus support.
+
+2002-06-20 11:02  jgoerzen
+
+	* offlineimap/folder/Base.py: Updated.
+
+2002-06-20 10:55  jgoerzen
+
+	* offlineimap/: imaputil.py, folder/Base.py, folder/IMAP.py:
+	Updated.
+
+2002-06-20 10:22  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Wrote savemessage
+
+2002-06-20 10:12  jgoerzen
+
+	* offlineimap/folder/Base.py: Pass flags to savemessage
+
+2002-06-20 10:11  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Updated so savemessage can take
+	flags
+
+2002-06-20 10:03  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Fixed savemessage uid support
+
+2002-06-20 09:53  jgoerzen
+
+	* offlineimap/imaplib.py: Removed debug
+
+2002-06-20 09:50  jgoerzen
+
+	* offlineimap/imaplib.py: Fixed ssl.send
+
+2002-06-19 23:17  jgoerzen
+
+	* offlineimap.py, offlineimap/folder/IMAP.py: More bugfixes
+
+2002-06-19 23:09  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Some bugfixes
+
+2002-06-19 23:05  jgoerzen
+
+	* offlineimap/imapserver.py: Added imapobj caching
+
+2002-06-19 23:02  jgoerzen
+
+	* offlineimap/: imaplib.py, folder/IMAP.py: Fixed several bugs in
+	imaplib, particularly with regard to read()
+
+2002-06-19 20:39  jgoerzen
+
+	* offlineimap.conf, offlineimap.py, offlineimap/folder/Base.py,
+	offlineimap/folder/IMAP.py: [no log message]
+
+2002-06-19 16:40  jgoerzen
+
+	* offlineimap/imapserver.py, offlineimap/imaputil.py,
+	offlineimap/folder/IMAP.py, offlineimap/folder/Maildir.py,
+	offlineimap/repository/IMAP.py, offlineimap.conf: Updated.
+
+2002-06-19 15:26  jgoerzen
+
+	* offlineimap.py, offlineimap/imaputil.py,
+	offlineimap/folder/Base.py, offlineimap/folder/IMAP.py: [no log
+	message]
+
+2002-06-19 14:14  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Fixed some bugs
+
+2002-06-19 14:10  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Added more functions required by
+	the base
+
+2002-06-19 13:59  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Added savemessage
+
+2002-06-19 13:37  jgoerzen
+
+	* offlineimap/folder/Base.py: Syncing code should be done.
+
+2002-06-19 13:14  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Added support for messages without
+	UIDs
+
+2002-06-19 13:13  jgoerzen
+
+	* offlineimap/folder/Base.py: Checkpointing
+
+2002-06-19 12:50  jgoerzen
+
+	* offlineimap/folder/Base.py: Checkpointing
+
+2002-06-19 12:33  jgoerzen
+
+	* offlineimap/folder/: Base.py, Maildir.py: Checkpointing more
+	development
+
+2002-06-19 11:55  jgoerzen
+
+	* offlineimap.py, offlineimap/repository/Base.py,
+	offlineimap/repository/IMAP.py, offlineimap/repository/Maildir.py:
+	Updated!
+
+2002-06-18 15:16  jgoerzen
+
+	* offlineimap/repository/: Base.py, IMAP.py, Maildir.py: Updated
+
+2002-06-18 15:08  jgoerzen
+
+	* offlineimap/: folder/Maildir.py, folder/__init__.py,
+	repository/Maildir.py, repository/__init__.py: Updated
+
+2002-06-18 14:55  jgoerzen
+
+	* offlineimap/folder/Maildir.py: Added from IMAP.py
+
+2002-06-18 14:54  jgoerzen
+
+	* offlineimap/repository/IMAP.py: [no log message]
+
+2002-06-18 14:21  jgoerzen
+
+	* offlineimap/folder/IMAP.py: [no log message]
+
+2002-06-18 14:19  jgoerzen
+
+	* offlineimap/__init__.py, Makefile: Added.
+
+2002-06-18 14:19  jgoerzen
+
+	* offlineimap.py, offlineimap/imapserver.py,
+	offlineimap/imaputil.py, offlineimap/folder/Base.py,
+	offlineimap/folder/__init__.py, offlineimap/repository/IMAP.py,
+	offlineimap/repository/__init__.py: Updated -- more writing
+
+2002-06-18 13:39  jgoerzen
+
+	* offlineimap/imapserver.py: Fixed bugs
+
+2002-06-18 13:37  jgoerzen
+
+	* offlineimap.py, offlineimap/imapserver.py: Updated
+
+2002-06-18 13:33  jgoerzen
+
+	* offlineimap/: imapserver.py, repository/Base.py,
+	repository/IMAP.py: Updated
+
+2002-06-18 13:28  jgoerzen
+
+	* offlineimap/repository/: Base.py, __init__.py: Added
+
+2002-06-18 13:26  jgoerzen
+
+	* offlineimap/: folder/__init__.py, repository/Base.py: Updated
+
+2002-06-18 13:09  jgoerzen
+
+	* offlineimap.py, offlineimap/imaputil.py: Added, updated.
+
+2002-06-18 11:21  jgoerzen
+
+	* offlineimap.py: Tinkering around
+
+2002-06-18 10:40  jgoerzen
+
+	* COPYRIGHT: Added.
+
+2002-06-18 10:36  jgoerzen
+
+	* offlineimap/imaplib.py: Imported from Python CVS version 1.51
+	http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/s
+	rc/Lib/imaplib.py
+
+2002-06-18 09:16  jgoerzen
+
+	* COPYING: Initial revision
+
+2002-06-18 09:16  jgoerzen
+
+	* COPYING: Initial import
+
