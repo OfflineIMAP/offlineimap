@@ -477,6 +477,7 @@ class Blinkenlights(VerboseUI):
     def sleep(s, sleepsecs):
         s.sleeping_abort = 0
         s.menubar.add_command(label = "Sync now", command = s._sleep_cancel)
+        s.gettf().setcolor('red')
         s._msg("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
         UIBase.sleep(s, sleepsecs)
 
@@ -510,6 +511,7 @@ class Blinkenlights(VerboseUI):
                           (remainingsecs / 60, remainingsecs % 60))
         else:
             s.menubar.delete('end')
+            s.gettf().setcolor('black')
         if s.gettf().getcolor() == 'red':
             s.gettf().setcolor('black')
         else:
