@@ -17,6 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from offlineimap import repository
+import offlineimap.version
 import re, time
 
 class UIBase:
@@ -45,9 +46,7 @@ class UIBase:
 
     def init_banner(s):
         "Display the copyright banner."
-        s._msg("""offlineimap
-        Copyright (C) 2002 John Goerzen.  All rights reserved.
-        This software comes with NO WARRANTY: see the file COPYING for details.""")
+	s._msg(offlineimap.version.banner)
 
     def acct(s, accountname):
         s._msg("***** Processing account %s" % accountname)

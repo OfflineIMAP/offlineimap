@@ -1,0 +1,193 @@
+OfflineIMAP
+Copyright (C) 2002 John Goerzen <jgoerzen@complete.org>
+This software comes with ABSOLUTELY NO WARRANTY; see the file
+COPYING for details.  This is free software, and you are welcome
+to distribute it under the conditions laid out in COPYING.
+
+gopher://quux.org/1/devel/offlineimap
+http://quux.org/devel/offlineimap
+
+==================================================
+Welcome
+==================================================
+
+OfflineIMAP is a tool to simplify your e-mail reading.  With
+OfflimeIMAP, you can:
+
+ * Read the same mailbox from multiple computers, and have your
+   changes (deletions, etc.) be automatically reflected on
+   all computers
+
+ * Use various mail clients to read a single mail box
+
+ * Read mail while offline (on a laptop) and have all changes
+   synchronized when you get connected again
+
+ * Read IMAP mail with mail readers that do not support IMAP
+
+ * Use SSL (secure connections) to read IMAP mail even if you reader
+   doesn't support SSL
+
+ * Synchronize your mail using a completely safe and fault-tolerant
+   algorithm.  (At least I think it is!)
+
+In short, OfflineIMAP is a tool to let you read mail how YOU want to.
+
+==================================================
+Requirements
+==================================================
+
+To use OfflineIMAP, you must:
+
+1. Have your mail delivered to a server that supports IMAP
+
+2. Have Python 2.2 or above installed
+
+3. Have a mail reader that supports Maildirs (most modern ones do)
+
+These requirements are easy to meet, and most people will have met
+them already without even being aware of it.
+
+If you do not have Python already, check your operating system vendor
+or download it from http://www.python.org/
+
+==================================================
+Installation
+==================================================
+
+Basic installation for a single user requires only these steps:
+
+1. Copy offlineimap.conf to ~/.offlineimaprc and edit that file
+   for your accounts.  Full instructions are in it.
+
+2. Make the directory that you will store your folders in.
+   (~/Test in the example)
+
+You can then just run "python2.2 offlineimap.py" to synchronize your
+mail.
+
+------------------------------
+Systemwide
+
+If you wish to install OfflineIMAP for all users on your system:
+
+1. Either install the Debian package or run "python2.2 setup.py" and
+   follow the prompts
+
+2. Advise users to perform steps 1 and 2 above
+
+3. Run OfflineIMAP by typing "offlineimap"
+
+That's it!
+
+==================================================
+Frequently Asked Questions
+==================================================
+
+Q. I get a message saying "UID validity problem for folder; skipping".
+What does this mean and how do I fix it?
+
+A. IMAP servers use a unique ID (UID) to refer to a specific message.
+This number is guaranteed to be unique to a particular message
+FOREVER.  No other message in the same folder will ever get the same
+UID.  UIDs are an integral part of OfflineIMAP's synchronization
+scheme; they are used to match up messages on your computer to
+messages on the server.
+
+Sometimes, the UIDs on the server might get reset.  Usually this will
+happen if you delete and then recreate a folder.  When you create a
+folder, the server will often start the UID back from 1.  But
+OfflineIMAP might still have the UIDs from the previous folder by the
+same name stored.  OfflineIMAP will detect this condition and skip the
+folder.  This is GOOD, because it prevents data loss.
+
+You can fix it by removing your local folder and cache data.  For
+instance, if your folders are under ~/Folders and the folder with the
+problem is INBOX, you'd type this:
+
+rm -r ~/Folders/INBOX
+rm ~/.offlineimap/AccountName/INBOX
+
+(replacing AccountName with the account name as specified in
+~/.offlineimaprc)
+
+Next time you run OfflineIMAP, it will re-download the folder with the
+new UIDs.  Note that the procedure specified above will lose any local
+changes made to the folder.
+
+Some IMAP servers are broken and do not support UIDs properly.  If you
+continue to get this error for all your folders even after performing
+the above procedure, it is likely that your IMAP server falls into
+this category.  OfflineIMAP is incompatible with such servers.  Using
+OfflineIMAP with them will not destroy any mail, but at the same time,
+it will not actually synchronize it either.  (OfflineIMAP will detect
+this condition and abort prior to synchronization)
+
+--------------------------------------------------
+
+Q. What platforms does OfflineIMAP run on?
+
+A. It should run on most platforms supported by Python, which are
+quite a few.
+
+--------------------------------------------------
+
+Q. I'm using Mutt.  Other IMAP synchronization programs require me to
+"set maildir_trash=yes".  Do I need to do that with OfflineIMAP?
+
+A. No.  OfflineIMAP is smart enough to figure out message deletion
+without this extra crutch.  You'll get the best results if you don't
+use that setting, in fact.
+
+--------------------------------------------------
+
+Q. How do I specify the names of my folders?
+
+A. You do not need to.  OfflineIMAP is smart enough to automatically
+figure out what folders are present on the IMAP server and synchronize
+them.
+
+--------------------------------------------------
+
+Q. How can I prevent certain folders from being synced?
+
+A. This feature will be introduced in a future version of OfflineIMAP.
+
+--------------------------------------------------
+
+Q. How can I add or delete a folder?
+
+A. OfflineIMAP does not currently provide this feature.
+
+--------------------------------------------------
+
+Q. Are there any specific warnings or things I should be aware of
+before using OfflineIMAP?
+
+A. Yes.  OfflineIMAP does a two-way synchronization.  That is, if you
+make a change to the mail on the server, it will be propogated to your
+local copy, and vise-versa.  Some people might think that it would be
+wise to just delete all their local mail folders periodically.  If you
+do this with OfflineIMAP, remember to also remove your local status
+cache (~/.offlineimap by default).  Otherwise, OfflineIMAP will take
+this as an intentional deletion of many messages and will interpret
+your action as requesting them to be deleted from the server as well.
+(If you don't understand this, don't worry; you probably won't
+encounter this situation)
+
+--------------------------------------------------
+
+Q. What's thie Mailbox name recorder (mbnames) thing all about?
+
+A. The Mutt mail reader is not capable of automatically determining
+the names of your mailboxes.  OfflineIMAP can help it (or many other)
+programs out be writing these names out in a format you specify.  See
+the example offlineimap.conf file for details.
+
+--------------------------------------------------
+
+Q. Can I synchronize multiple accounts with OfflineIMAP?
+
+A. Sure.  Just name them all in the accounts line in the general
+section of the config file, and add a per-account section for each one.
+
