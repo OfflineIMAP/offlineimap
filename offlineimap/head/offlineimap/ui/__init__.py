@@ -17,17 +17,25 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import UIBase, BlinkenBase
+import UIBase, Blinkenlights
 try:
     import TTY
 except ImportError:
     pass
+
 try:
     import Tkinter
 except ImportError:
     pass
 else:
     import Tk
+
+try:
+    import curses
+except ImportError:
+    pass
+else:
+    import Curses
 
 import Noninteractive
 

@@ -19,6 +19,7 @@
 from Blinkenlights import BlinkenBase
 from UIBase import UIBase
 from threading import *
+from offlineimap import version, threadutil
 
 import curses, curses.panel, curses.textpad, curses.wrapper
 
@@ -29,6 +30,9 @@ class CursesUtil:
         self.start()
         self.nextpair = 1
         self.pairlock = Lock()
+
+    def isactive(self):
+        return hasattr(self, 'stdscr')
 
     def _getpairindex(self, fg, bg):
         return '%d/%d' % (fg,bg)
@@ -63,15 +67,201 @@ class CursesUtil:
         (self.height, self.width) = self.stdscr.getmaxyx()
 
     def stop(self):
+        if not hasattr(self, 'stdscr'):
+            return
+        #self.stdscr.addstr(self.height - 1, 0, "\n",
+        #                   self.getpair(curses.COLOR_WHITE,
+        #                                curses.COLOR_BLACK))
+        self.stdscr.refresh()
         self.stdscr.keypad(0)
         curses.nocbreak()
         curses.echo()
         curses.endwin()
         del self.stdscr
 
-    #def resize(self):
+    def resize(self):
+        self.stop()
+        self.start()
+
+class CursesThreadFrame:
+    def __init__(s, master):
+        """master should be a CursesUtil object."""
+        s.c = master
+        bg = curses.COLOR_BLACK
+        s.colormap = {'black': s.c.getpair(curses.COLOR_BLACK, bg),
+                         'gray': s.c.getpair(curses.COLOR_WHITE, bg),
+                         'white': curses.A_BOLD | s.c.getpair(curses.COLOR_WHITE, bg),
+                         'blue': s.c.getpair(curses.COLOR_BLUE, bg),
+                         'red': s.c.getpair(curses.COLOR_RED, bg),
+                         'purple': s.c.getpair(curses.COLOR_MAGENTA, bg),
+                         'cyan': s.c.getpair(curses.COLOR_CYAN, bg),
+                         'green': s.c.getpair(curses.COLOR_GREEN, bg),
+                         'orange': s.c.getpair(curses.COLOR_YELLOW, bg),
+                         'yellow': curses.A_BOLD | s.c.getpair(curses.COLOR_YELLOW, bg),
+                         'pink': curses.A_BOLD | s.c.getpair(curses.COLOR_RED, bg)}
+        s.setcolor('gray')
+                         
+    def setcolor(self, color):
+        self.color = self.colormap[color]
+
+    def getcolor(self):
+        return self.color
+
+class InputHandler:
+    def __init__(s, util):
+        s.c = util
+        s.bgchar = None
+        s.inputlock = Lock()
+        s.lockheld = 0
+        s.statuslock = Lock()
+        s.startup = Event()
+        s.startthread()
+
+    def startthread(s):
+        s.thread = threadutil.ExitNotifyThread(target = s.bgreaderloop,
+                                               name = "InputHandler loop")
+        s.thread.setDaemon(1)
+        s.thread.start()
+
+    def bgreaderloop(s):
+        while 1:
+            s.statuslock.acquire()
+            if s.lockheld or s.bgchar == None:
+                s.statuslock.release()
+                s.startup.wait()
+            else:
+                s.statuslock.release()
+                ch = s.c.stdscr.getch()
+                s.statuslock.acquire()
+                try:
+                    if s.lockheld or s.bgchar == None:
+                        curses.ungetch(ch)
+                    else:
+                        s.bgchar(ch)
+                finally:
+                    s.statuslock.release()
+
+    def set_bgchar(s, callback):
+        """Sets a "background" character handler.  If a key is pressed
+        while not doing anything else, it will be passed to this handler.
+
+        callback is a function taking a single arg -- the char pressed.
+
+        If callback is None, clears the request."""
+        s.statuslock.acquire()
+        oldhandler = s.bgchar
+        newhandler = callback
+        s.bgchar = callback
+
+        if oldhandler and not newhandler:
+            pass
+        if newhandler and not oldhandler:
+            s.startup.set()
+            
+        s.statuslock.release()
+
+    def input_acquire(s):
+        """Call this method when you want exclusive input control.
+        Make sure to call input_release afterwards!
+        """
+
+        s.inputlock.acquire()
+        s.statuslock.acquire()
+        s.lockheld = 1
+        s.statuslock.release()
+
+    def input_release(s):
+        """Call this method when you are done getting input."""
+        s.statuslock.acquire()
+        s.lockheld = 0
+        s.statuslock.release()
+        s.inputlock.release()
+        s.startup.set()
         
+class Blinkenlights(BlinkenBase, UIBase):
+    def init_banner(s):
+        s.iolock = Lock()
+        s.c = CursesUtil()
+        s.accounts = []
+        s.text = []
+        s.tf = CursesThreadFrame(s.c)
+        s.setupwindows()
+        s.inputhandler = InputHandler(s.c)
+        s._msg(version.banner)
+        s._msg(str(dir(s.c.stdscr)))
+        s.inputhandler.set_bgchar(s.keypress)
+
+    def keypress(s, key):
+        s._msg("Key pressed: " + str(key))
+
+    def setupwindows(s):
+        s.bannerwindow = curses.newwin(1, s.c.width, 0, 0)
+        s.drawbanner()
+        s.logheight = s.c.height - 1 - len(s.accounts) * 2
+        s.logwindow = curses.newwin(s.logheight, s.c.width, 1, 0)
+        s.logwindow.idlok(1)
+        s.logwindow.scrollok(1)
+        s.drawlog()
+        curses.doupdate()
+
+    def drawbanner(s):
+        s.bannerwindow.bkgd(' ', curses.A_BOLD | \
+                            s.c.getpair(curses.COLOR_WHITE,
+                                        curses.COLOR_BLUE))
+        s.bannerwindow.addstr("%s %s" % (version.productname,
+                                         version.versionstr))
+        s.bannerwindow.addstr(0, s.bannerwindow.getmaxyx()[1] - len(version.copyright) - 1,
+                              version.copyright)
+
+        s.bannerwindow.noutrefresh()
+
+    def drawlog(s):
+        s.logwindow.bkgd(' ', s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK))
+        for line, color in s.text:
+            s.logwindow.addstr(line + "\n", color)
+            s.logwindow.noutrefresh()
+
+    def gettf(s):
+        return s.tf
+
+    def _msg(s, msg):
+        if "\n" in msg:
+            for thisline in msg.split("\n"):
+                s._msg(thisline)
+            return
+        s.iolock.acquire()
+        try:
+            if not s.c.isactive():
+                # For dumping out exceptions and stuff.
+                print msg
+                return
+            color = s.gettf().getcolor()
+            s.logwindow.addstr(msg + "\n", color)
+            s.text.append((msg, color))
+            while len(s.text) > s.logheight:
+                s.text = s.text[1:]
+            s.logwindow.refresh()
+        finally:
+            s.iolock.release()
+
+    def terminate(s, exitstatus = 0):
+        s.c.stop()
+        UIBase.terminate(s, exitstatus)
+
+    def threadException(s, thread):
+        s.c.stop()
+        UIBase.threadException(s, thread)
+
+    def mainException(s):
+        s.c.stop()
+        UIBase.mainException()
+            
 if __name__ == '__main__':
+    x = Blinkenlights(None)
+    x.init_banner()
+    import time
+    time.sleep(10)
+    x.c.stop()
     fgs = {'black': curses.COLOR_BLACK, 'red': curses.COLOR_RED,
            'green': curses.COLOR_GREEN, 'yellow': curses.COLOR_YELLOW,
            'blue': curses.COLOR_BLUE, 'magenta': curses.COLOR_MAGENTA,
@@ -111,6 +301,3 @@ if __name__ == '__main__':
     print x.height
     print x.width
 
-#class Blinkenlights(BlinkenBase, UIBase):
-#    def init_banner(s):
-        

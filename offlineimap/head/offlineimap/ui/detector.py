@@ -46,5 +46,6 @@ def getUImod(uistr, localeval, namespace):
     try:
         uimod = localeval.eval(uistr, namespace)
     except (AttributeError, NameError), e:
+        #raise
         return None
     return uimod

@@ -21,10 +21,6 @@ class BlinkenBase:
     or another appropriate base class.  The Tk interface, for instance,
     will probably mix it in with VerboseUI."""
 
-    def isusable(s):
-        "This class is not usable by itself; please override this."
-        return 0
-
     def acct(s, accountname):
         s.gettf().setcolor('purple')
         s.__class__.__bases__[-1].acct(s, accountname)

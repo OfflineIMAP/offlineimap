@@ -1,14 +1,14 @@
 productname = 'OfflineIMAP'
 versionstr = "3.99.5"
-revno = long('$Rev: 288 $'[6:-2])
+revno = long('$Rev: 301 $'[6:-2])
 revstr = "Rev %d" % revno
-datestr = '$Date: 2002-11-19 16:34:09 -0600 (Tue, 19 Nov 2002) $'
+datestr = '$Date: 2003-01-04 19:51:35 -0600 (Sat, 04 Jan 2003) $'
 
 versionlist = versionstr.split(".")
 major = versionlist[0]
 minor = versionlist[1]
 patch = versionlist[2]
-copyright = "Copyright (C) 2002 John Goerzen"
+copyright = "Copyright (C) 2002, 2003 John Goerzen"
 author = "John Goerzen"
 author_email = "jgoerzen@complete.org"
 description = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
