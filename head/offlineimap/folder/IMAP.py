@@ -20,6 +20,7 @@ from Base import BaseFolder
 from offlineimap import imaputil, imaplib
 import rfc822
 from StringIO import StringIO
+from copy import copy
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname):
@@ -139,16 +140,30 @@ class IMAPFolder(BaseFolder):
             r = imapobj.uid('store',
                             ','.join([str(uid) for uid in uidlist]),
                             '+FLAGS',
-                            imaputil.flagsmaildir2imap(flags))[1]
+                            imaputil.flagsmaildir2imap(flags))
+            assert r[0] == 'OK', 'Error with store: ' + r[1]
+            r = r[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
-        resultcount = 0
+        # Some IMAP servers do not always return a result.  Therefore,
+        # only update the ones that it talks about, and manually fix
+        # the others.
+        needupdate = copy(uidlist)
         for result in r:
-            resultcount += 1
+            if result == None:
+                continue
             flags = imaputil.flags2hash(imaputil.imapsplit(result)[1])['FLAGS']
             uid = long(imaputil.flags2hash(imaputil.imapsplit(result)[1])['UID'])
             self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
-        assert resultcount == len(uidlist), "Got incorrect number of results back"
+            try:
+                needupdate.remove(uid)
+            except ValueError:          # Let it slide if it's not in the list
+                pass
+        for uid in needupdate:
+            for flag in flags:
+                if not flag in self.messagelist[uid]['flags']:
+                    self.messagelist[uid]['flags'].append(flag)
+                self.messagelist[uid]['flags'].sort()
 
     def deletemessage(self, uid):
         self.deletemessages([uid])
@@ -167,6 +182,6 @@ class IMAPFolder(BaseFolder):
         finally:
             self.imapserver.releaseconnection(imapobj)
         for uid in uidlist:
-            del(self.messagelist[uid])
+            del self.messagelist[uid]
         
         
