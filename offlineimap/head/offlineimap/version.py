@@ -1,9 +1,8 @@
 productname = 'OfflineIMAP'
 versionstr = "4.0.3"
-revno = long('$Rev: 580 $'[6:-2])
+revno = long('$Rev: 581 $'[6:-2])
 revstr = "Rev %d" % revno
-datestr = '$Date: 2004-06-04 10:47:21 -0500 (Fri, 04 Jun 2004) $'
-
+datestr = '$Date: 2004-06-04 10:50:57 -0500 (Fri, 04 Jun 2004) $'
 
 versionlist = versionstr.split(".")
 major = versionlist[0]

@@ -87,10 +87,10 @@ binary-indep: build install
 	dh_strip
 	dh_compress
 	dh_fixperms
-#	dh_makeshlibs
-	dh_installdeb
 #	dh_perl
 	dh_python
+#	dh_makeshlibs
+	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
