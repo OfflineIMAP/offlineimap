@@ -9,6 +9,8 @@ offlineimap (4.0.3) unstable; urgency=low
     Closes: #252645.
   * Fixed typos in manual.  Closes: #252646.
   * Regenerated docs.
+  * Applied patch from Daniel James to adjust the insertion point
+    for a new header.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri,  4 Jun 2004 10:10:00 -0500
 

@@ -126,20 +126,22 @@ class IMAPFolder(BaseFolder):
         ui.debug('imap',
                  'savemessage_addheader: called to add %s: %s' % (headername,
                                                                   headervalue))
+        newline = "%s: %s" % (headername, headervalue)
+        ui.debug('imap', 'savemessage_addheader: newline = ' + repr(newline))
+
         insertionpoint = content.find("\r\n")
         ui.debug('imap', 'savemessage_addheader: insertionpoint = %d' % insertionpoint)
-        leader = content[0:insertionpoint]
-        ui.debug('imap', 'savemessage_addheader: leader = %s' % repr(leader))
-        if insertionpoint == 0 or insertionpoint == -1:
-            newline = ''
-            insertionpoint = 0
+
+        if insertionpoint == -1:
+            return newline + "\r\n" + content
+        elif insertionpoint == 0:
+            return newline + content
         else:
-            newline = "\r\n"
-        newline += "%s: %s" % (headername, headervalue)
-        ui.debug('imap', 'savemessage_addheader: newline = ' + repr(newline))
-        trailer = content[insertionpoint:]
-        ui.debug('imap', 'savemessage_addheader: trailer = ' + repr(trailer))
-        return leader + newline + trailer
+            leader = content[0:insertionpoint]
+            ui.debug('imap', 'savemessage_addheader: leader = %s' % repr(leader))
+            trailer = content[insertionpoint:]
+            ui.debug('imap', 'savemessage_addheader: trailer = ' + repr(trailer))
+            return leader + "\r\n" + newline + trailer
 
     def savemessage_searchforheader(self, imapobj, headername, headervalue):
         if imapobj.untagged_responses.has_key('APPENDUID'):
