@@ -139,7 +139,7 @@ class ThreadFrame(Frame):
         self.message['text'] = newtext
         
 
-class TkUI(UIBase):
+class VerboseUI(UIBase):
     def isusable(s):
         try:
             Tk().destroy()
@@ -173,7 +173,9 @@ class TkUI(UIBase):
         pd = PasswordDialog(accountname, config)
         return pd.getpassword()
 
-    def gettf(s):
+    def gettf(s, newtype=ThreadFrame, master = None):
+        if master == None:
+            master = s.top
         threadid = thread.get_ident()
         s.tflock.acquire()
         try:
@@ -183,7 +185,7 @@ class TkUI(UIBase):
                 tf = s.availablethreadframes.pop(0)
                 tf.setthread(currentThread())
             else:
-                tf = ThreadFrame(s.top)
+                tf = newtype(master)
             s.threadframes[threadid] = tf
             return tf
         finally:
@@ -279,4 +281,85 @@ class TkUI(UIBase):
         time.sleep(sleepsecs)
         return s.sleeping_abort
 
+TkUI = VerboseUI
 
+class LEDCanvas(Canvas):
+    def createLEDLock(self):
+        self.ledlock = Lock()
+    def acquireLEDLock(self):
+        self.ledlock.acquire()
+    def releaseLEDLock(self):
+        self.ledlock.release()
+    def setLEDCount(self, arg):
+        self.ledcount = arg
+    def getLEDCount(self):
+        return self.ledcount
+    def incLEDCount(self):
+        self.ledcount += 1
+
+class LEDThreadFrame:
+    def __init__(self, master):
+        self.canvas = master
+        try:
+            self.canvas.acquireLEDLock()
+            startpos = 5 + self.canvas.getLEDCount() * 10
+            self.canvas.incLEDCount()
+        finally:
+            self.canvas.releaseLEDLock()
+        self.ovalid = self.canvas.create_oval(startpos, 5, startpos + 5,
+                                              10, fill = 'gray',
+                                              outline = '#303030')
+
+    def _setcolor(self, newcolor):
+        self.canvas.itemconfigure(self.ovalid, fill = newcolor)
+
+    def setthread(self, newthread):
+        if newthread:
+            self._setcolor('gray')
+        else:
+            self._setcolor('black')
+
+    def destroythreadextraframe(self):
+        pass
+
+    def getthreadextraframe(self):
+        raise NotImplementedError
+
+    def setaccount(self, account):
+        pass
+    def setmailbox(self, mailbox):
+        pass
+    def updateloclabel(self):
+        pass
+    def appendmessage(self, newtext):
+        pass
+    def setmessage(self, newtext):
+        pass
+         
+
+class Blinkenlights(VerboseUI):
+    def _createTopWindow(self):
+        VerboseUI._createTopWindow(self)
+        c = LEDCanvas(self.top, background = 'black', height = 20)
+        c.setLEDCount(0)
+        c.createLEDLock()
+        self.canvas = c
+        c.pack(side = BOTTOM)
+
+    def gettf(s, newtype=LEDThreadFrame):
+        return VerboseUI.gettf(s, newtype, s.canvas)
+
+    def init_banner(s):
+        s._createTopWindow()
+
+    def threadExited(s, thread):
+        threadid = thread.threadid
+        s.tflock.acquire()
+        try:
+            if threadid in s.threadframes:
+                tf = s.threadframes[threadid]
+                del s.threadframes[threadid]
+                s.availablethreadframes.append(tf)
+                tf.setthread(None)
+        finally:
+            s.tflock.release()
