@@ -1,3 +1,30 @@
+2002-07-08 11:32  jgoerzen
+
+	* debian/changelog, offlineimap/folder/IMAP.py,
+	offlineimap/repository/IMAP.py: Fixed a syntax error
+
+2002-07-08 11:30  jgoerzen
+
+	* offlineimap.conf, debian/changelog,
+	offlineimap/repository/IMAP.py: Added folderincludes capability
+
+2002-07-08 11:23  jgoerzen
+
+	* offlineimap.conf: Fixed folderfilter example
+
+2002-07-08 11:23  jgoerzen
+
+	* debian/changelog, offlineimap/version.py: Updated for 2.0.5
+
+2002-07-08 11:22  jgoerzen
+
+	* offlineimap/folder/IMAP.py: Updated to work better with read-only
+	folders
+
+2002-07-05 09:22  jgoerzen
+
+	* ChangeLog: Updated
+
 2002-07-05 09:22  jgoerzen
 
 	* TODO, debian/changelog, offlineimap/imaputil.py,
