@@ -95,7 +95,8 @@ else:
 
 for account in accounts:
     if '.' in account:
-        raise ValueError, "Account '%s' contains a dot; dots are not allowed in account names."
+        raise ValueError, "Account '%s' contains a dot; dots are not " \
+            "allowed in account names." % account
     if config.has_option(account, "preauthtunnel"):
         tunnels[account] = config.get(account, "preauthtunnel")
     elif config.has_option(account, "remotepass"):
