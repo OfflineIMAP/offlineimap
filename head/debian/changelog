@@ -1,3 +1,12 @@
+offlineimap (3.0.2) unstable; urgency=low
+
+  * Fixed mailbox name recorder to use localfolder.getvisiblename() rather
+    than remotefolder.getvisiblename()
+  * Fixed remotepassfile option.  Closes: #153119.  Used 1-line patch from
+    Tommi Virtanen.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 15 Jul 2002 19:43:36 -0500
+
 offlineimap (3.0.1) unstable; urgency=low
 
   * Detabified the source.

@@ -90,7 +90,7 @@ for account in accounts:
     elif config.has_option(account, "remotepass"):
         passwords[account] = config.get(account, "remotepass")
     elif config.has_option(account, "remotepassfile"):
-        passfile = os.path.expanduser(config.get(account, "remotepassfile"))
+        passfile = open(os.path.expanduser(config.get(account, "remotepassfile")))
         passwords[account] = passfile.readline().strip()
         passfile.close()
     else:
@@ -103,15 +103,8 @@ for account in accounts:
                                          config.getint(account, "maxconnections"))
 
 mailboxes = []
-mailboxlock = Lock()
 servers = {}
 
-def addmailbox(accountname, remotefolder):
-    mailboxlock.acquire()
-    mailboxes.append({'accountname' : accountname,
-                      'foldername': remotefolder.getvisiblename()})
-    mailboxlock.release()    
-    
 def syncaccount(accountname, *args):
     # We don't need an account lock because syncitall() goes through
     # each account once, then waits for all to finish.
@@ -160,12 +153,13 @@ def syncaccount(accountname, *args):
 
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos):
-    mailboxes.append({'accountname': accountname,
-                      'foldername': remotefolder.getvisiblename()})
     # Load local folder.
     localfolder = localrepos.\
                   getfolder(remotefolder.getvisiblename().\
                             replace(remoterepos.getsep(), localrepos.getsep()))
+    # Write the mailboxes
+    mailboxes.append({'accountname': accountname,
+                      'foldername': localfolder.getvisiblename()})
     # Load local folder
     ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
     ui.loadmessagelist(localrepos, localfolder)
