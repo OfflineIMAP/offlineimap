@@ -1,58 +1,160 @@
-<!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+  <!ENTITY OfflineIMAP "<application>OfflineIMAP</application>">
+]>
 <!-- -*- DocBook -*- -->
 <!--      "file:///usr/share/sgml/docbook/dtd/xml/4.2/docbookx.dtd"> -->
 
 <reference>
-  <!--
-  <docinfo>
-    <address><email>jgoerzen@complete.org</email></address>
-    <author><firstname>John</firstname><surname>Goerzen</surname></author>
-    <date>$Date$</date>
-    <title>OfflineIMAP Manual</title>
-  </docinfo> -->
-
   <title>OfflineIMAP Manual</title>
 
-<refentry>
-  <refentryinfo>
-    <address><email>jgoerzen@complete.org</email></address>
-    <author><firstname>John</firstname><surname>Goerzen</surname></author>
-    <date>$Date$</date>
-  </refentryinfo>
-  <refmeta>
-    <refentrytitle>OFFLINEIMAP</refentrytitle>
-    <manvolnum>1</manvolnum>
-    <refmiscinfo>John Goerzen</refmiscinfo>
-  </refmeta>
+  <refentry>
+    <refentryinfo>
+      <address><email>jgoerzen@complete.org</email></address>
+      <author><firstname>John</firstname><surname>Goerzen</surname></author>
+      <date>$Date$</date>
+    </refentryinfo>
 
-  <refnamediv>
-    <refname>OfflineIMAP</refname> <refpurpose>Powerful IMAP/Maildir
-      synchronization and reader support</refpurpose>
-  </refnamediv>
+    <refmeta>
+      <refentrytitle>offlineimap</refentrytitle>
+      <manvolnum>1</manvolnum>
+      <refmiscinfo>John Goerzen</refmiscinfo>
+    </refmeta>
 
-  <refsynopsisdiv>
-    <cmdsynopsis>
-      <command>offlineimap</command>
-      <arg>-1</arg>
-      <arg>-P <replaceable>profiledir</replaceable></arg>
-      <arg>-a <replaceable>accountlist</replaceable></arg>
-      <arg>-c <replaceable>configfile</replaceable></arg>
-      <arg>-d <replaceable>debugtype[,...]</replaceable></arg>
-      <arg>-o</arg>
-      <arg>-u <replaceable>interface</replaceable></arg>
-      <sbr><sbr>
-      <command>offlineimap</command>
-      <group choice="plain"><arg>-h</arg><arg>--help</arg></group>
-    </cmdsynopsis>
-  </refsynopsisdiv>
+    <refnamediv>
+      <refname>OfflineIMAP</refname>
+      <refpurpose>Powerful IMAP/Maildir synchronization
+	and reader support</refpurpose>
+    </refnamediv>
 
-  <refsect1>
-    <title>Description</title>
-    <para>This is a test.  Foo, bar.</para>
-  </refsect1>
-  <refsect1>
-    <title>See Also</title>
-    <para>This is also a test.  Foo bar.</para>
-  </refsect1>
-</refentry>
+    <refsynopsisdiv>
+      <cmdsynopsis>
+	<command>offlineimap</command>
+	<arg>-1</arg>
+	<arg>-P <replaceable>profiledir</replaceable></arg>
+	<arg>-a <replaceable>accountlist</replaceable></arg>
+	<arg>-c <replaceable>configfile</replaceable></arg>
+	<arg>-d <replaceable>debugtype[,...]</replaceable></arg>
+	<arg>-o</arg>
+	<arg>-u <replaceable>interface</replaceable></arg>
+      </cmdsynopsis>
+      <cmdsynopsis>
+	<command>offlineimap</command>
+	<group choice="plain"><arg>-h</arg><arg>--help</arg></group>
+      </cmdsynopsis>
+    </refsynopsisdiv>
+
+    <refsect1>
+      <title>Description</title>
+
+      <para>&OfflineIMAP; is  a  tool  to  simplify  your  e-mail
+	reading.  With &OfflineIMAP;, you can read the same mailbox
+	from multiple computers.  You get a current copy of your
+	messages on each computer, and changes you make one place will be
+	visible on all other systems.  For instance, you can delete a message
+	on your home computer, and it will appear deleted on your work
+	computer as well.  &OfflineIMAP; is also useful if you want to
+	use a mail reader that does not have IMAP support, has poor IMAP
+	support, or does not provide disconnected operation.
+      </para>
+
+      <para>&OfflineIMAP; is <emphasis>FAST</emphasis>; it synchronizes
+        my two accounts with over 50 folders in 3 seconds.  Other
+        similar tools might take over a minute, and achieve a
+        less-reliable result.  Some mail readers can take over 10
+        minutes to do the same thing, and some don't even support it
+        at all.  Unlike other mail tools, &OfflineIMAP; features a
+        multi-threaded synchronization algorithm that can dramatically
+        speed up performance in many situations by synchronizing
+        several different things simultaneously.
+      </para>
+
+      <para>&OfflineIMAP; is <emphasis>FLEXIBLE</emphasis>; you can
+        customize which folders are synced via regular expressions,
+        lists, or Python expressions; a versatile and comprehensive
+        configuration file is used to control behavior; two user
+        interfaces are built-in; fine-tuning of synchronization
+        performance is possible; internal or external automation is
+        supported; SSL and PREAUTH tunnels are both supported; offline
+        (or "unplugged") reading is supported; and esoteric IMAP
+        features are supported to ensure compatibility with the widest
+        variety of IMAP servers.
+      </para>
+
+      <para>&OfflineIMAP; is <emphasis>SAFE</emphasis>; it uses an
+        algorithm designed to prevent mail loss at all costs.  Because
+        of the design of this algorithm, even programming errors
+        should not result in loss of mail.  I am so confident in the
+        algorithm that I use my own personal and work accounts for
+        testing of &OfflineIMAP; pre-release, development, and beta
+	releases.  Of course, legally speaking, &OfflineIMAP; comes
+        with no warranty, so I am not responsible if this turns out
+        to be wrong.
+      </para>
+
+      <refsect2>
+        <title>Method of Operation</title>
+       
+        <para>&OfflineIMAP; operates by maintaining a hierarchy of
+	  mail folders in Maildir format locally.  Your own mail
+	  reader will read mail from this tree, and need never know
+	  that the mail comes from IMAP.  &OfflineIMAP; will detect
+	  changes to the mail folders on your IMAP server and your own
+	  computer and bi-directionally synchronize them, copying,
+	  marking, and deleting messages as necessary.
+        </para>
+      </refsect2>
+    </refsect1>
+    
+    <refsect1>
+      <title>Quick Start</title>
+      <para>If you have already installed &OfflineIMAP; system-wide,
+        or your system adminstrator has done that for you, your task
+        for setting up &OfflineIMAP; for the first time is quite
+        simple.  You just need to set up your configuration file, make
+        your folder directory, and run it!
+      </para>
+
+	<para>You can quickly set up your configuration file.  The distribution
+	  includes a file <filename>offlineimap.conf.minimal</filename>
+	  (Debian users
+	  may find this at
+          <filename>/usr/share/doc/offlineimap/examples/offlineimap.conf.minimal</filename>) that is a basic example of setting of &OfflineIMAP;.  You can
+	  simply copy this file into your home directory and name it
+	  <filename>.offlineimaprc</filename> (note the leading period).  A
+	  command such as <command>cp offlineimap.conf.minimal ~/.offlineimaprc</command> will do it.  Or, if you prefer, you can just copy this text to
+	  <filename>~/.offlineimaprc</filename>:
+	</para>
+
+	<PROGRAMLISTING>[general]
+accounts = Test
+
+[Test]
+localfolders = ~/Test
+remotehost = examplehost
+remoteuser = jgoerzen
+</PROGRAMLISTING>
+
+        <para>Now, edit the <filename>~/.offlineimaprc</filename> file with
+	  your favorite editor.  All you have to do is specify a directory
+	  for your folders to be in (on the <property>localfolders</property>
+	  line), the host name of your IMAP server (on the
+	  <property>remotehost</property> line), and your login name on
+	  the remote (on the <property>remoteuser</property> line).  That's
+	  it!</para>
+
+	<para>To run &OfflineIMAP;, you just have to say
+	  <command>offlineimap</command> -- it will fire up, ask you for
+	  a login password if necessary, synchronize your folders, and exit.
+	  See?  You can just throw away the rest of this finely-crafted,
+	  perfectly-honed manual!  Of course, if you want to see how you can
+	  make &OfflineIMAP; FIVE TIMES FASTER FOR JUST $19.95 (err, well,
+	  $0), you have to read on!
+	</para>
+
+    </refsect1>
+    <refsect1>
+      <title>See Also</title>
+      <para>This is also a test.  Foo bar.</para>
+    </refsect1>
+  </refentry>
 </reference>
