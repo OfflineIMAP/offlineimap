@@ -65,7 +65,11 @@ class BaseFolder:
         If the backend cannot assign a new uid, it returns the uid passed in.
         IMAP backend should be the only one that can assign a new uid.
         If the uid is < 0 and the backend cannot assign a new UID, it is
-        required to TAKE NO ACTION other than returning the uid passed in."""
+        required to TAKE NO ACTION other than returning the uid passed in.
+
+        If the uid is > 0, the backend should set the uid to this, if it can.
+        It will return the uid assigned in any case.
+        """
         raise NotImplementedException
 
     def getmessageflags(self, uid):

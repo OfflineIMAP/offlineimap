@@ -21,6 +21,7 @@ from imapsync import imaplib, imaputil, imapserver, repository, folder
 import re, getpass, os, os.path
 from ConfigParser import ConfigParser
 
+imaplib.Debug = 5
 config = ConfigParser()
 config.read("imapsync.conf")
 metadatadir = os.path.expanduser(config.get("general", "metadata"))
