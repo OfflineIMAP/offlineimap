@@ -287,6 +287,8 @@ class VerboseUI(UIBase):
 
 TkUI = VerboseUI
 
+################################################## Blinkenlights
+
 class LEDCanvas(Canvas):
     def createLEDLock(self):
         self.ledlock = Lock()
@@ -404,6 +406,14 @@ class Blinkenlights(VerboseUI):
         if s.config.has_option("ui.Tk.Blinkenlights", "showlog") and \
            s.config.getboolean("ui.Tk.Blinkenlights", "showlog"):
             s._togglelog()
+        #s.tflock.acquire()
+        #try:
+        #    for i in range(s.top.winfo_reqwidth() / 10 - 1):
+        #        newframe = LEDThreadFrame(s.canvas)
+        #        newframe.setthread(None)
+        #        s.availablethreadframes.append(newframe)
+        #finally:
+        #    s.tflock.release()
 
     def _togglelog(s):
         if s.textenabled:
@@ -531,13 +541,13 @@ class Blinkenlights(VerboseUI):
         if remainingsecs:
             s.menubar.entryconfig('end', label = "Sync now (%d:%02d remain)" % \
                           (remainingsecs / 60, remainingsecs % 60))
+            if s.gettf().getcolor() == 'red':
+                s.gettf().setcolor('black')
+            else:
+                s.gettf().setcolor('red')
+            time.sleep(sleepsecs)
         else:
             s.menubar.delete('end')
             s.gettf().setcolor('black')
-        if s.gettf().getcolor() == 'red':
-            s.gettf().setcolor('black')
-        else:
-            s.gettf().setcolor('red')
-        time.sleep(sleepsecs)
         return s.sleeping_abort
     
