@@ -142,7 +142,9 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                          len(remotefolder.getmessagelist().keys()))
 
     # Load status folder.
-    statusfolder = statusrepos.getfolder(remotefolder.getvisiblename())
+    statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
+                                         replace(remoterepos.getsep(),
+                                                 statusrepos.getsep()))
     statusfolder.cachemessagelist()
 
     #
@@ -216,6 +218,8 @@ t.setDaemon(1)
 t.start()
 try:
     threadutil.exitnotifymonitorloop(threadexited)
+except SystemExit:
+    raise
 except:
     ui.mainException()                  # Also expected to terminate.
 

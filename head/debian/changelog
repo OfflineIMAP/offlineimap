@@ -1,6 +1,14 @@
 offlineimap (2.0.1) unstable; urgency=low
 
   * Fixed a bug with not properly propogating foldersep changes.
+    Now, local folders and status folders properly use the foldersep
+    mechanism.  This corrects a problem with Exchange servers.
+  * Wrote a major new thread montiring subsystem, defined a new
+    ExitNotifyThread.  Handling of Ctrl-C now occurs within 1 second
+    rather than after the whole program terminates.  Exceptions that
+    occur in a thread are now caught by the main thread and marshalled
+    over into the UI side of things for dispatch.  The entire program will
+    now abort when one thread dies with an exception.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu,  4 Jul 2002 09:07:06 -0500
 

@@ -1,3 +1,27 @@
+2002-07-04 11:58  jgoerzen
+
+	* offlineimap.py, debian/changelog, offlineimap/version.py: Updated
+	for 2.0.1
+
+2002-07-04 11:34  jgoerzen
+
+	* offlineimap.py, debian/changelog, offlineimap/threadutil.py,
+	offlineimap/folder/Base.py, offlineimap/ui/TTY.py,
+	offlineimap/ui/UIBase.py: Revamped thread system to handle
+	exceptions better
+
+2002-07-04 09:07  jgoerzen
+
+	* offlineimap.py: Fixed a problem with different folder seps
+
+2002-07-04 09:04  jgoerzen
+
+	* offlineimap/version.py: Updated for 2.0.0
+
+2002-07-03 21:47  jgoerzen
+
+	* ChangeLog: Final prep for 2.0.0
+
 2002-07-03 21:44  jgoerzen
 
 	* debian/changelog: Updated
