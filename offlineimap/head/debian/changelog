@@ -15,7 +15,7 @@ offlineimap (3.2.2) unstable; urgency=low
     Closes: #155460.
   * Preventitive security: Folder names may not contain ./ or start with /.
 
- -- John Goerzen <jgoerzen@complete.org>  Thu, 25 Jul 2002 08:22:25 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 07 Aug 2002 20:22:25 -0500
 
 offlineimap (3.2.1) unstable; urgency=low
 

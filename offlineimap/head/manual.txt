@@ -236,7 +236,6 @@ USER INTERFACES
        what  task the particular thread is performing, and are as
        follows:
 
-
        Black  indicates that this light's thread has  terminated;
               it will light up again later when new threads start
               up.  So, black indicates no activity.
@@ -246,15 +245,18 @@ USER INTERFACES
               basically  does nothing but monitor the others.  It
               might remind you of HAL 9000 in 2001.
 
-       Purple is the color of an account  synchronization  thread
-              that  is  monitoring the progress of the folders in
+       Gray   indicates that the thread  is  establishing  a  new
+              connection to the IMAP server.
+
+       Purple is  the  color of an account synchronization thread
+              that is monitoring the progress of the  folders  in
               that account (not generating any I/O).
 
        Cyan   indicates that the thread is syncing a folder.
 
        Green  means that a folder's message list is being loaded.
 
-       Blue   is  the  color  of  a  message synchronization con-
+       Blue   is the color  of  a  message  synchronization  con-
               troller thread.
 
        Orange indicates that an actual message is being copied.
@@ -262,83 +264,83 @@ USER INTERFACES
        Red (Meaning 2)
               indicates that a message is being deleted.
 
-       Yellow (bright orange) indicates that  message  flags  are
+       Yellow (bright  orange)  indicates  that message flags are
               being added.
 
        Pink   (bright red) indicates that message flags are being
               removed.
 
        Red / Black Flashing
-              corresponds  to  the  countdown  timer  that   runs
+              corresponds   to  the  countdown  timer  that  runs
               between synchronizations.
 
-       The  name of this interface derives from a bit of computer
+       The name of this interface derives from a bit of  computer
        science  history.   Eric  Raymond's  Jargon  File  defines
        blinkenlights, in part, as:
 
               Front-panel diagnostic lights on a computer, esp. a
-              dinosaur. Now that dinosaurs are  rare,  this  term
+              dinosaur.  Now  that  dinosaurs are rare, this term
               usually refers to status lights on a modem, network
               hub, or the like.
 
-              This term derives from the last word of the  famous
-              blackletter-Gothic  sign  in  mangled pseudo-German
-              that once graced about half the computer  rooms  in
-              the  English-speaking world. One version ran in its
+              This  term derives from the last word of the famous
+              blackletter-Gothic sign  in  mangled  pseudo-German
+              that  once  graced about half the computer rooms in
+              the English-speaking world. One version ran in  its
               entirety as follows:
 
               ACHTUNG! ALLES LOOKENSPEEPERS!
 
-              Das computermachine ist  nicht  fuer  gefingerpoken
-              und  mittengrabben.   Ist easy schnappen der sprin-
-              genwerk,   blowenfusen   und    poppencorken    mit
-              spitzensparken.   Ist  nicht  fuer gewerken bei das
-              dumpkopfen.  Das  rubbernecken  sichtseeren  keepen
+              Das  computermachine  ist  nicht fuer gefingerpoken
+              und mittengrabben.  Ist easy schnappen  der  sprin-
+              genwerk,    blowenfusen    und   poppencorken   mit
+              spitzensparken.  Ist nicht fuer  gewerken  bei  das
+              dumpkopfen.   Das  rubbernecken  sichtseeren keepen
               das  cotten-pickenen  hans  in  das  pockets  muss;
               relaxen und watchen das blinkenlichten.
 
    Tk.VerboseUI
-       This interface (formerly known as Tk.TkUI) is a  graphical
-       interface  that  presents a variable-sized window.  In the
-       window, each  currently-executing  thread  has  a  section
-       where  its  name  and  current status are displayed.  This
-       interface is best suited to people running on slower  con-
+       This  interface (formerly known as Tk.TkUI) is a graphical
+       interface that presents a variable-sized window.   In  the
+       window,  each  currently-executing  thread  has  a section
+       where its name and current  status  are  displayed.   This
+       interface  is best suited to people running on slower con-
        nections, as you get a lot of detail, but for fast connec-
-       tions, the detail may go by  too  quickly  to  be  useful.
-       People  with  fast connections may wish to use Tk.Blinken-
+       tions,  the  detail  may  go  by too quickly to be useful.
+       People with fast connections may wish to  use  Tk.Blinken-
        lights instead.
 
    TTY.TTYUI
        This interface is the default for people running in termi-
-       nals.   It prints out basic status messages, has an inter-
-       ruptible timer like the graphical interfaces  do,  and  is
+       nals.  It prints out basic status messages, has an  inter-
+       ruptible  timer  like  the graphical interfaces do, and is
        generally friendly to use on a console or xterm.
 
    Noninteractive.Basic
-       This   interface   is   designed   for   situations  where
+       This  interface   is   designed   for   situations   where
        OfflineIMAP will be run non-attended and the status of its
        execution will be logged.  You might use it, for instance,
-       to have the system run automatically and  e-mail  you  the
-       results  of  the  synchronization.  This user interface is
-       not capable of  reading  a  password  from  the  keyboard;
-       account  passwords must be specified using one of the con-
+       to  have  the  system run automatically and e-mail you the
+       results of the synchronization.  This  user  interface  is
+       not  capable  of  reading  a  password  from the keyboard;
+       account passwords must be specified using one of the  con-
        figuration file options.
 
    Noninteractive.Quiet
-       This interface is designed  for  non-attended  running  in
-       situations  where  normal status messages are not desired.
+       This  interface  is  designed  for non-attended running in
+       situations where normal status messages are  not  desired.
        It will output nothing except errors and serious warnings.
-       Like  Noninteractive.Basic,  this  user  interface  is not
-       capable of reading a password from the  keyboard;  account
+       Like Noninteractive.Basic,  this  user  interface  is  not
+       capable  of  reading a password from the keyboard; account
        passwords must be specified using one of the configuration
        file options.
 
 EXAMPLES
-       Here is an example configuration for a  particularly  com-
+       Here  is  an example configuration for a particularly com-
        plex situation; more examples will be added later.
 
    MULTIPLE ACCOUNTS WITH MUTT
-       This  example  shows you how to set up OfflineIMAP to syn-
+       This example shows you how to set up OfflineIMAP  to  syn-
        chronize multiple accounts with the mutt mail reader.
 
        Start by creating a directory to hold your folders:
@@ -347,8 +349,8 @@ EXAMPLES
        In your ~/.offlineimaprc, specify this:
        accounts = Personal, Work
 
-       Make sure that you have both a  [Personal]  and  a  [Work]
-       section,  with  different localfolder pathnames and enable
+       Make  sure  that  you  have both a [Personal] and a [Work]
+       section, with different localfolder pathnames  and  enable
        [mbnames].
 
        In each account section, do something like this:
@@ -365,13 +367,13 @@ EXAMPLES
        That's it!
 
    UW-IMAPD AND REFERENCES
-       Some  users  with  a   UW-IMAPD   server   need   to   use
-       OfflineIMAP's  "reference"  feature  to get at their mail-
+       Some   users   with   a   UW-IMAPD   server  need  to  use
+       OfflineIMAP's "reference" feature to get  at  their  mail-
        boxes,  specifying  a  reference  of  "~/Mail"  or  "#mh/"
-       depending  on  the configuration.  The below configuration
-       from docwhat@gerf.org shows using a reference of  Mail,  a
-       nametrans  that  strips  the  leading  Mail/  off incoming
-       folder names, and a folderfilter that limits  the  folders
+       depending on the configuration.  The  below  configuration
+       from  docwhat@gerf.org  shows using a reference of Mail, a
+       nametrans that  strips  the  leading  Mail/  off  incoming
+       folder  names,  and a folderfilter that limits the folders
        synced to just three.
 
        [Gerf]
@@ -398,49 +400,49 @@ ERRORS
        errors, please check this section.
 
    UID validity problem for folder
-       IMAP servers use a unique ID (UID) to refer to a  specific
+       IMAP  servers use a unique ID (UID) to refer to a specific
        message.  This number is guaranteed to be unique to a par-
-       ticular message FOREVER.  No other  message  in  the  same
-       folder  will  ever get the same UID.  UIDs are an integral
-       part of OfflineIMAP's  synchronization  scheme;  they  are
-       used  to match up messages on your computer to messages on
+       ticular  message  FOREVER.   No  other message in the same
+       folder will ever get the same UID.  UIDs are  an  integral
+       part  of  OfflineIMAP's  synchronization  scheme; they are
+       used to match up messages on your computer to messages  on
        the server.
 
-       Sometimes, the UIDs on the server might get  reset.   Usu-
-       ally  this  will  happen if you delete and then recreate a
-       folder.  When you create a folder, the server  will  often
-       start  the  UID  back from 1.  But OfflineIMAP might still
-       have the UIDs from the previous folder by  the  same  name
-       stored.   OfflineIMAP  will detect this condition and skip
-       the folder.  This is GOOD, because it prevents data  loss.
+       Sometimes,  the  UIDs on the server might get reset.  Usu-
+       ally this will happen if you delete and  then  recreate  a
+       folder.   When  you create a folder, the server will often
+       start the UID back from 1.  But  OfflineIMAP  might  still
+       have  the  UIDs  from the previous folder by the same name
+       stored.  OfflineIMAP will detect this condition  and  skip
+       the  folder.  This is GOOD, because it prevents data loss.
 
-       You  can  fix  it  by removing your local folder and cache
-       data.  For instance, if your folders are  under  ~/Folders
+       You can fix it by removing your  local  folder  and  cache
+       data.   For  instance, if your folders are under ~/Folders
        and the folder with the problem is INBOX, you'd type this:
 
        rm -r ~/Folders/INBOX
        rm ~/.offlineimap/AccountName/INBOX
 
-       (replacing AccountName with the account name as  specified
+       (replacing  AccountName with the account name as specified
        in ~/.offlineimaprc)
 
-       Next  time  you  run  OfflineIMAP, it will re-download the
-       folder with the new UIDs.  Note that the procedure  speci-
+       Next time you run OfflineIMAP,  it  will  re-download  the
+       folder  with the new UIDs.  Note that the procedure speci-
        fied above will lose any local changes made to the folder.
 
        Some IMAP servers are broken and do not support UIDs prop-
-       erly.   If  you  continue  to  get this error for all your
-       folders even after performing the above procedure,  it  is
-       likely  that  your  IMAP  server falls into this category.
-       OfflineIMAP is  incompatible  with  such  servers.   Using
-       OfflineIMAP  with  them  will not destroy any mail, but at
+       erly.  If you continue to get  this  error  for  all  your
+       folders  even  after performing the above procedure, it is
+       likely that your IMAP server  falls  into  this  category.
+       OfflineIMAP  is  incompatible  with  such  servers.  Using
+       OfflineIMAP with them will not destroy any  mail,  but  at
        the same time, it will not actually synchronize it either.
        (OfflineIMAP will detect this condition and abort prior to
        synchronization)
 
 
 OTHER FREQUENTLY ASKED QUESTIONS
-       There are some other FAQs that might not fit into  another
+       There  are some other FAQs that might not fit into another
        section of this document, and they are enumerated here.
 
        What platforms does OfflineIMAP run on?
@@ -451,96 +453,96 @@ OTHER FREQUENTLY ASKED QUESTIONS
        set  maildir_trash=yes  .  Do  I  need  to  do  that  with
        OfflineIMAP?
               No.  OfflineIMAP is smart enough to figure out mes-
-              sage  deletion  without  this extra crutch.  You'll
+              sage deletion without this  extra  crutch.   You'll
               get the best results if you don't use this setting,
               in fact.
 
        How do I specify the names of my folders?
               You do not need to.  OfflineIMAP is smart enough to
-              automatically figure out what folders  are  present
-              on  the  IMAP server and synchronize them.  You can
-              use the folderfilter and foldertrans  configuration
-              file  options to request certain folders and rename
+              automatically  figure  out what folders are present
+              on the IMAP server and synchronize them.   You  can
+              use  the folderfilter and foldertrans configuration
+              file options to request certain folders and  rename
               them as they come in if you like.
 
        How can I prevent certain folders from being synced?
-              Use the folderfilter option  in  the  configuration
+              Use  the  folderfilter  option in the configuration
               file.
 
        How can I add or delete a folder?
-              OfflineIMAP  does  not  currently provide this fea-
-              ture, but if you create a new folder  on  the  IMAP
+              OfflineIMAP does not currently  provide  this  fea-
+              ture,  but  if  you create a new folder on the IMAP
               server, it will be created locally automatically.
 
        Are there any other warnings that I should be aware of?
               Yes; see the NOTES section below.
 
        What is the mailbox name recorder (mbnames) for?
-              The  Mutt  mail  reader is not capable of automati-
-              cally determining  the  names  of  your  mailboxes.
-              OfflineIMAP  can  help  it (or many other) programs
-              out be writing these names  out  in  a  format  you
+              The Mutt mail reader is not  capable  of  automati-
+              cally  determining  the  names  of  your mailboxes.
+              OfflineIMAP can help it (or  many  other)  programs
+              out  be  writing  these  names  out in a format you
               specify.  See the example offlineimap.conf file for
               details.
 
        Can I synchronize multiple accounts with OfflineIMAP?
-              Sure.  Just name them all in the accounts  line  in
-              the  general  section of the config file, and add a
+              Sure.   Just  name them all in the accounts line in
+              the general section of the config file, and  add  a
               per-account section for each one.
 
        Does OfflineIMAP support POP?
-              No.  POP is not robust enough to  do  a  completely
-              reliable    multi-machine    synchronization   like
-              OfflineIMAP can do.  OfflineIMAP will  not  support
+              No.   POP  is  not robust enough to do a completely
+              reliable   multi-machine    synchronization    like
+              OfflineIMAP  can  do.  OfflineIMAP will not support
               it.
 
        Do you support mailbox formats other than Maildir?
-              Not  at  present.  There is no technical reason not
+              Not at present.  There is no technical  reason  not
               to; just no demand yet.  Maildir is a superior for-
               mat anyway.
 
-       [technical]  Why  are  your  Maildir  message filenames so
+       [technical] Why are  your  Maildir  message  filenames  so
        huge?
-              OfflineIMAP  has  two relevant principles: 1) never
-              modifying your messages in any way and 2)  ensuring
-              100%  reliable  synchronizations.  In order to do a
-              reliable sync,  OfflineIMAP  must  have  a  way  to
-              uniquely  identify  each  e-mail.   Three pieces of
-              information are required to do this:  your  account
-              name,  the  folder  name, and the message UID.  The
-              account name can be calculated  from  the  path  in
-              which  your messages are.  The folder name can usu-
-              ally be as well, BUT some mail  clients  move  mes-
-              sages  between  folders  by simply moving the file,
+              OfflineIMAP has two relevant principles:  1)  never
+              modifying  your messages in any way and 2) ensuring
+              100% reliable synchronizations.  In order to  do  a
+              reliable  sync,  OfflineIMAP  must  have  a  way to
+              uniquely identify each  e-mail.   Three  pieces  of
+              information  are  required to do this: your account
+              name, the folder name, and the  message  UID.   The
+              account  name  can  be  calculated from the path in
+              which your messages are.  The folder name can  usu-
+              ally  be  as  well, BUT some mail clients move mes-
+              sages between folders by simply  moving  the  file,
               leaving the name intact.
 
-              So, OfflineIMAP must store both a  UID  folder  ID.
-              The  folder  ID  is  necessary  so  OfflineIMAP can
-              detect a  message  moved  to  a  different  folder.
-              OfflineIMAP  stores  the  UID  (U=  number)  and an
-              md5sum of the foldername (FMD5= number) to  facili-
+              So,  OfflineIMAP  must  store both a UID folder ID.
+              The folder  ID  is  necessary  so  OfflineIMAP  can
+              detect  a  message  moved  to  a  different folder.
+              OfflineIMAP stores  the  UID  (U=  number)  and  an
+              md5sum  of the foldername (FMD5= number) to facili-
               tate this.
 
        What is the speed of OfflineIMAP's sync?
               OfflineIMAP versions 2.0 and above contain a multi-
-              threaded system.  A good way to  experiment  is  by
-              setting  maxsyncaccounts to 3 and maxconnections to
+              threaded  system.   A  good way to experiment is by
+              setting maxsyncaccounts to 3 and maxconnections  to
               3 in each account clause.
 
-              This lets OfflineIMAP open up multiple  connections
-              simultaneously.   That will let it process multiple
-              folders and messages at once.  In most cases,  this
+              This  lets OfflineIMAP open up multiple connections
+              simultaneously.  That will let it process  multiple
+              folders  and messages at once.  In most cases, this
               will increase performance of the sync.
 
-              Don't  set  the  number  too high.  If you do that,
-              things might actually slow down as your  link  gets
-              saturated.   Also,  too  many connections can cause
-              mail servers to have excessive  load.   Administra-
-              tors  might  take  unkindly to this, and the server
-              might bog down.  There are many  variables  in  the
+              Don't set the number too high.   If  you  do  that,
+              things  might  actually slow down as your link gets
+              saturated.  Also, too many  connections  can  cause
+              mail  servers  to have excessive load.  Administra-
+              tors might take unkindly to this,  and  the  server
+              might  bog  down.   There are many variables in the
               optimal setting; experimentation may help.
 
-              An  informal  benchmark yields these results for my
+              An informal benchmark yields these results  for  my
               setup:
 
               10 minutes with MacOS X Mail.app "manual cache"
@@ -558,19 +560,19 @@ CONFORMING TO
               manual-html/man5/maildir.html                   and
               http://cr.yp.to/proto/maildir.html.
 
-       o      Standard  Python 2.2.1 as implemented on POSIX-com-
+       o      Standard Python 2.2.1 as implemented on  POSIX-com-
               pliant systems.
 
 NOTES
    DELETING LOCAL FOLDERS
-       OfflineIMAP does a two-way synchronization.  That  is,  if
-       you  make  a  change to the mail on the server, it will be
-       propogated to your local copy, and vise-versa.  Some  peo-
-       ple  might  think that it would be wise to just delete all
-       their local mail folders periodically.   If  you  do  this
-       with  OfflineIMAP, remember to also remove your local sta-
-       tus  cache  (~/.offlineimap   by   default).    Otherwise,
-       OfflineIMAP  will  take this as an intentional deletion of
+       OfflineIMAP  does  a two-way synchronization.  That is, if
+       you make a change to the mail on the server,  it  will  be
+       propogated  to your local copy, and vise-versa.  Some peo-
+       ple might think that it would be wise to just  delete  all
+       their  local  mail  folders  periodically.  If you do this
+       with OfflineIMAP, remember to also remove your local  sta-
+       tus   cache   (~/.offlineimap   by  default).   Otherwise,
+       OfflineIMAP will take this as an intentional  deletion  of
        many messages and will interpret your action as requesting
        them to be deleted from the server as well.  (If you don't
        understand this, don't worry; you probably won't encounter
@@ -578,49 +580,49 @@ NOTES
 
    COPYING MESSAGES BETWEEN FOLDERS
        Normally, when you copy a message between folders or add a
-       new message to a folder locally, OfflineIMAP will just  do
+       new  message to a folder locally, OfflineIMAP will just do
        the right thing.  However, sometimes this can be tricky --
-       if your IMAP server does not provide the  SEARCH  command,
-       or  does  not  return something useful, OfflineIMAP cannot
-       determine the new UID of the message.  So, in  these  rare
+       if  your  IMAP server does not provide the SEARCH command,
+       or does not return something  useful,  OfflineIMAP  cannot
+       determine  the  new UID of the message.  So, in these rare
        instances, OfflineIMAP will upload the message to the IMAP
-       server and delete it from your  local  folder.   Then,  on
+       server  and  delete  it  from your local folder.  Then, on
        your next sync, the message will be re-downloaded with the
-       proper UID.  OfflineIMAP makes sure that the  message  was
-       properly  uploaded  before deleting it, so there should be
+       proper  UID.   OfflineIMAP makes sure that the message was
+       properly uploaded before deleting it, so there  should  be
        no risk of data loss.
 
    MAILING LIST
        There is an OfflineIMAP mailing list available.
 
-       To subscribe, send the text "Subscribe" in the subject  of
+       To  subscribe, send the text "Subscribe" in the subject of
        a mail to offlineimap-request@complete.org.  To post, send
        the message to offlineimap@complete.org.
 
 BUGS
-       Reports  of  bugs  should  be  sent  via  e-mail  to   the
-       OfflineIMAP      bug-tracking      system     (BTS)     at
-       offlineimap@bugs.complete.org or submitted  on-line  using
-       the  Web  interface at http://bugs.complete.org/.  The Web
-       site also lists all current  bugs,  where  you  can  check
+       Reports   of  bugs  should  be  sent  via  e-mail  to  the
+       OfflineIMAP     bug-tracking     system      (BTS)      at
+       offlineimap@bugs.complete.org  or  submitted on-line using
+       the Web interface at http://bugs.complete.org/.   The  Web
+       site  also  lists  all  current  bugs, where you can check
        their status or contribute to fixing them.
 
 COPYRIGHT
        OfflineIMAP is Copyright (C) 2002 John Goerzen.
 
-       This  program  is  free  software; you can redistribute it
+       This program is free software;  you  can  redistribute  it
        and/or modify it under the terms of the GNU General Public
-       License  as  published  by  the  Free Software Foundation;
-       either version 2 of the License, or (at your  option)  any
+       License as published  by  the  Free  Software  Foundation;
+       either  version  2 of the License, or (at your option) any
        later version.
 
-       This  program  is  distributed in the hope that it will be
+       This program is distributed in the hope that  it  will  be
        useful, but WITHOUT ANY WARRANTY; without even the implied
-       warranty  of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
-       PURPOSE.  See the GNU  General  Public  License  for  more
+       warranty of MERCHANTABILITY or FITNESS  FOR  A  PARTICULAR
+       PURPOSE.   See  the  GNU  General  Public License for more
        details.
 
-       You  should have received a copy of the GNU General Public
+       You should have received a copy of the GNU General  Public
        License along with this program; if not, write to:
 
        Free Software Foundation, Inc.
@@ -630,9 +632,9 @@ COPYRIGHT
        USA
 
 AUTHOR
-       OfflineIMAP,  its  libraries,   documentation,   and   all
-       included  files,  except  where noted, was written by John
-       Goerzen <jgoerzen@complete.org> and copyright is  held  as
+       OfflineIMAP,   its   libraries,   documentation,  and  all
+       included files, except where noted, was  written  by  John
+       Goerzen  <jgoerzen@complete.org>  and copyright is held as
        stated in the COPYRIGHT section.
 
        OfflineIMAP may be downloaded, and information found, from
@@ -643,7 +645,7 @@ AUTHOR
 
        OfflineIMAP  may  also  be  downloaded  using  Subversion.
        Additionally, the distributed tar.gz may be updated with a
-       simple "svn update" command;  it  is  ready  to  go.   For
+       simple  "svn  update"  command;  it  is  ready to go.  For
        information on getting OfflineIMAP with Subversion, please
        visit:
 

@@ -1,4 +1,166 @@
 ------------------------------------------------------------------------
+rev 214:  jgoerzen | 2002-08-07 17:27:55 -0500 (Wed, 07 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Fixed the scanner
+
+------------------------------------------------------------------------
+rev 213:  jgoerzen | 2002-08-07 17:01:31 -0500 (Wed, 07 Aug 2002) | 3 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Fix to makefolder() such that it won't fail when hierarchical folders are
+used and sub-folders are created before master folders.
+
+------------------------------------------------------------------------
+rev 212:  jgoerzen | 2002-08-07 16:57:52 -0500 (Wed, 07 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Modified to make getfolders() recursively scan.
+
+------------------------------------------------------------------------
+rev 211:  jgoerzen | 2002-08-07 16:45:03 -0500 (Wed, 07 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Yet more typos
+
+------------------------------------------------------------------------
+rev 210:  jgoerzen | 2002-08-07 16:44:37 -0500 (Wed, 07 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Preventive security: folder names may not contain ./ or start with /.
+
+------------------------------------------------------------------------
+rev 209:  jgoerzen | 2002-08-07 16:41:52 -0500 (Wed, 07 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+
+Fixed a stupid braino in the last commit.
+
+------------------------------------------------------------------------
+rev 208:  jgoerzen | 2002-08-07 16:40:18 -0500 (Wed, 07 Aug 2002) | 5 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/Maildir.py
+   U /offlineimap/head/offlineimap/repository/Maildir.py
+   U /offlineimap/head/offlineimap.conf
+   U /offlineimap/head/offlineimap.py
+
+  * Added support for /-separated Maildirs -- that is, hierarchical
+    Maildir trees.  Fixes [complete.org #28] and, for Debian,
+    Closes: #155460.
+
+
+------------------------------------------------------------------------
+rev 207:  jgoerzen | 2002-08-07 16:22:38 -0500 (Wed, 07 Aug 2002) | 6 lines
+Changed paths:
+   U /offlineimap/head/offlineimap.py
+
+Oops, incomplete commit from the last one:
+  * If a given Maildir folder is new, remove the associated local status
+    cache file, if any.  That way, there will not be any chance of
+    propogating hordes of deletes and adds based on old status data.
+
+
+------------------------------------------------------------------------
+rev 206:  jgoerzen | 2002-08-07 16:20:36 -0500 (Wed, 07 Aug 2002) | 5 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/LocalStatus.py
+   U /offlineimap/head/offlineimap/folder/Maildir.py
+
+  * If a given Maildir folder is new, remove the associated local status
+    cache file, if any.  That way, there will not be any chance of
+    propogating hordes of deletes and adds based on old status data.
+
+
+------------------------------------------------------------------------
+rev 205:  jgoerzen | 2002-08-07 15:57:17 -0500 (Wed, 07 Aug 2002) | 11 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/IMAP.py
+   U /offlineimap/head/offlineimap/ui/UIBase.py
+   U /offlineimap/head/offlineimap.conf
+
+  * Better handling of read-only folders.  We will now warn if there is
+    a change, but not propogate it.  New config variable ignore-readonly
+    can suppress the warnings.  This fixes [complete.org #10] and,
+    for Debian, Closes: #154769.
+
+changelog: noted the change
+IMAP.py: trap imapobj.readonly more often
+UIBase.py: new methods to handle the warnings
+offlineimap.conf: new ignore-readonly variable.
+
+
+------------------------------------------------------------------------
+rev 204:  jgoerzen | 2002-08-07 14:46:18 -0500 (Wed, 07 Aug 2002) | 4 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+  * Scrolling behavior is better now; sometimes, with fast-scrolling text,
+    the log would stop scrolling.
+
+
+------------------------------------------------------------------------
+rev 203:  jgoerzen | 2002-08-06 22:11:02 -0500 (Tue, 06 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/README
+
+Testing new svn installation
+
+------------------------------------------------------------------------
+rev 202:  jgoerzen | 2002-08-06 22:10:14 -0500 (Tue, 06 Aug 2002) | 3 lines
+Changed paths:
+   U /offlineimap/head/README
+
+Testing new subversion installation
+
+
+------------------------------------------------------------------------
+rev 201:  jgoerzen | 2002-08-06 22:08:16 -0500 (Tue, 06 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+We're back, woohoo.
+
+------------------------------------------------------------------------
+rev 200:  mj | 2002-07-25 13:22:17 -0500 (Thu, 25 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+
+Better update the changelog as well.
+
+------------------------------------------------------------------------
+rev 199:  mj | 2002-07-25 13:04:09 -0500 (Thu, 25 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/Tk.py
+
+Fix typo; section names are case-sensitive.
+
+------------------------------------------------------------------------
+rev 198:  jgoerzen | 2002-07-25 08:22:41 -0500 (Thu, 25 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap.1
+
+Noted the use of Gray
+
+------------------------------------------------------------------------
+rev 196:  jgoerzen | 2002-07-24 22:02:03 -0500 (Wed, 24 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+   U /offlineimap/head/offlineimap/version.py
+
+Preparing for 3.2.1
+
+------------------------------------------------------------------------
 rev 195:  jgoerzen | 2002-07-24 21:41:56 -0500 (Wed, 24 Jul 2002) | 5 lines
 Changed paths:
    U /offlineimap/head/debian/changelog
