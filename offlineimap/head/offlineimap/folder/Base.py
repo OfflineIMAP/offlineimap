@@ -323,7 +323,7 @@ class BaseFolder:
                 UIBase.getglobalui().addingflags(addflaglist[flag], flag, [object])
                 object.addmessagesflags(addflaglist[flag], [flag])
             for flag in delflaglist.keys():
-                UIBase.getglobalui().deletingflags(addflaglist[flag], flag, [object])
+                UIBase.getglobalui().deletingflags(delflaglist[flag], flag, [object])
                 object.deletemessagesflags(delflaglist[flag], [flag])
                 
     def syncmessagesto(self, dest, applyto = None):

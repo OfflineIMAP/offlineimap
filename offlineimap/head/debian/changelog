@@ -26,7 +26,7 @@ offlineimap (3.99.7) unstable; urgency=low
     large speedup in most cases, but a small slowdown in a few.
   * Potentially increased the reliability of writing files to the Maildir.
 
- -- John Goerzen <jgoerzen@complete.org>  Wed,  8 Jan 2003 07:05:01 -0600
+ -- John Goerzen <jgoerzen@complete.org>  Wed,  8 Jan 2003 19:30:11 -0600
 
 offlineimap (3.99.6) unstable; urgency=low
 
