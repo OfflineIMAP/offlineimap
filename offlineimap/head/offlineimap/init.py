@@ -55,15 +55,15 @@ def startup(versionno):
     for optlist in getopt(sys.argv[1:], 'P:1oa:c:d:l:u:h')[0]:
         options[optlist[0]] = optlist[1]
 
-    if '-h' in options:
+    if options.has_key('-h'):
         sys.stdout.write(version.cmdhelp)
         sys.stdout.write("\n")
         sys.exit(0)
     configfilename = os.path.expanduser("~/.offlineimaprc")
-    if '-c' in options:
+    if options.has_key('-c'):
         configfilename = options['-c']
-    if '-P' in options:
-        if not '-1' in options:
+    if options.has_key('-P'):
+        if not options.has_key('-1'):
             sys.stderr.write("FATAL: profile mode REQUIRES -1\n")
             sys.exit(100)
         profiledir = options['-P']
@@ -81,12 +81,12 @@ def startup(versionno):
     ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
     UIBase.setglobalui(ui)
 
-    if '-l' in options:
+    if options.has_key('-l'):
         ui.setlogfd(open(options['-l'], 'wt'))
 
     ui.init_banner()
 
-    if '-d' in options:
+    if options.has_key('-d'):
         for debugtype in options['-d'].split(','):
             ui.add_debug(debugtype.strip())
             if debugtype == 'imap':
@@ -94,18 +94,18 @@ def startup(versionno):
             if debugtype == 'thread':
                 threading._VERBOSE = 1
 
-    if '-o' in options:
+    if options.has_key('-o'):
         # FIXME: maybe need a better
         for section in accounts.getaccountlist(config):
             config.remove_option('Account ' + section, "autorefresh")
 
     lock(config, ui)
 
-    if '-l' in options:
+    if options.has_key('-l'):
         sys.stderr = ui.logfile
 
     activeaccounts = config.get("general", "accounts")
-    if '-a' in options:
+    if options.has_key('-a'):
         activeaccounts = options['-a']
     activeaccounts = activeaccounts.replace(" ", "")
     activeaccounts = activeaccounts.split(",")
@@ -119,7 +119,7 @@ def startup(versionno):
     remoterepos = None
     localrepos = None
 
-    if '-1' in options:
+    if options.has_key('-1'):
         threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
     else:
         threadutil.initInstanceLimit("ACCOUNTLIMIT",
@@ -128,7 +128,7 @@ def startup(versionno):
     for reposname in config.getsectionlist('Repository'):
         for instancename in ["FOLDER_" + reposname,
                              "MSGCOPY_" + reposname]:
-            if '-1' in options:
+            if options.has_key('-1'):
                 threadutil.initInstanceLimit(instancename, 1)
             else:
                 threadutil.initInstanceLimit(instancename,
