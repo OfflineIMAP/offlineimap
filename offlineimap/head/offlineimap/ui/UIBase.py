@@ -54,10 +54,18 @@ class UIBase:
         if s.logfile:
             s.logfile.write("%s: %s\n" % (threading.currentThread().getName(),
                                           msg))
-        return s.logfile
+            return 1
+        return 0
 
     def setlogfd(s, logfd):
         s.logfile = logfd
+        logfd.write("This is %s %s %s\n" % \
+                    (offlineimap.version.productname,
+                     offlineimap.version.versionstr,
+                     offlineimap.version.revstr))
+        logfd.write("Python: %s\n" % sys.version)
+        logfd.write("Platform: %s\n" % sys.platform)
+        logfd.write("Args: %s\n" % sys.argv)
 
     def _display(s, msg):
         """Display a message."""
@@ -100,8 +108,8 @@ class UIBase:
         while len(s.debugmessages[thisthread]) > s.debugmsglen:
             s.debugmessages[thisthread] = s.debugmessages[thisthread][1:]
 
-        if not s._log("DEBUG[%s]: %s"):
-            if debugtype in s.debuglist:
+        if debugtype in s.debuglist:
+            if not s._log("DEBUG[%s]: %s" % (debugtype, msg)):
                 s._display("DEBUG[%s]: %s" % (debugtype, msg))
 
     def add_debug(s, debugtype):

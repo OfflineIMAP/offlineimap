@@ -71,8 +71,12 @@ def startup(versionno):
     config.read(configfilename)
 
     ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
-    ui.init_banner()
     UIBase.setglobalui(ui)
+
+    if '-l' in options:
+        ui.setlogfd(open(options['-l'], 'wt'))
+
+    ui.init_banner()
 
     if '-d' in options:
         for debugtype in options['-d'].split(','):
@@ -82,15 +86,15 @@ def startup(versionno):
             if debugtype == 'thread':
                 threading._VERBOSE = 1
 
-    if '-l' in options:
-        ui.setlogfd(open(options['-l'], 'wt'))
-
     if '-o' in options:
         # FIXME: maybe need a better
         for section in accounts.getaccountlist(config):
             config.remove_option('Account ' + section, "autorefresh")
 
     lock(config, ui)
+
+    if '-l' in options:
+        sys.stderr = ui.logfile
 
     activeaccounts = config.get("general", "accounts")
     if '-a' in options:
