@@ -19,9 +19,10 @@
 import os.path
 import re                               # for folderfilter
 
-def genmbnames(config, localeval, boxlist):
+def genmbnames(config, boxlist):
     """Takes a configparser object and a boxlist, which is a list of hashes
     containing 'accountname' and 'foldername' keys."""
+    localeval = config.getlocaleval()
     if not config.getboolean("mbnames", "enabled"):
         return
     file = open(os.path.expanduser(config.get("mbnames", "filename")), "wt")

@@ -140,6 +140,10 @@ class UIBase:
         if s.verbose >= 0:
             s._msg("***** Processing account %s" % accountname)
 
+    def acctdone(s, accountname):
+        if s.verbose >= 0:
+            s._msg("***** Finished processing account " + accountname)
+
     def syncfolders(s, srcrepos, destrepos):
         if s.verbose >= 0:
             s._msg("Copying folder structure from %s to %s" % \

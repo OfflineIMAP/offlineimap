@@ -48,6 +48,42 @@ def threadsreset(threadlist):
     for thr in threadlist:
         thr.join()
 
+class threadlist:
+    def __init__(self):
+        self.lock = Lock()
+        self.list = []
+
+    def add(self, thread):
+        self.lock.acquire()
+        try:
+            self.list.append(thread)
+        finally:
+            self.lock.release()
+
+    def remove(self, thread):
+        self.lock.acquire()
+        try:
+            self.list.remove(thread)
+        finally:
+            self.lock.release()
+
+    def pop(self):
+        self.lock.acquire()
+        try:
+            if not len(self.list):
+                return None
+            return self.list.pop()
+        finally:
+            self.lock.release()
+
+    def reset(self):
+        while 1:
+            thread = self.pop()
+            if not thread:
+                return
+            thread.join()
+            
+
 ######################################################################
 # Exit-notify threads
 ######################################################################

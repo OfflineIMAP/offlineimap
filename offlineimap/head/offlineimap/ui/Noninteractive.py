@@ -20,7 +20,7 @@ import sys, time
 from UIBase import UIBase
 
 class Basic(UIBase):
-    def getpass(s, accountname, config):
+    def getpass(s, accountname, config, errmsg = None):
         raise NotImplementedError, "Prompting for a password is not supported in noninteractive mode."
 
     def _msg(s, msg):

@@ -21,7 +21,7 @@ from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from offlineimap.ui import UIBase
 import re, os, os.path, offlineimap, sys
-from ConfigParser import ConfigParser
+from offlineimap.CustomConfig import CustomConfigParser
 from threading import *
 from getopt import getopt
 
@@ -51,20 +51,14 @@ def startup(versionno):
         threadutil.setprofiledir(profiledir)
         sys.stderr.write("WARNING: profile mode engaged;\nPotentially large data will be created in " + profiledir + "\n")
 
-    config = ConfigParser()
+    config = CustomConfigParser()
     if not os.path.exists(configfilename):
         sys.stderr.write(" *** Config file %s does not exist; aborting!\n" % configfilename)
         sys.exit(1)
 
     config.read(configfilename)
 
-    if config.has_option("general", "pythonfile"):
-        path=os.path.expanduser(config.get("general", "pythonfile"))
-    else:
-        path=None
-    localeval = LocalEval(path)
-
-    ui = offlineimap.ui.detector.findUI(config, localeval, options.get('-u'))
+    ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
     ui.init_banner()
     UIBase.setglobalui(ui)
 
@@ -74,12 +68,9 @@ def startup(versionno):
             if debugtype == 'imap':
                 imaplib.Debug = 5
 
-    if '-o' in options and config.has_option("general", "autorefresh"):
-        config.remove_option("general", "autorefresh")
-
-    metadatadir = os.path.expanduser(config.get("general", "metadata"))
-    if not os.path.exists(metadatadir):
-        os.mkdir(metadatadir, 0700)
+    if '-o' in options:
+        for section in config.getaccountlist():
+            config.remove_option(section, "autorefresh")
 
     accounts = config.get("general", "accounts")
     if '-a' in options:
@@ -105,17 +96,11 @@ def startup(versionno):
                 threadutil.initInstanceLimit(instancename,
                                              config.getint(account, "maxconnections"))
 
-    mailboxes = []
-    servers = {}
-
     threadutil.initexitnotify()
-    t = ExitNotifyThread(target=syncmaster.sync_with_timer,
+    t = ExitNotifyThread(target=syncmaster.syncitall,
                          name='Sync Runner',
                          kwargs = {'accounts': accounts,
-                                   'metadatadir': metadatadir,
-                                   'servers': servers,
-                                   'config': config,
-                                   'localeval': localeval})
+                                   'config': config})
     t.setDaemon(1)
     t.start()
     try:
