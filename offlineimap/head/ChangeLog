@@ -1,4 +1,62 @@
 ------------------------------------------------------------------------
+rev 233:  jgoerzen | 2002-08-09 14:29:29 -0500 (Fri, 09 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/IMAP.py
+
+Made more resiliant in the face of invalid dates.
+
+------------------------------------------------------------------------
+rev 232:  jgoerzen | 2002-08-09 11:25:28 -0500 (Fri, 09 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap.1
+   U /offlineimap/head/offlineimap.conf
+
+Added documentation for Tommi's patch.
+
+------------------------------------------------------------------------
+rev 231:  jgoerzen | 2002-08-09 11:12:09 -0500 (Fri, 09 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/ui/detector.py
+   U /offlineimap/head/offlineimap.py
+
+Applied part 2 of tv's patch
+
+------------------------------------------------------------------------
+rev 230:  jgoerzen | 2002-08-09 11:11:12 -0500 (Fri, 09 Aug 2002) | 2 lines
+Changed paths:
+   A /offlineimap/head/offlineimap/localeval.py
+
+More of part 1 of the patch
+
+------------------------------------------------------------------------
+rev 229:  jgoerzen | 2002-08-09 11:10:38 -0500 (Fri, 09 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/mbnames.py
+   U /offlineimap/head/offlineimap/repository/IMAP.py
+   U /offlineimap/head/offlineimap/ui/detector.py
+   U /offlineimap/head/offlineimap.conf
+   U /offlineimap/head/offlineimap.py
+
+Applied part 1 of Tommi's patch.
+
+------------------------------------------------------------------------
+rev 228:  jgoerzen | 2002-08-09 10:57:06 -0500 (Fri, 09 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/IMAP.py
+
+Nicely handle uploading messages without Message-Id headers
+
+------------------------------------------------------------------------
+rev 226:  jgoerzen | 2002-08-08 15:58:44 -0500 (Thu, 08 Aug 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+
+Changelog committed
+
+------------------------------------------------------------------------
 rev 225:  jgoerzen | 2002-08-08 15:58:14 -0500 (Thu, 08 Aug 2002) | 2 lines
 Changed paths:
    U /offlineimap/head/debian/changelog

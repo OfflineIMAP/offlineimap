@@ -88,7 +88,7 @@ INSTALLATION
               check with your system administrator  or  operating
               system     vendor;    or,    download    it    from
               http://www.python.org/.  If you intend to  use  the
-              Tk  interface,  you  must  have  Tkiner (python-tk)
+              Tk  interface,  you  must  have Tkinter (python-tk)
               installed.  If you intend to use the SSL interface,
               your  Python must have been built with SSL support.
 
@@ -402,6 +402,42 @@ EXAMPLES
               ]
        maxconnections = 1
        holdconnectionopen = no
+
+   PYTHONFILE CONFIGURATION FILE OPTION
+       You  can  have  OfflineIMAP  load  up a Python file before
+       evaluating the configuration file options that are  Python
+       expressions.   This  example  is  based on one supplied by
+       Tommi Virtanen for this feature.
+
+       In ~/.offlineimap.rc, he adds these options:
+
+       [general]
+       pythonfile=~/.offlineimap.py
+       [foo]
+       foldersort=mycmp
+
+       Then, the ~/.offlineimap.py file will contain:
+
+       prioritized = ['INBOX', 'personal', 'announce', 'list']
+
+       def mycmp(x, y):
+          for prefix in prioritized:
+              if x.startswith(prefix):
+                  return -1
+              elif y.startswith(prefix):
+                  return +1
+          return cmp(x, y)
+
+       def test_mycmp():
+          import os, os.path
+                                                 folders=os.list-
+       dir(os.path.expanduser('~/data/mail/tv@hq.yok.utu.fi'))
+          folders.sort(mycmp)
+          print folders
+
+       This  code  snippet  illustrates how the foldersort option
+       can be customized with a Python function from the  python-
+       file to always synchronize certain folders first.
 
 ERRORS
        If you get one of some frequently-encountered or confusing

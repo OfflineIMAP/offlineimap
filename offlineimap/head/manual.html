@@ -26,7 +26,7 @@
 
 <hr>
 <!-- Creator     : groff version 1.17.2 -->
-<!-- CreationDate: Thu Aug  8 10:19:22 2002 -->
+<!-- CreationDate: Fri Aug  9 15:51:34 2002 -->
 <a name="NAME"></a>
 <h2>NAME</h2>
 <table width="100%" border=0 rules="none" frame="void"
@@ -179,7 +179,7 @@ automatically be taken care of for you. If you do not have
 Python already, check with your system administrator or
 operating system vendor; or, download it from
 http://www.python.org/. If you intend to use the Tk
-interface, you must have Tkiner (python-tk) installed. If
+interface, you must have Tkinter (python-tk) installed. If
 you intend to use the SSL interface, your Python must have
 been built with SSL support.</td></table>
 
@@ -887,6 +887,83 @@ folderfilter = lambda foldername: foldername in [<br>
 ]<br>
 maxconnections = 1<br>
 holdconnectionopen = no</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="4%"></td><td width="96%">
+<b>PYTHONFILE CONFIGURATION FILE OPTION</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+You can have OfflineIMAP load up a Python file before
+evaluating the configuration file options that are Python
+expressions. This example is based on one supplied by Tommi
+Virtanen for this feature.</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+In <i>~/.offlineimap.rc</i>, he adds these
+options:</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>[general]<br>
+pythonfile=~/.offlineimap.py<br>
+[foo]<br>
+foldersort=mycmp</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+Then, the <i>~/.offlineimap.py</i> file will
+contain:</td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>prioritized = ['INBOX', 'personal', 'announce',
+'list']</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>def mycmp(x, y):<br>
+for prefix in prioritized:<br>
+if x.startswith(prefix):<br>
+return -1<br>
+elif y.startswith(prefix):<br>
+return +1<br>
+return cmp(x, y)</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+<b>def test_mycmp():<br>
+import os, os.path<br>
+
+folders=os.listdir(os.path.expanduser('~/data/mail/tv@hq.yok.utu.fi'))<br>
+folders.sort(mycmp)<br>
+print folders</b></td></table>
+
+<table width="100%" border=0 rules="none" frame="void"
+       cols="2" cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="10%"></td><td width="90%">
+This code snippet illustrates how the <b>foldersort</b>
+option can be customized with a Python function from the
+<b>pythonfile</b> to always synchronize certain folders
+first.</td></table>
 <a name="ERRORS"></a>
 <h2>ERRORS</h2>
 
