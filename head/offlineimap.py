@@ -21,6 +21,8 @@ from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnam
 import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 
+# imaplib.Debug = 5
+
 ui = offlineimap.ui.TTY.TTYUI()
 ui.init_banner()
 

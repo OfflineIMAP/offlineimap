@@ -1,3 +1,16 @@
+2002-06-21 22:03  jgoerzen
+
+	* offlineimap.py, offlineimap/folder/IMAP.py: Fixed a bug with
+	writing messages out to the server.
+
+2002-06-21 15:24  jgoerzen
+
+	* README, debian/control: typo fixes
+
+2002-06-21 15:15  jgoerzen
+
+	* ChangeLog: MORE PREP
+
 2002-06-21 15:15  jgoerzen
 
 	* debian/changelog: Noted bug closing

@@ -84,7 +84,8 @@ class IMAPFolder(BaseFolder):
         assert(self.imapobj.append(self.getfullname(),
                                    imaputil.flagsmaildir2imap(flags),
                                    date, content)[0] == 'OK')
-        
+        # Checkpoint.  Let it write out the messages, etc.
+        assert(self.imapobj.check()[0] == 'OK')
         # Now find the UID it got.
         matchinguids = self.imapobj.uid('search', None,
                                         '(HEADER Message-Id %s)' % mid)[1][0]

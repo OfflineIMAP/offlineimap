@@ -1,3 +1,12 @@
+offlineimap (1.0.1) unstable; urgency=low
+
+  * Fixed a bug with writing messages to some IMAP servers.  Turns
+    out we need to issue CHECK between APPEND and SEARCH for some.
+    Thanks to Donovan Lange for reporting this bug and helping track it
+    down.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 21 Jun 2002 22:03:12 -0500
+
 offlineimap (1.0.0) unstable; urgency=low
 
   * Initial Release.  Closes: #150571.
