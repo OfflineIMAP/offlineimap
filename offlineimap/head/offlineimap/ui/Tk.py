@@ -165,6 +165,7 @@ class VerboseUI(UIBase):
 
         self.created.wait()
         del self.created
+        time.sleep(1)
 
         if doidlevac:
             t = threadutil.ExitNotifyThread(target = self.idlevacuum,

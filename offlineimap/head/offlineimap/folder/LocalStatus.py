@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from Base import BaseFolder
-import os
+import os, threading
 
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
@@ -29,6 +29,8 @@ class LocalStatusFolder(BaseFolder):
         self.filename = os.path.join(root, name)
         self.messagelist = None
         self.repository = repository
+        self.savelock = threading.Lock()
+        self.doautosave = 1
 
     def storesmessages(self):
         return 0
@@ -68,16 +70,24 @@ class LocalStatusFolder(BaseFolder):
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
         file.close()
 
+    def autosave(self):
+        if self.doautosave:
+            self.save()
+
     def save(self):
-        file = open(self.filename + ".tmp", "wt")
-        file.write(magicline + "\n")
-        for msg in self.messagelist.values():
-            flags = msg['flags']
-            flags.sort()
-            flags = ''.join(flags)
-            file.write("%s:%s\n" % (msg['uid'], flags))
-        file.close()
-        os.rename(self.filename + ".tmp", self.filename)
+        self.savelock.acquire()
+        try:
+            file = open(self.filename + ".tmp", "wt")
+            file.write(magicline + "\n")
+            for msg in self.messagelist.values():
+                flags = msg['flags']
+                flags.sort()
+                flags = ''.join(flags)
+                file.write("%s:%s\n" % (msg['uid'], flags))
+            file.close()
+            os.rename(self.filename + ".tmp", self.filename)
+        finally:
+            self.savelock.release()
 
     def getmessagelist(self):
         return self.messagelist
@@ -92,6 +102,7 @@ class LocalStatusFolder(BaseFolder):
             return uid
 
         self.messagelist[uid] = {'uid': uid, 'flags': flags}
+        self.autosave()
         return uid
 
     def getmessageflags(self, uid):
@@ -99,9 +110,10 @@ class LocalStatusFolder(BaseFolder):
 
     def savemessageflags(self, uid, flags):
         self.messagelist[uid]['flags'] = flags
+        self.autosave()
 
     def deletemessage(self, uid):
         if not uid in self.messagelist:
             return
         del(self.messagelist[uid])
-
+        self.autosave()
