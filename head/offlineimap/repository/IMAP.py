@@ -27,6 +27,9 @@ class IMAPRepository(BaseRepository):
         self.imapobj = imapserver.makeconnection()
         self.folders = None
 
+    def getsep(self):
+        return self.imapserver.delim
+
     def getfolders(self):
         if self.folders != None:
             return self.folders

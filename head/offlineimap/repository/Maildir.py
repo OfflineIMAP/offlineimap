@@ -29,6 +29,9 @@ class MaildirRepository(BaseRepository):
         self.root = root
         self.folders = None
 
+    def getsep(self):
+        return '.'
+
     def getfolders(self):
         if self.folders != None:
             return self.folders

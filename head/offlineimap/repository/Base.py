@@ -20,4 +20,47 @@ class BaseRepository:
     def getfolders(self):
         """Returns a list of ALL folders on this server."""
         return []
+
+    def getsep(self):
+        raise NotImplementedError
+
+    def makefolder(self):
+        raise NotImplementedError
+
+    def deletefolder(self):
+        raise NotImplementedError
     
+    def syncfoldersto(self, dest):
+        """Syncs the folders in this repository to those in dest.
+        It does NOT sync the contents of those folders."""
+        src = self
+        srcfolders = src.getfolders()
+        destfolders = dest.getfolders()
+
+        # Create hashes with the names, but convert the source folders
+        # to the dest folder's sep.
+
+        srchash = {}
+        for folder in srcfolders:
+            srchash[folder.getname().replace(src.getsep(), dest.getsep())] = \
+                                                           folder
+        desthash = {}
+        for folder in destfolders:
+            desthash[folder.getname()] = folder
+
+        #
+        # Find new folders.
+        #
+        
+        for key in srchash.keys():
+            if not key in desthash:
+                dest.makefolder(key)
+
+        #
+        # Find deleted folders.
+        #
+
+        for key in desthash.keys():
+            if not key in srchash:
+                dest.deletefolder(key)
+        
