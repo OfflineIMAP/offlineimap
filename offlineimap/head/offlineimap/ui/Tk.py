@@ -165,7 +165,6 @@ class VerboseUI(UIBase):
 
         self.created.wait()
         del self.created
-        time.sleep(1)
 
         if doidlevac:
             t = threadutil.ExitNotifyThread(target = self.idlevacuum,
@@ -176,7 +175,7 @@ class VerboseUI(UIBase):
     def _runmainloop(s):
         s.top = Tk()
         s.top.title(version.productname + " " + version.versionstr)
-        s.created.set()
+        s.top.after_idle(s.created.set)
         s.top.mainloop()
         s.notdeleted = 0
     

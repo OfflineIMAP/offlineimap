@@ -5,6 +5,10 @@ offlineimap (3.99.6) unstable; urgency=low
     patch from Kyler Laird in
     http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=173895.
     Closes: #173895.	
+  * Fixed the threaded Tcl/Tk problem completely.
+  * Caused the LocalStatus handler to save its file after each change.
+    A crash mid-folder-sync should no longer cause all sorts of things
+    to be re-synced.  Closes: #173530.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu,  2 Jan 2003 13:59:44 -0600
 
