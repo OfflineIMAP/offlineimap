@@ -81,7 +81,7 @@ binary-indep: build install
 #	dh_installmime
 	dh_installinit
 	dh_installcron
-	dh_installman
+	dh_installman offlineimap.1
 	dh_installinfo
 #	dh_undocumented
 	dh_installchangelogs 

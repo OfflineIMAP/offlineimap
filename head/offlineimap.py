@@ -17,25 +17,43 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil
+from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil, version
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
+from getopt import getopt
 
+options = {}
+if '--help' in sys.argv[1:]:
+    sys.stdout.write(version.cmdhelp + "\n")
+    sys.exit(0)
+    
+for optlist in getopt(sys.argv[1:], '1a:c:du:h')[0]:
+    options[optlist[0]] = optlist[1]
 
-if '-d' in sys.argv:
+if '-d' in options:
     imaplib.Debug = 5
+if '-h' in options:
+    sys.stdout.write(version.cmdhelp)
+    sys.stdout.write("\n")
+    sys.exit(0)
+configfilename = os.path.expanduser("~/.offlineimaprc")
+if '-c' in options:
+    configfilename = options['-c']
+
 
 config = ConfigParser()
-configfilename = os.path.expanduser("~/.offlineimaprc")
 if not os.path.exists(configfilename):
     sys.stderr.write(" *** Config file %s does not exist; aborting!\n" % configfilename)
     sys.exit(1)
     
 config.read(configfilename)
 
-ui = offlineimap.ui.detector.findUI(config)
+if '-u' in options:
+    ui = offlineimap.ui.detector.getUImod(options['-u'])()
+else:
+    ui = offlineimap.ui.detector.findUI(config)
 ui.init_banner()
 
 
@@ -44,6 +62,8 @@ if not os.path.exists(metadatadir):
     os.mkdir(metadatadir, 0700)
 
 accounts = config.get("general", "accounts")
+if '-a' in options:
+    accounts = options['-a']
 accounts = accounts.replace(" ", "")
 accounts = accounts.split(",")
 
@@ -53,8 +73,11 @@ localrepos = None
 passwords = {}
 tunnels = {}
 
-threadutil.initInstanceLimit("ACCOUNTLIMIT", config.getint("general",
-                                                           "maxsyncaccounts"))
+if '-1' in options:
+    threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
+else:
+    threadutil.initInstanceLimit("ACCOUNTLIMIT",
+                                 config.getint("general", "maxsyncaccounts"))
 
 # We have to gather passwords here -- don't want to have two threads
 # asking for passwords simultaneously.
@@ -71,8 +94,11 @@ for account in accounts:
     else:
         passwords[account] = ui.getpass(account, config)
     for instancename in ["FOLDER_" + account, "MSGCOPY_" + account]:
-        threadutil.initInstanceLimit(instancename,
-                                     config.getint(account, "maxconnections"))
+        if '-1' in options:
+            threadutil.initInstanceLimit(instancename, 1)
+        else:
+            threadutil.initInstanceLimit(instancename,
+                                         config.getint(account, "maxconnections"))
 
 mailboxes = []
 mailboxlock = Lock()

@@ -33,3 +33,48 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"""
+
+cmdhelp = """
+       offlineimap [ -1 ] [ -a accountlist ] [ -c configfile ]
+       [ -d ] [ -u interface ]
+
+       offlineimap -h | --help
+
+       -1     Disable   all  multithreading  operations  and  use
+              solely a single-thread sync.  This effectively sets
+              the maxsyncaccounts and all maxconnections configu-
+              ration file variables to 1.
+
+       -a accountlist
+              Overrides the accounts section in the config  file.
+              Lets  you  specify  a  particular account or set of
+              accounts to sync without having to edit the  config
+              file.   You  might  use  this  to  exclude  certain
+              accounts, or to sync some accounts  that  you  nor-
+              mally prefer not to.
+
+       -c configfile
+              Specifies  a  configuration  file to use in lieu of
+              the default, ~/.offlineimaprc.
+
+       -d     Enables IMAP protocol stream and parsing debugging.
+              This  is  useful  if you are trying to track down a
+              malfunction or figure out what is  going  on  under
+              the  hood.   I suggest that you use this with -1 in
+              order to make the results more sensible.  Note that
+              this  output  will  contain  full  IMAP protocol in
+              plain text, including passwords, so  take  care  to
+              remove  that from the debugging output before send-
+              ing it to anyone else.
+
+       -h, --help
+              Show summary of options.
+
+       -u interface
+              Specifies an alternative user interface  module  to
+              use.   This  overrides the default specified in the
+              configuration file.  The UI specified with -u  will
+              be  forced to be used, even if its isuable() method
+              states that it cannot be.   Use  this  option  with
+              care.
+"""

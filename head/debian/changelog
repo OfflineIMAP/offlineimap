@@ -1,8 +1,17 @@
 offlineimap (3.0.0) unstable; urgency=low
 
   * Introduced a new graphical user interface written with Tkinter.
+    It features a nice view of multi-threaded displays.
   * Made IMAP folder addmessagesflags() resiliant to a server refusing
     to return a full set of new message flags.  Closes: #152587.
+  * Completely rewrote documentation.  OfflineIMAP now has an
+    exhaustive manpage, which is really a manual.  It is also shipped
+    in plain text, HTML, PDF, and PostScript formats.
+  * New command-line options:
+    -1 to force no multi-threaded operation
+    -u to force a particular UI
+    -a to specify which accounts to sync
+    -h to print help
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 11 Jul 2002 08:35:42 -0500
 
