@@ -1,4 +1,792 @@
 ------------------------------------------------------------------------
+rev 450:  jgoerzen | 2003-04-28 09:16:30 -0500 (Mon, 28 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Preparing for 3.99.14
+
+------------------------------------------------------------------------
+rev 449:  jgoerzen | 2003-04-22 10:47:25 -0500 (Tue, 22 Apr 2003) | 11 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.conf.minimal
+   M /offlineimap/head/offlineimap.sgml
+
+  * Slight renaming in offlineimap.conf.minimal to clarify things.
+  * Documentation updated with information about new features.
+    Closes: #189771.
+    + Described IMAP-IMAP syncing
+    + Updated minimal example with new offlineimap.conf.minimal
+    + Updated UID information.  Added link to recent mailing list
+      discussion.
+    + Described KMail syncing, which now works.
+    + Added link to mailing list archives.
+
+
+------------------------------------------------------------------------
+rev 448:  jgoerzen | 2003-04-18 15:44:10 -0500 (Fri, 18 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+
+  * Fixed the regular expression that fixes line endings to make sure to
+    deal with \n\n properly.
+
+
+------------------------------------------------------------------------
+rev 447:  jgoerzen | 2003-04-17 21:14:45 -0500 (Thu, 17 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/repository/Maildir.py
+
+  * Added the ability to use the top level of a Maildir as folder named
+    ".".  Useful for generating Maildir trees for a Courier server.
+
+
+------------------------------------------------------------------------
+rev 446:  jgoerzen | 2003-04-17 21:06:04 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/repository/IMAP.py
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.py
+
+Prepping for 0.99.13 -- fixed some niggling bugs
+
+------------------------------------------------------------------------
+rev 445:  jgoerzen | 2003-04-17 18:31:25 -0500 (Thu, 17 Apr 2003) | 6 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/repository/IMAP.py
+
+  * Now checks that SELECT succeeded when entering a folder.
+  * Verifies that folders listed on folderincludes actually exist by trying
+    to enter them.  Thus, if they do not exist, they can be created on the
+    first run.
+
+
+------------------------------------------------------------------------
+rev 444:  jgoerzen | 2003-04-17 18:18:54 -0500 (Thu, 17 Apr 2003) | 5 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+
+  * Fixed line-ending code to deal with files with mixed \n and \r\n
+    codes.  This is a rare case, but now is more onerous because we now
+    have to find headers.
+
+
+------------------------------------------------------------------------
+rev 443:  jgoerzen | 2003-04-17 16:43:54 -0500 (Thu, 17 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/ui/TTY.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+
+Fixed account names in password prompts
+
+
+------------------------------------------------------------------------
+rev 442:  jgoerzen | 2003-04-17 16:18:34 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   D /offlineimap/branches/account-sep
+   A /offlineimap/head (from /offlineimap/branches/account-sep:441)
+
+Moved account-sep branch to head
+
+------------------------------------------------------------------------
+rev 440:  jgoerzen | 2003-04-17 16:17:16 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/debian/changelog
+
+Added some content to the changelog
+
+------------------------------------------------------------------------
+rev 439:  jgoerzen | 2003-04-17 16:16:00 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/bin/offlineimap
+   M /offlineimap/branches/account-sep/offlineimap/version.py
+   M /offlineimap/branches/account-sep/offlineimap.py
+
+Preparing 3.99.12
+
+------------------------------------------------------------------------
+rev 438:  jgoerzen | 2003-04-17 16:08:05 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Fixed a syntax error in keepalive code
+
+------------------------------------------------------------------------
+rev 437:  jgoerzen | 2003-04-17 15:57:18 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Added a fix for a race condition relating to noting new messages.
+
+------------------------------------------------------------------------
+rev 436:  jgoerzen | 2003-04-17 15:48:59 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Abolished use of reference in makefolder()
+
+------------------------------------------------------------------------
+rev 435:  jgoerzen | 2003-04-17 15:45:21 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Added error checking for folder creation
+
+------------------------------------------------------------------------
+rev 434:  jgoerzen | 2003-04-17 15:36:28 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Fix for a logic error when no folders match the referenced list.
+
+------------------------------------------------------------------------
+rev 433:  jgoerzen | 2003-04-17 15:21:51 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Fixed a localupdate syntax problem
+
+------------------------------------------------------------------------
+rev 432:  jgoerzen | 2003-04-17 15:14:39 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap.conf
+
+Moved some things in the config file that are not yet in the account area.
+
+------------------------------------------------------------------------
+rev 431:  jgoerzen | 2003-04-17 15:08:17 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Syntax error fixes
+
+------------------------------------------------------------------------
+rev 430:  jgoerzen | 2003-04-17 15:05:02 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Rewrote the keepalive system to work with the new repository configuration.
+
+------------------------------------------------------------------------
+rev 429:  jgoerzen | 2003-04-17 14:21:23 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/threadutil.py
+
+Removed the SYNC_WITH_TIMER_TERMINATE logic; it is now obsolete.
+
+------------------------------------------------------------------------
+rev 428:  jgoerzen | 2003-04-17 14:10:13 -0500 (Thu, 17 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/syncmaster.py
+
+No longer wait for the termination of all account sync threads in
+syncitall().  There's really no need for that, and maybe it's causing some
+of the problems.
+
+------------------------------------------------------------------------
+rev 427:  jgoerzen | 2003-04-17 13:31:47 -0500 (Thu, 17 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/threadutil.py
+
+Beefed up the release of the exitcondition, in case this is what is causing
+processes to fail to die.  (I don't know if that's the case, but it's a good
+guess anyway.)
+
+------------------------------------------------------------------------
+rev 426:  jgoerzen | 2003-04-17 13:27:17 -0500 (Thu, 17 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/debian/changelog
+
+Noted preauth information
+
+
+------------------------------------------------------------------------
+rev 425:  jgoerzen | 2003-04-17 13:26:24 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/ui/UIBase.py
+
+Accept string port parts now for preauth tunnels.
+
+------------------------------------------------------------------------
+rev 424:  jgoerzen | 2003-04-17 13:25:30 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap.sgml
+
+Changed from Emacs docbook mode to Emacs psgml.
+
+------------------------------------------------------------------------
+rev 423:  jgoerzen | 2003-04-17 13:24:09 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/debian/changelog
+   M /offlineimap/branches/account-sep/offlineimap/init.py
+   M /offlineimap/branches/account-sep/offlineimap.sgml
+
+Added a new debug type "thread"
+
+------------------------------------------------------------------------
+rev 422:  jgoerzen | 2003-04-17 13:04:31 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/imapserver.py
+
+Made connecting message more useful for tunnels.
+
+------------------------------------------------------------------------
+rev 421:  jgoerzen | 2003-04-17 12:58:09 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/imapserver.py
+
+Try to require less configuration of a preauth system
+
+------------------------------------------------------------------------
+rev 420:  jgoerzen | 2003-04-17 12:45:22 -0500 (Thu, 17 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Made sure that calling deletemessage() (which calls deletemssages) doesn't
+convert the UID twice -- or try to delete it twice.
+
+------------------------------------------------------------------------
+rev 419:  jgoerzen | 2003-04-17 12:27:21 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/debian/changelog
+
+Preparing Changelog for this release.
+
+------------------------------------------------------------------------
+rev 418:  jgoerzen | 2003-04-17 12:15:04 -0500 (Thu, 17 Apr 2003) | 1 line
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Fixed a silly syntax error
+------------------------------------------------------------------------
+rev 417:  jgoerzen | 2003-04-17 12:13:59 -0500 (Thu, 17 Apr 2003) | 20 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Make sure l2r and r2l are *copies* of diskl2r and diskr2l.  Else, bad
+things happen when deleting elements.  This is an effort to fix this
+error from rev 416:
+
+hread 'Folder sync Test[INBOX]' terminated with exception:
+Traceback (most recent call last):
+  File "./offlineimap/threadutil.py", line 151, in run
+    Thread.run(self)
+  File "/usr/lib/python2.2/threading.py", line 402, in run
+    apply(self.__target, self.__args, self.__kwargs)
+  File "./offlineimap/accounts.py", line 219, in syncfolder
+    remotefolder.syncmessagesto_delete(localfolder, [localfolder,
+  File "./offlineimap/folder/Base.py", line 325, in syncmessagesto_delete
+    object.deletemessages(deletelist)
+  File "./offlineimap/folder/UIDMaps.py", line 205, in deletemessages
+    self._mapped_delete(uidlist)
+  File "./offlineimap/folder/UIDMaps.py", line 184, in _mapped_delete
+    del self.diskr2l[ruid]
+KeyError: 1690
+
+------------------------------------------------------------------------
+rev 416:  jgoerzen | 2003-04-17 12:09:50 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Fixed a problem where delete could convert the UIDs twice.
+
+------------------------------------------------------------------------
+rev 415:  jgoerzen | 2003-04-17 12:03:46 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+
+Comented out some old keepalive code
+
+------------------------------------------------------------------------
+rev 414:  jgoerzen | 2003-04-17 11:59:52 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Fixed a typo
+
+------------------------------------------------------------------------
+rev 413:  jgoerzen | 2003-04-17 11:58:49 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Added a default for holdconnectionopen
+
+------------------------------------------------------------------------
+rev 412:  jgoerzen | 2003-04-17 11:57:50 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Fixed a syntax error
+
+------------------------------------------------------------------------
+rev 411:  jgoerzen | 2003-04-17 11:54:10 -0500 (Thu, 17 Apr 2003) | 18 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Added a significant amount of locking to take prevent data structures
+from changing while they're being saved.  This fixes the following
+error I got with rev 409:
+
+Thread 'Copy message 1521 from INBOX' terminated with exception:
+Traceback (most recent call last):
+  File "./offlineimap/threadutil.py", line 151, in run
+    Thread.run(self)
+  File "/usr/lib/python2.2/threading.py", line 402, in run
+    apply(self.__target, self.__args, self.__kwargs)
+  File "./offlineimap/folder/Base.py", line 276, in copymessageto
+    newuid = object.savemessage(uid, message, flags)
+  File "./offlineimap/folder/UIDMaps.py", line 143, in savemessage
+    self._savemaps()
+  File "./offlineimap/folder/UIDMaps.py", line 60, in _savemaps
+    for (key, value) in self.diskl2r.iteritems():
+RuntimeError: dictionary changed size during iteration
+
+------------------------------------------------------------------------
+rev 410:  jgoerzen | 2003-04-17 11:48:37 -0500 (Thu, 17 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Use 'x' instead of a minus sign when we have a negative crc32 to avoid
+making the header look weird with two dashes.
+
+------------------------------------------------------------------------
+rev 409:  jgoerzen | 2003-04-17 11:47:24 -0500 (Thu, 17 Apr 2003) | 1 line
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Additional syntax fixes
+------------------------------------------------------------------------
+rev 408:  jgoerzen | 2003-04-17 11:43:59 -0500 (Thu, 17 Apr 2003) | 1 line
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Syntax fixes
+------------------------------------------------------------------------
+rev 407:  jgoerzen | 2003-04-17 11:43:09 -0500 (Thu, 17 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Fix savemessage to actually call the new functions
+Use a crc32 of the content instead of a UID when saving, since the UID is
+not going to be unique anway.
+
+------------------------------------------------------------------------
+rev 406:  jgoerzen | 2003-04-17 11:37:53 -0500 (Thu, 17 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Initial work on making the UID fetching after an APPEND much more robust. 
+Now, instead of using the Message-ID, append our own header.
+
+------------------------------------------------------------------------
+rev 405:  jgoerzen | 2003-04-17 11:12:27 -0500 (Thu, 17 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Made sure to make a copy of value() in getmessage list so as to not scrawl
+over the original.
+
+------------------------------------------------------------------------
+rev 404:  jgoerzen | 2003-04-17 11:07:24 -0500 (Thu, 17 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Fixed another instance where we need to change the sep for the folder base
+name.
+
+------------------------------------------------------------------------
+rev 403:  jgoerzen | 2003-04-17 11:04:21 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Make the foldername always use . for the separator
+
+------------------------------------------------------------------------
+rev 402:  jgoerzen | 2003-04-17 11:02:44 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Various syntax fixes
+
+------------------------------------------------------------------------
+rev 401:  jgoerzen | 2003-04-17 10:54:19 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Syntax fix
+
+------------------------------------------------------------------------
+rev 400:  jgoerzen | 2003-04-17 10:52:31 -0500 (Thu, 17 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Ready to try UID mapping.
+
+------------------------------------------------------------------------
+rev 399:  jgoerzen | 2003-04-16 22:05:37 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py
+
+Added a marker for starting work next time
+
+------------------------------------------------------------------------
+rev 398:  jgoerzen | 2003-04-16 21:59:12 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+   A /offlineimap/branches/account-sep/offlineimap/folder/UIDMaps.py (from /offlineimap/branches/account-sep/offlineimap/folder/Base.py:396)
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+
+Initial work in UID mapping
+
+------------------------------------------------------------------------
+rev 397:  jgoerzen | 2003-04-16 21:04:55 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+
+Added a comment about servers that don't return EXISTS reponses.
+
+------------------------------------------------------------------------
+rev 396:  jgoerzen | 2003-04-16 19:45:49 -0500 (Wed, 16 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/LocalStatus.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/Maildir.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+
+Some preliminary work for UID mapping: the addition of a map directory, and
+new locks in the folder base.
+
+------------------------------------------------------------------------
+rev 395:  jgoerzen | 2003-04-16 19:26:46 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Fixed holdconnectionopen
+
+------------------------------------------------------------------------
+rev 394:  jgoerzen | 2003-04-16 19:23:47 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+   M /offlineimap/branches/account-sep/offlineimap/init.py
+
+More progress being made
+
+------------------------------------------------------------------------
+rev 393:  jgoerzen | 2003-04-16 19:07:34 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+
+Actually skip accounts with uid validity problems.
+
+------------------------------------------------------------------------
+rev 392:  jgoerzen | 2003-04-16 19:03:50 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Basic fixes to make IMAP work as a local folder.
+
+------------------------------------------------------------------------
+rev 391:  jgoerzen | 2003-04-16 18:55:54 -0500 (Wed, 16 Apr 2003) | 5 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+
+Moved some code from sync() to syncrunner() so that the same
+repository objects can be used for each sync.  This prevents the
+imapserver object from getting recreated, and thus prompting anew for
+a password each time.
+
+------------------------------------------------------------------------
+rev 390:  jgoerzen | 2003-04-16 18:52:02 -0500 (Wed, 16 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/ui/UIBase.py
+
+Basic infrastructure in place; program is now minimally working with new
+config.
+
+------------------------------------------------------------------------
+rev 389:  jgoerzen | 2003-04-16 18:33:28 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+More fixes for basic compile errors
+
+------------------------------------------------------------------------
+rev 388:  jgoerzen | 2003-04-16 18:22:51 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/imapserver.py
+   M /offlineimap/branches/account-sep/offlineimap/init.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Fixed a bunch of compile errors
+
+------------------------------------------------------------------------
+rev 387:  jgoerzen | 2003-04-16 18:10:47 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/CustomConfig.py
+
+Fixed a missing param in the mixin
+
+------------------------------------------------------------------------
+rev 386:  jgoerzen | 2003-04-16 18:09:43 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/CustomConfig.py
+
+Fixed a typo in getconfint()
+
+------------------------------------------------------------------------
+rev 385:  jgoerzen | 2003-04-16 18:09:08 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+
+Fixed yet another bug in the getaccountlist code
+
+------------------------------------------------------------------------
+rev 384:  jgoerzen | 2003-04-16 18:08:09 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+
+Fixed a bug in the hash generator
+
+------------------------------------------------------------------------
+rev 383:  jgoerzen | 2003-04-16 18:06:09 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/init.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Maildir.py
+
+Fixed some syntax problems
+
+------------------------------------------------------------------------
+rev 382:  jgoerzen | 2003-04-16 18:01:41 -0500 (Wed, 16 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/folder/Maildir.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+
+Revamed the UID validity system.  Now, each folder is responsible for
+ensuring its own UID validity.  UID validities are uniformly stored under
+~/.offlineimap in a special directory.
+
+------------------------------------------------------------------------
+rev 381:  jgoerzen | 2003-04-16 17:39:49 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/LocalStatus.py
+
+Moved folder info into LocalStatus subdirectory
+
+------------------------------------------------------------------------
+rev 380:  jgoerzen | 2003-04-16 16:52:34 -0500 (Wed, 16 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/folder/IMAP.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+Added the ability to make a new IMAP folder
+Cleaned up folder/IMAP.py wrt new layout
+
+------------------------------------------------------------------------
+rev 379:  jgoerzen | 2003-04-16 16:17:51 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+
+Added additional accountname
+
+------------------------------------------------------------------------
+rev 378:  jgoerzen | 2003-04-16 16:14:56 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+
+Added LoadRepository
+
+------------------------------------------------------------------------
+rev 377:  jgoerzen | 2003-04-16 16:10:25 -0500 (Wed, 16 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/LocalStatus.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Maildir.py
+
+Migrated some other repositories to the new system.
+Added getaccountmeta() to accounts.py
+
+------------------------------------------------------------------------
+rev 376:  jgoerzen | 2003-04-16 16:03:01 -0500 (Wed, 16 Apr 2003) | 5 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/CustomConfig.py
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/imapserver.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/IMAP.py
+
+First steps towards new infrastructure.
+
+Pass along fewer items to Repository.Base and Reposotiry.IMAP.  Need to
+update other Repository.* items yet.
+
+------------------------------------------------------------------------
+rev 375:  jgoerzen | 2003-04-16 15:28:27 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/imapserver.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Base.py
+
+Some continuing development going on here.
+
+------------------------------------------------------------------------
+rev 374:  jgoerzen | 2003-04-16 15:03:44 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+
+Modification to use new section names
+
+------------------------------------------------------------------------
+rev 373:  jgoerzen | 2003-04-16 14:59:17 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   D /offlineimap/branches/account-sep/offlineimap/account
+   M /offlineimap/branches/account-sep/offlineimap/accounts.py
+   M /offlineimap/branches/account-sep/offlineimap/init.py
+   M /offlineimap/branches/account-sep/offlineimap/syncmaster.py
+
+Moved new content in offlineimap/account into existing offlineimap/accounts.py
+
+------------------------------------------------------------------------
+rev 372:  jgoerzen | 2003-04-16 14:54:30 -0500 (Wed, 16 Apr 2003) | 4 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/account/AccountBase.py
+   M /offlineimap/branches/account-sep/offlineimap/init.py
+
+Added generators to AccountBase
+Updated init.py to use Account objects
+
+
+------------------------------------------------------------------------
+rev 371:  jgoerzen | 2003-04-16 14:44:15 -0500 (Wed, 16 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap/CustomConfig.py
+   M /offlineimap/branches/account-sep/offlineimap/account/AccountBase.py
+   M /offlineimap/branches/account-sep/offlineimap/init.py
+
+Moved getaccountlist into AccountBase
+Added getsectionlist to init.py
+
+------------------------------------------------------------------------
+rev 370:  jgoerzen | 2003-04-16 14:37:38 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   A /offlineimap/branches/account-sep/offlineimap/account
+   A /offlineimap/branches/account-sep/offlineimap/account/AccountBase.py (from /offlineimap/branches/account-sep/offlineimap/repository/Base.py:369)
+   A /offlineimap/branches/account-sep/offlineimap/account/__init__.py (from /offlineimap/branches/account-sep/offlineimap/repository/__init__.py:369)
+   M /offlineimap/branches/account-sep/offlineimap/folder/LocalStatus.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/LocalStatus.py
+   M /offlineimap/branches/account-sep/offlineimap/repository/Maildir.py
+
+Added account-based infrastructure
+
+------------------------------------------------------------------------
+rev 369:  jgoerzen | 2003-04-16 14:23:23 -0500 (Wed, 16 Apr 2003) | 3 lines
+Changed paths:
+   M /offlineimap/branches/account-sep/offlineimap.conf
+   M /offlineimap/branches/account-sep/offlineimap.conf.minimal
+
+Checked in changes to the config files that represent the direction I'd like
+to take OfflineIMAP wrt multi-repository syncing.
+
+------------------------------------------------------------------------
+rev 368:  jgoerzen | 2003-04-16 14:12:19 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   A /offlineimap/branches/account-sep (from /offlineimap/head:367)
+
+New branch for work on allowing syncing between two IMAP servers
+
+------------------------------------------------------------------------
+rev 367:  jgoerzen | 2003-04-16 09:23:45 -0500 (Wed, 16 Apr 2003) | 2 lines
+Changed paths:
+   M /offlineimap/head/COPYRIGHT
+   M /offlineimap/head/Makefile
+   M /offlineimap/head/bin/offlineimap
+   M /offlineimap/head/debian/copyright
+   M /offlineimap/head/manual.html
+   M /offlineimap/head/manual.pdf
+   M /offlineimap/head/manual.ps
+   M /offlineimap/head/manual.txt
+   M /offlineimap/head/offlineimap/CustomConfig.py
+   M /offlineimap/head/offlineimap/accounts.py
+   M /offlineimap/head/offlineimap/folder/Base.py
+   M /offlineimap/head/offlineimap/folder/IMAP.py
+   M /offlineimap/head/offlineimap/folder/LocalStatus.py
+   M /offlineimap/head/offlineimap/folder/Maildir.py
+   M /offlineimap/head/offlineimap/imapserver.py
+   M /offlineimap/head/offlineimap/imaputil.py
+   M /offlineimap/head/offlineimap/init.py
+   M /offlineimap/head/offlineimap/localeval.py
+   M /offlineimap/head/offlineimap/mbnames.py
+   M /offlineimap/head/offlineimap/repository/Base.py
+   M /offlineimap/head/offlineimap/repository/IMAP.py
+   M /offlineimap/head/offlineimap/repository/LocalStatus.py
+   M /offlineimap/head/offlineimap/repository/Maildir.py
+   M /offlineimap/head/offlineimap/syncmaster.py
+   M /offlineimap/head/offlineimap/threadutil.py
+   M /offlineimap/head/offlineimap/ui/Blinkenlights.py
+   M /offlineimap/head/offlineimap/ui/Curses.py
+   M /offlineimap/head/offlineimap/ui/Noninteractive.py
+   M /offlineimap/head/offlineimap/ui/TTY.py
+   M /offlineimap/head/offlineimap/ui/Tk.py
+   M /offlineimap/head/offlineimap/ui/UIBase.py
+   M /offlineimap/head/offlineimap/ui/__init__.py
+   M /offlineimap/head/offlineimap/ui/debuglock.py
+   M /offlineimap/head/offlineimap/ui/detector.py
+   M /offlineimap/head/offlineimap/version.py
+   M /offlineimap/head/offlineimap.1
+   M /offlineimap/head/offlineimap.conf
+   M /offlineimap/head/offlineimap.py
+   M /offlineimap/head/offlineimap.sgml
+   M /offlineimap/head/setup.py
+
+Reverted the license change
+
+------------------------------------------------------------------------
+rev 366:  jgoerzen | 2003-04-01 16:59:13 -0600 (Tue, 01 Apr 2003) | 1 line
+Changed paths:
+   M /offlineimap/head/ChangeLog
+   M /offlineimap/head/debian/changelog
+
+
+------------------------------------------------------------------------
 rev 365:  jgoerzen | 2003-03-13 11:48:42 -0600 (Thu, 13 Mar 2003) | 2 lines
 Changed paths:
    M /offlineimap/head/offlineimap/ui/Curses.py
