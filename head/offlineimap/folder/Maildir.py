@@ -28,6 +28,9 @@ class MaildirFolder(BaseFolder):
         self.uidfilename = os.path.join(self.getfullname(), "imapsync.uidvalidity")
         self.messagelist = None
 
+    def getfullname(self):
+        return os.path.join(self.getroot(), self.getname())
+
     def getuidvalidity(self):
         if not os.path.exists(self.uidfilename):
             return None
@@ -62,7 +65,7 @@ class MaildirFolder(BaseFolder):
                                         # negative UID numbers.
         for dirannex in ['new', 'cur']:
             fulldirname = os.path.join(self.getfullname(), dirannex)
-            files.append([os.path.join(fulldirname, filename) for
+            files.extend([os.path.join(fulldirname, filename) for
                           filename in os.listdir(fulldirname)])
         for file in files:
             messagename = os.path.basename(file)
@@ -86,7 +89,7 @@ class MaildirFolder(BaseFolder):
         return self.messagelist
 
     def getmessage(self, uid):
-        filename = self.getmessagelist(uid)['filename']
+        filename = self.getmessagelist()[uid]['filename']
         file = open(filename, 'rt')
         retval = file.read()
         file.close()
@@ -123,4 +126,32 @@ class MaildirFolder(BaseFolder):
                                  'filename': os.path.join(newdir, messagename)}
         
         
-                
+    def getmessageflags(self, uid):
+        return self.getmessagelist()[uid]['flags']
+
+    def savemessageflags(self, uid, flags):
+        oldfilename = self.getmessagelist()[uid]['filename']
+        newpath, newname = os.path.split(oldfilename)
+        infostr = ':'
+        infomatch = re.search('(:.*)$', newname)
+        if infomatch:                   # If the info string is present..
+            infostr = infomatch.group(1)
+            newname = newname.split(':')[0] # Strip off the info string.
+        re.sub('2,[A-Z]*', '', infostr)
+        flags.sort()
+        infostr += '2,' + ''.join(flags)
+        newname += infostr
+        
+        newfilename = os.path.join(newpath, newname)
+        if (newfilename != oldfilename):
+            os.rename(oldfilename, newfilename)
+            self.getmessagelist()[uid]['flags'] = flags
+
+    def getmessageflags(self, uid):
+        return self.getmessagelist()[uid]['flags']
+
+    def deletemessage(self, uid):
+        filename = self.getmessagelist()[uid]['filename']
+        os.unlink(filename)
+        del(self.messagelist[uid])
+        
