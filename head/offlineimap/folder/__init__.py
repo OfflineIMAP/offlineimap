@@ -1,1 +1,1 @@
-import Base, IMAP
+import Base, IMAP, Maildir

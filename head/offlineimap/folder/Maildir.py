@@ -1,4 +1,4 @@
-# IMAP folder support
+# Maildir folder support
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
@@ -19,10 +19,10 @@
 from Base import BaseFolder
 from imapsync import imaputil
 
-class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name):
-        self.name = imaputil.dequote(name)
-        self.root = imapserver.root
-        self.sep = imapserver.delim
-        self.imapserver = imapserver
-        
+class MaildirFolder(BaseFolder):
+    def __init__(self, root, name):
+        self.name = name
+        self.root = root
+        self.sep = '.'
+
+    
