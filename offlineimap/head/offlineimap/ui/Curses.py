@@ -84,29 +84,31 @@ class CursesUtil:
         self.start()
 
 class CursesAccountFrame:
-    def __init__(s, master, accountname):
+    def __init__(s, master, accountname, iolock):
+        s.iolock = iolock
         s.c = master
         s.children = []
         s.accountname = accountname
 
-    def setwindow(s, window):
+    def setwindow(s, window, lock = 1):
         s.window = window
         acctstr = '%15.15s: ' % s.accountname
         s.window.addstr(0, 0, acctstr)
         s.location = len(acctstr)
         for child in s.children:
-            child.update(window, 0, s.location)
+            child.update(window, 0, s.location, lock)
             s.location += 1
 
-    def getnewthreadframe(s):
-        tf = CursesThreadFrame(s.c, s.window, 0, s.location)
+    def getnewthreadframe(s, lock = 1):
+        tf = CursesThreadFrame(s.c, s.window, 0, s.location, s.iolock, lock)
         s.location += 1
         s.children.append(tf)
         return tf
 
 class CursesThreadFrame:
-    def __init__(s, master, window, y, x):
+    def __init__(s, master, window, y, x, iolock, lock = 1):
         """master should be a CursesUtil object."""
+        s.iolock = iolock
         s.c = master
         s.window = window
         s.x = x
@@ -125,27 +127,33 @@ class CursesThreadFrame:
                          'yellow': curses.A_BOLD | s.c.getpair(curses.COLOR_YELLOW, bg),
                          'pink': curses.A_BOLD | s.c.getpair(curses.COLOR_RED, bg)}
         #s.setcolor('gray')
-        s.setcolor('black')
+        s.setcolor('black', lock)
 
-    def setcolor(self, color):
+    def setcolor(self, color, lock = 1):
         self.color = self.colormap[color]
-        self.display()
+        self.display(lock)
 
-    def display(self):
-        self.window.addstr(self.y, self.x, '.', self.color)
-        self.window.refresh()
+    def display(self, lock = 1):
+        if lock:
+            self.iolock.acquire()
+        try:
+            self.window.addstr(self.y, self.x, '.', self.color)
+            self.window.refresh()
+        finally:
+            if lock:
+                self.iolock.release()
 
     def getcolor(self):
         return self.color
 
-    def update(self, window, y, x):
+    def update(self, window, y, x, lock = 1):
         self.window = window
         self.y = y
         self.x = x
-        self.display()
+        self.display(lock)
 
-    def setthread(self, newthread):
-        self.setcolor('black')
+    def setthread(self, newthread, lock = 1):
+        self.setcolor('black', lock)
         #if newthread:
         #    self.setcolor('gray')
         #else:
@@ -232,9 +240,8 @@ class Blinkenlights(BlinkenBase, UIBase):
         BlinkenBase.init_banner(s)
         s.setupwindows(dolock = 0)
         s.inputhandler = InputHandler(s.c)
-        
+        s.gettf().setcolor('red')
         s._msg(version.banner)
-        s._msg(str(dir(s.c.stdscr)))
         s.inputhandler.set_bgchar(s.keypress)
 
     def keypress(s, key):
@@ -244,10 +251,10 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.inputhandler.input_acquire()
         s.iolock.acquire()
         try:
-            s.gettf().setcolor('white')
+            s.gettf(lock = 0).setcolor('white', lock = 0)
             s._addline_unlocked(" *** Input Required", s.gettf().getcolor())
             s._addline_unlocked(" *** Please enter password for account %s: " % accountname,
-                   s.gettf().getcolor())
+                   s.gettf(lock = 0).getcolor())
             s.logwindow.refresh()
             password = s.logwindow.getstr()
         finally:
@@ -266,7 +273,6 @@ class Blinkenlights(BlinkenBase, UIBase):
             s.logwindow.idlok(1)
             s.logwindow.scrollok(1)
             s.setupwindow_drawlog()
-
             accounts = s.af.keys()
             accounts.sort()
             accounts.reverse()
@@ -274,11 +280,10 @@ class Blinkenlights(BlinkenBase, UIBase):
             pos = s.c.height - 1
             for account in accounts:
                 accountwindow = curses.newwin(1, s.c.width, pos, 0)
-                s.af[account].setwindow(accountwindow)
+                s.af[account].setwindow(accountwindow, lock = 0)
                 pos -= 1
 
             curses.doupdate()
-
         finally:
             if dolock:
                 s.iolock.release()
@@ -298,7 +303,7 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.logwindow.bkgd(' ', s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK))
         for line, color in s.text:
             s.logwindow.addstr(line + "\n", color)
-            s.logwindow.noutrefresh()
+        s.logwindow.noutrefresh()
 
     def getaccountframe(s):
         accountname = s.getthreadaccount()
@@ -308,7 +313,7 @@ class Blinkenlights(BlinkenBase, UIBase):
                 return s.af[accountname]
 
             # New one.
-            s.af[accountname] = CursesAccountFrame(s.c, accountname)
+            s.af[accountname] = CursesAccountFrame(s.c, accountname, s.iolock)
             #s.iolock.acquire()
             s.c.reset()
             s.setupwindows(dolock = 0)
@@ -330,8 +335,8 @@ class Blinkenlights(BlinkenBase, UIBase):
                 print msg
                 return
             if color:
-                s.gettf().setcolor(color)
-            s._addline_unlocked(msg, s.gettf().getcolor())
+                s.gettf(lock = 0).setcolor(color, lock = 0)
+            s._addline_unlocked(msg, s.gettf(lock = 0).getcolor())
             s.logwindow.refresh()
         finally:
             s.iolock.release()

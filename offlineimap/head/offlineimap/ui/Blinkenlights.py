@@ -90,7 +90,7 @@ class BlinkenBase:
 
         UIBase.threadExited(s, thread)
 
-    def gettf(s):
+    def gettf(s, lock = 1):
         threadid = thread.get_ident()
         accountname = s.getthreadaccount()
         
@@ -108,9 +108,9 @@ class BlinkenBase:
 
             if len(s.availablethreadframes[accountname]):
                 tf = s.availablethreadframes[accountname].pop(0)
-                tf.setthread(currentThread())
+                tf.setthread(currentThread(), lock)
             else:
-                tf = s.getaccountframe().getnewthreadframe()
+                tf = s.getaccountframe().getnewthreadframe(lock)
             s.threadframes[accountname][threadid] = tf
             return tf
         

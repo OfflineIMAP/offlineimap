@@ -204,7 +204,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
 
     # Synchronize remote changes.
     ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
-    remotefolder.syncmessagesto(localfolder)
+    remotefolder.syncmessagesto(localfolder, [localfolder, statusfolder])
 
     # Make sure the status folder is up-to-date.
     ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
