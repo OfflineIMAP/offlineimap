@@ -105,16 +105,22 @@ class IMAPServer:
         self.semaphore.release()
 
     def md5handler(self, response):
+        ui = UIBase.getglobalui()
         challenge = response.strip()
+        ui.debug('imap', 'md5handler: got challenge %s' % challenge)
         while len(challenge) < 64:
             challenge += "\0"
 
         if len(challenge) > 64:
             challenge = md5.new(challenge).digest()
+
+        ui.debug('imap', 'md5handler: post-processed challenge is %s' % \
+                 repr(challenge))
         msg = self.getpassword()
         reply = hmac.new(challenge, msg)
         retval = self.username + ' ' + \
                      reply.hexdigest()
+        ui.debug('imap', 'md5handler: returning %s' % retval)
         return retval
 
     def plainauth(self, imapobj):
