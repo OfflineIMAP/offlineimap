@@ -103,7 +103,7 @@ def imapsplit(imapstring):
                 arg = imapstring[i]
                 arg = re.sub('\{\d+\}$', '', arg)
                 debug("imapsplit() non-string [%d]: Feeding %s to recursion" %\
-                      arg)
+                      (i, arg))
                 retval.extend(imapsplit(imapstring[i]))
         debug("imapsplit() non-string: returning %s" % str(retval))
         return retval

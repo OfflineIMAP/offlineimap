@@ -1,4 +1,32 @@
 ------------------------------------------------------------------------
+rev 267:  mj | 2002-10-09 10:55:34 -0500 (Wed, 09 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/mbnames.py
+
+mbnames folder filter takes *2* arguments.
+
+------------------------------------------------------------------------
+rev 266:  jgoerzen | 2002-10-08 10:18:11 -0500 (Tue, 08 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/offlineimap/imaputil.py
+
+Fixed a syntax error found by Corey.
+
+------------------------------------------------------------------------
+rev 264:  jgoerzen | 2002-10-07 11:32:32 -0500 (Mon, 07 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/debian/changelog
+
+Fixed date
+
+------------------------------------------------------------------------
+rev 263:  jgoerzen | 2002-10-07 11:31:20 -0500 (Mon, 07 Oct 2002) | 2 lines
+Changed paths:
+   M /offlineimap/head/ChangeLog
+
+Changelog for 3.99.0
+
+------------------------------------------------------------------------
 rev 262:  jgoerzen | 2002-10-07 11:30:35 -0500 (Mon, 07 Oct 2002) | 2 lines
 Changed paths:
    M /offlineimap/head/bin/offlineimap

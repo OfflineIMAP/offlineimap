@@ -1,3 +1,10 @@
+offlineimap (3.99.1) unstable; urgency=low
+
+  * Fixed some syntax errors in imaputil.py
+  * Fixed a syntax error with mbnames
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed,  9 Oct 2002 19:34:37 -0500
+
 offlineimap (3.99.0) unstable; urgency=low
 
   * The next few releases are adding features and reorganizing
