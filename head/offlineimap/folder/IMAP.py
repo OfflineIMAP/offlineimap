@@ -54,6 +54,7 @@ class IMAPFolder(BaseFolder):
         return self.messagelist
 
     def getmessage(self, uid):
+        print "***************** GETMESSAGE %d" % uid
         assert(self.imapobj.select(self.getfullname())[0] == 'OK')
         return self.imapobj.uid('fetch', '%d' % uid, '(RFC822)')[1][0][1]
     

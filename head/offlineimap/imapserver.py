@@ -32,6 +32,7 @@ class IMAPServer:
                 self.port = 993
             else:
                 self.port = 143
+        self.imapobj = None
 
     def getdelim(self):
         """Returns this server's folder delimiter.  Can only be called
@@ -47,6 +48,8 @@ class IMAPServer:
         """Opens a connection to the server and returns an appropriate
         object."""
 
+        if self.imapobj != None:
+            return self.imapobj
         imapobj = None
         if self.usessl:
             imapobj = imaplib.IMAP4_SSL(self.hostname, self.port)
@@ -61,6 +64,7 @@ class IMAPServer:
             self.delim = imaputil.dequote(self.delim)
             self.root = imaputil.dequote(self.root)
 
+        self.imapobj = imapobj
         return imapobj
     
         

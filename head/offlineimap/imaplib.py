@@ -222,8 +222,10 @@ class IMAP4:
 
     def read(self, size):
         """Read 'size' bytes from remote."""
-        return self.file.read(size)
-
+        retval = ''
+        while len(retval) < size:
+            retval += self.file.read(size - len(retval))
+        return retval
 
     def readline(self):
         """Read line from remote."""
@@ -858,6 +860,7 @@ class IMAP4:
                     if self.debug >= 4:
                         self._mesg('read literal size %s' % size)
                 data = self.read(size)
+                print "Got data size %d" % len(data)
 
                 # Store response with literal as tuple
 
@@ -1056,7 +1059,10 @@ class IMAP4_SSL(IMAP4):
 
     def read(self, size):
         """Read 'size' bytes from remote."""
-        return self.sslobj.read(size)
+        retval = ''
+        while len(retval) < size:
+            retval += self.sslobj.read(size - len(retval))
+        return retval
 
 
     def readline(self):

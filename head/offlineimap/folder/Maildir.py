@@ -76,14 +76,14 @@ class MaildirFolder(BaseFolder):
                 nouidcounter -= 1
             else:
                 uid = long(uidmatch.group(1))
-            flagmatch = re.search(':.*2,([A-Z]+)')
+            flagmatch = re.search(':.*2,([A-Z]+)', messagename)
             flags = []
             if flagmatch:
-                flags = [f for x in flagmatch.group(1)]
+                flags = [x for x in flagmatch.group(1)]
             flags.sort()
             self.messagelist[uid] = {'uid': uid,
                                      'flags': flags,
-                                     'filename': messagename}
+                                     'filename': file}
             
     def getmessagelist(self):
         return self.messagelist
