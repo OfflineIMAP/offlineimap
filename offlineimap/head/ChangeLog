@@ -1,4 +1,45 @@
 ------------------------------------------------------------------------
+rev 169:  jgoerzen | 2002-07-23 14:28:40 -0500 (Tue, 23 Jul 2002) | 3 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/imaplib.py
+
+More optimizations -- this time fix readline() to not work
+character-by-character!
+
+------------------------------------------------------------------------
+rev 168:  jgoerzen | 2002-07-23 13:36:44 -0500 (Tue, 23 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/offlineimap/folder/IMAP.py
+   U /offlineimap/head/offlineimap/folder/Maildir.py
+   U /offlineimap/head/offlineimap/imaputil.py
+
+Made some more optimizations
+
+------------------------------------------------------------------------
+rev 167:  jgoerzen | 2002-07-23 09:55:18 -0500 (Tue, 23 Jul 2002) | 7 lines
+Changed paths:
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/folder/Maildir.py
+   U /offlineimap/head/offlineimap/imaputil.py
+   U /offlineimap/head/offlineimap/threadutil.py
+
+  * Modified imaputil.py and folder/Maildir.py to run faster.  Eliminated
+    many regular expressions; pre-compiled many others.
+  * Fixed threadutil's exitnotifyloop to always handle threads in the order
+    they exited, rather than sometimes in the inverse order.  This way,
+    make sure to handle thread's exception messages before a thread exited.
+
+
+------------------------------------------------------------------------
+rev 165:  jgoerzen | 2002-07-22 15:50:14 -0500 (Mon, 22 Jul 2002) | 2 lines
+Changed paths:
+   U /offlineimap/head/ChangeLog
+   U /offlineimap/head/debian/changelog
+   U /offlineimap/head/offlineimap/version.py
+
+This is 3.1.0.
+
+------------------------------------------------------------------------
 rev 164:  jgoerzen | 2002-07-22 15:48:15 -0500 (Mon, 22 Jul 2002) | 2 lines
 Changed paths:
    U /offlineimap/head/debian/changelog
