@@ -50,17 +50,21 @@ class MaildirFolder(BaseFolder):
         return os.path.join(self.getroot(), self.getname())
 
     def getuidvalidity(self):
+        if hasattr(self, 'uidvalidity'):
+            return self.uidvalidity
         if not os.path.exists(self.uidfilename):
-            return None
-        file = open(self.uidfilename, "rt")
-        retval = long(file.readline().strip())
-        file.close()
-        return retval
+            self.uidvalidity = None
+        else:
+            file = open(self.uidfilename, "rt")
+            self.uidvalidity = long(file.readline().strip())
+            file.close()
+        return self.uidvalidity
 
     def saveuidvalidity(self, newval):
         file = open(self.uidfilename, "wt")
         file.write("%d\n" % newval)
         file.close()
+        self.uidvalidity = newval
 
     def isuidvalidityok(self, remotefolder):
         myval = self.getuidvalidity()

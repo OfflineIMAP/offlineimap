@@ -47,6 +47,10 @@ class LocalStatusFolder(BaseFolder):
     def getfullname(self):
         return self.filename
 
+    def deletemessagelist(self):
+        if not self.isnewfolder():
+            os.unlink(self.filename)
+
     def cachemessagelist(self):
         if self.isnewfolder():
             self.messagelist = {}
