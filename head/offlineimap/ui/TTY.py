@@ -1,10 +1,12 @@
 from UIBase import UIBase
 from getpass import getpass
 import select, sys
+from threading import *
 
 class TTYUI(UIBase):
     def __init__(self, verbose = 0):
         self.verbose = 0
+        self.iswaiting = 0
         
     def _msg(s, msg):
         print msg
@@ -28,11 +30,19 @@ class TTYUI(UIBase):
             UIBase.messagelistloaded(s, repos, folder, count)
 
     def sleep(s, sleepsecs):
+        s.iswaiting = 1
         try:
             UIBase.sleep(s, sleepsecs)
-        except KeyboardInterrupt:
+        finally:
+            s.iswaiting = 0
+
+    def mainException(s):
+        if isinstance(sys.exc_info()[1], KeyboardInterrupt) and \
+           s.iswaiting:
             sys.stdout.write("Timer interrupted at user request; program terminating.             \n")
-            return 2
+            s.terminate()
+        else:
+            UIBase.mainException(s)
 
     def sleeping(s, sleepsecs, remainingsecs):
         if remainingsecs > 0:

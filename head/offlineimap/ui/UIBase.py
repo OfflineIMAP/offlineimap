@@ -18,7 +18,8 @@
 
 from offlineimap import repository
 import offlineimap.version
-import re, time
+import re, time, sys, traceback
+from StringIO import StringIO
 
 class UIBase:
     ################################################## UTILS
@@ -107,6 +108,30 @@ class UIBase:
         ds = s.folderlist(destlist)
         s._msg("Deleting flags %s to message %d on %s" % \
                (", ".join(flags), uid, ds))
+
+    ################################################## Threads
+
+    def threadException(s, thread):
+        """Called when a thread has terminated with an exception.
+        The argument is the ExitNotifyThread that has so terminated."""
+        s._msg("Thread '%s' terminated with exception:\n%s" % \
+               (thread.getName(), thread.getExitStackTrace()))
+        s.terminate(100)
+
+    def mainException(s):
+        sbuf = StringIO()
+        traceback.print_exc(file = sbuf)
+        s._msg("Main program terminated with exception:\n" +
+               sbuf.getvalue())
+
+    def terminate(s, exitstatus = 0):
+        """Called to terminate the application."""
+        sys.exit(exitstatus)
+
+    def threadExited(s, thread):
+        """Called when a thread has exited normally.  Many UIs will
+        just ignore this."""
+        pass
 
     ################################################## Other
 

@@ -1,3 +1,9 @@
+offlineimap (2.0.1) unstable; urgency=low
+
+  * Fixed a bug with not properly propogating foldersep changes.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu,  4 Jul 2002 09:07:06 -0500
+
 offlineimap (2.0.0) unstable; urgency=low
 
   * This code is now multithreaded.  New config file options control the

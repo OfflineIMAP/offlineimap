@@ -18,7 +18,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from offlineimap import imaplib, imaputil, imapserver, repository, folder, mbnames, threadutil
-from offlineimap.threadutil import InstanceLimitedThread
+from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
@@ -111,6 +111,7 @@ def syncaccount(accountname, *args):
                 (accountname, remotefolder.getvisiblename()),
                 args = (accountname, remoterepos, remotefolder, localrepos,
                         statusrepos))
+            thread.setDaemon(1)
             thread.start()
             folderthreads.append(thread)
         threadutil.threadsreset(folderthreads)
@@ -178,18 +179,45 @@ def syncitall():
                                        target = syncaccount,
                                        name = "syncaccount-%s" % accountname,
                                        args = (accountname,))
+        thread.setDaemon(1)
         thread.start()
         threads.append(thread)
     # Wait for the threads to finish.
     threadutil.threadsreset(threads)
     mbnames.genmbnames(config, mailboxes)
 
-syncitall()
-if config.has_option('general', 'autorefresh'):
-    refreshperiod = config.getint('general', 'autorefresh') * 60
-    while 1:
-        if ui.sleep(refreshperiod) == 2:
-            break
-        else:
-            syncitall()
+def sync_with_timer():
+    currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
+    syncitall()
+    if config.has_option('general', 'autorefresh'):
+        refreshperiod = config.getint('general', 'autorefresh') * 60
+        while 1:
+            if ui.sleep(refreshperiod) == 2:
+                break
+            else:
+                syncitall()
         
+def threadexited(thread):
+    if thread.getExitCause() == 'EXCEPTION':
+        ui.threadException(thread)      # Expected to terminate
+        sys.exit(100)                   # Just in case...
+        os._exit(100)
+    elif thread.getExitMessage() == 'SYNC_WITH_TIMER_TERMINATE':
+        ui.terminate()
+        # Just in case...
+        sys.exit(100)
+        os._exit(100)
+    else:
+        ui.threadExited(thread)
+
+threadutil.initexitnotify()
+t = ExitNotifyThread(target=sync_with_timer, name='sync_with_timer')
+t.setDaemon(1)
+t.start()
+try:
+    threadutil.exitnotifymonitorloop(threadexited)
+except:
+    ui.mainException()                  # Also expected to terminate.
+
+
+    

@@ -200,6 +200,7 @@ class BaseFolder:
                         self.getcopyinstancelimit(),
                         target = self.copymessageto,
                         args = (uid, applyto))
+                    thread.setDaemon(1)
                     thread.start()
                     threads.append(thread)
                 else:
