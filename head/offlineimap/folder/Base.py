@@ -48,8 +48,52 @@ class BaseFolder:
         raise NotImplementedException
 
     def getmessagelist(self):
-        """Gets the current message list.  If cachemessagelist has not yet
-        been called, it will be called."""
+        """Gets the current message list.
+        You must call cachemessagelist() before calling this function!"""
         raise NotImplementedException
 
-    
+    def getmessage(self, uid):
+        """Returns the content of the specified message."""
+        raise NotImplementedException
+
+    def savemessage(self, uid, content):
+        """Writes a new message, with the specified uid."""
+        raise NotImplementedException
+
+    def getmessageflags(self, uid):
+        """Returns the flags for the specified message."""
+        raise NotImplementedException
+
+    def savemessageflags(self, uid, flags):
+        """Sets the specified message's flags to the given set."""
+        raise NotImplementedException
+
+    def deletemessage(self, uid):
+        raise NotImplementedException
+
+    def syncmessagesto(self, dest, applyto = None):
+        """Syncs messages in this folder to the destination.
+        If applyto is specified, it should be a list of folders (don't forget
+        to include dest!) to which all write actions should be applied.
+        It defaults to [dest] if not specified."""
+        if applyto == None:
+            applyto = [dest]
+
+        # Pass 1 -- Look for messages present in self but not in dest.
+        # If any, add them to dest.
+        
+        for uid in self.getmessagelist().keys():
+            if not uid in dest.getmessagelist():
+                dest.savemessage(uid, self.getmessage(uid))
+                dest.savemessageflags(uid, self.getmessageflags(uid))
+
+        # Pass 2 -- Look for message present in dest but not in self.
+        # If any, delete them.
+
+        for uid in dest.getmessagelist().keys():
+            if not uid in self.getmessagelist():
+                dest.deletemessage(uid)
+
+        # Now, the message lists should be identical wrt the uids present.
+
+        # Pass 3 -- Look for any 
