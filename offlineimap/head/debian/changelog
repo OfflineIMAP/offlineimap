@@ -18,6 +18,7 @@ offlineimap (3.2.1) unstable; urgency=low
   * Backed out check for . in account names for now.  Will put it back in
     when we have a consensus on what exactly to do.  Doubt that anyone
     has a foldername that would conflict with Blinkenlights anyway.
+  * Fix reading the ui.Tk.Blinkenlights bufferlines option.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed, 24 Jul 2002 17:04:04 -0500
 
