@@ -226,9 +226,7 @@ class IMAP4:
         af, socktype, proto, canonname, sa = res[0]
         self.sock = socket.socket(af, socktype, proto)
         self.sock.connect(sa)
-        
         self.file = self.sock.makefile('rb')
-
 
     def read(self, size):
         """Read 'size' bytes from remote."""
