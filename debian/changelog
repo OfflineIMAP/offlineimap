@@ -1,3 +1,9 @@
+offlineimap (4.0.10) unstable; urgency=low
+
+  * Support IPv6 with SSL.  Closes: #309965.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 23 May 2005 13:10:21 -0500
+
 offlineimap (4.0.9) unstable; urgency=low
 
   * Removed dep on profile.py due to DFSG-free issues with it.
