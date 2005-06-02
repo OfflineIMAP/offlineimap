@@ -29,10 +29,6 @@ clean:
 	-rm manpage.links
 	-rm manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
-	-svn cleanup
-
-changelog:
-	svn log -v --stop-on-copy > ChangeLog
 
 doc:
 	docbook2man offlineimap.sgml
