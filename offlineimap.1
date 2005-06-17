@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "16 November 2004" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "17 June 2005" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
@@ -92,9 +92,9 @@ You can quickly set up your configuration file.  The distribution
 includes a file \fIofflineimap.conf.minimal\fR
 (Debian users
 may find this at
-\fI/usr/share/doc/offlineimap/examples/offlineimap.conf.minimal\fR) that is a basic example of setting of \fBOfflineIMAP\fR.  You can
+\fI/usr/share/doc/offlineimap/examples/offlineimap.conf.minimal\fR) that is a basic example of setting of \fBOfflineIMAP\fR\&.  You can
 simply copy this file into your home directory and name it
-\fI.offlineimaprc\fR (note the leading period).  A
+\fI\&.offlineimaprc\fR (note the leading period).  A
 command such as \fBcp offlineimap.conf.minimal ~/.offlineimaprc\fR will do it.  Or, if you prefer, you can just copy this text to
 \fI~/.offlineimaprc\fR:
 
@@ -141,7 +141,7 @@ yourself, you have three options: a system-wide installation with
 Debian, system-wide installation with other systems, and a single-user
 installation.  You can download the latest version of \fBOfflineIMAP\fR from
 the \fBOfflineIMAP\fR
-website <URL:http://quux.org/devel/offlineimap/>.
+website <URL:http://quux.org/devel/offlineimap/>\&.
 .SS "PREREQUISITES"
 .PP
 In order to use \fBOfflineIMAP\fR, you need to have these conditions
@@ -160,7 +160,7 @@ If you are
 running on Debian GNU/Linux, this requirement will automatically be
 taken care of for you.  If you do not have Python already, check with
 your system administrator or operating system vendor; or, download it from
-the Python website <URL:http://www.python.org/>.
+the Python website <URL:http://www.python.org/>\&.
 If you intend to use the Tk interface, you must have Tkinter
 (python-tk) installed.  If you intend to use the SSL interface, your
 Python must have been built with SSL support.
@@ -171,7 +171,7 @@ format.  Most modern mail readers have this support
 built-in, so you can choose from a wide variety of mail
 servers.  This format is also known as the "qmail"
 format, so any mail reader compatible with it will work
-with \fBOfflineIMAP\fR.  If you do not have a mail reader
+with \fBOfflineIMAP\fR\&.  If you do not have a mail reader
 that supports Maildir, you can often install a local
 IMAP server and point both \fBOfflineIMAP\fR and your mail
 reader at it.
@@ -190,7 +190,7 @@ invoke the program.
 .SS "SYSTEM-WIDE INSTALLATION, OTHER"
 .PP
 Download the tar.gz version of the package from the
-website <URL:http://quux.org/devel/offlineimap/>.
+website <URL:http://quux.org/devel/offlineimap/>\&.
 Then run
 these commands, making sure that you are the "root" user first:
 
@@ -201,13 +201,13 @@ python2.2 setup.py install
 .fi
 .PP
 On some systems, you will need to use
-\fBpython\fR instead of \fBpython2.2\fR.
+\fBpython\fR instead of \fBpython2.2\fR\&.
 Next, proceed to [XRef to CONFIGURATION] below.  You will type \fBofflineimap\fR to
 invoke the program.
 .SS "SINGLE-ACCOUNT INSTALLATION"
 .PP
 Download the tar.gz version of the package from the
-website <URL:http://quux.org/devel/offlineimap/>.
+website <URL:http://quux.org/devel/offlineimap/>\&.
 Then run these commands:
 
 .nf
@@ -217,28 +217,28 @@ cd offlineimap-x.y.z
 .PP
 When you want to run \fBOfflineIMAP\fR, you will issue the
 \fBcd\fR command as above and then type
-\fB./offlineimap.py\fR; there is no installation
+\fB\&./offlineimap.py\fR; there is no installation
 step necessary.
 .SH "CONFIGURATION"
 .PP
 \fBOfflineIMAP\fR is regulated by a configuration file that is normally 
-stored in \fI~/.offlineimaprc\fR.  \fBOfflineIMAP\fR
+stored in \fI~/.offlineimaprc\fR\&.  \fBOfflineIMAP\fR
 ships with a file named \fIofflineimap.conf\fR
 that you should copy to that location and then edit.  This file is
 vital to proper operation of the system; it sets everything you need
-to run \fBOfflineIMAP\fR.  Full documentation for the configuration file
+to run \fBOfflineIMAP\fR\&.  Full documentation for the configuration file
 is included within the sample file.
 .PP
 \fBOfflineIMAP\fR also ships a file named
 \fIofflineimap.conf.minimal\fR that you can also try.
 It's useful if you want to get started with
 the most basic feature set, and you can read about other features
-later with \fIofflineimap.conf\fR.
+later with \fIofflineimap.conf\fR\&.
 .SH "OPTIONS"
 .PP
 Most configuration is done via the configuration file.  Nevertheless,
 there are a few command-line options that you may set for
-\fBOfflineIMAP\fR.
+\fBOfflineIMAP\fR\&.
 .TP
 \fB-1\fR
 Disable most multithreading operations and use
@@ -258,7 +258,7 @@ is present for debugging and optimization only, and should NOT be used
 unless you have a specific reason to do so.  It will significantly
 slow program performance, may reduce reliability, and can generate
 huge amounts of data.  You must use the \fB-1\fR option when
-you use \fB-P\fR.
+you use \fB-P\fR\&.
 .TP
 \fB-a \fIaccountlist\fB\fR
 Overrides the \fIaccounts\fR option
@@ -269,7 +269,7 @@ accounts by commas, and use no embedded spaces.
 .TP
 \fB-c \fIconfigfile\fB\fR
 Specifies a configuration file to use in lieu of
-the default, \fI~/.offlineimaprc\fR.
+the default, \fI~/.offlineimaprc\fR\&.
 .TP
 \fB-d \fIdebugtype[,...]\fB\fR
 Enables debugging for OfflineIMAP.  This is useful if
@@ -280,7 +280,7 @@ on under the hood.  I suggest that you use this with
 \fB-d\fR requires one or more debugtypes,
 separated by commas.  These define what exactly will be
 debugged, and include three options: \fIimap\fR,
-\fImaildir\fR, and \fIthread\fR.
+\fImaildir\fR, and \fIthread\fR\&.
 The \fIimap\fR
 option will enable IMAP protocol stream and parsing debugging.  Note
 that the output may contain passwords, so take care to remove that
@@ -327,7 +327,7 @@ in this section.
 Tk.Blinkenlights is an interface designed to be sleek, fun to watch, and
 informative of the overall picture of what \fBOfflineIMAP\fR
 is doing.  I consider it to be the best general-purpose interface in
-\fBOfflineIMAP\fR.
+\fBOfflineIMAP\fR\&.
 .PP
 Tk.Blinkenlights contains, by default, a small window with a row of
 LEDs, a small log, and a row of command buttons.
@@ -354,7 +354,7 @@ activity.
 \fBRed (Meaning 1)\fR
 is the color of the main program's thread, which basically does
 nothing but monitor the others.  It might remind you of HAL 9000 in
-2001.
+2001\&.
 .TP
 \fBGray\fR
 indicates that the thread is establishing a new connection to the IMAP
@@ -465,7 +465,7 @@ This example shows you how to set up \fBOfflineIMAP\fR to
 synchronize multiple accounts with the mutt mail reader.
 .PP
 Start by creating a directory to hold your folders by running
-\fBmkdir ~/Mail\fR.  Then, in your
+\fBmkdir ~/Mail\fR\&.  Then, in your
 \fI~/.offlineimaprc\fR, specify:
 
 .nf
@@ -478,7 +478,7 @@ and an \fI[Account Work]\fR section.  The
 local repository for each account must have different
 \fIlocalfolder\fR path names.
 Also, make sure
-to enable \fI[mbnames]\fR.
+to enable \fI[mbnames]\fR\&.
 .PP
 In each local repository section, write something like this:
 
@@ -500,7 +500,7 @@ spoolfile=+Personal/INBOX
 That's it!
 .SS "UW-IMAPD AND REFERENCES"
 .PP
-Some users with a UW-IMAPD server need to use \fBOfflineIMAP\fR's
+Some users with a UW-IMAPD server need to use \fBOfflineIMAP\fR\&'s
 "reference" feature to get at their mailboxes, specifying a reference
 of "~/Mail" or "#mh/" depending on the configuration.  The below
 configuration from (originally from docwhat@gerf.org)
@@ -591,9 +591,9 @@ please check this section.
 .PP
 IMAP servers use a unique ID (UID) to refer to a specific message.
 This number is guaranteed to be unique to a particular message
-\fBforever\fR.
+\fBforever\fR\&.
 No other message in the same folder will ever get the same
-UID.  UIDs are an integral part of \fBOfflineIMAP\fR's synchronization
+UID.  UIDs are an integral part of \fBOfflineIMAP\fR\&'s synchronization
 scheme; they are used to match up messages on your computer to
 messages on the server.
 .PP
@@ -633,7 +633,7 @@ this condition and abort prior to synchronization.)
 .PP
 This question comes up frequently on the
 \fBOfflineIMAP\fR
-mailing list <URL:http://lists.complete.org/offlineimap@complete.org/>.  You can find a
+mailing list <URL:http://lists.complete.org/offlineimap@complete.org/>\&.  You can find a
 detailed
 discussion <URL:http://lists.complete.org/offlineimap@complete.org/2003/04/msg00012.html.gz> of the problem there.
 .SH "OTHER FREQUENTLY ASKED QUESTIONS"
@@ -660,7 +660,7 @@ manual.
 You do not need to.  \fBOfflineIMAP\fR is smart
 enough to automatically figure out what folders are present
 on the IMAP server and synchronize them.  You can use the
-\fIfolderfilter\fR and \fIfoldertrans\fR
+\fIfolderfilter\fR and \fInametrans\fR
 configuration file options to request certain folders and rename them
 as they come in if you like.
 .TP
@@ -717,7 +717,7 @@ necessary so \fBOfflineIMAP\fR can detect a message moved to a different
 folder.  \fBOfflineIMAP\fR stores the UID (U= number) and an md5sum of the
 foldername (FMD5= number) to facilitate this.
 .TP
-\fBWhat is the speed of OfflineIMAP's sync?\fR
+\fBWhat is the speed of OfflineIMAP\&'s sync?\fR
 OfflineIMAP
 versions 2.0 and above contain a multithreaded system.  A good way to
 experiment is by setting \fImaxsyncaccounts\fR to 3 and \fImaxconnections\fR to 3
@@ -770,7 +770,7 @@ environment.
 
 Next, you'll need to mount your Maildir directory in a
 special way.  There is information for doing that at
- <URL:http://barnson.org/node/view/295>.
+ <URL:http://barnson.org/node/view/295>\&.
 That site gives this example:
 
 .nf
@@ -792,7 +792,7 @@ CRAM-MD5 as specified in RFC2195
 \(bu
 Maildir as specified in
 the Maildir manpage <URL:http://www.qmail.org/qmail-manual-html/man5/maildir.html> and
-the qmail website <URL:http://cr.yp.to/proto/maildir.html>.
+the qmail website <URL:http://cr.yp.to/proto/maildir.html>\&.
 .TP 0.2i
 \(bu
 Standard Python 2.2.1 as implemented on POSIX-compliant systems.
@@ -848,7 +848,7 @@ is not compatible
 with KMail.  KMail cannot work in any mode other than to move
 all messages out of all folders immediately, which (besides being annoying
 and fundamentally broken) is incompatible with
-\fBOfflineIMAP\fR.
+\fBOfflineIMAP\fR\&.
 .PP
 However, I have made KMail version 3 work well with
 \fBOfflineIMAP\fR by installing an IMAP server on my local
@@ -860,7 +860,7 @@ There is an OfflineIMAP mailing list available.
 To subscribe, send the text "Subscribe" in the subject of a mail to
 offlineimap-request@complete.org.  To post, send the message to
 offlineimap@complete.org.  Archives are available at
- <URL:http://lists.complete.org/offlineimap@complete.org/>.
+ <URL:http://lists.complete.org/offlineimap@complete.org/>\&.
 .SS "BUGS"
 .PP
 Reports of bugs should be sent via e-mail to the
@@ -889,7 +889,7 @@ local side and another for the remote side.)  See the files
 \fIofflineimap.conf\fR in the distribution if
 you need more assistance.
 .PP
-\fBOfflineIMAP\fR's status directory area has also changed.
+\fBOfflineIMAP\fR\&'s status directory area has also changed.
 Therefore, you should delete everything in ~/.offlineimap as
 well as your local mail folders.
 .PP
@@ -898,7 +898,7 @@ your mail from the server and then you can continue using it
 like normal.
 .SH "COPYRIGHT"
 .PP
-OfflineIMAP, and this manual, are Copyright (C) 2002, 2003 John Goerzen.
+OfflineIMAP, and this manual, are Copyright © 2002, 2003 John Goerzen.
 .PP
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -926,13 +926,13 @@ copyright is held as stated in the COPYRIGHT section.
 .PP
 \fBOfflineIMAP\fR may be downloaded, and information found, from its
 homepage via either Gopher <URL:gopher://quux.org/1/devel/offlineimap>
-or HTTP <URL:http://quux.org/devel/offlineimap>.
+or HTTP <URL:http://quux.org/devel/offlineimap>\&.
 .PP
 \fBOfflineIMAP\fR may also be downloaded using Subversion.  Additionally,
 the distributed tar.gz may be updated with a simple "svn update"
 command; it is ready to go.  For information on getting OfflineIMAP
 with Subversion, please visit the
-complete.org Subversion page <URL:http://svn.complete.org/>.
+complete.org Subversion page <URL:http://svn.complete.org/>\&.
 .SH "SEE ALSO"
 .PP
 \fBmutt\fR(1),
@@ -958,7 +958,7 @@ The last 2.0.x release, 2.0.8, was made on July 9.
 .PP
 Version 3.0.0 was released on July 11, 2002, and introduced
 modular user interfaces and the first GUI interface for
-\fBOfflineIMAP\fR.  This manual also was introduced with 3.0.0,
+\fBOfflineIMAP\fR\&.  This manual also was introduced with 3.0.0,
 along with many command-line options.  Version 3.1.0 was
 released on July 21, adding the Noninteractive user
 interfaces, profiling support, and several bugfixes.  3.2.0
