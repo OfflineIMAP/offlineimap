@@ -839,7 +839,7 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	    You do not need to.  &OfflineIMAP; is smart
 	    enough to automatically figure out what folders are present
 	    on the IMAP server and synchronize them.  You can use the
-	    <property>folderfilter</property> and <property>foldertrans</property>
+	    <property>folderfilter</property> and <property>nametrans</property>
 	    configuration file options to request certain folders and rename them
 	    as they come in if you like.
 	  </para></listitem>
