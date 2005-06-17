@@ -1,3 +1,9 @@
+offlineimap (4.0.11) unstable; urgency=low
+
+  * s/foldertrans/nametrans/ in docs.  Closes: #314429.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 17 Jun 2005 06:18:38 -0500
+
 offlineimap (4.0.10) unstable; urgency=low
 
   * Support IPv6 with SSL.  Closes: #309965.
