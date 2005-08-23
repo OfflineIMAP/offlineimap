@@ -1,3 +1,10 @@
+offlineimap (4.0.12) unstable; urgency=low
+
+  * Apply patch from Nikita V. Youshchenko to improve performance with
+    large folders.  Closes: #319117.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 22 Aug 2005 21:16:06 -0500
+
 offlineimap (4.0.11) unstable; urgency=low
 
   * s/foldertrans/nametrans/ in docs.  Closes: #314429.
