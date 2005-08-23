@@ -288,10 +288,11 @@ class BaseFolder:
         them to dest."""
         threads = []
         
+	dest_messagelist = dest.getmessagelist()
         for uid in self.getmessagelist().keys():
             if uid < 0:                 # Ignore messages that pass 1 missed.
                 continue
-            if not uid in dest.getmessagelist():
+            if not uid in dest_messagelist:
                 if self.suggeststhreads():
                     self.waitforthread()
                     thread = InstanceLimitedThread(\
@@ -314,10 +315,11 @@ class BaseFolder:
         Look for message present in dest but not in self.
         If any, delete them."""
         deletelist = []
+	self_messagelist = self.getmessagelist()
         for uid in dest.getmessagelist().keys():
             if uid < 0:
                 continue
-            if not uid in self.getmessagelist():
+            if not uid in self_messagelist:
                 deletelist.append(uid)
         if len(deletelist):
             UIBase.getglobalui().deletingmessages(deletelist, applyto)
