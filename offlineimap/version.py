@@ -1,5 +1,5 @@
 productname = 'OfflineIMAP'
-versionstr = "4.0.10"
+versionstr = "4.0.11"
 revno = long('$Rev: 592 $'[6:-2])
 revstr = "Rev %d" % revno
 datestr = '$Date: 2004-08-01 16:50:23 -0500 (Sun, 01 Aug 2004) $'
