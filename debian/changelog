@@ -2,6 +2,9 @@ offlineimap (4.0.12) unstable; urgency=low
 
   * Apply patch from Nikita V. Youshchenko to improve performance with
     large folders.  Closes: #319117.
+  * Apply patch from Nikita V. Youshchenko to fix handling of invalid
+    Date: headers that contain extremely large integral values.
+    Closes: #324827.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 22 Aug 2005 21:16:06 -0500
 
