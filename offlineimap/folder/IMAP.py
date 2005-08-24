@@ -199,7 +199,7 @@ class IMAPFolder(BaseFolder):
                     raise ValueError
                 # This could raise a value error if it's not a valid format.
                 date = imaplib.Time2Internaldate(datetuple) 
-            except ValueError:
+            except (ValueError, OverflowError):
                 # Argh, sometimes it's a valid format but year is 0102
                 # or something.  Argh.  It seems that Time2Internaldate
                 # will rause a ValueError if the year is 0102 but not 1902,
