@@ -801,6 +801,31 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	  discussion</ulink> of the problem there.
 	</para>
       </refsect2>
+
+      <recsect2>
+        <title>Use with MS Exchange server</title>
+        <para>
+          Several users have reported problems with Microsoft Exchange
+          servers in conjunction with OfflineIMAP.  This generally
+          seems to be related to the Exchange servers not properly
+          following the IMAP standards.
+        </para>
+        <para>
+          Mark Biggers has posted some <ulink
+          url="http://lists.complete.org/offlineimap@complete.org/2005/09/msg00011.html.gz">information</ulink>
+          to the &OfflineIMAP; mailing list about how he made it work.
+        </para>
+        <para>
+          Other users have indicated that older (5.5) releases of
+          Exchange are so bad that they will likely not work at all.
+        </para>
+        <para>
+          I do not have access to Exchange servers for testing, so any
+          problems with it, if they can even be solved at all, will
+          require help from &OfflineIMAP; users to find and fix.
+        </para>
+      </recsect2>
+          
     </refsect1>
     <refsect1>
       <title>Other Frequently Asked Questions</title>
