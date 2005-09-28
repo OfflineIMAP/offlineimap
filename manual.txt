@@ -538,29 +538,45 @@ ERRORS
        plete.org/offlineimap@complete.org/2003/04/msg00012.html.gz>   of   the
        problem there.
 
+   USE WITH MS EXCHANGE SERVER
+       Several users have reported problems with Microsoft Exchange servers in
+       conjunction with OfflineIMAP.  This generally seems to  be  related  to
+       the Exchange servers not properly following the IMAP standards.
+
+       Mark   Biggers   has  posted  some  information  <URL:http://lists.com-
+       plete.org/offlineimap@complete.org/2005/09/msg00011.html.gz>   to   the
+       OfflineIMAP mailing list about how he made it work.
+
+       Other users have indicated that older (5.5) releases of Exchange are so
+       bad that they will likely not work at all.
+
+       I do not have access to Exchange servers for testing, so  any  problems
+       with  it,  if  they  can  even be solved at all, will require help from
+       OfflineIMAP users to find and fix.
+
 OTHER FREQUENTLY ASKED QUESTIONS
-       There  are  some  other FAQs that might not fit into another section of
+       There are some other FAQs that might not fit into  another  section  of
        the document, so they are discussed here.
 
        What platforms does OfflineIMAP run on?
-              It should run on most platforms supported by Python,  which  are
-              quite  a  few.   I  do not support Windows myself, but some have
+              It  should  run on most platforms supported by Python, which are
+              quite a few.  I do not support Windows  myself,  but  some  have
               made it work there; see the FAQ entry for that platform.
 
-       I'm using Mutt.  Other IMAP  sync  programs  require  me  to  use  "set
+       I'm  using  Mutt.   Other  IMAP  sync  programs  require me to use "set
        maildir_trash=yes".  Do I need to do that with OfflineIMAP?
-              No.  OfflineIMAP is smart enough to figure out message  deletion
-              without  this  extra crutch.  You'll get the best results if you
+              No.   OfflineIMAP is smart enough to figure out message deletion
+              without this extra crutch.  You'll get the best results  if  you
               don't use this setting, in fact.
 
        I've upgraded and now OfflineIMAP crashes when I start it up!  Why?
-              You need to upgrade  your  configuration  file.   See  [XRef  to
+              You  need  to  upgrade  your  configuration  file.  See [XRef to
               UPGRADING.4.0] at the end of this manual.
 
        How do I specify the names of my folders?
-              You  do  not  need to.  OfflineIMAP is smart enough to automati-
+              You do not need to.  OfflineIMAP is smart  enough  to  automati-
               cally figure out what folders are present on the IMAP server and
-              synchronize  them.   You  can use the folderfilter and nametrans
+              synchronize them.  You can use the  folderfilter  and  nametrans
               configuration file options to request certain folders and rename
               them as they come in if you like.
 
@@ -568,48 +584,47 @@ OTHER FREQUENTLY ASKED QUESTIONS
               Use the folderfilter option in the configuration file.
 
        How can I add or delete a folder?
-              OfflineIMAP  does not currently provide this feature, but if you
-              create a new folder on the  IMAP  server,  it  will  be  created
+              OfflineIMAP does not currently provide this feature, but if  you
+              create  a  new  folder  on  the  IMAP server, it will be created
               locally automatically.
 
        Are there any other warnings that I should be aware of?
               Yes; see the Notes section below.
 
        What is the mailbox name recorder (mbnames) for?
-              Some  mail  readers,  such as Mutt, are not capable of automati-
-              cally determining the names of your mailboxes.  OfflineIMAP  can
-              help  these  programs  by  writing the names of the folders in a
+              Some mail readers, such as Mutt, are not  capable  of  automati-
+              cally  determining the names of your mailboxes.  OfflineIMAP can
+              help these programs by writing the names of  the  folders  in  a
               format  you  specify.   See  the  example  offlineimap.conf  for
               details.
 
        Can I synchronize multiple accounts with OfflineIMAP?
-              Sure.   Just  name  them all in the accounts line in the general
+              Sure.  Just name them all in the accounts line  in  the  general
               section of the configuration file, and add a per-account section
               for each one.
 
        Does OfflineIMAP support POP?
               No.  POP is not robust enough to do a completely reliable multi-
-              machine synchronization like OfflineIMAP  can  do.   OfflineIMAP
+              machine  synchronization  like  OfflineIMAP can do.  OfflineIMAP
               will not support it.
 
        Does OfflineIMAP support mailbox formats other than Maildir?
-              Not  at  present.   There is no technical reason not to; just no
-              demand yet.  Maildir is  a  superior  format  anyway.   However,
-              OfflineIMAP  can  sync  between  two IMAP servers, and some IMAP
+              Not at present.  There is no technical reason not  to;  just  no
+              demand  yet.   Maildir  is  a  superior format anyway.  However,
+              OfflineIMAP can sync between two IMAP  servers,  and  some  IMAP
               servers support other formats.  You could install an IMAP server
               on your local machine and have OfflineIMAP sync to that.
 
        [technical] Why are your Maildir message filenames so huge?
               OfflineIMAP has two relevant principles: 1) never modifying your
-              messages  in   any   way   and   2)   ensuring   100%   reliable
-              synchronizations.   In  order to do a reliable sync, OfflineIMAP
-              must have a way to uniquely identify each e-mail.  Three  pieces
-              of  information  are required to do this: your account name, the
-              folder name, and the message UID.  The account name can be  cal-
-              culated  from  the  path in which your messages are.  The folder
-              name can usually be as well, BUT some mail clients move messages
-              between  folders  by  simply  moving  the file, leaving the name
-              intact.
+              messages  in  any way and 2) ensuring 100% reliable synchroniza-
+              tions.  In order to do a reliable sync, OfflineIMAP must have  a
+              way  to uniquely identify each e-mail.  Three pieces of informa-
+              tion are required to do this:  your  account  name,  the  folder
+              name,  and  the message UID.  The account name can be calculated
+              from the path in which your messages are.  The folder  name  can
+              usually  be as well, BUT some mail clients move messages between
+              folders by simply moving the file, leaving the name intact.
 
               So, OfflineIMAP must store both a UID folder ID.  The folder  ID
               is necessary so OfflineIMAP can detect a message moved to a dif-
@@ -770,77 +785,78 @@ UPGRADING TO 4.0
        from the server and then you can continue using it like normal.
 
 COPYRIGHT
-       OfflineIMAP, and this manual, are Copyright  2002, 2003 John Goerzen.
+       OfflineIMAP,  and  this  manual,  are  Copyright  (C)  2002,  2003 John
+       Goerzen.
 
        This program is free software; you can redistribute it and/or modify it
-       under the terms of the GNU General Public License as published  by  the
-       Free  Software Foundation; either version 2 of the License, or (at your
+       under  the  terms of the GNU General Public License as published by the
+       Free Software Foundation; either version 2 of the License, or (at  your
        option) any later version.
 
-       This program is distributed in the hope that it  will  be  useful,  but
-       WITHOUT  ANY  WARRANTY;  without  even  the  implied  warranty  of MER-
-       CHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  General
+       This  program  is  distributed  in the hope that it will be useful, but
+       WITHOUT ANY  WARRANTY;  without  even  the  implied  warranty  of  MER-
+       CHANTABILITY  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
        Public License for more details.
 
        You should have received a copy of the GNU General Public License along
        with this program; if not, write to the Free Software Foundation, Inc.,
        59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-       imaplib.py  comes  from  the  Python dev tree and is licensed under the
-       GPL-compatible PSF license as stated  in  the  file  COPYRIGHT  in  the
+       imaplib.py comes from the Python dev tree and  is  licensed  under  the
+       GPL-compatible  PSF  license  as  stated  in  the file COPYRIGHT in the
        OfflineIMAP distribution.
 
 AUTHOR
-       OfflineIMAP,  its  libraries,  documentation,  and  all included files,
+       OfflineIMAP, its libraries,  documentation,  and  all  included  files,
        except where noted, was written by John Goerzen <jgoerzen@complete.org>
        and copyright is held as stated in the COPYRIGHT section.
 
        OfflineIMAP may be downloaded, and information found, from its homepage
-       via either Gopher <URL:gopher://quux.org/1/devel/offlineimap>  or  HTTP
+       via  either  Gopher <URL:gopher://quux.org/1/devel/offlineimap> or HTTP
        <URL:http://quux.org/devel/offlineimap>.
 
        OfflineIMAP may also be downloaded using Subversion.  Additionally, the
-       distributed tar.gz may be updated with a simple "svn  update"  command;
+       distributed  tar.gz  may be updated with a simple "svn update" command;
        it is ready to go.  For information on getting OfflineIMAP with Subver-
-       sion,    please    visit    the    complete.org     Subversion     page
+       sion,     please     visit    the    complete.org    Subversion    page
        <URL:http://svn.complete.org/>.
 
 SEE ALSO
        mutt(1), python(1)
 
 HISTORY
-       Detailed  history may be found in the file ChangeLog in the OfflineIMAP
-       distribution.  Feature and bug histories  may  be  found  in  the  file
-       debian/changelog  which,  despite  its  name, is not really Debian-spe-
+       Detailed history may be found in the file ChangeLog in the  OfflineIMAP
+       distribution.   Feature  and  bug  histories  may  be found in the file
+       debian/changelog which, despite its name,  is  not  really  Debian-spe-
        cific.  This section provides a large overview.
 
-       Development on OfflineIMAP began on June 18, 2002.  Version  1.0.0  was
-       released  three  days later on June 21, 2002.  Point releases followed,
+       Development  on  OfflineIMAP began on June 18, 2002.  Version 1.0.0 was
+       released three days later on June 21, 2002.  Point  releases  followed,
        including speed optimizations and some compatibility fixes.
 
-       Version 2.0.0 was released on July 3, 2002, and represented  the  first
-       time  the  synchronization  became multithreaded and, to the best of my
-       knowledge, the first multithreaded IMAP  syncrhonizing  application  in
+       Version  2.0.0  was released on July 3, 2002, and represented the first
+       time the synchronization became multithreaded and, to the  best  of  my
+       knowledge,  the  first  multithreaded IMAP syncrhonizing application in
        existance.  The last 2.0.x release, 2.0.8, was made on July 9.
 
-       Version  3.0.0  was  released  on July 11, 2002, and introduced modular
+       Version 3.0.0 was released on July 11,  2002,  and  introduced  modular
        user interfaces and the first GUI interface for OfflineIMAP.  This man-
-       ual  also  was  introduced  with  3.0.0,  along  with many command-line
+       ual also was  introduced  with  3.0.0,  along  with  many  command-line
        options.  Version 3.1.0 was released on July 21, adding the Noninterac-
-       tive  user  interfaces, profiling support, and several bugfixes.  3.2.0
-       was released on July 24,  adding  support  for  the  Blinkenlights  GUI
-       interface.   OfflineIMAP entered maintenance mode for awhile, as it had
+       tive user interfaces, profiling support, and several  bugfixes.   3.2.0
+       was  released  on  July  24,  adding  support for the Blinkenlights GUI
+       interface.  OfflineIMAP entered maintenance mode for awhile, as it  had
        reached a feature-complete milestone in my mind.
 
-       The 3.99.x branch began in on October 7, 2002, to begin work  for  4.0.
+       The  3.99.x  branch began in on October 7, 2002, to begin work for 4.0.
        The Curses.Blinkenlights interface was added in 3.99.6, and many archi-
        tectural changes were made.
 
-       4.0.0 was released on July 18, 2003, including the ability to  synchro-
-       nize  directly  between  two IMAP servers, the first re-architecting of
-       the configuration file to refine the notion of an account, and the  new
+       4.0.0  was released on July 18, 2003, including the ability to synchro-
+       nize directly between two IMAP servers, the  first  re-architecting  of
+       the  configuration file to refine the notion of an account, and the new
        Curses interface.
 
 
 
-John Goerzen                     17 June 2005                   OFFLINEIMAP(1)
+John Goerzen                   28 September 2005                OFFLINEIMAP(1)

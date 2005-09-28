@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "17 June 2005" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "28 September 2005" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
@@ -636,6 +636,22 @@ This question comes up frequently on the
 mailing list <URL:http://lists.complete.org/offlineimap@complete.org/>\&.  You can find a
 detailed
 discussion <URL:http://lists.complete.org/offlineimap@complete.org/2003/04/msg00012.html.gz> of the problem there.
+.SS "USE WITH MS EXCHANGE SERVER"
+.PP
+Several users have reported problems with Microsoft Exchange
+servers in conjunction with OfflineIMAP.  This generally
+seems to be related to the Exchange servers not properly
+following the IMAP standards.
+.PP
+Mark Biggers has posted some information <URL:http://lists.complete.org/offlineimap@complete.org/2005/09/msg00011.html.gz>
+to the \fBOfflineIMAP\fR mailing list about how he made it work.
+.PP
+Other users have indicated that older (5.5) releases of
+Exchange are so bad that they will likely not work at all.
+.PP
+I do not have access to Exchange servers for testing, so any
+problems with it, if they can even be solved at all, will
+require help from \fBOfflineIMAP\fR users to find and fix.
 .SH "OTHER FREQUENTLY ASKED QUESTIONS"
 .PP
 There are some other FAQs that might not fit into another section
@@ -898,7 +914,7 @@ your mail from the server and then you can continue using it
 like normal.
 .SH "COPYRIGHT"
 .PP
-OfflineIMAP, and this manual, are Copyright © 2002, 2003 John Goerzen.
+OfflineIMAP, and this manual, are Copyright (C) 2002, 2003 John Goerzen.
 .PP
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
