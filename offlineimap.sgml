@@ -802,7 +802,7 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	</para>
       </refsect2>
 
-      <recsect2>
+      <refsect2>
         <title>Use with MS Exchange server</title>
         <para>
           Several users have reported problems with Microsoft Exchange
@@ -824,7 +824,7 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
           problems with it, if they can even be solved at all, will
           require help from &OfflineIMAP; users to find and fix.
         </para>
-      </recsect2>
+      </refsect2>
           
     </refsect1>
     <refsect1>
