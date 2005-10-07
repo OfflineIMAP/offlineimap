@@ -136,7 +136,7 @@ class IMAP4:
     class abort(error): pass        # Service errors - close and retry
     class readonly(abort): pass     # Mailbox status changed to READ-ONLY
 
-    mustquote = re.compile(r"[^\w!#$%&'*+,.:;<=>?^`|~-]")
+    mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
 
     def __init__(self, host = '', port = IMAP4_PORT):
         self.debug = Debug
