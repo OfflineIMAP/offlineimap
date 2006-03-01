@@ -154,6 +154,12 @@ class AccountSynchronizationMixin:
 class SyncableAccount(Account, AccountSynchronizationMixin):
     pass
 
+from stat import *
+
+def reset_time(folder, atime, mtime):
+    t = atime, mtime
+    os.utime(folder, t)
+
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos):
     global mailboxes
@@ -163,6 +169,9 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     localfolder = localrepos.\
                   getfolder(remotefolder.getvisiblename().\
                             replace(remoterepos.getsep(), localrepos.getsep()))
+    if localrepos.getrestoreatime():
+	cur_atime = os.stat(localfolder.getfullname() + "/cur")[ST_ATIME]
+	new_atime = os.stat(localfolder.getfullname() + "/new")[ST_ATIME]
     # Write the mailboxes
     mbnames.add(accountname, localfolder.getvisiblename())
     # Load local folder
@@ -191,10 +200,20 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         if not localfolder.isuidvalidityok():
             ui.validityproblem(localfolder, localfolder.getsaveduidvalidity(),
                                localfolder.getuidvalidity())
+	    if localrepos.getrestoreatime():
+		reset_time(localfolder.getfullname() + "/new", new_atime, \
+			os.stat(localfolder.getfullname() + "/new")[ST_MTIME])
+		reset_time(localfolder.getfullname() + "/cur", new_atime, \
+			os.stat(localfolder.getfullname() + "/cur")[ST_MTIME])
             return
         if not remotefolder.isuidvalidityok():
             ui.validityproblem(remotefolder, remotefolder.getsaveduidvalidity(),
                                remotefolder.getuidvalidity())
+	    if localrepos.getrestoreatime():
+		reset_time(localfolder.getfullname() + "/new", new_atime, \
+			os.stat(localfolder.getfullname() + "/new")[ST_MTIME])
+		reset_time(localfolder.getfullname() + "/cur", new_atime, \
+			os.stat(localfolder.getfullname() + "/cur")[ST_MTIME])
             return
     else:
         localfolder.saveuidvalidity()
@@ -230,4 +249,9 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
     localfolder.syncmessagesto(statusfolder)
     statusfolder.save()
+    if localrepos.getrestoreatime():
+	reset_time(localfolder.getfullname() + "/new", new_atime, \
+		os.stat(localfolder.getfullname() + "/new")[ST_MTIME])
+	reset_time(localfolder.getfullname() + "/cur", new_atime, \
+		os.stat(localfolder.getfullname() + "/cur")[ST_MTIME])
 

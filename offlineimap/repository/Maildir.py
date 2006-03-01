@@ -33,6 +33,9 @@ class MaildirRepository(BaseRepository):
         self.ui = UIBase.getglobalui()
         self.debug("MaildirRepository initialized, sep is " + repr(self.getsep()))
 
+    def getrestoreatime(self):
+	return self.getconfboolean('restoreatime', 0)
+
     def getlocalroot(self):
         return os.path.expanduser(self.getconf('localfolders'))
 
