@@ -1,3 +1,9 @@
+offlineimap (4.0.12) unstable; urgency=low
+
+  * Apply patch from Ben Kibbey to support new restoreatime feature.
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed,  1 Mar 2006 06:15:17 -0600
+
 offlineimap (4.0.11) unstable; urgency=low
 
   * Apply patch from Nikita V. Youshchenko to improve performance with
