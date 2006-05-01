@@ -1,8 +1,11 @@
 offlineimap (4.0.12) unstable; urgency=low
 
   * Apply patch from Ben Kibbey to support new restoreatime feature.
+  * Workaround for a bug in Exchange win which it doesn't like
+    folders with an asterisk in their name.
+  * Apply patch from Adam Spiers to remove parens in SEARCH command.
 
- -- John Goerzen <jgoerzen@complete.org>  Wed,  1 Mar 2006 06:15:17 -0600
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 01 May 2006 04:42:11 -0500
 
 offlineimap (4.0.11) unstable; urgency=low
 
