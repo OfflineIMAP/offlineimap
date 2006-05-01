@@ -158,8 +158,7 @@ class IMAPFolder(BaseFolder):
         # Now find the UID it got.
         headervalue = imapobj._quote(headervalue)
         try:
-            matchinguids = imapobj.uid('search', None,
-                                       '(HEADER %s %s)' % (headername, headervalue))[1][0]
+            matchinguids = imapobj.uid('search', 'HEADER', headername, headervalue)[1][0]
         except imapobj.error:
             # IMAP server doesn't implement search or had a problem.
             return 0
