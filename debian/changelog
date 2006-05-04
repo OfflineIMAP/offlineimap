@@ -1,3 +1,10 @@
+offlineimap (4.0.13) unstable; urgency=low
+
+  * Revert restoreatime patch; it didn't work with IMAP on local.
+    Closes: #365933.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu,  4 May 2006 07:36:23 -0500
+
 offlineimap (4.0.12) unstable; urgency=low
 
   * Apply patch from Ben Kibbey to support new restoreatime feature.
