@@ -1,5 +1,5 @@
 # Base repository support
-# Copyright (C) 2002, 2003 John Goerzen
+# Copyright (C) 2002, 2003, 2006 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
