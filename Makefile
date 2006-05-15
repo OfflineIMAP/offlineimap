@@ -14,6 +14,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+VERSION=4.0.13
+TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
 
 clean:
@@ -40,3 +43,13 @@ doc:
 	groff -Tascii -man offlineimap.1 | sed $$'s/.\b//g' > manual.txt
 	-rm manpage.links manpage.refs
 
+targz: ../$(TARGZ)
+../$(TARGZ):
+	if ! pwd | grep -q "/offlineimap-$(VERSION)$$"; then 			\
+	  echo "Containing directory must be called offlineimap-$(VERSION)"; 	\
+	  exit 1; 								\
+	fi; 									\
+	pwd && cd .. && pwd && tar -zhcv --exclude '_darcs' -f $(TARGZ) offlineimap-$(VERSION)
+
+rpm: targz
+	cd .. && sudo rpmbuild -ta $(TARGZ)
