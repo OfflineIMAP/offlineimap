@@ -159,11 +159,14 @@ class IMAPFolder(BaseFolder):
         headervalue = imapobj._quote(headervalue)
         try:
             matchinguids = imapobj.uid('search', 'HEADER', headername, headervalue)[1][0]
-        except imapobj.error:
+        except imapobj.error, err:
             # IMAP server doesn't implement search or had a problem.
-            return 0
+            raise ValueError, "Got IMAP error while attempting to find UID for message with header %s: %s" % (headername, err)
         ui.debug('imap', 'savemessage_searchforheader got initial matchinguids: ' + repr(matchinguids))
-               
+
+        if matchinguids == '':
+            raise ValueError, "Search for UID for message with header %s yielded no results" % headername
+
         matchinguids = matchinguids.split(' ')
         ui.debug('imap', 'savemessage_searchforheader: matchinguids now ' + \
                  repr(matchinguids))
