@@ -242,7 +242,8 @@ class IMAPFolder(BaseFolder):
         finally:
             self.imapserver.releaseconnection(imapobj)
 
-        self.messagelist[uid] = {'uid': uid, 'flags': flags}
+        if uid:
+            self.messagelist[uid] = {'uid': uid, 'flags': flags}
         ui.debug('imap', 'savemessage: returning %d' % uid)
         return uid
 
