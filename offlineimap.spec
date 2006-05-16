@@ -1,7 +1,7 @@
 Name: offlineimap
 Summary: Powerful IMAP/Maildir synchronization and reader support
 Version: 4.0.13
-Release: 1
+Release: 2
 License: GPL
 Group: Applications/Internet
 URL: http://quux.org:70/devel/offlineimap
@@ -39,6 +39,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/python*
 
 %changelog
+* Mon May 15 2006 Adam Spiers <adam@spiers.net> 4.0.13-2
+- Finally get savemessage_searchforheader right?
+
 * Sun May 14 2006 Adam Spiers <adam@spiers.net> 4.0.13-1
 - Updated for 4.0.13
 
