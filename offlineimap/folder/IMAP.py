@@ -231,11 +231,10 @@ class IMAPFolder(BaseFolder):
             assert(imapobj.check()[0] == 'OK')
 
             # Keep trying until we get the UID.
-            try:
-                ui.debug('imap', 'savemessage: first attempt to get new UID')
-                uid = self.savemessage_searchforheader(imapobj, headername,
-                                                       headervalue)
-            except ValueError:
+            ui.debug('imap', 'savemessage: first attempt to get new UID')
+            uid = self.savemessage_searchforheader(imapobj, headername,
+                                                   headervalue)
+            if uid <= 0:
                 ui.debug('imap', 'savemessage: first attempt to get new UID failed.  Going to run a NOOP and try again.')
                 assert(imapobj.noop()[0] == 'OK')
                 uid = self.savemessage_searchforheader(imapobj, headername,
