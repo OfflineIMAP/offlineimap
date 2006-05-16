@@ -234,6 +234,7 @@ class IMAPFolder(BaseFolder):
             ui.debug('imap', 'savemessage: first attempt to get new UID')
             uid = self.savemessage_searchforheader(imapobj, headername,
                                                    headervalue)
+            # See docs for savemessage in Base.py for explanation of this and other return values
             if uid <= 0:
                 ui.debug('imap', 'savemessage: first attempt to get new UID failed.  Going to run a NOOP and try again.')
                 assert(imapobj.noop()[0] == 'OK')
@@ -242,8 +243,9 @@ class IMAPFolder(BaseFolder):
         finally:
             self.imapserver.releaseconnection(imapobj)
 
-        if uid:
+        if uid: # avoid UID FETCH 0 crash happening later on
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
+
         ui.debug('imap', 'savemessage: returning %d' % uid)
         return uid
 
