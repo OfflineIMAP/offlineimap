@@ -1,7 +1,7 @@
 Name: offlineimap
 Summary: Powerful IMAP/Maildir synchronization and reader support
 Version: 4.0.13
-Release: 2
+Release: 3
 License: GPL
 Group: Applications/Internet
 URL: http://quux.org:70/devel/offlineimap
@@ -27,7 +27,7 @@ python setup.py build
 
 %install
 rm -rf $RPM_BUILD_ROOT
-python setup.py install --root=$RPM_BUILD_ROOT
+python setup.py install --root=$RPM_BUILD_ROOT --prefix=%{_prefix}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -35,10 +35,13 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %doc docs manual.* README COPY* ChangeLog* UPGRADING
-/usr/bin/*
-/usr/lib/python*
+%{_prefix}/bin/*
+%{_prefix}/lib/python*
 
 %changelog
+* Tue May 16 2006 Adam Spiers <adam@spiers.net> 4.0.13-3
+- Force prefix to /usr
+
 * Mon May 15 2006 Adam Spiers <adam@spiers.net> 4.0.13-2
 - Finally get savemessage_searchforheader right?
 
