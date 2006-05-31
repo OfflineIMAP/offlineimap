@@ -1,3 +1,9 @@
+offlineimap (4.0.14) unstable; urgency=low
+
+  * Small fix to example config file.  Closes: #342450.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 30 May 2006 19:06:01 -0500
+
 offlineimap (4.0.13) unstable; urgency=low
 
   * Revert restoreatime patch; it didn't work with IMAP on local.
