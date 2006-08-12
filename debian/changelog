@@ -2,6 +2,7 @@ offlineimap (4.0.14) unstable; urgency=low
 
   * ACK NMU 4.0.13-0.1.  Thanks, Pierre.  Closes: #380880.
   * Update 33 more instances of the old FSF address.
+  * Fix off-by-one in example config file.  Closes: #342450.
 
  -- John Goerzen <jgoerzen@complete.org>  Fri, 11 Aug 2006 18:06:27 -0500
 
