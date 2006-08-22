@@ -1,3 +1,9 @@
+offlineimap (4.0.14) unstable; urgency=low
+
+  * Applied patch from Aaron Schrab to sync INTERNALDATEs.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 21 Aug 2006 05:17:48 -0500
+
 offlineimap (4.0.13) unstable; urgency=low
 
   * Revert restoreatime patch; it didn't work with IMAP on local.
