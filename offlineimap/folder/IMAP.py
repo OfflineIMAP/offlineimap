@@ -84,7 +84,7 @@ class IMAPFolder(BaseFolder):
             # Now, get the flags and UIDs for these.
             # We could conceivably get rid of maxmsgid and just say
             # '1:*' here.
-            response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
+            response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID INTERNALDATE)')[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
@@ -98,7 +98,8 @@ class IMAPFolder(BaseFolder):
             else:
                 uid = long(options['UID'])
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
-                self.messagelist[uid] = {'uid': uid, 'flags': flags}
+                rtime = imaplib.Internaldate2epoch(messagestr)
+                self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
 
     def getmessagelist(self):
         return self.messagelist
@@ -115,6 +116,9 @@ class IMAPFolder(BaseFolder):
                 
         finally:
             self.imapserver.releaseconnection(imapobj)
+
+    def getmessagetime(self, uid):
+        return self.messagelist[uid]['time']
     
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
@@ -177,7 +181,7 @@ class IMAPFolder(BaseFolder):
         matchinguids.sort()
         return long(matchinguids[0])
 
-    def savemessage(self, uid, content, flags):
+    def savemessage(self, uid, content, flags, rtime):
         imapobj = self.imapserver.acquireconnection()
         ui = UIBase.getglobalui()
         ui.debug('imap', 'savemessage: called')
@@ -193,11 +197,12 @@ class IMAPFolder(BaseFolder):
             # This backend always assigns a new uid, so the uid arg is ignored.
             # In order to get the new uid, we need to save off the message ID.
 
-            message = rfc822.Message(StringIO(content))
-            datetuple = rfc822.parsedate(message.getheader('Date'))
-            # Will be None if missing or not in a valid format.
-            if datetuple == None:
+            # If time isn't known
+            if rtime == None:
                 datetuple = time.localtime()
+            else:
+                datetuple = time.localtime(rtime)
+
             try:
                 if datetuple[0] < 1981:
                     raise ValueError

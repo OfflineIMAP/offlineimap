@@ -98,7 +98,7 @@ class LocalStatusFolder(BaseFolder):
     def getmessagelist(self):
         return self.messagelist
 
-    def savemessage(self, uid, content, flags):
+    def savemessage(self, uid, content, flags, rtime):
         if uid < 0:
             # We cannot assign a uid.
             return uid
@@ -107,12 +107,15 @@ class LocalStatusFolder(BaseFolder):
             self.savemessageflags(uid, flags)
             return uid
 
-        self.messagelist[uid] = {'uid': uid, 'flags': flags}
+        self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
         self.autosave()
         return uid
 
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
+
+    def getmessagetime(self, uid):
+        return self.messagelist[uid]['time']
 
     def savemessageflags(self, uid, flags):
         self.messagelist[uid]['flags'] = flags

@@ -5,6 +5,7 @@ Based on RFC 2060.
 Public class:           IMAP4
 Public variable:        Debug
 Public functions:       Internaldate2tuple
+                        Internaldate2epoch
                         Int2AP
                         ParseFlags
                         Time2Internaldate
@@ -24,7 +25,7 @@ __version__ = "2.52"
 import binascii, re, socket, time, random, sys, os
 from offlineimap.ui import UIBase
 
-__all__ = ["IMAP4", "Internaldate2tuple",
+__all__ = ["IMAP4", "Internaldate2tuple", "Internaldate2epoch",
            "Int2AP", "ParseFlags", "Time2Internaldate"]
 
 #       Globals
@@ -78,7 +79,7 @@ Commands = {
 Continuation = re.compile(r'\+( (?P<data>.*))?')
 Flags = re.compile(r'.*FLAGS \((?P<flags>[^\)]*)\)')
 InternalDate = re.compile(r'.*INTERNALDATE "'
-        r'(?P<day>[ 123][0-9])-(?P<mon>[A-Z][a-z][a-z])-(?P<year>[0-9][0-9][0-9][0-9])'
+        r'(?P<day>[ 0123][0-9])-(?P<mon>[A-Z][a-z][a-z])-(?P<year>[0-9][0-9][0-9][0-9])'
         r' (?P<hour>[0-9][0-9]):(?P<min>[0-9][0-9]):(?P<sec>[0-9][0-9])'
         r' (?P<zonen>[-+])(?P<zoneh>[0-9][0-9])(?P<zonem>[0-9][0-9])'
         r'"')
@@ -1230,10 +1231,10 @@ class _Authenticator:
 Mon2num = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
         'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
 
-def Internaldate2tuple(resp):
+def Internaldate2epoch(resp):
     """Convert IMAP4 INTERNALDATE to UT.
 
-    Returns Python time module tuple.
+    Returns seconds since the epoch.
     """
 
     mo = InternalDate.match(resp)
@@ -1259,7 +1260,16 @@ def Internaldate2tuple(resp):
 
     tt = (year, mon, day, hour, min, sec, -1, -1, -1)
 
-    utc = time.mktime(tt)
+    return time.mktime(tt)
+
+
+def Internaldate2tuple(resp):
+    """Convert IMAP4 INTERNALDATE to UT.
+
+    Returns Python time module tuple.
+    """
+
+    utc = Internaldate2epoch(resp)
 
     # Following is necessary because the time module has no 'mkgmtime'.
     # 'mktime' assumes arg in local timezone, so adds timezone/altzone.

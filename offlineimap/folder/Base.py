@@ -133,7 +133,7 @@ class BaseFolder:
         """Returns the content of the specified message."""
         raise NotImplementedException
 
-    def savemessage(self, uid, content, flags):
+    def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
         If the uid is < 0, the backend should assign a new uid and return it.
 
@@ -150,6 +150,10 @@ class BaseFolder:
         If it cannot set the uid to that, it will save it anyway.
         It will return the uid assigned in any case.
         """
+        raise NotImplementedException
+
+    def getmessagetime(self, uid):
+        """Return the received time for the specified message."""
         raise NotImplementedException
 
     def getmessageflags(self, uid):
@@ -203,8 +207,9 @@ class BaseFolder:
         successuid = None
         message = self.getmessage(uid)
         flags = self.getmessageflags(uid)
+        rtime = self.getmessagetime(uid)
         for tryappend in applyto:
-            successuid = tryappend.savemessage(uid, message, flags)
+            successuid = tryappend.savemessage(uid, message, flags, rtime)
             if successuid >= 0:
                 successobject = tryappend
                 break
@@ -214,10 +219,10 @@ class BaseFolder:
                 # Copy the message to the other remote servers.
                 for appendserver in \
                         [x for x in applyto if x != successobject]:
-                    appendserver.savemessage(successuid, message, flags)
+                    appendserver.savemessage(successuid, message, flags, rtime)
                     # Copy to its new name on the local server and delete
                     # the one without a UID.
-                    self.savemessage(successuid, message, flags)
+                    self.savemessage(successuid, message, flags, rtime)
             self.deletemessage(uid) # It'll be re-downloaded.
         else:
             # Did not find any server to take this message.  Ignore.
@@ -272,11 +277,12 @@ class BaseFolder:
                 message = self.getmessage(uid)
                 break
         flags = self.getmessageflags(uid)
+        rtime = self.getmessagetime(uid)
         for object in applyto:
-            newuid = object.savemessage(uid, message, flags)
+            newuid = object.savemessage(uid, message, flags, rtime)
             if newuid > 0 and newuid != uid:
                 # Change the local uid.
-                self.savemessage(newuid, message, flags)
+                self.savemessage(newuid, message, flags, rtime)
                 self.deletemessage(uid)
                 uid = newuid
         
