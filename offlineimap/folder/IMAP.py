@@ -197,9 +197,15 @@ class IMAPFolder(BaseFolder):
             # This backend always assigns a new uid, so the uid arg is ignored.
             # In order to get the new uid, we need to save off the message ID.
 
+            message = rfc822.Message(StringIO(content))
+            datetuple_msg = rfc822.parsedate(message.getheader('Date'))
+            # Will be None if missing or not in a valid format.
+
             # If time isn't known
-            if rtime == None:
+            if rtime == None and datetuple_msg == None:
                 datetuple = time.localtime()
+            elif rtime == None:
+                datetuple = datetuple_msg
             else:
                 datetuple = time.localtime(rtime)
 
