@@ -191,10 +191,12 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         if not localfolder.isuidvalidityok():
             ui.validityproblem(localfolder, localfolder.getsaveduidvalidity(),
                                localfolder.getuidvalidity())
+	    localrepos.restore_atime()
             return
         if not remotefolder.isuidvalidityok():
             ui.validityproblem(remotefolder, remotefolder.getsaveduidvalidity(),
                                remotefolder.getuidvalidity())
+	    localrepos.restore_atime()
             return
     else:
         localfolder.saveuidvalidity()
@@ -230,4 +232,5 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
     localfolder.syncmessagesto(statusfolder)
     statusfolder.save()
+    localrepos.restore_atime()
 

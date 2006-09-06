@@ -21,6 +21,7 @@ from offlineimap import folder, imaputil
 from offlineimap.ui import UIBase
 from mailbox import Maildir
 import os
+from stat import *
 
 class MaildirRepository(BaseRepository):
     def __init__(self, reposname, account):
@@ -32,6 +33,24 @@ class MaildirRepository(BaseRepository):
         self.folders = None
         self.ui = UIBase.getglobalui()
         self.debug("MaildirRepository initialized, sep is " + repr(self.getsep()))
+	self.folder_atimes = []
+
+    def _append_folder_atimes(self, foldername):
+	p = os.path.join(self.root, foldername)
+	new = os.path.join(p, 'new')
+	cur = os.path.join(p, 'cur')
+	f = p, os.stat(new)[ST_ATIME], os.stat(cur)[ST_ATIME]
+	self.folder_atimes.append(f)
+
+    def restore_folder_atimes(self):
+	if not self.folder_atimes:
+	    return
+
+	for f in self.folder_atimes:
+	    t = f[1], os.stat(os.path.join(f[0], 'new'))[ST_MTIME]
+	    os.utime(os.path.join(f[0], 'new'), t)
+	    t = f[2], os.stat(os.path.join(f[0], 'cur'))[ST_MTIME]
+	    os.utime(os.path.join(f[0], 'cur'), t)
 
     def getlocalroot(self):
         return os.path.expanduser(self.getconf('localfolders'))
@@ -86,6 +105,8 @@ class MaildirRepository(BaseRepository):
         self.ui.warn("NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername)
 
     def getfolder(self, foldername):
+	if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
+	    self._append_folder_atimes(foldername)
         return folder.Maildir.MaildirFolder(self.root, foldername,
                                             self.getsep(), self, self.accountname)
     
@@ -130,6 +151,8 @@ class MaildirRepository(BaseRepository):
 
                 self.debug("  foldername = %s" % foldername)
 
+		if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
+		    self._append_folder_atimes(foldername)
                 retval.append(folder.Maildir.MaildirFolder(self.root, foldername,
                                                            self.getsep(), self, self.accountname))
             if self.getsep() == '/' and dirname != '.':

@@ -51,6 +51,18 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         if not os.path.exists(self.uiddir):
             os.mkdir(self.uiddir, 0700)
 
+    # The 'restoreatime' config parameter only applies to local Maildir
+    # mailboxes.
+    def restore_atime(self):
+	if self.config.get('Repository ' + self.name, 'type').strip() != \
+		'Maildir':
+	    return
+
+	if not self.config.has_option('Repository ' + self.name, 'restoreatime') or not self.config.getboolean('Repository ' + self.name, 'restoreatime'):
+	    return
+
+	return self.restore_folder_atimes()
+
     def holdordropconnections(self):
         pass
 
