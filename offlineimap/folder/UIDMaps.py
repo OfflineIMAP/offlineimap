@@ -14,7 +14,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from threading import *
 from offlineimap import threadutil
@@ -130,7 +130,7 @@ class MappingFolderMixIn:
         """Returns the content of the specified message."""
         return self._mb.getmessage(self, self.r2l[uid])
 
-    def savemessage(self, uid, content, flags):
+    def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
         If the uid is < 0, the backend should assign a new uid and return it.
 
@@ -153,7 +153,7 @@ class MappingFolderMixIn:
         if uid in self.r2l:
             self.savemessageflags(uid, flags)
             return uid
-        newluid = self._mb.savemessage(self, -1, content, flags)
+        newluid = self._mb.savemessage(self, -1, content, flags, rtime)
         if newluid < 1:
             raise ValueError, "Backend could not find uid for message"
         self.maplock.acquire()
@@ -168,6 +168,9 @@ class MappingFolderMixIn:
 
     def getmessageflags(self, uid):
         return self._mb.getmessageflags(self, self.r2l[uid])
+
+    def getmessagetime(self, uid):
+        return None
 
     def savemessageflags(self, uid, flags):
         self._mb.savemessageflags(self, self.r2l[uid], flags)

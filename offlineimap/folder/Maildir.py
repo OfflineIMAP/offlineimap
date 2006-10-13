@@ -14,7 +14,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from Base import BaseFolder
 from offlineimap import imaputil
@@ -124,7 +124,12 @@ class MaildirFolder(BaseFolder):
         file.close()
         return retval.replace("\r\n", "\n")
 
-    def savemessage(self, uid, content, flags):
+    def getmessagetime( self, uid ):
+        filename = self.messagelist[uid]['filename']
+        st = os.stat(filename)
+        return st.st_mtime
+
+    def savemessage(self, uid, content, flags, rtime):
         ui = UIBase.getglobalui()
         ui.debug('maildir', 'savemessage: called to write with flags %s and content %s' % \
                  (repr(flags), repr(content)))
@@ -165,6 +170,7 @@ class MaildirFolder(BaseFolder):
         file = open(os.path.join(tmpdir, tmpmessagename), "wt")
         file.write(content)
         file.close()
+        os.utime(os.path.join(tmpdir,tmpmessagename), (rtime,rtime))
         ui.debug('maildir', 'savemessage: moving from %s to %s' % \
                  (tmpmessagename, messagename))
         os.link(os.path.join(tmpdir, tmpmessagename),
