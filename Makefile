@@ -29,8 +29,7 @@ clean:
 	-rm -f `find . -name "*.class"`
 	-rm -f `find . -name "*.bak"`
 	-rm -f `find . -name ".cache*"`
-	-rm manpage.links
-	-rm manpage.refs
+	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 
 doc:
