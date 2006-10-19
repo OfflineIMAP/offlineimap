@@ -59,10 +59,9 @@ class UIBase:
 
     def setlogfd(s, logfd):
         s.logfile = logfd
-        logfd.write("This is %s %s %s\n" % \
+        logfd.write("This is %s %s\n" % \
                     (offlineimap.version.productname,
-                     offlineimap.version.versionstr,
-                     offlineimap.version.revstr))
+                     offlineimap.version.versionstr))
         logfd.write("Python: %s\n" % sys.version)
         logfd.write("Platform: %s\n" % sys.platform)
         logfd.write("Args: %s\n" % sys.argv)

@@ -1,5 +1,5 @@
 offlineimap Mail syncing software
-Copyright (C) 2002 - 2005 John Goerzen
+Copyright (C) 2002 - 2006 John Goerzen
 <jgoerzen@complete.org>
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ Copyright (C) 2002 - 2005 John Goerzen
 ONLY imaplib.py is Copyright (c) 2001 Python Software Foundation; 
 All Rights Reserved
 
-imaplib.py comes from Python dev tree and is licensed inder the
+imaplib.py comes from Python dev tree and is licensed under the
 GPL-compatible PSF license as follows:
 
 
