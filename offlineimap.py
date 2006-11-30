@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Startup from single-user installation
-# Copyright (C) 2002 - 2005 John Goerzen
+# Copyright (C) 2002 - 2006 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -18,4 +18,4 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from offlineimap import init
-init.startup('4.0.13')
+init.startup('4.0.15')

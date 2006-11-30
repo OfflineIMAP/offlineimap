@@ -1,6 +1,6 @@
 Name: offlineimap
 Summary: Powerful IMAP/Maildir synchronization and reader support
-Version: 4.0.13
+Version: 4.0.15
 Release: 3
 License: GPL
 Group: Applications/Internet

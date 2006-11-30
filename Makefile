@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-VERSION=4.0.13
+VERSION=4.0.15
 TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
 
