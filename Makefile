@@ -40,7 +40,7 @@ doc:
 	man -t -l offlineimap.1 > manual.ps
 	ps2pdf manual.ps
 	groff -Tascii -man offlineimap.1 | sed $$'s/.\b//g' > manual.txt
-	-rm manpage.links manpage.refs
+	-rm manpage.links manpage.refs manual.ps
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
