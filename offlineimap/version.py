@@ -9,7 +9,7 @@ copyright = "Copyright (C) 2002 - 2006 John Goerzen"
 author = "John Goerzen"
 author_email = "jgoerzen@complete.org"
 description = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
-bigcopyright = """%(productname)s %(versionstr)s (%(revstr)s)
+bigcopyright = """%(productname)s %(versionstr)s
 %(copyright)s <%(author_email)s>""" % locals()
 
 banner = bigcopyright + """
