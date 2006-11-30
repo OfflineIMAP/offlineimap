@@ -17,8 +17,7 @@ This software comes with ABSOLUTELY NO WARRANTY; see the file
 COPYING for details.  This is free software, and you are welcome
 to distribute it under the conditions laid out in COPYING."""
 
-homepage = "http://www.quux.org/devel/offlineimap"
-homegopher = "gopher://quux.org/1/devel/offlineimap"
+homepage = "http://software.complete.org/offlineimap/"
 license = """Copyright (C) 2002 - 2006 John Goerzen <jgoerzen@complete.org>
 
 This program is free software; you can redistribute it and/or modify

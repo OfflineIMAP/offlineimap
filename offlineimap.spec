@@ -4,7 +4,7 @@ Version: 4.0.13
 Release: 3
 License: GPL
 Group: Applications/Internet
-URL: http://quux.org:70/devel/offlineimap
+URL: http://software.complete.org/offlineimap/
 Source0: %{name}_%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires: python >= 2.2.1

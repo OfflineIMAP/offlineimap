@@ -186,7 +186,7 @@ remoteuser = jgoerzen
 	yourself, you have three options: a system-wide installation with
 	Debian, system-wide installation with other systems, and a single-user
 	installation.  You can download the latest version of &OfflineIMAP; from
-	<ulink url="http://quux.org/devel/offlineimap/">the &OfflineIMAP;
+	<ulink url="http://software.complete.org/offlineimap/">the &OfflineIMAP;
 	website</ulink>.
       </para>
 
@@ -245,7 +245,7 @@ remoteuser = jgoerzen
 	</para>
 	<para>
 	  If you are not tracking Debian unstable, download the Debian .deb
-	  package from the <ulink url="http://quux.org/devel/offlineimap/">&OfflineIMAP; website</ulink>
+	  package from the <ulink url="http://software.complete.org/offlineimap/">&OfflineIMAP; website</ulink>
 	  and then run <command>dpkg -i</command> to install the downloaded
 	  package.  Then, skip to <xref linkend="configuration" endterm="configuration-title"> below.  You will type <command>offlineimap</command> to
 	  invoke the program.
@@ -256,7 +256,7 @@ remoteuser = jgoerzen
 	<title>System-Wide Installation, Other</title>
 	<para>
 	  Download the tar.gz version of the package from the
-	  <ulink url="http://quux.org/devel/offlineimap/">website</ulink>.
+	  <ulink url="http://software.complete.org/offlineimap/">website</ulink>.
 	  Then run
 	  these commands, making sure that you are the "root" user first:
 	</para>
@@ -275,7 +275,7 @@ python2.2 setup.py install</ProgramListing>
 	<title>Single-Account Installation</title>
 	<para>
 	  Download the tar.gz version of the package from the
-	  <ulink url="http://quux.org/devel/offlineimap/">website</ulink>.
+	  <ulink url="http://software.complete.org/offlineimap/">website</ulink>.
 	  Then run these commands:
 	</para>
 
@@ -1190,8 +1190,7 @@ mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
 
       <para>
 	&OfflineIMAP; may be downloaded, and information found, from its
-	homepage via either <ulink url="gopher://quux.org/1/devel/offlineimap">Gopher</ulink>
-	or <ulink url="http://quux.org/devel/offlineimap">HTTP</ulink>.
+	<ulink url="http://software.complete.org/offlineimap">homepage</ulink>.
       </para>
 
       <para>
