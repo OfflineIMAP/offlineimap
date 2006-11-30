@@ -1,8 +1,12 @@
 offlineimap (4.0.15) unstable; urgency=low
 
   * Applied patch from Aaron Schrab to sync INTERNALDATEs.
+    As a nice side-effect, this should finally resolve the problem
+    with bad dates on spams.  Closes: #299174.
+  * Noted new homepage at http://software.complete.org/offlineimap/
+  * Updated copyright dates
 
- -- John Goerzen <jgoerzen@complete.org>  Mon, 21 Aug 2006 05:17:48 -0500
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 29 Nov 2006 21:52:26 -0600
 
 offlineimap (4.0.14) unstable; urgency=low
 
