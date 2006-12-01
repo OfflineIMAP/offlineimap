@@ -525,9 +525,14 @@ class Blinkenlights(BlinkenBase, UIBase):
         finally:
             s.c.unlock()
 
-    def terminate(s, exitstatus = 0):
+    def terminate(s, exitstatus = 0, errortitle = None, errormsg = None):
         s.c.stop()
-        UIBase.terminate(s, exitstatus)
+        if errormsg <> None:
+            if errortitle <> None:
+                sys.stderr.write('%s: %s\n'%(errortitle, errormsg))
+            else:
+                sys.stderr.write('%s\n' % errormsg)
+        UIBase.terminate(s, exitstatus = exitstatus, errortitle = errortitle, errormsg = errormsg)
 
     def threadException(s, thread):
         s.c.stop()

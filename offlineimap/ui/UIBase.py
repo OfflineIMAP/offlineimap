@@ -301,8 +301,13 @@ class UIBase:
     def mainException(s):
         s._msg(s.getMainExceptionString())
 
-    def terminate(s, exitstatus = 0):
+    def terminate(s, exitstatus = 0, errortitle = None, errormsg = None):
         """Called to terminate the application."""
+        if errormsg <> None:
+            if errortitle <> None:
+                sys.stderr.write('ERROR: %s\n\n%s\n'%(errortitle, errormsg))
+            else:
+                sys.stderr.write('%s\n' % errormsg)
         sys.exit(exitstatus)
 
     def threadExited(s, thread):

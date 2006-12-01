@@ -246,6 +246,13 @@ class VerboseUI(UIBase):
                 tf = s.availablethreadframes.pop()
                 tf.destroy()
             s.tflock.release()
+
+    def terminate(s, exitstatus = 0, errortitle = None, errormsg = None):
+        if errormsg <> None:
+            if errortitle == None:
+                errortitle = "Error"
+            TextOKDialog(errortitle, errormsg)
+        UIBase.terminate(s, exitstatus = exitstatus, errortitle = None, errormsg = None)
             
     def threadException(s, thread):
         exceptionstr = s.getThreadExceptionString(thread)
