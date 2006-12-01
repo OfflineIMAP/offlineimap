@@ -113,6 +113,14 @@ def startup(versionno):
 
     syncaccounts = {}
     for account in activeaccounts:
+        if account not in allaccounts:
+            if len(allaccounts) == 0:
+                errormsg = 'The account "%s" does not exist because no accounts are defined!'%account
+            else:
+                errormsg = 'The account "%s" does not exist.  Valid accounts are:'%account
+                for name in allaccounts.keys():
+                    errormsg += '\n%s'%name
+            ui.terminate(1, errortitle = 'Unknown Account "%s"'%account, errormsg = errormsg)
         syncaccounts[account] = allaccounts[account]
 
     server = None
