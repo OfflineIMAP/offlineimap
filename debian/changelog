@@ -1,3 +1,10 @@
+offlineimap (4.0.16) unstable; urgency=low
+
+  * Apply patches from Danial Burrows to improve situation when
+    errors occur.  Closes: #162672.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri,  1 Dec 2006 05:33:18 -0600
+
 offlineimap (4.0.15) unstable; urgency=low
 
   * Applied patch from Aaron Schrab to sync INTERNALDATEs.
