@@ -101,54 +101,58 @@ def startup(versionno):
 
     lock(config, ui)
 
-    if options.has_key('-l'):
-        sys.stderr = ui.logfile
+    try:
+        if options.has_key('-l'):
+            sys.stderr = ui.logfile
 
-    activeaccounts = config.get("general", "accounts")
-    if options.has_key('-a'):
-        activeaccounts = options['-a']
-    activeaccounts = activeaccounts.replace(" ", "")
-    activeaccounts = activeaccounts.split(",")
-    allaccounts = accounts.AccountHashGenerator(config)
+        activeaccounts = config.get("general", "accounts")
+        if options.has_key('-a'):
+            activeaccounts = options['-a']
+        activeaccounts = activeaccounts.replace(" ", "")
+        activeaccounts = activeaccounts.split(",")
+        allaccounts = accounts.AccountHashGenerator(config)
 
-    syncaccounts = {}
-    for account in activeaccounts:
-        if account not in allaccounts:
-            if len(allaccounts) == 0:
-                errormsg = 'The account "%s" does not exist because no accounts are defined!'%account
-            else:
-                errormsg = 'The account "%s" does not exist.  Valid accounts are:'%account
-                for name in allaccounts.keys():
-                    errormsg += '\n%s'%name
-            ui.terminate(1, errortitle = 'Unknown Account "%s"'%account, errormsg = errormsg)
-        syncaccounts[account] = allaccounts[account]
+        syncaccounts = {}
+        for account in activeaccounts:
+            if account not in allaccounts:
+                if len(allaccounts) == 0:
+                    errormsg = 'The account "%s" does not exist because no accounts are defined!'%account
+                else:
+                    errormsg = 'The account "%s" does not exist.  Valid accounts are:'%account
+                    for name in allaccounts.keys():
+                        errormsg += '\n%s'%name
+                ui.terminate(1, errortitle = 'Unknown Account "%s"'%account, errormsg = errormsg)
+            syncaccounts[account] = allaccounts[account]
 
-    server = None
-    remoterepos = None
-    localrepos = None
+        server = None
+        remoterepos = None
+        localrepos = None
 
-    if options.has_key('-1'):
-        threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
-    else:
-        threadutil.initInstanceLimit("ACCOUNTLIMIT",
-                                     config.getdefaultint("general", "maxsyncaccounts", 1))
+        if options.has_key('-1'):
+            threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
+        else:
+            threadutil.initInstanceLimit("ACCOUNTLIMIT",
+                                         config.getdefaultint("general", "maxsyncaccounts", 1))
 
-    for reposname in config.getsectionlist('Repository'):
-        for instancename in ["FOLDER_" + reposname,
-                             "MSGCOPY_" + reposname]:
-            if options.has_key('-1'):
-                threadutil.initInstanceLimit(instancename, 1)
-            else:
-                threadutil.initInstanceLimit(instancename,
-                                             config.getdefaultint('Repository ' + reposname, "maxconnections", 1))
+        for reposname in config.getsectionlist('Repository'):
+            for instancename in ["FOLDER_" + reposname,
+                                 "MSGCOPY_" + reposname]:
+                if options.has_key('-1'):
+                    threadutil.initInstanceLimit(instancename, 1)
+                else:
+                    threadutil.initInstanceLimit(instancename,
+                                                 config.getdefaultint('Repository ' + reposname, "maxconnections", 1))
 
-    threadutil.initexitnotify()
-    t = ExitNotifyThread(target=syncmaster.syncitall,
-                         name='Sync Runner',
-                         kwargs = {'accounts': syncaccounts,
-                                   'config': config})
-    t.setDaemon(1)
-    t.start()
+        threadutil.initexitnotify()
+        t = ExitNotifyThread(target=syncmaster.syncitall,
+                             name='Sync Runner',
+                             kwargs = {'accounts': syncaccounts,
+                                       'config': config})
+        t.setDaemon(1)
+        t.start()
+    except:
+        ui.mainException()
+
     try:
         threadutil.exitnotifymonitorloop(threadutil.threadexited)
     except SystemExit:
