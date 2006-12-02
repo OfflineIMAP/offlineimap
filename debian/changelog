@@ -2,8 +2,15 @@ offlineimap (4.0.16) unstable; urgency=low
 
   * Apply patches from Danial Burrows to improve situation when
     errors occur.  Closes: #162672.
+  * Fixed a bug that could cause OfflineIMAP to crash when copying
+    a message from a remote server that didn't have an
+    INTERNALDATE.  Closes: #401290.
+  * Part of the FAQ from the manual has been moved to the OfflineIMAP
+    wiki at http://software.complete.org/offlineimap.
+    New file FAQ.html is a dump of that page.
+  * Corrected outdated bug reporting info in the manual.
 
- -- John Goerzen <jgoerzen@complete.org>  Fri,  1 Dec 2006 05:33:18 -0600
+ -- John Goerzen <jgoerzen@complete.org>  Sat,  2 Dec 2006 09:08:14 -0600
 
 offlineimap (4.0.15) unstable; urgency=low
 
