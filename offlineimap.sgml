@@ -873,9 +873,10 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 
       <refsect2>
 	<title>Bugs</title>
-	<para>Reports of bugs should be sent via e-mail to the
-	  &OfflineIMAP; mailing list at offlineimap at complete
-          dot org.  Debian users are encouraged to instead use the
+	<para>
+          Reports of bugs should be reported online at the
+          &OfflineIMAP; homepage.
+          Debian users are encouraged to instead use the
 	Debian
           bug-tracking system.
 	</para>
@@ -958,14 +959,6 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
       <para>
 	&OfflineIMAP; may be downloaded, and information found, from its
 	<ulink url="http://software.complete.org/offlineimap">homepage</ulink>.
-      </para>
-
-      <para>
-	&OfflineIMAP; may also be downloaded using Subversion.  Additionally,
-	the distributed tar.gz may be updated with a simple "svn update"
-	command; it is ready to go.  For information on getting OfflineIMAP
-	with Subversion, please visit the
-	<ulink url="http://svn.complete.org/">complete.org Subversion page</ulink>.
       </para>
 
     </refsect1>
