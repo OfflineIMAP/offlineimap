@@ -170,7 +170,8 @@ class MaildirFolder(BaseFolder):
         file = open(os.path.join(tmpdir, tmpmessagename), "wt")
         file.write(content)
         file.close()
-        os.utime(os.path.join(tmpdir,tmpmessagename), (rtime,rtime))
+        if rtime != None:
+            os.utime(os.path.join(tmpdir,tmpmessagename), (rtime,rtime))
         ui.debug('maildir', 'savemessage: moving from %s to %s' % \
                  (tmpmessagename, messagename))
         os.link(os.path.join(tmpdir, tmpmessagename),
