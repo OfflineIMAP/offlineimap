@@ -1088,7 +1088,7 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 
     <refsect1>
       <title>Copyright</title>
-      <para>OfflineIMAP, and this manual, are Copyright &copy; 2002, 2003 John Goerzen.</para>
+      <para>OfflineIMAP, and this manual, are Copyright &copy; 2002 - 2006 John Goerzen.</para>
 
       <para>
 	This program is free software; you can redistribute it and/or modify
