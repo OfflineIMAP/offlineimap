@@ -800,31 +800,6 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	  discussion</ulink> of the problem there.
 	</para>
       </refsect2>
-
-      <refsect2>
-        <title>Use with MS Exchange server</title>
-        <para>
-          Several users have reported problems with Microsoft Exchange
-          servers in conjunction with OfflineIMAP.  This generally
-          seems to be related to the Exchange servers not properly
-          following the IMAP standards.
-        </para>
-        <para>
-          Mark Biggers has posted some <ulink
-          url="http://lists.complete.org/offlineimap@complete.org/2005/09/msg00011.html.gz">information</ulink>
-          to the &OfflineIMAP; mailing list about how he made it work.
-        </para>
-        <para>
-          Other users have indicated that older (5.5) releases of
-          Exchange are so bad that they will likely not work at all.
-        </para>
-        <para>
-          I do not have access to Exchange servers for testing, so any
-          problems with it, if they can even be solved at all, will
-          require help from &OfflineIMAP; users to find and fix.
-        </para>
-      </refsect2>
-          
     </refsect1>
     <refsect1>
       <title>Other Frequently Asked Questions</title>
@@ -833,14 +808,6 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
       </para>
 
       <variablelist>
-	<varlistentry><term>What platforms does &OfflineIMAP; run on?</term>
-	  <listitem><para>
-	    It should run on most platforms supported by Python, which are quite a
-	    few.  I do not support Windows myself, but some have made
-	  it work there; see the FAQ entry for that platform.
-	  </para></listitem>
-        </varlistentry>
-
 	<varlistentry><term>I'm using Mutt.  Other IMAP sync programs require me to use "set maildir_trash=yes".  Do I need to do that with &OfflineIMAP;?</term>
 	  <listitem><para>
 	    No.  &OfflineIMAP; is smart enough to figure out message deletion without this extra
@@ -970,38 +937,6 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	    <listitem><para>2 seconds with OfflineIMAP 3.x "held connection"</para></listitem>
 	  </itemizedlist>
 	</listitem></varlistentry>
-        <varlistentry><term>Can I use &OfflineIMAP; on Windows?</term>
-          <listitem><para>
-              These answers have been reported by &OfflineIMAP;
-              users.  I do not run &OfflineIMAP; on Windows myself, so
-              I can't directly address their accuracy.
-            </para>
-            <para>
-              The basic answer is that it's possible and doesn't
-              require hacking &OfflineIMAP; source code.  However,
-              it's not necessarily trivial.  The information below is
-              based in instructions submitted by Chris Walker.
-            </para>
-            <para>
-              First, you must run &OfflineIMAP; in the <ulink
-              url="http://www.cygwin.com/">Cygwin</ulink>
-              environment.  
-            </para>
-            <para>
-              Next, you'll need to mount your Maildir directory in a
-              special way.  There is information for doing that at
-              <ulink url="http://barnson.org/node/view/295"></ulink>.
-              That site gives this example:
-            </para>
-            <programlisting>
-mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
-            </programlisting> 
-            <para>
-              That URL also has more details on making OfflineIMAP
-              work with Windows.
-            </para>
-          </listitem>
-        </varlistentry>
       </variablelist>
     </refsect1>
 
