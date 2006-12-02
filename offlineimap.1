@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "OFFLINEIMAP" "1" "29 November 2006" "John Goerzen" "OfflineIMAP Manual"
+.TH "OFFLINEIMAP" "1" "01 December 2006" "John Goerzen" "OfflineIMAP Manual"
 
 .SH NAME
 OfflineIMAP \- Powerful IMAP/Maildir synchronization and reader support
@@ -636,166 +636,6 @@ This question comes up frequently on the
 mailing list <URL:http://lists.complete.org/offlineimap@complete.org/>\&.  You can find a
 detailed
 discussion <URL:http://lists.complete.org/offlineimap@complete.org/2003/04/msg00012.html.gz> of the problem there.
-.SS "USE WITH MS EXCHANGE SERVER"
-.PP
-Several users have reported problems with Microsoft Exchange
-servers in conjunction with OfflineIMAP.  This generally
-seems to be related to the Exchange servers not properly
-following the IMAP standards.
-.PP
-Mark Biggers has posted some information <URL:http://lists.complete.org/offlineimap@complete.org/2005/09/msg00011.html.gz>
-to the \fBOfflineIMAP\fR mailing list about how he made it work.
-.PP
-Other users have indicated that older (5.5) releases of
-Exchange are so bad that they will likely not work at all.
-.PP
-I do not have access to Exchange servers for testing, so any
-problems with it, if they can even be solved at all, will
-require help from \fBOfflineIMAP\fR users to find and fix.
-.SH "OTHER FREQUENTLY ASKED QUESTIONS"
-.PP
-There are some other FAQs that might not fit into another section
-of the document, so they are discussed here.
-.TP
-\fBWhat platforms does OfflineIMAP run on?\fR
-It should run on most platforms supported by Python, which are quite a
-few.  I do not support Windows myself, but some have made
-it work there; see the FAQ entry for that platform.
-.TP
-\fBI'm using Mutt.  Other IMAP sync programs require me to use "set maildir_trash=yes".  Do I need to do that with OfflineIMAP?\fR
-No.  \fBOfflineIMAP\fR is smart enough to figure out message deletion without this extra
-crutch.  You'll get the best results if you don't use this setting, in
-fact.
-.TP
-\fBI've upgraded and now OfflineIMAP crashes when I start it up!  Why?\fR
-You need to upgrade your configuration
-file.  See [XRef to UPGRADING.4.0] at the end of this
-manual.
-.TP
-\fBHow do I specify the names of my folders?\fR
-You do not need to.  \fBOfflineIMAP\fR is smart
-enough to automatically figure out what folders are present
-on the IMAP server and synchronize them.  You can use the
-\fIfolderfilter\fR and \fInametrans\fR
-configuration file options to request certain folders and rename them
-as they come in if you like.
-.TP
-\fBHow can I prevent certain folders from being synced?\fR
-Use the \fIfolderfilter\fR option in the configuration file.
-.TP
-\fBHow can I add or delete a folder?\fR
-\fBOfflineIMAP\fR does not currently provide this feature, but if you create a new
-folder on the IMAP server, it will be created locally automatically.
-.TP
-\fBAre there any other warnings that I should be aware of?\fR
-Yes; see the Notes section below.
-.TP
-\fBWhat is the mailbox name recorder (mbnames) for?\fR
-Some mail readers, such as Mutt, are not capable
-of automatically determining the names of your mailboxes.
-\fBOfflineIMAP\fR can help these programs by writing the names
-of the folders in a format you specify.  See the example
-\fIofflineimap.conf\fR for details.
-.TP
-\fBCan I synchronize multiple accounts with OfflineIMAP?\fR
-Sure.  Just name them all in the
-\fIaccounts\fR line in the \fIgeneral\fR
-section of the configuration file, and add a per-account section
-for each one.
-.TP
-\fBDoes OfflineIMAP support POP?\fR
-No.  POP is not robust enough to do a completely reliable
-multi-machine synchronization like \fBOfflineIMAP\fR can do.  \fBOfflineIMAP\fR
-will not support it.
-.TP
-\fBDoes OfflineIMAP support mailbox formats other than Maildir?\fR
-Not at present.  There is no technical reason not to; just no
-demand yet.  Maildir is a superior format anyway.
-However, \fBOfflineIMAP\fR can sync between two IMAP
-servers, and some IMAP servers support other formats.  You
-could install an IMAP server on your local machine and have
-\fBOfflineIMAP\fR sync to that.
-.TP
-\fB[technical] Why are your Maildir message filenames so huge?\fR
-\fBOfflineIMAP\fR has two relevant principles: 1) never modifying your
-messages in any way and 2) ensuring 100% reliable synchronizations.
-In order to do a reliable sync, \fBOfflineIMAP\fR
-must have a way to
-uniquely identify each e-mail.  Three pieces of information are
-required to do this: your account name, the folder name, and the
-message UID.  The account name can be calculated from the path in
-which your messages are.  The folder name can usually be as well, BUT
-some mail clients move messages between folders by simply moving the
-file, leaving the name intact.
-
-So, \fBOfflineIMAP\fR must store both a UID folder ID.  The folder ID is
-necessary so \fBOfflineIMAP\fR can detect a message moved to a different
-folder.  \fBOfflineIMAP\fR stores the UID (U= number) and an md5sum of the
-foldername (FMD5= number) to facilitate this.
-.TP
-\fBWhat is the speed of OfflineIMAP\&'s sync?\fR
-OfflineIMAP
-versions 2.0 and above contain a multithreaded system.  A good way to
-experiment is by setting \fImaxsyncaccounts\fR to 3 and \fImaxconnections\fR to 3
-in each account clause.
-
-This lets OfflineIMAP open up multiple connections simultaneously.
-That will let it process multiple folders and messages at once.  In
-most cases, this will increase performance of the sync.
-
-Don't set the number too high.  If you do that, things might actually
-slow down as your link gets saturated.  Also, too many connections can
-cause mail servers to have excessive load.  Administrators might take
-unkindly to this, and the server might bog down.  There are many
-variables in the optimal setting; experimentation may help.
-
-An informal benchmark yields these results for my setup:
-.RS
-.TP 0.2i
-\(bu
-10 minutes with MacOS X Mail.app "manual cache"
-.TP 0.2i
-\(bu
-5 minutes with GNUS agent sync
-.TP 0.2i
-\(bu
-20 seconds with OfflineIMAP 1.x
-.TP 0.2i
-\(bu
-9 seconds with OfflineIMAP 2.x
-.TP 0.2i
-\(bu
-3 seconds with OfflineIMAP 3.x "cold start"
-.TP 0.2i
-\(bu
-2 seconds with OfflineIMAP 3.x "held connection"
-.RE
-.TP
-\fBCan I use OfflineIMAP on Windows?\fR
-These answers have been reported by \fBOfflineIMAP\fR
-users.  I do not run \fBOfflineIMAP\fR on Windows myself, so
-I can't directly address their accuracy.
-
-The basic answer is that it's possible and doesn't
-require hacking \fBOfflineIMAP\fR source code.  However,
-it's not necessarily trivial.  The information below is
-based in instructions submitted by Chris Walker.
-
-First, you must run \fBOfflineIMAP\fR in the Cygwin <URL:http://www.cygwin.com/>
-environment.  
-
-Next, you'll need to mount your Maildir directory in a
-special way.  There is information for doing that at
- <URL:http://barnson.org/node/view/295>\&.
-That site gives this example:
-
-.nf
-mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
-            
-.fi
-
-That URL also has more details on making OfflineIMAP
-work with Windows.
 .SH "CONFORMING TO"
 .TP 0.2i
 \(bu
@@ -847,29 +687,6 @@ delete it from your local folder.  Then, on your next sync, the
 message will be re-downloaded with the proper UID.
 \fBOfflineIMAP\fR makes sure that the message was properly uploaded before deleting it,
 so there should be no risk of data loss.
-.SS "USE WITH EVOLUTION"
-.PP
-\fBOfflineIMAP\fR can work with Evolution.  To do so, first configure
-your \fBOfflineIMAP\fR account to have
-\fBsep = /\fR in its configuration.  Then, configure
-Evolution with the
-"Maildir-format mail directories" server type.  For the path, you will need to
-specify the name of the top-level folder
-\fBinside\fR your \fBOfflineIMAP\fR storage location.
-You're now set!
-.SS "USE WITH KMAIL"
-.PP
-At this time, I believe that \fBOfflineIMAP\fR with Maildirs
-is not compatible
-with KMail.  KMail cannot work in any mode other than to move
-all messages out of all folders immediately, which (besides being annoying
-and fundamentally broken) is incompatible with
-\fBOfflineIMAP\fR\&.
-.PP
-However, I have made KMail version 3 work well with
-\fBOfflineIMAP\fR by installing an IMAP server on my local
-machine, having \fBOfflineIMAP\fR sync to that, and pointing
-KMail at the same server.
 .SS "MAILING LIST"
 .PP
 There is an OfflineIMAP mailing list available.
@@ -879,9 +696,9 @@ offlineimap@complete.org.  Archives are available at
  <URL:http://lists.complete.org/offlineimap@complete.org/>\&.
 .SS "BUGS"
 .PP
-Reports of bugs should be sent via e-mail to the
-\fBOfflineIMAP\fR mailing list at offlineimap at complete
-dot org.  Debian users are encouraged to instead use the
+Reports of bugs should be reported online at the
+\fBOfflineIMAP\fR homepage.
+Debian users are encouraged to instead use the
 Debian
 bug-tracking system.
 .SH "UPGRADING TO 4.0"
@@ -914,7 +731,7 @@ your mail from the server and then you can continue using it
 like normal.
 .SH "COPYRIGHT"
 .PP
-OfflineIMAP, and this manual, are Copyright (C) 2002, 2003 John Goerzen.
+OfflineIMAP, and this manual, are Copyright (C) 2002 - 2006 John Goerzen.
 .PP
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -942,12 +759,6 @@ copyright is held as stated in the COPYRIGHT section.
 .PP
 \fBOfflineIMAP\fR may be downloaded, and information found, from its
 homepage <URL:http://software.complete.org/offlineimap>\&.
-.PP
-\fBOfflineIMAP\fR may also be downloaded using Subversion.  Additionally,
-the distributed tar.gz may be updated with a simple "svn update"
-command; it is ready to go.  For information on getting OfflineIMAP
-with Subversion, please visit the
-complete.org Subversion page <URL:http://svn.complete.org/>\&.
 .SH "SEE ALSO"
 .PP
 \fBmutt\fR(1),

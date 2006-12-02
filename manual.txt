@@ -539,161 +539,13 @@ ERRORS
        plete.org/offlineimap@complete.org/2003/04/msg00012.html.gz>   of   the
        problem there.
 
-   USE WITH MS EXCHANGE SERVER
-       Several users have reported problems with Microsoft Exchange servers in
-       conjunction  with  OfflineIMAP.   This generally seems to be related to
-       the Exchange servers not properly following the IMAP standards.
-
-       Mark  Biggers  has  posted  some   information   <URL:http://lists.com-
-       plete.org/offlineimap@complete.org/2005/09/msg00011.html.gz>   to   the
-       OfflineIMAP mailing list about how he made it work.
-
-       Other users have indicated that older (5.5) releases of Exchange are so
-       bad that they will likely not work at all.
-
-       I  do  not have access to Exchange servers for testing, so any problems
-       with it, if they can even be solved at  all,  will  require  help  from
-       OfflineIMAP users to find and fix.
-
-OTHER FREQUENTLY ASKED QUESTIONS
-       There  are  some  other FAQs that might not fit into another section of
-       the document, so they are discussed here.
-
-       What platforms does OfflineIMAP run on?
-              It should run on most platforms supported by Python,  which  are
-              quite  a  few.   I  do not support Windows myself, but some have
-              made it work there; see the FAQ entry for that platform.
-
-       I'm using Mutt.  Other IMAP  sync  programs  require  me  to  use  "set
-       maildir_trash=yes".  Do I need to do that with OfflineIMAP?
-              No.  OfflineIMAP is smart enough to figure out message  deletion
-              without  this  extra crutch.  You'll get the best results if you
-              don't use this setting, in fact.
-
-       I've upgraded and now OfflineIMAP crashes when I start it up!  Why?
-              You need to upgrade  your  configuration  file.   See  [XRef  to
-              UPGRADING.4.0] at the end of this manual.
-
-       How do I specify the names of my folders?
-              You  do  not  need to.  OfflineIMAP is smart enough to automati-
-              cally figure out what folders are present on the IMAP server and
-              synchronize  them.   You  can use the folderfilter and nametrans
-              configuration file options to request certain folders and rename
-              them as they come in if you like.
-
-       How can I prevent certain folders from being synced?
-              Use the folderfilter option in the configuration file.
-
-       How can I add or delete a folder?
-              OfflineIMAP  does not currently provide this feature, but if you
-              create a new folder on the  IMAP  server,  it  will  be  created
-              locally automatically.
-
-       Are there any other warnings that I should be aware of?
-              Yes; see the Notes section below.
-
-       What is the mailbox name recorder (mbnames) for?
-              Some  mail  readers,  such as Mutt, are not capable of automati-
-              cally determining the names of your mailboxes.  OfflineIMAP  can
-              help  these  programs  by  writing the names of the folders in a
-              format  you  specify.   See  the  example  offlineimap.conf  for
-              details.
-
-       Can I synchronize multiple accounts with OfflineIMAP?
-              Sure.   Just  name  them all in the accounts line in the general
-              section of the configuration file, and add a per-account section
-              for each one.
-
-       Does OfflineIMAP support POP?
-              No.  POP is not robust enough to do a completely reliable multi-
-              machine synchronization like OfflineIMAP  can  do.   OfflineIMAP
-              will not support it.
-
-       Does OfflineIMAP support mailbox formats other than Maildir?
-              Not  at  present.   There is no technical reason not to; just no
-              demand yet.  Maildir is  a  superior  format  anyway.   However,
-              OfflineIMAP  can  sync  between  two IMAP servers, and some IMAP
-              servers support other formats.  You could install an IMAP server
-              on your local machine and have OfflineIMAP sync to that.
-
-       [technical] Why are your Maildir message filenames so huge?
-              OfflineIMAP has two relevant principles: 1) never modifying your
-              messages in any way and 2) ensuring 100%  reliable  synchroniza-
-              tions.   In order to do a reliable sync, OfflineIMAP must have a
-              way to uniquely identify each e-mail.  Three pieces of  informa-
-              tion  are  required  to  do  this: your account name, the folder
-              name, and the message UID.  The account name can  be  calculated
-              from  the  path in which your messages are.  The folder name can
-              usually be as well, BUT some mail clients move messages  between
-              folders by simply moving the file, leaving the name intact.
-
-              So,  OfflineIMAP must store both a UID folder ID.  The folder ID
-              is necessary so OfflineIMAP can detect a message moved to a dif-
-              ferent  folder.   OfflineIMAP  stores the UID (U= number) and an
-              md5sum of the foldername (FMD5= number) to facilitate this.
-
-       What is the speed of OfflineIMAP's sync?
-              OfflineIMAP versions 2.0 and above contain a multithreaded  sys-
-              tem.   A good way to experiment is by setting maxsyncaccounts to
-              3 and maxconnections to 3 in each account clause.
-
-              This lets OfflineIMAP open up  multiple  connections  simultane-
-              ously.   That  will let it process multiple folders and messages
-              at once.  In most cases, this will increase performance  of  the
-              sync.
-
-              Don't  set  the  number  too high.  If you do that, things might
-              actually slow down as your link gets saturated.  Also, too  many
-              connections  can  cause  mail  servers  to  have excessive load.
-              Administrators might take unkindly to this, and the server might
-              bog  down.   There  are  many  variables in the optimal setting;
-              experimentation may help.
-
-              An informal benchmark yields these results for my setup:
-
-              o 10 minutes with MacOS X Mail.app "manual cache"
-
-              o 5 minutes with GNUS agent sync
-
-              o 20 seconds with OfflineIMAP 1.x
-
-              o 9 seconds with OfflineIMAP 2.x
-
-              o 3 seconds with OfflineIMAP 3.x "cold start"
-
-              o 2 seconds with OfflineIMAP 3.x "held connection"
-
-       Can I use OfflineIMAP on Windows?
-              These answers have been reported by OfflineIMAP users.  I do not
-              run  OfflineIMAP  on Windows myself, so I can't directly address
-              their accuracy.
-
-              The basic answer is that it's possible and doesn't require hack-
-              ing  OfflineIMAP  source  code.   However,  it's not necessarily
-              trivial.  The information below is based in instructions submit-
-              ted by Chris Walker.
-
-              First,    you    must    run    OfflineIMAP    in   the   Cygwin
-              <URL:http://www.cygwin.com/> environment.
-
-              Next, you'll need to mount your Maildir directory in  a  special
-              way.  There is information for doing that at
-               <URL:http://barnson.org/node/view/295>.   That  site gives this
-              example:
-
-              mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
-
-
-              That URL also has more details on making OfflineIMAP  work  with
-              Windows.
-
 CONFORMING TO
        o Internet Message Access Protocol version 4rev1 (IMAP 4rev1) as speci-
          fied in RFC2060 and RFC3501
 
        o CRAM-MD5 as specified in RFC2195
 
-       o Maildir     as     specified     in     the      Maildir      manpage
+       o Maildir      as      specified     in     the     Maildir     manpage
          <URL:http://www.qmail.org/qmail-manual-html/man5/maildir.html>    and
          the qmail website <URL:http://cr.yp.to/proto/maildir.html>.
 
@@ -701,54 +553,37 @@ CONFORMING TO
 
 NOTES
    DELETING LOCAL FOLDERS
-       OfflineIMAP does a two-way synchronization.  That is,  if  you  make  a
-       change  to  the mail on the server, it will be propagated to your local
+       OfflineIMAP  does  a  two-way  synchronization.  That is, if you make a
+       change to the mail on the server, it will be propagated to  your  local
        copy, and vise-versa.  Some people might think that it would be wise to
-       just  delete all their local mail folders periodically.  If you do this
-       with OfflineIMAP, remember to  also  remove  your  local  status  cache
-       (~/.offlineimap  by default).  Otherwise, OfflineIMAP will take this as
+       just delete all their local mail folders periodically.  If you do  this
+       with  OfflineIMAP,  remember  to  also  remove  your local status cache
+       (~/.offlineimap by default).  Otherwise, OfflineIMAP will take this  as
        an intentional deletion of many messages and will interpret your action
-       as  requesting  them  to  be  deleted from the server as well.  (If you
-       don't understand this, don't worry; you probably won't  encounter  this
+       as requesting them to be deleted from the  server  as  well.   (If  you
+       don't  understand  this, don't worry; you probably won't encounter this
        situation)
 
    MULTIPLE INSTANCES
-       OfflineIMAP  is not designed to have several instances (for instance, a
-       cron job and an interactive  invocation)  run  over  the  same  mailbox
-       simultaneously.   It  will  perform  a  check  on  startup and abort if
-       another OfflineIMAP is already running.  If you need to  schedule  syn-
-       chronizations,  please  use  the autorefresh settings rather than cron.
-       Alternatively, you can set  a  separate  metadata  directory  for  each
+       OfflineIMAP is not designed to have several instances (for instance,  a
+       cron  job  and  an  interactive  invocation)  run over the same mailbox
+       simultaneously.  It will perform  a  check  on  startup  and  abort  if
+       another  OfflineIMAP  is already running.  If you need to schedule syn-
+       chronizations, please use the autorefresh settings  rather  than  cron.
+       Alternatively,  you  can  set  a  separate  metadata directory for each
        instance.
 
    COPYING MESSAGES BETWEEN FOLDERS
-       Normally,  when you copy a message between folders or add a new message
-       to a folder locally, OfflineIMAP will just do the  right  thing.   How-
+       Normally, when you copy a message between folders or add a new  message
+       to  a  folder  locally, OfflineIMAP will just do the right thing.  How-
        ever, sometimes this can be tricky -- if your IMAP server does not pro-
-       vide  the  SEARCH  command,  or  does  not  return  something   useful,
-       OfflineIMAP  cannot determine the new UID of the message.  So, in these
-       rare instances, OfflineIMAP will upload the message to the IMAP  server
-       and  delete  it  from  your local folder.  Then, on your next sync, the
-       message will be re-downloaded with the proper UID.   OfflineIMAP  makes
-       sure  that  the  message  was  properly uploaded before deleting it, so
+       vide   the  SEARCH  command,  or  does  not  return  something  useful,
+       OfflineIMAP cannot determine the new UID of the message.  So, in  these
+       rare  instances, OfflineIMAP will upload the message to the IMAP server
+       and delete it from your local folder.  Then, on  your  next  sync,  the
+       message  will  be re-downloaded with the proper UID.  OfflineIMAP makes
+       sure that the message was properly  uploaded  before  deleting  it,  so
        there should be no risk of data loss.
-
-   USE WITH EVOLUTION
-       OfflineIMAP can work with Evolution.  To do so,  first  configure  your
-       OfflineIMAP  account  to have sep = / in its configuration.  Then, con-
-       figure Evolution with  the  "Maildir-format  mail  directories"  server
-       type.  For the path, you will need to specify the name of the top-level
-       folder inside your OfflineIMAP storage location.  You're now set!
-
-   USE WITH KMAIL
-       At this time, I believe that OfflineIMAP with Maildirs is not  compati-
-       ble  with  KMail.  KMail cannot work in any mode other than to move all
-       messages out of all folders immediately, which (besides being  annoying
-       and fundamentally broken) is incompatible with OfflineIMAP.
-
-       However,  I  have  made  KMail  version 3 work well with OfflineIMAP by
-       installing an IMAP server on my local machine, having OfflineIMAP  sync
-       to that, and pointing KMail at the same server.
 
    MAILING LIST
        There is an OfflineIMAP mailing list available.  To subscribe, send the
@@ -758,9 +593,9 @@ NOTES
         <URL:http://lists.complete.org/offlineimap@complete.org/>.
 
    BUGS
-       Reports of bugs should be sent via e-mail to  the  OfflineIMAP  mailing
-       list  at  offlineimap at complete dot org.  Debian users are encouraged
-       to instead use the Debian bug-tracking system.
+       Reports of bugs should be reported online at the OfflineIMAP  homepage.
+       Debian users are encouraged to instead use the Debian bug-tracking sys-
+       tem.
 
 UPGRADING TO 4.0
        If you are upgrading from a version of OfflineIMAP  prior  to  3.99.12,
@@ -786,7 +621,7 @@ UPGRADING TO 4.0
        from the server and then you can continue using it like normal.
 
 COPYRIGHT
-       OfflineIMAP, and  this  manual,  are  Copyright  (C)  2002,  2003  John
+       OfflineIMAP, and this manual,  are  Copyright  (C)  2002  -  2006  John
        Goerzen.
 
        This program is free software; you can redistribute it and/or modify it
@@ -814,12 +649,6 @@ AUTHOR
 
        OfflineIMAP may be downloaded, and information found, from its homepage
        <URL:http://software.complete.org/offlineimap>.
-
-       OfflineIMAP may also be downloaded using Subversion.  Additionally, the
-       distributed  tar.gz  may be updated with a simple "svn update" command;
-       it is ready to go.  For information on getting OfflineIMAP with Subver-
-       sion,     please     visit    the    complete.org    Subversion    page
-       <URL:http://svn.complete.org/>.
 
 SEE ALSO
        mutt(1), python(1)
@@ -859,4 +688,4 @@ HISTORY
 
 
 
-John Goerzen                   29 November 2006                 OFFLINEIMAP(1)
+John Goerzen                   01 December 2006                 OFFLINEIMAP(1)

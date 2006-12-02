@@ -1475,387 +1475,11 @@ TARGET="_top"
 > of the problem there.
 	</P
 ></DIV
+></DIV
 ><DIV
-CLASS="REFSECT2"
+CLASS="REFSECT1"
 ><A
 NAME="AEN381"
-></A
-><H3
->Use with MS Exchange server</H3
-><P
->          Several users have reported problems with Microsoft Exchange
-          servers in conjunction with OfflineIMAP.  This generally
-          seems to be related to the Exchange servers not properly
-          following the IMAP standards.
-        </P
-><P
->          Mark Biggers has posted some <A
-HREF="http://lists.complete.org/offlineimap@complete.org/2005/09/msg00011.html.gz"
-TARGET="_top"
->information</A
->
-          to the <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> mailing list about how he made it work.
-        </P
-><P
->          Other users have indicated that older (5.5) releases of
-          Exchange are so bad that they will likely not work at all.
-        </P
-><P
->          I do not have access to Exchange servers for testing, so any
-          problems with it, if they can even be solved at all, will
-          require help from <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> users to find and fix.
-        </P
-></DIV
-></DIV
-><DIV
-CLASS="REFSECT1"
-><A
-NAME="AEN390"
-></A
-><H2
->Other Frequently Asked Questions</H2
-><P
->There are some other FAQs that might not fit into another section
-	of the document, so they are discussed here.
-      </P
-><P
-></P
-><DIV
-CLASS="VARIABLELIST"
-><DL
-><DT
->What platforms does <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> run on?</DT
-><DD
-><P
->	    It should run on most platforms supported by Python, which are quite a
-	    few.  I do not support Windows myself, but some have made
-	  it work there; see the FAQ entry for that platform.
-	  </P
-></DD
-><DT
->I'm using Mutt.  Other IMAP sync programs require me to use "set maildir_trash=yes".  Do I need to do that with <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
->?</DT
-><DD
-><P
->	    No.  <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> is smart enough to figure out message deletion without this extra
-	    crutch.  You'll get the best results if you don't use this setting, in
-	    fact.
-	  </P
-></DD
-><DT
->I've upgraded and now <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
->
-	crashes when I start it up!  Why?</DT
-><DD
-><P
->You need to upgrade your configuration
-	file.  See  at the end of this
-	      manual.
-	    </P
-></DD
-><DT
->How do I specify the names of my folders?</DT
-><DD
-><P
->	    You do not need to.  <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> is smart
-	    enough to automatically figure out what folders are present
-	    on the IMAP server and synchronize them.  You can use the
-	    <SPAN
-CLASS="PROPERTY"
->folderfilter</SPAN
-> and <SPAN
-CLASS="PROPERTY"
->nametrans</SPAN
->
-	    configuration file options to request certain folders and rename them
-	    as they come in if you like.
-	  </P
-></DD
-><DT
->How can I prevent certain folders from being synced?</DT
-><DD
-><P
->	    Use the <SPAN
-CLASS="PROPERTY"
->folderfilter</SPAN
-> option in the configuration file.
-	  </P
-></DD
-><DT
->How can I add or delete a folder?</DT
-><DD
-><P
->	    <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> does not currently provide this feature, but if you create a new
-	    folder on the IMAP server, it will be created locally automatically.
-	  </P
-></DD
-><DT
->Are there any other warnings that I should be aware of?</DT
-><DD
-><P
->	    Yes; see the Notes section below.
-	  </P
-></DD
-><DT
->What is the mailbox name recorder (mbnames) for?</DT
-><DD
-><P
->Some mail readers, such as Mutt, are not capable
-	    of automatically determining the names of your mailboxes.
-	    <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> can help these programs by writing the names
-	    of the folders in a format you specify.  See the example
-	    <TT
-CLASS="FILENAME"
->offlineimap.conf</TT
-> for details.
-	  </P
-></DD
-><DT
->Can I synchronize multiple accounts with <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
->?</DT
-><DD
-><P
->Sure.  Just name them all in the
-	    <SPAN
-CLASS="PROPERTY"
->accounts</SPAN
-> line in the <SPAN
-CLASS="PROPERTY"
->general</SPAN
->
-	    section of the configuration file, and add a per-account section
-	    for each one.
-	  </P
-></DD
-><DT
->Does <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> support POP?</DT
-><DD
-><P
->No.  POP is not robust enough to do a completely reliable
-	    multi-machine synchronization like <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> can do.  <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
->
-	    will not support it.
-	  </P
-></DD
-><DT
->Does <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> support mailbox formats other than Maildir?</DT
-><DD
-><P
->Not at present.  There is no technical reason not to; just no
-	    demand yet.  Maildir is a superior format anyway.
-	      However, <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> can sync between two IMAP
-	  servers, and some IMAP servers support other formats.  You
-	  could install an IMAP server on your local machine and have
-	  <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> sync to that.
-	  </P
-></DD
-><DT
->[technical] Why are your Maildir message filenames so huge?</DT
-><DD
-><P
-><SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> has two relevant principles: 1) never modifying your
-	    messages in any way and 2) ensuring 100% reliable synchronizations.
-	    In order to do a reliable sync, <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
->
-	    must have a way to
-	    uniquely identify each e-mail.  Three pieces of information are
-	    required to do this: your account name, the folder name, and the
-	    message UID.  The account name can be calculated from the path in
-	    which your messages are.  The folder name can usually be as well, BUT
-	    some mail clients move messages between folders by simply moving the
-	    file, leaving the name intact.
-	  </P
-><P
->	    So, <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> must store both a UID folder ID.  The folder ID is
-	    necessary so <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> can detect a message moved to a different
-	    folder.  <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> stores the UID (U= number) and an md5sum of the
-	    foldername (FMD5= number) to facilitate this.
-	  </P
-></DD
-><DT
->What is the speed of <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
->'s sync?</DT
-><DD
-><P
->OfflineIMAP
-	    versions 2.0 and above contain a multithreaded system.  A good way to
-	    experiment is by setting <SPAN
-CLASS="PROPERTY"
->maxsyncaccounts</SPAN
-> to 3 and <SPAN
-CLASS="PROPERTY"
->maxconnections</SPAN
-> to 3
-	    in each account clause.
-	  </P
-><P
->This lets OfflineIMAP open up multiple connections simultaneously.
-	    That will let it process multiple folders and messages at once.  In
-	    most cases, this will increase performance of the sync.
-	  </P
-><P
->Don't set the number too high.  If you do that, things might actually
-	    slow down as your link gets saturated.  Also, too many connections can
-	    cause mail servers to have excessive load.  Administrators might take
-	    unkindly to this, and the server might bog down.  There are many
-	    variables in the optimal setting; experimentation may help.
-	  </P
-><P
->An informal benchmark yields these results for my setup:
-	  </P
-><P
-></P
-><UL
-><LI
-><P
->10 minutes with MacOS X Mail.app "manual cache"
-	      </P
-></LI
-><LI
-><P
->5 minutes with GNUS agent sync</P
-></LI
-><LI
-><P
->20 seconds with OfflineIMAP 1.x</P
-></LI
-><LI
-><P
->9 seconds with OfflineIMAP 2.x</P
-></LI
-><LI
-><P
->3 seconds with OfflineIMAP 3.x "cold start"</P
-></LI
-><LI
-><P
->2 seconds with OfflineIMAP 3.x "held connection"</P
-></LI
-></UL
-></DD
-><DT
->Can I use <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> on Windows?</DT
-><DD
-><P
->              These answers have been reported by <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
->
-              users.  I do not run <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> on Windows myself, so
-              I can't directly address their accuracy.
-            </P
-><P
->              The basic answer is that it's possible and doesn't
-              require hacking <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> source code.  However,
-              it's not necessarily trivial.  The information below is
-              based in instructions submitted by Chris Walker.
-            </P
-><P
->              First, you must run <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> in the <A
-HREF="http://www.cygwin.com/"
-TARGET="_top"
->Cygwin</A
->
-              environment.  
-            </P
-><P
->              Next, you'll need to mount your Maildir directory in a
-              special way.  There is information for doing that at
-              <A
-HREF="http://barnson.org/node/view/295"
-TARGET="_top"
->http://barnson.org/node/view/295</A
->.
-              That site gives this example:
-            </P
-><PRE
-CLASS="PROGRAMLISTING"
->mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
-            </PRE
-><P
->              That URL also has more details on making OfflineIMAP
-              work with Windows.
-            </P
-></DD
-></DL
-></DIV
-></DIV
-><DIV
-CLASS="REFSECT1"
-><A
-NAME="AEN508"
 ></A
 ><H2
 >Conforming To</H2
@@ -1894,14 +1518,14 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN521"
+NAME="AEN394"
 ></A
 ><H2
 >Notes</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN523"
+NAME="AEN396"
 ></A
 ><H3
 >Deleting Local Folders</H3
@@ -1933,7 +1557,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN530"
+NAME="AEN403"
 ></A
 ><H3
 >Multiple Instances</H3
@@ -1962,7 +1586,7 @@ CLASS="PROPERTY"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN537"
+NAME="AEN410"
 ></A
 ><H3
 >Copying Messages Between Folders</H3
@@ -1992,77 +1616,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN543"
-></A
-><H3
->Use with Evolution</H3
-><P
-><SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> can work with Evolution.  To do so, first configure
-	  your <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> account to have
-	  <CODE
-CLASS="OPTION"
->sep = /</CODE
-> in its configuration.  Then, configure
-	  Evolution with the
-	  "Maildir-format mail directories" server type.  For the path, you will need to
-	  specify the name of the top-level folder
-	  <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->inside</I
-></SPAN
-> your <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> storage location.
-	  You're now set!
-	</P
-></DIV
-><DIV
-CLASS="REFSECT2"
-><A
-NAME="AEN551"
-></A
-><H3
->Use with KMail</H3
-><P
->At this time, I believe that <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> with Maildirs
-	  is not compatible
-	  with KMail.  KMail cannot work in any mode other than to move
-	  all messages out of all folders immediately, which (besides being annoying
-	  and fundamentally broken) is incompatible with
-	<SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
->.
-	</P
-><P
->	  However, I have made KMail version 3 work well with
-	  <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> by installing an IMAP server on my local
-	  machine, having <SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> sync to that, and pointing
-	  KMail at the same server.
-	</P
-></DIV
-><DIV
-CLASS="REFSECT2"
-><A
-NAME="AEN559"
+NAME="AEN416"
 ></A
 ><H3
 >Mailing List</H3
@@ -2081,17 +1635,17 @@ TARGET="_top"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN563"
+NAME="AEN420"
 ></A
 ><H3
 >Bugs</H3
 ><P
->Reports of bugs should be sent via e-mail to the
-	  <SPAN
+>          Reports of bugs should be reported online at the
+          <SPAN
 CLASS="APPLICATION"
 >OfflineIMAP</SPAN
-> mailing list at offlineimap at complete
-          dot org.  Debian users are encouraged to instead use the
+> homepage.
+          Debian users are encouraged to instead use the
 	Debian
           bug-tracking system.
 	</P
@@ -2163,12 +1717,12 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN581"
+NAME="AEN438"
 ></A
 ><H2
 >Copyright</H2
 ><P
->OfflineIMAP, and this manual, are Copyright &copy; 2002, 2003 John Goerzen.</P
+>OfflineIMAP, and this manual, are Copyright &copy; 2002 - 2006 John Goerzen.</P
 ><P
 >	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -2201,7 +1755,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN590"
+NAME="AEN447"
 ></A
 ><H2
 >Author</H2
@@ -2230,25 +1784,11 @@ TARGET="_top"
 >homepage</A
 >.
       </P
-><P
->	<SPAN
-CLASS="APPLICATION"
->OfflineIMAP</SPAN
-> may also be downloaded using Subversion.  Additionally,
-	the distributed tar.gz may be updated with a simple "svn update"
-	command; it is ready to go.  For information on getting OfflineIMAP
-	with Subversion, please visit the
-	<A
-HREF="http://svn.complete.org/"
-TARGET="_top"
->complete.org Subversion page</A
->.
-      </P
 ></DIV
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN601"
+NAME="AEN455"
 ></A
 ><H2
 >See Also</H2
@@ -2266,7 +1806,7 @@ CLASS="APPLICATION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN606"
+NAME="AEN460"
 ></A
 ><H2
 >History</H2
