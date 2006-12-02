@@ -1,0 +1,335 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+ <title>FrequentlyAskedQuestions - OfflineIMAP</title><link rel="start" href="/offlineimap/wiki" /><link rel="search" href="/offlineimap/search" /><link rel="help" href="/offlineimap/wiki/TracGuide" /><link rel="stylesheet" href="/static/css/trac.css" type="text/css" /><link rel="stylesheet" href="/static/css/wiki.css" type="text/css" /><link rel="icon" href="/offlineimap/chrome/common/trac.ico" type="image/x-icon" /><link rel="shortcut icon" href="/offlineimap/chrome/common/trac.ico" type="image/x-icon" /><link rel="alternate" href="/offlineimap/wiki/FrequentlyAskedQuestions?format=txt" title="Plain Text" type="text/x-trac-wiki" /><style type="text/css">
+#adbar {
+  position: absolute;
+  top: 152px;
+  right: 10px;
+  width: 140px;
+  z-index: 1;
+  text-align: right;
+}
+
+/* For Mozilla and Safari */
+*>#content {
+	padding: 0;
+	margin: 15px 140px 0 15px;
+	text-align: left;
+	min-height: 770px;
+}
+#header h1 { margin:  0 0 -4.5em; }
+
+*>#jg-content { background: #fff; padding-left: 10px; }
+
+/* For IE */
+* html #content {
+	padding: 0;
+	margin: 15px 140px 0 15px;
+	text-align: left;
+	height: 770px;
+}
+* html #jg-content { background: #fff; padding-left: 10px; }
+* html #header h1 {margin: 0 0 0; }             
+
+body { background: #404040; }
+
+/* #dirlist td.change { white-space: normal; } */
+/* #dirlist td.name { width: auto; } */
+
+</style>
+ <script type="text/javascript" src="/static/js/trac.js"></script>
+</head>
+<body>
+
+
+<div id="jg-content">
+
+
+<div id="banner">
+
+<div id="header"><h1><a href="http://software.complete.org/offlineimap/">OfflineIMAP</a> - FrequentlyAskedQuestions
+  </h1><br/></div>
+
+<form id="search" action="/offlineimap/search" method="get">
+ <div>
+  <label for="proj-search">Search:</label>
+  <input type="text" id="proj-search" name="q" size="10" accesskey="f" value="" />
+  <input type="submit" value="Search" />
+  <input type="hidden" name="wiki" value="on" />
+  <input type="hidden" name="changeset" value="on" />
+  <input type="hidden" name="ticket" value="on" />
+ </div>
+</form>
+
+
+
+<div id="metanav" class="nav"><ul><li class="first"><a href="/offlineimap/login">Login</a></li><li><a href="/offlineimap/settings">Settings</a></li><li><a accesskey="6" href="/offlineimap/wiki/TracGuide">Help/Guide</a></li><li><a href="/offlineimap/about">About Trac</a></li><li class="last"><a href="/offlineimap/register">Register</a></li></ul></div>
+</div>
+
+<div id="mainnav" class="nav"><ul><li class="active first"><a accesskey="1" href="/offlineimap/wiki">Wiki</a></li><li><a accesskey="2" href="/offlineimap/timeline">Timeline</a></li><li><a accesskey="3" href="/offlineimap/roadmap">Roadmap</a></li><li><a href="/offlineimap/browser">Browse Source</a></li><li><a href="/offlineimap/report">View Tickets</a></li><li><a accesskey="4" href="/offlineimap/search">Search</a></li><li class="last"><a href="/offlineimap/downloads">Downloads</a></li></ul></div>
+<div id="main">
+
+
+
+
+<div id="ctxtnav" class="nav">
+ <h2>Wiki Navigation</h2>
+ <ul>
+   <li><a href="/offlineimap/wiki">Start Page</a></li>
+   <li><a href="/offlineimap/wiki/TitleIndex">Index by Title</a></li>
+   <li><a href="/offlineimap/wiki/RecentChanges">Index by Date</a></li>
+   <li class="last"><a href="/offlineimap/wiki/FrequentlyAskedQuestions?action=diff&amp;version=14">Last Change</a></li>
+ </ul>
+ <hr />
+</div>
+
+<div id="content" class="wiki">
+
+ 
+  
+  
+   
+   <div class="wikipage">
+    <div id="searchable"><h1 id="OfflineIMAPFAQ">OfflineIMAP FAQ</h1>
+<p>
+Here are answers to some of the most frequently asked questions about OfflineIMAP.
+</p>
+<hr />
+<p>
+<ol><li><a href="#BasicQuestions">Basic Questions</a><ol><li><a href="#WheredoIgetOfflineIMAP">Where do I get OfflineIMAP?</a></li><li>
+<a href="#Howfastisit">How fast is it?</a></li><li>
+<a href="#WhatplatformsdoesOfflineIMAPsupport">What platforms does OfflineIMAP support?</a><ol><li><a href="#UseonWindows">Use on Windows</a></li></ol><li><a href="#DoesOfflineIMAPsupportmboxmhoranythingelseotherthanMaildir">Does OfflineIMAP support mbox, mh, or anything else other than Maildir?</a></li><li>
+<a href="#HowdoIaddordeleteafolder">How do I add or delete a folder?</a></li><li>
+<a href="#DoesOfflineIMAPsupportPOP">Does OfflineIMAP support POP?</a></li></ol><li><a href="#ConfigurationQuestions">Configuration Questions</a><ol><li><a href="#CanIsynchronizemultipleaccountswithOfflineIMAP">Can I synchronize multiple accounts with OfflineIMAP?</a></li><li>
+<a href="#HowdoIspecifythenamesoffolders">How do I specify the names of folders?</a></li><li>
+<a href="#HowdoIpreventcertainfoldersfrombeingsynced">How do I prevent certain folders from being synced?</a></li><li>
+<a href="#Whatisthemailboxnamerecordermbnamesfor">What is the mailbox name recorder (mbnames) for?</a></li></ol><li><a href="#IMAPServerNotes">IMAP Server Notes</a><ol><li><a href="#MicrosoftExchange">Microsoft Exchange</a></li></ol><li><a href="#ClientNotes">Client Notes</a><ol><li><a href="#WhatclientsdoesOfflineIMAPworkwith">What clients does OfflineIMAP work with?</a></li><li>
+<a href="#Evolution">Evolution</a></li><li>
+<a href="#KMail">KMail</a></li><li>
+<a href="#Mutt">Mutt</a><ol><li><a href="#DoIneedtousesetmaildir_trash">Do I need to use set maildir_trash?</a></li><li>
+<a href="#HowdoIsetupmbnameswithmutt">How do I set up mbnames with mutt?</a></li></ol><li></li></ol><li><a href="#MiscellaneousQuestions">Miscellaneous Questions</a><ol><li><a href="#WhyareyourMaildirmessagefilenamessolong">Why are your Maildir message filenames so long?</a></li></ol></li></ol></li></ol>
+</p>
+<hr />
+<h2 id="BasicQuestions">Basic Questions</h2>
+<h3 id="WheredoIgetOfflineIMAP">Where do I get OfflineIMAP?</h3>
+<p>
+From its <a href="/offlineimap/downloads">downloads page</a>.
+</p>
+<h3 id="Howfastisit">How fast is it?</h3>
+<p>
+OfflineIMAP has a multithreaded sync, so it should have very nice performance.
+</p>
+<p>
+OfflineIMAP versions 2.0 and above contain a multithreaded system. A good way to experiment is by setting maxsyncaccounts to 3 and maxconnections to 3 in each account clause.
+</p>
+<p>
+This lets OfflineIMAP open up multiple connections simultaneously. That will let it process multiple folders and messages at once. In most cases, this will increase performance of the sync.
+</p>
+<p>
+Don't set the number too high. If you do that, things might actually slow down as your link gets saturated. Also, too many connections can cause mail servers to have excessive load. Administrators might take unkindly to this, and the server might bog down. There are many variables in the optimal setting; experimentation may help.
+</p>
+<p>
+An informal benchmark yields these results for my setup:
+</p>
+<ul><li>10 minutes with MacOS X Mail.app "manual cache"
+</li><li>5 minutes with GNUS agent sync
+</li><li>20 seconds with OfflineIMAP 1.x
+</li><li>9 seconds with OfflineIMAP 2.x
+</li><li>3 seconds with OfflineIMAP 3.x "cold start"
+</li><li>2 seconds with OfflineIMAP 3.x "held connection"
+</li></ul><h3 id="WhatplatformsdoesOfflineIMAPsupport">What platforms does OfflineIMAP support?</h3>
+<p>
+It should run on most platforms supported by Python, which are quite a few. I do not support Windows myself, but some have made it work there.  
+</p>
+<h4 id="UseonWindows">Use on Windows</h4>
+<p>
+These answers have been reported by OfflineIMAP  users. I do not run OfflineIMAP on Windows myself, so I can't directly address their accuracy.
+</p>
+<p>
+The basic answer is that it's possible and doesn't require hacking OfflineIMAP source code. However, it's not necessarily trivial. The information below is based in instructions submitted by Chris Walker.
+</p>
+<p>
+First, you must run OfflineIMAP in the <a class="ext-link" href="http://www.cygwin.com/"><span class="icon">Cygwin</span></a> environment.  The Windows filesystem is not powerful enough to accomodate Maildir by itself.
+</p>
+<p>
+Next, you'll need to mount your Maildir directory in a special way. There is information for doing that at <a class="ext-link" href="http://barnson.org/node/view/295"><span class="icon">http://barnson.org/node/view/295</span></a>. That site gives this example:
+</p>
+<pre class="wiki">mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
+</pre><p>
+                
+That URL also has more details on making OfflineIMAP work with Windows. 
+</p>
+<h3 id="DoesOfflineIMAPsupportmboxmhoranythingelseotherthanMaildir">Does OfflineIMAP support mbox, mh, or anything else other than Maildir?</h3>
+<p>
+Not directly.  Maildir was the easiest to implement.  I'm not planning to write mbox code for OfflineIMAP, though if someone sent me well-written mbox support and pledged to support it, I'd commit it to the tree.
+</p>
+<p>
+However, OfflineIMAP can directly sync accounts on two different IMAP servers together.  So you could install an IMAP server on your local machine that supports mbox, sync to it, and then instruct your mail readers to use the mboxes.
+</p>
+<p>
+Or you could install whatever IMAP server you like on the local machine, and point your mail readers to that IMAP server on localhost.
+</p>
+<h3 id="HowdoIaddordeleteafolder">How do I add or delete a folder?</h3>
+<p>
+OfflineIMAP does not currently provide this feature.  However, if you create a new folder on the remote server, OfflineIMAP will detect this and create the corresponding folder locally automatically.
+</p>
+<h3 id="DoesOfflineIMAPsupportPOP">Does OfflineIMAP support POP?</h3>
+<p>
+No.  POP is not robust enough to do a completely reliable multi-machine sync like OfflineIMAP can do.
+</p>
+<p>
+OfflineIMAP will never support POP.
+</p>
+<h2 id="ConfigurationQuestions">Configuration Questions</h2>
+<h3 id="CanIsynchronizemultipleaccountswithOfflineIMAP">Can I synchronize multiple accounts with OfflineIMAP?</h3>
+<p>
+Of course!
+</p>
+<p>
+Just name them all in the accounts line in the general section of the configuration file, and add a per-account section for each one.
+</p>
+<p>
+You can also optionally use the -a option when you run OfflineIMAP to request that it only operate upon a subset of the accounts for a particular run.
+</p>
+<h3 id="HowdoIspecifythenamesoffolders">How do I specify the names of folders?</h3>
+<p>
+You do not need to.  OfflineIMAP is smart enough to automatically figure out what folders are present on the IMAP server and synchronize them.  You can use the folderfilter and nametrans configuration file options to request only certain folders and rename them as they come in if you like.
+</p>
+<h3 id="HowdoIpreventcertainfoldersfrombeingsynced">How do I prevent certain folders from being synced?</h3>
+<p>
+Use the folderfilter option.
+</p>
+<h3 id="Whatisthemailboxnamerecordermbnamesfor">What is the mailbox name recorder (mbnames) for?</h3>
+<p>
+Some mail readers, such as mutt, are not capable of automatically determining the names of your mailboxes.  OfflineIMAP can help these programs by writing the names of the folders in a format you specify.  See the example offlineimap.conf for details.
+</p>
+<h2 id="IMAPServerNotes">IMAP Server Notes</h2>
+<p>
+In general, OfflineIMAP works with any IMAP server that provides compatibility with the IMAP RFCs.  Some servers provide imperfect compatibility that may be good enough for general clients.  OfflineIMAP needs more features, specifically support for UIDs, in order to do its job accurately and completely.
+</p>
+<h3 id="MicrosoftExchange">Microsoft Exchange</h3>
+<p>
+Several users have reported problems with Microsoft Exchange servers in conjunction with OfflineIMAP. This generally seems to be related to the Exchange servers not properly following the IMAP standards.
+</p>
+<p>
+Mark Biggers has posted some <a class="ext-link" href="http://lists.complete.org/offlineimap@complete.org/2005/09/msg00011.html.gz"><span class="icon">information</span></a> to the OfflineIMAP mailing list about how he made it work.
+</p>
+<p>
+Other users have indicated that older (5.5) releases of Exchange are so bad that they will likely not work at all.
+</p>
+<p>
+I do not have access to Exchange servers for testing, so any problems with it, if they can even be solved at all, will require help from OfflineIMAP users to find and fix. 
+</p>
+<h2 id="ClientNotes">Client Notes</h2>
+<h3 id="WhatclientsdoesOfflineIMAPworkwith">What clients does OfflineIMAP work with?</h3>
+<p>
+Any client that supports Maildir.  Popular ones include mutt, Evolution, Thunderbird, and KMail.
+</p>
+<p>
+With OfflineIMAP's IMAP-to-IMAP syncing, this can be even wider; see the next question.
+</p>
+<h3 id="Evolution">Evolution</h3>
+<p>
+OfflineIMAP can work with Evolution. To do so, first configure your OfflineIMAP account to have <tt>sep = /</tt> in its configuration. Then, configure Evolution with the "Maildir-format mail directories" server type. For the path, you will need to specify the name of the top-level folder <i>inside</i> your OfflineIMAP storage location. You're now set!
+</p>
+<h3 id="KMail">KMail</h3>
+<p>
+At this time, I believe that OfflineIMAP with Maildirs is not compatible with KMail. KMail cannot work in any mode other than to move all messages out of all folders immediately, which (besides being annoying and fundamentally broken) is incompatible with OfflineIMAP.
+</p>
+<p>
+However, I have made KMail version 3 work well with OfflineIMAP by installing an IMAP server on my local machine, having OfflineIMAP sync to that, and pointing KMail at the same server. 
+</p>
+<h3 id="Mutt">Mutt</h3>
+<h4 id="DoIneedtousesetmaildir_trash">Do I need to use set maildir_trash?</h4>
+<p>
+Other IMAP sync programs require you to do this.  OfflineIMAP does not.  You'll get the best results without it, in fact, though turning it on won't hurt anything.
+</p>
+<h4 id="HowdoIsetupmbnameswithmutt">How do I set up mbnames with mutt?</h4>
+<p>
+The example offlineimap.conf file has this example.  In your offlineimap.conf, you'll list this:
+</p>
+<pre class="wiki">[mbnames]
+enabled = yes
+filename = ~/Mutt/muttrc.mailboxes
+header = "mailboxes "
+peritem = "+%(accountname)s/%(foldername)s"
+sep = " "
+footer = "\n"
+</pre><p>
+Then in your .muttrc:
+</p>
+<pre class="wiki">source ~/Mutt/muttrc.mailboxes
+</pre><p>
+You might also want to set:
+</p>
+<pre class="wiki">set mbox_type=Maildir
+set folder=$HOME/Maildirpath
+</pre><p>
+The OfflineIMAP manual has a more detailed example for doing this for multiple accounts.
+</p>
+<h2 id="MiscellaneousQuestions">Miscellaneous Questions</h2>
+<h3 id="WhyareyourMaildirmessagefilenamessolong">Why are your Maildir message filenames so long?</h3>
+<p>
+OfflineIMAP has two relevant principles: 1) never modifying your messages in any way and 2) ensuring 100% reliable synchronizations. In order to do a reliable sync, OfflineIMAP  must have a way to uniquely identify each e-mail. Three pieces of information are required to do this: your account name, the folder name, and the message UID. The account name can be calculated from the path in which your messages are. The folder name can usually be as well, BUT some mail clients move messages between folders by simply moving the file, leaving the name intact.
+</p>
+<p>
+So, OfflineIMAP must store both a UID folder ID. The folder ID is necessary so OfflineIMAP can detect a message moved to a different folder. OfflineIMAP stores the UID (U= number) and an md5sum of the foldername (FMD5= number) to facilitate this. 
+</p>
+</div>
+   </div>
+   
+  
+  <script type="text/javascript">
+   addHeadingLinks(document.getElementById("searchable"), "Link to this section");
+  </script>
+ 
+ 
+</div>
+
+<script type="text/javascript">searchHighlight()</script>
+<div id="altlinks"><h3>Download in other formats:</h3><ul><li class="first last"><a href="/offlineimap/wiki/FrequentlyAskedQuestions?format=txt">Plain Text</a></li></ul></div>
+
+</div>
+
+<div id="footer">
+ <hr />
+ <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/static/trac_logo_mini.png" height="30" width="107"
+   alt="Trac Powered"/></a>
+ <p class="left">
+  Powered by <a href="/offlineimap/about"><strong>Trac 0.10.2</strong></a><br />
+  By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+ </p>
+ <p class="right">
+  A <a href="http://www.complete.org/">Complete.Org</a> site
+ </p>
+</div>
+
+</div> <!-- jg-content -->
+<div id="adbar">
+<script type="text/javascript"><!--
+google_ad_client = "pub-2027358522178233";
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = "120x600_as";
+google_ad_type = "text";
+//2006-11-29: Software
+google_ad_channel = "8038008654";
+google_color_border = "940F04";
+google_color_bg = "FFFFFF";
+google_color_link = "CC0000";
+google_color_text = "000000";
+google_color_url = "940F04";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+  </script>
+</div>
+
+
+
+ </body>
+</html>
+
