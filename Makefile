@@ -1,4 +1,4 @@
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002 - 2006 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@ clean:
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 
-doc:
+doc: faq
 	docbook2man offlineimap.sgml
 	docbook2man offlineimap.sgml
 	docbook2html -u offlineimap.sgml
@@ -41,6 +41,9 @@ doc:
 	ps2pdf manual.ps
 	groff -Tascii -man offlineimap.1 | sed $$'s/.\b//g' > manual.txt
 	-rm manpage.links manpage.refs manual.ps
+
+faq:
+	curl -o FAQ.html http://software.complete.org/offlineimap/wiki/FrequentlyAskedQuestions
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
