@@ -36,6 +36,7 @@ build-stamp: configure-stamp
 
 	# Add here commands to compile the package.
 	$(PYTHON) setup.py build
+	make doc
 	#/usr/bin/docbook-to-man debian/pygopherd.sgml > pygopherd.1
 
 	touch build-stamp

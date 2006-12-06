@@ -20,7 +20,7 @@ TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
 
 clean:
-	-python2.3 setup.py clean --all
+	-python setup.py clean --all
 	-rm -f `find . -name "*~"`
 	-rm -f `find . -name "*.tmp"`
 	-rm -f bin/offlineimapc
@@ -31,6 +31,7 @@ clean:
 	-rm -f `find . -name ".cache*"`
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
+	-rm -f manual.html manual.pdf manual.txt offlineimap.1
 
 doc: faq
 	docbook2man offlineimap.sgml
