@@ -1,5 +1,5 @@
 # Maildir folder support
-# Copyright (C) 2002 - 2006 John Goerzen
+# Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -170,8 +170,7 @@ class MaildirFolder(BaseFolder):
         file = open(os.path.join(tmpdir, tmpmessagename), "wt")
         file.write(content)
         file.close()
-        if rtime != None:
-            os.utime(os.path.join(tmpdir,tmpmessagename), (rtime,rtime))
+        os.utime(os.path.join(tmpdir,tmpmessagename), (rtime,rtime))
         ui.debug('maildir', 'savemessage: moving from %s to %s' % \
                  (tmpmessagename, messagename))
         os.link(os.path.join(tmpdir, tmpmessagename),

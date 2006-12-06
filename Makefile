@@ -1,4 +1,4 @@
-# Copyright (C) 2002 - 2006 John Goerzen
+# Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-VERSION=4.0.16
+VERSION=4.0.15
 TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
 
@@ -32,7 +32,7 @@ clean:
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 
-doc: faq
+doc:
 	docbook2man offlineimap.sgml
 	docbook2man offlineimap.sgml
 	docbook2html -u offlineimap.sgml
@@ -41,9 +41,6 @@ doc: faq
 	ps2pdf manual.ps
 	groff -Tascii -man offlineimap.1 | sed $$'s/.\b//g' > manual.txt
 	-rm manpage.links manpage.refs manual.ps
-
-faq:
-	curl -o FAQ.html http://software.complete.org/offlineimap/wiki/FrequentlyAskedQuestions
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
