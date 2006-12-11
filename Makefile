@@ -33,7 +33,7 @@ clean:
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 	-rm -f manual.html manual.pdf manual.txt offlineimap.1
 
-doc: 
+doc: faq
 	docbook2man offlineimap.sgml
 	docbook2man offlineimap.sgml
 	docbook2html -u offlineimap.sgml

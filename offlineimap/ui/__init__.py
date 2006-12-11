@@ -24,6 +24,13 @@ except ImportError:
     pass
 
 try:
+    import Tkinter
+except ImportError:
+    pass
+else:
+    import Tk
+
+try:
     import curses
 except ImportError:
     pass
@@ -31,7 +38,6 @@ else:
     import Curses
 
 import Noninteractive
-import Machine
 
 # Must be last
 import detector

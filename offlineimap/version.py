@@ -1,11 +1,11 @@
 productname = 'OfflineIMAP'
-versionstr = "5.99.0"
+versionstr = "4.0.16"
 
 versionlist = versionstr.split(".")
 major = versionlist[0]
 minor = versionlist[1]
 patch = versionlist[2]
-copyright = "Copyright (C) 2002 - 2007 John Goerzen"
+copyright = "Copyright (C) 2002 - 2006 John Goerzen"
 author = "John Goerzen"
 author_email = "jgoerzen@complete.org"
 description = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
@@ -18,7 +18,7 @@ COPYING for details.  This is free software, and you are welcome
 to distribute it under the conditions laid out in COPYING."""
 
 homepage = "http://software.complete.org/offlineimap/"
-license = """Copyright (C) 2002 - 2007 John Goerzen <jgoerzen@complete.org>
+license = """Copyright (C) 2002 - 2006 John Goerzen <jgoerzen@complete.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,13 +34,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA"""
 
-def getcmdhelp():
-    from offlineimap.ui import detector
-    import os
-    uilist = ""
-    for ui in detector.DEFAULT_UI_LIST:
-        uilist += "                " + ui + os.linesep
-    return """
+cmdhelp = """
        offlineimap [ -1 ] [ -P profiledir ] [ -a accountlist ]  [
        -c configfile  ] [ -d debugtype[,debugtype...]  ] [ -o ] [
        -u interface ]
@@ -108,4 +102,8 @@ def getcmdhelp():
               states that it cannot be.   Use  this  option  with
               care.   The  pre-defined  options, described in the
               USER INTERFACES section of the man page, are:
-""" + uilist
+"""
+from offlineimap.ui import detector
+import os
+for ui in detector.DEFAULT_UI_LIST:
+    cmdhelp += "                " + ui + os.linesep

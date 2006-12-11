@@ -1,27 +1,3 @@
-offlineimap (5.99.0) unstable; urgency=low
-
-  * Re-scan remote folder names at the start of each sync run.
-    Closes: #329000, #396772.
-  * Drop internal imaplib.py in favor of default Python one.
-  * New user interface: Machine.MachineUI.  Machine-parsable.
-  * Drop all the Tk interfaces.
-    Closes: #265088.
-  * Now supports specifying timeouts for socket operations.
-  * Updated copyright files.
-  * Improved interaction with Dovecot maildirs.  Patch thanks to Asheesh
-    Laroia.
-  * Improved filesystem syncing semantics, which should reduce duplication
-    in the event of hardware failure.
-  * UID validity diagnostics improvement.  Patch from David Favro.
-  * No longer leave preauthtunnel zombies with autorefresh.
-    Patch from Peter Colberg.  Closes: #410730.
-  * --help now shows available UIs.  Patch from Daniel Rall.
-  * Check all resolved addresses.  Patch from Mark Brown.  Closes: #413030.
-  * Removed todo directory from tree, moved to BTS.
-  * New PID file to enable third-party "kill offlineimap" tools.
-
- -- John Goerzen <jgoerzen@complete.org>  Tue, 10 Jul 2007 04:10:26 -0500
-
 offlineimap (4.0.16) unstable; urgency=low
 
   * Apply patches from Danial Burrows to improve situation when

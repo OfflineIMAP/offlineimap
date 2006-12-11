@@ -1,5 +1,5 @@
 # OfflineIMAP initialization code
-# Copyright (C) 2002-2007 John Goerzen
+# Copyright (C) 2002, 2003 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,15 +16,14 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import imaplib
-from offlineimap import imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
+from offlineimap import imaplib, imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
 from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from offlineimap.ui import UIBase
 import re, os, os.path, offlineimap, sys
 from offlineimap.CustomConfig import CustomConfigParser
 from threading import *
-import threading, socket
+import threading
 from getopt import getopt
 
 try:
@@ -50,14 +49,14 @@ def startup(versionno):
     assert versionno == version.versionstr, "Revision of main program (%s) does not match that of library (%s).  Please double-check your PYTHONPATH and installation locations." % (versionno, version.versionstr)
     options = {}
     if '--help' in sys.argv[1:]:
-        sys.stdout.write(version.getcmdhelp() + "\n")
+        sys.stdout.write(version.cmdhelp + "\n")
         sys.exit(0)
 
     for optlist in getopt(sys.argv[1:], 'P:1oa:c:d:l:u:h')[0]:
         options[optlist[0]] = optlist[1]
 
     if options.has_key('-h'):
-        sys.stdout.write(version.getcmdhelp())
+        sys.stdout.write(version.cmdhelp)
         sys.stdout.write("\n")
         sys.exit(0)
     configfilename = os.path.expanduser("~/.offlineimaprc")
@@ -103,19 +102,8 @@ def startup(versionno):
     lock(config, ui)
 
     try:
-        pidfd = open(config.getmetadatadir() + "/pid", "w")
-        pidfd.write(os.getpid())
-        pidfd.close()
-    except:
-        pass
-
-    try:
         if options.has_key('-l'):
             sys.stderr = ui.logfile
-
-        socktimeout = config.getdefaultint("general", "socktimeout", 0)
-        if socktimeout > 0:
-            socket.setdefaulttimeout(socktimeout)
 
         activeaccounts = config.get("general", "accounts")
         if options.has_key('-a'):

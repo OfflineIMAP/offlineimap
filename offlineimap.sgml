@@ -208,13 +208,14 @@ remoteuser = jgoerzen
 	  </listitem>
 	  <listitem>
 	    <para>
-	      You must have Python version 2.4 or above installed.
+	      You must have Python version 2.2.1 or above installed.
 	      If you are
 	      running on Debian GNU/Linux, this requirement will automatically be
 	      taken care of for you.  If you do not have Python already, check with
 	      your system administrator or operating system vendor; or, download it from
 	      <ulink url="http://www.python.org/">the Python website</ulink>.
-		If you intend to use the SSL interface, your
+	      If you intend to use the Tk interface, you must have Tkinter
+		(python-tk) installed.  If you intend to use the SSL interface, your
 		Python must have been built with SSL support.
 	    </para>
 	  </listitem>
@@ -411,21 +412,26 @@ cd offlineimap-x.y.z</ProgramListing>
 	option can override the configuration file setting.  The available
 	values for the configuration file or command-line are described
 	in this section.</para>
-
       <refsect2>
-	<title>Curses.Blinkenlights</title>
-	<para>
-                Curses.Blinkenlights is an interface designed to be sleek, fun to watch, and
+	<title>Tk.Blinkenlights</title>
+	<para>Tk.Blinkenlights is an interface designed to be sleek, fun to watch, and
 	  informative of the overall picture of what &OfflineIMAP;
 	  is doing.  I consider it to be the best general-purpose interface in
 	  &OfflineIMAP;.
 	</para>
 	<para>
-	  Curses.Blinkenlights contains a row of
-          "LEDs" with command buttons and a log.
-	  The  log shows more
+	  Tk.Blinkenlights contains, by default, a small window with a row of
+	  LEDs, a small log, and a row of command buttons.
+	  The total size of the window is
+	  very small, so it uses little desktop space, yet it is quite
+	  functional.  The optional, toggleable, log shows more
 	  detail about what is happening and is color-coded to match the color
 	  of the lights.
+	</para>
+	<para>
+	  Tk.Blinkenlights is the only user interface that has configurable
+	  parameters; see the example <filename>offlineimap.conf</filename>
+	  for more details.
 	</para>
 	<para>
 	  Each light in the Blinkenlights interface represents a thread
@@ -533,6 +539,32 @@ cd offlineimap-x.y.z</ProgramListing>
       </refsect2>
 
       <refsect2>
+	<title>Curses.Blinkenlights</title>
+	<para>
+	  Curses.Blinkenlights is an interface very similar to Tk.Blinkenlights,
+	  but is designed to be run in a console window (an xterm, Linux virtual
+	  terminal, etc.)  Since it doesn't have access to graphics, it isn't
+	  quite as pretty, but it still gets the job done.
+	</para>
+	<para>Please see the Tk.Blinkenlights section above for more
+	  information about the colors used in this interface.
+	</para>
+      </refsect2>
+
+      <refsect2>
+	<title>Tk.VerboseUI</title>
+	<para>
+	  Tk.VerboseUI (formerly known as Tk.TkUI) is a graphical interface
+	  that presents a variable-sized window.  In the window, each
+	  currently-executing thread has a section where its name and current
+	  status are displayed.  This interface is best suited to people running
+	  on slower connections, as you get a lot of detail, but for fast
+	  connections, the detail may go by too quickly to be useful.  People
+	  with fast connections may wish to use Tk.Blinkenlights instead.
+	</para>
+      </refsect2>
+
+      <refsect2>
 	<title>TTY.TTYUI</title>
 	<para>
 	  TTY.TTYUI interface is for people running in basic, non-color terminals.  It
@@ -564,15 +596,6 @@ cd offlineimap-x.y.z</ProgramListing>
 	  is not capable of reading a password from the keyboard; account
 	  passwords must be specified using one of the configuration file options.
 	</para>
-      </refsect2>
-
-      <refsect2>
-        <title>Machine.MachineUI</title>
-        <para>
-           Machine.MachineUI generates output in a machine-parsable format.
-           It is designed for other programs that will interface
-           to OfflineIMAP.
-        </para>
       </refsect2>
 
     </refsect1>
@@ -708,24 +731,6 @@ def test_mycmp():
 	</para>
       </refsect2>
     </refsect1>
-
-    <refsect1>
-            <title>Signals</title>
-            <para>
-                    OfflineIMAP writes its current PID into
-                    <filename>~/.offlineimap/pid</filename> when it is
-                    running.  It is not guaranteed that this file will
-                    not exist when OfflineIMAP is not running.
-            </para>
-            <!-- not done yet 
-            <para>
-                    You can send SIGINT to OfflineIMAP using this file to
-                    kill it.  SIGUSR1 will force an immediate resync of
-                    all accounts.  This will be ignored for all accounts
-                    for which a resync is already in progress.
-            </para>
-            -->
-    </refsect1>
       
     <refsect1>
       <title>Errors</title>
@@ -831,8 +836,8 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	<para>&OfflineIMAP; is not designed to have several instances (for instance, a cron job and an interactive invocation) run over the same
 	  mailbox simultaneously.  It will perform a check on startup and
 	  abort if another &OfflineIMAP; is already running.  If you need
-	  to schedule synchronizations, you'll probably find
-	  <property>autorefresh</property> settings more convenient than cron.
+	  to schedule synchronizations, please use the
+	  <property>autorefresh</property> settings rather than cron.
 	  Alternatively, you can set a separate <property>metadata</property>
 	  directory for each instance.
 	</para>

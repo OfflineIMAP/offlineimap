@@ -85,30 +85,30 @@ class IMAPRepository(BaseRepository):
         return self.imapserver.delim
 
     def gethost(self):
-        host = None
+	host = None
         localeval = self.localeval
 
         if self.config.has_option(self.getsection(), 'remotehosteval'):
-            host = self.getconf('remotehosteval')
-        if host != None:
-            return localeval.eval(host)
+	    host = self.getconf('remotehosteval')
+	if host != None:
+	    return localeval.eval(host)
 
-        host = self.getconf('remotehost')
-        if host != None:
-            return host
+	host = self.getconf('remotehost')
+	if host != None:
+	    return host
 
     def getuser(self):
-        user = None
+	user = None
         localeval = self.localeval
 
         if self.config.has_option(self.getsection(), 'remoteusereval'):
-            user = self.getconf('remoteusereval')
-        if user != None:
-            return localeval.eval(user)
+	    user = self.getconf('remoteusereval')
+	if user != None:
+	    return localeval.eval(user)
 
-        user = self.getconf('remoteuser')
-        if user != None:
-            return user
+	user = self.getconf('remoteuser')
+	if user != None:
+	    return user
 
     def getport(self):
         return self.getconfint('remoteport', None)
@@ -129,13 +129,13 @@ class IMAPRepository(BaseRepository):
         return self.getconfboolean('expunge', 1)
 
     def getpassword(self):
-        passwd = None
+	passwd = None
         localeval = self.localeval
 
         if self.config.has_option(self.getsection(), 'remotepasseval'):
-            passwd = self.getconf('remotepasseval')
-        if passwd != None:
-            return localeval.eval(passwd)
+	    passwd = self.getconf('remotepasseval')
+	if passwd != None:
+	    return localeval.eval(passwd)
 
         password = self.getconf('remotepass', None)
         if password != None:
@@ -145,7 +145,7 @@ class IMAPRepository(BaseRepository):
             fd = open(os.path.expanduser(passfile))
             password = fd.readline().strip()
             fd.close()
-            return password
+	    return password
         return None
 
     def getfolder(self, foldername):
@@ -155,13 +155,6 @@ class IMAPRepository(BaseRepository):
 
     def getfoldertype(self):
         return folder.IMAP.IMAPFolder
-
-    def connect(self):
-        imapobj = self.imapserver.acquireconnection()
-        self.imapserver.releaseconnection(imapobj)
-
-    def forgetfolders(self):
-        self.folders = None
 
     def getfolders(self):
         if self.folders != None:

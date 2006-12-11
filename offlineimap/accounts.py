@@ -1,6 +1,8 @@
 # Copyright (C) 2003 John Goerzen
 # <jgoerzen@complete.org>
 #
+# Portions Copyright (C) 2007 David Favro <offlineimap@meta-dynamic.com>
+#
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -146,8 +148,6 @@ class AccountSynchronizationMixin:
                 folderthreads.append(thread)
             threadutil.threadsreset(folderthreads)
             mbnames.write()
-            localrepos.forgetfolders()
-            remoterepos.forgetfolders()
             localrepos.holdordropconnections()
             remoterepos.holdordropconnections()
         finally:

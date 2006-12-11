@@ -1,5 +1,5 @@
 # IMAP folder support
-# Copyright (C) 2002-2007 John Goerzen
+# Copyright (C) 2002-2004 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -17,8 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from Base import BaseFolder
-import imaplib
-from offlineimap import imaputil, imaplibutil
+from offlineimap import imaputil, imaplib
 from offlineimap.ui import UIBase
 from offlineimap.version import versionstr
 import rfc822, time, string, random, binascii, re
@@ -99,7 +98,7 @@ class IMAPFolder(BaseFolder):
             else:
                 uid = long(options['UID'])
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
-                rtime = imaplibutil.Internaldate2epoch(messagestr)
+                rtime = imaplib.Internaldate2epoch(messagestr)
                 self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
 
     def getmessagelist(self):
@@ -271,7 +270,7 @@ class IMAPFolder(BaseFolder):
                 return
             result = imapobj.uid('store', '%d' % uid, 'FLAGS',
                                  imaputil.flagsmaildir2imap(flags))
-            assert result[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
+            assert result[0] == 'OK', 'Error with store: ' + r[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         result = result[1][0]
@@ -317,7 +316,7 @@ class IMAPFolder(BaseFolder):
                             imaputil.listjoin(uidlist),
                             operation + 'FLAGS',
                             imaputil.flagsmaildir2imap(flags))
-            assert r[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
+            assert r[0] == 'OK', 'Error with store: ' + r[1]
             r = r[1]
         finally:
             self.imapserver.releaseconnection(imapobj)

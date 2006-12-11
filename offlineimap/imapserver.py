@@ -1,5 +1,5 @@
 # IMAP server support
-# Copyright (C) 2002 - 2007 John Goerzen
+# Copyright (C) 2002, 2003 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,8 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import imaplib
-from offlineimap import imaplibutil, imaputil, threadutil
+from offlineimap import imaplib, imaputil, threadutil
 from offlineimap.ui import UIBase
 from threading import *
 import thread, hmac, os
@@ -32,8 +31,8 @@ class UsefulIMAPMixIn:
         return None
 
     def select(self, mailbox='INBOX', readonly=None, force = 0):
-        if (not force) and self.getselectedfolder() == mailbox \
-           and self.is_readonly == readonly:
+        if (not force) and self.getselectedfolder() == mailbox:
+            self.is_readonly = readonly
             # No change; return.
             return
         result = self.__class__.__bases__[1].select(self, mailbox, readonly)
@@ -44,18 +43,9 @@ class UsefulIMAPMixIn:
         else:
             self.selectedfolder = None
 
-    def _mesg(self, s, secs=None):
-        imaplibutil.new_mesg(self, s, secs)
-
-class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4):
-    def open(self, host = '', port = imaplib.IMAP4_PORT):
-        imaplibutil.new_open(self, host, port)
-
-class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL):
-    def open(self, host = '', port = imaplib.IMAP4_SSL_PORT):
-        imaplibutil.new_open_ssl(self, host, port)
-
-class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplibutil.IMAP4_Tunnel): pass
+class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4): pass
+class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL): pass
+class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplib.IMAP4_Tunnel): pass
 
 class IMAPServer:
     def __init__(self, config, reposname,
@@ -67,7 +57,6 @@ class IMAPServer:
         self.username = username
         self.password = password
         self.passworderror = None
-        self.goodpassword = None
         self.hostname = hostname
         self.tunnel = tunnel
         self.port = port
@@ -88,9 +77,6 @@ class IMAPServer:
         self.reference = reference
 
     def getpassword(self):
-        if self.goodpassword != None:
-            return self.goodpassword
-
         if self.password != None and self.passworderror == None:
             return self.password
 
@@ -113,7 +99,6 @@ class IMAPServer:
 
 
     def releaseconnection(self, connection):
-        """Releases a connection, returning it to the pool."""
         self.connectionlock.acquire()
         self.assignedconnections.remove(connection)
         self.availableconnections.append(connection)
@@ -182,8 +167,6 @@ class IMAPServer:
                 UIBase.getglobalui().connecting(self.hostname, self.port)
                 imapobj = UsefulIMAP4(self.hostname, self.port)
 
-            imapobj.mustquote = imaplibutil.mustquote
-
             if not self.tunnel:
                 try:
                     if 'AUTH=CRAM-MD5' in imapobj.capabilities:
@@ -197,7 +180,6 @@ class IMAPServer:
                         self.plainauth(imapobj)
                     # Would bail by here if there was a failure.
                     success = 1
-                    self.goodpassword = self.password
                 except imapobj.error, val:
                     self.passworderror = str(val)
                     self.password = None

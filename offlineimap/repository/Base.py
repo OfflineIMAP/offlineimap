@@ -1,5 +1,5 @@
 # Base repository support
-# Copyright (C) 2002-2007 John Goerzen
+# Copyright (C) 2002, 2003, 2006 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -63,15 +63,6 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
 
 	return self.restore_folder_atimes()
 
-    def connect(self):
-        """Establish a connection to the remote, if necessary.  This exists
-        so that IMAP connections can all be established up front, gathering
-        passwords as needed.  It was added in order to support the
-        error recovery -- we need to connect first outside of the error
-        trap in order to validate the password, and that's the point of
-        this function."""
-        pass
-
     def holdordropconnections(self):
         pass
 
@@ -105,11 +96,6 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
     def getfolders(self):
         """Returns a list of ALL folders on this server."""
         return []
-
-    def forgetfolders(self):
-        """Forgets the cached list of folders, if any.  Useful to run
-        after a sync run."""
-        pass
 
     def getsep(self):
         raise NotImplementedError
