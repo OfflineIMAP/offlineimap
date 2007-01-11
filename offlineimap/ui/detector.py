@@ -19,13 +19,15 @@
 import offlineimap.ui
 import sys
 
+DEFAULT_UI_LIST = ('Tk.Blinkenlights', 'Tk.VerboseUI',
+                   'Curses.Blinkenlights', 'TTY.TTYUI',
+                   'Noninteractive.Basic', 'Noninteractive.Quiet')
+
 def findUI(config, chosenUI=None):
-    uistrlist = ['Tk.Blinkenlights', 'Tk.VerboseUI',
-                 'Curses.Blinkenlights', 'TTY.TTYUI',
-                 'Noninteractive.Basic', 'Noninteractive.Quiet']
+    uistrlist = list(DEFAULT_UI_LIST)
     namespace={}
     for ui in dir(offlineimap.ui):
-        if ui.startswith('_') or ui=='detector':
+        if ui.startswith('_') or ui in ('detector', 'UIBase'):
             continue
         namespace[ui]=getattr(offlineimap.ui, ui)
 

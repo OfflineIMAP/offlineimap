@@ -100,7 +100,10 @@ cmdhelp = """
               configuration file.  The UI specified with -u  will
               be  forced to be used, even if its isuable() method
               states that it cannot be.   Use  this  option  with
-              care.   The  pre-defined  options are listed in the
-              USER INTERFACES section.
-
+              care.   The  pre-defined  options, described in the
+              USER INTERFACES section of the man page, are:
 """
+from offlineimap.ui import detector
+import os
+for ui in detector.DEFAULT_UI_LIST:
+    cmdhelp += "                " + ui + os.linesep
