@@ -218,15 +218,26 @@ class IMAP4:
         """
         self.host = host
         self.port = port
-        #This connects to the first ip found ipv4/ipv6
-        #Added by Adriaan Peeters <apeeters@lashout.net> based on a socket
-        #example from the python documentation:
-        #http://www.python.org/doc/lib/socket-example.html
         res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
                                  socket.SOCK_STREAM)
-        af, socktype, proto, canonname, sa = res[0]
         self.sock = socket.socket(af, socktype, proto)
-        self.sock.connect(sa)
+
+        # Try each address returned by getaddrinfo in turn until we
+        # manage to connect to one.
+        # Try all the addresses in turn until we connect()
+        last_error = 0
+        for remote in res:
+            af, socktype, proto, canonname, sa = remote
+            self.sock = socket.socket(af, socktype, proto)
+            last_error = self.sock.connect_ex(sa)
+            print af
+            if last_error == 0:
+                break
+            else:
+                self.sock.close()
+        if last_error != 0:
+            # FIXME
+            raise socket.error(last_error)
         self.file = self.sock.makefile('rb')
 
     def read(self, size):
@@ -1132,9 +1143,20 @@ class IMAP4_SSL(IMAP4):
         #http://www.python.org/doc/lib/socket-example.html
         res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
                                  socket.SOCK_STREAM)
-        af, socktype, proto, canonname, sa = res[0]
-        self.sock = socket.socket(af, socktype, proto)
-        self.sock.connect(sa)
+        # Try all the addresses in turn until we connect()
+        last_error = 0
+        for remote in res:
+            af, socktype, proto, canonname, sa = remote
+            self.sock = socket.socket(af, socktype, proto)
+            last_error = self.sock.connect_ex(sa)
+            print af
+            if last_error == 0:
+                break
+            else:
+                self.sock.close()
+        if last_error != 0:
+            # FIXME
+            raise socket.error(last_error)
         if sys.version_info[0] <= 2 and sys.version_info[1] <= 2:
             self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
         else:
