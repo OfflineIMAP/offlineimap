@@ -22,7 +22,7 @@ Public functions:       Internaldate2tuple
 
 __version__ = "2.52"
 
-import binascii, re, socket, time, random, sys, os
+import binascii, re, socket, time, random, subprocess, sys, os
 from offlineimap.ui import UIBase
 
 __all__ = ["IMAP4", "Internaldate2tuple", "Internaldate2epoch",
@@ -1049,7 +1049,9 @@ class IMAP4_Tunnel(IMAP4):
 
     def open(self, host, port):
         """The tunnelcmd comes in on host!"""
-        self.outfd, self.infd = os.popen2(host, "t", 0)
+        self.process = subprocess.Popen(host, shell=True, close_fds=True,
+                        stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        (self.outfd, self.infd) = (self.process.stdin, self.process.stdout)
 
     def read(self, size):
         retval = ''
@@ -1066,6 +1068,7 @@ class IMAP4_Tunnel(IMAP4):
     def shutdown(self):
         self.infd.close()
         self.outfd.close()
+        self.process.wait()
         
 
 class sslwrapper:
