@@ -2,6 +2,8 @@
 # Copyright (C) 2002 John Goerzen
 # <jgoerzen@complete.org>
 #
+# Portions Copyright (C) 2007 David Favro <offlineimap@meta-dynamic.com>
+#
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -208,9 +210,10 @@ class UIBase:
                                              s.getnicename(srcrepos),
                                              s.getnicename(destrepos)))
 
-    def validityproblem(s, folder, saved, new):
-        s.warn("UID validity problem for folder %s (saved %d; got %d); skipping it" % \
-               (folder.getname(), saved, new))
+    def validityproblem(s, folder):
+        s.warn("UID validity problem for folder %s (repo %s) (saved %d; got %d); skipping it" % \
+               (folder.getname(), folder.getrepository().getname(),
+                folder.getsaveduidvalidity(), folder.getuidvalidity()))
 
     def loadmessagelist(s, repos, folder):
         if s.verbose > 0:
