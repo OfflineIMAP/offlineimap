@@ -1,6 +1,8 @@
 # Copyright (C) 2003 John Goerzen
 # <jgoerzen@complete.org>
 #
+# Portions Copyright (C) 2007 David Favro <offlineimap@meta-dynamic.com>
+#
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -189,13 +191,11 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     # empty.  So, in that case, just save it off.
     if len(localfolder.getmessagelist()) or len(statusfolder.getmessagelist()):
         if not localfolder.isuidvalidityok():
-            ui.validityproblem(localfolder, localfolder.getsaveduidvalidity(),
-                               localfolder.getuidvalidity())
+            ui.validityproblem(localfolder)
 	    localrepos.restore_atime()
             return
         if not remotefolder.isuidvalidityok():
-            ui.validityproblem(remotefolder, remotefolder.getsaveduidvalidity(),
-                               remotefolder.getuidvalidity())
+            ui.validityproblem(remotefolder)
 	    localrepos.restore_atime()
             return
     else:
