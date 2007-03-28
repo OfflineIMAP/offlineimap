@@ -230,7 +230,6 @@ class IMAP4:
             af, socktype, proto, canonname, sa = remote
             self.sock = socket.socket(af, socktype, proto)
             last_error = self.sock.connect_ex(sa)
-            print af
             if last_error == 0:
                 break
             else:
@@ -1152,7 +1151,6 @@ class IMAP4_SSL(IMAP4):
             af, socktype, proto, canonname, sa = remote
             self.sock = socket.socket(af, socktype, proto)
             last_error = self.sock.connect_ex(sa)
-            print af
             if last_error == 0:
                 break
             else:
