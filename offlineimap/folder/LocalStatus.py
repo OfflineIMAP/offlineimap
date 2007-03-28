@@ -1,5 +1,5 @@
 # Local status cache virtual folder
-# Copyright (C) 2002 - 2003 John Goerzen
+# Copyright (C) 2002 - 2007 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -90,8 +90,18 @@ class LocalStatusFolder(BaseFolder):
                 flags.sort()
                 flags = ''.join(flags)
                 file.write("%s:%s\n" % (msg['uid'], flags))
+            file.flush()
+            os.fsync(file.fileno())
             file.close()
             os.rename(self.filename + ".tmp", self.filename)
+
+            try:
+                fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
+                os.fsync(fd)
+                os.close(fd)
+            except:
+                pass
+
         finally:
             self.savelock.release()
 

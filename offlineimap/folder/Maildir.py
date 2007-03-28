@@ -1,5 +1,5 @@
 # Maildir folder support
-# Copyright (C) 2002 - 2006 John Goerzen
+# Copyright (C) 2002 - 2007 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -169,6 +169,11 @@ class MaildirFolder(BaseFolder):
         ui.debug('maildir', 'savemessage: using temporary name %s' % tmpmessagename)
         file = open(os.path.join(tmpdir, tmpmessagename), "wt")
         file.write(content)
+
+        # Make sure the data hits the disk
+        file.flush()
+        os.fsync(file.fileno())
+
         file.close()
         if rtime != None:
             os.utime(os.path.join(tmpdir,tmpmessagename), (rtime,rtime))
@@ -177,6 +182,15 @@ class MaildirFolder(BaseFolder):
         os.link(os.path.join(tmpdir, tmpmessagename),
                 os.path.join(newdir, messagename))
         os.unlink(os.path.join(tmpdir, tmpmessagename))
+
+        try:
+            # fsync the directory (safer semantics in Linux)
+            fd = os.open(newdir, os.O_RDONLY)
+            os.fsync(fd)
+            os.close(fd)
+        except:
+            pass
+
         self.messagelist[uid] = {'uid': uid, 'flags': [],
                                  'filename': os.path.join(newdir, messagename)}
         self.savemessageflags(uid, flags)
