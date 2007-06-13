@@ -130,6 +130,8 @@ class MaildirFolder(BaseFolder):
         return st.st_mtime
 
     def savemessage(self, uid, content, flags, rtime):
+        # This function only ever saves to tmp/,
+        # but it calls savemessageflags() to actually save to cur/ or new/.
         ui = UIBase.getglobalui()
         ui.debug('maildir', 'savemessage: called to write with flags %s and content %s' % \
                  (repr(flags), repr(content)))
@@ -140,12 +142,9 @@ class MaildirFolder(BaseFolder):
             # We already have it.
             self.savemessageflags(uid, flags)
             return uid
-        if 'S' in flags:
-            # If a message has been seen, it goes into the cur
-            # directory.  CR debian#152482, [complete.org #4]
-            newdir = os.path.join(self.getfullname(), 'cur')
-        else:
-            newdir = os.path.join(self.getfullname(), 'new')
+
+        # Otherwise, save the message in tmp/ and then call savemessageflags()
+        # to give it a permanent home.
         tmpdir = os.path.join(self.getfullname(), 'tmp')
         messagename = None
         attempts = 0
@@ -179,20 +178,21 @@ class MaildirFolder(BaseFolder):
             os.utime(os.path.join(tmpdir,tmpmessagename), (rtime,rtime))
         ui.debug('maildir', 'savemessage: moving from %s to %s' % \
                  (tmpmessagename, messagename))
-        os.link(os.path.join(tmpdir, tmpmessagename),
-                os.path.join(newdir, messagename))
-        os.unlink(os.path.join(tmpdir, tmpmessagename))
+        if tmpmessagename != messagename: # then rename it
+            os.link(os.path.join(tmpdir, tmpmessagename),
+                    os.path.join(tmpdir, messagename))
+            os.unlink(os.path.join(tmpdir, tmpmessagename))
 
         try:
             # fsync the directory (safer semantics in Linux)
-            fd = os.open(newdir, os.O_RDONLY)
+            fd = os.open(tmpdir, os.O_RDONLY)
             os.fsync(fd)
             os.close(fd)
         except:
             pass
 
         self.messagelist[uid] = {'uid': uid, 'flags': [],
-                                 'filename': os.path.join(newdir, messagename)}
+                                 'filename': os.path.join(tmpdir, messagename)}
         self.savemessageflags(uid, flags)
         ui.debug('maildir', 'savemessage: returning uid %d' % uid)
         return uid
@@ -203,6 +203,7 @@ class MaildirFolder(BaseFolder):
     def savemessageflags(self, uid, flags):
         oldfilename = self.messagelist[uid]['filename']
         newpath, newname = os.path.split(oldfilename)
+        tmpdir = os.path.join(self.getfullname(), 'tmp')
         if 'S' in flags:
             # If a message has been seen, it goes into the cur
             # directory.  CR debian#152482, [complete.org #4]
@@ -224,6 +225,10 @@ class MaildirFolder(BaseFolder):
             os.rename(oldfilename, newfilename)
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename
+
+        # By now, the message had better not be in tmp/ land!
+        final_dir, final_name = os.path.split(self.messagelist[uid]['filename'])
+        assert final_dir != tmpdir
 
     def deletemessage(self, uid):
         if not uid in self.messagelist:
