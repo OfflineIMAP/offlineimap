@@ -32,8 +32,8 @@ class UsefulIMAPMixIn:
         return None
 
     def select(self, mailbox='INBOX', readonly=None, force = 0):
-        if (not force) and self.getselectedfolder() == mailbox:
-            self.is_readonly = readonly
+        if (not force) and self.getselectedfolder() == mailbox \
+           and self.is_readonly == readonly:
             # No change; return.
             return
         result = self.__class__.__bases__[1].select(self, mailbox, readonly)
