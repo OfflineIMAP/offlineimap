@@ -24,13 +24,6 @@ except ImportError:
     pass
 
 try:
-    import Tkinter
-except ImportError:
-    pass
-else:
-    import Tk
-
-try:
     import curses
 except ImportError:
     pass

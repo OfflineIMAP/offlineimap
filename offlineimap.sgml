@@ -214,8 +214,7 @@ remoteuser = jgoerzen
 	      taken care of for you.  If you do not have Python already, check with
 	      your system administrator or operating system vendor; or, download it from
 	      <ulink url="http://www.python.org/">the Python website</ulink>.
-	      If you intend to use the Tk interface, you must have Tkinter
-		(python-tk) installed.  If you intend to use the SSL interface, your
+		If you intend to use the SSL interface, your
 		Python must have been built with SSL support.
 	    </para>
 	  </listitem>
@@ -412,26 +411,21 @@ cd offlineimap-x.y.z</ProgramListing>
 	option can override the configuration file setting.  The available
 	values for the configuration file or command-line are described
 	in this section.</para>
+
       <refsect2>
-	<title>Tk.Blinkenlights</title>
-	<para>Tk.Blinkenlights is an interface designed to be sleek, fun to watch, and
+	<title>Curses.Blinkenlights</title>
+	<para>
+                Curses.Blinkenlights is an interface designed to be sleek, fun to watch, and
 	  informative of the overall picture of what &OfflineIMAP;
 	  is doing.  I consider it to be the best general-purpose interface in
 	  &OfflineIMAP;.
 	</para>
 	<para>
-	  Tk.Blinkenlights contains, by default, a small window with a row of
-	  LEDs, a small log, and a row of command buttons.
-	  The total size of the window is
-	  very small, so it uses little desktop space, yet it is quite
-	  functional.  The optional, toggleable, log shows more
+	  Curses.Blinkenlights contains a row of
+          "LEDs" with command buttons and a log.
+	  The  log shows more
 	  detail about what is happening and is color-coded to match the color
 	  of the lights.
-	</para>
-	<para>
-	  Tk.Blinkenlights is the only user interface that has configurable
-	  parameters; see the example <filename>offlineimap.conf</filename>
-	  for more details.
 	</para>
 	<para>
 	  Each light in the Blinkenlights interface represents a thread
@@ -536,32 +530,6 @@ cd offlineimap-x.y.z</ProgramListing>
 	    pockets muss; relaxen und watchen das blinkenlichten.
 	  </para>
 	</blockquote>
-      </refsect2>
-
-      <refsect2>
-	<title>Curses.Blinkenlights</title>
-	<para>
-	  Curses.Blinkenlights is an interface very similar to Tk.Blinkenlights,
-	  but is designed to be run in a console window (an xterm, Linux virtual
-	  terminal, etc.)  Since it doesn't have access to graphics, it isn't
-	  quite as pretty, but it still gets the job done.
-	</para>
-	<para>Please see the Tk.Blinkenlights section above for more
-	  information about the colors used in this interface.
-	</para>
-      </refsect2>
-
-      <refsect2>
-	<title>Tk.VerboseUI</title>
-	<para>
-	  Tk.VerboseUI (formerly known as Tk.TkUI) is a graphical interface
-	  that presents a variable-sized window.  In the window, each
-	  currently-executing thread has a section where its name and current
-	  status are displayed.  This interface is best suited to people running
-	  on slower connections, as you get a lot of detail, but for fast
-	  connections, the detail may go by too quickly to be useful.  People
-	  with fast connections may wish to use Tk.Blinkenlights instead.
-	</para>
       </refsect2>
 
       <refsect2>
