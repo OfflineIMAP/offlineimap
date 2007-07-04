@@ -109,6 +109,7 @@ class IMAPServer:
 
 
     def releaseconnection(self, connection):
+        """Releases a connection, returning it to the pool."""
         self.connectionlock.acquire()
         self.assignedconnections.remove(connection)
         self.availableconnections.append(connection)
