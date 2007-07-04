@@ -1,5 +1,5 @@
 # OfflineIMAP initialization code
-# Copyright (C) 2002, 2003 John Goerzen
+# Copyright (C) 2002-2007 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import imaplib, imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
+import imaplib
+from offlineimap import imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
 from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from offlineimap.ui import UIBase

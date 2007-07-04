@@ -1,4 +1,4 @@
-# imaplib
+# imaplib utilities
 # Copyright (C) 2002-2007 John Goerzen
 # <jgoerzen@complete.org>
 #
