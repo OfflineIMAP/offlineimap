@@ -45,7 +45,7 @@ class UsefulIMAPMixIn:
             self.selectedfolder = None
 
     def _mesg(self, s, secs=None):
-        imaplibutil.new_mseg(self, s, secs)
+        imaplibutil.new_mesg(self, s, secs)
 
 class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4):
     def open(self, host = '', port = imaplib.IMAP4_PORT):
@@ -55,7 +55,7 @@ class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL):
     def open(self, host = '', port = imaplib.IMAP4_SSL_PORT):
         imaplibutil.new_open_ssl(self, host, port)
 
-class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplib.IMAP4_Tunnel): pass
+class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplibutil.IMAP4_Tunnel): pass
 
 class IMAPServer:
     def __init__(self, config, reposname,

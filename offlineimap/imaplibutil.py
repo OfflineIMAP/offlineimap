@@ -20,6 +20,10 @@ import re, string, types, binascii, socket, time, random, subprocess, sys, os
 from offlineimap.ui import UIBase
 from imaplib import *
 
+# Import the symbols we need that aren't exported by default
+from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
+
+
 class IMAP4_Tunnel(IMAP4):
     """IMAP4 client class over a tunnel
 
