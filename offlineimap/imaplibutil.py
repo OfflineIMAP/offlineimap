@@ -18,8 +18,9 @@
 
 import re, string, types, binascii, socket, time, random, subprocess, sys, os
 from offlineimap.ui import UIBase
+from imaplib import *
 
-class IMAP4_Tunnel(imaplib.IMAP4):
+class IMAP4_Tunnel(IMAP4):
     """IMAP4 client class over a tunnel
 
     Instantiate with: IMAP4_Tunnel(tunnelcmd)
@@ -28,7 +29,7 @@ class IMAP4_Tunnel(imaplib.IMAP4):
     The result will be in PREAUTH stage."""
 
     def __init__(self, tunnelcmd):
-        imaplib.IMAP4.__init__(self, tunnelcmd)
+        IMAP4.__init__(self, tunnelcmd)
 
     def open(self, host, port):
         """The tunnelcmd comes in on host!"""
@@ -53,7 +54,6 @@ class IMAP4_Tunnel(imaplib.IMAP4):
         self.outfd.close()
         self.process.wait()
         
-# FIXME: need to use this in SSL instances
 class sslwrapper:
     def __init__(self, sslsock):
         self.sslsock = sslsock
@@ -93,16 +93,13 @@ class sslwrapper:
             else:
                 retval += linebuf
 
-# FIXME: need to override this in IMAP instances
-
 def new_mesg(self, s, secs=None):
             if secs is None:
                 secs = time.time()
             tm = time.strftime('%M:%S', time.localtime(secs))
             UIBase.getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
 
-# FIXME: use this
-def new_open(self, host = '', port = imaplib.IMAP4_PORT):
+def new_open(self, host = '', port = IMAP4_PORT):
         """Setup connection to remote server on "host:port"
             (default: localhost:standard IMAP4 port).
         This connection will be used by the routines:

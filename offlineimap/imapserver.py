@@ -1,5 +1,5 @@
 # IMAP server support
-# Copyright (C) 2002, 2003 John Goerzen
+# Copyright (C) 2002 - 2007 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import imaplib, imaputil, threadutil
+import imaplib
+from offlineimap import imaplibutil, imaputil, threadutil
 from offlineimap.ui import UIBase
 from threading import *
 import thread, hmac, os
@@ -43,8 +44,17 @@ class UsefulIMAPMixIn:
         else:
             self.selectedfolder = None
 
-class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4): pass
-class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL): pass
+    def _mesg(self, s, secs=None):
+        imaplibutil.new_mseg(self, s, secs)
+
+class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4):
+    def open(self, host = '', port = imaplib.IMAP4_PORT):
+        imaplibutil.new_open(self, host, port)
+
+class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL):
+    def open(self, host = '', port = imaplib.IMAP4_SSL_PORT):
+        imaplibutil.new_open_ssl(self, host, port)
+
 class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplib.IMAP4_Tunnel): pass
 
 class IMAPServer:
@@ -166,6 +176,8 @@ class IMAPServer:
             else:
                 UIBase.getglobalui().connecting(self.hostname, self.port)
                 imapobj = UsefulIMAP4(self.hostname, self.port)
+
+            imapobj.mustquote = imaplibutil.mustquote
 
             if not self.tunnel:
                 try:
