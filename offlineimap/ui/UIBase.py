@@ -24,11 +24,21 @@ debugtypes = {'imap': 'IMAP protocol debugging',
               'maildir': 'Maildir repository debugging',
               'thread': 'Threading debugging'}
 
+globalui = None
+def setglobalui(newui):
+    global globalui
+    globalui = newui
+def getglobalui():
+    global globalui
+    return globalui
+
 class UIBase:
     def __init__(s, config, verbose = 0):
         s.verbose = verbose
         s.config = config
         s.debuglist = []
+        s.debugmessages = {}
+        s.debugmsglen = 50
         s.threadaccounts = {}
         s.logfile = None
     
@@ -66,19 +76,19 @@ class UIBase:
         else:
             s._msg("WARNING: " + msg)
 
-    def registerthread(s, threadname, accountname): #FIX IN CODE
+    def registerthread(s, account):
         """Provides a hint to UIs about which account this particular
         thread is processing."""
-        if s.threadaccounts.has_key(threadname):
+        if s.threadaccounts.has_key(threading.currentThread()):
             raise ValueError, "Thread %s already registered (old %s, new %s)" %\
-                  (threadname
+                  (threading.currentThread().getName(),
                    s.getthreadaccount(s), account)
-        s.threadaccounts[threadname] = account
+        s.threadaccounts[threading.currentThread()] = account
 
-    def unregisterthread(s, threadname): #FIX IN CODE
+    def unregisterthread(s, thr):
         """Recognizes a thread has exited."""
-        if s.threadaccounts.has_key(threadname):
-            del s.threadaccounts[threadname]
+        if s.threadaccounts.has_key(thr):
+            del s.threadaccounts[thr]
 
     def getthreadaccount(s, thr = None):
         if not thr:
@@ -87,7 +97,16 @@ class UIBase:
             return s.threadaccounts[thr]
         return '*Control'
 
-    def print_debug(s, debugtype, msg):
+    def debug(s, debugtype, msg):
+        thisthread = threading.currentThread()
+        if s.debugmessages.has_key(thisthread):
+            s.debugmessages[thisthread].append("%s: %s" % (debugtype, msg))
+        else:
+            s.debugmessages[thisthread] = ["%s: %s" % (debugtype, msg)]
+
+        while len(s.debugmessages[thisthread]) > s.debugmsglen:
+            s.debugmessages[thisthread] = s.debugmessages[thisthread][1:]
+
         if debugtype in s.debuglist:
             if not s._log("DEBUG[%s]: %s" % (debugtype, msg)):
                 s._display("DEBUG[%s]: %s" % (debugtype, msg))
@@ -105,8 +124,16 @@ class UIBase:
         global debugtypes
         s._msg("Now debugging for %s: %s" % (debugtype, debugtypes[debugtype]))
 
+    def invaliddebug(s, debugtype):
+        s.warn("Invalid debug type: %s" % debugtype)
+
     def locked(s):
         raise Exception, "Another OfflineIMAP is running with the same metadatadir; exiting."
+
+    def getnicename(s, object):
+        prelimname = str(object.__class__).split('.')[-1]
+        # Strip off extra stuff.
+        return re.sub('(Folder|Repository)', '', prelimname)
 
     def isusable(s):
         """Returns true if this UI object is usable in the current
@@ -116,19 +143,19 @@ class UIBase:
 
     ################################################## INPUT
 
-    def getpass(s, accountname, errmsg = None): # FIX IN CODE
+    def getpass(s, accountname, config, errmsg = None):
         raise NotImplementedError
 
     def folderlist(s, list):
         return ', '.join(["%s[%s]" % (s.getnicename(x), x.getname()) for x in list])
 
     ################################################## WARNINGS
-    def msgtoreadonly(s, destfoldernicename, destfoldername, uid): #FIX IN CODE # FIX IN CODE
+    def msgtoreadonly(s, destfolder, uid, content, flags):
         if not (config.has_option('general', 'ignore-readonly') and config.getboolean("general", "ignore-readonly")):
             s.warn("Attempted to synchronize message %d to folder %s[%s], but that folder is read-only.  The message will not be copied to that folder." % \
-                   (uid, destfoldernicename, destfoldername))
+                   (uid, s.getnicename(destfolder), destfolder.getname()))
 
-    def flagstoreadonly(s, destfolder, uidlist): #FIX IN CODE
+    def flagstoreadonly(s, destfolder, uidlist, flags):
         if not (config.has_option('general', 'ignore-readonly') and config.getboolean("general", "ignore-readonly")):
             s.warn("Attempted to modify flags for messages %s in folder %s[%s], but that folder is read-only.  No flags have been modified for that message." % \
                    (str(uidlist), s.getnicename(destfolder), destfolder.getname()))
