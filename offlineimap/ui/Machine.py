@@ -16,40 +16,70 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import offlineimap.version
-import urllib
+import urllib, sys, re, time, traceback, threading, thread
+from UIBase import UIBase
 from threading import *
 
-class MachineParsable(UIBase):
+protocol = '6.0.0'
+
+class MachineUI(UIBase):
     def __init__(s, config, verbose = 0):
         UIBase.__init__(s, config, verbose)
+        s.safechars=" ;,./-_=+"
         s.iswaiting = 0
         s.outputlock = Lock()
+        s._printData('__init__', protocol)
 
     def isusable(s):
         return True
 
     def _printData(s, command, data, dolock = True):
-        s._printDataOut(s, 'msg', command, data, dolock)
+        s._printDataOut('msg', command, data, dolock)
 
     def _printWarn(s, command, data, dolock = True):
-        s._printDataOut(s, 'warn', command, data, dolock)
+        s._printDataOut('warn', command, data, dolock)
 
     def _printDataOut(s, datatype, command, data, dolock = True):
         if dolock:
             s.outputlock.acquire()
         try:
-            print "%s\n%s\n%s\n%s\n" % \
+            print "%s:%s:%s:%s" % \
                     (datatype,
-                     urllib.quote(command, ' '), 
-                     urllib.quote(currentThread().getName(), ' '),
-                     urllib.quote(data, ' '))
+                     urllib.quote(command, s.safechars), 
+                     urllib.quote(currentThread().getName(), s.safechars),
+                     urllib.quote(data, s.safechars))
             sys.stdout.flush()
         finally:
             if dolock:
                 s.outputlock.release()
 
+    def _display(s, msg):
+        s._printData('_display', msg)
+
+    def warn(s, msg, minor):
+        s._printData('warn', '%s\n%d' % (msg, int(minor)))
+
+    def registerthread(s, account):
+        UIBase.registerthread(s, account)
+        s._printData('registerthread', account)
+
+    def unregisterthread(s, thread):
+        UIBase.unregisterthread(s, thread)
+        s._printData('unregisterthread', thread.getName())
+
+    def debugging(s, debugtype):
+        s._printData('debugging', debugtype)
+
     def acct(s, accountname):
         s._printData('acct', accountname)
+
+    def acctdone(s, accountname):
+        s._printData('acctdone', accountname)
+
+    def validityproblem(s, folder):
+        s._printData('validityproblem', "%s\n%s\n%s\n%s" % \
+                (folder.getname(), folder.getrepository().getname(),
+                 folder.getsaveduidvalidity(), folder.getuidvalidity()))
 
     def connecting(s, hostname, port):
         s._printData('connecting', "%s\n%s" % (hostname, str(port)))
@@ -67,6 +97,10 @@ class MachineParsable(UIBase):
         s._printData('loadmessagelist', "%s\n%s" % (s.getnicename(repos),
                                                     folder.getvisiblename()))
 
+    def messagelistloaded(s, repos, folder, count):
+        s._printData('messagelistloaded', "%s\n%s\n%d" % \
+                (s.getnicename(repos), folder.getname(), count))
+
     def syncingmessages(s, sr, sf, dr, df):
         s._printData('syncingmessages', "%s\n%s\n%s\n%s\n" % \
                 (s.getnicename(sr), sf.getname(), s.getnicename(dr),
@@ -75,7 +109,7 @@ class MachineParsable(UIBase):
     def copyingmessage(s, uid, src, destlist):
         ds = s.folderlist(destlist)
         s._printData('copyingmessage', "%d\n%s\n%s\n%s"  % \
-                (uid, s.getnicename(src), src.getname(), ds)
+                (uid, s.getnicename(src), src.getname(), ds))
         
     def folderlist(s, list):
         return ("\f".join(["%s\t%s" % (s.getnicename(x), x.getname()) for x in list]))
@@ -103,10 +137,15 @@ class MachineParsable(UIBase):
                                                       ds))
 
     def threadException(s, thread):
+        print s.getThreadExceptionString(thread) #FIXME: remove
         s._printData('threadException', "%s\n%s" % \
                      (thread.getName(), s.getThreadExceptionString(thread)))
         s.delThreadDebugLog(thread)
         s.terminate(100)
+
+    def terminate(s, exitstatus = 0, errortitle = '', errormsg = ''):
+        s._printData('terminate', "%d\n%s\n%s" % (exitstatus, errortitle, errormsg))
+        sys.exit(exitstatus)
 
     def mainException(s):
         s._printData('mainException', s.getMainExceptionString())
@@ -122,12 +161,6 @@ class MachineParsable(UIBase):
         return 0
 
 
-
-
-
-
-                    
-
     def getpass(s, accountname, config, errmsg = None):
         s.outputlock.acquire()
         try:
@@ -139,4 +172,6 @@ class MachineParsable(UIBase):
         finally:
             s.outputlock.release()
 
+    def init_banner(s):
+        s._printData('initbanner', offlineimap.version.banner)
 

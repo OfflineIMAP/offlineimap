@@ -20,7 +20,8 @@ import offlineimap.ui
 import sys
 
 DEFAULT_UI_LIST = ('Curses.Blinkenlights', 'TTY.TTYUI',
-                   'Noninteractive.Basic', 'Noninteractive.Quiet')
+                   'Noninteractive.Basic', 'Noninteractive.Quiet',
+                   'Machine.MachineUI')
 
 def findUI(config, chosenUI=None):
     uistrlist = list(DEFAULT_UI_LIST)
