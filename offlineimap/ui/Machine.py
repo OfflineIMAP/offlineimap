@@ -59,16 +59,19 @@ class MachineUI(UIBase):
     def warn(s, msg, minor):
         s._printData('warn', '%s\n%d' % (msg, int(minor)))
 
-    def registerthread(s, account):
-        UIBase.registerthread(s, account)
-        s._printData('registerthread', account)
+    def registerthread(s, threadname, accountname):
+        UIBase.registerthread(s, threadname, accountname)
+        s._printData('registerthread', accountname)
 
-    def unregisterthread(s, thread):
-        UIBase.unregisterthread(s, thread)
-        s._printData('unregisterthread', thread.getName())
+    def unregisterthread(s, threadname):
+        UIBase.unregisterthread(s, threadname)
+        s._printData('unregisterthread', threadname)
 
     def debugging(s, debugtype):
         s._printData('debugging', debugtype)
+
+    def print_debug(s, debugtype, msg):
+        s._printData('print_debug', "%s\n%s" % (debugtype, msg))
 
     def acct(s, accountname):
         s._printData('acct', accountname)
@@ -161,7 +164,7 @@ class MachineUI(UIBase):
         return 0
 
 
-    def getpass(s, accountname, config, errmsg = None):
+    def getpass(s, accountname, errmsg = None):
         s.outputlock.acquire()
         try:
             if errmsg:
@@ -174,4 +177,11 @@ class MachineUI(UIBase):
 
     def init_banner(s):
         s._printData('initbanner', offlineimap.version.banner)
+
+    def msgtoreadonly(s, destfoldernice, destfoldername, uid):
+        s._printData('msgtoreadonly', "%s\n%s\n%d" % (destfoldernice, destfoldername, uid))
+
+    def flagstoreadonly(s, destfoldernice, destfoldername, uidlist):
+        s._printData('flagstoreadonly', "%s\n%s\n%s" % (destfoldernice, destfoldername, "\f".join(
+
 
