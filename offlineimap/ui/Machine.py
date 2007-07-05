@@ -25,7 +25,7 @@ protocol = '6.0.0'
 class MachineUI(UIBase):
     def __init__(s, config, verbose = 0):
         UIBase.__init__(s, config, verbose)
-        s.safechars=" ;,./-_=+"
+        s.safechars=" ;,./-_=+()[]"
         s.iswaiting = 0
         s.outputlock = Lock()
         s._printData('__init__', protocol)
@@ -137,7 +137,7 @@ class MachineUI(UIBase):
                                                       ds))
 
     def threadException(s, thread):
-        print s.getThreadExceptionString(thread) #FIXME: remove
+        print s.getThreadExceptionString(thread)
         s._printData('threadException', "%s\n%s" % \
                      (thread.getName(), s.getThreadExceptionString(thread)))
         s.delThreadDebugLog(thread)
