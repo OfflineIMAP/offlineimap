@@ -67,6 +67,7 @@ class IMAPServer:
         self.username = username
         self.password = password
         self.passworderror = None
+        self.goodpassword = None
         self.hostname = hostname
         self.tunnel = tunnel
         self.port = port
@@ -87,6 +88,9 @@ class IMAPServer:
         self.reference = reference
 
     def getpassword(self):
+        if self.goodpassword != None:
+            return self.goodpassword
+
         if self.password != None and self.passworderror == None:
             return self.password
 
@@ -193,6 +197,7 @@ class IMAPServer:
                         self.plainauth(imapobj)
                     # Would bail by here if there was a failure.
                     success = 1
+                    self.goodpassword = self.password
                 except imapobj.error, val:
                     self.passworderror = str(val)
                     self.password = None

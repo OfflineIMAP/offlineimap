@@ -156,6 +156,10 @@ class IMAPRepository(BaseRepository):
     def getfoldertype(self):
         return folder.IMAP.IMAPFolder
 
+    def connect(self):
+        imapobj = self.imapserver.acquireconnection()
+        self.imapserver.releaseconnection(imapobj)
+
     def getfolders(self):
         if self.folders != None:
             return self.folders
