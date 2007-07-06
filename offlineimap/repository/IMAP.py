@@ -160,6 +160,9 @@ class IMAPRepository(BaseRepository):
         imapobj = self.imapserver.acquireconnection()
         self.imapserver.releaseconnection(imapobj)
 
+    def forgetfolders(self):
+        self.folders = None
+
     def getfolders(self):
         if self.folders != None:
             return self.folders

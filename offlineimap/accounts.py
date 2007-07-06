@@ -146,6 +146,8 @@ class AccountSynchronizationMixin:
                 folderthreads.append(thread)
             threadutil.threadsreset(folderthreads)
             mbnames.write()
+            localrepos.forgetfolders()
+            remoterepos.forgetfolders()
             localrepos.holdordropconnections()
             remoterepos.holdordropconnections()
         finally:

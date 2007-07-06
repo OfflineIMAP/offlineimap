@@ -106,6 +106,11 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         """Returns a list of ALL folders on this server."""
         return []
 
+    def forgetfolders(self):
+        """Forgets the cached list of folders, if any.  Useful to run
+        after a sync run."""
+        pass
+
     def getsep(self):
         raise NotImplementedError
 
