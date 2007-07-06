@@ -708,6 +708,24 @@ def test_mycmp():
 	</para>
       </refsect2>
     </refsect1>
+
+    <refsect1>
+            <title>Signals</title>
+            <para>
+                    OfflineIMAP writes its current PID into
+                    <filename>~/.offlineimap/pid</filename> when it is
+                    running.  It is not guaranteed that this file will
+                    not exist when OfflineIMAP is not running.
+            </para>
+            <!-- not done yet 
+            <para>
+                    You can send SIGINT to OfflineIMAP using this file to
+                    kill it.  SIGUSR1 will force an immediate resync of
+                    all accounts.  This will be ignored for all accounts
+                    for which a resync is already in progress.
+            </para>
+            -->
+    </refsect1>
       
     <refsect1>
       <title>Errors</title>
