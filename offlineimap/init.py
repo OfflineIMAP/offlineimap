@@ -24,7 +24,7 @@ from offlineimap.ui import UIBase
 import re, os, os.path, offlineimap, sys
 from offlineimap.CustomConfig import CustomConfigParser
 from threading import *
-import threading
+import threading, socket
 from getopt import getopt
 
 try:
@@ -105,6 +105,10 @@ def startup(versionno):
     try:
         if options.has_key('-l'):
             sys.stderr = ui.logfile
+
+        socktimeout = config.getdefaultint("general", "socktimeout", 0)
+        if socktimeout > 0:
+            socket.setdefaulttimeout(socktimeout)
 
         activeaccounts = config.get("general", "accounts")
         if options.has_key('-a'):
