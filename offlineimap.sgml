@@ -208,7 +208,7 @@ remoteuser = jgoerzen
 	  </listitem>
 	  <listitem>
 	    <para>
-	      You must have Python version 2.2.1 or above installed.
+	      You must have Python version 2.4 or above installed.
 	      If you are
 	      running on Debian GNU/Linux, this requirement will automatically be
 	      taken care of for you.  If you do not have Python already, check with
@@ -564,6 +564,15 @@ cd offlineimap-x.y.z</ProgramListing>
 	  is not capable of reading a password from the keyboard; account
 	  passwords must be specified using one of the configuration file options.
 	</para>
+      </refsect2>
+
+      <refsect2>
+        <title>Machine.MachineUI</title>
+        <para>
+           Machine.MachineUI generates output in a machine-parsable format.
+           It is designed for other programs that will interface
+           to OfflineIMAP.
+        </para>
       </refsect2>
 
     </refsect1>
