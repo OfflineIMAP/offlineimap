@@ -271,7 +271,7 @@ class IMAPFolder(BaseFolder):
                 return
             result = imapobj.uid('store', '%d' % uid, 'FLAGS',
                                  imaputil.flagsmaildir2imap(flags))
-            assert result[0] == 'OK', 'Error with store: ' + r[1]
+            assert result[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
         finally:
             self.imapserver.releaseconnection(imapobj)
         result = result[1][0]
@@ -317,7 +317,7 @@ class IMAPFolder(BaseFolder):
                             imaputil.listjoin(uidlist),
                             operation + 'FLAGS',
                             imaputil.flagsmaildir2imap(flags))
-            assert r[0] == 'OK', 'Error with store: ' + r[1]
+            assert r[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
             r = r[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
