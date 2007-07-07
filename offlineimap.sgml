@@ -831,8 +831,8 @@ rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
 	<para>&OfflineIMAP; is not designed to have several instances (for instance, a cron job and an interactive invocation) run over the same
 	  mailbox simultaneously.  It will perform a check on startup and
 	  abort if another &OfflineIMAP; is already running.  If you need
-	  to schedule synchronizations, please use the
-	  <property>autorefresh</property> settings rather than cron.
+	  to schedule synchronizations, you'll probably find
+	  <property>autorefresh</property> settings more convenient than cron.
 	  Alternatively, you can set a separate <property>metadata</property>
 	  directory for each instance.
 	</para>
