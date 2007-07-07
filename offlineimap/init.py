@@ -103,6 +103,13 @@ def startup(versionno):
     lock(config, ui)
 
     try:
+        pidfd = open(config.getmetadatadir() + "/pid", "w")
+        pidfd.write(os.getpid())
+        pidfd.close()
+    except:
+        pass
+
+    try:
         if options.has_key('-l'):
             sys.stderr = ui.logfile
 
