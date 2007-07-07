@@ -151,17 +151,17 @@ class UIBase:
 
     ################################################## WARNINGS
     def msgtoreadonly(s, destfolder, uid, content, flags):
-        if not (config.has_option('general', 'ignore-readonly') and config.getboolean("general", "ignore-readonly")):
+        if not (s.config.has_option('general', 'ignore-readonly') and s.config.getboolean("general", "ignore-readonly")):
             s.warn("Attempted to synchronize message %d to folder %s[%s], but that folder is read-only.  The message will not be copied to that folder." % \
                    (uid, s.getnicename(destfolder), destfolder.getname()))
 
     def flagstoreadonly(s, destfolder, uidlist, flags):
-        if not (config.has_option('general', 'ignore-readonly') and config.getboolean("general", "ignore-readonly")):
+        if not (s.config.has_option('general', 'ignore-readonly') and s.config.getboolean("general", "ignore-readonly")):
             s.warn("Attempted to modify flags for messages %s in folder %s[%s], but that folder is read-only.  No flags have been modified for that message." % \
                    (str(uidlist), s.getnicename(destfolder), destfolder.getname()))
 
     def deletereadonly(s, destfolder, uidlist):
-        if not (config.has_option('general', 'ignore-readonly') and config.getboolean("general", "ignore-readonly")):
+        if not (s.config.has_option('general', 'ignore-readonly') and s.config.getboolean("general", "ignore-readonly")):
             s.warn("Attempted to delete messages %s in folder %s[%s], but that folder is read-only.  No messages have been deleted in that folder." % \
                    (str(uidlist), s.getnicename(destfolder), destfolder.getname()))
 
