@@ -50,14 +50,14 @@ def startup(versionno):
     assert versionno == version.versionstr, "Revision of main program (%s) does not match that of library (%s).  Please double-check your PYTHONPATH and installation locations." % (versionno, version.versionstr)
     options = {}
     if '--help' in sys.argv[1:]:
-        sys.stdout.write(version.cmdhelp + "\n")
+        sys.stdout.write(version.getcmdhelp() + "\n")
         sys.exit(0)
 
     for optlist in getopt(sys.argv[1:], 'P:1oa:c:d:l:u:h')[0]:
         options[optlist[0]] = optlist[1]
 
     if options.has_key('-h'):
-        sys.stdout.write(version.cmdhelp)
+        sys.stdout.write(version.getcmdhelp())
         sys.stdout.write("\n")
         sys.exit(0)
     configfilename = os.path.expanduser("~/.offlineimaprc")

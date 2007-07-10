@@ -34,7 +34,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA"""
 
-cmdhelp = """
+def getcmdhelp():
+    from offlineimap.ui import detector
+    import os
+    uilist = ""
+    for ui in detector.DEFAULT_UI_LIST:
+        uilist += "                " + ui + os.linesep
+    return """
        offlineimap [ -1 ] [ -P profiledir ] [ -a accountlist ]  [
        -c configfile  ] [ -d debugtype[,debugtype...]  ] [ -o ] [
        -u interface ]
@@ -102,8 +108,4 @@ cmdhelp = """
               states that it cannot be.   Use  this  option  with
               care.   The  pre-defined  options, described in the
               USER INTERFACES section of the man page, are:
-"""
-from offlineimap.ui import detector
-import os
-for ui in detector.DEFAULT_UI_LIST:
-    cmdhelp += "                " + ui + os.linesep
+""" + uilist
