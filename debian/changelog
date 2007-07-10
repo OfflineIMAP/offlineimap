@@ -1,11 +1,11 @@
 offlineimap (5.99.0) unstable; urgency=low
 
-  * PREP
   * Re-scan remote folder names at the start of each sync run.
     Closes: #329000, #396772.
   * Drop internal imaplib.py in favor of default Python one.
   * New user interface: Machine.MachineUI.
   * Drop all the Tk interfaces.
+    Closes: #265088.
   * Now supports specifying timeouts for socket operations.
   * Updated copyright files.
   * Improved interaction with Dovecot maildirs.  Patch thanks to Asheesh
