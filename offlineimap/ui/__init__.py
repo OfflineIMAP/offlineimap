@@ -17,7 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 
-import UIBase, Blinkenlights, transmitter
+import UIBase, Blinkenlights
 try:
     import TTY
 except ImportError:
