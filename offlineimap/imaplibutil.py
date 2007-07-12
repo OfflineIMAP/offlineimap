@@ -113,7 +113,6 @@ def new_open(self, host = '', port = IMAP4_PORT):
         self.port = port
         res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
                                  socket.SOCK_STREAM)
-        self.sock = socket.socket(af, socktype, proto)
 
         # Try each address returned by getaddrinfo in turn until we
         # manage to connect to one.
