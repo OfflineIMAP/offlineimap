@@ -1,3 +1,9 @@
+offlineimap (5.99.1) unstable; urgency=low
+
+  * Remove suggestion on python-tk.  Closes: #432843.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 12 Jul 2007 01:03:08 -0500
+
 offlineimap (5.99.0) unstable; urgency=low
 
   * Re-scan remote folder names at the start of each sync run.
