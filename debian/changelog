@@ -1,6 +1,8 @@
 offlineimap (5.99.1) unstable; urgency=low
 
   * Remove suggestion on python-tk.  Closes: #432843.
+  * Fix non-SSL connection bug introduced in 5.99.0.
+    Thanks to Eloy Paris for pinpointing it.  Closes: #432727.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 12 Jul 2007 01:03:08 -0500
 
