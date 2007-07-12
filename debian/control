@@ -10,7 +10,6 @@ Standards-Version: 3.7.2
 Package: offlineimap
 Architecture: all
 Depends: ${python:Depends}
-Suggests: python-tk
 Description: IMAP/Maildir synchronization and reader support
  OfflineIMAP is a tool to simplify your e-mail reading.  With
  OfflineIMAP, you can:
