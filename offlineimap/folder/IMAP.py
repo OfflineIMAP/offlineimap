@@ -365,9 +365,24 @@ class IMAPFolder(BaseFolder):
         
         imapobj = self.imapserver.acquireconnection()
         try:
+            # Making sure, that we have the necessary rights
+            # ensuring that we access readonly: python's braindead imaplib.py
+            # otherwise might raise an exception during the myrights() call
+            imapobj.select(self.getfullname(),readonly=1)
+            myrights = imapobj.myrights(self.getfullname())[1][0].split()[1]
+	    if 'T' in flags and not 'd' in myrights or \
+		    'S' in flags and not 's' in myrights or \
+		    filter(lambda x: x not in 'TS', flags) and not 'w' in myrights:
+		# no delete/expunge right, but needed or
+		# no store seen right, but needed or
+		# no write right, but needed
+                UIBase.getglobalui().flagstoreadonly(self, uidlist, flags)
+                return
+
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
+		# unsure, whether this can be reached
                 UIBase.getglobalui().flagstoreadonly(self, uidlist, flags)
                 return
             r = imapobj.uid('store',
