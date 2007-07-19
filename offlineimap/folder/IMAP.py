@@ -382,9 +382,13 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-		# unsure, whether this can be reached
-                UIBase.getglobalui().flagstoreadonly(self, uidlist, flags)
-                return
+                # Above we made sure, we have the necessary rights.
+                # Ugly hack, to prevent an unnecessary exception:
+                #  readonly: mailbox status changed to READ-ONLY
+                # imaplib should take care of that itself.
+                # The connection is anyway released below, so we dont need to
+                # undo the hack.
+                imapobj.is_readonly = True
             r = imapobj.uid('store',
                             imaputil.listjoin(uidlist),
                             operation + 'FLAGS',
