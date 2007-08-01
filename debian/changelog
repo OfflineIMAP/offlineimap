@@ -1,3 +1,10 @@
+offlineimap (5.99.2) unstable; urgency=low
+
+  * Add build-dep on gs.  Closes: #433739.
+  * Additional date check.  Closes: #396443.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 31 Jul 2007 05:27:05 -0500
+
 offlineimap (5.99.1) unstable; urgency=low
 
   * Remove suggestion on python-tk.  Closes: #432843.
