@@ -213,6 +213,12 @@ class IMAPFolder(BaseFolder):
             try:
                 if datetuple[0] < 1981:
                     raise ValueError
+
+                # Check for invalid date
+                datetuple_check = time.localtime(time.mktime(datetuple))
+                if datetuple[:2] != datetuple_check[:2]:
+                    raise ValueError
+
                 # This could raise a value error if it's not a valid format.
                 date = imaplib.Time2Internaldate(datetuple) 
             except (ValueError, OverflowError):
