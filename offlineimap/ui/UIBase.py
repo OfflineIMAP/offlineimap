@@ -197,7 +197,7 @@ class UIBase:
 
     def syncfolders(s, srcrepos, destrepos):
         if s.verbose >= 0:
-            s._msg("Copying folder structure from %s to %s" % \
+            s._msg("Copying folder structure between %s and %s" % \
                    (s.getnicename(srcrepos), s.getnicename(destrepos)))
 
     ############################## Folder syncing
@@ -217,6 +217,10 @@ class UIBase:
         s.warn("UID validity problem for folder %s (repo %s) (saved %d; got %d); skipping it" % \
                (folder.getname(), folder.getrepository().getname(),
                 folder.getsaveduidvalidity(), folder.getuidvalidity()))
+
+    def ignorefolder(s, foldername, here, there):
+        s.warn("Folder %s disappeared from %s; skipping it" % \
+               (foldername, there.getname()))
 
     def loadmessagelist(s, repos, folder):
         if s.verbose > 0:

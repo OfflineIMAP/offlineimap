@@ -17,6 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import CustomConfig
+from offlineimap.ui import UIBase
 import os.path
 
 def LoadRepository(name, account, reqtype):
@@ -123,7 +124,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
     def getfolder(self, foldername):
         raise NotImplementedError
     
-    def syncfoldersto(self, dest):
+    def syncfoldersto(self, dest, status):
         """Syncs the folders in this repository to those in dest.
         It does NOT sync the contents of those folders."""
         src = self
@@ -135,6 +136,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
 
         srchash = {}
         for folder in srcfolders:
+            if (folder.getvisiblename()[-2:] == src.getsep() + "."):
+                continue
             srchash[folder.getvisiblename().replace(src.getsep(), dest.getsep())] = \
                                                            folder
         desthash = {}
@@ -145,9 +148,18 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         # Find new folders.
         #
         
+        ignoredfolders = []
+        newfolders = []
+
         for key in srchash.keys():
             if not key in desthash:
-                dest.makefolder(key)
+                srckey = key.replace(dest.getsep(),src.getsep())
+                if status.getfolder(key.replace(dest.getsep(),status.getsep())).isnewfolder():
+                    dest.makefolder(key)
+                    newfolders.append(srckey)
+                else:
+                    UIBase.getglobalui().ignorefolder (key, src, dest)
+                    ignoredfolders.append(srckey)
 
         #
         # Find deleted folders.
@@ -157,6 +169,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         #for key in desthash.keys():
         #    if not key in srchash:
         #        dest.deletefolder(key)
+
+        return (ignoredfolders,newfolders)
         
     ##### Keepalive
 
