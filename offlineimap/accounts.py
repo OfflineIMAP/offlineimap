@@ -145,19 +145,10 @@ class AccountSynchronizationMixin:
             localrepos = self.localrepos
             statusrepos = self.statusrepos
             self.ui.syncfolders(remoterepos, localrepos)
-
-            (remoteignored,remotenew) = remoterepos.syncfoldersto(localrepos,statusrepos)
-            if len(remotenew):
-                localrepos.forgetfolders()
-
-            (localignored,localnew) = localrepos.syncfoldersto(remoterepos,statusrepos)
-            if len(localnew):
-                remoterepos.forgetfolders()
+            remoterepos.syncfoldersto(localrepos)
 
             folderthreads = []
             for remotefolder in remoterepos.getfolders():
-                if remotefolder.getvisiblename() in remoteignored:
-                    continue
                 thread = InstanceLimitedThread(\
                     instancename = 'FOLDER_' + self.remoterepos.getname(),
                     target = syncfolder,
@@ -241,14 +232,6 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
 
 
     #
-
-    if ((statusfolder.isnewfolder()) and
-        (len(localfolder.getmessagelist()) > 0) and
-        (len(remotefolder.getmessagelist()) == 0)):
-            # This is a locally created folder. Copy its contents to the
-            # remote folder, and to the StatusFolder.
-
-            localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
 
     if not statusfolder.isnewfolder():
         # Delete local copies of remote messages.  This way,
