@@ -230,6 +230,7 @@ remoteuser = jgoerzen
 	      IMAP server and point both &OfflineIMAP; and your mail
 	      reader at it.
 	    </para>
+	  </listitem>
 	</itemizedlist>
       </refsect2>
 
