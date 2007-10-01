@@ -41,6 +41,16 @@ class IMAPFolder(BaseFolder):
         self.randomgenerator = random.Random()
         BaseFolder.__init__(self)
 
+    def selectro(self, imapobj):
+        """Select this folder when we do not need write access.
+        Prefer SELECT to EXAMINE if we can, since some servers
+        (Courier) do not stabilize UID validity until the folder is
+        selected."""
+        try:
+            imapobj.select(self.getfullname())
+        except imapobj.readonly:
+            imapobj.select(self.getfullname(), readonly = 1)
+
     def getaccountname(self):
         return self.accountname
 
@@ -60,11 +70,52 @@ class IMAPFolder(BaseFolder):
         imapobj = self.imapserver.acquireconnection()
         try:
             # Primes untagged_responses
-            imapobj.select(self.getfullname(), readonly = 1)
+            self.selectro(imapobj)
             return long(imapobj.untagged_responses['UIDVALIDITY'][0])
         finally:
             self.imapserver.releaseconnection(imapobj)
     
+    def quickchanged(self, statusfolder):
+        # An IMAP folder has definitely changed if the number of
+        # messages or the UID of the last message have changed.  Otherwise
+        # only flag changes could have occurred.
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            # Primes untagged_responses
+            imapobj.select(self.getfullname(), readonly = 1, force = 1)
+            try:
+                # Some mail servers do not return an EXISTS response if
+                # the folder is empty.
+                maxmsgid = long(imapobj.untagged_responses['EXISTS'][0])
+            except KeyError:
+                return True
+
+            # Different number of messages than last time?
+            if maxmsgid != len(statusfolder.getmessagelist()):
+                return True
+
+            if maxmsgid < 1:
+                # No messages; return
+                return False
+
+            # Now, get the UID for the last message.
+            response = imapobj.fetch('%d' % maxmsgid, '(UID)')[1]
+        finally:
+            self.imapserver.releaseconnection(imapobj)
+
+        # Discard the message number.
+        messagestr = string.split(response[0], maxsplit = 1)[1]
+        options = imaputil.flags2hash(messagestr)
+        if not options.has_key('UID'):
+            return True
+        uid = long(options['UID'])
+        saveduids = statusfolder.getmessagelist().keys()
+        saveduids.sort()
+        if uid != saveduids[-1]:
+            return True
+
+        return False
+
     def cachemessagelist(self):
         imapobj = self.imapserver.acquireconnection()
         self.messagelist = {}

@@ -22,7 +22,6 @@ from offlineimap.ui import UIBase
 from threading import Lock
 import os.path, os, re, time, socket, md5
 
-foldermatchre = re.compile(',FMD5=([0-9a-f]{32})')
 uidmatchre = re.compile(',U=(\d+)')
 flagmatchre = re.compile(':.*2,([A-Z]+)')
 
@@ -78,16 +77,16 @@ class MaildirFolder(BaseFolder):
         files = []
         nouidcounter = -1               # Messages without UIDs get
                                         # negative UID numbers.
+        foldermd5 = md5.new(self.getvisiblename()).hexdigest()
+        folderstr = ',FMD5=' + foldermd5
         for dirannex in ['new', 'cur']:
             fulldirname = os.path.join(self.getfullname(), dirannex)
             files.extend([os.path.join(fulldirname, filename) for
                           filename in os.listdir(fulldirname)])
         for file in files:
             messagename = os.path.basename(file)
-            foldermatch = foldermatchre.search(messagename)
-            if (not foldermatch) or \
-               md5.new(self.getvisiblename()).hexdigest() \
-               != foldermatch.group(1):
+            foldermatch = messagename.find(folderstr) != -1
+            if not foldermatch:
                 # If there is no folder MD5 specified, or if it mismatches,
                 # assume it is a foreign (new) message and generate a
                 # negative uid for it
@@ -111,8 +110,21 @@ class MaildirFolder(BaseFolder):
                            'filename': file}
         return retval
 
+    def quickchanged(self, statusfolder):
+        self.cachemessagelist()
+        savedmessages = statusfolder.getmessagelist()
+        if len(self.messagelist) != len(savedmessages):
+            return True
+        for uid in self.messagelist.keys():
+            if uid not in savedmessages:
+                return True
+            if self.messagelist[uid]['flags'] != savedmessages[uid]['flags']:
+                return True
+        return False
+
     def cachemessagelist(self):
-        self.messagelist = self._scanfolder()
+        if self.messagelist is None:
+            self.messagelist = self._scanfolder()
             
     def getmessagelist(self):
         return self.messagelist

@@ -43,7 +43,7 @@ def getcmdhelp():
     return """
        offlineimap [ -1 ] [ -P profiledir ] [ -a accountlist ]  [
        -c configfile  ] [ -d debugtype[,debugtype...]  ] [ -o ] [
-       -u interface ]
+       -u interface ] [ -q ]
 
        offlineimap -h | --help
 
@@ -96,6 +96,9 @@ def getcmdhelp():
 
        -o     Run  only once, ignoring any autorefresh setting in
               the config file.
+
+       -q     Run  only quick synchronizations.   Ignore any flag
+              updates on IMAP servers.
 
        -h, --help
               Show summary of options.

@@ -42,6 +42,10 @@ class BlinkenBase:
         s.gettf().setcolor('cyan')
         s.__class__.__bases__[-1].syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder)
 
+    def skippingfolder(s, folder):
+        s.gettf().setcolor('cyan')
+        s.__class__.__bases__[-1].skippingfolder(s, folder)
+
     def loadmessagelist(s, repos, folder):
         s.gettf().setcolor('green')
         s._msg("Scanning folder [%s/%s]" % (s.getnicename(repos),
@@ -70,6 +74,13 @@ class BlinkenBase:
     def deletingflags(s, uidlist, flags, destlist):
         s.gettf().setcolor('pink')
         s.__class__.__bases__[-1].deletingflags(s, uidlist, flags, destlist)
+
+    def warn(s, msg, minor = 0):
+        if minor:
+            s.gettf().setcolor('pink')
+        else:
+            s.gettf().setcolor('red')
+        s.__class__.__bases__[-1].warn(s, msg, minor)
 
     def init_banner(s):
         s.availablethreadframes = {}

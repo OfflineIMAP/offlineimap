@@ -208,6 +208,11 @@ class UIBase:
                                              s.getnicename(srcrepos),
                                              s.getnicename(destrepos)))
 
+    def skippingfolder(s, folder):
+        """Called when a folder sync operation is started."""
+        if s.verbose >= 0:
+            s._msg("Skipping %s (not changed)" % folder.getname())
+
     def validityproblem(s, folder):
         s.warn("UID validity problem for folder %s (repo %s) (saved %d; got %d); skipping it" % \
                (folder.getname(), folder.getrepository().getname(),

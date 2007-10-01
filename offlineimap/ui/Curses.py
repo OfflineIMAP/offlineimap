@@ -511,6 +511,8 @@ class Blinkenlights(BlinkenBase, UIBase):
                 return
             if color:
                 s.gettf().setcolor(color)
+            elif s.gettf().getcolor() == 'black':
+                s.gettf().setcolor('gray')
             s._addline(msg, s.gettf().getcolorpair())
             s.logwindow.refresh()
         finally:

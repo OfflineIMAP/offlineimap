@@ -45,6 +45,7 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.localeval = config.getlocaleval()
         self.ui = UIBase.getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
+        self.quicknum = 0
         if self.refreshperiod == 0.0:
             self.refreshperiod = None
 
@@ -125,6 +126,20 @@ class AccountSynchronizationMixin:
     def sync(self):
         # We don't need an account lock because syncitall() goes through
         # each account once, then waits for all to finish.
+
+        quickconfig = self.getconfint('quick', 0)
+        if quickconfig < 0:
+            quick = True
+        elif quickconfig > 0:
+            if self.quicknum == 0 or self.quicknum > quickconfig:
+                self.quicknum = 1
+                quick = False
+            else:
+                self.quicknum = self.quicknum + 1
+                quick = True
+        else:
+            quick = False
+
         try:
             remoterepos = self.remoterepos
             localrepos = self.localrepos
@@ -140,7 +155,7 @@ class AccountSynchronizationMixin:
                     name = "Folder sync %s[%s]" % \
                     (self.name, remotefolder.getvisiblename()),
                     args = (self.name, remoterepos, remotefolder, localrepos,
-                            statusrepos))
+                            statusrepos, quick))
                 thread.setDaemon(1)
                 thread.start()
                 folderthreads.append(thread)
@@ -157,7 +172,7 @@ class SyncableAccount(Account, AccountSynchronizationMixin):
     pass
 
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
-               statusrepos):
+               statusrepos, quick):
     global mailboxes
     ui = UIBase.getglobalui()
     ui.registerthread(accountname)
@@ -167,12 +182,6 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                             replace(remoterepos.getsep(), localrepos.getsep()))
     # Write the mailboxes
     mbnames.add(accountname, localfolder.getvisiblename())
-    # Load local folder
-    ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
-    ui.loadmessagelist(localrepos, localfolder)
-    localfolder.cachemessagelist()
-    ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
-
 
     # Load status folder.
     statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
@@ -184,6 +193,19 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         statusfolder.deletemessagelist()
         
     statusfolder.cachemessagelist()
+
+    if quick:
+        if not localfolder.quickchanged(statusfolder) \
+               and not remotefolder.quickchanged(statusfolder):
+            ui.skippingfolder(remotefolder)
+            localrepos.restore_atime()
+            return
+
+    # Load local folder
+    ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
+    ui.loadmessagelist(localrepos, localfolder)
+    localfolder.cachemessagelist()
+    ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
 
     # If either the local or the status folder has messages and there is a UID
     # validity problem, warn and abort.  If there are no messages, UW IMAPd

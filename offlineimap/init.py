@@ -53,7 +53,7 @@ def startup(versionno):
         sys.stdout.write(version.getcmdhelp() + "\n")
         sys.exit(0)
 
-    for optlist in getopt(sys.argv[1:], 'P:1oa:c:d:l:u:h')[0]:
+    for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:h')[0]:
         options[optlist[0]] = optlist[1]
 
     if options.has_key('-h'):
@@ -99,6 +99,10 @@ def startup(versionno):
         # FIXME: maybe need a better
         for section in accounts.getaccountlist(config):
             config.remove_option('Account ' + section, "autorefresh")
+
+    if options.has_key('-q'):
+        for section in accounts.getaccountlist(config):
+            config.set('Account ' + section, "quick", '-1')
 
     lock(config, ui)
 

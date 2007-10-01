@@ -389,6 +389,11 @@ cd offlineimap-x.y.z</ProgramListing>
 	      file.</para>
 	    </listitem>
 	  </varlistentry>
+	  <varlistentry><term>-q</term>
+	    <listitem><para>Run only quick synchronizations.   Ignore any flag
+              updates on IMAP servers.</para>
+	    </listitem>
+	  </varlistentry>
 	  <varlistentry><term>-h</term> <term>--help</term>
 	    <listitem><para>Show summary of options.</para></listitem>
 	  </varlistentry>
