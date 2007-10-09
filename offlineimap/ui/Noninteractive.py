@@ -43,6 +43,9 @@ class Basic(UIBase):
             time.sleep(sleepsecs)
         return 0
 
+    def locked(s):
+        s.warn("Another OfflineIMAP is running with the same metadatadir; exiting.")
+
 class Quiet(Basic):
     def __init__(s, config, verbose = -1):
         Basic.__init__(s, config, verbose)
