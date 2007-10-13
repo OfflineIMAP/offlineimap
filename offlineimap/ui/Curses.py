@@ -126,10 +126,11 @@ class CursesUtil:
         self.start()
 
 class CursesAccountFrame:
-    def __init__(s, master, accountname):
+    def __init__(s, master, accountname, ui):
         s.c = master
         s.children = []
         s.accountname = accountname
+        s.ui = ui
 
     def drawleadstr(s, secs = None):
         if secs == None:
@@ -150,7 +151,7 @@ class CursesAccountFrame:
             s.location += 1
 
     def getnewthreadframe(s):
-        tf = CursesThreadFrame(s.c, s.window, 0, s.location)
+        tf = CursesThreadFrame(s.c, s.ui, s.window, 0, s.location)
         s.location += 1
         s.children.append(tf)
         return tf
@@ -180,9 +181,10 @@ class CursesAccountFrame:
         s.sleeping_abort = 1
 
 class CursesThreadFrame:
-    def __init__(s, master, window, y, x):
+    def __init__(s, master, ui, window, y, x):
         """master should be a CursesUtil object."""
         s.c = master
+        s.ui = ui
         s.window = window
         s.x = x
         s.y = y
@@ -212,7 +214,7 @@ class CursesThreadFrame:
             if self.getcolor() == 'black':
                 self.window.addstr(self.y, self.x, ' ', self.color)
             else:
-                self.window.addstr(self.y, self.x, '.', self.color)
+                self.window.addstr(self.y, self.x, self.ui.config.getdefault("ui.Curses.Blinkenlights", "statuschar", '.'), self.color)
             self.c.stdscr.move(self.c.height - 1, self.c.width - 1)
             self.window.refresh()
         self.c.locked(lockedstuff)
@@ -476,7 +478,7 @@ class Blinkenlights(BlinkenBase, UIBase):
                 return s.af[accountname]
 
             # New one.
-            s.af[accountname] = CursesAccountFrame(s.c, accountname)
+            s.af[accountname] = CursesAccountFrame(s.c, accountname, s)
             s.c.lock()
             try:
                 s.c.reset()
