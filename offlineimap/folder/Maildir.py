@@ -158,7 +158,8 @@ class MaildirFolder(BaseFolder):
         # Otherwise, save the message in tmp/ and then call savemessageflags()
         # to give it a permanent home.
         tmpdir = os.path.join(self.getfullname(), 'tmp')
-        messagename = None
+        file = fd = None
+        messagename = tmpmessaename = None
         attempts = 0
         while 1:
             if attempts > 15:
@@ -171,19 +172,24 @@ class MaildirFolder(BaseFolder):
                            socket.gethostname(),
                            uid,
                            md5.new(self.getvisiblename()).hexdigest())
-            if os.path.exists(os.path.join(tmpdir, messagename)):
-                time.sleep(2)
-                attempts += 1
-            else:
-                break
-        tmpmessagename = messagename.split(',')[0]
-        ui.debug('maildir', 'savemessage: using temporary name %s' % tmpmessagename)
-        file = open(os.path.join(tmpdir, tmpmessagename), "wt")
+            tmpmessagename = messagename.split(',')[0]
+            try:
+                fd = os.open(os.path.join(tmpdir, tmpmessagename),
+                        os.O_WRONLY + os.O_CREAT + os.O_EXCL)
+                file = os.fdopen(fd, 'w')
+                ui.debug('maildir', 'savemessage: using temporary name %s' % tmpmessagename)
+            except OSError, e:
+                if e.errno == 17:
+                    time.sleep(2)
+                    attempts += 1
+                    continue
+                raise
+
         file.write(content)
 
         # Make sure the data hits the disk
         file.flush()
-        os.fsync(file.fileno())
+        os.fsync(fd)
 
         file.close()
         if rtime != None:
