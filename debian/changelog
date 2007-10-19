@@ -1,3 +1,10 @@
+offlineimap (5.99.4) unstable; urgency=low
+
+  * Undo 'Fix Maildir race' patch.  It was causes spinning.
+    Closes: #447217, #447226.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 19 Oct 2007 06:31:09 -0500
+
 offlineimap (5.99.3) unstable; urgency=low
 
   * Fix a potential Maildir race.  Thanks to Martin F. Krafft for the
