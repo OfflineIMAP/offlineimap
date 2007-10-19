@@ -1,3 +1,9 @@
+offlineimap (5.99.3) unstable; urgency=low
+
+  * Added build-dep on man-db.  Closes: #433739.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 18 Oct 2007 14:03:39 -0500
+
 offlineimap (5.99.2) unstable; urgency=low
 
   * Add build-dep on gs.  Closes: #433739.
