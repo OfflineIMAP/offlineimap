@@ -1,8 +1,22 @@
 offlineimap (5.99.3) unstable; urgency=low
 
-  * Added build-dep on man-db.  Closes: #433739.
   * Fix a potential Maildir race.  Thanks to Martin F. Krafft for the
     patch.  Closes: #439384.
+  * Synchronize folder creations in both directions.
+    Thanks to Vincent Beffara for the patch.
+  * SGML syntax fix.
+  * Patches from Daniel Jacobowitz:
+    + New -q (quick) option to only update folders that seem to have
+      significant changes
+    + Fix to UID validity problems some had reported with Courier
+    + Maildir checking speedups
+    + Display fixes for Curses.Blinkenlights
+  * Fixed locked( )for noninteractive UIs.  Thanks to Mark A. Hershberger
+    for the patch.
+  * Configurable thread status character for ui.Curses.Blinkenlights.
+    Thanks to aaron@schrab.com for the patch.
+  * Documented remotehosteval.  Thanks to Ben Kibbey.
+  * [debian] Added build-dep on man-db.  Closes: #433739.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 18 Oct 2007 14:03:39 -0500
 
