@@ -2,8 +2,6 @@ offlineimap (5.99.3) unstable; urgency=low
 
   * Fix a potential Maildir race.  Thanks to Martin F. Krafft for the
     patch.  Closes: #439384.
-  * Synchronize folder creations in both directions.
-    Thanks to Vincent Beffara for the patch.
   * SGML syntax fix.
   * Patches from Daniel Jacobowitz:
     + New -q (quick) option to only update folders that seem to have
