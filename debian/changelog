@@ -1,6 +1,8 @@
 offlineimap (5.99.3) unstable; urgency=low
 
   * Added build-dep on man-db.  Closes: #433739.
+  * Fix a potential Maildir race.  Thanks to Martin F. Krafft for the
+    patch.  Closes: #439384.
 
  -- John Goerzen <jgoerzen@complete.org>  Thu, 18 Oct 2007 14:03:39 -0500
 
