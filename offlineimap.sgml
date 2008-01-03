@@ -32,6 +32,8 @@
 	<arg>-a <replaceable>accountlist</replaceable></arg>
 	<arg>-c <replaceable>configfile</replaceable></arg>
 	<arg>-d <replaceable>debugtype[,...]</replaceable></arg>
+        <arg>-f <replaceable>foldername[,...]</replaceable></arg>
+        <arg>-k <replaceable>[section:]option=value</replaceable></arg>
 	<arg>-l <replaceable>filename</replaceable></arg>
 	<arg>-o</arg>
 	<arg>-u <replaceable>interface</replaceable></arg>
@@ -204,6 +206,8 @@ remoteuser = jgoerzen
 	      and corporate networks do, and most operating systems
 	      have an IMAP
 	      implementation readily available.
+              A special <property>Gmail</property> mailbox type is
+              available to interface with Gmail's IMAP front-end.
 	    </para>
 	  </listitem>
 	  <listitem>

@@ -1,2 +1,2 @@
-import Base, IMAP, Maildir, LocalStatus
+import Base, Gmail, IMAP, Maildir, LocalStatus
 

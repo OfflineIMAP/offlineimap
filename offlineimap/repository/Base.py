@@ -20,11 +20,13 @@ from offlineimap import CustomConfig
 import os.path
 
 def LoadRepository(name, account, reqtype):
+    from offlineimap.repository.Gmail import GmailRepository
     from offlineimap.repository.IMAP import IMAPRepository, MappedIMAPRepository
     from offlineimap.repository.Maildir import MaildirRepository
     if reqtype == 'remote':
         # For now, we don't support Maildirs on the remote side.
-        typemap = {'IMAP': IMAPRepository}
+        typemap = {'IMAP': IMAPRepository,
+                   'Gmail': GmailRepository}
     elif reqtype == 'local':
         typemap = {'IMAP': MappedIMAPRepository,
                    'Maildir': MaildirRepository}

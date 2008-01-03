@@ -1,1 +1,1 @@
-__all__ = ['IMAP', 'Base', 'Maildir', 'LocalStatus']
+__all__ = ['Gmail', 'IMAP', 'Base', 'Maildir', 'LocalStatus']
