@@ -94,7 +94,15 @@ def getcmdhelp():
               one else.  The maildir option will enable debugging
               for certain Maildir operations.
 
-       -o     Run  only once, ignoring any autorefresh setting in
+       -k [section:]option=value
+              Override configuration file option.  If"section" is
+              omitted, it defaults to "general".  Any underscores
+              "_" in the section name are replaced with spaces:
+              for instance,  to override  option "autorefresh" in
+              the "[Account Personal]" section in the config file
+              one would use "-k Account_Personal:autorefresh=30".
+              
+       -o     Run only once,  ignoring any autorefresh setting in
               the config file.
 
        -q     Run  only quick synchronizations.   Ignore any flag

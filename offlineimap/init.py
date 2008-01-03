@@ -53,7 +53,7 @@ def startup(versionno):
         sys.stdout.write(version.getcmdhelp() + "\n")
         sys.exit(0)
 
-    for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:h')[0]:
+    for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:hk:')[0]:
         options[optlist[0]] = optlist[1]
 
     if options.has_key('-h'):
@@ -78,6 +78,17 @@ def startup(versionno):
         sys.exit(1)
 
     config.read(configfilename)
+
+    # override config values with option '-k'
+    for option in options.keys():
+        if option == '-k':
+            (key, value) = options['-k'].split('=', 1)
+            if ':' in key:
+                (secname, key) = key.split(':', 1)
+                section = secname.replace("_", " ")
+            else:
+                section = "general"
+            config.set(section, key, value)
 
     ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
     UIBase.setglobalui(ui)

@@ -373,6 +373,17 @@ cd offlineimap-x.y.z</ProgramListing>
 	      will debug the threading model.
 	    </para></listitem>
 	  </varlistentry>
+        <varlistentry><term>-k [<replaceable>section</replaceable>:]<replaceable>option</replaceable>=<replaceable>value</replaceable>
+          </term>
+          <listitem><para> Override configuration file option.  If
+              "section" is omitted, it defaults
+              to <property>general</property>.  Any underscores "_" in
+              the section name are replaced with spaces: for instance,
+              to override option <property>autorefresh</property> in
+              the "[Account Personal]" section in the config file one
+              would use "-k Account_Personal:autorefresh=30".
+          </para></listitem>
+        </varlistentry>
 	  <varlistentry><term>-l
 	  <replaceable>filename</replaceable></term>
 	    <listitem><para>
