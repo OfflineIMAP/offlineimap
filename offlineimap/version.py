@@ -94,6 +94,13 @@ def getcmdhelp():
               one else.  The maildir option will enable debugging
               for certain Maildir operations.
 
+       -f foldername[,foldername...]
+              Only sync the specified folders.  The "foldername"s
+              are    the   *untranslated*    foldernames.    This
+              command-line  option  overrides any  "folderfilter"
+              and "folderincludes" options  in the  configuration 
+              file.
+
        -k [section:]option=value
               Override configuration file option.  If"section" is
               omitted, it defaults to "general".  Any underscores

@@ -53,7 +53,7 @@ def startup(versionno):
         sys.stdout.write(version.getcmdhelp() + "\n")
         sys.exit(0)
 
-    for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:hk:')[0]:
+    for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:hk:f:')[0]:
         options[optlist[0]] = optlist[1]
 
     if options.has_key('-h'):
@@ -114,6 +114,20 @@ def startup(versionno):
     if options.has_key('-q'):
         for section in accounts.getaccountlist(config):
             config.set('Account ' + section, "quick", '-1')
+
+    if options.has_key('-f'):
+        foldernames = options['-f'].replace(" ", "").split(",")
+        folderfilter = "lambda f: f in %s" % foldernames
+        folderincludes = "[]"
+        for accountname in accounts.getaccountlist(config):
+            account_section = 'Account ' + accountname
+            remote_repo_section = 'Repository ' + \
+                                  config.get(account_section, 'remoterepository')
+            local_repo_section = 'Repository ' + \
+                                 config.get(account_section, 'localrepository')
+            for section in [remote_repo_section, local_repo_section]:
+                config.set(section, "folderfilter", folderfilter)
+                config.set(section, "folderincludes", folderincludes)
 
     lock(config, ui)
 

@@ -373,6 +373,15 @@ cd offlineimap-x.y.z</ProgramListing>
 	      will debug the threading model.
 	    </para></listitem>
 	  </varlistentry>
+        <varlistentry><term>-f <replaceable>foldername</replaceable>[,<replaceable>foldername</replaceable>]</term>
+          <listitem><para> Only sync the specified folders.  The
+              <replaceable>foldername</replaceable>s are the
+              untranslated foldernames.  This command-line option
+              overrides any <property>folderfilter</property>
+              and <property>folderincludes</property> options in the
+              configuration file.
+          </para></listitem>
+        </varlistentry>
         <varlistentry><term>-k [<replaceable>section</replaceable>:]<replaceable>option</replaceable>=<replaceable>value</replaceable>
           </term>
           <listitem><para> Override configuration file option.  If
