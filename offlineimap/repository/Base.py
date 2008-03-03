@@ -125,9 +125,12 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
     def getfolder(self, foldername):
         raise NotImplementedError
     
-    def syncfoldersto(self, dest):
+    def syncfoldersto(self, dest, copyfolders):
         """Syncs the folders in this repository to those in dest.
-        It does NOT sync the contents of those folders."""
+        It does NOT sync the contents of those folders.
+
+        For every time dest.makefolder() is called, also call makefolder()
+        on each folder in copyfolders."""
         src = self
         srcfolders = src.getfolders()
         destfolders = dest.getfolders()
@@ -150,6 +153,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         for key in srchash.keys():
             if not key in desthash:
                 dest.makefolder(key)
+                for copyfolder in copyfolders:
+                    copyfolder.makefolder(key)
 
         #
         # Find deleted folders.

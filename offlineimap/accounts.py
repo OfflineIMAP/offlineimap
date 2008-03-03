@@ -145,7 +145,7 @@ class AccountSynchronizationMixin:
             localrepos = self.localrepos
             statusrepos = self.statusrepos
             self.ui.syncfolders(remoterepos, localrepos)
-            remoterepos.syncfoldersto(localrepos)
+            remoterepos.syncfoldersto(localrepos, [statusrepos])
 
             folderthreads = []
             for remotefolder in remoterepos.getfolders():

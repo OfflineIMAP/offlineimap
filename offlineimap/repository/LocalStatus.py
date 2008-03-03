@@ -37,8 +37,8 @@ class LocalStatusRepository(BaseRepository):
         return os.path.join(self.directory, foldername)
 
     def makefolder(self, foldername):
-        # "touch" the file.
-        file = open(self.getfolderfilename(foldername), "ab")
+        # "touch" the file, truncating it.
+        file = open(self.getfolderfilename(foldername), "wb")
         file.close()
         # Invalidate the cache.
         self.folders = None
