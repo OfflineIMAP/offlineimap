@@ -1,5 +1,5 @@
 # Local status cache virtual folder
-# Copyright (C) 2002 - 2007 John Goerzen
+# Copyright (C) 2002 - 2008 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify

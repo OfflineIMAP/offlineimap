@@ -18,6 +18,7 @@
 
 from Base import BaseRepository
 from offlineimap import folder
+import offlineimap.folder.LocalStatus
 import os, re
 
 class LocalStatusRepository(BaseRepository):
@@ -39,6 +40,7 @@ class LocalStatusRepository(BaseRepository):
     def makefolder(self, foldername):
         # "touch" the file, truncating it.
         file = open(self.getfolderfilename(foldername), "wb")
+        file.write(offlineimap.folder.LocalStatus.magicline + '\n')
         file.close()
         # Invalidate the cache.
         self.folders = None
