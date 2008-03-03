@@ -791,11 +791,11 @@ def test_mycmp():
 	</para>
 
 	<programlisting>rm -r ~/Folders/INBOX
-rm -r ~/.offlineimap/Account-<replaceable>AccountName</>
-rm -r ~/.offlineimap/Repository-<replaceable>RepositoryName</></programlisting>
+rm -r ~/.offlineimap/Account-<replaceable>AccountName</>/LocalStatus/INBOX
+rm -r ~/.offlineimap/Repository-<replaceable>RemoteRepositoryName</>/FolderValidity/INBOX</programlisting>
 
 	<para>
-	  (Of course, replace AccountName and RepositoryName 
+	  (Of course, replace AccountName and RemoteRepositoryName 
 	  with the names as specified
 	  in <filename>~/.offlineimaprc</filename>).
 	</para>
