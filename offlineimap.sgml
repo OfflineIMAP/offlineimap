@@ -701,7 +701,7 @@ holdconnectionopen = no</programlisting>
 	  is based on one supplied by Tommi Virtanen for this feature.
 	</para>
 	<para>
-	  In <filename>~/.offlineimap.rc</filename>, he adds these options:
+	  In <filename>~/.offlineimaprc</filename>, he adds these options:
 	</para>
 	<programlisting>[general]
 pythonfile=~/.offlineimap.py
