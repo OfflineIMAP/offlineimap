@@ -51,7 +51,7 @@ class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4):
     def open(self, host = '', port = imaplib.IMAP4_PORT):
         imaplibutil.new_open(self, host, port)
 
-class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplib.IMAP4_SSL):
+class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL):
     def open(self, host = '', port = imaplib.IMAP4_SSL_PORT):
         imaplibutil.new_open_ssl(self, host, port)
 

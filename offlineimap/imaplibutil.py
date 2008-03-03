@@ -103,6 +103,14 @@ def new_mesg(self, s, secs=None):
             tm = time.strftime('%M:%S', time.localtime(secs))
             UIBase.getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
 
+class WrappedIMAP4_SSL(IMAP4_SSL):
+    def open(self, host = '', port = IMAP4_SSL_PORT):
+        IMAP4_SSL.open(self, host, port)
+        self.sslobj = sslwrapper(self.sslobj)
+
+    def readline(self):
+        return self.sslobj.readline()
+
 def new_open(self, host = '', port = IMAP4_PORT):
         """Setup connection to remote server on "host:port"
             (default: localhost:standard IMAP4 port).
