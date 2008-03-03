@@ -85,30 +85,30 @@ class IMAPRepository(BaseRepository):
         return self.imapserver.delim
 
     def gethost(self):
-	host = None
+        host = None
         localeval = self.localeval
 
         if self.config.has_option(self.getsection(), 'remotehosteval'):
-	    host = self.getconf('remotehosteval')
-	if host != None:
-	    return localeval.eval(host)
+            host = self.getconf('remotehosteval')
+        if host != None:
+            return localeval.eval(host)
 
-	host = self.getconf('remotehost')
-	if host != None:
-	    return host
+        host = self.getconf('remotehost')
+        if host != None:
+            return host
 
     def getuser(self):
-	user = None
+        user = None
         localeval = self.localeval
 
         if self.config.has_option(self.getsection(), 'remoteusereval'):
-	    user = self.getconf('remoteusereval')
-	if user != None:
-	    return localeval.eval(user)
+            user = self.getconf('remoteusereval')
+        if user != None:
+            return localeval.eval(user)
 
-	user = self.getconf('remoteuser')
-	if user != None:
-	    return user
+        user = self.getconf('remoteuser')
+        if user != None:
+            return user
         try:
             netrcentry = netrc.netrc().authentificator(self.gethost())
         except IOError, inst:
@@ -137,13 +137,13 @@ class IMAPRepository(BaseRepository):
         return self.getconfboolean('expunge', 1)
 
     def getpassword(self):
-	passwd = None
+        passwd = None
         localeval = self.localeval
 
         if self.config.has_option(self.getsection(), 'remotepasseval'):
-	    passwd = self.getconf('remotepasseval')
-	if passwd != None:
-	    return localeval.eval(passwd)
+            passwd = self.getconf('remotepasseval')
+        if passwd != None:
+            return localeval.eval(passwd)
 
         password = self.getconf('remotepass', None)
         if password != None:
@@ -153,7 +153,7 @@ class IMAPRepository(BaseRepository):
             fd = open(os.path.expanduser(passfile))
             password = fd.readline().strip()
             fd.close()
-	    return password
+            return password
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
         except IOError, inst:
