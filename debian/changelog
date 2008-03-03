@@ -1,3 +1,25 @@
+offlineimap (5.99.5) unstable; urgency=low
+
+  * When a local folder is deleted, but the OfflineIMAP status cache
+    is not cleared, do not delete all mail in that folder on the
+    remote.  Closes: #459985.
+  * Apply SSL performance enhancement, working around severe
+    inefficiencies in Python's imaplib.py.  This workaround was lost
+    in 5.99.0 when the locally-hacked imaplib.py was removed.  Thanks
+    to Aaron Kaplan for help isolating the problem.
+  * Added special support for GMail.  Patch from Riccardo Murri.
+  * Added option 'f' for syncing only selected folders.  Patch from
+    Riccardo Murri.
+  * Added option -k for overriding config options.  Patch from
+    Riccardo Murri.
+  * Fix read-only detection behavior when changing flags.  Patch from
+    Florian Friesdorf.
+  * Fix handling of servers that return UIDs in some, but not all,
+    responses to FETCH.  OfflineIMAP bug #22.  Patch by pistore.
+  * Fix typo in manual.  Closes: #360365.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 03 Mar 2008 00:42:56 -0600
+
 offlineimap (5.99.4) unstable; urgency=low
 
   * Undo 'Fix Maildir race' patch.  It was causes spinning.
