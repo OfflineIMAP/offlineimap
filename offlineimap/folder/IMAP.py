@@ -410,9 +410,9 @@ class IMAPFolder(BaseFolder):
             if not ('UID' in attributehash and 'FLAGS' in attributehash):
                 # Compensate for servers that don't return a UID attribute.
                 continue
-            flags = attributehash['FLAGS']
+            lflags = attributehash['FLAGS']
             uid = long(attributehash['UID'])
-            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
+            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(lflags)
             try:
                 needupdate.remove(uid)
             except ValueError:          # Let it slide if it's not in the list
