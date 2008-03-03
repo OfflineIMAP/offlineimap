@@ -1,11 +1,11 @@
 productname = 'OfflineIMAP'
-versionstr = "5.99.4"
+versionstr = "5.99.5"
 
 versionlist = versionstr.split(".")
 major = versionlist[0]
 minor = versionlist[1]
 patch = versionlist[2]
-copyright = "Copyright (C) 2002 - 2007 John Goerzen"
+copyright = "Copyright (C) 2002 - 2008 John Goerzen"
 author = "John Goerzen"
 author_email = "jgoerzen@complete.org"
 description = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
