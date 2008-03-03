@@ -6,6 +6,9 @@ Build-Depends: debhelper (>> 4.2.0)
 Build-Depends-Indep: python-dev, groff, docbook-utils, python-support (>= 0.4.0), gtk-doc-tools, sgml2x, docbook-utils, jade, lynx, scons, xpdf-utils, gs, man-db
 Build-Conflicts-Indep: docbook-ebnf
 Standards-Version: 3.7.2
+Homepage: http://software.complete.org/offlineimap
+Vcs-Browser: http://git.complete.org/offlineimap
+Vcs-Git: git://git.complete.org/offlineimap
 
 Package: offlineimap
 Architecture: all

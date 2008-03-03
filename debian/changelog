@@ -19,8 +19,9 @@ offlineimap (5.99.5) unstable; urgency=low
   * Fix handling of servers that return UIDs in some, but not all,
     responses to FETCH.  OfflineIMAP bug #22.  Patch by pistore.
   * Fix typo in manual.  Closes: #360365.
+  * Added Homepage, VCS-* lines to debian/control.
 
- -- John Goerzen <jgoerzen@complete.org>  Mon, 03 Mar 2008 00:42:56 -0600
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 03 Mar 2008 12:47:46 -0600
 
 offlineimap (5.99.4) unstable; urgency=low
 
