@@ -20,7 +20,7 @@ from Base import BaseRepository
 from offlineimap import folder, imaputil, imapserver
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
-import re, types, os
+import re, types, os, netrc, errno
 from threading import *
 
 class IMAPRepository(BaseRepository):
@@ -110,6 +110,15 @@ class IMAPRepository(BaseRepository):
         if user != None:
             return user
 
+        try:
+            netrcentry = netrc.netrc().authentificator(self.gethost())
+        except IOError, inst:
+            if inst.errno != errno.ENOENT:
+                raise
+        else:
+            if netrcentry:
+                return netrcentry[0]
+
     def getport(self):
         return self.getconfint('remoteport', None)
 
@@ -146,6 +155,17 @@ class IMAPRepository(BaseRepository):
             password = fd.readline().strip()
             fd.close()
             return password
+
+        try:
+            netrcentry = netrc.netrc().authenticators(self.gethost())
+        except IOError, inst:
+            if inst.errno != errno.ENOENT:
+                raise
+        else:
+            if netrcentry:
+                user = self.getconf('remoteuser')
+                if user == None or user == netrcentry[0]:
+                    return netrcentry[2]
         return None
 
     def getfolder(self, foldername):
