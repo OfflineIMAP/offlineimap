@@ -424,17 +424,12 @@ class IMAPFolder(BaseFolder):
         self.addmessagesflags_noconvert(uidlist, ['T'])
         imapobj = self.imapserver.acquireconnection()
         try:
-            # Making sure, that we have the necessary rights
-            # ensuring that we access readonly: python's braindead imaplib.py
-            # otherwise might raise an exception during the myrights() call
-            imapobj.select(self.getfullname(),readonly=1)
-            if not 'd' in imapobj.myrights(self.getfullname())[1][0].split()[1]:
-                # no delete/expunge rights
+            try:
+                imapobj.select(self.getfullname())
+            except imapobj.readonly:
                 UIBase.getglobalui().deletereadonly(self, uidlist)
                 return
-
             if self.expunge:
-                imapobj.select(self.getfullname())
                 assert(imapobj.expunge()[0] == 'OK')
         finally:
             self.imapserver.releaseconnection(imapobj)
