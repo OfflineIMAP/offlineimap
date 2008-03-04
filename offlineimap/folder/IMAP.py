@@ -365,30 +365,11 @@ class IMAPFolder(BaseFolder):
         
         imapobj = self.imapserver.acquireconnection()
         try:
-            # Making sure, that we have the necessary rights
-            # ensuring that we access readonly: python's braindead imaplib.py
-            # otherwise might raise an exception during the myrights() call
-            imapobj.select(self.getfullname(),readonly=1)
-            myrights = imapobj.myrights(self.getfullname())[1][0].split()[1]
-	    if 'T' in flags and not 'd' in myrights or \
-		    'S' in flags and not 's' in myrights or \
-		    filter(lambda x: x not in 'TS', flags) and not 'w' in myrights:
-		# no delete/expunge right, but needed or
-		# no store seen right, but needed or
-		# no write right, but needed
-                UIBase.getglobalui().flagstoreadonly(self, uidlist, flags)
-                return
-
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-                # Above we made sure, we have the necessary rights.
-                # Ugly hack, to prevent an unnecessary exception:
-                #  readonly: mailbox status changed to READ-ONLY
-                # imaplib should take care of that itself.
-                # The connection is anyway released below, so we dont need to
-                # undo the hack.
-                imapobj.is_readonly = True
+                UIBase.getglobalui().flagstoreadonly(self, uidlist, flags)
+                return
             r = imapobj.uid('store',
                             imaputil.listjoin(uidlist),
                             operation + 'FLAGS',
