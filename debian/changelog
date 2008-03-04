@@ -1,3 +1,9 @@
+offlineimap (5.99.6) unstable; urgency=low
+
+  * Revert read-only patch that was causing OfflineIMAP to crash for people.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 03 Mar 2008 21:41:18 -0600
+
 offlineimap (5.99.5) unstable; urgency=low
 
   * When a local folder is deleted, but the OfflineIMAP status cache
