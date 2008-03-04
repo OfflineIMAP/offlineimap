@@ -368,7 +368,6 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-		# unsure, whether this can be reached
                 UIBase.getglobalui().flagstoreadonly(self, uidlist, flags)
                 return
             r = imapobj.uid('store',

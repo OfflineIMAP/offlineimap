@@ -1,3 +1,9 @@
+offlineimap (5.99.7) unstable; urgency=low
+
+  * Revert more read-only patches.  Closes: #469244.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 04 Mar 2008 08:17:55 -0600
+
 offlineimap (5.99.6) unstable; urgency=low
 
   * Revert read-only patch that was causing OfflineIMAP to crash for people.
