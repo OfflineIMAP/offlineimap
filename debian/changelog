@@ -1,3 +1,9 @@
+offlineimap (5.99.8) UNRELEASED; urgency=low
+
+  * Bump Standards-Version to 3.7.3 — no changes required.
+
+ -- martin f. krafft <madduck@debian.org>  Wed, 05 Mar 2008 17:07:34 +0100
+
 offlineimap (5.99.7) unstable; urgency=low
 
   * Revert more read-only patches.  Closes: #469244.
