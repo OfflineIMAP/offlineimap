@@ -4,8 +4,9 @@ offlineimap (5.99.8) UNRELEASED; urgency=low
   * Bump debhelper compatibility level to 6 — no changes required.
   * Fix clean target in debian/rules to allow for proper failure handling.
   * Remove second docbook-utils build dependency.
+  * Remove empty /usr/sbin directory from package.
 
- -- martin f. krafft <madduck@debian.org>  Wed, 05 Mar 2008 17:11:08 +0100
+ -- martin f. krafft <madduck@debian.org>  Wed, 05 Mar 2008 17:11:37 +0100
 
 offlineimap (5.99.7) unstable; urgency=low
 
