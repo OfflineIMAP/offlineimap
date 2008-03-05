@@ -2,7 +2,7 @@ Source: offlineimap
 Section: mail
 Priority: optional
 Maintainer: John Goerzen <jgoerzen@complete.org>
-Build-Depends: debhelper (>> 4.2.0)
+Build-Depends: debhelper (>> 6)
 Build-Depends-Indep: python-dev, groff, docbook-utils, python-support (>= 0.4.0), gtk-doc-tools, sgml2x, docbook-utils, jade, lynx, scons, xpdf-utils, gs, man-db
 Build-Conflicts-Indep: docbook-ebnf
 Standards-Version: 3.7.3
