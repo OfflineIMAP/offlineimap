@@ -3,8 +3,9 @@ offlineimap (5.99.8) UNRELEASED; urgency=low
   * Bump Standards-Version to 3.7.3 — no changes required.
   * Bump debhelper compatibility level to 6 — no changes required.
   * Fix clean target in debian/rules to allow for proper failure handling.
+  * Remove second docbook-utils build dependency.
 
- -- martin f. krafft <madduck@debian.org>  Wed, 05 Mar 2008 17:10:26 +0100
+ -- martin f. krafft <madduck@debian.org>  Wed, 05 Mar 2008 17:11:08 +0100
 
 offlineimap (5.99.7) unstable; urgency=low
 
