@@ -21,7 +21,16 @@ from offlineimap import imaplibutil, imaputil, threadutil
 from offlineimap.ui import UIBase
 from threading import *
 import thread, hmac, os
+import base64
 
+try:
+    # do we have a recent pykerberos?
+    have_gss = False
+    import kerberos
+    if 'authGSSClientWrap' in dir(kerberos):
+        have_gss = True
+except ImportError:
+    pass
 
 class UsefulIMAPMixIn:
     def getstate(self):
@@ -58,6 +67,8 @@ class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL):
 class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplibutil.IMAP4_Tunnel): pass
 
 class IMAPServer:
+    GSS_STATE_STEP = 0
+    GSS_STATE_WRAP = 1
     def __init__(self, config, reposname,
                  username = None, password = None, hostname = None,
                  port = None, ssl = 1, maxconnections = 1, tunnel = None,
@@ -86,6 +97,9 @@ class IMAPServer:
         self.semaphore = BoundedSemaphore(self.maxconnections)
         self.connectionlock = Lock()
         self.reference = reference
+        self.gss_step = self.GSS_STATE_STEP
+        self.gss_vc = None
+        self.gssapi = False
 
     def getpassword(self):
         if self.goodpassword != None:
@@ -134,7 +148,34 @@ class IMAPServer:
         UIBase.getglobalui().debug('imap',
                                    'Attempting plain authentication')
         imapobj.login(self.username, self.getpassword())
-        
+
+    def gssauth(self, response):
+        data = base64.b64encode(response)
+        try:
+            if self.gss_step == self.GSS_STATE_STEP:
+                if not self.gss_vc:
+                    rc, self.gss_vc = kerberos.authGSSClientInit('imap@' + 
+                                                                 self.hostname)
+                    response = kerberos.authGSSClientResponse(self.gss_vc)
+                rc = kerberos.authGSSClientStep(self.gss_vc, data)
+                if rc != kerberos.AUTH_GSS_CONTINUE:
+                   self.gss_step = self.GSS_STATE_WRAP
+            elif self.gss_step == self.GSS_STATE_WRAP:
+                rc = kerberos.authGSSClientUnwrap(self.gss_vc, data)
+                response = kerberos.authGSSClientResponse(self.gss_vc)
+                rc = kerberos.authGSSClientWrap(self.gss_vc, response,
+                                                self.username)
+            response = kerberos.authGSSClientResponse(self.gss_vc)
+        except kerberos.GSSError, err:
+            # Kerberos errored out on us, respond with None to cancel the
+            # authentication
+            UIBase.getglobalui().debug('imap',
+                                       '%s: %s' % (err[0][0], err[1][0]))
+            return None
+
+        if not response:
+            response = ''
+        return base64.b64decode(response)
 
     def acquireconnection(self):
         """Fetches a connection from the pool, making sure to create a new one
@@ -186,15 +227,29 @@ class IMAPServer:
 
             if not self.tunnel:
                 try:
-                    if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+                    # Try GSSAPI and continue if it fails
+                    if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
                         UIBase.getglobalui().debug('imap',
-                                                   'Attempting CRAM-MD5 authentication')
+                            'Attempting GSSAPI authentication')
                         try:
-                            imapobj.authenticate('CRAM-MD5', self.md5handler)
+                            imapobj.authenticate('GSSAPI', self.gssauth)
                         except imapobj.error, val:
+                            UIBase.getglobalui().debug('imap',
+                                'GSSAPI Authentication failed')               
+                        else:
+                            self.gssapi = True
+                            self.password = None
+
+                    if not self.gssapi:
+                        if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+                            UIBase.getglobalui().debug('imap',
+                                                   'Attempting CRAM-MD5 authentication')
+                            try:
+                                imapobj.authenticate('CRAM-MD5', self.md5handler)
+                            except imapobj.error, val:
+                                self.plainauth(imapobj)
+                        else:
                             self.plainauth(imapobj)
-                    else:
-                        self.plainauth(imapobj)
                     # Would bail by here if there was a failure.
                     success = 1
                     self.goodpassword = self.password
