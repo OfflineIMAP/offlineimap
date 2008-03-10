@@ -43,7 +43,10 @@ class LocalStatusRepository(BaseRepository):
         file = open(filename + ".tmp", "wb")
         file.write(offlineimap.folder.LocalStatus.magicline + '\n')
         file.close()
-        os.unlink(filename)
+        try:
+            os.unlink(filename)
+        except:
+            pass
         os.rename(filename + ".tmp", filename)
         
         # Invalidate the cache.
