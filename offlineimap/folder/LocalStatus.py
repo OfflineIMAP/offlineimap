@@ -67,7 +67,7 @@ class LocalStatusFolder(BaseFolder):
         file = open(self.filename, "rt")
         self.messagelist = {}
         line = file.readline().strip()
-        if not line and not line.read()
+        if not line and not line.read():
             # The status file is empty - should not have happened,
             # but somehow did.
             file.close()
