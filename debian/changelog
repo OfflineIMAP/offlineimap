@@ -1,3 +1,25 @@
+offlineimap (5.99.9) unstable; urgency=low
+
+  [ John Goerzen ]
+  * Automatically create top-level localfolder for Maildirs this is the
+    folder Maildirs will put messages in.  (Closes: #286967)
+
+  [ Florian Friesdorf ]
+  * Ignore empty LocalStatus files I created new IMAP folders on my
+    server. In some moment I found offlineimap crashed. The reason were
+    empty LocalStatus files. From looking at the code I have no
+    explanation how those files came into existence.
+
+  [ John Goerzen ]
+  * Add *~ to .gitignore
+  * Updated offlineimap.conf with Kerberos info
+  * Also make bin/offlineimap +x
+
+  [ Florian Friesdorf ]
+  * chmod +x offlineimap.py
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 27 Mar 2008 16:21:41 -0500
+
 offlineimap (5.99.8) unstable; urgency=low
 
   * Added Kerberos support patch from Eric Dorland.  Closes: #359213.
