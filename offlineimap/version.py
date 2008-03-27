@@ -1,5 +1,5 @@
 productname = 'OfflineIMAP'
-versionstr = "5.99.7"
+versionstr = "5.99.9"
 
 versionlist = versionstr.split(".")
 major = versionlist[0]
@@ -18,7 +18,7 @@ COPYING for details.  This is free software, and you are welcome
 to distribute it under the conditions laid out in COPYING."""
 
 homepage = "http://software.complete.org/offlineimap/"
-license = """Copyright (C) 2002 - 2007 John Goerzen <jgoerzen@complete.org>
+license = """Copyright (C) 2002 - 2008 John Goerzen <jgoerzen@complete.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
