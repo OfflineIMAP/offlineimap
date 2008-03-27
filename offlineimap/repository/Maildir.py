@@ -35,6 +35,10 @@ class MaildirRepository(BaseRepository):
         self.debug("MaildirRepository initialized, sep is " + repr(self.getsep()))
 	self.folder_atimes = []
 
+        # Create the top-level folder if it doesn't exist
+        if not os.path.isdir(self.root):
+            os.mkdir(self.root, 0700)
+
     def _append_folder_atimes(self, foldername):
 	p = os.path.join(self.root, foldername)
 	new = os.path.join(p, 'new')
