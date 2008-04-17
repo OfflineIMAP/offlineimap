@@ -1,3 +1,9 @@
+offlineimap (5.99.10) unstable; urgency=low
+
+  * Address bug with LocalStatus folders in subfolders.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 17 Apr 2008 02:45:24 -0500
+
 offlineimap (5.99.9) unstable; urgency=low
 
   [ John Goerzen ]
