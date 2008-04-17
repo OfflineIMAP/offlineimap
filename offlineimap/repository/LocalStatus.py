@@ -41,7 +41,8 @@ class LocalStatusRepository(BaseRepository):
         # Create parent dirs
         
         filename = self.getfolderfilename(foldername)
-        os.makedirs(os.path.dirname(foldername), 0700)
+        if not os.path.isdir(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename), 0700)
 
         # "touch" the file, truncating it.
         file = open(filename + ".tmp", "wt")
