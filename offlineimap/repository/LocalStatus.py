@@ -19,7 +19,7 @@
 from Base import BaseRepository
 from offlineimap import folder
 import offlineimap.folder.LocalStatus
-import os, re
+import os, re, os.path
 
 class LocalStatusRepository(BaseRepository):
     def __init__(self, reposname, account):
@@ -38,8 +38,12 @@ class LocalStatusRepository(BaseRepository):
         return os.path.join(self.directory, foldername)
 
     def makefolder(self, foldername):
-        # "touch" the file, truncating it.
+        # Create parent dirs
+        
         filename = self.getfolderfilename(foldername)
+        os.makedirs(os.path.dirname(foldername), 0700)
+
+        # "touch" the file, truncating it.
         file = open(filename + ".tmp", "wt")
         file.write(offlineimap.folder.LocalStatus.magicline + '\n')
         file.flush()
