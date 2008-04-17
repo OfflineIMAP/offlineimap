@@ -40,13 +40,11 @@ class LocalStatusRepository(BaseRepository):
     def makefolder(self, foldername):
         # "touch" the file, truncating it.
         filename = self.getfolderfilename(foldername)
-        file = open(filename + ".tmp", "wb")
+        file = open(filename + ".tmp", "wt")
         file.write(offlineimap.folder.LocalStatus.magicline + '\n')
+        file.flush()
+        os.fsync(file.fileno())
         file.close()
-        try:
-            os.unlink(filename)
-        except:
-            pass
         os.rename(filename + ".tmp", filename)
         
         # Invalidate the cache.
