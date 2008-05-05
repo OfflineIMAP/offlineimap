@@ -1,3 +1,9 @@
+offlineimap (5.99.12) unstable; urgency=low
+
+  * Finally fix LocalStatus folders.  Closes: #478990.
+
+ -- John Goerzen <jgoerzen@complete.org>  Mon, 05 May 2008 02:37:22 -0500
+
 offlineimap (5.99.11) unstable; urgency=low
 
   * Correct bug introduced in 5.99.10
