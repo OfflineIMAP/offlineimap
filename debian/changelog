@@ -1,3 +1,10 @@
+offlineimap (5.99.13) unstable; urgency=low
+
+  * Revert Darwin memory leak workaround patch; it was causing network
+    communication issues.  Closes: #479677.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 06 May 2008 08:49:56 -0500
+
 offlineimap (5.99.12) unstable; urgency=low
 
   * Finally fix LocalStatus folders.  Closes: #478990.
