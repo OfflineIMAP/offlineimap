@@ -23,9 +23,6 @@ from threading import *
 import thread, hmac, os
 import base64
 
-from StringIO import StringIO
-from platform import system
-
 try:
     # do we have a recent pykerberos?
     have_gss = False
@@ -63,41 +60,9 @@ class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4):
     def open(self, host = '', port = imaplib.IMAP4_PORT):
         imaplibutil.new_open(self, host, port)
 
-    # This is a hack around Darwin's implementation of realloc() (which
-    # Python uses inside the socket code). On Darwin, we split the
-    # message into 100k chunks, which should be small enough - smaller
-    # might start seriously hurting performance ...
-
-    def read(self, size):
-        if system() == 'Darwin':
-            read = 0
-            io = StringIO()
-            while read < size:
-                data = self.file.read(min(size-read,100000))
-                read += len(data)
-                io.write(data)
-            return io.getvalue()
-        else:
-            return self.file.read(size)
-
 class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL):
     def open(self, host = '', port = imaplib.IMAP4_SSL_PORT):
         imaplibutil.new_open_ssl(self, host, port)
-
-    # This is the same hack as above, to be used in the case of an SSL
-    # connexion.
-
-    def read(self, size):
-        if system() == 'Darwin':
-            read = 0
-            io = StringIO()
-            while read < size:
-                data = self.sslobj.read(min(size-read,100000))
-                read += len(data)
-                io.write(data)
-            return io.getvalue()
-        else:
-            return self.sslobj.read(size)
 
 class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplibutil.IMAP4_Tunnel): pass
 
