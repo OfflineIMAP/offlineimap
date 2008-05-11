@@ -154,7 +154,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
             if not key in desthash:
                 dest.makefolder(key)
                 for copyfolder in copyfolders:
-                    copyfolder.makefolder(key.replace(dest.getsep(), src.getsep()))
+                    copyfolder.makefolder(key.replace(dest.getsep(), copyfolder.getsep()))
 
         #
         # Find deleted folders.
