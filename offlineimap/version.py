@@ -1,5 +1,5 @@
 productname = 'OfflineIMAP'
-versionstr = "5.99.14"
+versionstr = "5.99.15"
 
 versionlist = versionstr.split(".")
 major = versionlist[0]
