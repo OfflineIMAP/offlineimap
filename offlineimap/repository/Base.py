@@ -17,7 +17,6 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import CustomConfig
-from offlineimap.ui import UIBase
 import os.path
 
 def LoadRepository(name, account, reqtype):
@@ -165,17 +164,6 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         #for key in desthash.keys():
         #    if not key in srchash:
         #        dest.deletefolder(key)
-
-
-        ##### Find any folders that aren't being synced
-        ignoredfolders = []
-        for key in desthash.keys():
-            if not key in srchash:
-                ignoredfolders.append(key)
-
-        ignoredfolders.sort()
-        if ignoredfolders != []:
-            UIBase.getglobalui().warn("Found local folders that are not being synced: %s" % (", ".join(ignoredfolders)))
         
     ##### Keepalive
 
