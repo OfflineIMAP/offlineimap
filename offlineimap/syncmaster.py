@@ -26,8 +26,8 @@ import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
 
-def syncaccount(threads, config, accountname, folderhash, folderhashlock):
-    account = SyncableAccount(config, accountname, folderhash, folderhashlock)
+def syncaccount(threads, config, accountname):
+    account = SyncableAccount(config, accountname)
     thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                    target = account.syncrunner,
                                    name = "Account sync %s" % accountname)
@@ -36,26 +36,11 @@ def syncaccount(threads, config, accountname, folderhash, folderhashlock):
     threads.add(thread)
     
 def syncitall(accounts, config):
-    folderhash = {'___sem': Semaphore(0)}
-    folderhashlock = Lock()
     currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
     ui = UIBase.getglobalui()
     threads = threadutil.threadlist()
     mbnames.init(config, accounts)
-
-    accountcout = 0
     for accountname in accounts:
-        syncaccount(threads, config, accountname, folderhash, folderhashlock)
-        accountcount += 1
-
-    # Gather up folder info
-    for i in range(0, accountcount):
-        folderhash['___sem'].acquire()
-
-    # Now we can tally.
-    srcnames = 
-    for accountname in accounts:
-        
-        
+        syncaccount(threads, config, accountname)
     # Wait for the threads to finish.
     threads.reset()
