@@ -95,6 +95,16 @@ class Account(CustomConfig.ConfigHelperMixin):
             return sleepresult
             
 class AccountSynchronizationMixin:
+    def __init__(self, config, name, folderhash, folderhashlock):
+        Account.__init__(self, config, name)
+        self.folderhash = folderhash
+        self.folderhashlock = folderhashlock
+        self.folderhashlock.acquire()
+        try:
+            self.folderhash[name] = {}
+        finally:
+            self.folderhashlock.release()
+
     def syncrunner(self):
         self.ui.registerthread(self.name)
         self.ui.acct(self.name)
@@ -109,6 +119,18 @@ class AccountSynchronizationMixin:
 
         # Connect to the local cache.
         self.statusrepos = offlineimap.repository.LocalStatus.LocalStatusRepository(self.getconf('localrepository'), self)
+
+        # FIXME: need new UI here?
+        self.ui.syncfolders(self.remoterepos, self.localrepos)
+        srcfolders = self.remoterepos.getfolders()
+        destfolders = self.localrepos.getfolders()
+
+        self.folderhashlock.acquire()
+        try:
+            self.folderhash[name] = {'src': srcfolders, 'dest': destfolders}
+            self.folderhash['___sem'].release()
+        finally:
+            self.folderhashlock.release()
             
         if not self.refreshperiod:
             self.sync()
