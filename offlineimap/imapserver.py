@@ -72,7 +72,7 @@ class IMAPServer:
     def __init__(self, config, reposname,
                  username = None, password = None, hostname = None,
                  port = None, ssl = 1, maxconnections = 1, tunnel = None,
-                 reference = '""'):
+                 reference = '""', sslclientcert = None, sslclientkey = None):
         self.reposname = reposname
         self.config = config
         self.username = username
@@ -83,6 +83,8 @@ class IMAPServer:
         self.tunnel = tunnel
         self.port = port
         self.usessl = ssl
+        self.sslclientcert = sslclientcert
+        self.sslclientkey = sslclientkey
         self.delim = None
         self.root = None
         if port == None:
@@ -218,7 +220,8 @@ class IMAPServer:
                 success = 1
             elif self.usessl:
                 UIBase.getglobalui().connecting(self.hostname, self.port)
-                imapobj = UsefulIMAP4_SSL(self.hostname, self.port)
+                imapobj = UsefulIMAP4_SSL(self.hostname, self.port,
+                                          self.sslclientkey, self.sslclientcert)
             else:
                 UIBase.getglobalui().connecting(self.hostname, self.port)
                 imapobj = UsefulIMAP4(self.hostname, self.port)
@@ -360,6 +363,8 @@ class ConfigedIMAPServer(IMAPServer):
             user = self.repos.getuser()
             port = self.repos.getport()
             ssl = self.repos.getssl()
+            sslclientcert = self.repos.getsslclientcert()
+            sslclientkey = self.repos.getsslclientkey()
         reference = self.repos.getreference()
         server = None
         password = None
@@ -379,4 +384,6 @@ class ConfigedIMAPServer(IMAPServer):
             IMAPServer.__init__(self, self.config, self.repos.getname(),
                                 user, password, host, port, ssl,
                                 self.repos.getmaxconnections(),
-                                reference = reference)
+                                reference = reference,
+                                sslclientcert = sslclientcert,
+                                sslclientkey = sslclientkey)
