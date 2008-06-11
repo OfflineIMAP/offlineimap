@@ -852,7 +852,7 @@ rm -r ~/.offlineimap/Repository-<replaceable>RemoteRepositoryName</>/FolderValid
 	  this as an intentional deletion of many messages and will interpret
 	  your action as requesting them to be deleted from the server as well.
 	  (If you don't understand this, don't worry; you probably won't
-	  encounter this situation)
+	  encounter this situation.)
 	</para>
       </refsect2>
 
