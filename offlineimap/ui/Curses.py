@@ -375,7 +375,7 @@ class Blinkenlights(BlinkenBase, UIBase):
             sys.exit(0)
 
     def keypress(s, key):
-        if key > 255:
+        if key < 1 or key > 255:
             return
         
         if chr(key) == 'q':
