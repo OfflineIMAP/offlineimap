@@ -1,3 +1,14 @@
+offlineimap (6.0.1) unstable; urgency=low
+
+  * Add support for SSL client certificates.  Patch by Mark Hymers,
+    ca08c1e5531af7a19b38d1034780ff751589ce9a.
+  * Yet another tweak for maildir creations.
+  * Added new [general] config option fsync to permit disabling of fsync
+    when desired.
+  * Improve OfflineIMAP power profile by reworking threadutil
+
+ -- John Goerzen <jgoerzen@complete.org>  Sat, 02 Aug 2008 15:13:47 -0500
+
 offlineimap (6.0.0) unstable; urgency=low
 
   * Updated version number to 6.0.0.  No other changes.  Calling this
