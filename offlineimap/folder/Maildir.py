@@ -48,7 +48,7 @@ class MaildirFolder(BaseFolder):
     def __init__(self, root, name, sep, repository, accountname, config):
         self.name = name
         self.config = config
-        self.dofsync = config.getdefaultboolean("general", "fsync")
+        self.dofsync = config.getdefaultboolean("general", "fsync", True)
         self.root = root
         self.sep = sep
         self.messagelist = None

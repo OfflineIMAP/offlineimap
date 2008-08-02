@@ -27,7 +27,7 @@ class LocalStatusFolder(BaseFolder):
         self.root = root
         self.sep = '.'
         self.config = config
-        self.dofsync = config.getdefaultboolean("general", "fsync")        
+        self.dofsync = config.getdefaultboolean("general", "fsync", True)
         self.filename = os.path.join(root, name)
         self.filename = repository.getfolderfilename(name)
         self.messagelist = None
