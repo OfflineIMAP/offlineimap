@@ -1,3 +1,9 @@
+offlineimap (6.0.2) unstable; urgency=low
+
+  * Yew more power handling improvements.  Closes: #434074.
+
+ -- John Goerzen <jgoerzen@complete.org>  Sat, 02 Aug 2008 17:44:24 -0500
+
 offlineimap (6.0.1) unstable; urgency=low
 
   * Add support for SSL client certificates.  Patch by Mark Hymers,
