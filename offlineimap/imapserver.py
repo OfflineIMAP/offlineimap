@@ -20,7 +20,7 @@ import imaplib
 from offlineimap import imaplibutil, imaputil, threadutil
 from offlineimap.ui import UIBase
 from threading import *
-import thread, hmac, os
+import thread, hmac, os, time
 import base64
 
 try:
@@ -309,7 +309,7 @@ class IMAPServer:
         ui.debug('imap', 'keepalive thread started')
         while 1:
             ui.debug('imap', 'keepalive: top of loop')
-            event.wait(timeout)
+            time.sleep(timeout)
             ui.debug('imap', 'keepalive: after wait')
             if event.isSet():
                 ui.debug('imap', 'keepalive: event is set; exiting')

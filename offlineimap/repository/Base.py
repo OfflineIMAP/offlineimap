@@ -171,8 +171,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         """The default implementation will do nothing."""
         pass
 
-    def stopkeepalive(self, abrupt = 0):
-        """Stop keep alive.  If abrupt is 1, stop it but don't bother waiting
+    def stopkeepalive(self):
+        """Stop keep alive, but don't bother waiting
         for the threads to terminate."""
         pass
     

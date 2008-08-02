@@ -83,16 +83,10 @@ class Account(CustomConfig.ConfigHelperMixin):
         
         refreshperiod = int(self.refreshperiod * 60)
         sleepresult = self.ui.sleep(refreshperiod)
-        if sleepresult == 2:
-            # Cancel keep-alive, but don't bother terminating threads
-            for item in kaobjs:
-                item.stopkeepalive(abrupt = 1)
-            return sleepresult
-        else:
-            # Cancel keep-alive and wait for thread to terminate.
-            for item in kaobjs:
-                item.stopkeepalive(abrupt = 0)
-            return sleepresult
+        # Cancel keepalive
+        for item in kaobjs:
+            item.stopkeepalive()
+        return sleepresult
             
 class AccountSynchronizationMixin:
     def syncrunner(self):

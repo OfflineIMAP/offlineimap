@@ -57,14 +57,12 @@ class IMAPRepository(BaseRepository):
         self.kathread.setDaemon(1)
         self.kathread.start()
 
-    def stopkeepalive(self, abrupt = 0):
+    def stopkeepalive(self):
         if not hasattr(self, 'kaevent'):
             # Keepalive is not active.
             return
 
         self.kaevent.set()
-        if not abrupt:
-            self.kathread.join()
         del self.kathread
         del self.kaevent
 
