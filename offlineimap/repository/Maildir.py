@@ -87,7 +87,7 @@ class MaildirRepository(BaseRepository):
         # makedirs will fail because the higher-up dir already exists.
         # So, check to see if this is indeed the case.
 
-        if (self.getsep() == '/' or self.getconfboolean('existsok', 0)) \
+        if (self.getsep() == '/' or self.getconfboolean('existsok', 0) or foldername == '.') \
             and os.path.isdir(foldername):
             self.debug("makefolder: %s already is a directory" % foldername)
             # Already exists.  Sanity-check that it's not a Maildir.
