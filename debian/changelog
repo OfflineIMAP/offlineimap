@@ -5,7 +5,8 @@ offlineimap (6.0.1) unstable; urgency=low
   * Yet another tweak for maildir creations.
   * Added new [general] config option fsync to permit disabling of fsync
     when desired.
-  * Improve OfflineIMAP power profile by reworking threadutil
+  * Improve OfflineIMAP power profile by reworking threadutil.  
+    Closes: #434074.
 
  -- John Goerzen <jgoerzen@complete.org>  Sat, 02 Aug 2008 15:13:47 -0500
 
