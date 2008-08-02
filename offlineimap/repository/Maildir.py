@@ -71,6 +71,7 @@ class MaildirRepository(BaseRepository):
         # self.root directory (we'd prefer to raise an error in that case),
         # but will make the (relative) paths underneath it.  Need to use
         # makedirs to support a / separator.
+        self.debug("Is dir? " + repr(os.path.isdir(foldername)))
         if self.getsep() == '/':
             for invalid in ['new', 'cur', 'tmp', 'offlineimap.uidvalidity']:
                 for component in foldername.split('/'):
