@@ -198,13 +198,14 @@ class MaildirFolder(BaseFolder):
                     os.path.join(tmpdir, messagename))
             os.unlink(os.path.join(tmpdir, tmpmessagename))
 
-        try:
-            # fsync the directory (safer semantics in Linux)
-            fd = os.open(tmpdir, os.O_RDONLY)
-            os.fsync(fd)
-            os.close(fd)
-        except:
-            pass
+        if self.dofsync:
+            try:
+                # fsync the directory (safer semantics in Linux)
+                fd = os.open(tmpdir, os.O_RDONLY)
+                os.fsync(fd)
+                os.close(fd)
+            except:
+                pass
 
         self.messagelist[uid] = {'uid': uid, 'flags': [],
                                  'filename': os.path.join(tmpdir, messagename)}
