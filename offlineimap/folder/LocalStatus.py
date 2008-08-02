@@ -22,10 +22,12 @@ import os, threading
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
 class LocalStatusFolder(BaseFolder):
-    def __init__(self, root, name, repository, accountname):
+    def __init__(self, root, name, repository, accountname, config):
         self.name = name
         self.root = root
         self.sep = '.'
+        self.config = config
+        self.dofsync = config.getdefaultboolean("general", "fsync")        
         self.filename = os.path.join(root, name)
         self.filename = repository.getfolderfilename(name)
         self.messagelist = None
@@ -96,16 +98,18 @@ class LocalStatusFolder(BaseFolder):
                 flags = ''.join(flags)
                 file.write("%s:%s\n" % (msg['uid'], flags))
             file.flush()
-            os.fsync(file.fileno())
+            if self.dofsync:
+                os.fsync(file.fileno())
             file.close()
             os.rename(self.filename + ".tmp", self.filename)
 
-            try:
-                fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
-                os.fsync(fd)
-                os.close(fd)
-            except:
-                pass
+            if self.dofsync:
+                try:
+                    fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
+                    os.fsync(fd)
+                    os.close(fd)
+                except:
+                    pass
 
         finally:
             self.savelock.release()

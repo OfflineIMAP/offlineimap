@@ -113,7 +113,8 @@ class MaildirRepository(BaseRepository):
 	if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
 	    self._append_folder_atimes(foldername)
         return folder.Maildir.MaildirFolder(self.root, foldername,
-                                            self.getsep(), self, self.accountname)
+                                            self.getsep(), self, 
+                                            self.accountname, self.config)
     
     def _getfolders_scandir(self, root, extension = None):
         self.debug("_GETFOLDERS_SCANDIR STARTING. root = %s, extension = %s" \
@@ -159,7 +160,8 @@ class MaildirRepository(BaseRepository):
 		if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
 		    self._append_folder_atimes(foldername)
                 retval.append(folder.Maildir.MaildirFolder(self.root, foldername,
-                                                           self.getsep(), self, self.accountname))
+                                                           self.getsep(), self, self.accountname,
+                                                           self.config))
             if self.getsep() == '/' and dirname != '.':
                 # Check sub-directories for folders.
                 retval.extend(self._getfolders_scandir(root, foldername))
