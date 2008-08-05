@@ -18,8 +18,8 @@
 
 from threading import *
 from StringIO import StringIO
-from Queue import Queue
-import sys, traceback, thread
+from Queue import Queue, Empty
+import sys, traceback, thread, time
 from offlineimap.ui import UIBase       # for getglobalui()
 
 profiledir = None
@@ -89,7 +89,7 @@ class threadlist:
 # Exit-notify threads
 ######################################################################
 
-exitthreads = Queue(5)
+exitthreads = Queue(100)
 inited = 0
 
 def initexitnotify():
@@ -112,8 +112,14 @@ def exitnotifymonitorloop(callback):
     """
     global exitthreads
     while 1:                            # Loop forever.
-        callback(exitthreads.get(True))
-        exitthreads.task_done()
+        try:
+            thrd = exitthreads.get(False)
+            print "exitnotifymonitorloop: Got thread\n"
+            callback(thrd)
+            print "exitnotifymonitorloop: callback done\n"
+            exitthreads.task_done()
+        except Empty:
+            time.sleep(1)
 
 def threadexited(thread):
     """Called when a thread exits."""
