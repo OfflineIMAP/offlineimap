@@ -133,7 +133,7 @@ def startup(versionno):
 
     try:
         pidfd = open(config.getmetadatadir() + "/pid", "w")
-        pidfd.write(os.getpid())
+        pidfd.write(str(os.getpid()) + "\n")
         pidfd.close()
     except:
         pass
