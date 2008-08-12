@@ -36,14 +36,11 @@ class GmailFolder(IMAPFolder):
       http://mail.google.com/support/bin/answer.py?answer=77657&topic=12815
     """
 
-    #: Where deleted mail should be moved
-    TRASH_FOLDER='[Gmail]/Trash'
-
-    #: Gmail will really delete messages upon EXPUNGE in these folders
-    REAL_DELETE_FOLDERS = [ TRASH_FOLDER, '[Gmail]/Spam' ]
-
     def __init__(self, imapserver, name, visiblename, accountname, repository):
         self.realdelete = repository.getrealdelete(name)
+        self.trash_folder = repository.gettrashfolder(name)
+        #: Gmail will really delete messages upon EXPUNGE in these folders
+        self.real_delete_folders =  [ self.trash_folder, repository.getspamfolder() ]
         IMAPFolder.__init__(self, imapserver, name, visiblename, \
                             accountname, repository)
 
@@ -52,7 +49,7 @@ class GmailFolder(IMAPFolder):
         if not len(uidlist):
             return        
 
-        if self.realdelete and not (self.getname() in self.REAL_DELETE_FOLDERS):
+        if self.realdelete and not (self.getname() in self.real_delete_folders):
             # IMAP expunge is just "remove label" in this folder,
             # so map the request into a "move into Trash"
 
@@ -61,7 +58,7 @@ class GmailFolder(IMAPFolder):
                 imapobj.select(self.getfullname())
                 result = imapobj.uid('copy',
                                      imaputil.listjoin(uidlist),
-                                     self.TRASH_FOLDER)
+                                     self.trash_folder)
                 assert result[0] == 'OK', \
                        "Bad IMAPlib result: %s" % result[0]
             finally:

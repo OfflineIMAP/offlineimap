@@ -66,3 +66,12 @@ class GmailRepository(IMAPRepository):
         # XXX: `foldername` is currently ignored - the `realdelete`
         # setting is repository-wide
         return self.getconfboolean('realdelete', 0)
+
+    def gettrashfolder(self, foldername):
+        #: Where deleted mail should be moved
+        return  self.getconf('trashfolder','[Gmail]/Trash')
+	
+    def getspamfolder(self):
+        #: Gmail also deletes messages upon EXPUNGE in the Spam folder
+        return  self.getconf('spamfolder','[Gmail]/Spam')
+
