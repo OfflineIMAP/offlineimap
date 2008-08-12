@@ -115,7 +115,6 @@ def exitnotifymonitorloop(callback):
         try:
             thrd = exitthreads.get(False)
             callback(thrd)
-            exitthreads.task_done()
         except Empty:
             time.sleep(1)
 
