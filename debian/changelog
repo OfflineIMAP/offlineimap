@@ -1,3 +1,11 @@
+offlineimap (6.0.3) unstable; urgency=low
+
+  * Removed call to task_done, which required Python 2.5.  Closes: #494982.
+  * Make GMail trash and spam folder names configurable -- German Google
+    Mail uses different folder names.  Patch from Henning Glawe.
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 13 Aug 2008 13:51:54 -0500
+
 offlineimap (6.0.2) unstable; urgency=low
 
   * Yew more power handling improvements.  Closes: #434074.
