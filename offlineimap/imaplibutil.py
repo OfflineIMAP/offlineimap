@@ -166,10 +166,7 @@ def new_open_ssl(self, host = '', port = IMAP4_SSL_PORT):
         if last_error != 0:
             # FIXME
             raise socket.error(last_error)
-        if sys.version_info[0] <= 2 and sys.version_info[1] <= 2:
-            self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
-        else:
-            self.sslobj = socket.ssl(self.sock._sock, self.keyfile, self.certfile)
+        self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
         self.sslobj = sslwrapper(self.sslobj)
 
 mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
