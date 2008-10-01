@@ -192,8 +192,13 @@ class IMAPRepository(BaseRepository):
             return self.folders
         retval = []
         imapobj = self.imapserver.acquireconnection()
+        # check whether to list all folders, or subscribed only
+        listfunction = imapobj.list
+        if self.config.has_option(self.getsection(), 'subscribedonly'):
+          if self.getconf('subscribedonly') == "yes":
+            listfunction = imapobj.lsub
         try:
-            listresult = imapobj.list(directory = self.imapserver.reference)[1]
+            listresult = listfunction(directory = self.imapserver.reference)[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         for string in listresult:
