@@ -322,6 +322,12 @@ class UIBase:
         s.delThreadDebugLog(thread)
         s.unregisterthread(thread)
 
+    ################################################## Hooks
+
+    def callhook(s, msg):
+        if s.verbose >= 0:
+            s._msg(msg)
+
     ################################################## Other
 
     def sleep(s, sleepsecs):

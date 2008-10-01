@@ -127,6 +127,10 @@ class BlinkenBase:
             return tf
         finally:
             s.tflock.release()
+
+    def callhook(s, msg):
+        s.gettf().setcolor('white')
+        s.__class__.__bases__[-1].callhook(s, msg)
             
     def sleep(s, sleepsecs):
         s.gettf().setcolor('red')

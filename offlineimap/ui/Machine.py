@@ -175,3 +175,5 @@ class MachineUI(UIBase):
     def init_banner(s):
         s._printData('initbanner', offlineimap.version.banner)
 
+    def callhook(s, msg):
+        s._printData('callhook', msg)

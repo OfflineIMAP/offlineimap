@@ -21,6 +21,7 @@ from offlineimap.ui import UIBase
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from threading import Event
 import os
+from subprocess import Popen, PIPE
 
 def getaccountlist(customconfig):
     return customconfig.getsectionlist('Account')
@@ -121,6 +122,9 @@ class AccountSynchronizationMixin:
         # We don't need an account lock because syncitall() goes through
         # each account once, then waits for all to finish.
 
+        hook = self.getconf('presynchook', '')
+        self.callhook(hook)
+
         quickconfig = self.getconfint('quick', 0)
         if quickconfig < 0:
             quick = True
@@ -161,6 +165,23 @@ class AccountSynchronizationMixin:
             remoterepos.holdordropconnections()
         finally:
             pass
+
+        hook = self.getconf('postsynchook', '')
+        self.callhook(hook)
+
+    def callhook(self, cmd):
+        if not cmd:
+            return
+        try:
+            self.ui.callhook("Calling hook: " + cmd)
+            p = Popen(cmd, shell=True,
+                      stdin=PIPE, stdout=PIPE, stderr=PIPE,
+                      close_fds=True)
+            r = p.communicate()
+            self.ui.callhook("Hook stdout: %s\nHook stderr:%s\n" % r)
+            self.ui.callhook("Hook return code: %d" % p.returncode)
+        except:
+            self.ui.warn("Exception occured while calling hook")
     
 class SyncableAccount(Account, AccountSynchronizationMixin):
     pass
