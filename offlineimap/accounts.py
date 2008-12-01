@@ -62,7 +62,7 @@ class Account(CustomConfig.ConfigHelperMixin):
     def getsection(self):
         return 'Account ' + self.getname()
 
-    def sleeper(self):
+    def sleeper(self, siglistener):
         """Sleep handler.  Returns same value as UIBase.sleep:
         0 if timeout expired, 1 if there was a request to cancel the timer,
         and 2 if there is a request to abort the program.
@@ -83,14 +83,25 @@ class Account(CustomConfig.ConfigHelperMixin):
             item.startkeepalive()
         
         refreshperiod = int(self.refreshperiod * 60)
-        sleepresult = self.ui.sleep(refreshperiod)
+#         try:
+#             sleepresult = siglistener.get_nowait()
+#             # retrieved signal before sleep started
+#             if sleepresult == 1:
+#                 # catching signal 1 here means folders were cleared before signal was posted
+#                 pass
+#         except Empty:
+#             sleepresult = self.ui.sleep(refreshperiod, siglistener)
+        sleepresult = self.ui.sleep(refreshperiod, siglistener)
+        if sleepresult == 1:
+            self.quicknum = 0
+
         # Cancel keepalive
         for item in kaobjs:
             item.stopkeepalive()
         return sleepresult
             
 class AccountSynchronizationMixin:
-    def syncrunner(self):
+    def syncrunner(self, siglistener):
         self.ui.registerthread(self.name)
         self.ui.acct(self.name)
         accountmetadata = self.getaccountmeta()
@@ -106,19 +117,19 @@ class AccountSynchronizationMixin:
         self.statusrepos = offlineimap.repository.LocalStatus.LocalStatusRepository(self.getconf('localrepository'), self)
             
         if not self.refreshperiod:
-            self.sync()
+            self.sync(siglistener)
             self.ui.acctdone(self.name)
             return
         looping = 1
         while looping:
-            self.sync()
-            looping = self.sleeper() != 2
+            self.sync(siglistener)
+            looping = self.sleeper(siglistener) != 2
         self.ui.acctdone(self.name)
 
     def getaccountmeta(self):
         return os.path.join(self.metadatadir, 'Account-' + self.name)
 
-    def sync(self):
+    def sync(self, siglistener):
         # We don't need an account lock because syncitall() goes through
         # each account once, then waits for all to finish.
 
@@ -145,19 +156,24 @@ class AccountSynchronizationMixin:
             self.ui.syncfolders(remoterepos, localrepos)
             remoterepos.syncfoldersto(localrepos, [statusrepos])
 
-            folderthreads = []
-            for remotefolder in remoterepos.getfolders():
-                thread = InstanceLimitedThread(\
-                    instancename = 'FOLDER_' + self.remoterepos.getname(),
-                    target = syncfolder,
-                    name = "Folder sync %s[%s]" % \
-                    (self.name, remotefolder.getvisiblename()),
-                    args = (self.name, remoterepos, remotefolder, localrepos,
-                            statusrepos, quick))
-                thread.setDaemon(1)
-                thread.start()
-                folderthreads.append(thread)
-            threadutil.threadsreset(folderthreads)
+            siglistener.addfolders(remoterepos.getfolders(), bool(self.refreshperiod), quick)
+
+            while True:
+                folderthreads = []
+                for remotefolder, quick in siglistener.queuedfolders():
+                    thread = InstanceLimitedThread(\
+                        instancename = 'FOLDER_' + self.remoterepos.getname(),
+                        target = syncfolder,
+                        name = "Folder sync %s[%s]" % \
+                        (self.name, remotefolder.getvisiblename()),
+                        args = (self.name, remoterepos, remotefolder, localrepos,
+                                statusrepos, quick))
+                    thread.setDaemon(1)
+                    thread.start()
+                    folderthreads.append(thread)
+                threadutil.threadsreset(folderthreads)
+                if siglistener.clearfolders():
+                    break
             mbnames.write()
             localrepos.forgetfolders()
             remoterepos.forgetfolders()

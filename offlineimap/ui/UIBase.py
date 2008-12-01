@@ -19,6 +19,7 @@
 import offlineimap.version
 import re, time, sys, traceback, threading, thread
 from StringIO import StringIO
+from Queue import Empty
 
 debugtypes = {'imap': 'IMAP protocol debugging',
               'maildir': 'Maildir repository debugging',
@@ -330,7 +331,7 @@ class UIBase:
 
     ################################################## Other
 
-    def sleep(s, sleepsecs):
+    def sleep(s, sleepsecs, siglistener):
         """This function does not actually output anything, but handles
         the overall sleep, dealing with updates as necessary.  It will,
         however, call sleeping() which DOES output something.
@@ -340,7 +341,12 @@ class UIBase:
 
         abortsleep = 0
         while sleepsecs > 0 and not abortsleep:
-            abortsleep = s.sleeping(1, sleepsecs)
+            try:
+                abortsleep = siglistener.get_nowait()
+                # retrieved signal while sleeping: 1 means immediately resynch, 2 means immediately die
+            except Empty:
+                # no signal
+                abortsleep = s.sleeping(1, sleepsecs)
             sleepsecs -= 1
         s.sleeping(0, 0)               # Done sleeping.
         return abortsleep

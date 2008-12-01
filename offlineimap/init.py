@@ -26,6 +26,7 @@ from offlineimap.CustomConfig import CustomConfigParser
 from threading import *
 import threading, socket
 from getopt import getopt
+import signal
 
 try:
     import fcntl
@@ -131,6 +132,11 @@ def startup(versionno):
 
     lock(config, ui)
 
+    def sigterm_handler(signum, frame):
+        # die immediately
+        ui.terminate(errormsg="terminating...")
+    signal.signal(signal.SIGTERM,sigterm_handler)
+
     try:
         pidfd = open(config.getmetadatadir() + "/pid", "w")
         pidfd.write(str(os.getpid()) + "\n")
@@ -183,12 +189,31 @@ def startup(versionno):
                 else:
                     threadutil.initInstanceLimit(instancename,
                                                  config.getdefaultint('Repository ' + reposname, "maxconnections", 1))
+        siglisteners = []
+        def sig_handler(signum, frame):
+            if signum == signal.SIGUSR1:
+                # tell each account to do a full sync asap
+                signum = (1,)
+            elif signum == signal.SIGHUP:
+                # tell each account to die asap
+                signum = (2,)
+            elif signum == signal.SIGUSR2:
+                # tell each account to do a full sync asap, then die
+                signum = (1, 2)
+            # one listener per account thread (up to maxsyncaccounts)
+            for listener in siglisteners:
+                for sig in signum:
+                    listener.put_nowait(sig)
+        signal.signal(signal.SIGHUP,sig_handler)
+        signal.signal(signal.SIGUSR1,sig_handler)
+        signal.signal(signal.SIGUSR2,sig_handler)
 
         threadutil.initexitnotify()
         t = ExitNotifyThread(target=syncmaster.syncitall,
                              name='Sync Runner',
                              kwargs = {'accounts': syncaccounts,
-                                       'config': config})
+                                       'config': config,
+                                       'siglisteners': siglisteners})
         t.setDaemon(1)
         t.start()
     except:

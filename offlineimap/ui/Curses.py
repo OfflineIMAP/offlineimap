@@ -541,10 +541,10 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.c.stop()
         UIBase.mainException(s)
 
-    def sleep(s, sleepsecs):
+    def sleep(s, sleepsecs, siglistener):
         s.gettf().setcolor('red')
         s._msg("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
-        BlinkenBase.sleep(s, sleepsecs)
+        return BlinkenBase.sleep(s, sleepsecs, siglistener)
             
 if __name__ == '__main__':
     x = Blinkenlights(None)

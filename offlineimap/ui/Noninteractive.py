@@ -33,10 +33,10 @@ class Basic(UIBase):
             warntxt = 'warning'
         sys.stderr.write(warntxt + ": " + str(msg) + "\n")
 
-    def sleep(s, sleepsecs):
+    def sleep(s, sleepsecs, siglistener):
         if s.verbose >= 0:
             s._msg("Sleeping for %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
-        UIBase.sleep(s, sleepsecs)
+        return UIBase.sleep(s, sleepsecs, siglistener)
 
     def sleeping(s, sleepsecs, remainingsecs):
         if sleepsecs > 0:

@@ -20,27 +20,31 @@ import imaplib
 from offlineimap import imapserver, repository, folder, mbnames, threadutil, version
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 import offlineimap.accounts
-from offlineimap.accounts import SyncableAccount
+from offlineimap.accounts import SyncableAccount, SigListener
 from offlineimap.ui import UIBase
 import re, os, os.path, offlineimap, sys
 from ConfigParser import ConfigParser
 from threading import *
 
-def syncaccount(threads, config, accountname):
+def syncaccount(threads, config, accountname, siglisteners):
     account = SyncableAccount(config, accountname)
+    siglistener = SigListener()
     thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                    target = account.syncrunner,
-                                   name = "Account sync %s" % accountname)
+                                   name = "Account sync %s" % accountname,
+                                   kwargs = {'siglistener': siglistener} )
+    # the Sync Runner thread is the only one that will mutate siglisteners
+    siglisteners.append(siglistener)
     thread.setDaemon(1)
     thread.start()
     threads.add(thread)
     
-def syncitall(accounts, config):
+def syncitall(accounts, config, siglisteners):
     currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
     ui = UIBase.getglobalui()
     threads = threadutil.threadlist()
     mbnames.init(config, accounts)
     for accountname in accounts:
-        syncaccount(threads, config, accountname)
+        syncaccount(threads, config, accountname, siglisteners)
     # Wait for the threads to finish.
     threads.reset()
