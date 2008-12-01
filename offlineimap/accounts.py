@@ -229,11 +229,11 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     if len(localfolder.getmessagelist()) or len(statusfolder.getmessagelist()):
         if not localfolder.isuidvalidityok():
             ui.validityproblem(localfolder)
-	    localrepos.restore_atime()
+            localrepos.restore_atime()
             return
         if not remotefolder.isuidvalidityok():
             ui.validityproblem(remotefolder)
-	    localrepos.restore_atime()
+            localrepos.restore_atime()
             return
     else:
         localfolder.saveuidvalidity()

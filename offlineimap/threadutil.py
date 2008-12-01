@@ -159,16 +159,18 @@ class ExitNotifyThread(Thread):
                             self.getName() + ".prof")
         except:
             self.setExitCause('EXCEPTION')
-            self.setExitException(sys.exc_info()[1])
-            sbuf = StringIO()
-            traceback.print_exc(file = sbuf)
-            self.setExitStackTrace(sbuf.getvalue())
+            if sys:
+                self.setExitException(sys.exc_info()[1])
+                sbuf = StringIO()
+                traceback.print_exc(file = sbuf)
+                self.setExitStackTrace(sbuf.getvalue())
         else:
             self.setExitCause('NORMAL')
         if not hasattr(self, 'exitmessage'):
             self.setExitMessage(None)
 
-        exitthreads.put(self, True)
+        if exitthreads:
+            exitthreads.put(self, True)
 
     def setExitCause(self, cause):
         self.exitcause = cause
@@ -230,7 +232,8 @@ class InstanceLimitedThread(ExitNotifyThread):
         try:
             ExitNotifyThread.run(self)
         finally:
-            instancelimitedsems[self.instancename].release()
+            if instancelimitedsems and instancelimitedsems[self.instancename]:
+                instancelimitedsems[self.instancename].release()
         
     
 ######################################################################
