@@ -117,6 +117,16 @@ class IMAPRepository(BaseRepository):
             if netrcentry:
                 return netrcentry[0]
 
+        try:
+            netrcentry = netrc.netrc('/etc/netrc').authentificator(self.gethost())
+        except IOError, inst:
+            if inst.errno != errno.ENOENT:
+                raise
+        else:
+            if netrcentry:
+                return netrcentry[0]
+
+
     def getport(self):
         return self.getconfint('remoteport', None)
 
@@ -162,6 +172,16 @@ class IMAPRepository(BaseRepository):
 
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
+        except IOError, inst:
+            if inst.errno != errno.ENOENT:
+                raise
+        else:
+            if netrcentry:
+                user = self.getconf('remoteuser')
+                if user == None or user == netrcentry[0]:
+                    return netrcentry[2]
+        try:
+            netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
         except IOError, inst:
             if inst.errno != errno.ENOENT:
                 raise
