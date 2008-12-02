@@ -19,9 +19,71 @@ from offlineimap import threadutil, mbnames, CustomConfig
 import offlineimap.repository.Base, offlineimap.repository.LocalStatus
 from offlineimap.ui import UIBase
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
-from threading import Event
+from threading import Event, Lock
 import os
-from subprocess import Popen, PIPE
+from Queue import Queue, Empty
+
+class SigListener(Queue):
+    def __init__(self):
+        self.folderlock = Lock()
+        self.folders = None
+        Queue.__init__(self, 20)
+    def put_nowait(self, sig):
+        self.folderlock.acquire()
+        try:
+            if sig == 1:
+                if self.folders is None or not self.autorefreshes:
+                    # folders haven't yet been added, or this account is once-only; drop signal
+                    return
+                elif self.folders:
+                    for folder in self.folders:
+                        # requeue folder
+                        self.folders[folder] = True
+                    self.quick = False
+                    return
+                # else folders have already been cleared, put signal...
+        finally:
+            self.folderlock.release()
+        Queue.put_nowait(self, sig)
+    def addfolders(self, remotefolders, autorefreshes, quick):
+        self.folderlock.acquire()
+        try:
+            self.folders = {}
+            self.quick = quick
+            self.autorefreshes = autorefreshes
+            for folder in remotefolders:
+                # new folders are queued
+                self.folders[folder] = True
+        finally:
+            self.folderlock.release()
+    def clearfolders(self):
+        self.folderlock.acquire()
+        try:
+            for folder in self.folders:
+                if self.folders[folder]:
+                    # some folders still in queue
+                    return False
+            self.folders.clear()
+            return True
+        finally:
+            self.folderlock.release()
+    def queuedfolders(self):
+        self.folderlock.acquire()
+        try:
+            dirty = True
+            while dirty:
+                dirty = False
+                for folder in self.folders:
+                    if self.folders[folder]:
+                        # mark folder as no longer queued
+                        self.folders[folder] = False
+                        dirty = True
+                        quick = self.quick
+                        self.folderlock.release()
+                        yield (folder, quick)
+                        self.folderlock.acquire()
+        finally:
+            self.folderlock.release()
 
 def getaccountlist(customconfig):
     return customconfig.getsectionlist('Account')
