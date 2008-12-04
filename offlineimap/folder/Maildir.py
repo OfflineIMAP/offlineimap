@@ -16,11 +16,16 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import os.path, os, re, time, socket
 from Base import BaseFolder
 from offlineimap import imaputil
 from offlineimap.ui import UIBase
 from threading import Lock
-import os.path, os, re, time, socket, md5
+
+try:
+    from hashlib import md5
+except ImportError:
+    import md5
 
 uidmatchre = re.compile(',U=(\d+)')
 flagmatchre = re.compile(':.*2,([A-Z]+)')
