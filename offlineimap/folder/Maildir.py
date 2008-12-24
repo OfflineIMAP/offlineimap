@@ -25,7 +25,7 @@ from threading import Lock
 try:
     from hashlib import md5
 except ImportError:
-    import md5
+    from md5 import md5
 
 uidmatchre = re.compile(',U=(\d+)')
 flagmatchre = re.compile(':.*2,([A-Z]+)')
@@ -84,7 +84,7 @@ class MaildirFolder(BaseFolder):
         files = []
         nouidcounter = -1               # Messages without UIDs get
                                         # negative UID numbers.
-        foldermd5 = md5.new(self.getvisiblename()).hexdigest()
+        foldermd5 = md5(self.getvisiblename()).hexdigest()
         folderstr = ',FMD5=' + foldermd5
         for dirannex in ['new', 'cur']:
             fulldirname = os.path.join(self.getfullname(), dirannex)
@@ -177,7 +177,7 @@ class MaildirFolder(BaseFolder):
                            os.getpid(),
                            socket.gethostname(),
                            uid,
-                           md5.new(self.getvisiblename()).hexdigest())
+                           md5(self.getvisiblename()).hexdigest())
             if os.path.exists(os.path.join(tmpdir, messagename)):
                 time.sleep(2)
                 attempts += 1
