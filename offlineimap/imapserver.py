@@ -401,8 +401,8 @@ class IdleThread(object):
 
     def noop(self):
         imapobj = self.parent.acquireconnection()
-        self.event.wait()
         imapobj.noop()
+        self.event.wait()
         self.parent.releaseconnection(imapobj)
 
     def dosync(self):
@@ -429,7 +429,10 @@ class IdleThread(object):
                     self.needsync = True
                     self.event.set()
             imapobj = self.parent.acquireconnection()
-            imapobj.idle(callback=callback)
+            if "IDLE" in imapobj.capabilities:
+                imapobj.idle(callback=callback)
+            else:
+                imapobj.noop()
             self.event.wait()
             if self.event.isSet():
                 imapobj.noop()
