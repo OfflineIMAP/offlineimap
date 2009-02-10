@@ -16,9 +16,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import imaplib
-from offlineimap import imaplibutil, imaputil, threadutil
+from offlineimap import imaplib2, imaplibutil, imaputil, threadutil
 from offlineimap.ui import UIBase
+from offlineimap.accounts import syncfolder
 from threading import *
 import thread, hmac, os, time
 import base64
@@ -56,13 +56,10 @@ class UsefulIMAPMixIn:
         else:
             self.selectedfolder = None
 
-    def _mesg(self, s, secs=None):
-        imaplibutil.new_mesg(self, s, secs)
+    def _mesg(self, s, tn=None, secs=None):
+        imaplibutil.new_mesg(self, s, tn, secs)
 
-class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4):
-    def open(self, host = '', port = imaplib.IMAP4_PORT):
-        imaplibutil.new_open(self, host, port)
-
+class UsefulIMAP4(UsefulIMAPMixIn, imaplib2.IMAP4):
     # This is a hack around Darwin's implementation of realloc() (which
     # Python uses inside the socket code). On Darwin, we split the
     # message into 100k chunks, which should be small enough - smaller
@@ -73,17 +70,17 @@ class UsefulIMAP4(UsefulIMAPMixIn, imaplib.IMAP4):
             read = 0
             io = StringIO()
             while read < size:
-                data = imaplib.IMAP4.read (self, min(size-read,8192))
+                sz = min(size-read, 8192)
+                data = imaplib2.IMAP4.read (self, sz)
                 read += len(data)
                 io.write(data)
+                if len(data) < sz:
+                    break
             return io.getvalue()
         else:
-            return imaplib.IMAP4.read (self, size)
+            return imaplib2.IMAP4.read (self, size)
 
 class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL):
-    def open(self, host = '', port = imaplib.IMAP4_SSL_PORT):
-        imaplibutil.new_open_ssl(self, host, port)
-
     # This is the same hack as above, to be used in the case of an SSL
     # connexion.
 
@@ -92,9 +89,12 @@ class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL):
             read = 0
             io = StringIO()
             while read < size:
-                data = imaplibutil.WrappedIMAP4_SSL.read (self, min(size-read,8192))
+                sz = min(size-read,8192)
+                data = imaplibutil.WrappedIMAP4_SSL.read (self, sz)
                 read += len(data)
                 io.write(data)
+                if len(data) < sz:
+                    break
             return io.getvalue()
         else:
             return imaplibutil.WrappedIMAP4_SSL.read (self,size)
@@ -107,7 +107,8 @@ class IMAPServer:
     def __init__(self, config, reposname,
                  username = None, password = None, hostname = None,
                  port = None, ssl = 1, maxconnections = 1, tunnel = None,
-                 reference = '""', sslclientcert = None, sslclientkey = None):
+                 reference = '""', sslclientcert = None, sslclientkey = None,
+                 idlefolders = []):
         self.reposname = reposname
         self.config = config
         self.username = username
@@ -134,6 +135,7 @@ class IMAPServer:
         self.semaphore = BoundedSemaphore(self.maxconnections)
         self.connectionlock = Lock()
         self.reference = reference
+        self.idlefolders = idlefolders
         self.gss_step = self.GSS_STATE_STEP
         self.gss_vc = None
         self.gssapi = False
@@ -344,8 +346,6 @@ class IMAPServer:
         ui.debug('imap', 'keepalive thread started')
         while 1:
             ui.debug('imap', 'keepalive: top of loop')
-            time.sleep(timeout)
-            ui.debug('imap', 'keepalive: after wait')
             if event.isSet():
                 ui.debug('imap', 'keepalive: event is set; exiting')
                 return
@@ -356,31 +356,87 @@ class IMAPServer:
             self.connectionlock.release()
             ui.debug('imap', 'keepalive: connectionlock released')
             threads = []
-            imapobjs = []
         
             for i in range(numconnections):
                 ui.debug('imap', 'keepalive: processing connection %d of %d' % (i, numconnections))
-                imapobj = self.acquireconnection()
-                ui.debug('imap', 'keepalive: connection %d acquired' % i)
-                imapobjs.append(imapobj)
-                thr = threadutil.ExitNotifyThread(target = imapobj.noop)
-                thr.setDaemon(1)
-                thr.start()
-                threads.append(thr)
+                if len(self.idlefolders) > i:
+                    idler = IdleThread(self, self.idlefolders[i])
+                else:
+                    idler = IdleThread(self)
+                idler.start()
+                threads.append(idler)
                 ui.debug('imap', 'keepalive: thread started')
+
+            ui.debug('imap', 'keepalive: waiting for timeout')
+            event.wait(timeout)
 
             ui.debug('imap', 'keepalive: joining threads')
 
-            for thr in threads:
+            for idler in threads:
                 # Make sure all the commands have completed.
-                thr.join()
-
-            ui.debug('imap', 'keepalive: releasing connections')
-
-            for imapobj in imapobjs:
-                self.releaseconnection(imapobj)
+                idler.stop()
+                idler.join()
 
             ui.debug('imap', 'keepalive: bottom of loop')
+
+class IdleThread(object):
+    def __init__(self, parent, folder=None):
+        self.parent = parent
+        self.folder = folder
+        self.event = Event()
+        if folder is None:
+            self.thread = Thread(target=self.noop)
+        else:
+            self.thread = Thread(target=self.idle)
+        self.thread.setDaemon(1)
+
+    def start(self):
+        self.thread.start()
+
+    def stop(self):
+        self.event.set()
+
+    def join(self):
+        self.thread.join()
+
+    def noop(self):
+        imapobj = self.parent.acquireconnection()
+        self.event.wait()
+        imapobj.noop()
+        self.parent.releaseconnection(imapobj)
+
+    def dosync(self):
+        remoterepos = self.parent.repos
+        account = remoterepos.account
+        localrepos = account.localrepos
+        remoterepos = account.remoterepos
+        statusrepos = account.statusrepos
+        remotefolder = remoterepos.getfolder(self.folder)
+        syncfolder(account.name, remoterepos, remotefolder, localrepos, statusrepos, quick=False)
+        ui = UIBase.getglobalui()
+        ui.unregisterthread(currentThread())
+
+    def idle(self):
+        imapobj = self.parent.acquireconnection()
+        imapobj.select(self.folder)
+        self.parent.releaseconnection(imapobj)
+        while True:
+            if self.event.isSet():
+                return
+            self.needsync = False
+            def callback(args):
+                if not self.event.isSet():
+                    self.needsync = True
+                    self.event.set()
+            imapobj = self.parent.acquireconnection()
+            imapobj.idle(callback=callback)
+            self.event.wait()
+            if self.event.isSet():
+                imapobj.noop()
+            self.parent.releaseconnection(imapobj)
+            if self.needsync:
+                self.event.clear()
+                self.dosync()
 
 class ConfigedIMAPServer(IMAPServer):
     """This class is designed for easier initialization given a ConfigParser
@@ -401,6 +457,7 @@ class ConfigedIMAPServer(IMAPServer):
             sslclientcert = self.repos.getsslclientcert()
             sslclientkey = self.repos.getsslclientkey()
         reference = self.repos.getreference()
+        idlefolders = self.repos.getidlefolders()
         server = None
         password = None
         
@@ -412,6 +469,7 @@ class ConfigedIMAPServer(IMAPServer):
             IMAPServer.__init__(self, self.config, self.repos.getname(),
                                 tunnel = usetunnel,
                                 reference = reference,
+                                idlefolders = idlefolders,
                                 maxconnections = self.repos.getmaxconnections())
         else:
             if not password:
@@ -420,5 +478,6 @@ class ConfigedIMAPServer(IMAPServer):
                                 user, password, host, port, ssl,
                                 self.repos.getmaxconnections(),
                                 reference = reference,
+                                idlefolders = idlefolders,
                                 sslclientcert = sslclientcert,
                                 sslclientkey = sslclientkey)

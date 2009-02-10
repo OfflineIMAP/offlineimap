@@ -17,8 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from Base import BaseFolder
-import imaplib
-from offlineimap import imaputil, imaplibutil
+from offlineimap import imaplib2, imaputil, imaplibutil
 from offlineimap.ui import UIBase
 from offlineimap.version import versionstr
 import rfc822, time, string, random, binascii, re
@@ -271,13 +270,13 @@ class IMAPFolder(BaseFolder):
                     raise ValueError
 
                 # This could raise a value error if it's not a valid format.
-                date = imaplib.Time2Internaldate(datetuple) 
+                date = imaplib2.Time2Internaldate(datetuple) 
             except (ValueError, OverflowError):
                 # Argh, sometimes it's a valid format but year is 0102
                 # or something.  Argh.  It seems that Time2Internaldate
                 # will rause a ValueError if the year is 0102 but not 1902,
                 # but some IMAP servers nonetheless choke on 1902.
-                date = imaplib.Time2Internaldate(time.localtime())
+                date = imaplib2.Time2Internaldate(time.localtime())
 
             ui.debug('imap', 'savemessage: using date ' + str(date))
             content = re.sub("(?<!\r)\n", "\r\n", content)
