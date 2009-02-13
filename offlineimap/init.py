@@ -16,8 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import imaplib
-from offlineimap import imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
+from offlineimap import imaplib2, imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
 from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from offlineimap.ui import UIBase
@@ -103,7 +102,7 @@ def startup(versionno):
         for debugtype in options['-d'].split(','):
             ui.add_debug(debugtype.strip())
             if debugtype == 'imap':
-                imaplib.Debug = 5
+                imaplib2.Debug = 5
             if debugtype == 'thread':
                 threading._VERBOSE = 1
 
