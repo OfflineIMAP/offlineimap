@@ -31,7 +31,7 @@ clean:
 	-rm -f `find . -name ".cache*"`
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
-	-rm -f manual.html manual.pdf manual.txt offlineimap.1
+	-rm -f manual.html manual.pdf manual.txt manual.ps offlineimap.1
 
 doc: 
 	docbook2man offlineimap.sgml
