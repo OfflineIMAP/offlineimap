@@ -334,6 +334,10 @@ class IMAPServer:
         self.assignedconnections = []
         self.availableconnections = []
         self.lastowner = {}
+        # reset kerberos state
+        self.gss_step = self.GSS_STATE_STEP
+        self.gss_vc = None
+        self.gssapi = False
         self.connectionlock.release()
 
     def keepalive(self, timeout, event):
