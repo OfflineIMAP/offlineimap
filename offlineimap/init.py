@@ -158,7 +158,7 @@ def startup(versionno):
         activeaccounts = activeaccounts.split(",")
         allaccounts = accounts.AccountHashGenerator(config)
 
-        syncaccounts = {}
+        syncaccounts = []
         for account in activeaccounts:
             if account not in allaccounts:
                 if len(allaccounts) == 0:
@@ -168,7 +168,8 @@ def startup(versionno):
                     for name in allaccounts.keys():
                         errormsg += '\n%s'%name
                 ui.terminate(1, errortitle = 'Unknown Account "%s"'%account, errormsg = errormsg)
-            syncaccounts[account] = allaccounts[account]
+            if account not in syncaccounts:
+                syncaccounts.append(account)
 
         server = None
         remoterepos = None
