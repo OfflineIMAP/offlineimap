@@ -1,6 +1,8 @@
 offlineimap (6.0.4) UNRELEASED; urgency=low
 
   * FIXME: ensure patch from Jim Prior has had docs for signals
+  * Applied patch from Jonny Lamb to specify order of syncing.
+    Closes: #502779.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 01 Dec 2008 16:15:20 -0600
 
