@@ -274,6 +274,7 @@ class IMAPServer:
                         try:
                             imapobj.authenticate('GSSAPI', self.gssauth)
                         except imapobj.error, val:
+                            self.gssapi = False
                             UIBase.getglobalui().debug('imap',
                                 'GSSAPI Authentication failed')               
                         else:
