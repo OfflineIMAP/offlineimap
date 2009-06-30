@@ -199,9 +199,8 @@ class MaildirFolder(BaseFolder):
         ui.debug('maildir', 'savemessage: moving from %s to %s' % \
                  (tmpmessagename, messagename))
         if tmpmessagename != messagename: # then rename it
-            os.link(os.path.join(tmpdir, tmpmessagename),
+            os.rename(os.path.join(tmpdir, tmpmessagename),
                     os.path.join(tmpdir, messagename))
-            os.unlink(os.path.join(tmpdir, tmpmessagename))
 
         if self.dofsync:
             try:
