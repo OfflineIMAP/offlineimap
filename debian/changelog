@@ -1,10 +1,41 @@
-offlineimap (6.0.4) UNRELEASED; urgency=low
+offlineimap (6.0.4) unstable; urgency=low
 
   * FIXME: ensure patch from Jim Prior has had docs for signals
-  * Applied patch from Jonny Lamb to specify order of syncing.
+  * FEATURE: Applied patch from Jonny Lamb to specify order of syncing.
     Closes: #502779.
+  * FEATURE: Support pre/post-sync hooks.  Patch from Sylvain FORET.
+    Apply fix for missing imports in this patch; fix from Graham D.
+  * FEATURE: Documented pre/post-sync hooks.  Patch from Sias Mey.
+  * FEATURE: New configuration option to limit folders worked with
+    to the IMAP subscribed folders.  Patch from Sean Finney, modified
+    by John Goerzen.
+  * FEATURE: Support sending OfflineIMAP a signal to force a sync to
+    start.  Patch from Jim Pryor (e1fb9492f)
+  * FEATURE: Support for IMAP IDLE; import newer imaplib.  Patch from
+    James Bunton.  Additional patch from James Bunton to check for IDLE
+    in CAPABILITIES response.  Patch series merged in 9e085565.
+  * FEATURE: Allow keepalive to be overridden by user if imapfolders set.
+    Patch from James Bunton.
+  * FEATURE: Support /etc/netrc in addition to ~/.netrc.  Patch from
+    Jim Pryor.
+  * FEATURE: Sync accounts in order specified.  Patch from Jonny Lamb.
+  * FIX: Apply patch from Eric Dorland to fix autorefresh with Kerberos.
+  * FIX: Set gssapi to false on Kerberos error.  Patch from Christoph
+    Höger.
+  * COSMETIC: Make Ctrl-C cleaner.  Patch from Jim Pryor.
+  * COSMETIC: Fix typoes in example config file.
+    Patch from Alexey Mahotkin.
+  * COMPAT: Apply patch from Michael Witten to remove use of a private
+    attribute in imaplibutil.py (5fe379f66)
+  * COMPAT: Use md5 from haslib if available.  md5 module deprecated
+    since Python 2.5.  Patch from Loui Chang.  Fix to Chang's patch from
+    Paul Hinze.
+  * COMPAT: Apply Darwin support patch from Vincent Beffara.  Fixes
+    software.complete.org #20.  Commit 10c2b6fbaa.
+  * MISC: Better make clean, .gitignore files.  Patches from 
+    Nicolas Sebrecht.    
 
- -- John Goerzen <jgoerzen@complete.org>  Mon, 01 Dec 2008 16:15:20 -0600
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 01 Jul 2009 20:49:58 -0500
 
 offlineimap (6.0.3) unstable; urgency=low
 
