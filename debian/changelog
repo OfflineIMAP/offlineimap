@@ -1,4 +1,4 @@
-offlineimap (6.0.4) unstable; urgency=low
+offlineimap (6.1.0) unstable; urgency=low
 
   * FIXME: ensure patch from Jim Prior has had docs for signals
   * FEATURE: Applied patch from Jonny Lamb to specify order of syncing.

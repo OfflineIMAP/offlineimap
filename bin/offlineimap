@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Startup from system-wide installation
-# Copyright (C) 2002 - 2008 John Goerzen
+# Copyright (C) 2002 - 2009 John Goerzen
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -18,4 +18,4 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import init
-init.startup('6.0.3')
+init.startup('6.1.0')
