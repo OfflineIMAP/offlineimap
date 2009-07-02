@@ -23,6 +23,9 @@ from offlineimap.imaplib2 import *
 # Import the symbols we need that aren't exported by default
 from offlineimap.imaplib2 import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
 
+# ssl is new in python 2.6
+if (sys.version_info[0] == 2 and sys.version_info[1] >= 6) or sys.version_info[0] >= 3:
+    import ssl
 
 class IMAP4_Tunnel(IMAP4):
     """IMAP4 client class over a tunnel
