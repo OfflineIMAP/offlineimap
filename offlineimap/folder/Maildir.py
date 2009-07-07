@@ -88,8 +88,8 @@ class MaildirFolder(BaseFolder):
         folderstr = ',FMD5=' + foldermd5
         for dirannex in ['new', 'cur']:
             fulldirname = os.path.join(self.getfullname(), dirannex)
-            files.extend([os.path.join(fulldirname, filename) for
-                          filename in os.listdir(fulldirname)])
+            files.extend(os.path.join(fulldirname, filename) for
+                         filename in os.listdir(fulldirname))
         for file in files:
             messagename = os.path.basename(file)
             foldermatch = messagename.find(folderstr) != -1
