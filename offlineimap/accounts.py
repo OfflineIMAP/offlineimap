@@ -37,9 +37,9 @@ class SigListener(Queue):
                     # folders haven't yet been added, or this account is once-only; drop signal
                     return
                 elif self.folders:
-                    for folder in self.folders:
+                    for foldernr in range(len(self.folders)):
                         # requeue folder
-                        self.folders[folder] = True
+                        self.folders[foldernr][1] = True
                     self.quick = False
                     return
                 # else folders have already been cleared, put signal...
@@ -49,22 +49,22 @@ class SigListener(Queue):
     def addfolders(self, remotefolders, autorefreshes, quick):
         self.folderlock.acquire()
         try:
-            self.folders = {}
+            self.folders = []
             self.quick = quick
             self.autorefreshes = autorefreshes
             for folder in remotefolders:
                 # new folders are queued
-                self.folders[folder] = True
+                self.folders.append([folder, True])
         finally:
             self.folderlock.release()
     def clearfolders(self):
         self.folderlock.acquire()
         try:
-            for folder in self.folders:
-                if self.folders[folder]:
+            for folder, queued in self.folders:
+                if queued:
                     # some folders still in queue
                     return False
-            self.folders.clear()
+            self.folders[:] = []
             return True
         finally:
             self.folderlock.release()
@@ -74,10 +74,10 @@ class SigListener(Queue):
             dirty = True
             while dirty:
                 dirty = False
-                for folder in self.folders:
-                    if self.folders[folder]:
+                for foldernr, (folder, queued) in enumerate(self.folders):
+                    if queued:
                         # mark folder as no longer queued
-                        self.folders[folder] = False
+                        self.folders[foldernr][1] = False
                         dirty = True
                         quick = self.quick
                         self.folderlock.release()
