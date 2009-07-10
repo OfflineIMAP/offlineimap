@@ -109,6 +109,7 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.localeval = config.getlocaleval()
         self.ui = UIBase.getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
+        self.quickrefreshcount = self.getconfint('quick', 0)
         self.quicknum = 0
         if self.refreshperiod == 0.0:
             self.refreshperiod = None
@@ -144,8 +145,11 @@ class Account(CustomConfig.ConfigHelperMixin):
 
         for item in kaobjs:
             item.startkeepalive()
-        
-        refreshperiod = int(self.refreshperiod * 60)
+
+        sleeptime = int(self.refreshperiod * 60)
+        if (self.quickrefreshcount > 0):
+            sleeptime = int(sleeptime / self.quickrefreshcount)
+
 #         try:
 #             sleepresult = siglistener.get_nowait()
 #             # retrieved signal before sleep started
@@ -153,8 +157,8 @@ class Account(CustomConfig.ConfigHelperMixin):
 #                 # catching signal 1 here means folders were cleared before signal was posted
 #                 pass
 #         except Empty:
-#             sleepresult = self.ui.sleep(refreshperiod, siglistener)
-        sleepresult = self.ui.sleep(refreshperiod, siglistener)
+#             sleepresult = self.ui.sleep(sleeptime, siglistener)
+        sleepresult = self.ui.sleep(sleeptime, siglistener)
         if sleepresult == 1:
             self.quicknum = 0
 
