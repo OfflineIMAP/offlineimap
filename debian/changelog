@@ -1,4 +1,4 @@
-offlineimap (6.1.2) UNRELEASED; urgency=low
+offlineimap (6.1.2) unstable; urgency=low
 
   * Applied patch from Peter Colberg to remove usage of hard linking.
     Closes: #535160.
