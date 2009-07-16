@@ -1,3 +1,19 @@
+offlineimap (6.1.2) UNRELEASED; urgency=low
+
+  * Applied patch from Peter Colberg to remove usage of hard linking.
+    Closes: #535160.
+  * Fix the order of folders during sync.  Patch from
+    Nicolas Dandrimont.  Closes: #535540.
+  * Reduce memory usage when scanning Maildirs.  Patch from Michal
+    Vitecek.
+  * Use latest version of imaplib2.  Patch from Christoph Höger.
+    Fixes Kerberos login problems.
+  * Quick synchronizations (for 'quick' > 0) are now performed between
+    full synchronizations (as specified in the documentation).
+    Patch from Michal Vitecek.
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 16 Jul 2009 10:52:30 -0500
+
 offlineimap (6.1.1) unstable; urgency=low
 
   * Fix minimum Python version.  Closes: #535481.
