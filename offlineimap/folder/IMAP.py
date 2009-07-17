@@ -135,7 +135,7 @@ class IMAPFolder(BaseFolder):
             # Now, get the flags and UIDs for these.
             # We could conceivably get rid of maxmsgid and just say
             # '1:*' here.
-            response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID INTERNALDATE)')[1]
+            response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
