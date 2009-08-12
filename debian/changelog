@@ -1,3 +1,12 @@
+offlineimap (6.2.0) unstable; urgency=low
+
+  * FIX: Removed imaplib2 entirely.  It was the cause of numerous
+    crash/hang bugs.
+  * REMOVAL: IDLE support had to be removed because it depended on
+    imaplib2.
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 12 Aug 2009 00:40:31 -0500
+
 offlineimap (6.1.2) unstable; urgency=low
 
   * Applied patch from Peter Colberg to remove usage of hard linking.
