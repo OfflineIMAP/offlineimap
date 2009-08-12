@@ -4,6 +4,7 @@ offlineimap (6.2.0) unstable; urgency=low
     crash/hang bugs.
   * REMOVAL: IDLE support had to be removed because it depended on
     imaplib2.
+  * Do not request INTERNALDATE when it is not needed.
 
  -- John Goerzen <jgoerzen@complete.org>  Wed, 12 Aug 2009 00:40:31 -0500
 
