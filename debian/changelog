@@ -1,7 +1,7 @@
 offlineimap (6.2.0) unstable; urgency=low
 
   * FIX: Removed imaplib2 entirely.  It was the cause of numerous
-    crash/hang bugs.
+    crash/hang bugs.  Closes: #536156, #536329.
   * REMOVAL: IDLE support had to be removed because it depended on
     imaplib2.
   * Do not request INTERNALDATE when it is not needed.
