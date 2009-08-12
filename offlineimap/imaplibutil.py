@@ -16,12 +16,12 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import os, re, socket, time, subprocess, sys, threading
+import re, string, types, binascii, socket, time, random, subprocess, sys, os
 from offlineimap.ui import UIBase
-from offlineimap.imaplib2 import *
+from imaplib import *
 
 # Import the symbols we need that aren't exported by default
-from offlineimap.imaplib2 import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
+from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
 
 # ssl is new in python 2.6
 if (sys.version_info[0] == 2 and sys.version_info[1] >= 6) or sys.version_info[0] >= 3:
@@ -43,10 +43,12 @@ class IMAP4_Tunnel(IMAP4):
         self.process = subprocess.Popen(host, shell=True, close_fds=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         (self.outfd, self.infd) = (self.process.stdin, self.process.stdout)
-        self.read_fd = self.infd.fileno()
 
     def read(self, size):
-        return os.read(self.read_fd, size)
+        retval = ''
+        while len(retval) < size:
+            retval += self.infd.read(size - len(retval))
+        return retval
 
     def readline(self):
         return self.infd.readline()
@@ -98,21 +100,77 @@ class sslwrapper:
             else:
                 retval += linebuf
 
-def new_mesg(self, s, tn=None, secs=None):
+def new_mesg(self, s, secs=None):
             if secs is None:
                 secs = time.time()
-            if tn is None:
-                tn = threading.currentThread().getName()
             tm = time.strftime('%M:%S', time.localtime(secs))
-            UIBase.getglobalui().debug('imap', '  %s.%02d %s %s' % (tm, (secs*100)%100, tn, s))
+            UIBase.getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
 
 class WrappedIMAP4_SSL(IMAP4_SSL):
-    def open(self, host=None, port=None):
+    def open(self, host = '', port = IMAP4_SSL_PORT):
         IMAP4_SSL.open(self, host, port)
         self.sslobj = sslwrapper(self.sslobj)
 
     def readline(self):
         return self.sslobj.readline()
+
+def new_open(self, host = '', port = IMAP4_PORT):
+        """Setup connection to remote server on "host:port"
+            (default: localhost:standard IMAP4 port).
+        This connection will be used by the routines:
+            read, readline, send, shutdown.
+        """
+        self.host = host
+        self.port = port
+        res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
+                                 socket.SOCK_STREAM)
+
+        # Try each address returned by getaddrinfo in turn until we
+        # manage to connect to one.
+        # Try all the addresses in turn until we connect()
+        last_error = 0
+        for remote in res:
+            af, socktype, proto, canonname, sa = remote
+            self.sock = socket.socket(af, socktype, proto)
+            last_error = self.sock.connect_ex(sa)
+            if last_error == 0:
+                break
+            else:
+                self.sock.close()
+        if last_error != 0:
+            # FIXME
+            raise socket.error(last_error)
+        self.file = self.sock.makefile('rb')
+
+def new_open_ssl(self, host = '', port = IMAP4_SSL_PORT):
+        """Setup connection to remote server on "host:port".
+            (default: localhost:standard IMAP4 SSL port).
+        This connection will be used by the routines:
+            read, readline, send, shutdown.
+        """
+        self.host = host
+        self.port = port
+        #This connects to the first ip found ipv4/ipv6
+        #Added by Adriaan Peeters <apeeters@lashout.net> based on a socket
+        #example from the python documentation:
+        #http://www.python.org/doc/lib/socket-example.html
+        res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
+                                 socket.SOCK_STREAM)
+        # Try all the addresses in turn until we connect()
+        last_error = 0
+        for remote in res:
+            af, socktype, proto, canonname, sa = remote
+            self.sock = socket.socket(af, socktype, proto)
+            last_error = self.sock.connect_ex(sa)
+            if last_error == 0:
+                break
+            else:
+                self.sock.close()
+        if last_error != 0:
+            # FIXME
+            raise socket.error(last_error)
+        self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
+        self.sslobj = sslwrapper(self.sslobj)
 
 mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
 

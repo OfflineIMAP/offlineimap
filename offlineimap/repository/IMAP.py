@@ -74,13 +74,9 @@ class IMAPRepository(BaseRepository):
         self.imapserver.close()
 
     def getholdconnectionopen(self):
-        if self.getidlefolders():
-            return 1
         return self.getconfboolean("holdconnectionopen", 0)
 
     def getkeepalive(self):
-        if self.getidlefolders():
-            return 29*60
         return self.getconfint("keepalive", 0)
 
     def getsep(self):
@@ -149,14 +145,8 @@ class IMAPRepository(BaseRepository):
     def getreference(self):
         return self.getconf('reference', '""')
 
-    def getidlefolders(self):
-        localeval = self.localeval
-        return localeval.eval(self.getconf('idlefolders', '[]'))
-
     def getmaxconnections(self):
-        num1 = len(self.getidlefolders())
-        num2 = self.getconfint('maxconnections', 1)
-        return max(num1, num2)
+        return self.getconfint('maxconnections', 1)
 
     def getexpunge(self):
         return self.getconfboolean('expunge', 1)
