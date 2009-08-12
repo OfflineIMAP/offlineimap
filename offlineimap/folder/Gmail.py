@@ -20,7 +20,8 @@
 """
 
 from IMAP import IMAPFolder
-from offlineimap import imaplib2, imaputil, imaplibutil
+import imaplib
+from offlineimap import imaputil, imaplibutil
 from offlineimap.ui import UIBase
 from copy import copy
 
