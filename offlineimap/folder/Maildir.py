@@ -29,6 +29,7 @@ except ImportError:
 
 uidmatchre = re.compile(',U=(\d+)')
 flagmatchre = re.compile(':.*2,([A-Z]+)')
+timestampmatchre = re.compile('(\d+)');
 
 timeseq = 0
 lasttime = long(0)
@@ -72,6 +73,28 @@ class MaildirFolder(BaseFolder):
         token."""
         return 42
 
+    #Checks to see if the given message is within the maximum age according
+    #to the maildir name which should begin with a timestamp
+    def _iswithinmaxage(self, messagename, maxage):
+        #In order to have the same behaviour as SINCE in an IMAP search
+        #we must convert this to the oldest time and then strip off hrs/mins
+        #from that day
+        oldest_time_utc = time.time() - (60*60*24*maxage)
+        oldest_time_struct = time.gmtime(oldest_time_utc)
+        oldest_time_today_seconds = ((oldest_time_struct[3] * 3600) \
+            + (oldest_time_struct[4] * 60) \
+            + oldest_time_struct[5])
+        oldest_time_utc -= oldest_time_today_seconds
+
+        timestampmatch = timestampmatchre.search(messagename)
+        timestampstr = timestampmatch.group()
+        timestamplong = long(timestampstr)
+        if(timestamplong < oldest_time_utc):
+            return False
+        else:
+            return True
+
+
     def _scanfolder(self):
         """Cache the message list.  Maildir flags are:
         R (replied)
@@ -92,6 +115,25 @@ class MaildirFolder(BaseFolder):
                          filename in os.listdir(fulldirname))
         for file in files:
             messagename = os.path.basename(file)
+
+            #check if there is a parameter for maxage / maxsize - then see if this
+            #message should be considered or not
+            maxage = self.config.getdefaultint("Account " + self.accountname, "maxage", -1)
+            maxsize = self.config.getdefaultint("Account " + self.accountname, "maxsize", -1)
+
+            if(maxage != -1):
+                isnewenough = self._iswithinmaxage(messagename, maxage)
+                if(isnewenough != True):
+                    #this message is older than we should consider....
+                    continue
+
+            #Check and see if the message is too big if the maxsize for this account is set
+            if(maxsize != -1):
+                filesize = os.path.getsize(file)
+                if(filesize > maxsize):
+                    continue
+            
+
             foldermatch = messagename.find(folderstr) != -1
             if not foldermatch:
                 # If there is no folder MD5 specified, or if it mismatches,

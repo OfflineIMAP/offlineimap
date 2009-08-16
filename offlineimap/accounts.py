@@ -182,16 +182,22 @@ class AccountSynchronizationMixin:
 
         # Connect to the local cache.
         self.statusrepos = offlineimap.repository.LocalStatus.LocalStatusRepository(self.getconf('localrepository'), self)
-            
+
+        #might need changes here to ensure that one account sync does not crash others...
         if not self.refreshperiod:
+            
             self.sync(siglistener)
             self.ui.acctdone(self.name)
+
             return
+
+
         looping = 1
         while looping:
             self.sync(siglistener)
             looping = self.sleeper(siglistener) != 2
-        self.ui.acctdone(self.name)
+            self.ui.acctdone(self.name)
+
 
     def getaccountmeta(self):
         return os.path.join(self.metadatadir, 'Account-' + self.name)
