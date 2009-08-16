@@ -24,6 +24,7 @@ from offlineimap.version import versionstr
 import rfc822, time, string, random, binascii, re
 from StringIO import StringIO
 from copy import copy
+import time
 
 
 class IMAPFolder(BaseFolder):
@@ -116,6 +117,7 @@ class IMAPFolder(BaseFolder):
 
         return False
 
+    # TODO: Make this so that it can define a date that would be the oldest messages etc.
     def cachemessagelist(self):
         imapobj = self.imapserver.acquireconnection()
         self.messagelist = {}
@@ -123,20 +125,62 @@ class IMAPFolder(BaseFolder):
         try:
             # Primes untagged_responses
             imapobj.select(self.getfullname(), readonly = 1, force = 1)
-            try:
-                # Some mail servers do not return an EXISTS response if
-                # the folder is empty.
-                maxmsgid = long(imapobj.untagged_responses['EXISTS'][0])
-            except KeyError:
-                return
-            if maxmsgid < 1:
-                # No messages; return
-                return
 
+            maxage = self.config.getdefaultint("Account " + self.accountname, "maxage", -1)
+            maxsize = self.config.getdefaultint("Account " + self.accountname, "maxsize", -1)
+
+            if (maxage != -1) | (maxsize != -1):
+                try:
+                    search_condition = "(";
+
+                    if(maxage != -1):
+                        #find out what the oldest message is that we should look at
+                        oldest_time_struct = time.gmtime(time.time() - (60*60*24*maxage))
+
+                        #format this manually - otherwise locales could cause problems
+                        monthnames_standard = ["Jan", "Feb", "Mar", "Apr", "May", \
+                            "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+                        our_monthname = monthnames_standard[oldest_time_struct[1]-1]
+                        daystr = "%(day)02d" % {'day' : oldest_time_struct[2]}
+                        date_search_str = "SINCE " + daystr + "-" + our_monthname \
+                            + "-" + str(oldest_time_struct[0])
+
+                        search_condition += date_search_str
+
+                    if(maxsize != -1):
+                        if(maxage != 1): #There are two conditions - add a space
+                            search_condition += " "
+
+                        search_condition += "SMALLER " + self.config.getdefault("Account " + self.accountname, "maxsize", -1)
+
+                    search_condition += ")"
+                    searchresult = imapobj.search(None, search_condition)
+
+                    #result would come back seperated by space - to change into a fetch
+                    #statement we need to change space to comma
+                    messagesToFetch = searchresult[1][0].replace(" ", ",")
+                except KeyError:
+                    return
+                if len(messagesToFetch) < 1:
+                    # No messages; return
+                    return
+            else:
+                try:
+                    # Some mail servers do not return an EXISTS response if
+                    # the folder is empty.
+
+                    maxmsgid = long(imapobj.untagged_responses['EXISTS'][0])
+                    messagesToFetch = '1:%d' % maxmsgid;
+                except KeyError:
+                    return
+                if maxmsgid < 1:
+                    #no messages; return
+                    return
             # Now, get the flags and UIDs for these.
             # We could conceivably get rid of maxmsgid and just say
             # '1:*' here.
-            response = imapobj.fetch('1:%d' % maxmsgid, '(FLAGS UID)')[1]
+            response = imapobj.fetch(messagesToFetch, '(FLAGS UID)')[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
