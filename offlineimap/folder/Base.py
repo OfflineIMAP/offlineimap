@@ -21,6 +21,7 @@ from offlineimap import threadutil
 from offlineimap.threadutil import InstanceLimitedThread
 from offlineimap.ui import UIBase
 import os.path, re
+import sys
 
 class BaseFolder:
     def __init__(self):
@@ -266,25 +267,30 @@ class BaseFolder:
         # synced to the status cache.  This is only a problem with
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
-        if register:
-            UIBase.getglobalui().registerthread(self.getaccountname())
-        UIBase.getglobalui().copyingmessage(uid, self, applyto)
-        message = ''
-        # If any of the destinations actually stores the message body,
-        # load it up.
-        for object in applyto:
-            if object.storesmessages():
-                message = self.getmessage(uid)
-                break
-        flags = self.getmessageflags(uid)
-        rtime = self.getmessagetime(uid)
-        for object in applyto:
-            newuid = object.savemessage(uid, message, flags, rtime)
-            if newuid > 0 and newuid != uid:
-                # Change the local uid.
-                self.savemessage(newuid, message, flags, rtime)
-                self.deletemessage(uid)
-                uid = newuid
+        try:
+            if register:
+                UIBase.getglobalui().registerthread(self.getaccountname())
+            UIBase.getglobalui().copyingmessage(uid, self, applyto)
+            message = ''
+            # If any of the destinations actually stores the message body,
+            # load it up.
+            
+            for object in applyto:
+                if object.storesmessages():
+                    message = self.getmessage(uid)
+                    break
+            flags = self.getmessageflags(uid)
+            rtime = self.getmessagetime(uid)
+            for object in applyto:
+                newuid = object.savemessage(uid, message, flags, rtime)
+                if newuid > 0 and newuid != uid:
+                    # Change the local uid.
+                    self.savemessage(newuid, message, flags, rtime)
+                    self.deletemessage(uid)
+                    uid = newuid
+        except:
+            UIBase.getglobalui().warn("ERROR attempting to copy message " + str(uid) \
+                 + " for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
         
 
     def syncmessagesto_copy(self, dest, applyto):
@@ -384,15 +390,30 @@ class BaseFolder:
         applyto ones should be the ones that "copy" the main action."""
         if applyto == None:
             applyto = [dest]
-            
-        self.syncmessagesto_neguid(dest, applyto)
+
+        try:
+            self.syncmessagesto_neguid(dest, applyto)
+        except:
+            UIBase.getglobalui().warn("ERROR attempting to handle negative uids " \
+                + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
+
+        #all threads launched here are in try / except clauses when they copy anyway...
         self.syncmessagesto_copy(dest, applyto)
-        self.syncmessagesto_delete(dest, applyto)
-        
+
+        try:
+            self.syncmessagesto_delete(dest, applyto)
+        except:
+            UIBase.getglobalui().warn("ERROR attempting to delete messages " \
+                + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
+
         # Now, the message lists should be identical wrt the uids present.
         # (except for potential negative uids that couldn't be placed
         # anywhere)
 
-        self.syncmessagesto_flags(dest, applyto)
+        try:
+            self.syncmessagesto_flags(dest, applyto)
+        except:
+            UIBase.getglobalui().warn("ERROR attempting to sync flags " \
+                + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
         
             

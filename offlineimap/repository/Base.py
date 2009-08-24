@@ -17,7 +17,9 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import CustomConfig
+from offlineimap.ui import UIBase
 import os.path
+import sys
 
 def LoadRepository(name, account, reqtype):
     from offlineimap.repository.Gmail import GmailRepository
@@ -152,9 +154,14 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         
         for key in srchash.keys():
             if not key in desthash:
-                dest.makefolder(key)
-                for copyfolder in copyfolders:
-                    copyfolder.makefolder(key.replace(dest.getsep(), copyfolder.getsep()))
+                try:
+                    dest.makefolder(key)
+                    for copyfolder in copyfolders:
+                        copyfolder.makefolder(key.replace(dest.getsep(), copyfolder.getsep()))
+                except:
+                    UIBase.getglobalui().warn("ERROR Attempting to make folder " \
+                        + key + ":"  +str(sys.exc_info()[1]))
+                
 
         #
         # Find deleted folders.

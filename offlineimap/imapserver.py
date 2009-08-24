@@ -246,72 +246,88 @@ class IMAPServer:
         
         self.connectionlock.release()   # Release until need to modify data
 
+        """ Must be careful here that if we fail we should bail out gracefully
+        and release locks / threads so that the next attempt can try...
+        """
         success = 0
-        while not success:
-            # Generate a new connection.
-            if self.tunnel:
-                UIBase.getglobalui().connecting('tunnel', self.tunnel)
-                imapobj = UsefulIMAP4_Tunnel(self.tunnel)
-                success = 1
-            elif self.usessl:
-                UIBase.getglobalui().connecting(self.hostname, self.port)
-                imapobj = UsefulIMAP4_SSL(self.hostname, self.port,
-                                          self.sslclientkey, self.sslclientcert)
-            else:
-                UIBase.getglobalui().connecting(self.hostname, self.port)
-                imapobj = UsefulIMAP4(self.hostname, self.port)
-
-            imapobj.mustquote = imaplibutil.mustquote
-
-            if not self.tunnel:
-                try:
-                    # Try GSSAPI and continue if it fails
-                    if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
-                        UIBase.getglobalui().debug('imap',
-                            'Attempting GSSAPI authentication')
-                        try:
-                            imapobj.authenticate('GSSAPI', self.gssauth)
-                        except imapobj.error, val:
-                            self.gssapi = False
-                            UIBase.getglobalui().debug('imap',
-                                'GSSAPI Authentication failed')               
-                        else:
-                            self.gssapi = True
-                            self.password = None
-
-                    if not self.gssapi:
-                        if 'AUTH=CRAM-MD5' in imapobj.capabilities:
-                            UIBase.getglobalui().debug('imap',
-                                                   'Attempting CRAM-MD5 authentication')
-                            try:
-                                imapobj.authenticate('CRAM-MD5', self.md5handler)
-                            except imapobj.error, val:
-                                self.plainauth(imapobj)
-                        else:
-                            self.plainauth(imapobj)
-                    # Would bail by here if there was a failure.
+        try:
+            while not success:
+                # Generate a new connection.
+                if self.tunnel:
+                    UIBase.getglobalui().connecting('tunnel', self.tunnel)
+                    imapobj = UsefulIMAP4_Tunnel(self.tunnel)
                     success = 1
-                    self.goodpassword = self.password
-                except imapobj.error, val:
-                    self.passworderror = str(val)
-                    self.password = None
+                elif self.usessl:
+                    UIBase.getglobalui().connecting(self.hostname, self.port)
+                    imapobj = UsefulIMAP4_SSL(self.hostname, self.port,
+                                              self.sslclientkey, self.sslclientcert)
+                else:
+                    UIBase.getglobalui().connecting(self.hostname, self.port)
+                    imapobj = UsefulIMAP4(self.hostname, self.port)
 
-        if self.delim == None:
-            listres = imapobj.list(self.reference, '""')[1]
-            if listres == [None] or listres == None:
-                # Some buggy IMAP servers do not respond well to LIST "" ""
-                # Work around them.
-                listres = imapobj.list(self.reference, '"*"')[1]
-            self.delim, self.root = \
-                        imaputil.imapsplit(listres[0])[1:]
-            self.delim = imaputil.dequote(self.delim)
-            self.root = imaputil.dequote(self.root)
+                imapobj.mustquote = imaplibutil.mustquote
 
-        self.connectionlock.acquire()
-        self.assignedconnections.append(imapobj)
-        self.lastowner[imapobj] = thread.get_ident()
-        self.connectionlock.release()
-        return imapobj
+                if not self.tunnel:
+                    try:
+                        # Try GSSAPI and continue if it fails
+                        if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
+                            UIBase.getglobalui().debug('imap',
+                                'Attempting GSSAPI authentication')
+                            try:
+                                imapobj.authenticate('GSSAPI', self.gssauth)
+                            except imapobj.error, val:
+                                self.gssapi = False
+                                UIBase.getglobalui().debug('imap',
+                                    'GSSAPI Authentication failed')
+                            else:
+                                self.gssapi = True
+                                #if we do self.password = None then the next attempt cannot try...
+                                #self.password = None
+
+                        if not self.gssapi:
+                            if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+                                UIBase.getglobalui().debug('imap',
+                                                       'Attempting CRAM-MD5 authentication')
+                                try:
+                                    imapobj.authenticate('CRAM-MD5', self.md5handler)
+                                except imapobj.error, val:
+                                    self.plainauth(imapobj)
+                            else:
+                                self.plainauth(imapobj)
+                        # Would bail by here if there was a failure.
+                        success = 1
+                        self.goodpassword = self.password
+                    except imapobj.error, val:
+                        self.passworderror = str(val)
+                        raise
+                        #self.password = None
+
+            if self.delim == None:
+                listres = imapobj.list(self.reference, '""')[1]
+                if listres == [None] or listres == None:
+                    # Some buggy IMAP servers do not respond well to LIST "" ""
+                    # Work around them.
+                    listres = imapobj.list(self.reference, '"*"')[1]
+                self.delim, self.root = \
+                            imaputil.imapsplit(listres[0])[1:]
+                self.delim = imaputil.dequote(self.delim)
+                self.root = imaputil.dequote(self.root)
+
+            self.connectionlock.acquire()
+            self.assignedconnections.append(imapobj)
+            self.lastowner[imapobj] = thread.get_ident()
+            self.connectionlock.release()
+            return imapobj
+        except:
+            """If we are here then we did not succeed in getting a connection -
+            we should clean up and then re-raise the error..."""
+            self.semaphore.release()
+
+            #Make sure that this can be retried the next time...
+            self.passworderror = None
+            if(self.connectionlock.locked()):
+                self.connectionlock.release()
+            raise
     
     def connectionwait(self):
         """Waits until there is a connection available.  Note that between

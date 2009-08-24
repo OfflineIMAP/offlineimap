@@ -23,6 +23,7 @@ from subprocess import Popen, PIPE
 from threading import Event, Lock
 import os
 from Queue import Queue, Empty
+import sys
 
 class SigListener(Queue):
     def __init__(self):
@@ -181,18 +182,27 @@ class AccountSynchronizationMixin:
 
         #might need changes here to ensure that one account sync does not crash others...
         if not self.refreshperiod:
-            
-            self.sync(siglistener)
-            self.ui.acctdone(self.name)
+            try:
+                self.sync(siglistener)
+            except:
+                self.ui.warn("Error occured attempting to sync account " + self.name \
+                    + ": " + str(sys.exc_info()[1]))
+            finally:
+                self.ui.acctdone(self.name)
 
             return
 
 
         looping = 1
         while looping:
-            self.sync(siglistener)
-            looping = self.sleeper(siglistener) != 2
-            self.ui.acctdone(self.name)
+            try:
+                self.sync(siglistener)
+            except:
+                self.ui.warn("Error occured attempting to sync account " + self.name \
+                    + ": " + str(sys.exc_info()[1]))
+            finally:
+                looping = self.sleeper(siglistener) != 2
+                self.ui.acctdone(self.name)
 
 
     def getaccountmeta(self):
@@ -276,83 +286,86 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
     global mailboxes
     ui = UIBase.getglobalui()
     ui.registerthread(accountname)
-    # Load local folder.
-    localfolder = localrepos.\
-                  getfolder(remotefolder.getvisiblename().\
-                            replace(remoterepos.getsep(), localrepos.getsep()))
-    # Write the mailboxes
-    mbnames.add(accountname, localfolder.getvisiblename())
+    try:
+        # Load local folder.
+        localfolder = localrepos.\
+                      getfolder(remotefolder.getvisiblename().\
+                                replace(remoterepos.getsep(), localrepos.getsep()))
+        # Write the mailboxes
+        mbnames.add(accountname, localfolder.getvisiblename())
 
-    # Load status folder.
-    statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
-                                         replace(remoterepos.getsep(),
-                                                 statusrepos.getsep()))
-    if localfolder.getuidvalidity() == None:
-        # This is a new folder, so delete the status cache to be sure
-        # we don't have a conflict.
-        statusfolder.deletemessagelist()
-        
-    statusfolder.cachemessagelist()
+        # Load status folder.
+        statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
+                                             replace(remoterepos.getsep(),
+                                                     statusrepos.getsep()))
+        if localfolder.getuidvalidity() == None:
+            # This is a new folder, so delete the status cache to be sure
+            # we don't have a conflict.
+            statusfolder.deletemessagelist()
 
-    if quick:
-        if not localfolder.quickchanged(statusfolder) \
-               and not remotefolder.quickchanged(statusfolder):
-            ui.skippingfolder(remotefolder)
-            localrepos.restore_atime()
-            return
+        statusfolder.cachemessagelist()
 
-    # Load local folder
-    ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
-    ui.loadmessagelist(localrepos, localfolder)
-    localfolder.cachemessagelist()
-    ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
+        if quick:
+            if not localfolder.quickchanged(statusfolder) \
+                   and not remotefolder.quickchanged(statusfolder):
+                ui.skippingfolder(remotefolder)
+                localrepos.restore_atime()
+                return
 
-    # If either the local or the status folder has messages and there is a UID
-    # validity problem, warn and abort.  If there are no messages, UW IMAPd
-    # loses UIDVALIDITY.  But we don't really need it if both local folders are
-    # empty.  So, in that case, just save it off.
-    if len(localfolder.getmessagelist()) or len(statusfolder.getmessagelist()):
-        if not localfolder.isuidvalidityok():
-            ui.validityproblem(localfolder)
-            localrepos.restore_atime()
-            return
-        if not remotefolder.isuidvalidityok():
-            ui.validityproblem(remotefolder)
-            localrepos.restore_atime()
-            return
-    else:
-        localfolder.saveuidvalidity()
-        remotefolder.saveuidvalidity()
+        # Load local folder
+        ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
+        ui.loadmessagelist(localrepos, localfolder)
+        localfolder.cachemessagelist()
+        ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
 
-    # Load remote folder.
-    ui.loadmessagelist(remoterepos, remotefolder)
-    remotefolder.cachemessagelist()
-    ui.messagelistloaded(remoterepos, remotefolder,
-                         len(remotefolder.getmessagelist().keys()))
+        # If either the local or the status folder has messages and there is a UID
+        # validity problem, warn and abort.  If there are no messages, UW IMAPd
+        # loses UIDVALIDITY.  But we don't really need it if both local folders are
+        # empty.  So, in that case, just save it off.
+        if len(localfolder.getmessagelist()) or len(statusfolder.getmessagelist()):
+            if not localfolder.isuidvalidityok():
+                ui.validityproblem(localfolder)
+                localrepos.restore_atime()
+                return
+            if not remotefolder.isuidvalidityok():
+                ui.validityproblem(remotefolder)
+                localrepos.restore_atime()
+                return
+        else:
+            localfolder.saveuidvalidity()
+            remotefolder.saveuidvalidity()
+
+        # Load remote folder.
+        ui.loadmessagelist(remoterepos, remotefolder)
+        remotefolder.cachemessagelist()
+        ui.messagelistloaded(remoterepos, remotefolder,
+                             len(remotefolder.getmessagelist().keys()))
 
 
-    #
+        #
 
-    if not statusfolder.isnewfolder():
-        # Delete local copies of remote messages.  This way,
-        # if a message's flag is modified locally but it has been
-        # deleted remotely, we'll delete it locally.  Otherwise, we
-        # try to modify a deleted message's flags!  This step
-        # need only be taken if a statusfolder is present; otherwise,
-        # there is no action taken *to* the remote repository.
+        if not statusfolder.isnewfolder():
+            # Delete local copies of remote messages.  This way,
+            # if a message's flag is modified locally but it has been
+            # deleted remotely, we'll delete it locally.  Otherwise, we
+            # try to modify a deleted message's flags!  This step
+            # need only be taken if a statusfolder is present; otherwise,
+            # there is no action taken *to* the remote repository.
 
-        remotefolder.syncmessagesto_delete(localfolder, [localfolder,
-                                                         statusfolder])
-        ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
-        localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
+            remotefolder.syncmessagesto_delete(localfolder, [localfolder,
+                                                             statusfolder])
+            ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
+            localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
 
-    # Synchronize remote changes.
-    ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
-    remotefolder.syncmessagesto(localfolder, [localfolder, statusfolder])
+        # Synchronize remote changes.
+        ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
+        remotefolder.syncmessagesto(localfolder, [localfolder, statusfolder])
 
-    # Make sure the status folder is up-to-date.
-    ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
-    localfolder.syncmessagesto(statusfolder)
-    statusfolder.save()
-    localrepos.restore_atime()
-
+        # Make sure the status folder is up-to-date.
+        ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
+        localfolder.syncmessagesto(statusfolder)
+        statusfolder.save()
+        localrepos.restore_atime()
+    except:
+        ui.warn("ERROR in syncfolder for " + accountname + " folder  " + \
+        remotefolder.getvisiblename() +" : " +str(sys.exc_info()[1]))
