@@ -23,9 +23,11 @@ from imaplib import *
 # Import the symbols we need that aren't exported by default
 from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
 
-# ssl is new in python 2.6
-if (sys.version_info[0] == 2 and sys.version_info[1] >= 6) or sys.version_info[0] >= 3:
+try:
     import ssl
+    ssl_wrap = ssl.wrap_socket
+except ImportError:
+    ssl_wrap = socket.ssl
 
 class IMAP4_Tunnel(IMAP4):
     """IMAP4 client class over a tunnel
@@ -169,7 +171,7 @@ def new_open_ssl(self, host = '', port = IMAP4_SSL_PORT):
         if last_error != 0:
             # FIXME
             raise socket.error(last_error)
-        self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
+        self.sslobj = ssl_wrap(self.sock, self.keyfile, self.certfile)
         self.sslobj = sslwrapper(self.sslobj)
 
 mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
