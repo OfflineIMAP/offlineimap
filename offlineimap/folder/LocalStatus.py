@@ -141,7 +141,14 @@ class LocalStatusFolder(BaseFolder):
         self.autosave()
 
     def deletemessage(self, uid):
-        if not uid in self.messagelist:
+        self.deletemessages([uid])
+
+    def deletemessages(self, uidlist):
+        # Weed out ones not in self.messagelist
+        uidlist = [uid for uid in uidlist if uid in self.messagelist]
+        if not len(uidlist):
             return
-        del(self.messagelist[uid])
+
+        for uid in uidlist:
+            del(self.messagelist[uid])
         self.autosave()
