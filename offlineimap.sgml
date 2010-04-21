@@ -394,7 +394,8 @@ cd offlineimap-x.y.z</ProgramListing>
               the section name are replaced with spaces: for instance,
               to override option <property>autorefresh</property> in
               the "[Account Personal]" section in the config file one
-              would use "-k Account_Personal:autorefresh=30".
+              would use "-k Account_Personal:autorefresh=30".  You may give
+              more than one -k on the command line if you wish.
           </para></listitem>
         </varlistentry>
 	  <varlistentry><term>-l
