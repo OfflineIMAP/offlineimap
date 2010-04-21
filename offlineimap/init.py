@@ -50,12 +50,16 @@ def lock(config, ui):
 def startup(versionno):
     assert versionno == version.versionstr, "Revision of main program (%s) does not match that of library (%s).  Please double-check your PYTHONPATH and installation locations." % (versionno, version.versionstr)
     options = {}
+    options['-k'] = []
     if '--help' in sys.argv[1:]:
         sys.stdout.write(version.getcmdhelp() + "\n")
         sys.exit(0)
 
     for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:hk:f:')[0]:
-        options[optlist[0]] = optlist[1]
+        if optlist[0] == '-k':
+            options[optlist[0]].append(optlist[1])
+        else:
+            options[optlist[0]] = optlist[1]
 
     if options.has_key('-h'):
         sys.stdout.write(version.getcmdhelp())
@@ -81,15 +85,14 @@ def startup(versionno):
     config.read(configfilename)
 
     # override config values with option '-k'
-    for option in options.keys():
-        if option == '-k':
-            (key, value) = options['-k'].split('=', 1)
-            if ':' in key:
-                (secname, key) = key.split(':', 1)
-                section = secname.replace("_", " ")
-            else:
-                section = "general"
-            config.set(section, key, value)
+    for option in options['-k']:
+        (key, value) = option.split('=', 1)
+        if ':' in key:
+            (secname, key) = key.split(':', 1)
+            section = secname.replace("_", " ")
+        else:
+            section = "general"
+        config.set(section, key, value)
 
     ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
     UIBase.setglobalui(ui)
