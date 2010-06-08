@@ -1,3 +1,9 @@
+offlineimap (6.2.0.1) unstable; urgency=low
+
+  * Orphaning this package -- see #585035.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 08 Jun 2010 10:21:58 -0500
+
 offlineimap (6.2.0) unstable; urgency=low
 
   * FIX: Removed imaplib2 entirely.  It was the cause of numerous
