@@ -1,3 +1,11 @@
+offlineimap (6.2.0.2) unstable; urgency=low
+
+  * Re-import 6.2.0+nmu1 and +nmu2, the changes of which had been
+    inadvertantly removed with the upload of 6.2.0.1.
+    Closes: #557912, #549392.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 29 Jun 2010 16:51:19 -0500
+
 offlineimap (6.2.0.1) unstable; urgency=low
 
   * Orphaning this package -- see #585035.
