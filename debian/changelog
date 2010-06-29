@@ -4,6 +4,25 @@ offlineimap (6.2.0.1) unstable; urgency=low
 
  -- John Goerzen <jgoerzen@complete.org>  Tue, 08 Jun 2010 10:21:58 -0500
 
+offlineimap (6.2.0+nmu2) unstable; urgency=low
+
+  * Non-maintainer upload, for the upcoming Python 2.6 transition
+  * debian/rules
+    - add '--prefix=/usr' to 'setup.py install' since Python 2 .6 installs by
+      default in /usr/local; thanks to Jakub Wilk for the report and to Luca
+      Falavigna for the patch; Closes: #557912
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 12 Dec 2009 09:44:03 +0100
+
+offlineimap (6.2.0+nmu1) unstable; urgency=low
+
+  * Non-maintainer upload needed to fix xpdf's RC bugs:
+  * Use pdftops from poppler-utils rather than xpdf-utils
+    (Closes: #549392)
+  * Also use ghostscript instead of the transitional gs package
+
+ -- Moritz Muehlenhoff <jmm@debian.org>  Tue, 17 Nov 2009 22:02:45 +0100
+
 offlineimap (6.2.0) unstable; urgency=low
 
   * FIX: Removed imaplib2 entirely.  It was the cause of numerous

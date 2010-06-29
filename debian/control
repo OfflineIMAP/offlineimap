@@ -3,7 +3,7 @@ Section: mail
 Priority: optional
 Maintainer: Debian QA Group <packages@qa.debian.org>
 Build-Depends: debhelper (>> 6)
-Build-Depends-Indep: python-dev, groff, docbook-utils, python-support (>= 0.4.0), gtk-doc-tools, sgml2x, jade, lynx, scons, xpdf-utils, gs, man-db
+Build-Depends-Indep: python-dev, groff, docbook-utils, python-support (>= 0.4.0), gtk-doc-tools, sgml2x, jade, lynx, scons, poppler-utils, ghostscript, man-db
 Build-Conflicts-Indep: docbook-ebnf
 Standards-Version: 3.7.3
 Homepage: http://software.complete.org/offlineimap
