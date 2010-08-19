@@ -122,6 +122,8 @@ class CursesUtil:
         del self.stdscr
 
     def reset(self):
+        # dirty walkaround for bug http://bugs.python.org/issue7567 in python 2.6 to 2.6.5 (fixed since #83743)
+        if (sys.version_info[0:3] >= (2,6) and  sys.version_info[0:3] <= (2,6,5)): return
         self.stop()
         self.start()
 

@@ -176,7 +176,7 @@ class IMAPServer:
         challenge = response.strip()
         ui.debug('imap', 'md5handler: got challenge %s' % challenge)
 
-        passwd = self.getpassword()
+        passwd = self.repos.getpassword()
         retval = self.username + ' ' + hmac.new(passwd, challenge).hexdigest()
         ui.debug('imap', 'md5handler: returning %s' % retval)
         return retval
@@ -184,7 +184,7 @@ class IMAPServer:
     def plainauth(self, imapobj):
         UIBase.getglobalui().debug('imap',
                                    'Attempting plain authentication')
-        imapobj.login(self.username, self.getpassword())
+        imapobj.login(self.username, self.repos.getpassword())
 
     def gssauth(self, response):
         data = base64.b64encode(response)
