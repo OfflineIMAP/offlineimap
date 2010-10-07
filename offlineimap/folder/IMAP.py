@@ -220,10 +220,11 @@ class IMAPFolder(BaseFolder):
         return self.messagelist[uid]['flags']
 
     def savemessage_getnewheader(self, content):
-        headername = 'X-OfflineIMAP-%s-' % str(binascii.crc32(content)).replace('-', 'x')
-        headername += binascii.hexlify(self.repository.getname()) + '-'
-        headername += binascii.hexlify(self.getname())
-        headervalue= '%d-' % long(time.time())
+        headername = 'X-OfflineIMAP'
+        headervalue = '%s-' % str(binascii.crc32(content)).replace('-', 'x')
+        headervalue += binascii.hexlify(self.repository.getname()) + '-'
+        headervalue += binascii.hexlify(self.getname())
+        headervalue += '-%d-' % long(time.time())
         headervalue += str(self.randomgenerator.random()).replace('.', '')
         headervalue += '-v' + versionstr
         return (headername, headervalue)
