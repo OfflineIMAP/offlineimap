@@ -84,8 +84,10 @@ class SigListener(Queue):
                         self.folderlock.release()
                         yield (folder, quick)
                         self.folderlock.acquire()
-        finally:
+        except:
             self.folderlock.release()
+            raise
+        self.folderlock.release()
 
 def getaccountlist(customconfig):
     return customconfig.getsectionlist('Account')
@@ -183,10 +185,11 @@ class AccountSynchronizationMixin:
         #might need changes here to ensure that one account sync does not crash others...
         if not self.refreshperiod:
             try:
-                self.sync(siglistener)
-            except:
-                self.ui.warn("Error occured attempting to sync account " + self.name \
-                    + ": " + str(sys.exc_info()[1]))
+                try:
+                    self.sync(siglistener)
+                except:
+                    self.ui.warn("Error occured attempting to sync account " + self.name \
+                                 + ": " + str(sys.exc_info()[1]))
             finally:
                 self.ui.acctdone(self.name)
 
@@ -196,10 +199,11 @@ class AccountSynchronizationMixin:
         looping = 1
         while looping:
             try:
-                self.sync(siglistener)
-            except:
-                self.ui.warn("Error occured attempting to sync account " + self.name \
-                    + ": " + str(sys.exc_info()[1]))
+                try:
+                    self.sync(siglistener)
+                except:
+                    self.ui.warn("Error occured attempting to sync account " + self.name \
+                                 + ": " + str(sys.exc_info()[1]))
             finally:
                 looping = self.sleeper(siglistener) != 2
                 self.ui.acctdone(self.name)
