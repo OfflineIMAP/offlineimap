@@ -371,5 +371,5 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         statusfolder.save()
         localrepos.restore_atime()
     except:
-        ui.warn("ERROR in syncfolder for " + accountname + " folder  " + \
-        remotefolder.getvisiblename() +" : " +str(sys.exc_info()[1]))
+        ui.warn("ERROR in syncfolder for %s folder %s: %s" % \
+                (accountname,remotefolder.getvisiblename(),sys.exc_info()[1]))
