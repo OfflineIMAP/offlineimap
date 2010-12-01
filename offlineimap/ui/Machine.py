@@ -56,7 +56,7 @@ class MachineUI(UIBase):
     def _display(s, msg):
         s._printData('_display', msg)
 
-    def warn(s, msg, minor):
+    def warn(s, msg, minor = 0):
         s._printData('warn', '%s\n%d' % (msg, int(minor)))
 
     def registerthread(s, account):
