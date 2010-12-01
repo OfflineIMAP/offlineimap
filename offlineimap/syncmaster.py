@@ -16,15 +16,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import imaplib
-from offlineimap import imapserver, repository, folder, mbnames, threadutil, version
-from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
-import offlineimap.accounts
+from offlineimap import mbnames
+from offlineimap.threadutil import threadlist, InstanceLimitedThread, ExitNotifyThread
 from offlineimap.accounts import SyncableAccount, SigListener
-from offlineimap.ui import UIBase
-import re, os, os.path, offlineimap, sys
-from ConfigParser import ConfigParser
-from threading import *
+from threading import currentThread
 
 def syncaccount(threads, config, accountname, siglisteners):
     account = SyncableAccount(config, accountname)
@@ -41,8 +36,7 @@ def syncaccount(threads, config, accountname, siglisteners):
     
 def syncitall(accounts, config, siglisteners):
     currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
-    ui = UIBase.getglobalui()
-    threads = threadutil.threadlist()
+    threads = threadlist()
     mbnames.init(config, accounts)
     for accountname in accounts:
         syncaccount(threads, config, accountname, siglisteners)
