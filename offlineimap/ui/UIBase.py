@@ -346,18 +346,23 @@ class UIBase:
                 # retrieved signal while sleeping: 1 means immediately resynch, 2 means immediately die
             except Empty:
                 # no signal
-                abortsleep = s.sleeping(1, sleepsecs)
-            sleepsecs -= 1
+                abortsleep = s.sleeping(10, sleepsecs)
+            sleepsecs -= 10
         s.sleeping(0, 0)               # Done sleeping.
         return abortsleep
 
     def sleeping(s, sleepsecs, remainingsecs):
-        """Sleep for sleepsecs, remainingsecs to go.
-        If sleepsecs is 0, indicates we're done sleeping.
+        """Sleep for sleepsecs, display remainingsecs to go.
 
-        Return 0 for normal sleep, or 1 to indicate a request
-        to sync immediately."""
-        s._msg("Next refresh in %d seconds" % remainingsecs)
+        Does nothing if sleepsecs <= 0.
+        Display a message on the screen every 10 seconds.
+
+        This implementation in UIBase does not support this, but some
+        implementations return 0 for successful sleep and 1 for an
+        'abort', ie a request to sync immediately.
+        """
         if sleepsecs > 0:
+            if remainingsecs % 10 == 0:
+                s._msg("Next refresh in %d seconds" % remainingsecs)
             time.sleep(sleepsecs)
         return 0
