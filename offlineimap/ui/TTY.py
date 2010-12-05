@@ -26,6 +26,7 @@ class TTYUI(UIBase):
         UIBase.__init__(s, config, verbose)
         s.iswaiting = 0
         s.outputlock = Lock()
+        s._lastThreaddisplay = None
 
     def isusable(s):
         return sys.stdout.isatty() and sys.stdin.isatty()
@@ -33,10 +34,16 @@ class TTYUI(UIBase):
     def _display(s, msg):
         s.outputlock.acquire()
         try:
-            if (currentThread().getName() == 'MainThread'):
-                print msg
+            #if the next output comes from a different thread than our last one
+            #add the info.
+            #Most look like 'account sync foo' or 'Folder sync foo'.
+            threadname = currentThread().name
+            if (threadname == s._lastThreaddisplay):
+                print " %s" % msg
             else:
-                print "%s:\n   %s" % (currentThread().getName(), msg)
+                print "%s:\n %s" % (threadname, msg)
+                s._lastThreaddisplay = threadname
+
             sys.stdout.flush()
         finally:
             s.outputlock.release()
