@@ -157,7 +157,10 @@ class ExitNotifyThread(Thread):
             if not profiledir:          # normal case
                 Thread.run(self)
             else:
-                import profile
+                try:
+                    import cProfile as profile
+                except ImportError:
+                    import profile
                 prof = profile.Profile()
                 try:
                     prof = prof.runctx("Thread.run(self)", globals(), locals())
