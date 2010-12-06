@@ -36,198 +36,201 @@ except:
 
 lockfd = None
 
-def lock(config, ui):
-    global lockfd, hasfcntl
-    if not hasfcntl:
-        return
-    lockfd = open(config.getmetadatadir() + "/lock", "w")
-    try:
-        fcntl.flock(lockfd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except IOError:
-        ui.locked()
-        ui.terminate(1)
+class OfflineImap:
 
-def startup(versionno):
-    assert versionno == version.versionstr, "Revision of main program (%s) does not match that of library (%s).  Please double-check your PYTHONPATH and installation locations." % (versionno, version.versionstr)
-    options = {}
-    options['-k'] = []
-    if '--help' in sys.argv[1:]:
-        sys.stdout.write(version.getcmdhelp() + "\n")
-        sys.exit(0)
-
-    for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:hk:f:')[0]:
-        if optlist[0] == '-k':
-            options[optlist[0]].append(optlist[1])
-        else:
-            options[optlist[0]] = optlist[1]
-
-    if options.has_key('-h'):
-        sys.stdout.write(version.getcmdhelp())
-        sys.stdout.write("\n")
-        sys.exit(0)
-    configfilename = os.path.expanduser("~/.offlineimaprc")
-    if options.has_key('-c'):
-        configfilename = options['-c']
-    if options.has_key('-P'):
-        if not options.has_key('-1'):
-            sys.stderr.write("FATAL: profile mode REQUIRES -1\n")
-            sys.exit(100)
-        profiledir = options['-P']
-        os.mkdir(profiledir)
-        threadutil.setprofiledir(profiledir)
-        sys.stderr.write("WARNING: profile mode engaged;\nPotentially large data will be created in " + profiledir + "\n")
-
-    config = CustomConfigParser()
-    if not os.path.exists(configfilename):
-        sys.stderr.write(" *** Config file %s does not exist; aborting!\n" % configfilename)
-        sys.exit(1)
-
-    config.read(configfilename)
-
-    # override config values with option '-k'
-    for option in options['-k']:
-        (key, value) = option.split('=', 1)
-        if ':' in key:
-            (secname, key) = key.split(':', 1)
-            section = secname.replace("_", " ")
-        else:
-            section = "general"
-        config.set(section, key, value)
-
-    ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
-    UIBase.setglobalui(ui)
-
-    if options.has_key('-l'):
-        ui.setlogfd(open(options['-l'], 'wt'))
-
-    ui.init_banner()
-
-    if options.has_key('-d'):
-        for debugtype in options['-d'].split(','):
-            ui.add_debug(debugtype.strip())
-            if debugtype == 'imap':
-                imaplib.Debug = 5
-            if debugtype == 'thread':
-                threading._VERBOSE = 1
-
-    if options.has_key('-o'):
-        # FIXME: maybe need a better
-        for section in accounts.getaccountlist(config):
-            config.remove_option('Account ' + section, "autorefresh")
-
-    if options.has_key('-q'):
-        for section in accounts.getaccountlist(config):
-            config.set('Account ' + section, "quick", '-1')
-
-    if options.has_key('-f'):
-        foldernames = options['-f'].replace(" ", "").split(",")
-        folderfilter = "lambda f: f in %s" % foldernames
-        folderincludes = "[]"
-        for accountname in accounts.getaccountlist(config):
-            account_section = 'Account ' + accountname
-            remote_repo_section = 'Repository ' + \
-                                  config.get(account_section, 'remoterepository')
-            local_repo_section = 'Repository ' + \
-                                 config.get(account_section, 'localrepository')
-            for section in [remote_repo_section, local_repo_section]:
-                config.set(section, "folderfilter", folderfilter)
-                config.set(section, "folderincludes", folderincludes)
-
-    lock(config, ui)
-
-    def sigterm_handler(signum, frame):
-        # die immediately
-        ui.terminate(errormsg="terminating...")
-    signal.signal(signal.SIGTERM,sigterm_handler)
-
-    try:
-        pidfd = open(config.getmetadatadir() + "/pid", "w")
-        pidfd.write(str(os.getpid()) + "\n")
-        pidfd.close()
-    except:
-        pass
-
-    try:
+    def lock(self, config, ui):
+        global lockfd, hasfcntl
+        if not hasfcntl:
+            return
+        lockfd = open(config.getmetadatadir() + "/lock", "w")
+        try:
+            fcntl.flock(lockfd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except IOError:
+            ui.locked()
+            ui.terminate(1)
+    
+    def startup(self, versionno):
+        assert versionno == version.versionstr, "Revision of main program (%s) does not match that of library (%s).  Please double-check your PYTHONPATH and installation locations." % (versionno, version.versionstr)
+        options = {}
+        options['-k'] = []
+        if '--help' in sys.argv[1:]:
+            sys.stdout.write(version.getcmdhelp() + "\n")
+            sys.exit(0)
+    
+        for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:hk:f:')[0]:
+            if optlist[0] == '-k':
+                options[optlist[0]].append(optlist[1])
+            else:
+                options[optlist[0]] = optlist[1]
+    
+        if options.has_key('-h'):
+            sys.stdout.write(version.getcmdhelp())
+            sys.stdout.write("\n")
+            sys.exit(0)
+        configfilename = os.path.expanduser("~/.offlineimaprc")
+        if options.has_key('-c'):
+            configfilename = options['-c']
+        if options.has_key('-P'):
+            if not options.has_key('-1'):
+                sys.stderr.write("FATAL: profile mode REQUIRES -1\n")
+                sys.exit(100)
+            profiledir = options['-P']
+            os.mkdir(profiledir)
+            threadutil.setprofiledir(profiledir)
+            sys.stderr.write("WARNING: profile mode engaged;\nPotentially large data will be created in " + profiledir + "\n")
+    
+        config = CustomConfigParser()
+        if not os.path.exists(configfilename):
+            sys.stderr.write(" *** Config file %s does not exist; aborting!\n" % configfilename)
+            sys.exit(1)
+    
+        config.read(configfilename)
+    
+        # override config values with option '-k'
+        for option in options['-k']:
+            (key, value) = option.split('=', 1)
+            if ':' in key:
+                (secname, key) = key.split(':', 1)
+                section = secname.replace("_", " ")
+            else:
+                section = "general"
+            config.set(section, key, value)
+    
+        ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
+        UIBase.setglobalui(ui)
+    
         if options.has_key('-l'):
-            sys.stderr = ui.logfile
+            ui.setlogfd(open(options['-l'], 'wt'))
+    
+        ui.init_banner()
+    
+        if options.has_key('-d'):
+            for debugtype in options['-d'].split(','):
+                ui.add_debug(debugtype.strip())
+                if debugtype == 'imap':
+                    imaplib.Debug = 5
+                if debugtype == 'thread':
+                    threading._VERBOSE = 1
+    
+        if options.has_key('-o'):
+            # FIXME: maybe need a better
+            for section in accounts.getaccountlist(config):
+                config.remove_option('Account ' + section, "autorefresh")
+    
+        if options.has_key('-q'):
+            for section in accounts.getaccountlist(config):
+                config.set('Account ' + section, "quick", '-1')
+    
+        if options.has_key('-f'):
+            foldernames = options['-f'].replace(" ", "").split(",")
+            folderfilter = "lambda f: f in %s" % foldernames
+            folderincludes = "[]"
+            for accountname in accounts.getaccountlist(config):
+                account_section = 'Account ' + accountname
+                remote_repo_section = 'Repository ' + \
+                                      config.get(account_section, 'remoterepository')
+                local_repo_section = 'Repository ' + \
+                                     config.get(account_section, 'localrepository')
+                for section in [remote_repo_section, local_repo_section]:
+                    config.set(section, "folderfilter", folderfilter)
+                    config.set(section, "folderincludes", folderincludes)
+    
+        self.lock(config, ui)
 
-        socktimeout = config.getdefaultint("general", "socktimeout", 0)
-        if socktimeout > 0:
-            socket.setdefaulttimeout(socktimeout)
-
-        activeaccounts = config.get("general", "accounts")
-        if options.has_key('-a'):
-            activeaccounts = options['-a']
-        activeaccounts = activeaccounts.replace(" ", "")
-        activeaccounts = activeaccounts.split(",")
-        allaccounts = accounts.AccountHashGenerator(config)
-
-        syncaccounts = []
-        for account in activeaccounts:
-            if account not in allaccounts:
-                if len(allaccounts) == 0:
-                    errormsg = 'The account "%s" does not exist because no accounts are defined!'%account
-                else:
-                    errormsg = 'The account "%s" does not exist.  Valid accounts are:'%account
-                    for name in allaccounts.keys():
-                        errormsg += '\n%s'%name
-                ui.terminate(1, errortitle = 'Unknown Account "%s"'%account, errormsg = errormsg)
-            if account not in syncaccounts:
-                syncaccounts.append(account)
-
-        server = None
-        remoterepos = None
-        localrepos = None
-
-        if options.has_key('-1'):
-            threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
-        else:
-            threadutil.initInstanceLimit("ACCOUNTLIMIT",
-                                         config.getdefaultint("general", "maxsyncaccounts", 1))
-
-        for reposname in config.getsectionlist('Repository'):
-            for instancename in ["FOLDER_" + reposname,
-                                 "MSGCOPY_" + reposname]:
-                if options.has_key('-1'):
-                    threadutil.initInstanceLimit(instancename, 1)
-                else:
-                    threadutil.initInstanceLimit(instancename,
-                                                 config.getdefaultint('Repository ' + reposname, "maxconnections", 1))
-        siglisteners = []
-        def sig_handler(signum, frame):
-            if signum == signal.SIGUSR1:
-                # tell each account to do a full sync asap
-                signum = (1,)
-            elif signum == signal.SIGHUP:
-                # tell each account to die asap
-                signum = (2,)
-            elif signum == signal.SIGUSR2:
-                # tell each account to do a full sync asap, then die
-                signum = (1, 2)
-            # one listener per account thread (up to maxsyncaccounts)
-            for listener in siglisteners:
-                for sig in signum:
-                    listener.put_nowait(sig)
-        signal.signal(signal.SIGHUP,sig_handler)
-        signal.signal(signal.SIGUSR1,sig_handler)
-        signal.signal(signal.SIGUSR2,sig_handler)
-
-        threadutil.initexitnotify()
-        t = ExitNotifyThread(target=syncmaster.syncitall,
-                             name='Sync Runner',
-                             kwargs = {'accounts': syncaccounts,
-                                       'config': config,
-                                       'siglisteners': siglisteners})
-        t.setDaemon(1)
-        t.start()
-    except:
-        ui.mainException()
-
-    try:
-        threadutil.exitnotifymonitorloop(threadutil.threadexited)
-    except SystemExit:
-        raise
-    except:
-        ui.mainException()                  # Also expected to terminate.
+    
+        def sigterm_handler(self, signum, frame):
+            # die immediately
+            ui.terminate(errormsg="terminating...")
+        signal.signal(signal.SIGTERM,sigterm_handler)
+    
+        try:
+            pidfd = open(config.getmetadatadir() + "/pid", "w")
+            pidfd.write(str(os.getpid()) + "\n")
+            pidfd.close()
+        except:
+            pass
+    
+        try:
+            if options.has_key('-l'):
+                sys.stderr = ui.logfile
+    
+            socktimeout = config.getdefaultint("general", "socktimeout", 0)
+            if socktimeout > 0:
+                socket.setdefaulttimeout(socktimeout)
+    
+            activeaccounts = config.get("general", "accounts")
+            if options.has_key('-a'):
+                activeaccounts = options['-a']
+            activeaccounts = activeaccounts.replace(" ", "")
+            activeaccounts = activeaccounts.split(",")
+            allaccounts = accounts.AccountHashGenerator(config)
+    
+            syncaccounts = []
+            for account in activeaccounts:
+                if account not in allaccounts:
+                    if len(allaccounts) == 0:
+                        errormsg = 'The account "%s" does not exist because no accounts are defined!'%account
+                    else:
+                        errormsg = 'The account "%s" does not exist.  Valid accounts are:'%account
+                        for name in allaccounts.keys():
+                            errormsg += '\n%s'%name
+                    ui.terminate(1, errortitle = 'Unknown Account "%s"'%account, errormsg = errormsg)
+                if account not in syncaccounts:
+                    syncaccounts.append(account)
+    
+            server = None
+            remoterepos = None
+            localrepos = None
+    
+            if options.has_key('-1'):
+                threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
+            else:
+                threadutil.initInstanceLimit("ACCOUNTLIMIT",
+                                             config.getdefaultint("general", "maxsyncaccounts", 1))
+    
+            for reposname in config.getsectionlist('Repository'):
+                for instancename in ["FOLDER_" + reposname,
+                                     "MSGCOPY_" + reposname]:
+                    if options.has_key('-1'):
+                        threadutil.initInstanceLimit(instancename, 1)
+                    else:
+                        threadutil.initInstanceLimit(instancename,
+                                                     config.getdefaultint('Repository ' + reposname, "maxconnections", 1))
+            siglisteners = []
+            def sig_handler(signum, frame):
+                if signum == signal.SIGUSR1:
+                    # tell each account to do a full sync asap
+                    signum = (1,)
+                elif signum == signal.SIGHUP:
+                    # tell each account to die asap
+                    signum = (2,)
+                elif signum == signal.SIGUSR2:
+                    # tell each account to do a full sync asap, then die
+                    signum = (1, 2)
+                # one listener per account thread (up to maxsyncaccounts)
+                for listener in siglisteners:
+                    for sig in signum:
+                        listener.put_nowait(sig)
+            signal.signal(signal.SIGHUP,sig_handler)
+            signal.signal(signal.SIGUSR1,sig_handler)
+            signal.signal(signal.SIGUSR2,sig_handler)
+    
+            threadutil.initexitnotify()
+            t = ExitNotifyThread(target=syncmaster.syncitall,
+                                 name='Sync Runner',
+                                 kwargs = {'accounts': syncaccounts,
+                                           'config': config,
+                                           'siglisteners': siglisteners})
+            t.setDaemon(1)
+            t.start()
+        except:
+            ui.mainException()
+    
+        try:
+            threadutil.exitnotifymonitorloop(threadutil.threadexited)
+        except SystemExit:
+            raise
+        except:
+            ui.mainException()                  # Also expected to terminate.
 
         
