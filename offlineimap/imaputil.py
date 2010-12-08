@@ -147,30 +147,26 @@ def imapsplit(imapstring):
     debug("imapsplit() returning:", retval)
     return retval
             
+flagmap = [('\\Seen', 'S'),
+           ('\\Answered', 'R'),
+           ('\\Flagged', 'F'),
+           ('\\Deleted', 'T'),
+           ('\\Draft', 'D')]
+
 def flagsimap2maildir(flagstring):
-    flagmap = {'\\seen': 'S',
-               '\\answered': 'R',
-               '\\flagged': 'F',
-               '\\deleted': 'T',
-               '\\draft': 'D'}
     retval = []
     imapflaglist = [x.lower() for x in flagstring[1:-1].split()]
-    for imapflag in imapflaglist:
-        if flagmap.has_key(imapflag):
-            retval.append(flagmap[imapflag])
+    for imapflag, maildirflag in flagmap:
+        if imapflag.lower() in imapflaglist:
+            retval.append(maildirflag)
     retval.sort()
     return retval
 
-def flagsmaildir2imap(list):
-    flagmap = {'S': '\\Seen',
-               'R': '\\Answered',
-               'F': '\\Flagged',
-               'T': '\\Deleted',
-               'D': '\\Draft'}
+def flagsmaildir2imap(maildirflaglist):
     retval = []
-    for mdflag in list:
-        if flagmap.has_key(mdflag):
-            retval.append(flagmap[mdflag])
+    for imapflag, maildirflag in flagmap:
+        if maildirflag in maildirflaglist:
+            retval.append(imapflag)
     retval.sort()
     return '(' + ' '.join(retval) + ')'
 
