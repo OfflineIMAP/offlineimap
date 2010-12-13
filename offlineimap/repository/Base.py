@@ -36,7 +36,12 @@ def LoadRepository(name, account, reqtype):
         raise ValueError, "Request type %s not supported" % reqtype
     config = account.getconfig()
     repostype = config.get('Repository ' + name, 'type').strip()
-    return typemap[repostype](name, account)
+    try:
+        repo = typemap[repostype]
+    except KeyError:
+        raise Exception, "'%s' repository not supported for %s repositories."%\
+            (repostype, reqtype)
+    return repo(name, account)
 
 class BaseRepository(CustomConfig.ConfigHelperMixin):
     def __init__(self, reposname, account):
