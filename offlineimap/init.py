@@ -17,13 +17,12 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import imaplib
-from offlineimap import imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
+from offlineimap import imapserver, threadutil, version, syncmaster, accounts
 from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
-from offlineimap.ui import UIBase
-import re, os, os.path, offlineimap, sys
+import offlineimap.ui
+import os, sys
 from offlineimap.CustomConfig import CustomConfigParser
-from threading import *
 import threading, socket
 from getopt import getopt
 import signal
@@ -97,7 +96,7 @@ class OfflineImap:
             config.set(section, key, value)
     
         ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
-        UIBase.setglobalui(ui)
+        offlineimap.ui.UIBase.setglobalui(ui)
     
         if options.has_key('-l'):
             ui.setlogfd(open(options['-l'], 'wt'))
@@ -140,7 +139,9 @@ class OfflineImap:
     
         def sigterm_handler(self, signum, frame):
             # die immediately
+            ui = BaseUI.getglobalui()
             ui.terminate(errormsg="terminating...")
+
         signal.signal(signal.SIGTERM,sigterm_handler)
     
         try:
@@ -231,6 +232,6 @@ class OfflineImap:
         except SystemExit:
             raise
         except:
-            ui.mainException()                  # Also expected to terminate.
+            ui.mainException()  # Also expected to terminate.
 
         
