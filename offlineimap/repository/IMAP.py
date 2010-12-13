@@ -152,24 +152,35 @@ class IMAPRepository(BaseRepository):
         return self.getconfboolean('expunge', 1)
 
     def getpassword(self):
-        passwd = None
-        localeval = self.localeval
+        """Return the IMAP password for this repository.
 
-        if self.config.has_option(self.getsection(), 'remotepasseval'):
-            passwd = self.getconf('remotepasseval')
+        It tries to get passwords in the following order:
+
+        1. evaluate Repository 'remotepasseval'
+        2. read password from Repository 'remotepass'
+        3. read password from file specified in Repository 'remotepassfile'
+        4. read password from ~/.netrc
+        5. read password from /etc/netrc
+
+        On success we return the password.
+        If all strategies fail we return None.
+        """
+        # 1. evaluate Repository 'remotepasseval'
+        passwd = self.getconf('remotepasseval', None)
         if passwd != None:
-            return localeval.eval(passwd)
-
+            return self.localeval.eval(passwd)
+        # 2. read password from Repository 'remotepass'
         password = self.getconf('remotepass', None)
         if password != None:
             return password
+        # 3. read password from file specified in Repository 'remotepassfile'
         passfile = self.getconf('remotepassfile', None)
         if passfile != None:
             fd = open(os.path.expanduser(passfile))
             password = fd.readline().strip()
             fd.close()
             return password
-
+        # 4. read password from ~/.netrc
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
         except IOError, inst:
@@ -180,6 +191,7 @@ class IMAPRepository(BaseRepository):
                 user = self.getconf('remoteuser')
                 if user == None or user == netrcentry[0]:
                     return netrcentry[2]
+        # 5. read password from /etc/netrc
         try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
         except IOError, inst:
@@ -190,7 +202,9 @@ class IMAPRepository(BaseRepository):
                 user = self.getconf('remoteuser')
                 if user == None or user == netrcentry[0]:
                     return netrcentry[2]
+        # no strategy yielded a password!
         return None
+
 
     def getfolder(self, foldername):
         return self.getfoldertype()(self.imapserver, foldername,
