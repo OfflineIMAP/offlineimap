@@ -19,5 +19,5 @@
 
 from offlineimap import OfflineImap
 
-offlineimap = OfflineImap()
-offlineimap.startup('6.3.1')
+oi = OfflineImap()
+oi.run()
