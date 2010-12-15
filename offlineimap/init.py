@@ -20,13 +20,15 @@ import imaplib
 from offlineimap import imapserver, repository, folder, mbnames, threadutil, version, syncmaster, accounts
 from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
-from offlineimap.ui import UIBase
-import re, os, os.path, offlineimap, sys
+import offlineimap.ui
+from offlineimap.ui.detector import DEFAULT_UI_LIST
 from offlineimap.CustomConfig import CustomConfigParser
+from optparse import OptionParser
+import re, os, sys
 from threading import *
 import threading, socket
-from getopt import getopt
 import signal
+import logging
 
 try:
     import fcntl
@@ -37,7 +39,12 @@ except:
 lockfd = None
 
 class OfflineImap:
+    """The main class that encapsulates the high level use of OfflineImap.
 
+    To invoke OfflineImap you would call it with:
+    oi = OfflineImap()
+    oi.run()
+    """
     def lock(self, config, ui):
         global lockfd, hasfcntl
         if not hasfcntl:
@@ -49,80 +56,169 @@ class OfflineImap:
             ui.locked()
             ui.terminate(1)
     
-    def startup(self, versionno):
-        assert versionno == version.versionstr, "Revision of main program (%s) does not match that of library (%s).  Please double-check your PYTHONPATH and installation locations." % (versionno, version.versionstr)
-        options = {}
-        options['-k'] = []
-        if '--help' in sys.argv[1:]:
-            sys.stdout.write(version.getcmdhelp() + "\n")
-            sys.exit(0)
-    
-        for optlist in getopt(sys.argv[1:], 'P:1oqa:c:d:l:u:hk:f:')[0]:
-            if optlist[0] == '-k':
-                options[optlist[0]].append(optlist[1])
-            else:
-                options[optlist[0]] = optlist[1]
-    
-        if options.has_key('-h'):
-            sys.stdout.write(version.getcmdhelp())
-            sys.stdout.write("\n")
-            sys.exit(0)
-        configfilename = os.path.expanduser("~/.offlineimaprc")
-        if options.has_key('-c'):
-            configfilename = options['-c']
-        if options.has_key('-P'):
-            if not options.has_key('-1'):
-                sys.stderr.write("FATAL: profile mode REQUIRES -1\n")
-                sys.exit(100)
-            profiledir = options['-P']
-            os.mkdir(profiledir)
-            threadutil.setprofiledir(profiledir)
-            sys.stderr.write("WARNING: profile mode engaged;\nPotentially large data will be created in " + profiledir + "\n")
+    def run(self):
+        """Parse the commandline and invoke everything"""
+
+        parser = OptionParser()
+        parser.add_option("-1",
+                  action="store_true", dest="singlethreading",
+                  default=False,
+                  help="Disable all multithreading operations and use "
+              "solely a single-thread sync. This effectively sets the "
+              "maxsyncaccounts and all maxconnections configuration file "
+              "variables to 1.")
+
+        parser.add_option("-P", dest="profiledir", metavar="DIR",
+                  help="Sets OfflineIMAP into profile mode. The program "
+              "will create DIR (it must not already exist). "
+              "As it runs, Python profiling information about each "
+              "thread is logged into profiledir. Please note: "
+              "This option is present for debugging and optimization "
+              "only, and should NOT be used unless you have a "
+              "specific reason to do so. It will significantly "
+              "decrease program performance, may reduce reliability, "
+              "and can generate huge amounts of data. This option "
+              "implies the -1 option.")
+
+        parser.add_option("-a", dest="accounts", metavar="ACCOUNTS",
+                  help="""Overrides the accounts section in the config file.
+              Lets you specify a particular account or set of
+              accounts to sync without having to edit the config
+              file. You might use this to exclude certain accounts,
+              or to sync some accounts that you normally prefer not to.""")
+
+        parser.add_option("-c", dest="configfile", metavar="FILE",
+                  default="~/.offlineimaprc",
+                  help="Specifies a configuration file to use in lieu of "
+                       "the default, ~/.offlineimaprc.")
+
+        parser.add_option("-d", dest="debugtype", metavar="type1,[type2...]",
+                  help=
+              "Enables debugging for OfflineIMAP. This is useful "
+              "if you are trying to track down a malfunction or "
+              "figure out what is going on under the hood. It is recommended "
+              "to use this with -1 in order to make the "
+              "results more sensible. This option requires one or more "
+              "debugtypes, separated by commas. "
+              "These define what exactly will be debugged, "
+              "and so far include two options: imap, "
+              "maildir or ALL. The imap option will enable IMAP protocol "
+              "stream and parsing debugging. Note that the output "
+              "may contain passwords, so take care to remove that "
+              "from the debugging output before sending it to anyone else. "
+              "The maildir option will enable debugging "
+              "for certain Maildir operations.")
+
+        parser.add_option("-l", dest="logfile", metavar="FILE",
+                  help="Log to FILE")
+
+        parser.add_option("-f", dest="folders", metavar="folder1,[folder2...]",
+                  help=
+              "Only sync the specified folders. The folder names "
+              "are the *untranslated* foldernames. This "
+              "command-line option overrides any 'folderfilter' "
+              "and 'folderincludes' options in the configuration " 
+              "file.")
+
+        parser.add_option("-k", dest="configoverride",
+                  action="append",
+                  metavar="[section:]option=value",
+                  help=
+              """Override configuration file option. If"section" is
+              omitted, it defaults to "general". Any underscores
+              in the section name are replaced with spaces:
+              for instance, to override option "autorefresh" in
+              the "[Account Personal]" section in the config file
+              one would use "-k Account_Personal:autorefresh=30".""")
+
+        parser.add_option("-o",
+                  action="store_true", dest="runonce",
+                  default=False,
+                  help="Run only once, ignoring any autorefresh setting "
+                       "in the configuration file.")
+
+        parser.add_option("-q",
+                  action="store_true", dest="quick",
+                  default=False,
+                  help="Run only quick synchronizations. Ignore any "
+              "flag updates on IMAP servers (if a flag on the remote IMAP "
+              "changes, and we have the message locally, it will be left "
+              "untouched in a quick run.")
+
+        parser.add_option("-u", dest="interface",
+                  help="Specifies an alternative user interface to "
+              "use. This overrides the default specified in the "
+              "configuration file. The UI specified with -u will "
+              "be forced to be used, even if checks determine that it is "
+              "not usable. Possible interface choices are: %s " %
+              ", ".join(DEFAULT_UI_LIST))
+
+        (options, args) = parser.parse_args()
+
+        #read in configuration file
+        configfilename = os.path.expanduser(options.configfile)
     
         config = CustomConfigParser()
         if not os.path.exists(configfilename):
-            sys.stderr.write(" *** Config file %s does not exist; aborting!\n" % configfilename)
+            logging.error(" *** Config file '%s' does not exist; aborting!" %
+                          configfilename)
             sys.exit(1)
-    
         config.read(configfilename)
+
+        #profile mode chosen?
+        if options.profiledir:
+            if not options.singlethreading:
+                logging.warn("Profile mode: Forcing to singlethreaded.")
+                options.singlethreaded = True
+            profiledir = options.profiledir
+            os.mkdir(profiledir)
+            threadutil.setprofiledir(profiledir)
+            logging.warn("Profile mode: Potentially large data will be "
+                         "created in '%s'" % profiledir)
+
+        #override a config value
+        if options.configoverride:
+            for option in options.configoverride:
+                (key, value) = option.split('=', 1)
+                if ':' in key:
+                    (secname, key) = key.split(':', 1)
+                    section = secname.replace("_", " ")
+                else:
+                    section = "general"
+                config.set(section, key, value)
+
+        #init the ui, and set up additional log files
+        ui = offlineimap.ui.detector.findUI(config, options.interface)
+        offlineimap.ui.UIBase.setglobalui(ui)
     
-        # override config values with option '-k'
-        for option in options['-k']:
-            (key, value) = option.split('=', 1)
-            if ':' in key:
-                (secname, key) = key.split(':', 1)
-                section = secname.replace("_", " ")
-            else:
-                section = "general"
-            config.set(section, key, value)
+        if options.logfile:
+            ui.setlogfd(open(options.logfile, 'wt'))
     
-        ui = offlineimap.ui.detector.findUI(config, options.get('-u'))
-        UIBase.setglobalui(ui)
-    
-        if options.has_key('-l'):
-            ui.setlogfd(open(options['-l'], 'wt'))
-    
+        #welcome blurb
         ui.init_banner()
-    
-        if options.has_key('-d'):
-            for debugtype in options['-d'].split(','):
-                ui.add_debug(debugtype.strip())
-                if debugtype == 'imap':
+
+        if options.debugtype:
+            if options.debugtype.lower() == 'all':
+                options.debugtype = 'imap,maildir,thread'
+            for type in options.debugtype.split(','):
+                type = type.strip()
+                ui.add_debug(type)
+                if type.lower() == 'imap':
                     imaplib.Debug = 5
-                if debugtype == 'thread':
+                if type.lower() == 'thread':
                     threading._VERBOSE = 1
-    
-        if options.has_key('-o'):
+
+        if options.runonce:
             # FIXME: maybe need a better
             for section in accounts.getaccountlist(config):
                 config.remove_option('Account ' + section, "autorefresh")
-    
-        if options.has_key('-q'):
+
+        if options.quick:
             for section in accounts.getaccountlist(config):
                 config.set('Account ' + section, "quick", '-1')
-    
-        if options.has_key('-f'):
-            foldernames = options['-f'].replace(" ", "").split(",")
+
+        if options.folders:
+            foldernames = options.folders.replace(" ", "").split(",")
             folderfilter = "lambda f: f in %s" % foldernames
             folderincludes = "[]"
             for accountname in accounts.getaccountlist(config):
@@ -134,7 +230,7 @@ class OfflineImap:
                 for section in [remote_repo_section, local_repo_section]:
                     config.set(section, "folderfilter", folderfilter)
                     config.set(section, "folderincludes", folderincludes)
-    
+
         self.lock(config, ui)
 
     
@@ -151,7 +247,7 @@ class OfflineImap:
             pass
     
         try:
-            if options.has_key('-l'):
+            if options.logfile:
                 sys.stderr = ui.logfile
     
             socktimeout = config.getdefaultint("general", "socktimeout", 0)
@@ -159,8 +255,8 @@ class OfflineImap:
                 socket.setdefaulttimeout(socktimeout)
     
             activeaccounts = config.get("general", "accounts")
-            if options.has_key('-a'):
-                activeaccounts = options['-a']
+            if options.accounts:
+                activeaccounts = options.accounts
             activeaccounts = activeaccounts.replace(" ", "")
             activeaccounts = activeaccounts.split(",")
             allaccounts = accounts.AccountHashGenerator(config)
@@ -182,7 +278,7 @@ class OfflineImap:
             remoterepos = None
             localrepos = None
     
-            if options.has_key('-1'):
+            if options.singlethreading:
                 threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
             else:
                 threadutil.initInstanceLimit("ACCOUNTLIMIT",
@@ -191,7 +287,7 @@ class OfflineImap:
             for reposname in config.getsectionlist('Repository'):
                 for instancename in ["FOLDER_" + reposname,
                                      "MSGCOPY_" + reposname]:
-                    if options.has_key('-1'):
+                    if options.singlethreading:
                         threadutil.initInstanceLimit(instancename, 1)
                     else:
                         threadutil.initInstanceLimit(instancename,
