@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import re, string, types, binascii, socket, time, random, subprocess, sys, os
+import re, socket, time, subprocess
 from offlineimap.ui import UIBase
 from imaplib import *
 
