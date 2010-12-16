@@ -110,41 +110,6 @@ def new_mesg(self, s, secs=None):
 
 class WrappedIMAP4_SSL(IMAP4_SSL):
     def open(self, host = '', port = IMAP4_SSL_PORT):
-        IMAP4_SSL.open(self, host, port)
-        self.sslobj = sslwrapper(self.sslobj)
-
-    def readline(self):
-        return self.sslobj.readline()
-
-def new_open(self, host = '', port = IMAP4_PORT):
-        """Setup connection to remote server on "host:port"
-            (default: localhost:standard IMAP4 port).
-        This connection will be used by the routines:
-            read, readline, send, shutdown.
-        """
-        self.host = host
-        self.port = port
-        res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
-                                 socket.SOCK_STREAM)
-
-        # Try each address returned by getaddrinfo in turn until we
-        # manage to connect to one.
-        # Try all the addresses in turn until we connect()
-        last_error = 0
-        for remote in res:
-            af, socktype, proto, canonname, sa = remote
-            self.sock = socket.socket(af, socktype, proto)
-            last_error = self.sock.connect_ex(sa)
-            if last_error == 0:
-                break
-            else:
-                self.sock.close()
-        if last_error != 0:
-            # FIXME
-            raise socket.error(last_error)
-        self.file = self.sock.makefile('rb')
-
-def new_open_ssl(self, host = '', port = IMAP4_SSL_PORT):
         """Setup connection to remote server on "host:port".
             (default: localhost:standard IMAP4 SSL port).
         This connection will be used by the routines:
@@ -173,6 +138,42 @@ def new_open_ssl(self, host = '', port = IMAP4_SSL_PORT):
             raise socket.error(last_error)
         self.sslobj = ssl_wrap(self.sock, self.keyfile, self.certfile)
         self.sslobj = sslwrapper(self.sslobj)
+
+    def readline(self):
+        return self.sslobj.readline()
+
+
+class WrappedIMAP4(IMAP4):
+    """Improved version of imaplib.IMAP4 that can also connect to IPv6"""
+
+    def open(self, host = '', port = IMAP4_PORT):
+        """Setup connection to remote server on "host:port"
+            (default: localhost:standard IMAP4 port).
+        This connection will be used by the routines:
+            read, readline, send, shutdown.
+        """
+        self.host = host
+        self.port = port
+        res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
+                                 socket.SOCK_STREAM)
+
+        # Try each address returned by getaddrinfo in turn until we
+        # manage to connect to one.
+        # Try all the addresses in turn until we connect()
+        last_error = 0
+        for remote in res:
+            af, socktype, proto, canonname, sa = remote
+            self.sock = socket.socket(af, socktype, proto)
+            last_error = self.sock.connect_ex(sa)
+            if last_error == 0:
+                break
+            else:
+                self.sock.close()
+        if last_error != 0:
+            # FIXME
+            raise socket.error(last_error)
+        self.file = self.sock.makefile('rb')
+
 
 mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
 
