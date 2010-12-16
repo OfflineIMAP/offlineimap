@@ -139,6 +139,9 @@ class IMAPRepository(BaseRepository):
     def getsslclientkey(self):
         return self.getconf('sslclientkey', None)
 
+    def getsslcacertfile(self):
+        return self.getconf('sslcacertfile', None)
+
     def getpreauthtunnel(self):
         return self.getconf('preauthtunnel', None)
 

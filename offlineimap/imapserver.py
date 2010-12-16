@@ -100,7 +100,8 @@ class IMAPServer:
     def __init__(self, config, reposname,
                  username = None, password = None, hostname = None,
                  port = None, ssl = 1, maxconnections = 1, tunnel = None,
-                 reference = '""', sslclientcert = None, sslclientkey = None):
+                 reference = '""', sslclientcert = None, sslclientkey = None,
+                 sslcacertfile= None):
         self.reposname = reposname
         self.config = config
         self.username = username
@@ -113,6 +114,7 @@ class IMAPServer:
         self.usessl = ssl
         self.sslclientcert = sslclientcert
         self.sslclientkey = sslclientkey
+        self.sslcacertfile = sslcacertfile
         self.delim = None
         self.root = None
         if port == None:
@@ -253,7 +255,8 @@ class IMAPServer:
                 elif self.usessl:
                     UIBase.getglobalui().connecting(self.hostname, self.port)
                     imapobj = UsefulIMAP4_SSL(self.hostname, self.port,
-                                              self.sslclientkey, self.sslclientcert)
+                                              self.sslclientkey, self.sslclientcert, 
+                                              cacertfile = self.sslcacertfile)
                 else:
                     UIBase.getglobalui().connecting(self.hostname, self.port)
                     imapobj = UsefulIMAP4(self.hostname, self.port)
@@ -414,6 +417,7 @@ class ConfigedIMAPServer(IMAPServer):
             ssl = self.repos.getssl()
             sslclientcert = self.repos.getsslclientcert()
             sslclientkey = self.repos.getsslclientkey()
+            sslcacertfile = self.repos.getsslcacertfile()
         reference = self.repos.getreference()
         server = None
         password = None
@@ -435,4 +439,5 @@ class ConfigedIMAPServer(IMAPServer):
                                 self.repos.getmaxconnections(),
                                 reference = reference,
                                 sslclientcert = sslclientcert,
-                                sslclientkey = sslclientkey)
+                                sslclientkey = sslclientkey,
+                                sslcacertfile = sslcacertfile)

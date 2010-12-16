@@ -1,7 +1,6 @@
 # imaplib utilities
-# Copyright (C) 2002-2007 John Goerzen
-# <jgoerzen@complete.org>
-#
+# Copyright (C) 2002-2007 John Goerzen <jgoerzen@complete.org>
+#                    2010 Sebastian Spaeth <Sebastian@SSpaeth.de>
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -25,9 +24,9 @@ from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
 
 try:
     import ssl
-    ssl_wrap = ssl.wrap_socket
 except ImportError:
-    ssl_wrap = socket.ssl
+    #fails on python <2.6
+    pass
 
 class IMAP4_Tunnel(IMAP4):
     """IMAP4 client class over a tunnel
@@ -62,45 +61,7 @@ class IMAP4_Tunnel(IMAP4):
         self.infd.close()
         self.outfd.close()
         self.process.wait()
-        
-class sslwrapper:
-    def __init__(self, sslsock):
-        self.sslsock = sslsock
-        self.readbuf = ''
 
-    def write(self, s):
-        return self.sslsock.write(s)
-
-    def _read(self, n):
-        return self.sslsock.read(n)
-
-    def read(self, n):
-        if len(self.readbuf):
-            # Return the stuff in readbuf, even if less than n.
-            # It might contain the rest of the line, and if we try to
-            # read more, might block waiting for data that is not
-            # coming to arrive.
-            bytesfrombuf = min(n, len(self.readbuf))
-            retval = self.readbuf[:bytesfrombuf]
-            self.readbuf = self.readbuf[bytesfrombuf:]
-            return retval
-        retval = self._read(n)
-        if len(retval) > n:
-            self.readbuf = retval[n:]
-            return retval[:n]
-        return retval
-
-    def readline(self):
-        retval = ''
-        while 1:
-            linebuf = self.read(1024)
-            nlindex = linebuf.find("\n")
-            if nlindex != -1:
-                retval += linebuf[:nlindex + 1]
-                self.readbuf = linebuf[nlindex + 1:] + self.readbuf
-                return retval
-            else:
-                retval += linebuf
 
 def new_mesg(self, s, secs=None):
             if secs is None:
@@ -109,14 +70,27 @@ def new_mesg(self, s, secs=None):
             UIBase.getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
 
 class WrappedIMAP4_SSL(IMAP4_SSL):
+    """Provides an improved version of the standard IMAP4_SSL
+
+    It provides a better readline() implementation as impaplib's
+    readline() is extremly inefficient. It can also connect to IPv6
+    addresses."""
+    def __init__(self, *args, **kwargs):
+        self._readbuf = ''
+        self._cacertfile = kwargs.get('cacertfile', None)
+        if kwargs.has_key('cacertfile'):
+            del kwargs['cacertfile']
+        IMAP4_SSL.__init__(self, *args, **kwargs)
+
     def open(self, host = '', port = IMAP4_SSL_PORT):
-        """Setup connection to remote server on "host:port".
-            (default: localhost:standard IMAP4 SSL port).
-        This connection will be used by the routines:
-            read, readline, send, shutdown.
-        """
+        """Do whatever IMAP4_SSL would do in open, but call sslwrap
+        with cert verification"""
+        #IMAP4_SSL.open(self, host, port) uses the below 2 lines:
         self.host = host
         self.port = port
+
+        #rather than just self.sock = socket.create_connection((host, port))
+        #we use the below part to be able to connect to ipv6 addresses too
         #This connects to the first ip found ipv4/ipv6
         #Added by Adriaan Peeters <apeeters@lashout.net> based on a socket
         #example from the python documentation:
@@ -136,11 +110,102 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
         if last_error != 0:
             # FIXME
             raise socket.error(last_error)
-        self.sslobj = ssl_wrap(self.sock, self.keyfile, self.certfile)
-        self.sslobj = sslwrapper(self.sslobj)
+
+        #connected to socket, now wrap it in SSL
+        try:
+            if self._cacertfile:
+                requirecert = ssl.CERT_REQUIRED
+            else:
+                requirecert = ssl.CERT_NONE
+
+            self.sslobj = ssl.wrap_socket(self.sock, self.keyfile,
+                                          self.certfile,
+                                          ca_certs = self._cacertfile,
+                                          cert_reqs = requirecert)
+        except NameError:
+            #Python 2.4/2.5 don't have the ssl module, we need to
+            #socket.ssl() here but that doesn't allow cert
+            #verification!!!
+            if self._cacertfile:
+                #user configured a CA certificate, but python 2.4/5 doesn't
+                #allow us to easily check it. So bail out here.
+                raise Exception("SSL CA Certificates cannot be checked with python <=2.6. Abort")
+            self.sslobj = socket.ssl(self.sock, self.keyfile,
+                                     self.certfile)
+
+        else:
+            #ssl.wrap_socket worked and cert is verified, now check
+            #that hostnames also match.
+            error = self._verifycert(self.sslobj.getpeercert(), host)
+            if error:
+                raise ssl.SSLError("SSL Certificate host name mismatch: %s" % error)
+
+        #TODO: Done for now. We should implement a mutt-like behavior
+        #that offers the users to accept a certificate (presenting a
+        #fingerprint of it) (get via self.sslobj.getpeercert()), and
+        #save that, and compare on future connects, rather than having
+        #to trust what the CA certs say.
+
+    def _verifycert(self, cert, hostname):
+        '''Verify that cert (in socket.getpeercert() format) matches hostname.
+        CRLs and subjectAltName are not handled.
+        
+        Returns error message if any problems are found and None on success.
+        '''
+        if not cert:
+            return ('no certificate received')
+        dnsname = hostname.lower()
+        for s in cert.get('subject', []):
+            key, value = s[0]
+            if key == 'commonName':
+                certname = value.lower()
+                if (certname == dnsname or
+                    '.' in dnsname and certname == '*.' + dnsname.split('.', 1)[1]):
+                    return None
+                return ('certificate is for %s') % certname
+        return ('no commonName found in certificate')
+
+    def _read_upto (self, n):
+        """Read up to n bytes, emptying existing _readbuffer first"""
+        bytesfrombuf = min(n, len(self._readbuf))
+        if bytesfrombuf:
+            # Return the stuff in readbuf, even if less than n.
+            # It might contain the rest of the line, and if we try to
+            # read more, might block waiting for data that is not
+            # coming to arrive.
+            retval = self._readbuf[:bytesfrombuf]
+            self._readbuf = self._readbuf[bytesfrombuf:]
+            return retval
+        return self.sslobj.read(min(n, 16384))
+
+    def read(self, n):
+        """Read exactly n bytes
+
+        As done in IMAP4_SSL.read() API. If read returns less than n
+        bytes, things break left and right."""
+        chunks = []
+        read = 0
+        while read < n:
+            data = self._read_upto (n-read)
+            read += len(data)
+            chunks.append(data)
+
+        return ''.join(chunks)
 
     def readline(self):
-        return self.sslobj.readline()
+        """Get the next line. This implementation is more efficient
+        than IMAP4_SSL.readline() which reads one char at a time and
+        reassembles the string by appending those chars. Uggh."""
+        retval = ''
+        while 1:
+            linebuf = self._read_upto(1024)
+            nlindex = linebuf.find("\n")
+            if nlindex != -1:
+                retval += linebuf[:nlindex + 1]
+                self._readbuf = linebuf[nlindex + 1:] + self._readbuf
+                return retval
+            else:
+                retval += linebuf
 
 
 class WrappedIMAP4(IMAP4):
@@ -149,9 +214,8 @@ class WrappedIMAP4(IMAP4):
     def open(self, host = '', port = IMAP4_PORT):
         """Setup connection to remote server on "host:port"
             (default: localhost:standard IMAP4 port).
-        This connection will be used by the routines:
-            read, readline, send, shutdown.
         """
+        #self.host and self.port are needed by the parent IMAP4 class
         self.host = host
         self.port = port
         res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
@@ -173,7 +237,6 @@ class WrappedIMAP4(IMAP4):
             # FIXME
             raise socket.error(last_error)
         self.file = self.sock.makefile('rb')
-
 
 mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
 
