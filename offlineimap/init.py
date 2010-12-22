@@ -59,7 +59,10 @@ class OfflineImap:
     def run(self):
         """Parse the commandline and invoke everything"""
 
-        parser = OptionParser()
+        parser = OptionParser(version=offlineimap.banner,
+                              description="%s.\n\n%s" % 
+                              (offlineimap.__copyright__,
+                               offlineimap.__license__))
         parser.add_option("-1",
                   action="store_true", dest="singlethreading",
                   default=False,
@@ -90,7 +93,7 @@ class OfflineImap:
         parser.add_option("-c", dest="configfile", metavar="FILE",
                   default="~/.offlineimaprc",
                   help="Specifies a configuration file to use in lieu of "
-                       "the default, ~/.offlineimaprc.")
+                       "%default.")
 
         parser.add_option("-d", dest="debugtype", metavar="type1,[type2...]",
                   help=

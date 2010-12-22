@@ -16,21 +16,23 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+from threading import Lock, Event
+import time
+import sys
+import os
+import signal
+import curses, curses.panel, curses.textpad, curses.wrapper
 from Blinkenlights import BlinkenBase
 from UIBase import UIBase
-from threading import *
-import thread, time, sys, os, signal, time
-from offlineimap import version, threadutil
-from offlineimap.threadutil import MultiLock
+import offlineimap
 
-import curses, curses.panel, curses.textpad, curses.wrapper
 
 acctkeys = '1234567890abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-=;/.,'
 
 class CursesUtil:
     def __init__(self):
         self.pairlock = Lock()
-        self.iolock = MultiLock()
+        self.iolock = offlineimap.threadutil.MultiLock()
         self.start()
 
     def initpairs(self):
@@ -251,7 +253,7 @@ class InputHandler:
         s.startthread()
 
     def startthread(s):
-        s.thread = threadutil.ExitNotifyThread(target = s.bgreaderloop,
+        s.thread = offlineimap.threadutil.ExitNotifyThread(target = s.bgreaderloop,
                                                name = "InputHandler loop")
         s.thread.setDaemon(1)
         s.thread.start()
@@ -321,7 +323,7 @@ class Blinkenlights(BlinkenBase, UIBase):
         s.setupwindows()
         s.inputhandler = InputHandler(s.c)
         s.gettf().setcolor('red')
-        s._msg(version.banner)
+        s._msg(offlineimap.banner)
         s.inputhandler.set_bgchar(s.keypress)
         signal.signal(signal.SIGWINCH, s.resizehandler)
         s.resizelock = Lock()
@@ -454,10 +456,10 @@ class Blinkenlights(BlinkenBase, UIBase):
         else:
             color = curses.A_REVERSE
         s.bannerwindow.bkgd(' ', color) # Fill background with that color
-        s.bannerwindow.addstr("%s %s" % (version.productname,
-                                         version.versionstr))
-        s.bannerwindow.addstr(0, s.bannerwindow.getmaxyx()[1] - len(version.copyright) - 1,
-                              version.copyright)
+        s.bannerwindow.addstr("%s %s" % (offlineimap.__productname__,
+                                         offlineimap.__version__))
+        s.bannerwindow.addstr(0, s.bannerwindow.getmaxyx()[1] - len(offlineimap.__copyright__) - 1,
+                              offlineimap.__copyright__)
         
         s.bannerwindow.noutrefresh()
 

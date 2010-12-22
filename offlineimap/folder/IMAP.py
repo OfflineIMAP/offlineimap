@@ -16,16 +16,18 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from Base import BaseFolder
 import imaplib
-from offlineimap import imaputil, imaplibutil
-from offlineimap.ui import UIBase
-from offlineimap.version import versionstr
-import rfc822, time, string, random, binascii, re
+import rfc822
+import string
+import random
+import binascii
+import re
 from StringIO import StringIO
 from copy import copy
 import time
-
+from Base import BaseFolder
+from offlineimap import imaputil, imaplibutil, __version__
+from offlineimap.ui import UIBase
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
@@ -226,7 +228,7 @@ class IMAPFolder(BaseFolder):
         headervalue += binascii.hexlify(self.getname())
         headervalue += '-%d-' % long(time.time())
         headervalue += str(self.randomgenerator.random()).replace('.', '')
-        headervalue += '-v' + versionstr
+        headervalue += '-v' + offlineimap.__version__
         return (headername, headervalue)
 
     def savemessage_addheader(self, content, headername, headervalue):

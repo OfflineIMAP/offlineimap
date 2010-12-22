@@ -27,15 +27,15 @@ from distutils.core import setup
 import offlineimap.version
 
 setup(name = "offlineimap",
-      version = offlineimap.version.versionstr,
-      description = offlineimap.version.description,
-      author = offlineimap.version.author,
-      author_email = offlineimap.version.author_email,
-      url = offlineimap.version.homepage,
+      version = offlineimap.__version__,
+      description = offlineimap.__description__,
+      author = offlineimap.__author__,
+      author_email = offlineimap.__author_email__,
+      url = offlineimap.__homepage__,
       packages = ['offlineimap', 'offlineimap.folder',
                   'offlineimap.repository', 'offlineimap.ui'],
       scripts = ['bin/offlineimap'],
-      license = offlineimap.version.copyright + \
+      license = offlineimap.__copyright__ + \
                 ", Licensed under the GPL version 2"
 )
 

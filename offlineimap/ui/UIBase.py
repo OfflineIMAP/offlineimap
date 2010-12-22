@@ -61,8 +61,8 @@ class UIBase:
     def setlogfd(s, logfd):
         s.logfile = logfd
         logfd.write("This is %s %s\n" % \
-                    (offlineimap.version.productname,
-                     offlineimap.version.versionstr))
+                    (offlineimap.__productname__,
+                     offlineimap.__version__))
         logfd.write("Python: %s\n" % sys.version)
         logfd.write("Platform: %s\n" % sys.platform)
         logfd.write("Args: %s\n" % sys.argv)
@@ -174,7 +174,7 @@ class UIBase:
         where the UI should do its setup -- TK, for instance, would
         create the application window here."""
         if s.verbose >= 0:
-            s._msg(offlineimap.version.banner)
+            s._msg(offlineimap.banner)
 
     def connecting(s, hostname, port):
         if s.verbose < 0:
