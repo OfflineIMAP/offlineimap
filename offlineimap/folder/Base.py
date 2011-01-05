@@ -19,13 +19,15 @@
 from threading import *
 from offlineimap import threadutil
 from offlineimap.threadutil import InstanceLimitedThread
-from offlineimap.ui import UIBase
-import os.path, re
+from offlineimap.ui import getglobalui
+import os.path
+import re
 import sys
 
 class BaseFolder:
     def __init__(self):
         self.uidlock = Lock()
+        self.ui = getglobalui()
         
     def getname(self):
         """Returns name"""
@@ -202,8 +204,8 @@ class BaseFolder:
 
     def syncmessagesto_neguid_msg(self, uid, dest, applyto, register = 1):
         if register:
-            UIBase.getglobalui().registerthread(self.getaccountname())
-        UIBase.getglobalui().copyingmessage(uid, self, applyto)
+            self.ui.registerthread(self.getaccountname())
+        self.ui.copyingmessage(uid, self, applyto)
         successobject = None
         successuid = None
         message = self.getmessage(uid)
@@ -269,8 +271,8 @@ class BaseFolder:
         # really needed.
         try:
             if register:
-                UIBase.getglobalui().registerthread(self.getaccountname())
-            UIBase.getglobalui().copyingmessage(uid, self, applyto)
+                self.ui.registerthread(self.getaccountname())
+            self.ui.copyingmessage(uid, self, applyto)
             message = ''
             # If any of the destinations actually stores the message body,
             # load it up.
@@ -289,7 +291,7 @@ class BaseFolder:
                     self.deletemessage(uid)
                     uid = newuid
         except:
-            UIBase.getglobalui().warn("ERROR attempting to copy message " + str(uid) \
+            self.ui.warn("ERROR attempting to copy message " + str(uid) \
                  + " for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
         
 
@@ -334,7 +336,7 @@ class BaseFolder:
             if not uid in self_messagelist:
                 deletelist.append(uid)
         if len(deletelist):
-            UIBase.getglobalui().deletingmessages(deletelist, applyto)
+            self.ui.deletingmessages(deletelist, applyto)
             for object in applyto:
                 object.deletemessages(deletelist)
 
@@ -375,10 +377,10 @@ class BaseFolder:
 
         for object in applyto:
             for flag in addflaglist.keys():
-                UIBase.getglobalui().addingflags(addflaglist[flag], flag, [object])
+                self.ui.addingflags(addflaglist[flag], flag, [object])
                 object.addmessagesflags(addflaglist[flag], [flag])
             for flag in delflaglist.keys():
-                UIBase.getglobalui().deletingflags(delflaglist[flag], flag, [object])
+                self.ui.deletingflags(delflaglist[flag], flag, [object])
                 object.deletemessagesflags(delflaglist[flag], [flag])
                 
     def syncmessagesto(self, dest, applyto = None):
@@ -394,7 +396,7 @@ class BaseFolder:
         try:
             self.syncmessagesto_neguid(dest, applyto)
         except:
-            UIBase.getglobalui().warn("ERROR attempting to handle negative uids " \
+            self.ui.warn("ERROR attempting to handle negative uids " \
                 + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
 
         #all threads launched here are in try / except clauses when they copy anyway...
@@ -403,7 +405,7 @@ class BaseFolder:
         try:
             self.syncmessagesto_delete(dest, applyto)
         except:
-            UIBase.getglobalui().warn("ERROR attempting to delete messages " \
+            self.ui.warn("ERROR attempting to delete messages " \
                 + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
 
         # Now, the message lists should be identical wrt the uids present.
@@ -413,7 +415,7 @@ class BaseFolder:
         try:
             self.syncmessagesto_flags(dest, applyto)
         except:
-            UIBase.getglobalui().warn("ERROR attempting to sync flags " \
+            self.ui.warn("ERROR attempting to sync flags " \
                 + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
         
             
