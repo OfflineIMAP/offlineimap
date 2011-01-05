@@ -17,7 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import CustomConfig
-from offlineimap.ui import UIBase
+from offlineimap.ui import getglobalui
 import os.path
 import sys
 
@@ -164,7 +164,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                     for copyfolder in copyfolders:
                         copyfolder.makefolder(key.replace(dest.getsep(), copyfolder.getsep()))
                 except:
-                    UIBase.getglobalui().warn("ERROR Attempting to make folder " \
+                    getglobalui().warn("ERROR Attempting to make folder " \
                         + key + ":"  +str(sys.exc_info()[1]))
                 
 

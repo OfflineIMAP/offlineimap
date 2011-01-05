@@ -17,7 +17,7 @@
 
 from offlineimap import threadutil, mbnames, CustomConfig
 import offlineimap.repository.Base, offlineimap.repository.LocalStatus
-from offlineimap.ui import UIBase
+from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from subprocess import Popen, PIPE
 from threading import Event, Lock
@@ -110,7 +110,7 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.name = name
         self.metadatadir = config.getmetadatadir()
         self.localeval = config.getlocaleval()
-        self.ui = UIBase.getglobalui()
+        self.ui = getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
         self.quicknum = 0
         if self.refreshperiod == 0.0:
@@ -288,7 +288,7 @@ class SyncableAccount(Account, AccountSynchronizationMixin):
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos, quick):
     global mailboxes
-    ui = UIBase.getglobalui()
+    ui = getglobalui()
     ui.registerthread(accountname)
     try:
         # Load local folder.

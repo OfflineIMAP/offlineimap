@@ -20,7 +20,7 @@ from threading import *
 from StringIO import StringIO
 from Queue import Queue, Empty
 import sys, traceback, thread, time
-from offlineimap.ui import UIBase       # for getglobalui()
+from offlineimap.ui import getglobalui
 
 profiledir = None
 
@@ -129,7 +129,7 @@ def exitnotifymonitorloop(callback):
 
 def threadexited(thread):
     """Called when a thread exits."""
-    ui = UIBase.getglobalui()
+    ui = getglobalui()
     if thread.getExitCause() == 'EXCEPTION':
         if isinstance(thread.getExitException(), SystemExit):
             # Bring a SystemExit into the main thread.
@@ -297,5 +297,3 @@ class MultiLock:
                 self.lock.release()
         finally:
             self.statuslock.release()
-
-        

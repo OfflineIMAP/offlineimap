@@ -18,7 +18,7 @@
 
 from Base import BaseRepository
 from offlineimap import folder, imaputil
-from offlineimap.ui import UIBase
+from offlineimap.ui import getglobalui
 from mailbox import Maildir
 import os
 from stat import *
@@ -31,7 +31,7 @@ class MaildirRepository(BaseRepository):
 
         self.root = self.getlocalroot()
         self.folders = None
-        self.ui = UIBase.getglobalui()
+        self.ui = getglobalui()
         self.debug("MaildirRepository initialized, sep is " + repr(self.getsep()))
 	self.folder_atimes = []
 

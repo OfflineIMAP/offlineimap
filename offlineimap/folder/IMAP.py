@@ -22,12 +22,11 @@ import string
 import random
 import binascii
 import re
+import time
 from StringIO import StringIO
 from copy import copy
-import time
 from Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, __version__
-from offlineimap.ui import UIBase
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
@@ -43,6 +42,7 @@ class IMAPFolder(BaseFolder):
         self.repository = repository
         self.randomgenerator = random.Random()
         BaseFolder.__init__(self)
+        #self.ui is set in BaseFolder
 
     def selectro(self, imapobj):
         """Select this folder when we do not need write access.
@@ -190,7 +190,7 @@ class IMAPFolder(BaseFolder):
             messagestr = string.split(messagestr, maxsplit = 1)[1]
             options = imaputil.flags2hash(messagestr)
             if not options.has_key('UID'):
-                UIBase.getglobalui().warn('No UID in message with options %s' %\
+                self.ui.warn('No UID in message with options %s' %\
                                           str(options),
                                           minor = 1)
             else:
@@ -203,12 +203,11 @@ class IMAPFolder(BaseFolder):
         return self.messagelist
 
     def getmessage(self, uid):
-        ui = UIBase.getglobalui()
         imapobj = self.imapserver.acquireconnection()
         try:
             imapobj.select(self.getfullname(), readonly = 1)
             initialresult = imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')
-            ui.debug('imap', 'Returned object from fetching %d: %s' % \
+            self.ui.debug('imap', 'Returned object from fetching %d: %s' % \
                      (uid, str(initialresult)))
             return initialresult[1][0][1].replace("\r\n", "\n")
                 
@@ -232,31 +231,29 @@ class IMAPFolder(BaseFolder):
         return (headername, headervalue)
 
     def savemessage_addheader(self, content, headername, headervalue):
-        ui = UIBase.getglobalui()
-        ui.debug('imap',
+        self.ui.debug('imap',
                  'savemessage_addheader: called to add %s: %s' % (headername,
                                                                   headervalue))
         insertionpoint = content.find("\r\n")
-        ui.debug('imap', 'savemessage_addheader: insertionpoint = %d' % insertionpoint)
+        self.ui.debug('imap', 'savemessage_addheader: insertionpoint = %d' % insertionpoint)
         leader = content[0:insertionpoint]
-        ui.debug('imap', 'savemessage_addheader: leader = %s' % repr(leader))
+        self.ui.debug('imap', 'savemessage_addheader: leader = %s' % repr(leader))
         if insertionpoint == 0 or insertionpoint == -1:
             newline = ''
             insertionpoint = 0
         else:
             newline = "\r\n"
         newline += "%s: %s" % (headername, headervalue)
-        ui.debug('imap', 'savemessage_addheader: newline = ' + repr(newline))
+        self.ui.debug('imap', 'savemessage_addheader: newline = ' + repr(newline))
         trailer = content[insertionpoint:]
-        ui.debug('imap', 'savemessage_addheader: trailer = ' + repr(trailer))
+        self.ui.debug('imap', 'savemessage_addheader: trailer = ' + repr(trailer))
         return leader + newline + trailer
 
     def savemessage_searchforheader(self, imapobj, headername, headervalue):
         if imapobj.untagged_responses.has_key('APPENDUID'):
             return long(imapobj.untagged_responses['APPENDUID'][-1].split(' ')[1])
 
-        ui = UIBase.getglobalui()
-        ui.debug('imap', 'savemessage_searchforheader called for %s: %s' % \
+        self.ui.debug('imap', 'savemessage_searchforheader called for %s: %s' % \
                  (headername, headervalue))
         # Now find the UID it got.
         headervalue = imapobj._quote(headervalue)
@@ -264,16 +261,16 @@ class IMAPFolder(BaseFolder):
             matchinguids = imapobj.uid('search', 'HEADER', headername, headervalue)[1][0]
         except imapobj.error, err:
             # IMAP server doesn't implement search or had a problem.
-            ui.debug('imap', "savemessage_searchforheader: got IMAP error '%s' while attempting to UID SEARCH for message with header %s" % (err, headername))
+            self.ui.debug('imap', "savemessage_searchforheader: got IMAP error '%s' while attempting to UID SEARCH for message with header %s" % (err, headername))
             return 0
-        ui.debug('imap', 'savemessage_searchforheader got initial matchinguids: ' + repr(matchinguids))
+        self.ui.debug('imap', 'savemessage_searchforheader got initial matchinguids: ' + repr(matchinguids))
 
         if matchinguids == '':
-            ui.debug('imap', "savemessage_searchforheader: UID SEARCH for message with header %s yielded no results" % headername)
+            self.ui.debug('imap', "savemessage_searchforheader: UID SEARCH for message with header %s yielded no results" % headername)
             return 0
 
         matchinguids = matchinguids.split(' ')
-        ui.debug('imap', 'savemessage_searchforheader: matchinguids now ' + \
+        self.ui.debug('imap', 'savemessage_searchforheader: matchinguids now ' + \
                  repr(matchinguids))
         if len(matchinguids) != 1 or matchinguids[0] == None:
             raise ValueError, "While attempting to find UID for message with header %s, got wrong-sized matchinguids of %s" % (headername, str(matchinguids))
@@ -282,13 +279,12 @@ class IMAPFolder(BaseFolder):
 
     def savemessage(self, uid, content, flags, rtime):
         imapobj = self.imapserver.acquireconnection()
-        ui = UIBase.getglobalui()
-        ui.debug('imap', 'savemessage: called')
+        self.ui.debug('imap', 'savemessage: called')
         try:
             try:
                 imapobj.select(self.getfullname()) # Needed for search
             except imapobj.readonly:
-                ui.msgtoreadonly(self, uid, content, flags)
+                self.ui.msgtoreadonly(self, uid, content, flags)
                 # Return indicating message taken, but no UID assigned.
                 # Fudge it.
                 return 0
@@ -326,17 +322,17 @@ class IMAPFolder(BaseFolder):
                 # but some IMAP servers nonetheless choke on 1902.
                 date = imaplib.Time2Internaldate(time.localtime())
 
-            ui.debug('imap', 'savemessage: using date ' + str(date))
+            self.ui.debug('imap', 'savemessage: using date ' + str(date))
             content = re.sub("(?<!\r)\n", "\r\n", content)
-            ui.debug('imap', 'savemessage: initial content is: ' + repr(content))
+            self.ui.debug('imap', 'savemessage: initial content is: ' + repr(content))
 
             (headername, headervalue) = self.savemessage_getnewheader(content)
-            ui.debug('imap', 'savemessage: new headers are: %s: %s' % \
+            self.ui.debug('imap', 'savemessage: new headers are: %s: %s' % \
                      (headername, headervalue))
             content = self.savemessage_addheader(content, headername,
                                                  headervalue)
-            ui.debug('imap', 'savemessage: new content is: ' + repr(content))
-            ui.debug('imap', 'savemessage: new content length is ' + \
+            self.ui.debug('imap', 'savemessage: new content is: ' + repr(content))
+            self.ui.debug('imap', 'savemessage: new content length is ' + \
                      str(len(content)))
 
             assert(imapobj.append(self.getfullname(),
@@ -347,12 +343,12 @@ class IMAPFolder(BaseFolder):
             assert(imapobj.check()[0] == 'OK')
 
             # Keep trying until we get the UID.
-            ui.debug('imap', 'savemessage: first attempt to get new UID')
+            self.ui.debug('imap', 'savemessage: first attempt to get new UID')
             uid = self.savemessage_searchforheader(imapobj, headername,
                                                    headervalue)
             # See docs for savemessage in Base.py for explanation of this and other return values
             if uid <= 0:
-                ui.debug('imap', 'savemessage: first attempt to get new UID failed.  Going to run a NOOP and try again.')
+                self.ui.debug('imap', 'savemessage: first attempt to get new UID failed.  Going to run a NOOP and try again.')
                 assert(imapobj.noop()[0] == 'OK')
                 uid = self.savemessage_searchforheader(imapobj, headername,
                                                        headervalue)
@@ -362,7 +358,7 @@ class IMAPFolder(BaseFolder):
         if uid: # avoid UID FETCH 0 crash happening later on
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
 
-        ui.debug('imap', 'savemessage: returning %d' % uid)
+        self.ui.debug('imap', 'savemessage: returning %d' % uid)
         return uid
 
     def savemessageflags(self, uid, flags):
@@ -371,7 +367,7 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-                UIBase.getglobalui().flagstoreadonly(self, [uid], flags)
+                self.ui.flagstoreadonly(self, [uid], flags)
                 return
             result = imapobj.uid('store', '%d' % uid, 'FLAGS',
                                  imaputil.flagsmaildir2imap(flags))
@@ -415,7 +411,7 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-                UIBase.getglobalui().flagstoreadonly(self, uidlist, flags)
+                self.ui.flagstoreadonly(self, uidlist, flags)
                 return
             r = imapobj.uid('store',
                             imaputil.listjoin(uidlist),
@@ -474,7 +470,7 @@ class IMAPFolder(BaseFolder):
             try:
                 imapobj.select(self.getfullname())
             except imapobj.readonly:
-                UIBase.getglobalui().deletereadonly(self, uidlist)
+                self.ui.deletereadonly(self, uidlist)
                 return
             if self.expunge:
                 assert(imapobj.expunge()[0] == 'OK')

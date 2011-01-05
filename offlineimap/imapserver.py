@@ -18,7 +18,7 @@
 
 import imaplib
 from offlineimap import imaplibutil, imaputil, threadutil
-from offlineimap.ui import UIBase
+from offlineimap.ui import getglobalui
 from threading import *
 import thread, hmac, os, time
 import base64
@@ -102,6 +102,7 @@ class IMAPServer:
                  port = None, ssl = 1, maxconnections = 1, tunnel = None,
                  reference = '""', sslclientcert = None, sslclientkey = None,
                  sslcacertfile= None):
+        self.ui = getglobalui()
         self.reposname = reposname
         self.config = config
         self.username = username
@@ -140,7 +141,7 @@ class IMAPServer:
         if self.password != None and self.passworderror == None:
             return self.password
 
-        self.password = UIBase.getglobalui().getpass(self.reposname,
+        self.password = self.ui.getpass(self.reposname,
                                                      self.config,
                                                      self.passworderror)
         self.passworderror = None
@@ -167,18 +168,16 @@ class IMAPServer:
         self.semaphore.release()
 
     def md5handler(self, response):
-        ui = UIBase.getglobalui()
         challenge = response.strip()
-        ui.debug('imap', 'md5handler: got challenge %s' % challenge)
+        self.ui.debug('imap', 'md5handler: got challenge %s' % challenge)
 
         passwd = self.getpassword()
         retval = self.username + ' ' + hmac.new(passwd, challenge).hexdigest()
-        ui.debug('imap', 'md5handler: returning %s' % retval)
+        self.ui.debug('imap', 'md5handler: returning %s' % retval)
         return retval
 
     def plainauth(self, imapobj):
-        UIBase.getglobalui().debug('imap',
-                                   'Attempting plain authentication')
+        self.ui.debug('imap', 'Attempting plain authentication')
         imapobj.login(self.username, self.getpassword())
 
     def gssauth(self, response):
@@ -201,8 +200,7 @@ class IMAPServer:
         except kerberos.GSSError, err:
             # Kerberos errored out on us, respond with None to cancel the
             # authentication
-            UIBase.getglobalui().debug('imap',
-                                       '%s: %s' % (err[0][0], err[1][0]))
+            self.ui.debug('imap', '%s: %s' % (err[0][0], err[1][0]))
             return None
 
         if not response:
@@ -249,16 +247,16 @@ class IMAPServer:
             while not success:
                 # Generate a new connection.
                 if self.tunnel:
-                    UIBase.getglobalui().connecting('tunnel', self.tunnel)
+                    self.ui.connecting('tunnel', self.tunnel)
                     imapobj = UsefulIMAP4_Tunnel(self.tunnel)
                     success = 1
                 elif self.usessl:
-                    UIBase.getglobalui().connecting(self.hostname, self.port)
+                    self.ui.connecting(self.hostname, self.port)
                     imapobj = UsefulIMAP4_SSL(self.hostname, self.port,
                                               self.sslclientkey, self.sslclientcert, 
                                               cacertfile = self.sslcacertfile)
                 else:
-                    UIBase.getglobalui().connecting(self.hostname, self.port)
+                    self.ui.connecting(self.hostname, self.port)
                     imapobj = UsefulIMAP4(self.hostname, self.port)
 
                 imapobj.mustquote = imaplibutil.mustquote
@@ -267,13 +265,13 @@ class IMAPServer:
                     try:
                         # Try GSSAPI and continue if it fails
                         if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
-                            UIBase.getglobalui().debug('imap',
+                            self.ui.debug('imap',
                                 'Attempting GSSAPI authentication')
                             try:
                                 imapobj.authenticate('GSSAPI', self.gssauth)
                             except imapobj.error, val:
                                 self.gssapi = False
-                                UIBase.getglobalui().debug('imap',
+                                self.ui.debug('imap',
                                     'GSSAPI Authentication failed')
                             else:
                                 self.gssapi = True
@@ -282,7 +280,7 @@ class IMAPServer:
 
                         if not self.gssapi:
                             if 'AUTH=CRAM-MD5' in imapobj.capabilities:
-                                UIBase.getglobalui().debug('imap',
+                                self.ui.debug('imap',
                                                        'Attempting CRAM-MD5 authentication')
                                 try:
                                     imapobj.authenticate('CRAM-MD5', self.md5handler)
@@ -357,47 +355,46 @@ class IMAPServer:
         until the Event object as passed is true.  This method is expected
         to be invoked in a separate thread, which should be join()'d after
         the event is set."""
-        ui = UIBase.getglobalui()
-        ui.debug('imap', 'keepalive thread started')
+        self.ui.debug('imap', 'keepalive thread started')
         while 1:
-            ui.debug('imap', 'keepalive: top of loop')
+            self.ui.debug('imap', 'keepalive: top of loop')
             time.sleep(timeout)
-            ui.debug('imap', 'keepalive: after wait')
+            self.ui.debug('imap', 'keepalive: after wait')
             if event.isSet():
-                ui.debug('imap', 'keepalive: event is set; exiting')
+                self.ui.debug('imap', 'keepalive: event is set; exiting')
                 return
-            ui.debug('imap', 'keepalive: acquiring connectionlock')
+            self.ui.debug('imap', 'keepalive: acquiring connectionlock')
             self.connectionlock.acquire()
             numconnections = len(self.assignedconnections) + \
                              len(self.availableconnections)
             self.connectionlock.release()
-            ui.debug('imap', 'keepalive: connectionlock released')
+            self.ui.debug('imap', 'keepalive: connectionlock released')
             threads = []
             imapobjs = []
         
             for i in range(numconnections):
-                ui.debug('imap', 'keepalive: processing connection %d of %d' % (i, numconnections))
+                self.ui.debug('imap', 'keepalive: processing connection %d of %d' % (i, numconnections))
                 imapobj = self.acquireconnection()
-                ui.debug('imap', 'keepalive: connection %d acquired' % i)
+                self.ui.debug('imap', 'keepalive: connection %d acquired' % i)
                 imapobjs.append(imapobj)
                 thr = threadutil.ExitNotifyThread(target = imapobj.noop)
                 thr.setDaemon(1)
                 thr.start()
                 threads.append(thr)
-                ui.debug('imap', 'keepalive: thread started')
+                self.ui.debug('imap', 'keepalive: thread started')
 
-            ui.debug('imap', 'keepalive: joining threads')
+            self.ui.debug('imap', 'keepalive: joining threads')
 
             for thr in threads:
                 # Make sure all the commands have completed.
                 thr.join()
 
-            ui.debug('imap', 'keepalive: releasing connections')
+            self.ui.debug('imap', 'keepalive: releasing connections')
 
             for imapobj in imapobjs:
                 self.releaseconnection(imapobj)
 
-            ui.debug('imap', 'keepalive: bottom of loop')
+            self.ui.debug('imap', 'keepalive: bottom of loop')
 
 class ConfigedIMAPServer(IMAPServer):
     """This class is designed for easier initialization given a ConfigParser

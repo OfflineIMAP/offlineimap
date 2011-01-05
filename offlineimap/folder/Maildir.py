@@ -19,7 +19,6 @@
 import os.path, os, re, time, socket
 from Base import BaseFolder
 from offlineimap import imaputil
-from offlineimap.ui import UIBase
 from threading import Lock
 
 try:
@@ -61,6 +60,7 @@ class MaildirFolder(BaseFolder):
         self.repository = repository
         self.accountname = accountname
         BaseFolder.__init__(self)
+        #self.ui is set in BaseFolder.init()
 
     def getaccountname(self):
         return self.accountname
@@ -193,8 +193,7 @@ class MaildirFolder(BaseFolder):
     def savemessage(self, uid, content, flags, rtime):
         # This function only ever saves to tmp/,
         # but it calls savemessageflags() to actually save to cur/ or new/.
-        ui = UIBase.getglobalui()
-        ui.debug('maildir', 'savemessage: called to write with flags %s and content %s' % \
+        self.ui.debug('maildir', 'savemessage: called to write with flags %s and content %s' % \
                  (repr(flags), repr(content)))
         if uid < 0:
             # We cannot assign a new uid.
@@ -226,7 +225,7 @@ class MaildirFolder(BaseFolder):
             else:
                 break
         tmpmessagename = messagename.split(',')[0]
-        ui.debug('maildir', 'savemessage: using temporary name %s' % tmpmessagename)
+        self.ui.debug('maildir', 'savemessage: using temporary name %s' % tmpmessagename)
         file = open(os.path.join(tmpdir, tmpmessagename), "wt")
         file.write(content)
 
@@ -238,7 +237,7 @@ class MaildirFolder(BaseFolder):
         file.close()
         if rtime != None:
             os.utime(os.path.join(tmpdir,tmpmessagename), (rtime,rtime))
-        ui.debug('maildir', 'savemessage: moving from %s to %s' % \
+        self.ui.debug('maildir', 'savemessage: moving from %s to %s' % \
                  (tmpmessagename, messagename))
         if tmpmessagename != messagename: # then rename it
             os.rename(os.path.join(tmpdir, tmpmessagename),
@@ -256,7 +255,7 @@ class MaildirFolder(BaseFolder):
         self.messagelist[uid] = {'uid': uid, 'flags': [],
                                  'filename': os.path.join(tmpdir, messagename)}
         self.savemessageflags(uid, flags)
-        ui.debug('maildir', 'savemessage: returning uid %d' % uid)
+        self.ui.debug('maildir', 'savemessage: returning uid %d' % uid)
         return uid
         
     def getmessageflags(self, uid):

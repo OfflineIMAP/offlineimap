@@ -16,7 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import re, socket, time, subprocess
-from offlineimap.ui import UIBase
+from offlineimap.ui import getglobalui
 from imaplib import *
 
 # Import the symbols we need that aren't exported by default
@@ -67,7 +67,7 @@ def new_mesg(self, s, secs=None):
             if secs is None:
                 secs = time.time()
             tm = time.strftime('%M:%S', time.localtime(secs))
-            UIBase.getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
+            getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
 
 class WrappedIMAP4_SSL(IMAP4_SSL):
     """Provides an improved version of the standard IMAP4_SSL
