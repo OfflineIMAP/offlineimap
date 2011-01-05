@@ -214,8 +214,8 @@ class OfflineImap:
                     section = "general"
                 config.set(section, key, value)
 
-        #which ui to use? cmd line option overrides config file
-        ui_type = config.getdefault('general', 'ui', 'ttyui')
+        #init the ui, cmd line option overrides config file
+        ui_type = config.getdefault('general','ui', 'TTY')
         if options.interface != None:
             ui_type = options.interface
         if '.' in ui_type:
