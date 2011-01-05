@@ -1,6 +1,5 @@
-# UI module directory
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# UI module
+# Copyright (C) 2010 Sebastian Spaeth <Sebastian@SSpaeth.de>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,23 +15,17 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+from offlineimap.ui.UIBase import getglobalui, setglobalui
+from offlineimap.ui import TTY, Noninteractive, Machine
 
-import UIBase, Blinkenlights
+UI_LIST = {'TTY.TTYUI': TTY.TTYUI,
+           'Noninteractive.Basic': Noninteractive.Basic,
+           'Noninteractive.Quiet': Noninteractive.Quiet, 
+           'Machine.MachineUI': Machine.MachineUI}
+
+#add Blinkenlights UI if it imports correctly (curses installed)
 try:
-    import TTY
+    from offlineimap.ui import Curses
+    UI_LIST['Curses.Blinkenlights'] = Curses.Blinkenlights
 except ImportError:
     pass
-
-try:
-    import curses
-except ImportError:
-    pass
-else:
-    import Curses
-
-import Noninteractive
-import Machine
-
-# Must be last
-import detector
-

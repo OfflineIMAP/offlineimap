@@ -22,7 +22,6 @@ from offlineimap.localeval import LocalEval
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 import offlineimap.ui
 from offlineimap.CustomConfig import CustomConfigParser
-from offlineimap.ui.detector import DEFAULT_UI_LIST
 from optparse import OptionParser
 import re, os, sys
 from threading import *
@@ -151,7 +150,7 @@ class OfflineImap:
               "configuration file. The UI specified with -u will "
               "be forced to be used, even if checks determine that it is "
               "not usable. Possible interface choices are: %s " %
-              ", ".join(DEFAULT_UI_LIST))
+              ", ".join(offlineimap.ui.UI_LIST.keys()))
 
         (options, args) = parser.parse_args()
 
@@ -187,10 +186,19 @@ class OfflineImap:
                     section = "general"
                 config.set(section, key, value)
 
-        #init the ui, and set up additional log files
-        ui = offlineimap.ui.detector.findUI(config, options.interface)
+        #init the ui, cmd line option overrides config file
+        ui_type = config.getdefault('general','ui', 'TTY.TTYUI')
+        if options.interface != None:
+            ui_type = options.interface
+        try:
+            ui = offlineimap.ui.UI_LIST[ui_type](config)
+        except KeyError:
+            logging.error("UI '%s' does not exist, choose one of: %s" % \
+                              (ui_type,', '.join(offlineimap.ui.UI_LIST.keys())))
+            sys.exit(1)
         offlineimap.ui.UIBase.setglobalui(ui)
-    
+
+        #set up additional log files
         if options.logfile:
             ui.setlogfd(open(options.logfile, 'wt'))
     
@@ -236,7 +244,7 @@ class OfflineImap:
     
         def sigterm_handler(self, signum, frame):
             # die immediately
-            ui = BaseUI.getglobalui()
+            ui = offlineimap.ui.getglobalui()
             ui.terminate(errormsg="terminating...")
 
         signal.signal(signal.SIGTERM,sigterm_handler)
