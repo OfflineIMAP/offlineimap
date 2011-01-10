@@ -18,9 +18,9 @@
 
 from threading import *
 from offlineimap import threadutil
-from offlineimap.threadutil import InstanceLimitedThread
 from offlineimap.ui import UIBase
-import os.path, re
+import os.path
+import re
 import sys
 
 class BaseFolder:
@@ -248,7 +248,7 @@ class BaseFolder:
         for uid in uidlist:
             if usethread and usethread.suggeststhreads():
                 usethread.waitforthread()
-                thread = InstanceLimitedThread(\
+                thread = threadutil.InstanceLimitedThread(\
                     usethread.getcopyinstancelimit(),
                     target = self.syncmessagesto_neguid_msg,
                     name = "New msg sync from %s" % self.getvisiblename(),
@@ -307,7 +307,7 @@ class BaseFolder:
             if not uid in dest_messagelist:
                 if self.suggeststhreads():
                     self.waitforthread()
-                    thread = InstanceLimitedThread(\
+                    thread = threadutil.InstanceLimitedThread(\
                         self.getcopyinstancelimit(),
                         target = self.copymessageto,
                         name = "Copy message %d from %s" % (uid,
