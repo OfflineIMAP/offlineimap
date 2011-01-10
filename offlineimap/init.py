@@ -16,18 +16,20 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import os
+import sys
+import threading
 import imaplib
-from offlineimap import imapserver, threadutil, version, syncmaster, accounts
-from offlineimap.localeval import LocalEval
-from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
-import offlineimap.ui
-from offlineimap.CustomConfig import CustomConfigParser
-from optparse import OptionParser
-import re, os, sys
-from threading import *
-import threading, socket
 import signal
+import socket
 import logging
+from optparse import OptionParser
+import offlineimap
+from offlineimap import accounts, threadutil, syncmaster
+from offlineimap.ui import UI_LIST, setglobalui, getglobalui
+from offlineimap.localeval import LocalEval
+from offlineimap.CustomConfig import CustomConfigParser
+
 
 try:
     import fcntl
@@ -153,7 +155,7 @@ class OfflineImap:
               "configuration file. The UI specified with -u will "
               "be forced to be used, even if checks determine that it is "
               "not usable. Possible interface choices are: %s " %
-              ", ".join(offlineimap.ui.UI_LIST.keys()))
+              ", ".join(UI_LIST.keys()))
 
         (options, args) = parser.parse_args()
 
@@ -194,12 +196,12 @@ class OfflineImap:
         if options.interface != None:
             ui_type = options.interface
         try:
-            ui = offlineimap.ui.UI_LIST[ui_type](config)
+            ui = UI_LIST[ui_type](config)
         except KeyError:
             logging.error("UI '%s' does not exist, choose one of: %s" % \
-                              (ui_type,', '.join(offlineimap.ui.UI_LIST.keys())))
+                              (ui_type,', '.join(UI_LIST.keys())))
             sys.exit(1)
-        offlineimap.ui.UIBase.setglobalui(ui)
+        setglobalui(ui)
 
         #set up additional log files
         if options.logfile:
@@ -247,7 +249,7 @@ class OfflineImap:
     
         def sigterm_handler(self, signum, frame):
             # die immediately
-            ui = offlineimap.ui.getglobalui()
+            ui = getglobalui()
             ui.terminate(errormsg="terminating...")
 
         signal.signal(signal.SIGTERM,sigterm_handler)
@@ -325,7 +327,7 @@ class OfflineImap:
             signal.signal(signal.SIGUSR2,sig_handler)
     
             threadutil.initexitnotify()
-            t = ExitNotifyThread(target=syncmaster.syncitall,
+            t = threadutil.ExitNotifyThread(target=syncmaster.syncitall,
                                  name='Sync Runner',
                                  kwargs = {'accounts': syncaccounts,
                                            'config': config,
