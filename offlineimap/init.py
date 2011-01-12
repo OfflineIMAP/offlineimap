@@ -293,11 +293,8 @@ class OfflineImap:
             remoterepos = None
             localrepos = None
     
-            if options.singlethreading:
-                threadutil.initInstanceLimit("ACCOUNTLIMIT", 1)
-            else:
-                threadutil.initInstanceLimit("ACCOUNTLIMIT",
-                                             config.getdefaultint("general", "maxsyncaccounts", 1))
+            threadutil.initInstanceLimit("ACCOUNTLIMIT",
+                                         config.getdefaultint("general", "maxsyncaccounts", 1))
     
             for reposname in config.getsectionlist('Repository'):
                 for instancename in ["FOLDER_" + reposname,
@@ -326,15 +323,23 @@ class OfflineImap:
             signal.signal(signal.SIGUSR1,sig_handler)
             signal.signal(signal.SIGUSR2,sig_handler)
     
-            threadutil.initexitnotify()
-            t = threadutil.ExitNotifyThread(target=syncmaster.syncitall,
+            #various initializations that need to be performed:
+            threadutil.initexitnotify()       #TODO: Why?
+            offlineimap.mbnames.init(config, syncaccounts)
+
+            if options.singlethreading:
+                #singlethreaded
+                self.sync_singlethreaded(syncaccounts, config, siglisteners)
+            else:
+                # multithreaded
+                t = threadutil.ExitNotifyThread(target=syncmaster.syncitall,
                                  name='Sync Runner',
                                  kwargs = {'accounts': syncaccounts,
                                            'config': config,
                                            'siglisteners': siglisteners})
-            t.setDaemon(1)
-            t.start()
-            threadutil.exitnotifymonitorloop(threadutil.threadexited)
+                t.setDaemon(1)
+                t.start()
+                threadutil.exitnotifymonitorloop(threadutil.threadexited)
 
         except KeyboardInterrupt:
             ui.terminate(1, errormsg = 'CTRL-C pressed, aborting...')
@@ -344,4 +349,16 @@ class OfflineImap:
         except:
             ui.mainException()
 
-        
+    def sync_singlethreaded(self, accs, config, siglisteners):
+        """Executed if we do not want a separate syncmaster thread
+
+        :param accs: A list of accounts that should be synced
+        :param config: The CustomConfig object
+        :param siglisteners: The signal listeners list, defined in run()
+        """
+        for accountname in accs:
+            account = offlineimap.accounts.SyncableAccount(config, accountname)
+            siglistener = offlineimap.accounts.SigListener()
+            siglisteners.append(siglistener)
+            threading.currentThread().name = "Account sync %s" % accountname
+            account.syncrunner(siglistener=siglistener)

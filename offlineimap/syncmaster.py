@@ -16,7 +16,6 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import mbnames
 from offlineimap.threadutil import threadlist, InstanceLimitedThread, ExitNotifyThread
 from offlineimap.accounts import SyncableAccount, SigListener
 from threading import currentThread
@@ -33,11 +32,10 @@ def syncaccount(threads, config, accountname, siglisteners):
     thread.setDaemon(1)
     thread.start()
     threads.add(thread)
-    
+
 def syncitall(accounts, config, siglisteners):
     currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
     threads = threadlist()
-    mbnames.init(config, accounts)
     for accountname in accounts:
         syncaccount(threads, config, accountname, siglisteners)
     # Wait for the threads to finish.
