@@ -104,15 +104,9 @@ class LocalStatusFolder(BaseFolder):
             os.rename(self.filename + ".tmp", self.filename)
 
             if self.dofsync:
-                try:
-                    fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
-                    os.fsync(fd)
-                    os.close(fd)
-                except (KeyboardInterrupt):
-                    raise
-                except:
-                    #TODO, we should catch a specific Exception here, not ALL. But which?
-                    pass
+                fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
+                os.fsync(fd)
+                os.close(fd)
 
         finally:
             self.savelock.release()
