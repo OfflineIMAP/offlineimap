@@ -334,14 +334,14 @@ class OfflineImap:
                                            'siglisteners': siglisteners})
             t.setDaemon(1)
             t.start()
-        except:
-            ui.mainException()
-    
-        try:
             threadutil.exitnotifymonitorloop(threadutil.threadexited)
-        except SystemExit:
+
+        except KeyboardInterrupt:
+            ui.terminate(1, errormsg = 'CTRL-C pressed, aborting...')
+            return
+        except (SystemExit):
             raise
         except:
-            ui.mainException()  # Also expected to terminate.
+            ui.mainException()
 
         

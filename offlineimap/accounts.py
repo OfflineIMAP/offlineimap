@@ -187,6 +187,8 @@ class AccountSynchronizationMixin:
             try:
                 try:
                     self.sync(siglistener)
+                except (KeyboardInterrupt, SystemExit):
+                    raise
                 except:
                     self.ui.warn("Error occured attempting to sync account " + self.name \
                                  + ": " + str(sys.exc_info()[1]))
@@ -201,6 +203,8 @@ class AccountSynchronizationMixin:
             try:
                 try:
                     self.sync(siglistener)
+                except (KeyboardInterrupt, SystemExit):
+                    raise
                 except:
                     self.ui.warn("Error occured attempting to sync account " + self.name \
                                  + ": " + str(sys.exc_info()[1]))
@@ -370,6 +374,8 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         localfolder.syncmessagesto(statusfolder)
         statusfolder.save()
         localrepos.restore_atime()
+    except (KeyboardInterrupt, SystemExit):
+        raise
     except:
         ui.warn("ERROR in syncfolder for %s folder %s: %s" % \
                 (accountname,remotefolder.getvisiblename(),sys.exc_info()[1]))
