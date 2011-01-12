@@ -288,6 +288,8 @@ class BaseFolder:
                     self.savemessage(newuid, message, flags, rtime)
                     self.deletemessage(uid)
                     uid = newuid
+        except (KeyboardInterrupt):
+            raise
         except:
             self.ui.warn("ERROR attempting to copy message " + str(uid) \
                  + " for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
@@ -393,6 +395,8 @@ class BaseFolder:
 
         try:
             self.syncmessagesto_neguid(dest, applyto)
+        except (KeyboardInterrupt):
+            raise
         except:
             self.ui.warn("ERROR attempting to handle negative uids " \
                 + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
@@ -402,6 +406,8 @@ class BaseFolder:
 
         try:
             self.syncmessagesto_delete(dest, applyto)
+        except (KeyboardInterrupt):
+            raise
         except:
             self.ui.warn("ERROR attempting to delete messages " \
                 + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
@@ -412,6 +418,8 @@ class BaseFolder:
 
         try:
             self.syncmessagesto_flags(dest, applyto)
+        except (KeyboardInterrupt):
+            raise
         except:
             self.ui.warn("ERROR attempting to sync flags " \
                 + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))

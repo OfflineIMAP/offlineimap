@@ -108,7 +108,10 @@ class LocalStatusFolder(BaseFolder):
                     fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
                     os.fsync(fd)
                     os.close(fd)
+                except (KeyboardInterrupt):
+                    raise
                 except:
+                    #TODO, we should catch a specific Exception here, not ALL. But which?
                     pass
 
         finally:

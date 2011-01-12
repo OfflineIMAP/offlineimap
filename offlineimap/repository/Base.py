@@ -163,10 +163,11 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                     dest.makefolder(key)
                     for copyfolder in copyfolders:
                         copyfolder.makefolder(key.replace(dest.getsep(), copyfolder.getsep()))
+                except (KeyboardInterrupt):
+                    raise
                 except:
                     getglobalui().warn("ERROR Attempting to make folder " \
                         + key + ":"  +str(sys.exc_info()[1]))
-                
 
         #
         # Find deleted folders.
