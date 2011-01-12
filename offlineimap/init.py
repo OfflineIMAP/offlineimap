@@ -97,21 +97,18 @@ class OfflineImap:
                        "%default.")
 
         parser.add_option("-d", dest="debugtype", metavar="type1,[type2...]",
-                  help=
-              "Enables debugging for OfflineIMAP. This is useful "
-              "if you are trying to track down a malfunction or "
-              "figure out what is going on under the hood. It is recommended "
-              "to use this with -1 in order to make the "
-              "results more sensible. This option requires one or more "
-              "debugtypes, separated by commas. "
-              "These define what exactly will be debugged, "
-              "and so far include two options: imap, "
-              "maildir or ALL. The imap option will enable IMAP protocol "
-              "stream and parsing debugging. Note that the output "
-              "may contain passwords, so take care to remove that "
-              "from the debugging output before sending it to anyone else. "
-              "The maildir option will enable debugging "
-              "for certain Maildir operations.")
+                  help="""Enables debugging for OfflineIMAP. This is useful
+              if you are to track down a malfunction or figure out what is
+              going on under the hood. This option requires one or more
+              debugtypes, separated by commas. These define what exactly
+              will be debugged, and so far include two options: imap, thread,
+              maildir or ALL. The imap option will enable IMAP protocol
+              stream and parsing debugging. Note that the output may contain
+              passwords, so take care to remove that from the debugging
+              output before sending it to anyone else. The maildir option
+              will enable debugging for certain Maildir operations.
+              The use of any debug option (unless 'thread' is included),
+              implies the single-thread option -1.""")
 
         parser.add_option("-l", dest="logfile", metavar="FILE",
                   help="Log to FILE")
@@ -213,6 +210,12 @@ class OfflineImap:
         if options.debugtype:
             if options.debugtype.lower() == 'all':
                 options.debugtype = 'imap,maildir,thread'
+            #force single threading?
+            if not ('thread' in options.debugtype.split(',') \
+                    and options.singlethreading):
+                ui._msg("Debug mode: Forcing to singlethreaded.")
+                options.singlethreaded = True
+
             for type in options.debugtype.split(','):
                 type = type.strip()
                 ui.add_debug(type)
