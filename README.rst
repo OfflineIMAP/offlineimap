@@ -153,7 +153,7 @@ Reporting bugs
 Bugs
 ----
 
-Reports of bugs should be reported online at the `mailing list`_.
+Bugs and issues should be reported to the `mailing list`_.
 
 
 ========
@@ -165,7 +165,7 @@ other examples you have that may be useful to me.
 
 
 Multiple Accounts with Mutt
----------------------------
+===========================
 
 This example shows you how to set up OfflineIMAP to synchronize multiple
 accounts with the mutt mail reader.
@@ -199,7 +199,7 @@ That's it!
 
 
 UW-IMAPD and References
------------------------
+=======================
 
 Some users with a UW-IMAPD server need to use OfflineIMAP's "reference" feature
 to get at their mailboxes, specifying a reference of ``~/Mail`` or ``#mh/``
@@ -237,7 +237,7 @@ folders synced to just three::
 
 
 pythonfile Configuration File Option
-------------------------------------
+====================================
 
 You can have OfflineIMAP load up a Python file before evaluating the
 configuration file options that are Python expressions.  This example is based
@@ -279,7 +279,7 @@ Python function from the pythonfile to always synchronize certain folders first.
 
 
 Signals
--------
+=======
 
 OfflineIMAP writes its current PID into ``~/.offlineimap/pid`` when it is
 running.  It is not guaranteed that this file will not exist when OfflineIMAP is
