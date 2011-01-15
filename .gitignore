@@ -1,9 +1,6 @@
 # Generated files
 /build/
 *.pyc
-manpage.*
-manual.html
-manual.ps
 offlineimap.1
 # backups
 .*.swp

@@ -31,20 +31,15 @@ clean:
 	-rm -f `find . -name ".cache*"`
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
-	-rm -f manual.html manual.pdf manual.txt manual.ps offlineimap.1
+	-rm -f readme.html
+	@$(MAKE) -C docs clean
+
+man:
+	@$(MAKE) -C docs man
 
 doc: 
-	docbook2man offlineimap.sgml
-	docbook2man offlineimap.sgml
-	docbook2html -u offlineimap.sgml
-	mv offlineimap.html manual.html
-	man -t -l offlineimap.1 > manual.ps
-	ps2pdf manual.ps
-	groff -Tascii -man offlineimap.1 | sed $$'s/.\b//g' > manual.txt
-	-rm manpage.links manpage.refs manual.ps
-
-faq:
-	curl -o FAQ.html http://software.complete.org/offlineimap/wiki/FrequentlyAskedQuestions
+	@$(MAKE) -C docs
+	rst2html.py README.rst readme.html
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
