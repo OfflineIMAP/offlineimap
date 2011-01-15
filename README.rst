@@ -153,7 +153,7 @@ Reporting bugs
 Bugs
 ----
 
-Reports of bugs should be reported online at the `mailing list`_.
+Bugs and issues should be reported to the `mailing list`_.
 
 
 ========
