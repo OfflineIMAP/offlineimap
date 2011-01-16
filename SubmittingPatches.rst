@@ -1,85 +1,97 @@
-# Checklist (and a short version for the impatient):
+.. -*- coding: utf-8 -*-
 
-## Commits:
+.. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
 
-	- make commits of logical units
-	- check for unnecessary whitespace with "git diff --check"
-	  before committing
-	- do not check in commented out code or unneeded files
-	- the first line of the commit message should be a short
-	  description (50 characters is the soft limit, see DISCUSSION
-	  in git-commit(1)), and should skip the full stop
-	- the body should provide a meaningful commit message, which:
-		- uses the imperative, present tense: "change",
-		  not "changed" or "changes".
-		- includes motivation for the change, and contrasts
-		  its implementation with previous behaviour
-	- add a "Signed-off-by: Your Name <you@example.com>" line to the
-	  commit message (or just use the option "-s" when committing)
-	  to confirm that you agree to the Developer's Certificate of Origin
-	- make sure that you have tests for the bug you are fixing
-	- make sure that the test suite passes after your commit
+=================================================
+Checklist (and a short version for the impatient)
+=================================================
 
-## Patch:
+Commits
+=======
 
-	- use "git format-patch -M" to create the patch
-	- do not PGP sign your patch
-	- do not attach your patch, but read in the mail
-	  body, unless you cannot teach your mailer to
-	  leave the formatting of the patch alone.
-	- be careful doing cut & paste into your mailer, not to
-	  corrupt whitespaces.
-	- provide additional information (which is unsuitable for
-	  the commit message) between the "---" and the diffstat
-	- if you change, add, or remove a command line option or
-	  make some other user interface change, the associated
-	  documentation should be updated as well.
-	- if your name is not writable in ASCII, make sure that
-	  you send off a message in the correct encoding.
-	- send the patch to the lists
-	  (offlineimap-project@lists.alioth.debian.org) and the
-	  maintainer (nicolas.s-dev@laposte.net) if (and only if)
-		the patch is ready for inclusion. If you use git-send-email(1),
-	  please test it first by sending email to yourself.
-	- see below for instructions specific to your mailer
+* make commits of logical units
+* check for unnecessary whitespace with ``git diff --check``
+  before committing
+* do not check in commented out code or unneeded files
+* the first line of the commit message should be a short
+  description (50 characters is the soft limit, see DISCUSSION
+  in git-commit(1)), and should skip the full stop
+* the body should provide a meaningful commit message, which:
+	* uses the imperative, present tense: **change**,
+	  not **changed** or **changes**.
+	* includes motivation for the change, and contrasts
+	  its implementation with previous behaviour
+* add a ``Signed-off-by: Your Name <you@example.com>`` line to the
+  commit message (or just use the option `-s` when committing)
+  to confirm that you agree to the **Developer's Certificate of Origin**
+* make sure that you have tests for the bug you are fixing
+* make sure that the test suite passes after your commit
 
-# Long version:
+Patch
+=====
+
+* use ``git format-patch -M`` to create the patch
+* do not PGP sign your patch
+* do not attach your patch, but read in the mail
+  body, unless you cannot teach your mailer to
+  leave the formatting of the patch alone.
+* be careful doing cut & paste into your mailer, not to
+  corrupt whitespaces.
+* provide additional information (which is unsuitable for
+  the commit message) between the ``---`` and the diffstat
+* if you change, add, or remove a command line option or
+  make some other user interface change, the associated
+  documentation should be updated as well.
+* if your name is not writable in ASCII, make sure that
+  you send off a message in the correct encoding.
+* send the patch to the `mailing list`_ and the
+  maintainer (nicolas.s-dev@laposte.net) if (and only if)
+  the patch is ready for inclusion. If you use `git-send-email(1)`,
+  please test it first by sending email to yourself.
+* see below for instructions specific to your mailer
+
+
+============
+Long version
+============
 
 I started reading over the SubmittingPatches document for Git, primarily because
 I wanted to have a document similar to it for OfflineIMAP to make sure people
-understand what they are doing when they write "Signed-off-by" line.
+understand what they are doing when they write `Signed-off-by` line.
 
 But the patch submission requirements are a lot more relaxed here on the
 technical/contents front, because the OfflineIMAP is a lot smaller ;-).  So here
 is only the relevant bits.
 
-## Decide what to base your work on.
+Decide what to base your work on
+================================
 
 In general, always base your work on the oldest branch that your
 change is relevant to.
 
- - A bugfix should be based on 'maint' in general. If the bug is not
-   present in 'maint', base it on 'master'. For a bug that's not yet
-   in 'master', find the topic that introduces the regression, and
-   base your work on the tip of the topic.
- - A new feature should be based on 'master' in general. If the new
-   feature depends on a topic that is in 'pu', but not in 'master',
-   base your work on the tip of that topic.
- - Corrections and enhancements to a topic not yet in 'master' should
-   be based on the tip of that topic. If the topic has not been merged
-   to 'next', it's alright to add a note to squash minor corrections
-   into the series.
- - In the exceptional case that a new feature depends on several topics
-   not in 'master', start working on 'next' or 'pu' privately and send
-   out patches for discussion. Before the final merge, you may have to
-   wait until some of the dependent topics graduate to 'master', and
-   rebase your work.
+* A bugfix should be based on 'maint' in general. If the bug is not
+  present in 'maint', base it on 'master'. For a bug that's not yet
+  in 'master', find the topic that introduces the regression, and
+  base your work on the tip of the topic.
+* A new feature should be based on 'master' in general. If the new
+  feature depends on a topic that is in 'pu', but not in 'master',
+  base your work on the tip of that topic.
+* Corrections and enhancements to a topic not yet in 'master' should
+  be based on the tip of that topic. If the topic has not been merged
+  to 'next', it's alright to add a note to squash minor corrections
+  into the series.
+* In the exceptional case that a new feature depends on several topics
+  not in 'master', start working on 'next' or 'pu' privately and send
+  out patches for discussion. Before the final merge, you may have to
+  wait until some of the dependent topics graduate to 'master', and
+  rebase your work.
 
-To find the tip of a topic branch, run "git log --first-parent
-master..pu" and look for the merge commit. The second parent of this
+To find the tip of a topic branch, run ``git log --first-parent
+master..pu`` and look for the merge commit. The second parent of this
 commit is the tip of the topic branch.
 
-## Make separate commits for logically separate changes.
+Make separate commits for logically separate changes
+====================================================
 
 Unless your patch is really trivial, you should not be sending
 out a patch that was generated between your working tree and
@@ -101,13 +113,14 @@ archives back into the late 80's.  Consider it like good Netiquette,
 but for code.
 
 
-### Generate your patch using git tools out of your commits.
+Generate your patch using git tools out of your commits
+-------------------------------------------------------
 
 git based diff tools (git, Cogito, and StGIT included) generate
 unidiff which is the preferred format.
 
-You do not have to be afraid to use -M option to "git diff" or
-"git format-patch", if your patch involves file renames.  The
+You do not have to be afraid to use -M option to ``git diff`` or
+``git format-patch``, if your patch involves file renames.  The
 receiving end can handle them just fine.
 
 Please make sure your patch does not include any extra files
@@ -118,7 +131,8 @@ branch head.  If you are preparing a work based on "next" branch,
 that is fine, but please mark it as such.
 
 
-## Sending your patches.
+Sending your patches
+====================
 
 People on the mailing list need to be able to read and
 comment on the changes you are submitting.  It is important for
@@ -138,7 +152,7 @@ not ready to be applied but it is for discussion, [PATCH v2],
 [PATCH v3] etc. are often seen when you are sending an update to
 what you have previously sent.
 
-"git format-patch" command follows the best current practice to
+``git format-patch`` command follows the best current practice to
 format the body of an e-mail message.  At the beginning of the
 patch should come your commit message, ending with the
 Signed-off-by: lines, and a line that consists of three dashes,
@@ -189,7 +203,8 @@ inclusion.  Do not forget to add trailers such as "Acked-by:",
 necessary.
 
 
-## Sign your work
+Sign your work
+==============
 
 To improve tracking of who did what, we've borrowed the
 "sign-off" procedure from the Linux kernel project on patches
@@ -197,11 +212,12 @@ that are being emailed around.  Although OfflineIMAP is a lot
 smaller project it is a good discipline to follow it.
 
 The sign-off is a simple line at the end of the explanation for
-the patch, which certifies that you wrote it or otherwise have
-the right to pass it on as a open-source patch.  The rules are
+the patch, which **certifies that you wrote it or otherwise have
+the right to pass it on as a open-source patch**.  The rules are
 pretty simple: if you can certify the below:
 
-  Developer's Certificate of Origin 1.1
+**Developer's Certificate of Origin 1.1**
+-----------------------------------------
 
   By making a contribution to this project, I certify that:
 
@@ -221,7 +237,7 @@ pretty simple: if you can certify the below:
           person who certified (a), (b) or (c) and I have not modified
           it.
 
-	(d) I understand and agree that this project and the contribution
+  (d) I understand and agree that this project and the contribution
 	    are public and that a record of the contribution (including all
 	    personal information I submit with it, including my sign-off) is
 	    maintained indefinitely and may be redistributed consistent with
@@ -245,22 +261,22 @@ don't hide your real name.
 
 If you like, you can put extra tags at the end:
 
-+ "Reported-by:" is used to to credit someone who found the bug that
+* "Reported-by:" is used to to credit someone who found the bug that
    the patch attempts to fix.
-+ "Acked-by:" says that the person who is more familiar with the area
+* "Acked-by:" says that the person who is more familiar with the area
    the patch attempts to modify liked the patch.
-+ "Reviewed-by:", unlike the other tags, can only be offered by the
+* "Reviewed-by:", unlike the other tags, can only be offered by the
    reviewer and means that she is completely satisfied that the patch
    is ready for application.  It is usually offered only after a
    detailed review.
-+ "Tested-by:" is used to indicate that the person applied the patch
+* "Tested-by:" is used to indicate that the person applied the patch
    and found it to have the desired effect.
 
 You can also create your own tag or use one that's in common usage
 such as "Thanks-to:", "Based-on-patch-by:", or "Mentored-by:".
 
-------------------------------------------------
 An ideal patch flow
+===================
 
 Here is an ideal patch flow for this project the current maintainer
 suggests to the contributors:
@@ -274,7 +290,7 @@ suggests to the contributors:
      are butchering.  These people happen to be the ones who are
      most likely to be knowledgeable enough to help you, but
      they have no obligation to help you (i.e. you ask for help,
-     don't demand).  "git log -p -- $area_you_are_modifying" would
+     don't demand).  ``git log -p -- $area_you_are_modifying`` would
      help you find out who they are.
 
  (2) You get comments and suggestions for improvements.  You may
@@ -294,22 +310,22 @@ from the list and queue it to 'pu', in order to make it easier for
 people play with it without having to pick up and apply the patch to
 their trees themselves.
 
-------------------------------------------------
 Know the status of your patch after submission
+----------------------------------------------
 
 * You can use Git itself to find out when your patch is merged in
-  master. 'git pull --rebase' will automatically skip already-applied
+  master. ``git pull --rebase`` will automatically skip already-applied
   patches, and will let you know. This works only if you rebase on top
   of the branch in which your patch has been merged (i.e. it will not
   tell you if your patch is merged in pu if you rebase on top of
   master).
 
-* Read the git mailing list, the maintainer regularly posts messages
+.. * Read the git mailing list, the maintainer regularly posts messages
   entitled "What's cooking in git.git" and "What's in git.git" giving
   the status of various proposed changes.
 
-------------------------------------------------
 MUA specific hints
+==================
 
 Some of patches I receive or pick up from the list share common
 patterns of breakage.  Please make sure your MUA is set up
@@ -331,7 +347,7 @@ One test you could do yourself if your MUA is set up correctly is:
   a.patch.
 
 * Try to apply to the tip of the "master" branch from the
-  git.git public repository:
+  git.git public repository::
 
     $ git fetch http://kernel.org/pub/scm/git/git.git master:test-apply
     $ git checkout test-apply
@@ -363,138 +379,138 @@ Pine
 ----
 
 (Johannes Schindelin)
+  I don't know how many people still use pine, but for those poor souls it may
+  be good to mention that the quell-flowed-text is needed for recent versions.
 
-I don't know how many people still use pine, but for those poor
-souls it may be good to mention that the quell-flowed-text is
-needed for recent versions.
-
-... the "no-strip-whitespace-before-send" option, too. AFAIK it
-was introduced in 4.60.
+  ... the "no-strip-whitespace-before-send" option, too. AFAIK it was introduced
+  in 4.60.
 
 (Linus Torvalds)
+  And 4.58 needs at least this
 
-And 4.58 needs at least this.
+::
 
----
-diff-tree 8326dd8350be64ac7fc805f6563a1d61ad10d32c (from e886a61f76edf5410573e92e38ce22974f9c40f1)
-Author: Linus Torvalds <torvalds@g5.osdl.org>
-Date:   Mon Aug 15 17:23:51 2005 -0700
+  ---
+  diff-tree 8326dd8350be64ac7fc805f6563a1d61ad10d32c (from e886a61f76edf5410573e92e38ce22974f9c40f1)
+  Author: Linus Torvalds <torvalds@g5.osdl.org>
+  Date:   Mon Aug 15 17:23:51 2005 -0700
 
-    Fix pine whitespace-corruption bug
+      Fix pine whitespace-corruption bug
 
-    There's no excuse for unconditionally removing whitespace from
-    the pico buffers on close.
+      There's no excuse for unconditionally removing whitespace from
+      the pico buffers on close.
 
-diff --git a/pico/pico.c b/pico/pico.c
---- a/pico/pico.c
-+++ b/pico/pico.c
-@@ -219,7 +219,9 @@ PICO *pm;
-	    switch(pico_all_done){	/* prepare for/handle final events */
-	      case COMP_EXIT :		/* already confirmed */
-		packheader();
-+#if 0
-		stripwhitespace();
-+#endif
-		c |= COMP_EXIT;
-		break;
-
+  diff --git a/pico/pico.c b/pico/pico.c
+  --- a/pico/pico.c
+  +++ b/pico/pico.c
+  @@ -219,7 +219,9 @@ PICO *pm;
+  	    switch(pico_all_done){	/* prepare for/handle final events */
+  	      case COMP_EXIT :		/* already confirmed */
+  		packheader();
+  +#if 0
+  		stripwhitespace();
+  +#endif
+  		c |= COMP_EXIT;
+  		break;
 
 (Daniel Barkalow)
+  > A patch to SubmittingPatches, MUA specific help section for
+  > users of Pine 4.63 would be very much appreciated.
 
-> A patch to SubmittingPatches, MUA specific help section for
-> users of Pine 4.63 would be very much appreciated.
-
-Ah, it looks like a recent version changed the default behavior to do the
-right thing, and inverted the sense of the configuration option. (Either
-that or Gentoo did it.) So you need to set the
-"no-strip-whitespace-before-send" option, unless the option you have is
-"strip-whitespace-before-send", in which case you should avoid checking
-it.
+  Ah, it looks like a recent version changed the default behavior to do the
+  right thing, and inverted the sense of the configuration option. (Either
+  that or Gentoo did it.) So you need to set the
+  "no-strip-whitespace-before-send" option, unless the option you have is
+  "strip-whitespace-before-send", in which case you should avoid checking
+  it.
 
 
 Thunderbird
 -----------
 
 (A Large Angry SCM)
+  By default, Thunderbird will both wrap emails as well as flag them as
+  being 'format=flowed', both of which will make the resulting email unusable
+  by git.
 
-By default, Thunderbird will both wrap emails as well as flag them as
-being 'format=flowed', both of which will make the resulting email unusable
-by git.
+  Here are some hints on how to successfully submit patches inline using
+  Thunderbird.
 
-Here are some hints on how to successfully submit patches inline using
-Thunderbird.
+  There are two different approaches.  One approach is to configure
+  Thunderbird to not mangle patches.  The second approach is to use
+  an external editor to keep Thunderbird from mangling the patches.
 
-There are two different approaches.  One approach is to configure
-Thunderbird to not mangle patches.  The second approach is to use
-an external editor to keep Thunderbird from mangling the patches.
+**Approach #1 (configuration):**
 
-Approach #1 (configuration):
+  This recipe is current as of Thunderbird 2.0.0.19.  Three steps:
 
-This recipe is current as of Thunderbird 2.0.0.19.  Three steps:
-  1.  Configure your mail server composition as plain text
-      Edit...Account Settings...Composition & Addressing,
-        uncheck 'Compose Messages in HTML'.
-  2.  Configure your general composition window to not wrap
-      Edit..Preferences..Composition, wrap plain text messages at 0
-  3.  Disable the use of format=flowed
-      Edit..Preferences..Advanced..Config Editor.  Search for:
-        mailnews.send_plaintext_flowed
-      toggle it to make sure it is set to 'false'.
+    1. Configure your mail server composition as plain text
+       Edit...Account Settings...Composition & Addressing,
+       uncheck 'Compose Messages in HTML'.
+    2. Configure your general composition window to not wrap
+       Edit..Preferences..Composition, wrap plain text messages at 0
+    3. Disable the use of format=flowed
+       Edit..Preferences..Advanced..Config Editor.  Search for:
+       mailnews.send_plaintext_flowed
+       toggle it to make sure it is set to 'false'.
 
-After that is done, you should be able to compose email as you
-otherwise would (cut + paste, git-format-patch | git-imap-send, etc),
-and the patches should not be mangled.
+  After that is done, you should be able to compose email as you
+  otherwise would (cut + paste, git-format-patch | git-imap-send, etc),
+  and the patches should not be mangled.
 
-Approach #2 (external editor):
+**Approach #2 (external editor):**
 
 This recipe appears to work with the current [*1*] Thunderbird from Suse.
 
 The following Thunderbird extensions are needed:
-	AboutConfig 0.5
-		http://aboutconfig.mozdev.org/
-	External Editor 0.7.2
-		http://globs.org/articles.php?lng=en&pg=8
+  AboutConfig 0.5
+	  http://aboutconfig.mozdev.org/
+  External Editor 0.7.2
+	  http://globs.org/articles.php?lng=en&pg=8
+
 
 1) Prepare the patch as a text file using your method of choice.
 
 2) Before opening a compose window, use Edit->Account Settings to
-uncheck the "Compose messages in HTML format" setting in the
-"Composition & Addressing" panel of the account to be used to send the
-patch. [*2*]
+   uncheck the "Compose messages in HTML format" setting in the
+   "Composition & Addressing" panel of the account to be used to send the
+   patch. [*2*]
 
 3) In the main Thunderbird window, _before_ you open the compose window
-for the patch, use Tools->about:config to set the following to the
-indicated values:
-	mailnews.send_plaintext_flowed	=> false
-	mailnews.wraplength		=> 0
+   for the patch, use Tools->about:config to set the following to the
+   indicated values::
+
+     mailnews.send_plaintext_flowed	=> false
+     mailnews.wraplength		=> 0
 
 4) Open a compose window and click the external editor icon.
 
 5) In the external editor window, read in the patch file and exit the
-editor normally.
+   editor normally.
 
 6) Back in the compose window: Add whatever other text you wish to the
-message, complete the addressing and subject fields, and press send.
+   message, complete the addressing and subject fields, and press send.
 
 7) Optionally, undo the about:config/account settings changes made in
-steps 2 & 3.
+   steps 2 & 3.
 
 
 [Footnotes]
+
 *1* Version 1.0 (20041207) from the MozillaThunderbird-1.0-5 rpm of Suse
 9.3 professional updates.
 
 *2* It may be possible to do this with about:config and the following
-settings but I haven't tried, yet.
-	mail.html_compose			=> false
-	mail.identity.default.compose_html	=> false
-	mail.identity.id?.compose_html		=> false
+settings but I haven't tried, yet::
+
+  mail.html_compose			=> false
+  mail.identity.default.compose_html	=> false
+  mail.identity.id?.compose_html		=> false
 
 (Lukas Sandström)
-
-There is a script in contrib/thunderbird-patch-inline which can help
-you include patches with Thunderbird in an easy way. To use it, do the
-steps above and then use the script as the external editor.
+  There is a script in contrib/thunderbird-patch-inline which can help you
+  include patches with Thunderbird in an easy way. To use it, do the steps above
+  and then use the script as the external editor.
 
 Gnus
 ----
@@ -521,12 +537,12 @@ This should help you to submit patches inline using KMail.
 2) Click on New Mail.
 
 3) Go under "Options" in the Composer window and be sure that
-"Word wrap" is not set.
+   "Word wrap" is not set.
 
 4) Use Message -> Insert file... and insert the patch.
 
 5) Back in the compose window: add whatever other text you wish to the
-message, complete the addressing and subject fields, and press send.
+   message, complete the addressing and subject fields, and press send.
 
 
 Gmail
@@ -538,39 +554,39 @@ use "git send-email" and send your patches through the GMail SMTP server, or
 use any IMAP email client to connect to the google IMAP server and forward
 the emails through that.
 
-To use "git send-email" and send your patches through the GMail SMTP server,
-edit ~/.gitconfig to specify your account settings:
+To use ``git send-email`` and send your patches through the GMail SMTP server,
+edit `~/.gitconfig` to specify your account settings::
 
-[sendemail]
-	smtpencryption = tls
-	smtpserver = smtp.gmail.com
-	smtpuser = user@gmail.com
-	smtppass = p4ssw0rd
-	smtpserverport = 587
+  [sendemail]
+	  smtpencryption = tls
+	  smtpserver = smtp.gmail.com
+	  smtpuser = user@gmail.com
+	  smtppass = p4ssw0rd
+	  smtpserverport = 587
 
 Once your commits are ready to be sent to the mailing list, run the
-following commands:
+following commands::
 
   $ git format-patch --cover-letter -M origin/master -o outgoing/
   $ edit outgoing/0000-*
   $ git send-email outgoing/*
 
-To submit using the IMAP interface, first, edit your ~/.gitconfig to specify your
-account settings:
+To submit using the IMAP interface, first, edit your `~/.gitconfig` to specify your
+account settings::
 
-[imap]
-	folder = "[Gmail]/Drafts"
-	host = imaps://imap.gmail.com
-	user = user@gmail.com
-	pass = p4ssw0rd
-	port = 993
-	sslverify = false
+  [imap]
+	  folder = "[Gmail]/Drafts"
+	  host = imaps://imap.gmail.com
+	  user = user@gmail.com
+	  pass = p4ssw0rd
+	  port = 993
+	  sslverify = false
 
 You might need to instead use: folder = "[Google Mail]/Drafts" if you get an error
 that the "Folder doesn't exist".
 
 Once your commits are ready to be sent to the mailing list, run the
-following commands:
+following commands::
 
   $ git format-patch --cover-letter -M --stdout origin/master | git imap-send
 

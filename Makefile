@@ -40,6 +40,7 @@ man:
 doc: 
 	@$(MAKE) -C docs
 	rst2html.py README.rst readme.html
+	rst2html.py SubmittingPatches.rst SubmittingPatches.html
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
