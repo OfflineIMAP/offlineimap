@@ -21,13 +21,10 @@ SHELL=/bin/bash
 
 clean:
 	-python setup.py clean --all
-	-rm -f `find . -name "*~"`
-	-rm -f `find . -name "*.tmp"`
 	-rm -f bin/offlineimapc
 	-rm -f `find . -name "*.pyc"`
 	-rm -f `find . -name "*.pygc"`
 	-rm -f `find . -name "*.class"`
-	-rm -f `find . -name "*.bak"`
 	-rm -f `find . -name ".cache*"`
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
