@@ -37,10 +37,11 @@ clean:
 man:
 	@$(MAKE) -C docs man
 
-doc: 
+doc:
 	@$(MAKE) -C docs
 	rst2html.py README.rst readme.html
 	rst2html.py SubmittingPatches.rst SubmittingPatches.html
+	rst2html.py Changelog.rst Changelog.html
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
