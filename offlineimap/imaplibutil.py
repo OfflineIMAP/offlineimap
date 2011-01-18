@@ -134,11 +134,12 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
                                      self.certfile)
 
         else:
-            #ssl.wrap_socket worked and cert is verified, now check
-            #that hostnames also match.
-            error = self._verifycert(self.sslobj.getpeercert(), host)
-            if error:
-                raise ssl.SSLError("SSL Certificate host name mismatch: %s" % error)
+            #ssl.wrap_socket worked and cert is verified (if configured),
+            #now check that hostnames also match if we have a CA cert.
+            if self._cacertfile:
+                error = self._verifycert(self.sslobj.getpeercert(), host)
+                if error:
+                    raise ssl.SSLError("SSL Certificate host name mismatch: %s" % error)
 
         #TODO: Done for now. We should implement a mutt-like behavior
         #that offers the users to accept a certificate (presenting a
