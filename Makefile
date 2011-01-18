@@ -19,6 +19,14 @@ VERSION=4.0.16
 TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
 
+all: build
+
+build:
+	python setup.py build
+	@echo
+	@echo "Build process finished, run 'python setup.py install' to install" \
+		"or 'python setup.py --help' for more information".
+
 clean:
 	-python setup.py clean --all
 	-rm -f `find . -name "*~"`
