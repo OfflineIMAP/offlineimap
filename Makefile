@@ -29,14 +29,11 @@ build:
 
 clean:
 	-python setup.py clean --all
-	-rm -f `find . -name "*~"`
-	-rm -f `find . -name "*.tmp"`
 	-rm -f bin/offlineimapc
-	-rm -f `find . -name "*.pyc"`
-	-rm -f `find . -name "*.pygc"`
-	-rm -f `find . -name "*.class"`
-	-rm -f `find . -name "*.bak"`
-	-rm -f `find . -name ".cache*"`
+	-find . -name '*.pyc' -exec rm -f {} \;
+	-find . -name '*.pygc' -exec rm -f {} \;
+	-find . -name '*.class' -exec rm -f {} \;
+	-find . -name '.cache*' -exec rm -f {} \;
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 	-rm -f readme.html
