@@ -8,6 +8,45 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.3.2-rc2 (2010-12-21)
+===================================
+
+Notes
+-----
+
+We are beginning a tests cycle. If feature topics are sent, I may merge or
+delay them until the next stable release.
+
+New Features
+------------
+
+* Makefile learn to build the package and make it the default.
+* Introduce a Changelog to involve community in the releasing process.
+* Migrate documentation to restructuredtext.
+
+Changes
+-------
+
+* Improve CustomConfig documentation.
+* Imply single threading mode in debug mode exept for "-d thread".
+* Code and import cleanups.
+* Allow UI to have arbitrary names.
+* Code refactoring around UI and UIBase.
+* Improve version managment and make it easier.
+* Introduce a true single threading mode.
+
+Bug Fixes
+---------
+
+* Understand multiple EXISTS replies from servers like Zimbra.
+* Only verify hostname if we actually use CA cert.
+* Fix ssl ca-cert in the sample configuration file.
+* Fix 'Ctrl+C' interruptions in threads.
+* Fix makefile clean for files having whitespaces.
+* Fix makefile to not remove unrelated files.
+* Fixes in README.
+* Remove uneeded files.
+
 
 OfflineIMAP v6.3.2-rc1 (2010-12-19)
 ===================================
