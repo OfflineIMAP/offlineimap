@@ -147,13 +147,15 @@ The user discussion, development and all exciting stuff take place in the
 `mailing list`_. You're *NOT* supposed to subscribe to send emails.
 
 
-Reporting bugs
-==============
+Reporting bugs and contributions
+================================
 
 Bugs
 ----
 
-Bugs and issues should be reported to the `mailing list`_.
+Bugs, issues and contributions should be reported to the `mailing list`_.
+**Please, don't use the github features (messages, pull requests, etc) at all.
+It would most likely be discarded or ignored.**
 
 
 ========

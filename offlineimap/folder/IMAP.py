@@ -87,9 +87,13 @@ class IMAPFolder(BaseFolder):
             # Primes untagged_responses
             imapobj.select(self.getfullname(), readonly = 1, force = 1)
             try:
-                # Some mail servers do not return an EXISTS response if
-                # the folder is empty.
-                maxmsgid = long(imapobj.untagged_responses['EXISTS'][0])
+                # 1. Some mail servers do not return an EXISTS response
+                # if the folder is empty.  2. ZIMBRA servers can return
+                # multiple EXISTS replies in the form 500, 1000, 1500,
+                # 1623 so check for potentially multiple replies.
+                maxmsgid = 0
+                for msgid in imapobj.untagged_responses['EXISTS']:
+                    maxmsgid = max(long(msgid), maxmsgid)
             except KeyError:
                 return True
 
@@ -169,10 +173,13 @@ class IMAPFolder(BaseFolder):
                     return
             else:
                 try:
-                    # Some mail servers do not return an EXISTS response if
-                    # the folder is empty.
-
-                    maxmsgid = long(imapobj.untagged_responses['EXISTS'][0])
+                    # 1. Some mail servers do not return an EXISTS response
+                    # if the folder is empty.  2. ZIMBRA servers can return
+                    # multiple EXISTS replies in the form 500, 1000, 1500,
+                    # 1623 so check for potentially multiple replies.
+                    maxmsgid = 0
+                    for msgid in imapobj.untagged_responses['EXISTS']:
+                        maxmsgid = max(long(msgid), maxmsgid)
                     messagesToFetch = '1:%d' % maxmsgid;
                 except KeyError:
                     return
