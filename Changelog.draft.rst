@@ -20,6 +20,7 @@ New Features
 Changes
 -------
 
+* Improve CustomConfig documentation.
 * Imply single threading mode in debug mode exept for "-d thread".
 * Code and import cleanups.
 * Allow UI to have arbitrary names.

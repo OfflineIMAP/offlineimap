@@ -71,18 +71,33 @@ class CustomConfigParser(ConfigParser):
                 if x.startswith(key)]
 
 def CustomConfigDefault():
-    """Just a sample constant that won't occur anywhere else to use for the
-    default."""
+    """Just a constant that won't occur anywhere else.
+
+    This allows us to differentiate if the user has passed in any
+    default value to the getconf* functions in ConfigHelperMixin
+    derived classes."""
     pass
 
 class ConfigHelperMixin:
-    def _confighelper_runner(self, option, default, defaultfunc, mainfunc):
-        if default != CustomConfigDefault:
-            return apply(defaultfunc, [self.getsection(), option, default])
-        else:
-            return apply(mainfunc, [self.getsection(), option])
+    """Allow comfortable retrieving of config values pertaining to a section.
 
-    def getconf(self, option, default = CustomConfigDefault):
+    If a class inherits from this cls:`ConfigHelperMixin`, it needs
+    to provide 2 functions: meth:`getconfig` (returning a
+    ConfigParser object) and meth:`getsection` (returning a string
+    which represents the section to look up). All calls to getconf*
+    will then return the configuration values for the ConfigParser
+    object in the specific section."""
+
+    def _confighelper_runner(self, option, default, defaultfunc, mainfunc):
+        """Return config value for getsection()"""
+        if default == CustomConfigDefault:
+            return apply(mainfunc, [self.getsection(), option])
+        else:
+            return apply(defaultfunc, [self.getsection(), option, default])
+
+
+    def getconf(self, option,
+                default = CustomConfigDefault):
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefault,
                                          self.getconfig().get)
@@ -101,4 +116,3 @@ class ConfigHelperMixin:
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultfloat,
                                          self.getconfig().getfloat)
-    
