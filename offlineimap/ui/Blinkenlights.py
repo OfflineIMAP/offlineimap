@@ -16,10 +16,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import *
+from threading import RLock, currentThread
 from offlineimap.ui.UIBase import UIBase
 import thread
-from offlineimap.threadutil import MultiLock
 
 class BlinkenBase:
     """This is a mix-in class that should be mixed in with either UIBase
@@ -85,7 +84,8 @@ class BlinkenBase:
     def init_banner(s):
         s.availablethreadframes = {}
         s.threadframes = {}
-        s.tflock = MultiLock()
+        #tflock protects the s.threadframes manipulation to only happen from 1 thread
+        s.tflock = RLock()
 
     def threadExited(s, thread):
         threadid = thread.threadid

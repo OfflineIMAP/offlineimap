@@ -24,7 +24,7 @@
 
 
 from distutils.core import setup
-import offlineimap.version
+import offlineimap
 
 setup(name = "offlineimap",
       version = offlineimap.__version__,

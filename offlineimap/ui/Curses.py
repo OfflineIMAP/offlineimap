@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import Lock, Event
+from threading import RLock, Lock, Event
 import time
 import sys
 import os
@@ -32,7 +32,8 @@ acctkeys = '1234567890abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-=;/.,'
 class CursesUtil:
     def __init__(self):
         self.pairlock = Lock()
-        self.iolock = offlineimap.threadutil.MultiLock()
+        # iolock protects access to the 
+        self.iolock = RLock()
         self.start()
 
     def initpairs(self):
@@ -45,9 +46,20 @@ class CursesUtil:
             self.pairlock.release()
 
     def lock(self):
+        """Locks the Curses ui thread
+
+        Can be invoked multiple times from the owning thread. Invoking
+        from a non-owning thread blocks and waits until it has been
+        unlocked by the owning thread."""
         self.iolock.acquire()
 
     def unlock(self):
+        """Unlocks the Curses ui thread
+
+        Decrease the lock counter by one and unlock the ui thread if the
+        counter reaches 0.  Only call this method when the calling
+        thread owns the lock. A RuntimeError is raised if this method is
+        called when the lock is unlocked."""
         self.iolock.release()
         
     def locked(self, target, *args, **kwargs):
