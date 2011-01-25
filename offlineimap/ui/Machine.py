@@ -15,10 +15,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import offlineimap.version
 import urllib, sys, re, time, traceback, threading, thread
 from UIBase import UIBase
 from threading import *
+import offlineimap
 
 protocol = '6.0.0'
 
@@ -173,7 +173,7 @@ class MachineUI(UIBase):
             s.outputlock.release()
 
     def init_banner(s):
-        s._printData('initbanner', offlineimap.version.banner)
+        s._printData('initbanner', offlineimap.banner)
 
     def callhook(s, msg):
         s._printData('callhook', msg)
