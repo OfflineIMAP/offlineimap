@@ -16,6 +16,8 @@ New Features
 Changes
 -------
 
+* have --version ONLY print the version number
+
 Bug Fixes
 ---------
 

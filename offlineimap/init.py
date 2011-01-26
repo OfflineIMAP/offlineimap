@@ -60,7 +60,7 @@ class OfflineImap:
     def run(self):
         """Parse the commandline and invoke everything"""
 
-        parser = OptionParser(version=offlineimap.banner,
+        parser = OptionParser(version=offlineimap.__version__,
                               description="%s.\n\n%s" % 
                               (offlineimap.__copyright__,
                                offlineimap.__license__))
