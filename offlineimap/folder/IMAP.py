@@ -234,7 +234,7 @@ class IMAPFolder(BaseFolder):
         headervalue += binascii.hexlify(self.getname())
         headervalue += '-%d-' % long(time.time())
         headervalue += str(self.randomgenerator.random()).replace('.', '')
-        headervalue += '-v' + offlineimap.__version__
+        headervalue += '-v' + __version__
         return (headername, headervalue)
 
     def savemessage_addheader(self, content, headername, headervalue):

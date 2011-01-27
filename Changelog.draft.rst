@@ -19,6 +19,8 @@ Changes
 Bug Fixes
 ---------
 
+* accord __version__ with import
+
 
 Pending for the next major release
 ==================================
