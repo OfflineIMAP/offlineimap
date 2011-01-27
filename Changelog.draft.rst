@@ -16,6 +16,8 @@ New Features
 Changes
 -------
 
+* Makefile use magic to find the version number.
+
 Bug Fixes
 ---------
 
