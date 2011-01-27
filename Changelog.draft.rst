@@ -19,6 +19,8 @@ Changes
 Bug Fixes
 ---------
 
+* Makefile: clean removes HTML files
+
 
 Pending for the next major release
 ==================================
