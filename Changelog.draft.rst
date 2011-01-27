@@ -16,6 +16,8 @@ New Features
 Changes
 -------
 
+* Code cleanup.
+
 Bug Fixes
 ---------
 
