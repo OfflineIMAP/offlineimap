@@ -5,18 +5,20 @@ SOURCES = $(wildcard *.rst)
 HTML_TARGETS = $(patsubst %.rst,%.html,$(SOURCES))
 
 RM = rm
+RST2HTML=`type rst2html 2>/dev/null && echo rst2html || echo rst2html.py`
+RST2MAN=`type rst2man 2>/dev/null && echo rst2man || echo rst2man.py`
 
 all: html
 
 html: $(HTML_TARGETS)
 
 $(HTML_TARGETS): %.html : %.rst
-	rst2html.py $? $@
+	$(RST2HTML) $? $@
 
 man: offlineimap.1
 
 offlineimap.1: MANUAL.rst
-	rst2man.py MANUAL.rst offlineimap.1
+	$(RST2MAN) MANUAL.rst offlineimap.1
 	cp -f offlineimap.1 ..
 
 clean:

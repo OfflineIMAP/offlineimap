@@ -18,6 +18,7 @@
 VERSION=4.0.16
 TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
+RST2HTML=`type rst2html 2>/dev/null && echo rst2html || echo rst2html.py`
 
 all: build
 
@@ -44,9 +45,9 @@ man:
 
 doc:
 	@$(MAKE) -C docs
-	rst2html.py README.rst readme.html
-	rst2html.py SubmittingPatches.rst SubmittingPatches.html
-	rst2html.py Changelog.rst Changelog.html
+	$(RST2HTML) README.rst readme.html
+	$(RST2HTML) SubmittingPatches.rst SubmittingPatches.html
+	$(RST2HTML) Changelog.rst Changelog.html
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
