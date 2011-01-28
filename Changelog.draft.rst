@@ -22,6 +22,7 @@ Bug Fixes
 ---------
 
 * Makefile: docutils: work whether python extension is stripped or not
+* accord __version__ with import
 
 
 Pending for the next major release
