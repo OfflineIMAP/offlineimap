@@ -27,7 +27,6 @@ from optparse import OptionParser
 import offlineimap
 from offlineimap import accounts, threadutil, syncmaster
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
-from offlineimap.localeval import LocalEval
 from offlineimap.CustomConfig import CustomConfigParser
 
 
