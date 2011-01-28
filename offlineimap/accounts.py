@@ -24,6 +24,7 @@ from threading import Event, Lock
 import os
 from Queue import Queue, Empty
 import sys
+import traceback
 
 class SigListener(Queue):
     def __init__(self):
@@ -191,7 +192,7 @@ class AccountSynchronizationMixin:
                     raise
                 except:
                     self.ui.warn("Error occured attempting to sync account " + self.name \
-                                 + ": " + str(sys.exc_info()[1]))
+                                 + ": " + traceback.format_exc())
             finally:
                 self.ui.acctdone(self.name)
 
@@ -207,7 +208,7 @@ class AccountSynchronizationMixin:
                     raise
                 except:
                     self.ui.warn("Error occured attempting to sync account " + self.name \
-                                 + ": " + str(sys.exc_info()[1]))
+                                 + ": " + traceback.format_exc())
             finally:
                 looping = self.sleeper(siglistener) != 2
                 self.ui.acctdone(self.name)

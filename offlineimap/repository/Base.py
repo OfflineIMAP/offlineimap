@@ -20,6 +20,7 @@ from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
 import os.path
 import sys
+import traceback
 
 def LoadRepository(name, account, reqtype):
     from offlineimap.repository.Gmail import GmailRepository
@@ -166,8 +167,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                 except (KeyboardInterrupt):
                     raise
                 except:
-                    getglobalui().warn("ERROR Attempting to make folder " \
-                        + key + ":"  +str(sys.exc_info()[1]))
+                    UIBase.getglobalui().warn("ERROR Attempting to make folder " \
+                        + key + ":"  +traceback.format_exc())
 
         #
         # Find deleted folders.

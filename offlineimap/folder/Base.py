@@ -22,6 +22,7 @@ from offlineimap.ui import getglobalui
 import os.path
 import re
 import sys
+import traceback
 
 class BaseFolder:
     def __init__(self):
@@ -292,8 +293,8 @@ class BaseFolder:
         except (KeyboardInterrupt):
             raise
         except:
-            self.ui.warn("ERROR attempting to copy message " + str(uid) \
-                 + " for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
+            UIBase.getglobalui().warn("ERROR attempting to copy message " + str(uid) \
+                 + " for account " + self.getaccountname() + ":" + traceback.format_exc())
         
 
     def syncmessagesto_copy(self, dest, applyto):
@@ -399,8 +400,8 @@ class BaseFolder:
         except (KeyboardInterrupt):
             raise
         except:
-            self.ui.warn("ERROR attempting to handle negative uids " \
-                + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
+            UIBase.getglobalui().warn("ERROR attempting to handle negative uids " \
+                + "for account " + self.getaccountname() + ":" + traceback.format_exc())
 
         #all threads launched here are in try / except clauses when they copy anyway...
         self.syncmessagesto_copy(dest, applyto)
@@ -410,8 +411,8 @@ class BaseFolder:
         except (KeyboardInterrupt):
             raise
         except:
-            self.ui.warn("ERROR attempting to delete messages " \
-                + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
+            UIBase.getglobalui().warn("ERROR attempting to delete messages " \
+                + "for account " + self.getaccountname() + ":" + traceback.format_exc())
 
         # Now, the message lists should be identical wrt the uids present.
         # (except for potential negative uids that couldn't be placed
@@ -422,7 +423,7 @@ class BaseFolder:
         except (KeyboardInterrupt):
             raise
         except:
-            self.ui.warn("ERROR attempting to sync flags " \
-                + "for account " + self.getaccountname() + ":" + str(sys.exc_info()[1]))
+            UIBase.getglobalui().warn("ERROR attempting to sync flags " \
+                + "for account " + self.getaccountname() + ":" + traceback.format_exc())
         
             
