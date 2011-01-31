@@ -18,7 +18,6 @@
 
 import imaplib
 import rfc822
-import string
 import random
 import binascii
 import re
@@ -111,7 +110,7 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
 
         # Discard the message number.
-        messagestr = string.split(response[0], maxsplit = 1)[1]
+        messagestr = response[0].split(' ', 1)[1]
         options = imaputil.flags2hash(messagestr)
         if not options.has_key('UID'):
             return True
@@ -194,7 +193,7 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
             # Discard the message number.
-            messagestr = string.split(messagestr, maxsplit = 1)[1]
+            messagestr = messagestr.split(' ', 1)[1]
             options = imaputil.flags2hash(messagestr)
             if not options.has_key('UID'):
                 self.ui.warn('No UID in message with options %s' %\
