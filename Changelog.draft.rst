@@ -16,14 +16,8 @@ New Features
 Changes
 -------
 
-* have --version ONLY print the version number
-* Code cleanups.
-
 Bug Fixes
 ---------
-
-* Makefile: docutils: work whether python extension is stripped or not
-* Makefile: clean now removes HTML documentation files
 
 
 Pending for the next major release

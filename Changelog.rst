@@ -8,14 +8,50 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+
+OfflineIMAP v6.3.2-rc3 (2010-02-06)
+===================================
+
+Notes
+-----
+
+We are still touched by the "SSL3 write pending" bug it would be really nice to
+fix before releasing the coming stable. In the worse case, we'll have to add the
+first entry in the "KNOWN BUG" section of the manual. I'm afraid it could impact
+a lot of users if some distribution package any SSL library not having
+underlying (still obscure) requirements.
+
+The best news with this release are the Curse UI fixed and the better reports
+on errors.
+
+In this release I won't merge any patch not fixing a bug or a security issue.
+
+More feedbacks on the main issue would be appreciated.
+
+Changes
+-------
+
+* Sample offlineimap.conf states it expects a PEM formatted certificat.
+* Give better trace information if an error occurs.
+* Have --version ONLY print the version number.
+* Code cleanups.
+
+Bug Fixes
+---------
+
+* Fix Curses UI (simplified by moving from MultiLock to Rlock implementation).
+* Makefile: docutils build work whether python extension command is stripped or not.
+* Makefile: clean now removes HTML documentation files.
+
+
 OfflineIMAP v6.3.2-rc2 (2010-12-21)
 ===================================
 
 Notes
 -----
 
-We are beginning a tests cycle. If feature topics are sent, I may merge or
-delay them until the next stable release.
+We are beginning a new tests cycle. At this stage, I expect most people will try
+to intensively stuck OfflineIMAP. :-)
 
 New Features
 ------------
