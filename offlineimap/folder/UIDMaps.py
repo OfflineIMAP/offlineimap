@@ -19,7 +19,6 @@
 from threading import *
 from offlineimap import threadutil
 from offlineimap.threadutil import InstanceLimitedThread
-from offlineimap.ui import UIBase
 from IMAP import IMAPFolder
 import os.path, re
 
