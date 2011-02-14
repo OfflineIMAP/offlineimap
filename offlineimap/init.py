@@ -249,7 +249,7 @@ class OfflineImap:
         self.lock(config, ui)
 
     
-        def sigterm_handler(self, signum, frame):
+        def sigterm_handler(signum, frame):
             # die immediately
             ui = getglobalui()
             ui.terminate(errormsg="terminating...")
