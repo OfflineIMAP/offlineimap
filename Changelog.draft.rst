@@ -20,6 +20,7 @@ Bug Fixes
 ---------
 
 * Fix craches for getglobalui().
+* Fix documentation build.
 
 
 Pending for the next major release
