@@ -19,6 +19,8 @@ Changes
 Bug Fixes
 ---------
 
+* Fix documentation build.
+
 
 Pending for the next major release
 ==================================
