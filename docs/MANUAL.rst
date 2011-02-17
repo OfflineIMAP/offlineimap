@@ -267,5 +267,14 @@ for other programs that will interface to OfflineIMAP.
 KNOWN BUGS
 ==========
 
+* SSL3 write pending:
+    users enabling SSL may hit a bug about "SSL3 write pending". If so, the
+    account(s) will stay unsynchronised from the time the bug appeared. Running
+    OfflineIMAP again can help. We are still working on this bug.  Patches or
+    detailed bug reports would be appreciated. Please check you're running the
+    last stable version and send us a report to the mailing list including the
+    full log.
+
+
 SEE ALSO
 ========
