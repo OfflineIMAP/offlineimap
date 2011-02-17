@@ -19,6 +19,8 @@ Changes
 Bug Fixes
 ---------
 
+* Fix craches for getglobalui().
+
 
 Pending for the next major release
 ==================================

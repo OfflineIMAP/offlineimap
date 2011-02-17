@@ -293,7 +293,7 @@ class BaseFolder:
         except (KeyboardInterrupt):
             raise
         except:
-            UIBase.getglobalui().warn("ERROR attempting to copy message " + str(uid) \
+            self.ui.warn("ERROR attempting to copy message " + str(uid) \
                  + " for account " + self.getaccountname() + ":" + traceback.format_exc())
         
 
@@ -400,7 +400,7 @@ class BaseFolder:
         except (KeyboardInterrupt):
             raise
         except:
-            UIBase.getglobalui().warn("ERROR attempting to handle negative uids " \
+            self.ui.warn("ERROR attempting to handle negative uids " \
                 + "for account " + self.getaccountname() + ":" + traceback.format_exc())
 
         #all threads launched here are in try / except clauses when they copy anyway...
@@ -411,7 +411,7 @@ class BaseFolder:
         except (KeyboardInterrupt):
             raise
         except:
-            UIBase.getglobalui().warn("ERROR attempting to delete messages " \
+            self.ui.warn("ERROR attempting to delete messages " \
                 + "for account " + self.getaccountname() + ":" + traceback.format_exc())
 
         # Now, the message lists should be identical wrt the uids present.
@@ -423,7 +423,7 @@ class BaseFolder:
         except (KeyboardInterrupt):
             raise
         except:
-            UIBase.getglobalui().warn("ERROR attempting to sync flags " \
+            self.ui.warn("ERROR attempting to sync flags " \
                 + "for account " + self.getaccountname() + ":" + traceback.format_exc())
         
             
