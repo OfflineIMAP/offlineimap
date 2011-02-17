@@ -353,10 +353,10 @@ path in which your messages are. The folder name can usually be as well, BUT
 some mail clients move messages between folders by simply moving the file,
 leaving the name intact.
 
-So, OfflineIMAP must store both a UID folder ID. The folder ID is necessary so
-OfflineIMAP can detect a message moved to a different folder. OfflineIMAP
-stores the UID (U= number) and an md5sum of the foldername (FMD5= number) to
-facilitate this.
+So, OfflineIMAP must store both a message UID and a folder ID. The
+folder ID is necessary so OfflineIMAP can detect a message being moved
+to a different folder. OfflineIMAP stores the UID (U= number) and an
+md5sum of the foldername (FMD5= number) to facilitate this.
 
 
 What can I do to ensure OfflineIMAP is still running and hasn’t crashed?
