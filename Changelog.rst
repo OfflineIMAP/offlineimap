@@ -2,11 +2,43 @@
 ChangeLog
 =========
 
+:website: http://offlineimap.org
+
+
 **NOTE FROM THE MAINTAINER:**
   Contributors should use the `WIP` section in Changelog.draft.rst in order to
   add changes they are working on. I will use it to make the new changelog entry
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
+
+
+OfflineIMAP v6.3.2 (2010-02-21)
+===============================
+
+Notes
+-----
+
+First of all I'm really happy to announce our new official `website`_.  Most of
+the work started from the impulse of Philippe LeCavalier with the help of
+Sebastian Spaeth and other contributors. Thanks to everybody.
+
+In this release, we are still touched by the "SSL3 write pending" but I think
+time was long enough to try to fix it. We have our first entry in the "KNOWN
+BUG" section of the manual about that. I'm afraid it could impact a lot of users
+if some distribution package any SSL library not having underlying (still
+obscure) requirements. Distribution maintainers should be care of it. I hope
+this release will help us to have more reports.
+
+This release will also be the root of our long maintenance support.
+
+Other bugs were fixed.
+
+Bug Fixes
+---------
+
+* Fix craches for getglobalui().
+* Fix documentation build.
+* Restore compatibiliy with python 2.5.
 
 
 OfflineIMAP v6.3.2-rc3 (2010-02-06)
