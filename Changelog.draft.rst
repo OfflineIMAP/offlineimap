@@ -19,6 +19,8 @@ Changes
 Bug Fixes
 ---------
 
+* Restore compatibiliy with python 2.5.
+
 
 Pending for the next major release
 ==================================
