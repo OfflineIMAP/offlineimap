@@ -21,6 +21,7 @@ Bug Fixes
 
 * Fix craches for getglobalui().
 * Fix documentation build.
+* Restore compatibiliy with python 2.5.
 
 
 Pending for the next major release

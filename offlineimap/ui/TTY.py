@@ -37,7 +37,10 @@ class TTYUI(UIBase):
             #if the next output comes from a different thread than our last one
             #add the info.
             #Most look like 'account sync foo' or 'Folder sync foo'.
-            threadname = currentThread().name
+            try:
+                threadname = currentThread().name
+            except AttributeError:
+                threadname = currentThread().getName()
             if (threadname == s._lastThreaddisplay):
                 print " %s" % msg
             else:
