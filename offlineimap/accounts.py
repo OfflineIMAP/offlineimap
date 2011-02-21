@@ -166,7 +166,12 @@ class Account(CustomConfig.ConfigHelperMixin):
             item.stopkeepalive()
         return sleepresult
             
-class AccountSynchronizationMixin:
+    
+class SyncableAccount(Account):
+    """A syncable IMAP account.
+
+    Derives from class:`Account`."""
+
     def syncrunner(self, siglistener):
         self.ui.registerthread(self.name)
         self.ui.acct(self.name)
@@ -285,12 +290,12 @@ class AccountSynchronizationMixin:
             self.ui.callhook("Hook return code: %d" % p.returncode)
         except:
             self.ui.warn("Exception occured while calling hook")
-    
-class SyncableAccount(Account, AccountSynchronizationMixin):
-    pass
+
 
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos, quick):
+    """This function is called as target for the
+    InstanceLimitedThread invokation in SyncableAccount."""
     ui = getglobalui()
     ui.registerthread(accountname)
     try:
