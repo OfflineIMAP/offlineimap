@@ -103,7 +103,6 @@ def AccountHashGenerator(customconfig):
         retval[item.getname()] = item
     return retval
 
-mailboxes = []
 
 class Account(CustomConfig.ConfigHelperMixin):
     def __init__(self, config, name):
@@ -292,7 +291,6 @@ class SyncableAccount(Account, AccountSynchronizationMixin):
 
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos, quick):
-    global mailboxes
     ui = getglobalui()
     ui.registerthread(accountname)
     try:
