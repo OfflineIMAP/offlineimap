@@ -17,10 +17,9 @@
 
 import re, socket, time, subprocess
 from offlineimap.ui import getglobalui
-from imaplib import *
 
 # Import the symbols we need that aren't exported by default
-from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
+from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num, IMAP4, IMAP4_SSL
 
 try:
     import ssl
@@ -149,22 +148,35 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
 
     def _verifycert(self, cert, hostname):
         '''Verify that cert (in socket.getpeercert() format) matches hostname.
-        CRLs and subjectAltName are not handled.
+        CRLs are not handled.
         
         Returns error message if any problems are found and None on success.
         '''
         if not cert:
             return ('no certificate received')
         dnsname = hostname.lower()
+        certnames = []
+
+        # First read commonName
         for s in cert.get('subject', []):
             key, value = s[0]
             if key == 'commonName':
-                certname = value.lower()
-                if (certname == dnsname or
-                    '.' in dnsname and certname == '*.' + dnsname.split('.', 1)[1]):
-                    return None
-                return ('certificate is for %s') % certname
-        return ('no commonName found in certificate')
+                certnames.append(value.lower())
+        if len(certnames) == 0:
+            return ('no commonName found in certificate')
+
+        # Then read subjectAltName
+        for key, value in cert.get('subjectAltName', []):
+            if key == 'DNS':
+                certnames.append(value.lower())
+
+        # And finally try to match hostname with one of these names
+        for certname in certnames:
+            if (certname == dnsname or
+                '.' in dnsname and certname == '*.' + dnsname.split('.', 1)[1]):
+                return None
+
+        return ('no matching domain name found in certificate')
 
     def _read_upto (self, n):
         """Read up to n bytes, emptying existing _readbuffer first"""

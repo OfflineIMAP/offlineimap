@@ -13,6 +13,8 @@ others.
 New Features
 ------------
 
+* SSL: support subjectAltName.
+
 Changes
 -------
 
