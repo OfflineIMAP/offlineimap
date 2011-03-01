@@ -60,37 +60,23 @@ class UsefulIMAPMixIn:
         imaplibutil.new_mesg(self, s, secs)
 
 class UsefulIMAP4(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4):
-
     # This is a hack around Darwin's implementation of realloc() (which
     # Python uses inside the socket code). On Darwin, we split the
-    # message into 100k chunks, which should be small enough - smaller
-    # might start seriously hurting performance ...
+    # message into small chunks.
+    # see http://bugs.python.org/issue3531
     def read(self, size):
         if (system() == 'Darwin') and (size>0) :
             read = 0
             io = StringIO()
             while read < size:
-                data = imaplib.IMAP4.read (self, min(size-read,8192))
+                data = imaplib.IMAP4.read (self, min(size-read, 65536))
                 read += len(data)
                 io.write(data)
             return io.getvalue()
         else:
             return imaplib.IMAP4.read (self, size)
 
-class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL):
-    # This is the same hack as above, to be used in the case of an SSL
-    # connexion.
-    def read(self, size):
-        if (system() == 'Darwin') and (size>0) :
-            read = 0
-            io = StringIO()
-            while read < size:
-                data = imaplibutil.WrappedIMAP4_SSL.read (self, min(size-read,8192))
-                read += len(data)
-                io.write(data)
-            return io.getvalue()
-        else:
-            return imaplibutil.WrappedIMAP4_SSL.read (self,size)
+class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL): pass
 
 class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplibutil.IMAP4_Tunnel): pass
 
