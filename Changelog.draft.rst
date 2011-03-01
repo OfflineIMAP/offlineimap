@@ -19,6 +19,8 @@ Changes
 Bug Fixes
 ---------
 
+* Fix regression (UIBase is no more).
+
 
 Pending for the next major release
 ==================================

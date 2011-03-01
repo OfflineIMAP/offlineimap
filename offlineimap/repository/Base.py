@@ -19,7 +19,6 @@
 from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
 import os.path
-import sys
 import traceback
 
 def LoadRepository(name, account, reqtype):
@@ -167,7 +166,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                 except (KeyboardInterrupt):
                     raise
                 except:
-                    UIBase.getglobalui().warn("ERROR Attempting to make folder " \
+                    getglobalui().warn("ERROR Attempting to create folder " \
                         + key + ":"  +traceback.format_exc())
 
         #
