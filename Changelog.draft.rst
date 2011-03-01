@@ -23,6 +23,8 @@ Changes
 Bug Fixes
 ---------
 
+* Allow SSL connections to send keep-alive messages.
+
 
 Pending for the next major release
 ==================================

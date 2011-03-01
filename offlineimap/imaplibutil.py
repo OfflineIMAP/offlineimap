@@ -110,6 +110,10 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
             # FIXME
             raise socket.error(last_error)
 
+        # Allow sending of keep-alive message seems to prevent some servers
+        # from closing SSL on us leading to deadlocks
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+
         #connected to socket, now wrap it in SSL
         try:
             if self._cacertfile:
