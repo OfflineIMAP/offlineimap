@@ -24,6 +24,7 @@ Bug Fixes
 ---------
 
 * Allow SSL connections to send keep-alive messages.
+* Fix regression (UIBase is no more).
 
 
 Pending for the next major release
