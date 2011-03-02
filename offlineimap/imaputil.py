@@ -31,7 +31,6 @@ def dequote(string):
     This function does NOT consider parenthised lists to be quoted.
     """
 
-    debug("dequote() called with input:", string)
     if not (string[0] == '"' and string[-1] == '"'):
         return string
     string = string[1:-1]               # Strip off quotes.
@@ -46,7 +45,6 @@ def flagsplit(string):
     return imapsplit(string[1:-1])
 
 def options2hash(list):
-    debug("options2hash called with input:", list)
     retval = {}
     counter = 0
     while (counter < len(list)):
@@ -68,7 +66,6 @@ def imapsplit(imapstring):
 
     ['(\\HasNoChildren)', '"."', '"INBOX.Sent"']"""
 
-    debug("imapsplit() called with input:", imapstring)
     if type(imapstring) != types.StringType:
         debug("imapsplit() got a non-string input; working around.")
         # Sometimes, imaplib will throw us a tuple if the input
