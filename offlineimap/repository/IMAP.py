@@ -27,6 +27,7 @@ class IMAPRepository(BaseRepository):
     def __init__(self, reposname, account):
         """Initialize an IMAPRepository object."""
         BaseRepository.__init__(self, reposname, account)
+        # self.ui is being set by the BaseRepository
         self.imapserver = imapserver.ConfigedIMAPServer(self)
         self.folders = None
         self.nametrans = lambda foldername: foldername
@@ -250,6 +251,8 @@ class IMAPRepository(BaseRepository):
                 continue
             foldername = imaputil.dequote(name)
             if not self.folderfilter(foldername):
+                self.ui.debug('imap',"Filtering out '%s' due to folderfilter" %\
+                                  foldername)
                 continue
             retval.append(self.getfoldertype()(self.imapserver, foldername,
                                                self.nametrans(foldername),

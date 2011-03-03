@@ -23,6 +23,7 @@ from offlineimap.ui import getglobalui
 
 class BaseRepository(CustomConfig.ConfigHelperMixin):
     def __init__(self, reposname, account):
+        self.ui = getglobalui()
         self.account = account
         self.config = account.getconfig()
         self.name = reposname
@@ -144,7 +145,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                 except (KeyboardInterrupt):
                     raise
                 except:
-                    getglobalui().warn("ERROR Attempting to create folder " \
+                    self.ui.warn("ERROR Attempting to create folder " \
                         + key + ":"  +traceback.format_exc())
 
         #
