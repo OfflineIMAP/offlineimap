@@ -16,6 +16,8 @@ New Features
 Changes
 -------
 
+* Rework the repository module
+
 Bug Fixes
 ---------
 

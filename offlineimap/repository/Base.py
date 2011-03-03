@@ -16,32 +16,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import CustomConfig
-from offlineimap.ui import getglobalui
 import os.path
 import traceback
-
-def LoadRepository(name, account, reqtype):
-    from offlineimap.repository.Gmail import GmailRepository
-    from offlineimap.repository.IMAP import IMAPRepository, MappedIMAPRepository
-    from offlineimap.repository.Maildir import MaildirRepository
-    if reqtype == 'remote':
-        # For now, we don't support Maildirs on the remote side.
-        typemap = {'IMAP': IMAPRepository,
-                   'Gmail': GmailRepository}
-    elif reqtype == 'local':
-        typemap = {'IMAP': MappedIMAPRepository,
-                   'Maildir': MaildirRepository}
-    else:
-        raise ValueError, "Request type %s not supported" % reqtype
-    config = account.getconfig()
-    repostype = config.get('Repository ' + name, 'type').strip()
-    try:
-        repo = typemap[repostype]
-    except KeyError:
-        raise Exception, "'%s' repository not supported for %s repositories."%\
-            (repostype, reqtype)
-    return repo(name, account)
+from offlineimap import CustomConfig
+from offlineimap.ui import getglobalui
 
 class BaseRepository(CustomConfig.ConfigHelperMixin):
     def __init__(self, reposname, account):
