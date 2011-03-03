@@ -48,7 +48,10 @@ class IMAP4_Tunnel(IMAP4):
     def read(self, size):
         retval = ''
         while len(retval) < size:
-            retval += self.infd.read(size - len(retval))
+            buf = self.infd.read(size - len(retval))
+            if not buf:
+                break
+            retval += buf
         return retval
 
     def readline(self):
@@ -188,6 +191,8 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
         read = 0
         while read < n:
             data = self._read_upto (n-read)
+            if not data:
+                break
             read += len(data)
             chunks.append(data)
 
@@ -200,6 +205,8 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
         retval = ''
         while 1:
             linebuf = self._read_upto(1024)
+            if not linebuf:
+                return retval
             nlindex = linebuf.find("\n")
             if nlindex != -1:
                 retval += linebuf[:nlindex + 1]

@@ -71,6 +71,8 @@ class UsefulIMAP4(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4):
             io = StringIO()
             while read < size:
                 data = imaplib.IMAP4.read (self, min(size-read,8192))
+                if not data:
+                    break
                 read += len(data)
                 io.write(data)
             return io.getvalue()
@@ -86,6 +88,8 @@ class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL):
             io = StringIO()
             while read < size:
                 data = imaplibutil.WrappedIMAP4_SSL.read (self, min(size-read,8192))
+                if not data:
+                    break
                 read += len(data)
                 io.write(data)
             return io.getvalue()

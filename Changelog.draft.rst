@@ -19,6 +19,7 @@ Changes
 Bug Fixes
 ---------
 
+* Fix hang because of infinite loop reading EOF.
 * Fix regression (UIBase is no more).
 
 * Make profiling mode really enforce single-threading
