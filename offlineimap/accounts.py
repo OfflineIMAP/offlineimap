@@ -16,7 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import threadutil, mbnames, CustomConfig
-import offlineimap.repository.Base, offlineimap.repository.LocalStatus
+from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
 from subprocess import Popen, PIPE
@@ -179,13 +179,10 @@ class SyncableAccount(Account):
         if not os.path.exists(accountmetadata):
             os.mkdir(accountmetadata, 0700)            
 
-        self.remoterepos = offlineimap.repository.Base.LoadRepository(self.getconf('remoterepository'), self, 'remote')
-
-        # Connect to the local repository.
-        self.localrepos = offlineimap.repository.Base.LoadRepository(self.getconf('localrepository'), self, 'local')
-
-        # Connect to the local cache.
-        self.statusrepos = offlineimap.repository.LocalStatus.LocalStatusRepository(self.getconf('localrepository'), self)
+        # get all three repositories
+        self.remoterepos = Repository(self, 'remote')
+        self.localrepos  = Repository(self, 'local')
+        self.statusrepos = Repository(self, 'status')
 
         #might need changes here to ensure that one account sync does not crash others...
         if not self.refreshperiod:

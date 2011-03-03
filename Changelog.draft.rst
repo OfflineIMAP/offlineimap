@@ -19,6 +19,7 @@ Changes
 -------
 
 * Makefile use magic to find the version number.
+* Rework the repository module
 
 Bug Fixes
 ---------
