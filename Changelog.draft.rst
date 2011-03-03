@@ -27,6 +27,7 @@ Bug Fixes
 * Allow SSL connections to send keep-alive messages.
 * Fix regression (UIBase is no more).
 
+* Make profiling mode really enforce single-threading
 
 Pending for the next major release
 ==================================
