@@ -169,7 +169,7 @@ class OfflineImap:
         if options.profiledir:
             if not options.singlethreading:
                 logging.warn("Profile mode: Forcing to singlethreaded.")
-                options.singlethreaded = True
+                options.singlethreading = True
             profiledir = options.profiledir
             os.mkdir(profiledir)
             threadutil.setprofiledir(profiledir)
