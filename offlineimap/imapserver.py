@@ -302,6 +302,14 @@ class IMAPServer:
                     # Some buggy IMAP servers do not respond well to LIST "" ""
                     # Work around them.
                     listres = imapobj.list(self.reference, '"*"')[1]
+                if listres == [None] or listres == None:
+                    # No Folders were returned. This occurs, e.g. if the
+                    # 'reference' prefix does not exist on the mail
+                    # server. Raise exception.
+                    err = "Server '%s' returned no folders in '%s'" % \
+                        (self.repos.getname(), self.reference)
+                    self.ui.warn(err)
+                    raise Exception(err)
                 self.delim, self.root = \
                             imaputil.imapsplit(listres[0])[1:]
                 self.delim = imaputil.dequote(self.delim)
