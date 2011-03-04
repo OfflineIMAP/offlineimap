@@ -26,8 +26,9 @@ Bug Fixes
 
 * Allow SSL connections to send keep-alive messages.
 * Fix regression (UIBase is no more).
-
 * Make profiling mode really enforce single-threading
+* Do not send localized date strings to the IMAP server as it will
+  either ignore or refuse them.
 
 Pending for the next major release
 ==================================

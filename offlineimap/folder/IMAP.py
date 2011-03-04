@@ -299,52 +299,112 @@ class IMAPFolder(BaseFolder):
         matchinguids.sort()
         return long(matchinguids[0])
 
+
+    def getmessageinternaldate(self, content, rtime=None):
+        """Parses mail and returns an INTERNALDATE string
+
+        It will use information in the following order, falling back as an attempt fails:
+          - rtime parameter
+          - Date header of email
+
+        We return None, if we couldn't find a valid date. In this case
+        the IMAP server will use the server local time when appening
+        (per RFC).
+
+        Note, that imaplib's Time2Internaldate is inherently broken as
+        it returns localized date strings which are invalid for IMAP
+        servers. However, that function is called for *every* append()
+        internally. So we need to either pass in `None` or the correct
+        string (in which case Time2Internaldate() will do nothing) to
+        append(). The output of this function is designed to work as
+        input to the imapobj.append() function.
+
+        TODO: We should probably be returning a bytearray rather than a
+        string here, because the IMAP server will expect plain
+        ASCII. However, imaplib.Time2INternaldate currently returns a
+        string so we go with the same for now.
+
+        :param rtime: epoch timestamp to be used rather than analyzing
+                  the email.
+        :returns: string in the form of "DD-Mmm-YYYY HH:MM:SS +HHMM"
+                  (including double quotes) or `None` in case of failure
+                  (which is fine as value for append)."""
+        if rtime is None:
+            message = rfc822.Message(StringIO(content))
+            # parsedate returns a 9-tuple that can be passed directly to
+            # time.mktime(); Will be None if missing or not in a valid
+            # format.  Note that indexes 6, 7, and 8 of the result tuple are
+            # not usable.
+            datetuple = rfc822.parsedate(message.getheader('Date'))
+
+            if datetuple is None:
+                #could not determine the date, use the local time.
+                return None
+        else:
+            #rtime is set, use that instead
+            datetuple = time.localtime(rtime)
+
+        try:
+            # Check for invalid dates
+            if datetuple[0] < 1981:
+                raise ValueError
+
+            # Check for invalid dates
+            datetuple_check = time.localtime(time.mktime(datetuple))
+            if datetuple[:2] != datetuple_check[:2]:
+                raise ValueError
+
+        except (ValueError, OverflowError):
+            # Argh, sometimes it's a valid format but year is 0102
+            # or something.  Argh.  It seems that Time2Internaldate
+            # will rause a ValueError if the year is 0102 but not 1902,
+            # but some IMAP servers nonetheless choke on 1902.
+            self.ui.debug("Message with invalid date %s. Server will use local time." % datetuple)
+            return None
+
+        #produce a string representation of datetuple that works as
+        #INTERNALDATE
+        num2mon = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun',
+                   7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
+
+        if datetuple.tm_isdst == '1':
+            zone = -time.altzone
+        else:
+            zone = -time.timezone
+        offset_h, offset_m = divmod(zone//60, 60)
+
+        internaldate = '"%02d-%s-%04d %02d:%02d:%02d %+03d%02d"' \
+            % (datetuple.tm_mday, num2mon[datetuple.tm_mon], datetuple.tm_year, \
+               datetuple.tm_hour, datetuple.tm_min, datetuple.tm_sec, offset_h, offset_m)
+
+        return internaldate
+
     def savemessage(self, uid, content, flags, rtime):
+        """Save the message on the Server
+
+        This backend always assigns a new uid, so the uid arg is ignored.
+
+        This function will update the self.messagelist dict to contain
+        the new message after sucessfully saving it.
+
+        :param rtime: A timestamp to be
+        :returns: the UID of the new message as assigned by the
+                  server. If the folder is read-only it will return 0."""
         imapobj = self.imapserver.acquireconnection()
         self.ui.debug('imap', 'savemessage: called')
+
         try:
             try:
                 imapobj.select(self.getfullname()) # Needed for search
             except imapobj.readonly:
                 self.ui.msgtoreadonly(self, uid, content, flags)
                 # Return indicating message taken, but no UID assigned.
-                # Fudge it.
                 return 0
             
-            # This backend always assigns a new uid, so the uid arg is ignored.
-            # In order to get the new uid, we need to save off the message ID.
+            # get the date of the message file, so we can pass it to the server.
+            date = self.getmessageinternaldate(content, rtime)
 
-            message = rfc822.Message(StringIO(content))
-            datetuple_msg = rfc822.parsedate(message.getheader('Date'))
-            # Will be None if missing or not in a valid format.
-
-            # If time isn't known
-            if rtime == None and datetuple_msg == None:
-                datetuple = time.localtime()
-            elif rtime == None:
-                datetuple = datetuple_msg
-            else:
-                datetuple = time.localtime(rtime)
-
-            try:
-                if datetuple[0] < 1981:
-                    raise ValueError
-
-                # Check for invalid date
-                datetuple_check = time.localtime(time.mktime(datetuple))
-                if datetuple[:2] != datetuple_check[:2]:
-                    raise ValueError
-
-                # This could raise a value error if it's not a valid format.
-                date = imaplib.Time2Internaldate(datetuple) 
-            except (ValueError, OverflowError):
-                # Argh, sometimes it's a valid format but year is 0102
-                # or something.  Argh.  It seems that Time2Internaldate
-                # will rause a ValueError if the year is 0102 but not 1902,
-                # but some IMAP servers nonetheless choke on 1902.
-                date = imaplib.Time2Internaldate(time.localtime())
-
-            self.ui.debug('imap', 'savemessage: using date ' + str(date))
+            self.ui.debug('imap', 'savemessage: using date %s' % date)
             content = re.sub("(?<!\r)\n", "\r\n", content)
             self.ui.debug('imap', 'savemessage: initial content is: ' + repr(content))
 
