@@ -25,7 +25,7 @@ import time
 from StringIO import StringIO
 from copy import copy
 from Base import BaseFolder
-from offlineimap import imaputil, imaplibutil, __version__
+from offlineimap import imaputil, imaplibutil
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
@@ -226,14 +226,30 @@ class IMAPFolder(BaseFolder):
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
 
-    def savemessage_getnewheader(self, content):
+    def generate_randomheader(self, content):
+        """Returns a unique X-OfflineIMAP header
+
+         Generate an 'X-OfflineIMAP' mail header which contains a random
+         unique value (which is based on the mail content, and a random
+         number). This header allows us to fetch a mail after APPENDing
+         it to an IMAP server and thus find out the UID that the server
+         assigned it.
+
+        :returns: (headername, headervalue) tuple, consisting of strings
+                  headername == 'X-OfflineIMAP' and headervalue will be a
+                  random string
+        """
         headername = 'X-OfflineIMAP'
-        headervalue = '%s-' % str(binascii.crc32(content)).replace('-', 'x')
-        headervalue += binascii.hexlify(self.repository.getname()) + '-'
-        headervalue += binascii.hexlify(self.getname())
-        headervalue += '-%d-' % long(time.time())
-        headervalue += str(self.randomgenerator.random()).replace('.', '')
-        headervalue += '-v' + __version__
+        # We need a random component too. If we ever upload the same
+        # mail twice (e.g. in different folders), we would still need to
+        # get the UID for the correct one. As we won't have too many
+        # mails with identical content, the randomness requirements are
+        # not extremly critial though.
+
+        # compute unsigned crc32 of 'content' as unique hash
+        # NB: crc32 returns unsigned only starting with python 3.0
+        headervalue  = str( binascii.crc32(content) & 0xffffffff ) + '-'
+        headervalue += str(self.randomgenerator.randint(0,9999999999))
         return (headername, headervalue)
 
     def savemessage_addheader(self, content, headername, headervalue):
@@ -332,8 +348,8 @@ class IMAPFolder(BaseFolder):
             content = re.sub("(?<!\r)\n", "\r\n", content)
             self.ui.debug('imap', 'savemessage: initial content is: ' + repr(content))
 
-            (headername, headervalue) = self.savemessage_getnewheader(content)
-            self.ui.debug('imap', 'savemessage: new headers are: %s: %s' % \
+            (headername, headervalue) = self.generate_randomheader(content)
+            ui.debug('imap', 'savemessage: new headers are: %s: %s' % \
                      (headername, headervalue))
             content = self.savemessage_addheader(content, headername,
                                                  headervalue)
