@@ -12,6 +12,9 @@ others.
 
 New Features
 ------------
+* Implement UIDPLUS extension support. OfflineIMAP will now not insert
+  an X-OfflineIMAP header if the mail server supports the UIDPLUS
+  extension.
 
 * SSL: support subjectAltName.
 

@@ -274,9 +274,6 @@ class IMAPFolder(BaseFolder):
 
 
     def savemessage_searchforheader(self, imapobj, headername, headervalue):
-        if imapobj.untagged_responses.has_key('APPENDUID'):
-            return long(imapobj.untagged_responses['APPENDUID'][-1].split(' ')[1])
-
         self.ui.debug('imap', 'savemessage_searchforheader called for %s: %s' % \
                  (headername, headervalue))
         # Now find the UID it got.
@@ -389,38 +386,42 @@ class IMAPFolder(BaseFolder):
         This function will update the self.messagelist dict to contain
         the new message after sucessfully saving it.
 
-        :param rtime: A timestamp to be
+        :param rtime: A timestamp to be used as the mail date
         :returns: the UID of the new message as assigned by the
                   server. If the folder is read-only it will return 0."""
-        imapobj = self.imapserver.acquireconnection()
         self.ui.debug('imap', 'savemessage: called')
 
         try:
+            imapobj = self.imapserver.acquireconnection()
+
             try:
-                imapobj.select(self.getfullname()) # Needed for search
+                imapobj.select(self.getfullname()) # Needed for search and making the box READ-WRITE
             except imapobj.readonly:
+                # readonly exception. Return original uid to notify that
+                # we did not save the message. (see savemessage in Base.py)
                 self.ui.msgtoreadonly(self, uid, content, flags)
-                # Return indicating message taken, but no UID assigned.
-                return 0
-            
+                return uid
+
+            # UIDPLUS extension provides us with an APPENDUID response to our append()
+            use_uidplus = 'UIDPLUS' in imapobj.capabilities
+
             # get the date of the message file, so we can pass it to the server.
             date = self.getmessageinternaldate(content, rtime)
-
             self.ui.debug('imap', 'savemessage: using date %s' % date)
+    
             content = re.sub("(?<!\r)\n", "\r\n", content)
-            self.ui.debug('imap', 'savemessage: initial content is: ' + repr(content))
+    
+            if not use_uidplus:
+                # insert a random unique header that we can fetch later
+                (headername, headervalue) = self.generate_randomheader(content)
+                self.ui.debug('imap', 'savemessage: new headers are: %s: %s' % \
+                             (headername, headervalue))
+                content = self.savemessage_addheader(content, headername,
+                                                     headervalue)    
+            self.ui.debug('imap', 'savemessage: content is: ' + repr(content))
 
-            (headername, headervalue) = self.generate_randomheader(content)
-            ui.debug('imap', 'savemessage: new headers are: %s: %s' % \
-                     (headername, headervalue))
-            content = self.savemessage_addheader(content, headername,
-                                                 headervalue)
-            self.ui.debug('imap', 'savemessage: new content is: ' + repr(content))
-            self.ui.debug('imap', 'savemessage: new content length is ' + \
-                     str(len(content)))
-
-            # TODO: append could raise a ValueError if the date is not in
-            #       valid format...?
+            # TODO: - append could raise a ValueError if the date is not in
+            #         valid format...?
             (typ,dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
@@ -430,24 +431,36 @@ class IMAPFolder(BaseFolder):
             (typ,dat) = imapobj.check()
             assert(typ == 'OK')
 
-            # Keep trying until we get the UID.
-            self.ui.debug('imap', 'savemessage: first attempt to get new UID')
-            uid = self.savemessage_searchforheader(imapobj, headername,
-                                                   headervalue)
-            # See docs for savemessage in Base.py for explanation of this and other return values
-            if uid <= 0:
-                self.ui.debug('imap', 'savemessage: first attempt to get new UID failed.  Going to run a NOOP and try again.')
-                assert(imapobj.noop()[0] == 'OK')
+            # get the UID.
+            if use_uidplus:
+                # get the new UID from the APPENDUID response, it could look like
+                # OK [APPENDUID 38505 3955] APPEND completed
+                # with 38505 bein folder UIDvalidity and 3955 the new UID
+                if not imapobj.untagged_responses.has_key('APPENDUID'):
+                    self.ui.warn("Server supports UIDPLUS but got no APPENDUID appending a message.")
+                    return 0
+                uid = long(imapobj.untagged_responses['APPENDUID'][-1].split(' ')[1])
+
+            else:
+                # we don't support UIDPLUS
                 uid = self.savemessage_searchforheader(imapobj, headername,
                                                        headervalue)
+                # See docs for savemessage in Base.py for explanation of this and other return values
+                if uid == 0:
+                    self.ui.debug('imap', 'savemessage: first attempt to get new UID failed.  Going to run a NOOP and try again.')
+                    assert(imapobj.noop()[0] == 'OK')
+                    uid = self.savemessage_searchforheader(imapobj, headername,
+                                                       headervalue)
+
         finally:
             self.imapserver.releaseconnection(imapobj)
 
         if uid: # avoid UID FETCH 0 crash happening later on
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
 
-        self.ui.debug('imap', 'savemessage: returning %d' % uid)
+        self.ui.debug('imap', 'savemessage: returning new UID %d' % uid)
         return uid
+
 
     def savemessageflags(self, uid, flags):
         imapobj = self.imapserver.acquireconnection()
