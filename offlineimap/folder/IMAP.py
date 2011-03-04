@@ -252,6 +252,7 @@ class IMAPFolder(BaseFolder):
         headervalue += str(self.randomgenerator.randint(0,9999999999))
         return (headername, headervalue)
 
+
     def savemessage_addheader(self, content, headername, headervalue):
         self.ui.debug('imap',
                  'savemessage_addheader: called to add %s: %s' % (headername,
@@ -270,6 +271,7 @@ class IMAPFolder(BaseFolder):
         trailer = content[insertionpoint:]
         self.ui.debug('imap', 'savemessage_addheader: trailer = ' + repr(trailer))
         return leader + newline + trailer
+
 
     def savemessage_searchforheader(self, imapobj, headername, headervalue):
         if imapobj.untagged_responses.has_key('APPENDUID'):
@@ -417,12 +419,16 @@ class IMAPFolder(BaseFolder):
             self.ui.debug('imap', 'savemessage: new content length is ' + \
                      str(len(content)))
 
-            assert(imapobj.append(self.getfullname(),
+            # TODO: append could raise a ValueError if the date is not in
+            #       valid format...?
+            (typ,dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
-                                       date, content)[0] == 'OK')
+                                       date, content)
+            assert(typ == 'OK')
 
             # Checkpoint.  Let it write out the messages, etc.
-            assert(imapobj.check()[0] == 'OK')
+            (typ,dat) = imapobj.check()
+            assert(typ == 'OK')
 
             # Keep trying until we get the UID.
             self.ui.debug('imap', 'savemessage: first attempt to get new UID')
