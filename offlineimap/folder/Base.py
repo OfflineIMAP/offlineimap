@@ -31,6 +31,9 @@ class BaseFolder:
         """Returns name"""
         return self.name
 
+    def __str__(self):
+        return self.name
+
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
         false otherwise.  Probably only IMAP will return true."""
