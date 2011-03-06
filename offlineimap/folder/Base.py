@@ -16,7 +16,6 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import *
 from offlineimap import threadutil
 from offlineimap.ui import getglobalui
 import os.path
@@ -26,7 +25,6 @@ import traceback
 
 class BaseFolder:
     def __init__(self):
-        self.uidlock = Lock()
         self.ui = getglobalui()
         
     def getname(self):
@@ -83,6 +81,11 @@ class BaseFolder:
         return foldername
 
     def isuidvalidityok(self):
+        """Does the cached UID match the real UID
+
+        If required it caches the UID. In this case the function is not
+        threadsafe. So don't attempt to call it from concurrent threads."""
+
         if self.getsaveduidvalidity() != None:
             return self.getsaveduidvalidity() == self.getuidvalidity()
         else:
@@ -106,17 +109,18 @@ class BaseFolder:
         return self._base_saved_uidvalidity
 
     def saveuidvalidity(self):
+        """Save the UID value of the folder to the status
+
+        This function is not threadsafe, so don't attempt to call it
+        from concurrent threads."""
         newval = self.getuidvalidity()
         uidfilename = self._getuidfilename()
-        self.uidlock.acquire()
-        try:
-            file = open(uidfilename + ".tmp", "wt")
-            file.write("%d\n" % newval)
-            file.close()
-            os.rename(uidfilename + ".tmp", uidfilename)
-            self._base_saved_uidvalidity = newval
-        finally:
-            self.uidlock.release()
+
+        file = open(uidfilename + ".tmp", "wt")
+        file.write("%d\n" % newval)
+        file.close()
+        os.rename(uidfilename + ".tmp", uidfilename)
+        self._base_saved_uidvalidity = newval
 
     def getuidvalidity(self):
         raise NotImplementedException
@@ -425,5 +429,3 @@ class BaseFolder:
         except:
             self.ui.warn("ERROR attempting to sync flags " \
                 + "for account " + self.getaccountname() + ":" + traceback.format_exc())
-        
-            
