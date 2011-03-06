@@ -295,8 +295,9 @@ class OfflineImap:
             remoterepos = None
             localrepos = None
     
-            threadutil.initInstanceLimit("ACCOUNTLIMIT",
-                                         config.getdefaultint("general", "maxsyncaccounts", 1))
+            threadutil.initInstanceLimit('ACCOUNTLIMIT',
+                                    config.getdefaultint('general',
+                                                         'maxsyncaccounts', 1))
     
             for reposname in config.getsectionlist('Repository'):
                 for instancename in ["FOLDER_" + reposname,
@@ -305,7 +306,8 @@ class OfflineImap:
                         threadutil.initInstanceLimit(instancename, 1)
                     else:
                         threadutil.initInstanceLimit(instancename,
-                                                     config.getdefaultint('Repository ' + reposname, "maxconnections", 1))
+                               config.getdefaultint('Repository ' + reposname,
+                                                    'maxconnections', 2))
             siglisteners = []
             def sig_handler(signum, frame):
                 if signum == signal.SIGUSR1:
