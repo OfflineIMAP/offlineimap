@@ -126,17 +126,15 @@ class MachineUI(UIBase):
         ds = s.folderlist(destlist)
         s._printData('deletingmessages', "%s\n%s" % (s.uidlist(uidlist), ds))
 
-    def addingflags(s, uidlist, flags, destlist):
-        ds = s.folderlist(destlist)
+    def addingflags(s, uidlist, flags, dest):
         s._printData("addingflags", "%s\n%s\n%s" % (s.uidlist(uidlist),
                                                     "\f".join(flags),
-                                                    ds))
+                                                    dest))
 
-    def deletingflags(s, uidlist, flags, destlist):
-        ds = s.folderlist(destlist)
+    def deletingflags(s, uidlist, flags, dest):
         s._printData('deletingflags', "%s\n%s\n%s" % (s.uidlist(uidlist),
                                                       "\f".join(flags),
-                                                      ds))
+                                                      dest))
 
     def threadException(s, thread):
         print s.getThreadExceptionString(thread)

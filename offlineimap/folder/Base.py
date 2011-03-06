@@ -421,12 +421,12 @@ class BaseFolder:
                 delflaglist[flag].append(uid)
 
         for flag in addflaglist.keys():
-            self.ui.addingflags(addflaglist[flag], flag, [dstfolder])
+            self.ui.addingflags(addflaglist[flag], flag, dstfolder)
             dstfolder.addmessagesflags(addflaglist[flag], [flag])
             statusfolder.addmessagesflags(addflaglist[flag], [flag])
 
         for flag in delflaglist.keys():
-            self.ui.deletingflags(delflaglist[flag], flag, [dstfolder])
+            self.ui.deletingflags(delflaglist[flag], flag, dstfolder)
             dstfolder.deletemessagesflags(delflaglist[flag], [flag])
             statusfolder.deletemessagesflags(delflaglist[flag], [flag])
                 

@@ -261,17 +261,16 @@ class UIBase:
                     ", ".join([str(u) for u in uidlist]),
                     ds))
 
-    def addingflags(s, uidlist, flags, destlist):
+    def addingflags(s, uidlist, flags, dest):
         if s.verbose >= 0:
-            ds = s.folderlist(destlist)
-            s._msg("Adding flags %s to %d messages  on %s" % \
-                   (", ".join(flags), len(uidlist), ds))
+            s._msg("Adding flag %s to %d messages on %s" % \
+                   (", ".join(flags), len(uidlist), dest))
 
-    def deletingflags(s, uidlist, flags, destlist):
+    def deletingflags(s, uidlist, flags, dest):
         if s.verbose >= 0:
             ds = s.folderlist(destlist)
-            s._msg("Deleting flags %s to %d messages on %s" % \
-                   (", ".join(flags), len(uidlist), ds))
+            s._msg("Deleting flag %s from %d messages on %s" % \
+                   (", ".join(flags), len(uidlist), dest))
 
     ################################################## Threads
 

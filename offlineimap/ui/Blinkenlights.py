@@ -66,13 +66,13 @@ class BlinkenBase:
         s.gettf().setcolor('red')
         s.__class__.__bases__[-1].deletingmessage(s, uid, destlist)
 
-    def addingflags(s, uidlist, flags, destlist):
+    def addingflags(s, uidlist, flags, dest):
         s.gettf().setcolor('yellow')
-        s.__class__.__bases__[-1].addingflags(s, uidlist, flags, destlist)
+        s.__class__.__bases__[-1].addingflags(s, uidlist, flags, dest)
 
-    def deletingflags(s, uidlist, flags, destlist):
+    def deletingflags(s, uidlist, flags, dest):
         s.gettf().setcolor('pink')
-        s.__class__.__bases__[-1].deletingflags(s, uidlist, flags, destlist)
+        s.__class__.__bases__[-1].deletingflags(s, uidlist, flags, dest)
 
     def warn(s, msg, minor = 0):
         if minor:
