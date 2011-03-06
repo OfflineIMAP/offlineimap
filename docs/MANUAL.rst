@@ -134,30 +134,29 @@ OPTIONS
 
   Specifies an alternative user interface module to use.  This overrides the
   default specified in the configuration file.  The pre-defined options are
-  listed in the User Interfaces section.
+  listed in the User Interfaces section. The interface name is case insensitive.
 
 
 User Interfaces
 ===============
 
-OfflineIMAP has a pluggable user interface system that lets you choose how the
-program communicates information to you.  There are two graphical interfaces,
-two terminal interfaces, and two noninteractive interfaces suitable for
-scripting or logging purposes.  The ui option in the configuration file
-specifies user interface preferences.  The -u command-line option can override
-the configuration file setting.  The available values for the configuration file
-or command-line are described in this section.
+OfflineIMAP has various user interfaces that let you choose how the
+program communicates information to you. The 'ui' option in the
+configuration file specifies the user interface.  The -u command-line
+option overrides the configuration file setting.  The available values
+for the configuration file or command-line are described in this
+section.
 
 
-Curses.Blinkenlights
---------------------
+Blinkenlights
+---------------
 
-Curses.Blinkenlights is an interface designed to be sleek, fun to watch, and
+Blinkenlights is an interface designed to be sleek, fun to watch, and
 informative of the overall picture of what OfflineIMAP is doing.  I consider it
 to be the best general-purpose interface in OfflineIMAP.
 
 
-Curses.Blinkenlights contains a row of "LEDs" with command buttons and a log.
+Blinkenlights contains a row of "LEDs" with command buttons and a log.
 The  log shows more detail about what is happening and is color-coded to match
 the color of the lights.
 
@@ -228,18 +227,18 @@ English-speaking world. One version ran in its entirety as follows:
 | pockets muss; relaxen und watchen das blinkenlichten.
 
 
-TTY.TTYUI
+TTYUI
 ---------
 
-TTY.TTYUI interface is for people running in basic, non-color terminals.  It
+TTYUI interface is for people running in basic, non-color terminals.  It
 prints out basic status messages and is generally friendly to use on a console
 or xterm.
 
 
-Noninteractive.Basic
+Basic
 --------------------
 
-Noninteractive.Basic is designed for situations in which OfflineIMAP will be run
+Basic is designed for situations in which OfflineIMAP will be run
 non-attended and the status of its execution will be logged.  You might use it,
 for instance, to have the system run automatically and e-mail you the results of
 the synchronization.  This user interface is not capable of reading a password
@@ -247,20 +246,19 @@ from the keyboard; account passwords must be specified using one of the
 configuration file options.
 
 
-Noninteractive.Quiet
---------------------
+Quiet
+-----
 
-Noninteractive.Quiet is designed for non-attended running in situations where
-normal status messages are not desired.  It will output nothing except errors
-and serious warnings.  Like Noninteractive.Basic, this user interface is not
-capable of reading a password from the keyboard; account passwords must be
-specified using one of the configuration file options.
+Quiet is designed for non-attended running in situations where normal
+status messages are not desired.  It will output nothing except errors
+and serious warnings.  Like Noninteractive.Basic, this user interface is
+not capable of reading a password from the keyboard; account passwords
+must be specified using one of the configuration file options.
 
+MachineUI
+---------
 
-Machine.MachineUI
------------------
-
-Machine.MachineUI generates output in a machine-parsable format.  It is designed
+MachineUI generates output in a machine-parsable format.  It is designed
 for other programs that will interface to OfflineIMAP.
 
 
