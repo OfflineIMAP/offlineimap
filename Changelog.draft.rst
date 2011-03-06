@@ -23,6 +23,9 @@ Changes
 
 * Makefile use magic to find the version number.
 * Rework the repository module
+* Change UI names to Blinkenlights,TTYUI,Basic,Quiet,MachineUI.
+  Old names will still work, but are deprecated.
+  Document that we don't accept a list of UIs anymore.
 
 Bug Fixes
 ---------

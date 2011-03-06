@@ -187,12 +187,18 @@ class OfflineImap:
                     section = "general"
                 config.set(section, key, value)
 
-        #init the ui, cmd line option overrides config file
-        ui_type = config.getdefault('general','ui', 'TTY.TTYUI')
+        #which ui to use? cmd line option overrides config file
+        ui_type = config.getdefault('general','ui', 'ttyui')
         if options.interface != None:
             ui_type = options.interface
+        if '.' in ui_type:
+            #transform Curses.Blinkenlights -> Blinkenlights
+            ui_type = ui_type.split('.')[-1]
+            logging.warning('Using old interface name, consider using one '
+                            'of %s' % ', '.join(UI_LIST.keys()))
         try:
-            ui = UI_LIST[ui_type](config)
+            # create the ui class
+            ui = UI_LIST[ui_type.lower()](config)
         except KeyError:
             logging.error("UI '%s' does not exist, choose one of: %s" % \
                               (ui_type,', '.join(UI_LIST.keys())))
