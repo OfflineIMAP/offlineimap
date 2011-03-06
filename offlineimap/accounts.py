@@ -350,29 +350,14 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         ui.messagelistloaded(remoterepos, remotefolder,
                              len(remotefolder.getmessagelist().keys()))
 
-
-        #
-
-        if not statusfolder.isnewfolder():
-            # Delete local copies of remote messages.  This way,
-            # if a message's flag is modified locally but it has been
-            # deleted remotely, we'll delete it locally.  Otherwise, we
-            # try to modify a deleted message's flags!  This step
-            # need only be taken if a statusfolder is present; otherwise,
-            # there is no action taken *to* the remote repository.
-
-            remotefolder.syncmessagesto_delete(localfolder, [localfolder,
-                                                             statusfolder])
-            ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
-            localfolder.syncmessagesto(statusfolder, [remotefolder, statusfolder])
-
         # Synchronize remote changes.
         ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
-        remotefolder.syncmessagesto(localfolder, [localfolder, statusfolder])
+        remotefolder.syncmessagesto(localfolder, statusfolder)
+        # Synchronize local changes
+        ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
+        localfolder.syncmessagesto(remotefolder, statusfolder)
 
-        # Make sure the status folder is up-to-date.
-        ui.syncingmessages(localrepos, localfolder, statusrepos, statusfolder)
-        localfolder.syncmessagesto(statusfolder)
+
         statusfolder.save()
         localrepos.restore_atime()
     except (KeyboardInterrupt, SystemExit):

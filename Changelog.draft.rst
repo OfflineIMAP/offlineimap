@@ -15,7 +15,6 @@ New Features
 * Implement UIDPLUS extension support. OfflineIMAP will now not insert
   an X-OfflineIMAP header if the mail server supports the UIDPLUS
   extension.
-
 * SSL: support subjectAltName.
 
 Changes
@@ -26,6 +25,10 @@ Changes
 * Change UI names to Blinkenlights,TTYUI,Basic,Quiet,MachineUI.
   Old names will still work, but are deprecated.
   Document that we don't accept a list of UIs anymore.
+* Reworked the syncing strategy. The only user-visible change is that  
+  blowing away LocalStatus will not require you to redownload ALL of
+  your mails if you still have the local Maildir. It will simply
+  recreate LocalStatus.
 
 Bug Fixes
 ---------
