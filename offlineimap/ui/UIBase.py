@@ -16,7 +16,11 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import re, time, sys, traceback, threading, thread
+import re
+import time
+import sys
+import traceback
+import threading
 from StringIO import StringIO
 from Queue import Empty
 import offlineimap

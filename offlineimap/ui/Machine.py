@@ -15,9 +15,11 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import urllib, sys, re, time, traceback, threading, thread
+import urllib
+import sys
+import time
 from UIBase import UIBase
-from threading import *
+from threading import currentThread, Lock
 import offlineimap
 
 protocol = '6.0.0'
