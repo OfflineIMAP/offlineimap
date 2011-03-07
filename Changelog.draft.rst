@@ -33,6 +33,7 @@ Changes
 Bug Fixes
 ---------
 
+* Fix hang because of infinite loop reading EOF.
 * Allow SSL connections to send keep-alive messages.
 * Fix regression (UIBase is no more).
 * Make profiling mode really enforce single-threading
