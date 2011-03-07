@@ -19,6 +19,8 @@ Changes
 Bug Fixes
 ---------
 
+* Fix ignoring output while determining the rst2xxx command name to build
+  documentation.
 * Fix hang because of infinite loop reading EOF.
 * Fix regression (UIBase is no more).
 
