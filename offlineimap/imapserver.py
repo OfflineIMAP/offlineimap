@@ -154,7 +154,11 @@ class IMAPServer:
         """Releases a connection, returning it to the pool."""
         self.connectionlock.acquire()
         self.assignedconnections.remove(connection)
-        self.availableconnections.append(connection)
+        # Don't reuse broken connections
+        if connection.Terminate:
+            connection.logout()
+        else:
+            self.availableconnections.append(connection)
         self.connectionlock.release()
         self.semaphore.release()
 
