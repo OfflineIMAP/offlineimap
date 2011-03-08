@@ -194,53 +194,6 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
 
         return ('no matching domain name found in certificate')
 
-    def _read_upto (self, n):
-        """Read up to n bytes, emptying existing _readbuffer first"""
-        bytesfrombuf = min(n, len(self._readbuf))
-        if bytesfrombuf:
-            # Return the stuff in readbuf, even if less than n.
-            # It might contain the rest of the line, and if we try to
-            # read more, might block waiting for data that is not
-            # coming to arrive.
-            retval = self._readbuf[:bytesfrombuf]
-            self._readbuf = self._readbuf[bytesfrombuf:]
-            return retval
-        return self.sslobj.read(min(n, 16384))
-
-    def read(self, n):
-        """Read exactly n bytes
-
-        As done in IMAP4_SSL.read() API. If read returns less than n
-        bytes, things break left and right."""
-        chunks = []
-        read = 0
-        while read < n:
-            data = self._read_upto (n-read)
-            if not data:
-                break
-            read += len(data)
-            chunks.append(data)
-
-        return ''.join(chunks)
-
-    def readline(self):
-        """Get the next line. This implementation is more efficient
-        than IMAP4_SSL.readline() which reads one char at a time and
-        reassembles the string by appending those chars. Uggh."""
-        retval = ''
-        while 1:
-            linebuf = self._read_upto(1024)
-            if not linebuf:
-                return retval
-            nlindex = linebuf.find("\n")
-            if nlindex != -1:
-                retval += linebuf[:nlindex + 1]
-                self._readbuf = linebuf[nlindex + 1:] + self._readbuf
-                return retval
-            else:
-                retval += linebuf
-
-
 class WrappedIMAP4(IMAP4):
     """Improved version of imaplib.IMAP4 that can also connect to IPv6"""
 
