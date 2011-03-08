@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import imaplib
+from offlineimap import imaplib2 as imaplib
 from offlineimap import imaplibutil, imaputil, threadutil
 from offlineimap.ui import getglobalui
 from threading import *

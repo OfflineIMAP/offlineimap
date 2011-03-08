@@ -17,9 +17,10 @@
 
 import re, socket, time, subprocess
 from offlineimap.ui import getglobalui
+from offlineimap.imaplib2 import *
 
 # Import the symbols we need that aren't exported by default
-from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num, IMAP4, IMAP4_SSL
+from offlineimap.imaplib2 import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
 
 try:
     import ssl

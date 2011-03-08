@@ -19,7 +19,7 @@
 import os
 import sys
 import threading
-import imaplib
+import offlineimap.imaplib2 as imaplib
 import signal
 import socket
 import logging
