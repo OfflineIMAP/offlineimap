@@ -16,6 +16,8 @@ New Features
 Changes
 -------
 
+* TTYUI ouput improved.
+
 Bug Fixes
 ---------
 

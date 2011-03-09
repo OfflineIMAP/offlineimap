@@ -41,7 +41,8 @@ class TTYUI(UIBase):
                 threadname = currentThread().name
             except AttributeError:
                 threadname = currentThread().getName()
-            if (threadname == s._lastThreaddisplay):
+            if (threadname == s._lastThreaddisplay \
+                    or threadname == 'MainThread'):
                 print " %s" % msg
             else:
                 print "%s:\n %s" % (threadname, msg)

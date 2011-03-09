@@ -252,8 +252,7 @@ class AccountSynchronizationMixin:
                     thread = InstanceLimitedThread(\
                         instancename = 'FOLDER_' + self.remoterepos.getname(),
                         target = syncfolder,
-                        name = "Folder sync %s[%s]" % \
-                        (self.name, remotefolder.getvisiblename()),
+                        name = "Folder sync [%s]" % self.name,
                         args = (self.name, remoterepos, remotefolder, localrepos,
                                 statusrepos, quick))
                     thread.setDaemon(1)
