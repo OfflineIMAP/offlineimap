@@ -324,13 +324,13 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
         ui.loadmessagelist(localrepos, localfolder)
         localfolder.cachemessagelist()
-        ui.messagelistloaded(localrepos, localfolder, len(localfolder.getmessagelist().keys()))
+        ui.messagelistloaded(localrepos, localfolder, localfolder.getmessagecount())
 
         # If either the local or the status folder has messages and there is a UID
         # validity problem, warn and abort.  If there are no messages, UW IMAPd
         # loses UIDVALIDITY.  But we don't really need it if both local folders are
         # empty.  So, in that case, just save it off.
-        if len(localfolder.getmessagelist()) or len(statusfolder.getmessagelist()):
+        if localfolder.getmessagecount() or statusfolder.getmessagecount():
             if not localfolder.isuidvalidityok():
                 ui.validityproblem(localfolder)
                 localrepos.restore_atime()
@@ -347,7 +347,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         ui.loadmessagelist(remoterepos, remotefolder)
         remotefolder.cachemessagelist()
         ui.messagelistloaded(remoterepos, remotefolder,
-                             len(remotefolder.getmessagelist().keys()))
+                             remotefolder.getmessagecount())
 
         # Synchronize remote changes.
         ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)

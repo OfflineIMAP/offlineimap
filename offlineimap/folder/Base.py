@@ -139,6 +139,10 @@ class BaseFolder:
         You must call cachemessagelist() before calling this function!"""
         raise NotImplementedException
 
+    def getmessagecount(self):
+        """Gets the number of messages."""
+        return len(self.getmessagelist())
+
     def getmessage(self, uid):
         """Returns the content of the specified message."""
         raise NotImplementedException
