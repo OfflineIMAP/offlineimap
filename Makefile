@@ -18,7 +18,7 @@
 VERSION=`./offlineimap.py --version`
 TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
-RST2HTML=`type rst2html 2>/dev/null 2>&1 && echo rst2html || echo rst2html.py`
+RST2HTML=`type rst2html >/dev/null 2>&1 && echo rst2html || echo rst2html.py`
 
 all: build
 

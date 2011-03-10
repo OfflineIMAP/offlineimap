@@ -33,6 +33,8 @@ Changes
 Bug Fixes
 ---------
 
+* Fix ignoring output while determining the rst2xxx command name to build
+  documentation.
 * Fix hang because of infinite loop reading EOF.
 * Allow SSL connections to send keep-alive messages.
 * Fix regression (UIBase is no more).
