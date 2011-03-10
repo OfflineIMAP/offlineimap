@@ -29,6 +29,7 @@ Changes
   blowing away LocalStatus will not require you to redownload ALL of
   your mails if you still have the local Maildir. It will simply
   recreate LocalStatus.
+* TTYUI ouput improved.
 
 Bug Fixes
 ---------
