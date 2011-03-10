@@ -17,6 +17,7 @@
 
 import re, socket, time, subprocess
 from offlineimap.ui import getglobalui
+import threading
 from offlineimap.imaplib2 import *
 
 # Import the symbols we need that aren't exported by default
@@ -44,6 +45,8 @@ class IMAP4_Tunnel(IMAP4):
         self.process = subprocess.Popen(host, shell=True, close_fds=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         (self.outfd, self.infd) = (self.process.stdin, self.process.stdout)
+        # imaplib2 polls on this fd
+        self.read_fd = self.infd.fileno()
 
     def read(self, size):
         retval = ''
@@ -66,11 +69,13 @@ class IMAP4_Tunnel(IMAP4):
         self.process.wait()
 
 
-def new_mesg(self, s, secs=None):
+def new_mesg(self, s, tn=None, secs=None):
             if secs is None:
                 secs = time.time()
+            if tn is None:
+                tn = threading.currentThread().getName()
             tm = time.strftime('%M:%S', time.localtime(secs))
-            getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
+            getglobalui().debug('imap', '  %s.%02d %s %s' % (tm, (secs*100)%100, tn, s))
 
 class WrappedIMAP4_SSL(IMAP4_SSL):
     """Provides an improved version of the standard IMAP4_SSL
@@ -85,7 +90,7 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
             del kwargs['cacertfile']
         IMAP4_SSL.__init__(self, *args, **kwargs)
 
-    def open(self, host = '', port = IMAP4_SSL_PORT):
+    def open(self, host=None, port=None):
         """Do whatever IMAP4_SSL would do in open, but call sslwrap
         with cert verification"""
         #IMAP4_SSL.open(self, host, port) uses the below 2 lines:
@@ -147,6 +152,9 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
                 error = self._verifycert(self.sslobj.getpeercert(), host)
                 if error:
                     raise ssl.SSLError("SSL Certificate host name mismatch: %s" % error)
+
+        # imaplib2 uses this to poll()
+        self.read_fd = self.sock.fileno()
 
         #TODO: Done for now. We should implement a mutt-like behavior
         #that offers the users to accept a certificate (presenting a
@@ -262,6 +270,9 @@ class WrappedIMAP4(IMAP4):
             # FIXME
             raise socket.error(last_error)
         self.file = self.sock.makefile('rb')
+
+        # imaplib2 uses this to poll()
+        self.read_fd = self.sock.fileno()
 
 mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
 

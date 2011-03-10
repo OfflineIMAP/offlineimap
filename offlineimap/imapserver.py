@@ -48,6 +48,8 @@ class UsefulIMAPMixIn:
            and self.is_readonly == readonly:
             # No change; return.
             return
+        # Wipe out all old responses, to maintain semantics with old imaplib2
+        del self.untagged_responses[:]
         result = self.__class__.__bases__[1].select(self, mailbox, readonly)
         if result[0] != 'OK':
             raise ValueError, "Error from select: %s" % str(result)
@@ -55,9 +57,10 @@ class UsefulIMAPMixIn:
             self.selectedfolder = mailbox
         else:
             self.selectedfolder = None
+        return result
 
-    def _mesg(self, s, secs=None):
-        imaplibutil.new_mesg(self, s, secs)
+    def _mesg(self, s, tn=None, secs=None):
+        imaplibutil.new_mesg(self, s, tn, secs)
 
 class UsefulIMAP4(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4):
     # This is a hack around Darwin's implementation of realloc() (which

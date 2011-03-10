@@ -71,7 +71,7 @@ class IMAPFolder(BaseFolder):
         try:
             # Primes untagged_responses
             self.selectro(imapobj)
-            return long(imapobj.untagged_responses['UIDVALIDITY'][0])
+            return long(imapobj._get_untagged_response('UIDVALIDITY', True)[0])
         finally:
             self.imapserver.releaseconnection(imapobj)
     
@@ -82,17 +82,16 @@ class IMAPFolder(BaseFolder):
         imapobj = self.imapserver.acquireconnection()
         try:
             # Primes untagged_responses
-            imapobj.select(self.getfullname(), readonly = 1, force = 1)
-            try:
-                # 1. Some mail servers do not return an EXISTS response
-                # if the folder is empty.  2. ZIMBRA servers can return
-                # multiple EXISTS replies in the form 500, 1000, 1500,
-                # 1623 so check for potentially multiple replies.
-                maxmsgid = 0
-                for msgid in imapobj.untagged_responses['EXISTS']:
-                    maxmsgid = max(long(msgid), maxmsgid)
-            except KeyError:
+            imaptype, imapdata = imapobj.select(self.getfullname(), readonly = 1, force = 1)
+            # 1. Some mail servers do not return an EXISTS response
+            # if the folder is empty.  2. ZIMBRA servers can return
+            # multiple EXISTS replies in the form 500, 1000, 1500,
+            # 1623 so check for potentially multiple replies.
+            if imapdata == [None]:
                 return True
+            maxmsgid = 0
+            for msgid in imapdata:
+                maxmsgid = max(long(msgid), maxmsgid)
 
             # Different number of messages than last time?
             if maxmsgid != len(statusfolder.getmessagelist()):
@@ -127,7 +126,7 @@ class IMAPFolder(BaseFolder):
 
         try:
             # Primes untagged_responses
-            imapobj.select(self.getfullname(), readonly = 1, force = 1)
+            imaptype, imapdata = imapobj.select(self.getfullname(), readonly = 1, force = 1)
 
             maxage = self.config.getdefaultint("Account " + self.accountname, "maxage", -1)
             maxsize = self.config.getdefaultint("Account " + self.accountname, "maxsize", -1)
@@ -169,17 +168,20 @@ class IMAPFolder(BaseFolder):
                     # No messages; return
                     return
             else:
-                try:
-                    # 1. Some mail servers do not return an EXISTS response
-                    # if the folder is empty.  2. ZIMBRA servers can return
-                    # multiple EXISTS replies in the form 500, 1000, 1500,
-                    # 1623 so check for potentially multiple replies.
-                    maxmsgid = 0
-                    for msgid in imapobj.untagged_responses['EXISTS']:
-                        maxmsgid = max(long(msgid), maxmsgid)
-                    messagesToFetch = '1:%d' % maxmsgid;
-                except KeyError:
+                # 1. Some mail servers do not return an EXISTS response
+                # if the folder is empty.  2. ZIMBRA servers can return
+                # multiple EXISTS replies in the form 500, 1000, 1500,
+                # 1623 so check for potentially multiple replies.
+                if imapdata == [None]:
                     return
+
+                maxmsgid = 0
+                for msgid in imapdata:
+                    maxmsgid = max(long(msgid), maxmsgid)
+
+                maxmsgid = long(imapdata[0])
+                messagesToFetch = '1:%d' % maxmsgid;
+
                 if maxmsgid < 1:
                     #no messages; return
                     return
@@ -437,10 +439,11 @@ class IMAPFolder(BaseFolder):
                 # get the new UID from the APPENDUID response, it could look like
                 # OK [APPENDUID 38505 3955] APPEND completed
                 # with 38505 bein folder UIDvalidity and 3955 the new UID
-                if not imapobj.untagged_responses.has_key('APPENDUID'):
-                    self.ui.warn("Server supports UIDPLUS but got no APPENDUID appending a message.")
+                if not imapobj._get_untagged_response('APPENDUID', True):
+                    self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
+                                 "appending a message.")
                     return 0
-                uid = long(imapobj.untagged_responses['APPENDUID'][-1].split(' ')[1])
+                uid = long(imapobj._get_untagged_response('APPENDUID', True)[-1].split(' ')[1])
 
             else:
                 # we don't support UIDPLUS
