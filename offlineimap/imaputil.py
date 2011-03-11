@@ -16,7 +16,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import re, string, types
+import re
+import string
+import types
 from offlineimap.ui import getglobalui
 quotere = re.compile('^("(?:[^"]|\\\\")*")')
 

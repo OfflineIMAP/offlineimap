@@ -18,7 +18,9 @@
 
 from threading import *
 from Queue import Queue, Empty
-import sys, traceback, thread, time
+import traceback
+import thread
+import sys
 from offlineimap.ui import getglobalui
 
 profiledir = None

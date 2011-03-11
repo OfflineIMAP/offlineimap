@@ -20,7 +20,10 @@ from offlineimap import imaplib2 as imaplib
 from offlineimap import imaplibutil, imaputil, threadutil
 from offlineimap.ui import getglobalui
 from threading import *
-import thread, hmac, os, time, socket
+import thread
+import time
+import hmac
+import socket
 import base64
 
 from StringIO import StringIO

@@ -16,8 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap.repository.IMAP import IMAPRepository
-from offlineimap import folder, imaputil
-from offlineimap.imapserver import IMAPServer
+from offlineimap import folder
 
 class GmailRepository(IMAPRepository):
     """Gmail IMAP repository.

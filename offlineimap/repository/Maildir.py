@@ -17,9 +17,8 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from Base import BaseRepository
-from offlineimap import folder, imaputil
+from offlineimap import folder
 from offlineimap.ui import getglobalui
-from mailbox import Maildir
 import os
 from stat import *
 

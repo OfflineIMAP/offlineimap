@@ -20,7 +20,6 @@ from offlineimap import threadutil
 from offlineimap.ui import getglobalui
 import os.path
 import re
-import sys
 import traceback
 
 class BaseFolder:

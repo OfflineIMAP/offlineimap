@@ -18,7 +18,7 @@
 
 from UIBase import UIBase
 from getpass import getpass
-import select, sys
+import sys
 from threading import *
 
 class TTYUI(UIBase):
