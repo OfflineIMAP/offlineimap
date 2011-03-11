@@ -17,7 +17,6 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from threading import *
-from StringIO import StringIO
 from Queue import Queue, Empty
 import sys, traceback, thread, time
 from offlineimap.ui import getglobalui
@@ -173,9 +172,8 @@ class ExitNotifyThread(Thread):
             self.setExitCause('EXCEPTION')
             if sys:
                 self.setExitException(sys.exc_info()[1])
-                sbuf = StringIO()
-                traceback.print_exc(file = sbuf)
-                self.setExitStackTrace(sbuf.getvalue())
+                tb = traceback.format_exc()
+                self.setExitStackTrace(tb)
         else:
             self.setExitCause('NORMAL')
         if not hasattr(self, 'exitmessage'):
