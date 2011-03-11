@@ -139,6 +139,15 @@ class BaseFolder:
         You must call cachemessagelist() before calling this function!"""
         raise NotImplementedException
 
+    def uidexists(self, uid):
+        """Returns True if uid exists"""
+        return uid in self.getmessagelist()
+
+    def getmessageuidlist(self):
+        """Gets a list of UIDs.
+        You may have to call cachemessagelist() before calling this function!"""
+        return self.getmessagelist().keys()
+
     def getmessagecount(self):
         """Gets the number of messages."""
         return len(self.getmessagelist())
@@ -267,7 +276,7 @@ class BaseFolder:
         :param dstfolder: A BaseFolder-derived instance
         :param statusfolder: A LocalStatusFolder instance"""
 
-        uidlist = [uid for uid in self.getmessagelist().keys() if uid < 0]
+        uidlist = [uid for uid in self.getmessageuidlist() if uid < 0]
         threads = []
 
         for uid in uidlist:
@@ -351,8 +360,8 @@ class BaseFolder:
         threads = []
 
         copylist = filter(lambda uid: uid>=0 and not \
-                              uid in statusfolder.getmessagelist(),
-                            self.getmessagelist().keys())
+                              statusfolder.uidexists(uid),
+                            self.getmessageuidlist())
         for uid in copylist:
             if self.suggeststhreads():
                 self.waitforthread()
@@ -378,8 +387,8 @@ class BaseFolder:
         that were deleted in 'self'. Delete those from dstfolder and
         statusfolder."""
         deletelist = filter(lambda uid: uid>=0 \
-                                and not uid in self.getmessagelist(),
-                            statusfolder.getmessagelist().keys())
+                                and not self.uidexists(uid),
+                            statusfolder.getmessageuidlist())
         if len(deletelist):
             self.ui.deletingmessages(deletelist, [dstfolder])
             # delete in statusfolder first to play safe. In case of abort, we
@@ -400,10 +409,10 @@ class BaseFolder:
         # bulk, rather than one call per message.
         addflaglist = {}
         delflaglist = {}
-        for uid in self.getmessagelist().keys():
+        for uid in self.getmessageuidlist():
             # Ignore messages with negative UIDs missed by pass 1
             # also don't do anything if the message has been deleted remotely
-            if uid < 0 or not uid in dstfolder.getmessagelist():
+            if uid < 0 or not dstfolder.uidexists(uid):
                 continue
 
             selfflags = self.getmessageflags(uid)
