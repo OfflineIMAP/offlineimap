@@ -268,7 +268,6 @@ class UIBase:
 
     def deletingflags(s, uidlist, flags, dest):
         if s.verbose >= 0:
-            ds = s.folderlist(destlist)
             s._msg("Deleting flag %s from %d messages on %s" % \
                    (", ".join(flags), len(uidlist), dest))
 
