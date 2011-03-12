@@ -17,12 +17,11 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import imaplib
-import rfc822
+import email
 import random
 import binascii
 import re
 import time
-from StringIO import StringIO
 from copy import copy
 from Base import BaseFolder
 from offlineimap import imaputil, imaplibutil
@@ -329,16 +328,17 @@ class IMAPFolder(BaseFolder):
                   (including double quotes) or `None` in case of failure
                   (which is fine as value for append)."""
         if rtime is None:
-            message = rfc822.Message(StringIO(content))
+            message = email.message_from_string(content)
             # parsedate returns a 9-tuple that can be passed directly to
             # time.mktime(); Will be None if missing or not in a valid
             # format.  Note that indexes 6, 7, and 8 of the result tuple are
             # not usable.
-            datetuple = rfc822.parsedate(message.getheader('Date'))
-
+            datetuple = email.utils.parsedate(message.get('Date'))
             if datetuple is None:
                 #could not determine the date, use the local time.
                 return None
+            #make it a real struct_time, so we have named attributes
+            datetuple = time.struct_time(datetuple)
         else:
             #rtime is set, use that instead
             datetuple = time.localtime(rtime)
@@ -358,7 +358,8 @@ class IMAPFolder(BaseFolder):
             # or something.  Argh.  It seems that Time2Internaldate
             # will rause a ValueError if the year is 0102 but not 1902,
             # but some IMAP servers nonetheless choke on 1902.
-            self.ui.debug("Message with invalid date %s. Server will use local time." % datetuple)
+            self.ui.debug("Message with invalid date %s. Server will use local time." \
+                              % datetuple)
             return None
 
         #produce a string representation of datetuple that works as
@@ -366,6 +367,7 @@ class IMAPFolder(BaseFolder):
         num2mon = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun',
                    7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
 
+        #tm_isdst coming from email.parsedate is not usable, we still use it here, mhh
         if datetuple.tm_isdst == '1':
             zone = -time.altzone
         else:
