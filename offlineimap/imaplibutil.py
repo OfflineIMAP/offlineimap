@@ -17,9 +17,11 @@
 
 import re, socket, time, subprocess
 from offlineimap.ui import getglobalui
+import threading
+from offlineimap.imaplib2 import *
 
 # Import the symbols we need that aren't exported by default
-from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num, IMAP4, IMAP4_SSL
+from offlineimap.imaplib2 import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
 
 try:
     import ssl
@@ -43,6 +45,8 @@ class IMAP4_Tunnel(IMAP4):
         self.process = subprocess.Popen(host, shell=True, close_fds=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         (self.outfd, self.infd) = (self.process.stdin, self.process.stdout)
+        # imaplib2 polls on this fd
+        self.read_fd = self.infd.fileno()
 
     def read(self, size):
         retval = ''
@@ -65,11 +69,13 @@ class IMAP4_Tunnel(IMAP4):
         self.process.wait()
 
 
-def new_mesg(self, s, secs=None):
+def new_mesg(self, s, tn=None, secs=None):
             if secs is None:
                 secs = time.time()
+            if tn is None:
+                tn = threading.currentThread().getName()
             tm = time.strftime('%M:%S', time.localtime(secs))
-            getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
+            getglobalui().debug('imap', '  %s.%02d %s %s' % (tm, (secs*100)%100, tn, s))
 
 class WrappedIMAP4_SSL(IMAP4_SSL):
     """Provides an improved version of the standard IMAP4_SSL
@@ -84,7 +90,7 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
             del kwargs['cacertfile']
         IMAP4_SSL.__init__(self, *args, **kwargs)
 
-    def open(self, host = '', port = IMAP4_SSL_PORT):
+    def open(self, host=None, port=None):
         """Do whatever IMAP4_SSL would do in open, but call sslwrap
         with cert verification"""
         #IMAP4_SSL.open(self, host, port) uses the below 2 lines:
@@ -147,6 +153,9 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
                 if error:
                     raise ssl.SSLError("SSL Certificate host name mismatch: %s" % error)
 
+        # imaplib2 uses this to poll()
+        self.read_fd = self.sock.fileno()
+
         #TODO: Done for now. We should implement a mutt-like behavior
         #that offers the users to accept a certificate (presenting a
         #fingerprint of it) (get via self.sslobj.getpeercert()), and
@@ -185,53 +194,6 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
 
         return ('no matching domain name found in certificate')
 
-    def _read_upto (self, n):
-        """Read up to n bytes, emptying existing _readbuffer first"""
-        bytesfrombuf = min(n, len(self._readbuf))
-        if bytesfrombuf:
-            # Return the stuff in readbuf, even if less than n.
-            # It might contain the rest of the line, and if we try to
-            # read more, might block waiting for data that is not
-            # coming to arrive.
-            retval = self._readbuf[:bytesfrombuf]
-            self._readbuf = self._readbuf[bytesfrombuf:]
-            return retval
-        return self.sslobj.read(min(n, 16384))
-
-    def read(self, n):
-        """Read exactly n bytes
-
-        As done in IMAP4_SSL.read() API. If read returns less than n
-        bytes, things break left and right."""
-        chunks = []
-        read = 0
-        while read < n:
-            data = self._read_upto (n-read)
-            if not data:
-                break
-            read += len(data)
-            chunks.append(data)
-
-        return ''.join(chunks)
-
-    def readline(self):
-        """Get the next line. This implementation is more efficient
-        than IMAP4_SSL.readline() which reads one char at a time and
-        reassembles the string by appending those chars. Uggh."""
-        retval = ''
-        while 1:
-            linebuf = self._read_upto(1024)
-            if not linebuf:
-                return retval
-            nlindex = linebuf.find("\n")
-            if nlindex != -1:
-                retval += linebuf[:nlindex + 1]
-                self._readbuf = linebuf[nlindex + 1:] + self._readbuf
-                return retval
-            else:
-                retval += linebuf
-
-
 class WrappedIMAP4(IMAP4):
     """Improved version of imaplib.IMAP4 that can also connect to IPv6"""
 
@@ -261,6 +223,9 @@ class WrappedIMAP4(IMAP4):
             # FIXME
             raise socket.error(last_error)
         self.file = self.sock.makefile('rb')
+
+        # imaplib2 uses this to poll()
+        self.read_fd = self.sock.fileno()
 
 mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
 

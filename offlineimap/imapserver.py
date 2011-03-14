@@ -16,11 +16,11 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import imaplib
+from offlineimap import imaplib2 as imaplib
 from offlineimap import imaplibutil, imaputil, threadutil
 from offlineimap.ui import getglobalui
 from threading import *
-import thread, hmac, os, time
+import thread, hmac, os, time, socket
 import base64
 
 from StringIO import StringIO
@@ -48,6 +48,8 @@ class UsefulIMAPMixIn:
            and self.is_readonly == readonly:
             # No change; return.
             return
+        # Wipe out all old responses, to maintain semantics with old imaplib2
+        del self.untagged_responses[:]
         result = self.__class__.__bases__[1].select(self, mailbox, readonly)
         if result[0] != 'OK':
             raise ValueError, "Error from select: %s" % str(result)
@@ -55,9 +57,10 @@ class UsefulIMAPMixIn:
             self.selectedfolder = mailbox
         else:
             self.selectedfolder = None
+        return result
 
-    def _mesg(self, s, secs=None):
-        imaplibutil.new_mesg(self, s, secs)
+    def _mesg(self, s, tn=None, secs=None):
+        imaplibutil.new_mesg(self, s, tn, secs)
 
 class UsefulIMAP4(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4):
     # This is a hack around Darwin's implementation of realloc() (which
@@ -151,7 +154,11 @@ class IMAPServer:
         """Releases a connection, returning it to the pool."""
         self.connectionlock.acquire()
         self.assignedconnections.remove(connection)
-        self.availableconnections.append(connection)
+        # Don't reuse broken connections
+        if connection.Terminate:
+            connection.logout()
+        else:
+            self.availableconnections.append(connection)
         self.connectionlock.release()
         self.semaphore.release()
 
@@ -236,16 +243,18 @@ class IMAPServer:
                 # Generate a new connection.
                 if self.tunnel:
                     self.ui.connecting('tunnel', self.tunnel)
-                    imapobj = UsefulIMAP4_Tunnel(self.tunnel)
+                    imapobj = UsefulIMAP4_Tunnel(self.tunnel, timeout=socket.getdefaulttimeout())
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
                     imapobj = UsefulIMAP4_SSL(self.hostname, self.port,
-                                              self.sslclientkey, self.sslclientcert, 
+                                              self.sslclientkey, self.sslclientcert,
+                                              timeout=socket.getdefaulttimeout(),
                                               cacertfile = self.sslcacertfile)
                 else:
                     self.ui.connecting(self.hostname, self.port)
-                    imapobj = UsefulIMAP4(self.hostname, self.port)
+                    imapobj = UsefulIMAP4(self.hostname, self.port,
+                                          timeout=socket.getdefaulttimeout())
 
                 imapobj.mustquote = imaplibutil.mustquote
 
