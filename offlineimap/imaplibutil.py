@@ -15,7 +15,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import re, socket, time, subprocess
+import re
+import socket
+import time
+import subprocess
 from offlineimap.ui import getglobalui
 import threading
 from offlineimap.imaplib2 import *

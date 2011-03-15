@@ -18,11 +18,11 @@
 from offlineimap import threadutil, mbnames, CustomConfig
 from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
-from offlineimap.threadutil import InstanceLimitedThread, ExitNotifyThread
+from offlineimap.threadutil import InstanceLimitedThread
 from subprocess import Popen, PIPE
-from threading import Event, Lock
+from threading import Lock
 import os
-from Queue import Queue, Empty
+from Queue import Queue
 import sys
 import traceback
 

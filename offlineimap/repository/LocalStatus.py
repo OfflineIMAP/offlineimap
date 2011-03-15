@@ -19,7 +19,8 @@
 from Base import BaseRepository
 from offlineimap import folder
 import offlineimap.folder.LocalStatus
-import os, re
+import os
+import re
 
 class LocalStatusRepository(BaseRepository):
     def __init__(self, reposname, account):

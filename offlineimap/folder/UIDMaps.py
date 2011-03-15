@@ -17,10 +17,8 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from threading import *
-from offlineimap import threadutil
-from offlineimap.threadutil import InstanceLimitedThread
 from IMAP import IMAPFolder
-import os.path, re
+import os.path
 
 class MappingFolderMixIn:
     def _initmapping(self):
