@@ -141,7 +141,17 @@ class IMAPRepository(BaseRepository):
         return self.getconf('sslclientkey', None)
 
     def getsslcacertfile(self):
-        return self.getconf('sslcacertfile', None)
+        """Return the absolute path of the CA certfile to use, if any"""
+        cacertfile = self.getconf('sslcacertfile', None)
+        if cacertfile is None:
+            return None
+        cacertfile = os.path.expanduser(cacertfile)
+        cacertfile = os.path.abspath(cacertfile)
+        if not os.path.isfile(cacertfile):
+            raise SyntaxWarning("CA certfile for repository '%s' could "
+                                "not be found. No such file: '%s'" \
+                                % (self.name, cacertfile))
+        return cacertfile
 
     def getpreauthtunnel(self):
         return self.getconf('preauthtunnel', None)
