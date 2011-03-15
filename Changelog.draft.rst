@@ -20,6 +20,7 @@ New Features
 Changes
 -------
 
+* Use imaplib2 instead of imaplib.
 * Makefile use magic to find the version number.
 * Rework the repository module
 * Change UI names to Blinkenlights,TTYUI,Basic,Quiet,MachineUI.
@@ -47,6 +48,7 @@ Pending for the next major release
 ==================================
 
 * UIs get shorter and nicer names. (API changing)
+* Implement IDLE feature. (delayed until next major release)
 
 
 Stalled
