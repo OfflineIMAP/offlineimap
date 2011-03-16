@@ -158,20 +158,21 @@ class BaseFolder:
 
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
-        If the uid is < 0, the backend should assign a new uid and return it.
 
-        If the backend cannot assign a new uid, it returns the uid passed in
-        WITHOUT saving the message.
+        If the uid is < 0: The backend should assign a new uid and
+           return it.  In case it cannot assign a new uid, it returns
+           the negative uid passed in WITHOUT saving the message.
 
-        If the backend CAN assign a new uid, but cannot find out what this UID
-        is (as is the case with many IMAP servers), it returns 0 but DOES save
-        the message.
+           If the backend CAN assign a new uid, but cannot find out what
+           this UID is (as is the case with some IMAP servers), it
+           returns 0 but DOES save the message.
         
-        IMAP backend should be the only one that can assign a new uid.
+           IMAP backend should be the only one that can assign a new
+           uid.
 
         If the uid is > 0, the backend should set the uid to this, if it can.
-        If it cannot set the uid to that, it will save it anyway.
-        It will return the uid assigned in any case.
+           If it cannot set the uid to that, it will save it anyway.
+           It will return the uid assigned in any case.
         """
         raise NotImplementedException
 
