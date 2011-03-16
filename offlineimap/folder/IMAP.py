@@ -394,6 +394,11 @@ class IMAPFolder(BaseFolder):
                   server. If the folder is read-only it will return 0."""
         self.ui.debug('imap', 'savemessage: called')
 
+        # already have it, just save modified flags
+        if uid > 0 and uid in self.messagelist:
+            self.savemessageflags(uid, flags)
+            return uid
+
         try:
             imapobj = self.imapserver.acquireconnection()
 
