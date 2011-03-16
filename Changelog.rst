@@ -11,6 +11,61 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.3.3-rc1 (2011-03-16)
+===================================
+
+Notes
+-----
+
+Here is time to begin the tests cycle. If feature topics are sent, I may merge
+or delay them until the next stable release.
+
+Main change comes from the migration from imaplib to imaplib2. It's internal
+code changes and doesn't impact users. UIDPLUS and subjectAltName for SSL are
+also great improvements.
+
+This release includes a hang fix due to infinite loop. Users seeing OfflineIMAP
+hang and consuming a lot of CPU are asked to update.
+
+That beeing said, this is still an early release canditate you should use for
+non-critical data only!
+
+New Features
+------------
+
+* Implement UIDPLUS extension support. OfflineIMAP will now not insert
+  an X-OfflineIMAP header if the mail server supports the UIDPLUS
+  extension.
+* SSL: support subjectAltName.
+
+Changes
+-------
+
+* Use imaplib2 instead of imaplib.
+* Makefile use magic to find the version number.
+* Rework the repository module
+* Change UI names to Blinkenlights,TTYUI,Basic,Quiet,MachineUI.
+  Old names will still work, but are deprecated.
+  Document that we don't accept a list of UIs anymore.
+* Reworked the syncing strategy. The only user-visible change is that
+  blowing away LocalStatus will not require you to redownload ALL of
+  your mails if you still have the local Maildir. It will simply
+  recreate LocalStatus.
+* TTYUI ouput improved.
+* Code cleanups.
+
+Bug Fixes
+---------
+
+* Fix ignoring output while determining the rst2xxx command name to build
+  documentation.
+* Fix hang because of infinite loop reading EOF.
+* Allow SSL connections to send keep-alive messages.
+* Fix regression (UIBase is no more).
+* Make profiling mode really enforce single-threading
+* Do not send localized date strings to the IMAP server as it will
+  either ignore or refuse them.
+
 
 OfflineIMAP v6.3.2 (2010-02-21)
 ===============================
