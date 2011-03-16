@@ -21,6 +21,14 @@ from IMAP import IMAPFolder
 import os.path
 
 class MappingFolderMixIn:
+    """Helper class to map between Folder() instances where both side assign a uid
+
+    Instance variables (self.):
+      r2l: dict mapping message uids: self.r2l[remoteuid]=localuid
+      l2r: dict mapping message uids: self.r2l[localuid]=remoteuid
+      #TODO: what is the difference, how are they used?
+      diskr2l: dict mapping message uids: self.r2l[remoteuid]=localuid
+      diskl2r: dict mapping message uids: self.r2l[localuid]=remoteuid"""
     def _initmapping(self):
         self.maplock = Lock()
         (self.diskr2l, self.diskl2r) = self._loadmaps()
@@ -129,30 +137,32 @@ class MappingFolderMixIn:
 
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
-        If the uid is < 0, the backend should assign a new uid and return it.
 
-        If the backend cannot assign a new uid, it returns the uid passed in
-        WITHOUT saving the message.
-
-        If the backend CAN assign a new uid, but cannot find out what this UID
-        is (as is the case with many IMAP servers), it returns 0 but DOES save
-        the message.
-        
-        IMAP backend should be the only one that can assign a new uid.
+        The UIDMaps class will not return a newly assigned uid, as it
+        internally maps different uids between IMAP servers. So a
+        successful savemessage() invocation will return the same uid it
+        has been invoked with. As it maps between 2 IMAP servers which
+        means the source message must already have an uid, it requires a
+        positive uid to be passed in. Passing in a message with a
+        negative uid will do nothing and return the negative uid.
 
         If the uid is > 0, the backend should set the uid to this, if it can.
         If it cannot set the uid to that, it will save it anyway.
         It will return the uid assigned in any case.
         """
+        # Mapped UID instances require the source to already have a
+        # positive UID, so simply return here.
         if uid < 0:
-            # We cannot assign a new uid.
             return uid
+
+        #if msg uid already exists, just modify the flags
         if uid in self.r2l:
             self.savemessageflags(uid, flags)
             return uid
+
         newluid = self._mb.savemessage(self, -1, content, flags, rtime)
         if newluid < 1:
-            raise ValueError, "Backend could not find uid for message"
+            raise ValueError("Backend could not find uid for message")
         self.maplock.acquire()
         try:
             self.diskl2r[newluid] = uid
@@ -219,5 +229,5 @@ class MappingFolderMixIn:
 # Define a class for local part of IMAP.
 class MappedIMAPFolder(MappingFolderMixIn, IMAPFolder):
     def __init__(self, *args, **kwargs):
-	apply(IMAPFolder.__init__, (self,) + args, kwargs)
+	IMAPFolder.__init__(self, *args, **kwargs)
         self._initmapping()
