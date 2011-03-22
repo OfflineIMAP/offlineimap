@@ -38,12 +38,6 @@ try:
 except ImportError:
     pass
 
-class UsefulIMAP4(imaplibutil.UsefulIMAPMixIn, imaplibutil.WrappedIMAP4): pass
-
-class UsefulIMAP4_SSL(imaplibutil.UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL): pass
-
-class UsefulIMAP4_Tunnel(imaplibutil.UsefulIMAPMixIn, imaplibutil.IMAP4_Tunnel): pass
-
 class IMAPServer:
     GSS_STATE_STEP = 0
     GSS_STATE_WRAP = 1
@@ -202,18 +196,19 @@ class IMAPServer:
                 # Generate a new connection.
                 if self.tunnel:
                     self.ui.connecting('tunnel', self.tunnel)
-                    imapobj = UsefulIMAP4_Tunnel(self.tunnel, timeout=socket.getdefaulttimeout())
+                    imapobj = imaplibutil.IMAP4_Tunnel(self.tunnel,
+                                                       timeout=socket.getdefaulttimeout())
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
-                    imapobj = UsefulIMAP4_SSL(self.hostname, self.port,
-                                              self.sslclientkey, self.sslclientcert,
-                                              timeout=socket.getdefaulttimeout(),
-                                              cacertfile = self.sslcacertfile)
+                    imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname, self.port,
+                                                           self.sslclientkey, self.sslclientcert,
+                                                           timeout=socket.getdefaulttimeout(),
+                                                           cacertfile = self.sslcacertfile)
                 else:
                     self.ui.connecting(self.hostname, self.port)
-                    imapobj = UsefulIMAP4(self.hostname, self.port,
-                                          timeout=socket.getdefaulttimeout())
+                    imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
+                                                       timeout=socket.getdefaulttimeout())
 
                 imapobj.mustquote = imaplibutil.mustquote
 

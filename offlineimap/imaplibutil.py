@@ -59,7 +59,7 @@ class UsefulIMAPMixIn:
     def _mesg(self, s, tn=None, secs=None):
         new_mesg(self, s, tn, secs)
 
-class IMAP4_Tunnel(IMAP4):
+class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
     """IMAP4 client class over a tunnel
 
     Instantiate with: IMAP4_Tunnel(tunnelcmd)
@@ -107,7 +107,7 @@ def new_mesg(self, s, tn=None, secs=None):
             tm = time.strftime('%M:%S', time.localtime(secs))
             getglobalui().debug('imap', '  %s.%02d %s %s' % (tm, (secs*100)%100, tn, s))
 
-class WrappedIMAP4_SSL(IMAP4_SSL):
+class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
     """Provides an improved version of the standard IMAP4_SSL
 
     It provides a better readline() implementation as impaplib's
@@ -224,7 +224,7 @@ class WrappedIMAP4_SSL(IMAP4_SSL):
 
         return ('no matching domain name found in certificate')
 
-class WrappedIMAP4(IMAP4):
+class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
     """Improved version of imaplib.IMAP4 that can also connect to IPv6"""
 
     def open(self, host = '', port = IMAP4_PORT):
