@@ -38,38 +38,11 @@ try:
 except ImportError:
     pass
 
-class UsefulIMAPMixIn:
-    def getstate(self):
-        return self.state
-    def getselectedfolder(self):
-        if self.getstate() == 'SELECTED':
-            return self.selectedfolder
-        return None
+class UsefulIMAP4(imaplibutil.UsefulIMAPMixIn, imaplibutil.WrappedIMAP4): pass
 
-    def select(self, mailbox='INBOX', readonly=None, force = 0):
-        if (not force) and self.getselectedfolder() == mailbox \
-           and self.is_readonly == readonly:
-            # No change; return.
-            return
-        # Wipe out all old responses, to maintain semantics with old imaplib2
-        del self.untagged_responses[:]
-        result = self.__class__.__bases__[1].select(self, mailbox, readonly)
-        if result[0] != 'OK':
-            raise ValueError, "Error from select: %s" % str(result)
-        if self.getstate() == 'SELECTED':
-            self.selectedfolder = mailbox
-        else:
-            self.selectedfolder = None
-        return result
+class UsefulIMAP4_SSL(imaplibutil.UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL): pass
 
-    def _mesg(self, s, tn=None, secs=None):
-        imaplibutil.new_mesg(self, s, tn, secs)
-
-class UsefulIMAP4(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4): pass
-
-class UsefulIMAP4_SSL(UsefulIMAPMixIn, imaplibutil.WrappedIMAP4_SSL): pass
-
-class UsefulIMAP4_Tunnel(UsefulIMAPMixIn, imaplibutil.IMAP4_Tunnel): pass
+class UsefulIMAP4_Tunnel(imaplibutil.UsefulIMAPMixIn, imaplibutil.IMAP4_Tunnel): pass
 
 class IMAPServer:
     GSS_STATE_STEP = 0

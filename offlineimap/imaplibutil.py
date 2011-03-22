@@ -32,6 +32,33 @@ except ImportError:
     #fails on python <2.6
     pass
 
+class UsefulIMAPMixIn:
+    def getstate(self):
+        return self.state
+    def getselectedfolder(self):
+        if self.getstate() == 'SELECTED':
+            return self.selectedfolder
+        return None
+
+    def select(self, mailbox='INBOX', readonly=None, force = 0):
+        if (not force) and self.getselectedfolder() == mailbox \
+           and self.is_readonly == readonly:
+            # No change; return.
+            return
+        # Wipe out all old responses, to maintain semantics with old imaplib2
+        del self.untagged_responses[:]
+        result = self.__class__.__bases__[1].select(self, mailbox, readonly)
+        if result[0] != 'OK':
+            raise ValueError, "Error from select: %s" % str(result)
+        if self.getstate() == 'SELECTED':
+            self.selectedfolder = mailbox
+        else:
+            self.selectedfolder = None
+        return result
+
+    def _mesg(self, s, tn=None, secs=None):
+        new_mesg(self, s, tn, secs)
+
 class IMAP4_Tunnel(IMAP4):
     """IMAP4 client class over a tunnel
 
