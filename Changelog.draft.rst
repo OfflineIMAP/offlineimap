@@ -19,6 +19,7 @@ Changes
 Bug Fixes
 ---------
 
+
 Pending for the next major release
 ==================================
 
