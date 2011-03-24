@@ -265,10 +265,9 @@ class SyncableAccount(Account):
             mbnames.write()
             localrepos.forgetfolders()
             remoterepos.forgetfolders()
+        finally:
             localrepos.holdordropconnections()
             remoterepos.holdordropconnections()
-        finally:
-            pass
 
         hook = self.getconf('postsynchook', '')
         self.callhook(hook)

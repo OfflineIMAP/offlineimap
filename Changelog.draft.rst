@@ -19,6 +19,8 @@ Changes
 Bug Fixes
 ---------
 
+* Fix hang when using Ctrl+C in some cases.
+
 
 Pending for the next major release
 ==================================
