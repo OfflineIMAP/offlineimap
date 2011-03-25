@@ -439,8 +439,9 @@ class IMAPFolder(BaseFolder):
             (typ,dat) = imapobj.check()
             assert(typ == 'OK')
 
-            # get the UID.
-            if use_uidplus:
+            # get the new UID. Test for APPENDUID response even if the
+            # server claims to not support it, as e.g. Gmail does :-(
+            if use_uidplus or imapobj._get_untagged_response('APPENDUID', True):
                 # get the new UID from the APPENDUID response, it could look like
                 # OK [APPENDUID 38505 3955] APPEND completed
                 # with 38505 bein folder UIDvalidity and 3955 the new UID

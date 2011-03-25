@@ -16,6 +16,9 @@ New Features
 Changes
 -------
 
+* Increase compatability with Gmail servers which claim to not support
+  the UIDPLUS extension but in reality do.
+
 Bug Fixes
 ---------
 
