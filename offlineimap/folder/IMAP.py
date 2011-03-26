@@ -359,7 +359,7 @@ class IMAPFolder(BaseFolder):
             # or something.  Argh.  It seems that Time2Internaldate
             # will rause a ValueError if the year is 0102 but not 1902,
             # but some IMAP servers nonetheless choke on 1902.
-            self.ui.debug("Message with invalid date %s. Server will use local time." \
+            self.ui.debug('imap', "Message with invalid date %s. Server will use local time." \
                               % datetuple)
             return None
 
