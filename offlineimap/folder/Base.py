@@ -318,7 +318,7 @@ class BaseFolder:
             flags = self.getmessageflags(uid)
             rtime = self.getmessagetime(uid)
             
-            if uid in dstfolder.getmessagelist():
+            if dstfolder.uidexists(uid):
                 # dst has message with that UID already, only update status
                 statusfolder.savemessage(uid, None, flags, rtime)
                 return

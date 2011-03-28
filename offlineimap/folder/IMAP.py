@@ -94,7 +94,7 @@ class IMAPFolder(BaseFolder):
                 maxmsgid = max(long(msgid), maxmsgid)
 
             # Different number of messages than last time?
-            if maxmsgid != len(statusfolder.getmessagelist()):
+            if maxmsgid != statusfolder.getmessagecount():
                 return True
 
             if maxmsgid < 1:
@@ -112,7 +112,7 @@ class IMAPFolder(BaseFolder):
         if not options.has_key('UID'):
             return True
         uid = long(options['UID'])
-        saveduids = statusfolder.getmessagelist().keys()
+        saveduids = statusfolder.getmessageuidlist()
         saveduids.sort()
         if uid != saveduids[-1]:
             return True
@@ -395,7 +395,7 @@ class IMAPFolder(BaseFolder):
         self.ui.debug('imap', 'savemessage: called')
 
         # already have it, just save modified flags
-        if uid > 0 and uid in self.messagelist:
+        if uid > 0 and self.uidexists(uid):
             self.savemessageflags(uid, flags)
             return uid
 
