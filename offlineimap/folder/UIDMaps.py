@@ -107,9 +107,30 @@ class MappingFolderMixIn:
         finally:
             self.maplock.release()
 
+    def uidexists(self, ruid):
+        """Checks if the (remote) UID exists in this Folder"""
+        # This implementation overrides the one in BaseFolder, as it is
+        # much more efficient for the mapped case.
+        return ruid in self.r2l
+
+    def getmessageuidlist(self):
+        """Gets a list of (remote) UIDs.
+        You may have to call cachemessagelist() before calling this function!"""
+        # This implementation overrides the one in BaseFolder, as it is
+        # much more efficient for the mapped case.
+        return self.r2l.keys()
+
+    def getmessagecount(self):
+        """Gets the number of messages in this folder.
+        You may have to call cachemessagelist() before calling this function!"""
+        # This implementation overrides the one in BaseFolder, as it is
+        # much more efficient for the mapped case.
+        return len(self.r2l)
+
     def getmessagelist(self):
-        """Gets the current message list.
-        You must call cachemessagelist() before calling this function!"""
+        """Gets the current message list. This function's implementation
+        is quite expensive for the mapped UID case.  You must call
+        cachemessagelist() before calling this function!"""
 
         retval = {}
         localhash = self._mb.getmessagelist(self)
