@@ -205,6 +205,20 @@ How is OfflineIMAP conformance?
 * Maildir as specified in the Maildir manpage and the qmail website
 * Standard Python 2.6 as implemented on POSIX-compliant systems
 
+Can I force OfflineIMAP to sync a folder right now?
+---------------------------------------------------
+
+Yes, if you use the `Blinkenlights` UI.  That UI shows the active accounts
+as follows::
+
+  4: [active]      *Control: .
+  3: [  4:36]      personal:
+  2: [  3:37]          work: .
+  1: [  6:28]           uni:
+
+Simply press the appropriate digit (`3` for `personal`, etc.) to resync that
+account immediately.  This will be ignored if a resync is already in progress
+for that account.
 
 Configuration Questions
 =======================
