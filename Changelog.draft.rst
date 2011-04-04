@@ -16,13 +16,8 @@ New Features
 Changes
 -------
 
-* Increase compatability with Gmail servers which claim to not support
-  the UIDPLUS extension but in reality do.
-
 Bug Fixes
 ---------
-
-* Fix hang when using Ctrl+C in some cases.
 
 
 Pending for the next major release

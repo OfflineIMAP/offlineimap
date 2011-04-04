@@ -11,6 +11,46 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.3.3-rc2 (2011-04-07)
+===================================
+
+Notes
+-----
+
+We are now at the third week of the -rc1 cycle. I think it's welcome to begin
+the -rc2 cycle.  Things are highly calming down in the code even if we had
+much more feedbacks than usual. Keep going your effort!
+
+I'd like to thank reporters who involved in this cycle:
+  - Баталов Григорий
+  - Alexander Skwar
+  - Christoph Höger
+  - dtk
+  - Greg Grossmeier
+  - h2oz7v
+  - Iain Dalton
+  - Pan Tsu
+  - Vincent Beffara
+  - Will Styler
+  (my apologies if I forget somebody)
+
+...and all active developers, of course!
+
+The imaplib2 migration looks to go the right way to be definetly released but
+still needs more tests.  So, here we go...
+
+Changes
+-------
+
+* Increase compatability with Gmail servers which claim to not support
+  the UIDPLUS extension but in reality do.
+
+Bug Fixes
+---------
+
+* Fix hang when using Ctrl+C in some cases.
+
+
 OfflineIMAP v6.3.3-rc1 (2011-03-16)
 ===================================
 
