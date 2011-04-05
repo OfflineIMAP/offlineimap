@@ -16,6 +16,9 @@ New Features
 Changes
 -------
 
+* the -f option did not work with Folder names with spaces. It works
+  now, use with quoting e.g. -f "INBOX, Deleted Mails".
+
 Bug Fixes
 ---------
 
