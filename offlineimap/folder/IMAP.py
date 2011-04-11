@@ -74,7 +74,7 @@ class IMAPFolder(BaseFolder):
             return long(imapobj._get_untagged_response('UIDVALIDITY', True)[0])
         finally:
             self.imapserver.releaseconnection(imapobj)
-    
+
     def quickchanged(self, statusfolder):
         # An IMAP folder has definitely changed if the number of
         # messages or the UID of the last message have changed.  Otherwise
@@ -97,26 +97,8 @@ class IMAPFolder(BaseFolder):
             if maxmsgid != statusfolder.getmessagecount():
                 return True
 
-            if maxmsgid < 1:
-                # No messages; return
-                return False
-
-            # Now, get the UID for the last message.
-            response = imapobj.fetch('%d' % maxmsgid, '(UID)')[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
-
-        # Discard the message number.
-        messagestr = response[0].split(' ', 1)[1]
-        options = imaputil.flags2hash(messagestr)
-        if not options.has_key('UID'):
-            return True
-        uid = long(options['UID'])
-        saveduids = statusfolder.getmessageuidlist()
-        saveduids.sort()
-        if uid != saveduids[-1]:
-            return True
-
         return False
 
     # TODO: Make this so that it can define a date that would be the oldest messages etc.
@@ -216,13 +198,13 @@ class IMAPFolder(BaseFolder):
             self.ui.debug('imap', 'Returned object from fetching %d: %s' % \
                      (uid, str(initialresult)))
             return initialresult[1][0][1].replace("\r\n", "\n")
-                
+
         finally:
             self.imapserver.releaseconnection(imapobj)
 
     def getmessagetime(self, uid):
         return self.messagelist[uid]['time']
-    
+
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
 
@@ -416,16 +398,16 @@ class IMAPFolder(BaseFolder):
             # get the date of the message file, so we can pass it to the server.
             date = self.getmessageinternaldate(content, rtime)
             self.ui.debug('imap', 'savemessage: using date %s' % date)
-    
+
             content = re.sub("(?<!\r)\n", "\r\n", content)
-    
+
             if not use_uidplus:
                 # insert a random unique header that we can fetch later
                 (headername, headervalue) = self.generate_randomheader(content)
                 self.ui.debug('imap', 'savemessage: new headers are: %s: %s' % \
                              (headername, headervalue))
                 content = self.savemessage_addheader(content, headername,
-                                                     headervalue)    
+                                                     headervalue)
             self.ui.debug('imap', 'savemessage: content is: ' + repr(content))
 
             # TODO: - append could raise a ValueError if the date is not in
@@ -516,7 +498,7 @@ class IMAPFolder(BaseFolder):
             self.processmessagesflags(operation, uidlist[:100], flags)
             self.processmessagesflags(operation, uidlist[100:], flags)
             return
-        
+
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
@@ -573,7 +555,7 @@ class IMAPFolder(BaseFolder):
         # Weed out ones not in self.messagelist
         uidlist = [uid for uid in uidlist if uid in self.messagelist]
         if not len(uidlist):
-            return        
+            return
 
         self.addmessagesflags_noconvert(uidlist, ['T'])
         imapobj = self.imapserver.acquireconnection()
@@ -589,5 +571,5 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
         for uid in uidlist:
             del self.messagelist[uid]
-        
-        
+
+
