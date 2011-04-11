@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.20"
+__version__ = "2.22"
 __release__ = "2"
-__revision__ = "20"
+__revision__ = "22"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -35,12 +35,13 @@ ID contributed by Dave Baggett <dave@baggett.org> November 2009.
 Improved untagged responses handling suggested by Dave Baggett <dave@baggett.org> November 2009.
 Improved thread naming, and 0 read detection contributed by Grant Edwards <grant.b.edwards@gmail.com> June 2010.
 Improved timeout handling contributed by Ivan Vovnenko <ivovnenko@gmail.com> October 2010.
-Timeout handling further improved by Ethan Glasser-Camp <glasse@cs.rpi.edu> December 2010."""
+Timeout handling further improved by Ethan Glasser-Camp <glasse@cs.rpi.edu> December 2010.
+Time2Internaldate() patch to match RFC2060 specification of English month names from http://bugs.python.org/issue11024 March 2011."""
 __author__ = "Piers Lauder <piers@janeelix.com>"
 __URL__ = "http://janeelix.com/piers/python/imaplib2"
 __license__ = "Python License"
 
-import binascii, os, Queue, random, re, select, socket, sys, time, threading, zlib
+import binascii, errno, os, Queue, random, re, select, socket, sys, time, threading, zlib
 
 select_module = select
 
@@ -404,7 +405,15 @@ class IMAP4(object):
             except socket.error, msg:
                 continue
             try:
-                s.connect(sa)
+                for i in (0, 1):
+                    try:
+                        s.connect(sa)
+                        break
+                    except socket.error, msg:
+                        if len(msg.args) < 2 or msg.args[0] != errno.EINTR:
+                            raise
+                else:
+                    raise socket.error(msg)
             except socket.error, msg:
                 s.close()
                 continue
@@ -2057,8 +2066,10 @@ class _IdleCont(object):
 
 
 
-Mon2num = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-    'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+MonthNames = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+Mon2num = dict(zip((x.encode() for x in MonthNames[1:]), range(1, 13)))
 
 InternalDate = re.compile(r'.*INTERNALDATE "'
     r'(?P<day>[ 0123][0-9])-(?P<mon>[A-Z][a-z][a-z])-(?P<year>[0-9][0-9][0-9][0-9])'
@@ -2126,14 +2137,13 @@ def Time2Internaldate(date_time):
     else:
         raise ValueError("date_time not of a known type")
 
-    dt = time.strftime("%d-%b-%Y %H:%M:%S", tt)
-    if dt[0] == '0':
-        dt = ' ' + dt[1:]
     if time.daylight and tt[-1]:
         zone = -time.altzone
     else:
         zone = -time.timezone
-    return '"' + dt + " %+03d%02d" % divmod(zone//60, 60) + '"'
+    return ('"%2d-%s-%04d %02d:%02d:%02d %+03d%02d"' %
+            ((tt[2], MonthNames[tt[1]], tt[0]) + tt[3:6] +
+             divmod(zone//60, 60)))
 
 
 
