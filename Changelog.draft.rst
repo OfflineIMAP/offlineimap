@@ -22,6 +22,8 @@ Changes
 Bug Fixes
 ---------
 
+* Fix IMAP4 tunnel with imaplib2.
+
 
 Pending for the next major release
 ==================================

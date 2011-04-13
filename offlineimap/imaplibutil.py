@@ -15,6 +15,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import os
+import fcntl
 import re
 import socket
 import time
@@ -67,31 +69,49 @@ class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
     tunnelcmd -- shell command to generate the tunnel.
     The result will be in PREAUTH stage."""
 
-    def __init__(self, tunnelcmd):
-        IMAP4.__init__(self, tunnelcmd)
+    def __init__(self, tunnelcmd, **kwargs):
+        IMAP4.__init__(self, tunnelcmd, **kwargs)
 
     def open(self, host, port):
         """The tunnelcmd comes in on host!"""
+        self.host = host
         self.process = subprocess.Popen(host, shell=True, close_fds=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         (self.outfd, self.infd) = (self.process.stdin, self.process.stdout)
         # imaplib2 polls on this fd
         self.read_fd = self.infd.fileno()
 
-    def read(self, size):
-        retval = ''
-        while len(retval) < size:
-            buf = self.infd.read(size - len(retval))
-            if not buf:
-                break
-            retval += buf
-        return retval
+        self.set_nonblocking(self.read_fd)
 
-    def readline(self):
-        return self.infd.readline()
+    def set_nonblocking(self, fd):
+        "Mark fd as nonblocking"
+        # get the file's current flag settings
+        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+        # clear non-blocking mode from flags
+        fl = fl & ~os.O_NONBLOCK
+        fcntl.fcntl(fd, fcntl.F_SETFL, fl)
+
+    def read(self, size):
+        """data = read(size)
+        Read at most 'size' bytes from remote."""
+
+        if self.decompressor is None:
+            return os.read(self.read_fd, size)
+
+        if self.decompressor.unconsumed_tail:
+            data = self.decompressor.unconsumed_tail
+        else:
+            data = os.read(self.read_fd, 8192)
+
+        return self.decompressor.decompress(data, size)
 
     def send(self, data):
+        if self.compressor is not None:
+            data = self.compressor.compress(data)
+            data += self.compressor.flush(zlib.Z_SYNC_FLUSH)
+
         self.outfd.write(data)
+
 
     def shutdown(self):
         self.infd.close()
