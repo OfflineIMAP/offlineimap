@@ -11,6 +11,32 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+
+OfflineIMAP v6.3.3-rc3 (2011-04-19)
+===================================
+
+Notes
+-----
+
+It's more than a week since the previous release. Most of the issues raised were
+discussed and fixed since last release. I think we can be glad and confident for
+the future while the project live his merry life.
+
+Changes
+-------
+
+* The -f option did not work with Folder names with spaces. It works
+  now, use with quoting e.g. -f "INBOX, Deleted Mails".
+* Improved documentation.
+* Bump from imaplib2 v2.20 to v2.22.
+* Code refactoring.
+
+Bug Fixes
+---------
+
+* Fix IMAP4 tunnel with imaplib2.
+
+
 OfflineIMAP v6.3.3-rc2 (2011-04-07)
 ===================================
 
