@@ -162,16 +162,17 @@ class MaildirFolder(BaseFolder):
         return retval
 
     def quickchanged(self, statusfolder):
+        """Returns True if the Maildir has changed"""
         self.cachemessagelist()
-        savedmessages = statusfolder.getmessagelist()
-        if len(self.messagelist) != len(savedmessages):
+        # Folder has different uids than statusfolder => TRUE
+        if sorted(self.getmessageuidlist()) != \
+                sorted(statusfolder.getmessageuidlist()):
             return True
-        for uid in self.messagelist.keys():
-            if uid not in savedmessages:
+        # Also check for flag changes, it's quick on a Maildir 
+        for (uid, message) in self.getmessagelist().iteritems():
+            if message['flags'] != statusfolder.getmessageflags(uid):
                 return True
-            if self.messagelist[uid]['flags'] != savedmessages[uid]['flags']:
-                return True
-        return False
+        return False  #Nope, nothing changed
 
     def cachemessagelist(self):
         if self.messagelist is None:
