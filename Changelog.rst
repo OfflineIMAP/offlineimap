@@ -12,6 +12,25 @@ ChangeLog
   releases announces.
 
 
+OfflineIMAP v6.3.3 (2011-  -  )
+===============================
+
+Notes
+-----
+
+Make this last candidate cycle short. It looks like we don't need more tests as
+most issues were raised and solved in the second round. Also, we have huge work
+to merge big and expected features into OfflineIMAP.
+
+Thanks to all contributors, again. With such a contribution rate, we can release
+stable faster. I hope it will be confirmed in the longer run!
+
+Changes
+-------
+
+* Improved documentation for querying password.
+
+
 OfflineIMAP v6.3.3-rc3 (2011-04-19)
 ===================================
 
@@ -93,7 +112,7 @@ also great improvements.
 This release includes a hang fix due to infinite loop. Users seeing OfflineIMAP
 hang and consuming a lot of CPU are asked to update.
 
-That beeing said, this is still an early release canditate you should use for
+That beeing said, this is still an early release candidate you should use for
 non-critical data only!
 
 New Features
