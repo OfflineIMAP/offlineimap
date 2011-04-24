@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-VERSION=6.3.2.1
+VERSION=6.3.2.2
 TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
 RST2HTML=`type rst2html 2>/dev/null 2>&1 && echo rst2html || echo rst2html.py`

@@ -13,6 +13,14 @@ This is the Changelog of the maintenance branch.
   releases announces.
 
 
+OfflineIMAP v6.3.2.2 (2011-04-24)
+=================================
+
+Changes
+-------
+
+* Improve traceback on some crashes.
+
 OfflineIMAP v6.3.2.1 (2011-03-23)
 =================================
 
