@@ -12,7 +12,7 @@ ChangeLog
   releases announces.
 
 
-OfflineIMAP v6.3.3 (2011-  -  )
+OfflineIMAP v6.3.3 (2011-04-24)
 ===============================
 
 Notes
