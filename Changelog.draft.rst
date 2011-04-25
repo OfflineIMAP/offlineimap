@@ -16,6 +16,10 @@ New Features
 Changes
 -------
 
+* Reduced our sync logic from 4 passes to 3 passes (integrating upload of
+  "new" and "existing" messages into one function). This should result in a
+  slight speedup.
+
 Bug Fixes
 ---------
 

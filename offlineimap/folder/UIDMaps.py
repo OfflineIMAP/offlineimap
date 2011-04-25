@@ -242,11 +242,6 @@ class MappingFolderMixIn:
         self._mb.deletemessages(self, self._uidlist(self.r2l, uidlist))
         self._mapped_delete(uidlist)
 
-    #def syncmessagesto_neguid_msg(self, uid, dest, applyto, register = 1):
-    # does not need changes because it calls functions that make the changes   
-    # same goes for all other sync messages types.
-    
-
 # Define a class for local part of IMAP.
 class MappedIMAPFolder(MappingFolderMixIn, IMAPFolder):
     def __init__(self, *args, **kwargs):

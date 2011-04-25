@@ -222,81 +222,6 @@ class BaseFolder:
         for uid in uidlist:
             self.deletemessage(uid)
 
-    def syncmessagesto_neguid_msg(self, uid, dstfolder, statusfolder,
-                                  register = 1):
-        """Copy a single message from self to dests.
-
-        This is called by meth:`syncmessagesto_neguid`, possibly in a
-        new thread. It does not return anything.
-
-        :param dstfolder: A BaseFolder-derived instance
-        :param statusfolder: A LocalStatusFolder instance
-        :param register: If True, output that a new thread was created
-                         (and register it with the ui)."""
-        successobject = None
-        successuid = None
-
-        if register:
-            self.ui.registerthread(self.getaccountname())
-        self.ui.copyingmessage(uid, self, [dstfolder])
-
-        message = self.getmessage(uid)
-        flags = self.getmessageflags(uid)
-        rtime = self.getmessagetime(uid)
-
-        #Save messages to dstfolder and see if a valid UID was returned
-        successuid = dstfolder.savemessage(uid, message, flags, rtime)
-
-        #Succeeded? -> IMAP actually assigned a UID
-        #If successuid remained negative, no server was willing to assign us
-        #an UID. Ignore message.
-        if successuid >= 0:
-            # Copy the message to the statusfolder
-            statusfolder.savemessage(successuid, message, flags, rtime)
-            # Copy to its new name son the local server and delete
-            # the one without a UID.
-            self.savemessage(successuid, message, flags, rtime)
-            #TODO: above means, we read in the message and write it out
-            #to the very same dir with a different UID. Investigate if we
-            #cannot simply rename it.
-            
-            # delete the negative uid message. We have it with a good UID now.
-            self.deletemessage(uid)
-        
-
-    def syncmessagesto_neguid(self, dstfolder, statusfolder):
-        """Pass 1 of folder synchronization.
-
-        Look for messages in self with a negative uid.  These are
-        messages in Maildirs that were not added by us.  Try to add them
-        to the dstfolder. If that succeeds, get the new UID, add
-        it to the statusfolder, add it to local for real, and delete the
-        old fake (negative) one.
-
-        :param dstfolder: A BaseFolder-derived instance
-        :param statusfolder: A LocalStatusFolder instance"""
-
-        uidlist = [uid for uid in self.getmessageuidlist() if uid < 0]
-        threads = []
-
-        for uid in uidlist:
-            if dstfolder.suggeststhreads():
-                dstfolder.waitforthread()
-                thread = threadutil.InstanceLimitedThread(\
-                    dstfolder.getcopyinstancelimit(),
-                    target = self.syncmessagesto_neguid_msg,
-                    name = "New msg sync from %s" % self.getvisiblename(),
-                    args = (uid, dstfolder, statusfolder))
-                thread.setDaemon(1)
-                thread.start()
-                threads.append(thread)
-            else:
-                self.syncmessagesto_neguid_msg(uid, dstfolder, statusfolder,
-                                               register = 0)
-        #wait for all uploads to finish
-        for thread in threads:
-            thread.join()
-
     def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
         """Copies a message from self to dst if needed, updating the status
 
@@ -311,33 +236,46 @@ class BaseFolder:
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
         try:
-            if register:
+            if register: # output that we start a new thread
                 self.ui.registerthread(self.getaccountname())
 
             message = None
             flags = self.getmessageflags(uid)
             rtime = self.getmessagetime(uid)
             
-            if dstfolder.uidexists(uid):
+            if uid > 0 and dstfolder.uidexists(uid):
                 # dst has message with that UID already, only update status
                 statusfolder.savemessage(uid, None, flags, rtime)
                 return
 
-            # really need to copy to dst...
             self.ui.copyingmessage(uid, self, [dstfolder])
-
             # If any of the destinations actually stores the message body,
             # load it up.            
             if dstfolder.storesmessages():
-                message = self.getmessage(uid)
 
+                message = self.getmessage(uid)
+            #Succeeded? -> IMAP actually assigned a UID. If newid
+            #remained negative, no server was willing to assign us an
+            #UID. If newid is 0, saving succeeded, but we could not
+            #retrieve the new UID. Ignore message in this case.
             newuid = dstfolder.savemessage(uid, message, flags, rtime)
-            if newuid > 0 and newuid != uid:
-                # Change the local uid.
-                self.savemessage(newuid, message, flags, rtime)
-                self.deletemessage(uid)
-                uid = newuid
-            statusfolder.savemessage(uid, message, flags, rtime)
+            if newuid > 0:
+                if newuid != uid:
+                    # Got new UID, change the local uid.
+                    #TODO: Maildir could do this with a rename rather than
+                    #load/save/del operation, IMPLEMENT a changeuid()
+                    #function or so.
+                    self.savemessage(newuid, message, flags, rtime)
+                    self.deletemessage(uid)
+                    uid = newuid
+                # Save uploaded status in the statusfolder
+                statusfolder.savemessage(uid, message, flags, rtime)
+            else:
+                raise UserWarning("Trying to save msg (uid %d) on folder "
+                                  "%s returned invalid uid %d" % \
+                                      (uid,
+                                       dstfolder.getvisiblename(),
+                                       newuid))
         except (KeyboardInterrupt):
             raise
         except:
@@ -347,10 +285,10 @@ class BaseFolder:
             raise
 
     def syncmessagesto_copy(self, dstfolder, statusfolder):
-        """Pass2: Copy locally existing messages
+        """Pass1: Copy locally existing messages not on the other side
 
-        This will copy messages with a valid UID but are not on the
-        other side yet. The strategy is:
+        This will copy messages to dstfolder that exist locally but are
+        not in the statusfolder yet. The strategy is:
 
         1) Look for messages present in self but not in statusfolder.
         2) invoke copymessageto() on those which:
@@ -359,7 +297,7 @@ class BaseFolder:
         """
         threads = []
 
-        copylist = filter(lambda uid: uid>=0 and not \
+        copylist = filter(lambda uid: not \
                               statusfolder.uidexists(uid),
                             self.getmessageuidlist())
         for uid in copylist:
@@ -381,7 +319,7 @@ class BaseFolder:
             thread.join()
 
     def syncmessagesto_delete(self, dstfolder, statusfolder):
-        """Pass 3: Remove locally deleted messages on dst
+        """Pass 2: Remove locally deleted messages on dst
 
         Get all UIDS in statusfolder but not self. These are messages
         that were deleted in 'self'. Delete those from dstfolder and
@@ -397,7 +335,7 @@ class BaseFolder:
                 folder.deletemessages(deletelist)
 
     def syncmessagesto_flags(self, dstfolder, statusfolder):
-        """Pass 4: Flag synchronization
+        """Pass 3: Flag synchronization
 
         Compare flag mismatches in self with those in statusfolder. If
         msg has a valid UID and exists on dstfolder (has not e.g. been
@@ -449,15 +387,12 @@ class BaseFolder:
         This is the high level entry for syncing messages in one direction.
         Syncsteps are:
 
-        Pass1: Transfer new local messages
-         Upload msg with negative/no UIDs to dstfolder. dstfolder
-         might assign that message a new UID. Update statusfolder.
-
-        Pass2: Copy locally existing messages
+        Pass1: Copy locally existing messages
          Copy messages in self, but not statusfolder to dstfolder if not
-         already in dstfolder. Update statusfolder.
+         already in dstfolder. dstfolder might assign a new UID (e.g. if
+         uploading to IMAP). Update statusfolder.
 
-        Pass3: Remove locally deleted messages
+        Pass2: Remove locally deleted messages
          Get all UIDS in statusfolder but not self. These are messages
          that were deleted in 'self'. Delete those from dstfolder and
          statusfolder.
@@ -466,18 +401,16 @@ class BaseFolder:
          uids present (except for potential negative uids that couldn't
          be placed anywhere).
 
-        Pass4: Synchronize flag changes 
+        Pass3: Synchronize flag changes 
          Compare flag mismatches in self with those in statusfolder. If
          msg has a valid UID and exists on dstfolder (has not e.g. been
          deleted there), sync the flag change to both dstfolder and
          statusfolder.
 
-
         :param dstfolder: Folderinstance to sync the msgs to.
         :param statusfolder: LocalStatus instance to sync against.
         """
-        passes = [('uploading negative UIDs', self.syncmessagesto_neguid),
-                  ('copying messages'       , self.syncmessagesto_copy),
+        passes = [('copying messages'       , self.syncmessagesto_copy),
                   ('deleting messages'      , self.syncmessagesto_delete),
                   ('syncing flags'          , self.syncmessagesto_flags)]
 
@@ -490,5 +423,4 @@ class BaseFolder:
                 self.ui.warn("ERROR attempting to sync flags " \
                              + "for account " + self.getaccountname() \
                              + ":" + traceback.format_exc())
-
                 raise
