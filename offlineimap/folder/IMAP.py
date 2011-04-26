@@ -209,16 +209,25 @@ class IMAPFolder(BaseFolder):
         return self.messagelist
 
     def getmessage(self, uid):
+        """Retrieve message with UID from the IMAP server (incl body)
+
+        :returns: the message body
+        """
         imapobj = self.imapserver.acquireconnection()
         try:
             imapobj.select(self.getfullname(), readonly = 1)
-            initialresult = imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')
-            self.ui.debug('imap', 'Returned object from fetching %d: %s' % \
-                     (uid, str(initialresult)))
-            return initialresult[1][0][1].replace("\r\n", "\n")
-                
+            res_type, data = imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')
         finally:
             self.imapserver.releaseconnection(imapobj)
+        assert res_type == 'OK', "Fetching message with UID '%d' failed" % uid
+        # data looks now e.g. [('320 (UID 17061 BODY[]
+        # {2565}','msgbody....')]  we only asked for one message,
+        # and that msg is in data[0]. msbody is in [0][1]
+        data = data[0][1]
+        self.ui.debug('imap', '%s bytes returned from fetching %d: %s...%s' % \
+                          (len(data), uid, data[0:100], data[-100:]))
+        return data.replace("\r\n", "\n")
+
 
     def getmessagetime(self, uid):
         return self.messagelist[uid]['time']
