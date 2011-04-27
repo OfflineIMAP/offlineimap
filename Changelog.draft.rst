@@ -23,6 +23,9 @@ Changes
 Bug Fixes
 ---------
 
+* Drop connection if synchronisation failed. This is needed if resuming the
+  system from suspend mode gives a wrong connection.
+
 
 Pending for the next major release
 ==================================

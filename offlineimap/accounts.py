@@ -268,7 +268,14 @@ class SyncableAccount(Account):
             mbnames.write()
             localrepos.forgetfolders()
             remoterepos.forgetfolders()
-        finally:
+        except:
+            #error while syncing. Drop all connections that we have, they
+            #might be bogus by now (e.g. after suspend)
+            localrepos.dropconnections()
+            remoterepos.dropconnections()
+            raise
+        else:
+            # sync went fine. Hold or drop depending on config
             localrepos.holdordropconnections()
             remoterepos.holdordropconnections()
 
