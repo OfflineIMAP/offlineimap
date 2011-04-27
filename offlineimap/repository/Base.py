@@ -72,6 +72,9 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
     def getname(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
     def getuiddir(self):
         return self.uiddir
 

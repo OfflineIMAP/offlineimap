@@ -1,6 +1,5 @@
 # Base folder support
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,7 +24,7 @@ import traceback
 class BaseFolder:
     def __init__(self):
         self.ui = getglobalui()
-        
+
     def getname(self):
         """Returns name"""
         return self.name
@@ -74,7 +73,7 @@ class BaseFolder:
             return self.getroot() + self.getsep() + self.getname()
         else:
             return self.getname()
-    
+
     def getfolderbasename(self):
         foldername = self.getname()
         foldername = foldername.replace(self.repository.getsep(), '.')
@@ -97,7 +96,7 @@ class BaseFolder:
     def _getuidfilename(self):
         return os.path.join(self.repository.getuiddir(),
                             self.getfolderbasename())
-            
+
     def getsaveduidvalidity(self):
         if hasattr(self, '_base_saved_uidvalidity'):
             return self._base_saved_uidvalidity
@@ -242,7 +241,7 @@ class BaseFolder:
             message = None
             flags = self.getmessageflags(uid)
             rtime = self.getmessagetime(uid)
-            
+
             if uid > 0 and dstfolder.uidexists(uid):
                 # dst has message with that UID already, only update status
                 statusfolder.savemessage(uid, None, flags, rtime)
@@ -250,7 +249,7 @@ class BaseFolder:
 
             self.ui.copyingmessage(uid, self, [dstfolder])
             # If any of the destinations actually stores the message body,
-            # load it up.            
+            # load it up.
             if dstfolder.storesmessages():
 
                 message = self.getmessage(uid)
@@ -380,7 +379,7 @@ class BaseFolder:
             self.ui.deletingflags(delflaglist[flag], flag, dstfolder)
             dstfolder.deletemessagesflags(delflaglist[flag], [flag])
             statusfolder.deletemessagesflags(delflaglist[flag], [flag])
-                
+
     def syncmessagesto(self, dstfolder, statusfolder):
         """Syncs messages in this folder to the destination dstfolder.
 

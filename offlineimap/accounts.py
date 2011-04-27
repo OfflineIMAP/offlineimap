@@ -125,6 +125,9 @@ class Account(CustomConfig.ConfigHelperMixin):
     def getname(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
     def getsection(self):
         return 'Account ' + self.getname()
 
@@ -253,7 +256,7 @@ class SyncableAccount(Account):
                     thread = InstanceLimitedThread(\
                         instancename = 'FOLDER_' + self.remoterepos.getname(),
                         target = syncfolder,
-                        name = "Folder sync [%s]" % self.name,
+                        name = "Folder sync [%s]" % self,
                         args = (self.name, remoterepos, remotefolder, localrepos,
                                 statusrepos, quick))
                     thread.setDaemon(1)
