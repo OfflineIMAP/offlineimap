@@ -125,6 +125,9 @@ class Account(CustomConfig.ConfigHelperMixin):
     def getname(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
     def getsection(self):
         return 'Account ' + self.getname()
 
