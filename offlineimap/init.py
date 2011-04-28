@@ -240,8 +240,7 @@ class OfflineImap:
 
         #custom folder list specified?
         if options.folders:
-            foldernames = map(lambda s: s.strip(),
-                              options.folders.split(","))
+            foldernames = options.folders.split(",")
             folderfilter = "lambda f: f in %s" % foldernames
             folderincludes = "[]"
             for accountname in accounts.getaccountlist(config):
