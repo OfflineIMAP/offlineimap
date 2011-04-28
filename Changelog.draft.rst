@@ -16,6 +16,9 @@ New Features
 Changes
 -------
 
+- no whitespace is stripped from comma-separated arguments passed via
+  the -f option.
+
 Bug Fixes
 ---------
 
