@@ -13,6 +13,11 @@ others.
 New Features
 ------------
 
+* Enable 1-way synchronization by settting a [Repository ...] to
+  readonly = True. When e.g. using offlineimap for backup purposes you
+  can thus make sure that no changes in your backup trickle back into
+  the main IMAP server.
+
 Changes
 -------
 

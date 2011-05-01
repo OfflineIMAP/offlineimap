@@ -260,8 +260,10 @@ class SyncableAccount(Account):
             remoterepos = self.remoterepos
             localrepos = self.localrepos
             statusrepos = self.statusrepos
-            self.ui.syncfolders(remoterepos, localrepos)
-            remoterepos.syncfoldersto(localrepos, [statusrepos])
+            # replicate the folderstructure from REMOTE to LOCAL
+            if not localrepos.getconf('readonly', False):
+                self.ui.syncfolders(remoterepos, localrepos)
+                remoterepos.syncfoldersto(localrepos, [statusrepos])
 
             siglistener.addfolders(remoterepos.getfolders(), bool(self.refreshperiod), quick)
 
@@ -374,12 +376,20 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                              remotefolder.getmessagecount())
 
         # Synchronize remote changes.
-        ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
-        remotefolder.syncmessagesto(localfolder, statusfolder)
+        if not localrepos.getconf('readonly', False):
+            ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
+            remotefolder.syncmessagesto(localfolder, statusfolder)
+        else:
+            ui.debug('imap', "Not syncing to read-only repository '%s'" \
+                         % localrepos.getname())
+        
         # Synchronize local changes
-        ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
-        localfolder.syncmessagesto(remotefolder, statusfolder)
-
+        if not remoterepos.getconf('readonly', False):
+            ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
+            localfolder.syncmessagesto(remotefolder, statusfolder)
+        else:
+            ui.debug('', "Not syncing to read-only repository '%s'" \
+                         % remoterepos.getname())
 
         statusfolder.save()
         localrepos.restore_atime()
