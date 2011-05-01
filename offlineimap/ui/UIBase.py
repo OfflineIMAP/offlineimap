@@ -25,7 +25,8 @@ from StringIO import StringIO
 from Queue import Empty
 import offlineimap
 
-debugtypes = {'imap': 'IMAP protocol debugging',
+debugtypes = {'':'Other offlineimap related sync messages',
+              'imap': 'IMAP protocol debugging',
               'maildir': 'Maildir repository debugging',
               'thread': 'Threading debugging'}
 
