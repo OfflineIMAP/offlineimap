@@ -21,6 +21,7 @@ Changes
   slight speedup.
 * No whitespace is stripped from comma-separated arguments passed via
   the -f option.
+* Give more detailed error when encountering a corrupt UID mapping file.
 
 Bug Fixes
 ---------

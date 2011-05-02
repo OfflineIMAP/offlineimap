@@ -51,7 +51,11 @@ class MappingFolderMixIn:
                 line = file.readline()
                 if not len(line):
                     break
-                line = line.strip()
+                try:
+                    line = line.strip()
+                except ValueError:
+                    raise Exception("Corrupt line '%s' in UID mapping file '%s'" \
+                                        %(line, mapfilename))
                 (str1, str2) = line.split(':')
                 loc = long(str1)
                 rem = long(str2)
