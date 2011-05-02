@@ -16,6 +16,8 @@ New Features
 Changes
 -------
 
+* Give more detailed error when encountering a corrupt UID mapping file.
+
 Bug Fixes
 ---------
 
