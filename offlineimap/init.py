@@ -41,9 +41,10 @@ lockfd = None
 class OfflineImap:
     """The main class that encapsulates the high level use of OfflineImap.
 
-    To invoke OfflineImap you would call it with:
-    oi = OfflineImap()
-    oi.run()
+    To invoke OfflineImap you would call it with::
+
+      oi = OfflineImap()
+      oi.run()
     """
     def lock(self, config, ui):
         global lockfd, hasfcntl

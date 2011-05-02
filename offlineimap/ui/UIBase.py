@@ -31,9 +31,11 @@ debugtypes = {'imap': 'IMAP protocol debugging',
 
 globalui = None
 def setglobalui(newui):
+    """Set the global ui object to be used for logging"""
     global globalui
     globalui = newui
 def getglobalui():
+    """Return the current ui object"""
     global globalui
     return globalui
 

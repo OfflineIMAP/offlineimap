@@ -1,5 +1,5 @@
-The offlineimap 'binary'
-========================
+The offlineimap 'binary' command line options
+=============================================
 
 Offlineimap is invoked with the following pattern: `offlineimap [args...]`.
 
@@ -72,3 +72,12 @@ Options:
                         Possible interface choices are: Curses.Blinkenlights,
                         TTY.TTYUI, Noninteractive.Basic, Noninteractive.Quiet,
                         Machine.MachineUI
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`search`
+

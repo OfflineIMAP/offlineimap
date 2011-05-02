@@ -105,11 +105,24 @@ def AccountHashGenerator(customconfig):
 
 
 class Account(CustomConfig.ConfigHelperMixin):
+    """Represents an account (ie. 2 repositories) to sync
+
+    Most of the time you will actually want to use the derived
+    :class:`accounts.SyncableAccount` which contains all functions used
+    for syncing an account."""
+
     def __init__(self, config, name):
+        """
+        :param config: Representing the offlineimap configuration file.
+        :type config: :class:`offlineimap.CustomConfig.CustomConfigParser`
+
+        :param name: A string denoting the name of the Account
+                     as configured"""
         self.config = config
         self.name = name
         self.metadatadir = config.getmetadatadir()
         self.localeval = config.getlocaleval()
+        #Contains the current :mod:`offlineimap.ui`, and can be used for logging etc.
         self.ui = getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
         self.quicknum = 0
@@ -171,9 +184,11 @@ class Account(CustomConfig.ConfigHelperMixin):
             
     
 class SyncableAccount(Account):
-    """A syncable IMAP account.
+    """A syncable email account connecting 2 repositories
 
-    Derives from class:`Account`."""
+    Derives from :class:`accounts.Account` but contains the additional
+    functions :meth:`syncrunner`, :meth:`sync`, :meth:`syncfolders`,
+    used for syncing."""
 
     def syncrunner(self, siglistener):
         self.ui.registerthread(self.name)
