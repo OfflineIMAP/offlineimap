@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import threadutil, mbnames, CustomConfig
+from offlineimap import threadutil, mbnames, CustomConfig, OfflineImapError
 from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread
@@ -202,21 +202,28 @@ class SyncableAccount(Account):
         self.localrepos  = Repository(self, 'local')
         self.statusrepos = Repository(self, 'status')
 
-        # Might need changes here to ensure that one account sync does
-        # not crash others...
         # Loop account synchronization if needed
-        looping = 1
+        looping = True
         while looping:
             try:
                 try:
                     self.sync(siglistener)
                 except (KeyboardInterrupt, SystemExit):
                     raise
+                except OfflineImapError, e:                    
+                    self.ui.warn(e.reason)
+                    #stop looping and bubble up Exception if needed
+                    if e.severity >= OfflineImapError.ERROR.REPO:
+                        looping = 0
+                        if e.severity > OfflineImapError.ERROR.REPO:
+                            raise
                 except:
-                    self.ui.warn("Error occured attempting to sync account " + self.name \
-                                 + ": " + traceback.format_exc())
+                    self.ui.warn("Error occured attempting to sync "\
+                                 "account '%s':\n"% (self, traceback.format_exc()))
             finally:
-                looping = self.refreshperiod and self.sleeper(siglistener) != 2
+                looping = looping and \
+                    self.refreshperiod and \
+                    self.sleeper(siglistener) != 2
                 self.ui.acctdone(self.name)
 
 
