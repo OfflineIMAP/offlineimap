@@ -17,7 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import imaplib2 as imaplib
-from offlineimap import imaplibutil, imaputil, threadutil
+from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 from offlineimap.ui import getglobalui
 from threading import *
 import thread
@@ -28,6 +28,7 @@ import base64
 
 from StringIO import StringIO
 from platform import system
+from socket import gaierror
 
 try:
     # do we have a recent pykerberos?
@@ -271,16 +272,29 @@ class IMAPServer:
             self.lastowner[imapobj] = thread.get_ident()
             self.connectionlock.release()
             return imapobj
-        except:
-            """If we are here then we did not succeed in getting a connection -
-            we should clean up and then re-raise the error..."""
+        except Exception, e:
+            """If we are here then we did not succeed in getting a
+            connection - we should clean up and then re-raise the
+            error..."""
             self.semaphore.release()
 
             #Make sure that this can be retried the next time...
             self.passworderror = None
             if(self.connectionlock.locked()):
                 self.connectionlock.release()
-            raise
+
+            if type(e) == gaierror:
+                #DNS related errors. Abort Repo sync
+                severity = OfflineImapError.ERROR.REPO
+                #TODO: special error msg for e.errno == 2 "Name or service not known"?
+                reason = "Could not resolve name '%s' for repository "\
+                         "'%s'. Make sure you have configured the ser"\
+                         "ver name correctly and that you are online."\
+                         % (self.hostname, self.reposname)
+                raise OfflineImapError(reason, severity)
+            else:
+                # re-raise all other errors
+                raise
     
     def connectionwait(self):
         """Waits until there is a connection available.  Note that between
