@@ -202,22 +202,9 @@ class SyncableAccount(Account):
         self.localrepos  = Repository(self, 'local')
         self.statusrepos = Repository(self, 'status')
 
-        #might need changes here to ensure that one account sync does not crash others...
-        if not self.refreshperiod:
-            try:
-                try:
-                    self.sync(siglistener)
-                except (KeyboardInterrupt, SystemExit):
-                    raise
-                except:
-                    self.ui.warn("Error occured attempting to sync account " + self.name \
-                                 + ": " + traceback.format_exc())
-            finally:
-                self.ui.acctdone(self.name)
-
-            return
-
-
+        # Might need changes here to ensure that one account sync does
+        # not crash others...
+        # Loop account synchronization if needed
         looping = 1
         while looping:
             try:
@@ -229,7 +216,7 @@ class SyncableAccount(Account):
                     self.ui.warn("Error occured attempting to sync account " + self.name \
                                  + ": " + traceback.format_exc())
             finally:
-                looping = self.sleeper(siglistener) != 2
+                looping = self.refreshperiod and self.sleeper(siglistener) != 2
                 self.ui.acctdone(self.name)
 
 
