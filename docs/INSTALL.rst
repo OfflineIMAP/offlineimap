@@ -58,27 +58,42 @@ program.
 System-Wide Installation, Other
 ===============================
 
-Download the tar.gz version of the package from the website.  Then run these
-commands, making sure that you are the "root" user first::
+Check your distribution packaging tool, OfflineIMAP may already be packaged for
+you.
 
-  tar -zxvf offlineimap_x.y.z.tar.gz
-  cd offlineimap-x.y.z
-  python2.2 setup.py install
+System-Wide Installation, From source
+=====================================
 
-On some systems, you will need to use python instead of python2.6.  Next,
-proceed to  below.  You will type offlineimap to invoke the program.
+Get your own copy of the official git repository at `OfflineIMAP`_::
+
+  git clone git://github.com/nicolas33/offlineimap.git
+
+This will download all the sources with history. By default, git set up the
+local master branch up which is most likely what you want. If not, you can
+checkout a particular release::
+
+  cd offlineimap
+  git checkout -b local_version v6.3.3
+
+The latter creates a local branch called "local_version" of the v6.3.3 release.
+
+Then run these commands, to build the python package::
+
+  make clean
+  make
+
+Finally, install the program (as root)::
+
+  python setup.py install
+
+Next, proceed to below.  You will type offlineimap to invoke the program.
 
 Single-Account Installation
 ===========================
 
-Download the tar.gz version of the package from the website.  Then run these
-commands::
-
-  tar -zxvf offlineimap_x.y.z.tar.gz
-  cd offlineimap-x.y.z
-
-When you want to run `OfflineIMAP`_, you will issue the cd command as above and
-then type `./offlineimap.py`; there is no installation step necessary.
+Download the git repository as described above. Instead of installing the
+program as root, you type `./offlineimap.py`; there is no installation step
+necessary.
 
 =============
 Configuration
