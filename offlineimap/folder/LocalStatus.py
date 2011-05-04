@@ -77,8 +77,13 @@ class LocalStatusFolder(BaseFolder):
         assert(line == magicline)
         for line in file.xreadlines():
             line = line.strip()
-            uid, flags = line.split(':')
-            uid = long(uid)
+            try:
+                uid, flags = line.split(':')
+                uid = long(uid)
+            except ValueError, e:
+                errstr = "Corrupt line '%s' in cache file '%s'" % (line, self.filename)
+                self.ui.warn(errstr)
+                raise ValueError(errstr)
             flags = [x for x in flags]
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
         file.close()
