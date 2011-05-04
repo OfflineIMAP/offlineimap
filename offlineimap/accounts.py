@@ -202,8 +202,8 @@ class SyncableAccount(Account):
         self.localrepos  = Repository(self, 'local')
         self.statusrepos = Repository(self, 'status')
 
-        # Loop account synchronization if needed
-        looping = True
+        # Loop account sync if needed (bail out after 3 failures)
+        looping = 3
         while looping:
             try:
                 try:
@@ -214,16 +214,20 @@ class SyncableAccount(Account):
                     self.ui.warn(e.reason)
                     #stop looping and bubble up Exception if needed
                     if e.severity >= OfflineImapError.ERROR.REPO:
-                        looping = 0
-                        if e.severity > OfflineImapError.ERROR.REPO:
+                        if looping: 
+                            looping -= 1
+                        if e.severity >= OfflineImapError.ERROR.CRITICAL:
                             raise
                 except:
                     self.ui.warn("Error occured attempting to sync "\
                                  "account '%s':\n"% (self, traceback.format_exc()))
+                else:
+                    # after success sync, reset the looping counter to 3
+                    if self.refreshperiod:
+                        looping = 3
             finally:
-                looping = looping and \
-                    self.refreshperiod and \
-                    self.sleeper(siglistener) != 2
+                if self.sleeper(siglistener) >= 2:
+                    looping = 0                    
                 self.ui.acctdone(self.name)
 
 
