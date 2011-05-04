@@ -18,6 +18,7 @@ to distribute it under the conditions laid out in COPYING."""
 __homepage__ = "http://github.com/nicolas33/offlineimap"
 __license__  = "Licensed under the GNU GPL v2+ (v2 or any later version)."
 
+from offlineimap.error import OfflineImapError
 # put this last, so we don't run into circular dependencies using 
 # e.g. offlineimap.__version__.
 from offlineimap.init import OfflineImap
