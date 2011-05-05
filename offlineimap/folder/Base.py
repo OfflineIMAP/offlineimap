@@ -21,7 +21,7 @@ import os.path
 import re
 import traceback
 
-class BaseFolder:
+class BaseFolder(object):
     def __init__(self):
         self.ui = getglobalui()
 

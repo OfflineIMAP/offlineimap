@@ -30,12 +30,12 @@ class LocalStatusFolder(BaseFolder):
         self.config = config
         self.dofsync = config.getdefaultboolean("general", "fsync", True)
         self.filename = repository.getfolderfilename(name)
-        self.messagelist = None
+        self.messagelist = {}
         self.repository = repository
         self.savelock = threading.Lock()
         self.doautosave = 1
         self.accountname = accountname
-        BaseFolder.__init__(self)
+        super(LocalStatusFolder, self).__init__()
 
     def getaccountname(self):
         return self.accountname
