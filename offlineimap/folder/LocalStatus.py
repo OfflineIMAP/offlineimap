@@ -28,12 +28,12 @@ class LocalStatusFolder(BaseFolder):
         self.root = root
         self.sep = '.'
         self.config = config
-        self.dofsync = config.getdefaultboolean("general", "fsync", True)
         self.filename = repository.getfolderfilename(name)
         self.messagelist = {}
         self.repository = repository
         self.savelock = threading.Lock()
-        self.doautosave = 1
+        self.doautosave = config.getdefaultboolean("general", "fsync", False)
+        """Should we perform fsyncs as often as possible?"""
         self.accountname = accountname
         super(LocalStatusFolder, self).__init__()
 
@@ -88,10 +88,6 @@ class LocalStatusFolder(BaseFolder):
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
         file.close()
 
-    def autosave(self):
-        if self.doautosave:
-            self.save()
-
     def save(self):
         self.savelock.acquire()
         try:
@@ -103,12 +99,12 @@ class LocalStatusFolder(BaseFolder):
                 flags = ''.join(flags)
                 file.write("%s:%s\n" % (msg['uid'], flags))
             file.flush()
-            if self.dofsync:
+            if self.doautosave:
                 os.fsync(file.fileno())
             file.close()
             os.rename(self.filename + ".tmp", self.filename)
 
-            if self.dofsync:
+            if self.doautosave:
                 fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
                 os.fsync(fd)
                 os.close(fd)
@@ -129,7 +125,7 @@ class LocalStatusFolder(BaseFolder):
             return uid
 
         self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
-        self.autosave()
+        self.save()
         return uid
 
     def getmessageflags(self, uid):
@@ -140,7 +136,7 @@ class LocalStatusFolder(BaseFolder):
 
     def savemessageflags(self, uid, flags):
         self.messagelist[uid]['flags'] = flags
-        self.autosave()
+        self.save()
 
     def deletemessage(self, uid):
         self.deletemessages([uid])
@@ -153,4 +149,4 @@ class LocalStatusFolder(BaseFolder):
 
         for uid in uidlist:
             del(self.messagelist[uid])
-        self.autosave()
+        self.save()

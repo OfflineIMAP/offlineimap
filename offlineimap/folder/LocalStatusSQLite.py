@@ -103,7 +103,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         cursor.execute('CREATE TABLE metadata (key VARCHAR(50) PRIMARY KEY, value VARCHAR(128))')
         cursor.execute("INSERT INTO metadata VALUES('db_version', '1')")
         cursor.execute('CREATE TABLE status (id INTEGER PRIMARY KEY, flags VARCHAR(50))')
-        self.autosave() #commit if needed
+        self.save() #commit if needed
 
     def isnewfolder(self):
         # testing the existence of the db file won't work. It is created
@@ -159,7 +159,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         flags = ''.join(flags)
         self.cursor.execute('INSERT INTO status (id,flags) VALUES (?,?)',
                             (uid,flags))
-        self.autosave()
+        self.save()
         return uid
 
     def getmessageflags(self, uid):
@@ -178,7 +178,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         flags.sort()
         flags = ''.join(flags)
         self.cursor.execute('UPDATE status SET flags=? WHERE id=?',(flags,uid))
-        self.autosave()
+        self.save()
 
     def deletemessages(self, uidlist):
         # Weed out ones not in self.messagelist
