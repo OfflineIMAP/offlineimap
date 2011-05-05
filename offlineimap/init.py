@@ -220,7 +220,7 @@ class OfflineImap:
             if not ('thread' in options.debugtype.split(',') \
                     and options.singlethreading):
                 ui._msg("Debug mode: Forcing to singlethreaded.")
-                options.singlethreaded = True
+                options.singlethreading = True
 
             debugtypes = options.debugtype.split(',') + ['']
             for type in debugtypes:
@@ -228,8 +228,6 @@ class OfflineImap:
                 ui.add_debug(type)
                 if type.lower() == 'imap':
                     imaplib.Debug = 5
-                if type.lower() == 'thread':
-                    threading._VERBOSE = 1
 
         if options.runonce:
             # FIXME: maybe need a better

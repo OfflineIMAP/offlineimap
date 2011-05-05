@@ -33,6 +33,7 @@ Bug Fixes
 
 * Drop connection if synchronisation failed. This is needed if resuming the
   system from suspend mode gives a wrong connection.
+* Fix the offlineimap crash when invoking debug option 'thread'
 
 
 Pending for the next major release
