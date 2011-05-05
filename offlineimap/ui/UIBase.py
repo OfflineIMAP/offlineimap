@@ -142,7 +142,10 @@ class UIBase:
         raise Exception, "Another OfflineIMAP is running with the same metadatadir; exiting."
 
     def getnicename(s, object):
-        prelimname = str(object.__class__).split('.')[-1]
+        """Return the type of a repository or Folder as string
+
+        (IMAP, Gmail, Maildir, etc...)"""
+        prelimname = object.__class__.__name__.split('.')[-1]
         # Strip off extra stuff.
         return re.sub('(Folder|Repository)', '', prelimname)
 
