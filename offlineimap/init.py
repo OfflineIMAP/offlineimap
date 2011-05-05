@@ -219,7 +219,7 @@ class OfflineImap:
             if not ('thread' in options.debugtype.split(',') \
                     and options.singlethreading):
                 ui._msg("Debug mode: Forcing to singlethreaded.")
-                options.singlethreaded = True
+                options.singlethreading = True
 
             for type in options.debugtype.split(','):
                 type = type.strip()
