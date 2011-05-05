@@ -34,8 +34,9 @@ class LocalStatusRepository(BaseRepository):
         return '.'
 
     def getfolderfilename(self, foldername):
-        foldername = re.sub('/\.$', '/dot', foldername)
-        foldername = re.sub('^\.$', 'dot', foldername)
+        """Return the full path of the status file"""
+        # replace with 'dot' if final path name is '.'
+        foldername = re.sub('(^|\/)\.$','\\1dot', foldername)
         return os.path.join(self.directory, foldername)
 
     def makefolder(self, foldername):
