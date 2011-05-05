@@ -48,24 +48,28 @@ class LocalStatusRepository(BaseRepository):
         os.fsync(file.fileno())
         file.close()
         os.rename(filename + ".tmp", filename)
-        
         # Invalidate the cache.
         self.folders = None
 
-    def getfolders(self):
-        retval = []
-        for folder in os.listdir(self.directory):
-            retval.append(folder.LocalStatus.LocalStatusFolder(self.directory,
-                                                               folder, self, self.accountname, 
-                                                               self.config))
-        return retval
-
     def getfolder(self, foldername):
-        return folder.LocalStatus.LocalStatusFolder(self.directory, foldername,
-                                                    self, self.accountname,
-                                                    self.config)
+        """Return the Folder() object for a foldername"""
+        return self.LocalStatusFolderClass(self.directory, foldername,
+                                           self, self.accountname,
+                                           self.config)
 
+    def getfolders(self):
+        """Returns a list of ALL folders on this server.
 
-    
+        This is currently nowhere used in the code."""
+        if self._folders != None:
+            return self._folders
 
-    
+        for folder in os.listdir(self.directory):
+            self._folders = retval.append(self.getfolder(folder))
+        return self._folders
+
+    def forgetfolders(self):
+        """Forgets the cached list of folders, if any.  Useful to run
+        after a sync run."""
+        self._folders = None
+
