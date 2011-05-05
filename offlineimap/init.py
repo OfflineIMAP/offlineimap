@@ -226,8 +226,6 @@ class OfflineImap:
                 ui.add_debug(type)
                 if type.lower() == 'imap':
                     imaplib.Debug = 5
-                if type.lower() == 'thread':
-                    threading._VERBOSE = 1
 
         if options.runonce:
             # FIXME: maybe need a better

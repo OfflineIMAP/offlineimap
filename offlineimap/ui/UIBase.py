@@ -89,11 +89,14 @@ class UIBase:
                   (threading.currentThread().getName(),
                    s.getthreadaccount(s), account)
         s.threadaccounts[threading.currentThread()] = account
+        s.debug('thread', "Register new thread '%s' (account '%s')" %\
+                    (threading.currentThread().getName(), account))
 
     def unregisterthread(s, thr):
         """Recognizes a thread has exited."""
         if s.threadaccounts.has_key(thr):
             del s.threadaccounts[thr]
+        s.debug('thread', "Unregister thread '%s'" % thr.getName())
 
     def getthreadaccount(s, thr = None):
         if not thr:

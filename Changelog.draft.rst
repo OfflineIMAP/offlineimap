@@ -21,6 +21,7 @@ Changes
 Bug Fixes
 ---------
 
+* Fix the offlineimap crash when invoking debug option 'thread'
 
 Pending for the next major release
 ==================================
