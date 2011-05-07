@@ -18,7 +18,8 @@
 
 from Base import BaseRepository
 from offlineimap import folder
-import offlineimap.folder.LocalStatus
+from offlineimap.folder.LocalStatus import LocalStatusFolder
+from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
 import os
 import re
 
@@ -26,9 +27,25 @@ class LocalStatusRepository(BaseRepository):
     def __init__(self, reposname, account):
         BaseRepository.__init__(self, reposname, account)
         self.directory = os.path.join(account.getaccountmeta(), 'LocalStatus')
+
+        #statusbackend can be 'plain' or 'sqlite'
+        backend = self.account.getconf('status_backend', 'plain')
+        if backend == 'sqlite':
+            self._backend = 'sqlite'
+            self.LocalStatusFolderClass = LocalStatusSQLiteFolder
+            self.directory += '-sqlite'
+        elif backend == 'plain':
+            self._backend = 'plain'
+            self.LocalStatusFolderClass = LocalStatusFolder
+        else:
+            raise SyntaxWarning("Unknown status_backend '%s' for account '%s'" \
+                                % (backend, account.name))
+
         if not os.path.exists(self.directory):
             os.mkdir(self.directory, 0700)
-        self.folders = None
+
+        # self._folders is a list of LocalStatusFolders()
+        self._folders = None
 
     def getsep(self):
         return '.'
@@ -40,16 +57,22 @@ class LocalStatusRepository(BaseRepository):
         return os.path.join(self.directory, foldername)
 
     def makefolder(self, foldername):
-        # "touch" the file, truncating it.
+        """Create a LocalStatus Folder
+
+        Empty Folder for plain backend. NoOp for sqlite backend as those
+        are created on demand."""
+        # Invalidate the cache.
+        self._folders = None
+        if self._backend == 'sqlite':
+            return
+
         filename = self.getfolderfilename(foldername)
         file = open(filename + ".tmp", "wt")
         file.write(offlineimap.folder.LocalStatus.magicline + '\n')
-        file.flush()
-        os.fsync(file.fileno())
         file.close()
         os.rename(filename + ".tmp", filename)
         # Invalidate the cache.
-        self.folders = None
+        self._folders = None
 
     def getfolder(self, foldername):
         """Return the Folder() object for a foldername"""
@@ -72,4 +95,3 @@ class LocalStatusRepository(BaseRepository):
         """Forgets the cached list of folders, if any.  Useful to run
         after a sync run."""
         self._folders = None
-

@@ -17,6 +17,9 @@ New Features
   readonly = True. When e.g. using offlineimap for backup purposes you
   can thus make sure that no changes in your backup trickle back into
   the main IMAP server.
+* optional: experimental SQLite-based backend for the LocalStatus
+  cache. Plain text remains the default. Enable by setting
+  status_backend=sqlite in the [Account ...] section
 
 Changes
 -------
@@ -41,11 +44,3 @@ Pending for the next major release
 
 * UIs get shorter and nicer names. (API changing)
 * Implement IDLE feature. (delayed until next major release)
-
-
-Stalled
-=======
-
-* Learn Sqlite support.
-    Stalled: it would need to learn the ability to choose between the current
-    format and SQL to help testing the long term.
