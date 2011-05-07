@@ -219,8 +219,8 @@ class SyncableAccount(Account):
                         if e.severity >= OfflineImapError.ERROR.CRITICAL:
                             raise
                 except:
-                    self.ui.warn("Error occured attempting to sync "\
-                                 "account '%s':\n"% (self, traceback.format_exc()))
+                    self.ui.warn("Error occured attempting to sync account "\
+                                 "'%s':\n%s"% (self, traceback.format_exc()))
                 else:
                     # after success sync, reset the looping counter to 3
                     if self.refreshperiod:
