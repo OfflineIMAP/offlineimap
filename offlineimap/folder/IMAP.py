@@ -43,9 +43,13 @@ class IMAPFolder(BaseFolder):
 
     def selectro(self, imapobj):
         """Select this folder when we do not need write access.
+
         Prefer SELECT to EXAMINE if we can, since some servers
         (Courier) do not stabilize UID validity until the folder is
-        selected."""
+        selected. 
+        .. todo: Still valid? Needs verification
+
+        :returns: raises :exc:`OfflineImapError` severity FOLDER on error"""
         try:
             imapobj.select(self.getfullname())
         except imapobj.readonly:

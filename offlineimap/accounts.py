@@ -393,6 +393,13 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         localrepos.restore_atime()
     except (KeyboardInterrupt, SystemExit):
         raise
+    except OfflineImapError, e:
+        # bubble up severe Errors, skip folder otherwise
+        if e.severity > OfflineImapError.ERROR.FOLDER:
+            raise
+        else:
+            ui.warn("Aborting folder sync '%s' [acc: '%s']\nReason was: %s" %\
+                        (localfolder.name, accountname, e.reason))
     except:
         ui.warn("ERROR in syncfolder for %s folder %s: %s" % \
                 (accountname,remotefolder.getvisiblename(),

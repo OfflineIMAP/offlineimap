@@ -23,8 +23,8 @@ import time
 import subprocess
 from offlineimap.ui import getglobalui
 import threading
+from offlineimap import OfflineImapError
 from offlineimap.imaplib2 import *
-
 # Import the symbols we need that aren't exported by default
 from offlineimap.imaplib2 import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
 
@@ -43,6 +43,10 @@ class UsefulIMAPMixIn:
         return None
 
     def select(self, mailbox='INBOX', readonly=None, force = 0):
+        """Selects a mailbox on the IMAP server
+
+        :returns: 'OK' on success, nothing if the folder was already
+        selected or raises an :exc:`OfflineImapError`"""
         if (not force) and self.getselectedfolder() == mailbox \
            and self.is_readonly == readonly:
             # No change; return.
@@ -51,7 +55,11 @@ class UsefulIMAPMixIn:
         del self.untagged_responses[:]
         result = self.__class__.__bases__[1].select(self, mailbox, readonly)
         if result[0] != 'OK':
-            raise ValueError, "Error from select: %s" % str(result)
+            #in case of error, bail out with OfflineImapError
+            errstr = "Error SELECTing mailbox '%s', server reply:\n%s" %\
+                (mailbox, result)
+            severity = OfflineImapError.ERROR.FOLDER
+            raise OfflineImapError(errstr, severity) 
         if self.getstate() == 'SELECTED':
             self.selectedfolder = mailbox
         else:
