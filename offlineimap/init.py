@@ -254,7 +254,7 @@ class OfflineImap:
                     config.set(section, "folderincludes", folderincludes)
 
         self.lock(config, ui)
-
+        self.config = config
     
         def sigterm_handler(signum, frame):
             # die immediately
@@ -315,21 +315,14 @@ class OfflineImap:
                         threadutil.initInstanceLimit(instancename,
                                config.getdefaultint('Repository ' + reposname,
                                                     'maxconnections', 2))
-            siglisteners = []
-            def sig_handler(signum, frame):
-                if signum == signal.SIGUSR1:
-                    # tell each account to do a full sync asap
-                    signum = (1,)
-                elif signum == signal.SIGHUP:
-                    # tell each account to die asap
-                    signum = (2,)
-                elif signum == signal.SIGUSR2:
-                    # tell each account to do a full sync asap, then die
-                    signum = (1, 2)
-                # one listener per account thread (up to maxsyncaccounts)
-                for listener in siglisteners:
-                    for sig in signum:
-                        listener.put_nowait(sig)
+            def sig_handler(sig, frame):
+                if sig == signal.SIGUSR1 or sig == signal.SIGHUP:
+                    # tell each account to stop sleeping
+                    accounts.Account.set_abort_event(self.config, 1)
+                elif sig == signal.SIGUSR2:
+                    # tell each account to stop looping
+                    accounts.Account.set_abort_event(self.config, 2)
+                
             signal.signal(signal.SIGHUP,sig_handler)
             signal.signal(signal.SIGUSR1,sig_handler)
             signal.signal(signal.SIGUSR2,sig_handler)
@@ -340,14 +333,13 @@ class OfflineImap:
 
             if options.singlethreading:
                 #singlethreaded
-                self.sync_singlethreaded(syncaccounts, config, siglisteners)
+                self.sync_singlethreaded(syncaccounts, config)
             else:
                 # multithreaded
                 t = threadutil.ExitNotifyThread(target=syncmaster.syncitall,
                                  name='Sync Runner',
                                  kwargs = {'accounts': syncaccounts,
-                                           'config': config,
-                                           'siglisteners': siglisteners})
+                                           'config': config})
                 t.setDaemon(1)
                 t.start()
                 threadutil.exitnotifymonitorloop(threadutil.threadexited)
@@ -360,16 +352,13 @@ class OfflineImap:
         except:
             ui.mainException()
 
-    def sync_singlethreaded(self, accs, config, siglisteners):
+    def sync_singlethreaded(self, accs, config):
         """Executed if we do not want a separate syncmaster thread
 
         :param accs: A list of accounts that should be synced
         :param config: The CustomConfig object
-        :param siglisteners: The signal listeners list, defined in run()
         """
         for accountname in accs:
             account = offlineimap.accounts.SyncableAccount(config, accountname)
-            siglistener = offlineimap.accounts.SigListener()
-            siglisteners.append(siglistener)
             threading.currentThread().name = "Account sync %s" % accountname
-            account.syncrunner(siglistener=siglistener)
+            account.syncrunner()

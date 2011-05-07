@@ -262,6 +262,21 @@ MachineUI generates output in a machine-parsable format.  It is designed
 for other programs that will interface to OfflineIMAP.
 
 
+Signals
+=======
+
+OfflineImap listens to the unix signals SIGUSR1 and SIGUSR2.
+
+If sent a SIGUSR1 it will abort any current (or next future) sleep of all
+accounts that are configured to "autorefresh". In effect, this will trigger a
+full sync of all accounts to be performed as soon as possible.
+
+If sent a SIGUSR2, it will stop "autorefresh mode" for all accounts. That is,
+accounts will abort any current sleep and will exit after a currently running
+synchronization has finished. This signal can be used to gracefully exit out of
+a running offlineimap "daemon".
+
+
 KNOWN BUGS
 ==========
 
