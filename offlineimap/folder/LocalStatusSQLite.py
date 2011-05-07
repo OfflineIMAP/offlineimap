@@ -238,5 +238,5 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
             return
         for uid in uidlist:
             del(self.messagelist[uid])
-            self.sql_write('DELETE FROM status WHERE id=?',
-                             uidlist)
+            #TODO: we want a way to do executemany(.., uidlist) to delete all
+            self.sql_write('DELETE FROM status WHERE id=?', (uid, ))
