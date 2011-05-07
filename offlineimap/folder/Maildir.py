@@ -295,8 +295,16 @@ class MaildirFolder(BaseFolder):
         assert final_dir != tmpdir
 
     def deletemessage(self, uid):
-        if not uid in self.messagelist:
+        """Unlinks a message file from the Maildir.
+
+        :param uid: UID of a mail message
+        :type uid: String
+        :return: Nothing, or an Exception if UID but no corresponding file
+                 found.
+        """
+        if not self.uidexists(uid):
             return
+
         filename = self.messagelist[uid]['filename']
         try:
             os.unlink(filename)
