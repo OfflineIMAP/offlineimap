@@ -132,10 +132,10 @@ class BlinkenBase:
         s.gettf().setcolor('white')
         s.__class__.__bases__[-1].callhook(s, msg)
             
-    def sleep(s, sleepsecs, siglistener):
+    def sleep(s, sleepsecs, account):
         s.gettf().setcolor('red')
         s.getaccountframe().startsleep(sleepsecs)
-        return UIBase.sleep(s, sleepsecs, siglistener)
+        return UIBase.sleep(s, sleepsecs, account)
 
     def sleeping(s, sleepsecs, remainingsecs):
         if remainingsecs and s.gettf().getcolor() == 'black':

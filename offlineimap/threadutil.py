@@ -45,10 +45,6 @@ def semaphorereset(semaphore, originalstate):
 def semaphorewait(semaphore):
     semaphore.acquire()
     semaphore.release()
-    
-def threadsreset(threadlist):
-    for thr in threadlist:
-        thr.join()
 
 class threadlist:
     def __init__(self):
