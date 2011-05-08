@@ -22,6 +22,7 @@ Please feel free to ask questions and/or provide answers; send email to the
 
 .. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
 .. _OfflineIMAP: https://github.com/nicolas33/offlineimap
+.. _ssl.wrap_socket: http://docs.python.org/library/ssl.html#ssl.wrap_socket
 
 
 OfflineIMAP
@@ -251,6 +252,33 @@ What is the mailbox name recorder (mbnames) for?
 ------------------------------------------------
 
 Some mail readers, such as mutt, are not capable of automatically determining the names of your mailboxes. OfflineIMAP can help these programs by writing the names of the folders in a format you specify. See the example offlineimap.conf for details.
+
+Does OfflineIMAP verify SSL certificates?
+-----------------------------------------
+
+By default, no.  However, as of version 6.3.2, it is possible to enforce verification
+of SSL certificate on a per-repository basis by setting the `sslcacertfile` option in the
+config file.  (See the example offlineimap.conf for details.)
+
+How do I generate an `sslcacertfile` file?
+------------------------------------------
+
+The `sslcacertfile` file must contain an SSL certificate (or a concatenated
+certificates chain) in PEM format.  (See the documentation of
+`ssl.wrap_socket`_'s `certfile` parameter for the gory details.)  The following
+command should generate a file in the proper format::
+
+    openssl s_client -CApath /etc/ssl/certs -connect ${hostname}:imaps -showcerts \
+       | perl -ne 'print if /BEGIN/../END/; print STDERR if /return/' > $sslcacertfile
+    ^D
+
+Before using the resulting file, ensure that openssl verified the certificate
+successfully.
+
+The path `/etc/ssl/certs` is not standardized; your system may store
+SSL certificates elsewhere.  (On some systems it may be in
+`/usr/local/share/certs/`.)
+
 
 IMAP Server Notes
 =================
