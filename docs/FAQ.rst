@@ -417,6 +417,29 @@ written in Korn, so you’ll need ksh, pdksh, or mksh to run it::
 Contributing
 ============
 
+How to test OfflineIMAP?
+------------------------
+
+We don't have a testing tool, for now. As a IMAP client, we need an available
+IMAP server for that purpose. But it doesn't mean you can do anything.
+
+Recent patches are merged in the next branch before beeing in the mainline. Once
+you have your own copy of the official repository, track this next branch::
+
+  git checkout -t origin/next
+
+Update this branch in a regular basis with::
+
+  git checkout next
+  git pull
+
+Notice you're not supposed to install OfflineIMAP each time. You may simply
+run it like this::
+
+  ./offlineimap.py
+
+The choice is up to you. :-)
+
 How to submit a patch?
 ----------------------
 
