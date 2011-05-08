@@ -203,17 +203,32 @@ class IMAPFolder(BaseFolder):
         try:
             imapobj.select(self.getfullname(), readonly = 1)
             res_type, data = imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')
+            assert res_type == 'OK', "Fetching message with UID '%d' failed" % uid
+            # data looks now e.g. [('320 (UID 17061 BODY[]
+            # {2565}','msgbody....')]  we only asked for one message,
+            # and that msg is in data[0]. msbody is in [0][1]
+
+            #NB & TODO: When the message on the IMAP server has been
+            #deleted in the mean time, it will respond with an 'OK'
+            #res_type, but it will simply not send any data. This will
+            #lead to a crash in the below line. We need urgently to
+            #detect this, protect from this and need to think about what
+            #to return in this case. Probably returning `None` in this
+            #case would be good. But we need to make sure that all
+            #Backends behave the same, and that we actually check the
+            #return value and behave accordingly.
+            data = data[0][1].replace("\r\n", "\n")
+
+            if len(data)>200:
+                dbg_output = "%s...%s" % (str(data)[:150],
+                                          str(data)[-50:])
+            else:
+                dbg_output = data
+            self.ui.debug('imap', "Returned object from fetching %d: '%s'" %
+                          (uid, dbg_output))
         finally:
             self.imapserver.releaseconnection(imapobj)
-        assert res_type == 'OK', "Fetching message with UID '%d' failed" % uid
-        # data looks now e.g. [('320 (UID 17061 BODY[]
-        # {2565}','msgbody....')]  we only asked for one message,
-        # and that msg is in data[0]. msbody is in [0][1]
-        data = data[0][1]
-        self.ui.debug('imap', '%s bytes returned from fetching %d: %s...%s' % \
-                          (len(data), uid, data[0:100], data[-100:]))
-        return data.replace("\r\n", "\n")
-
+        return data
 
     def getmessagetime(self, uid):
         return self.messagelist[uid]['time']
@@ -410,21 +425,24 @@ class IMAPFolder(BaseFolder):
 
             # get the date of the message file, so we can pass it to the server.
             date = self.getmessageinternaldate(content, rtime)
-            self.ui.debug('imap', 'savemessage: using date %s' % date)
-
             content = re.sub("(?<!\r)\n", "\r\n", content)
 
             if not use_uidplus:
                 # insert a random unique header that we can fetch later
                 (headername, headervalue) = self.generate_randomheader(content)
-                self.ui.debug('imap', 'savemessage: new headers are: %s: %s' % \
+                self.ui.debug('imap', 'savemessage: new header is: %s: %s' % \
                              (headername, headervalue))
                 content = self.savemessage_addheader(content, headername,
-                                                     headervalue)
-            self.ui.debug('imap', 'savemessage: content is: ' + repr(content))
+                                                     headervalue)    
+            if len(content)>200:
+                dbg_output = "%s...%s" % (content[:150],
+                                          content[-50:])
+            else:
+                dbg_output = content
 
-            # TODO: - append could raise a ValueError if the date is not in
-            #         valid format...?
+            self.ui.debug('imap', "savemessage: date: %s, content: '%s'" %
+                          (date, dbg_output))
+
             (typ,dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
