@@ -24,9 +24,7 @@ import subprocess
 from offlineimap.ui import getglobalui
 import threading
 from offlineimap import OfflineImapError
-from offlineimap.imaplib2 import *
-# Import the symbols we need that aren't exported by default
-from offlineimap.imaplib2 import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
+from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, IMAP4_PORT, InternalDate, Mon2num
 
 try:
     import ssl

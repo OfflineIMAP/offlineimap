@@ -18,7 +18,7 @@
 
 import os.path
 import re                               # for folderfilter
-from threading import *
+from threading import Lock
 
 boxes = {}
 config = None

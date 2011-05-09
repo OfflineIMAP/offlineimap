@@ -18,7 +18,7 @@
 
 from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 from offlineimap.ui import getglobalui
-from threading import *
+from threading import Lock, BoundedSemaphore
 import thread
 import time
 import hmac
