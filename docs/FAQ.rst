@@ -383,6 +383,22 @@ accounts.
 Miscellaneous Questions
 =======================
 
+I'm using git to install OfflineIMAP and found these branches called "master", "maint", "next", "pu" and "gh-pages". What are they?
+-----------------------------------------------------------------------------------------------------------------------------------
+
+To be brief:
+
+* **gh-pages**: branch used to maintain the home page at github.
+* **master**: classical mainline branch.
+* **next**: this is the branch for recent merged patches. Used for testing OfflineIMAP.
+* **pu** ("proposed updates"): patches not ready for inclusion. This should **never** be checkouted!
+* **maint**: our long-living maintenance branch. We maintain this branch
+  (security and bugfixes) for users who don't want or can't upgrade to the
+  latest release.
+
+For more information about the branching model and workflow, see the HACKING page.
+
+
 Why are your Maildir message filenames so long?
 -----------------------------------------------
 
@@ -424,3 +440,42 @@ written in Korn, so you’ll need ksh, pdksh, or mksh to run it::
   do
     ( exec /usr/bin/offlineimap -u Noninteractive.Quiet )
     sleep 60 # prevents extended failure condition
+
+
+Contributing
+============
+
+How to submit a patch?
+----------------------
+
+If you want to send regular patches, you should first subscribe to the `mailing
+list`_. This is not a pre-requisite, though.
+
+Next, you'll find documentation in the docs/ directory, especially the HACKING
+page.
+
+You'll need to get a clone from the official `OfflineIMAP`_ repository and
+configure Git. Then, read the SubmittingPatches.rst page in your local
+repository or at
+https://github.com/nicolas33/offlineimap/blob/master/SubmittingPatches.rst#readme
+.
+
+To send a patch, we recommend using 'git send-email'.
+
+
+Where from should my patches be based on?
+-----------------------------------------
+
+Depends. If you're not sure, it should start off of the master branch. master is
+the branch where new patches should be based on by default.
+
+Obvious materials for next release (e.g. new features) start off of current
+next.  Also, next is the natural branch to write patches on top of commits not
+already in master.
+
+A fix for a very old bug or security issue may start off of maint. This isn't
+needed since such fix are backported by the maintainer, though.
+
+Finally, a work on very active or current development can start from a topic
+next. This clearly means you **need** this topic as a base for what is intended.
+
