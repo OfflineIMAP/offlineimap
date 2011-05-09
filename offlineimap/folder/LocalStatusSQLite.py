@@ -17,7 +17,7 @@
 import os.path
 import re
 from threading import Lock
-from LocalStatus import LocalStatusFolder, magicline
+from LocalStatus import LocalStatusFolder
 try:
     import sqlite3 as sqlite
 except:

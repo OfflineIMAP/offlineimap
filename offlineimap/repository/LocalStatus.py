@@ -17,7 +17,6 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from Base import BaseRepository
-from offlineimap import folder
 from offlineimap.folder.LocalStatus import LocalStatusFolder
 from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
 import os

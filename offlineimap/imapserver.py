@@ -16,7 +16,6 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import imaplib2 as imaplib
 from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 from offlineimap.ui import getglobalui
 from threading import *
@@ -26,8 +25,6 @@ import hmac
 import socket
 import base64
 
-from StringIO import StringIO
-from platform import system
 from socket import gaierror
 
 try:

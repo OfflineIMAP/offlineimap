@@ -15,14 +15,13 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import threadutil, mbnames, CustomConfig, OfflineImapError
+from offlineimap import mbnames, CustomConfig, OfflineImapError
 from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread
 from subprocess import Popen, PIPE
 from threading import Event
 import os
-import sys
 import traceback
 
 def getaccountlist(customconfig):
