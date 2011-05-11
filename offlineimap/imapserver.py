@@ -300,7 +300,8 @@ class IMAPServer:
         to copy messages, then have them all wait for 3 available connections.
         It's OK if we have maxconnections + 1 or 2 threads, which is what
         this will help us do."""
-        threadutil.semaphorewait(self.semaphore)
+        self.semaphore.acquire()
+        self.semaphore.release()
 
     def close(self):
         # Make sure I own all the semaphores.  Let the threads finish

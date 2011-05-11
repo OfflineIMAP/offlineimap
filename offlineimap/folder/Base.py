@@ -37,11 +37,6 @@ class BaseFolder(object):
         false otherwise.  Probably only IMAP will return true."""
         return 0
 
-    def waitforthread(self):
-        """For threading folders, waits until there is a resource available
-        before firing off a thread.  For all others, returns immediately."""
-        pass
-
     def getcopyinstancelimit(self):
         """For threading folders, returns the instancelimitname for
         InstanceLimitedThreads."""

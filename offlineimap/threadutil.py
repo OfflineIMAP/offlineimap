@@ -42,10 +42,6 @@ def semaphorereset(semaphore, originalstate):
     for i in range(originalstate):
         semaphore.release()
         
-def semaphorewait(semaphore):
-    semaphore.acquire()
-    semaphore.release()
-
 class threadlist:
     def __init__(self):
         self.lock = Lock()
