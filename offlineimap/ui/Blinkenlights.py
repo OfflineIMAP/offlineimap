@@ -18,7 +18,7 @@
 
 from threading import RLock, currentThread
 from offlineimap.ui.UIBase import UIBase
-import thread
+from thread import get_ident	# python < 2.6 support
 
 class BlinkenBase:
     """This is a mix-in class that should be mixed in with either UIBase
@@ -103,7 +103,7 @@ class BlinkenBase:
         UIBase.threadExited(s, thread)
 
     def gettf(s):
-        threadid = thread.get_ident()
+        threadid = get_ident()
         accountname = s.getthreadaccount()
 
         s.tflock.acquire()

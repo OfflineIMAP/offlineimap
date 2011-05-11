@@ -19,7 +19,7 @@
 from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 from offlineimap.ui import getglobalui
 from threading import Lock, BoundedSemaphore
-import thread
+from thread import get_ident	# python < 2.6 support
 import time
 import hmac
 import socket
@@ -167,11 +167,10 @@ class IMAPServer:
             # Try to find one that previously belonged to this thread
             # as an optimization.  Start from the back since that's where
             # they're popped on.
-            threadid = thread.get_ident()
             imapobj = None
             for i in range(len(self.availableconnections) - 1, -1, -1):
                 tryobj = self.availableconnections[i]
-                if self.lastowner[tryobj] == threadid:
+                if self.lastowner[tryobj] == get_ident():
                     imapobj = tryobj
                     del(self.availableconnections[i])
                     break
@@ -179,7 +178,7 @@ class IMAPServer:
                 imapobj = self.availableconnections[0]
                 del(self.availableconnections[0])
             self.assignedconnections.append(imapobj)
-            self.lastowner[imapobj] = thread.get_ident()
+            self.lastowner[imapobj] = get_ident()
             self.connectionlock.release()
             return imapobj
         
@@ -266,7 +265,7 @@ class IMAPServer:
 
             self.connectionlock.acquire()
             self.assignedconnections.append(imapobj)
-            self.lastowner[imapobj] = thread.get_ident()
+            self.lastowner[imapobj] = get_ident()
             self.connectionlock.release()
             return imapobj
         except Exception, e:

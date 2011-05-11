@@ -19,7 +19,7 @@
 from threading import Lock, Thread, BoundedSemaphore
 from Queue import Queue, Empty
 import traceback
-import thread
+from thread import get_ident	# python < 2.6 support
 import sys
 from offlineimap.ui import getglobalui
 
@@ -149,7 +149,6 @@ class ExitNotifyThread(Thread):
     exited and to provide for the ability for it to find out why."""
     def run(self):
         global exitthreads, profiledir
-        self.threadid = thread.get_ident()
         try:
             if not profiledir:          # normal case
                 Thread.run(self)
@@ -164,7 +163,7 @@ class ExitNotifyThread(Thread):
                 except SystemExit:
                     pass
                 prof.dump_stats( \
-                            profiledir + "/" + str(self.threadid) + "_" + \
+                            profiledir + "/" + str(get_ident()) + "_" + \
                             self.getName() + ".prof")
         except:
             self.setExitCause('EXCEPTION')
