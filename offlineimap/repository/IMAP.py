@@ -20,8 +20,12 @@ from offlineimap.repository.Base import BaseRepository
 from offlineimap import folder, imaputil, imapserver
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
-import re, types, os, netrc, errno
-from threading import *
+from threading import Event
+import re
+import types
+import os
+import netrc
+import errno
 
 class IMAPRepository(BaseRepository):
     def __init__(self, reposname, account):

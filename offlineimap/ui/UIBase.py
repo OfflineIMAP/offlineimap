@@ -22,7 +22,6 @@ import sys
 import traceback
 import threading
 from StringIO import StringIO
-from Queue import Empty
 import offlineimap
 
 debugtypes = {'':'Other offlineimap related sync messages',

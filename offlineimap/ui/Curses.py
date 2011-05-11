@@ -21,7 +21,7 @@ import time
 import sys
 import os
 import signal
-import curses, curses.panel, curses.textpad, curses.wrapper
+import curses
 from Blinkenlights import BlinkenBase
 from UIBase import UIBase
 import offlineimap

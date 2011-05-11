@@ -19,7 +19,7 @@
 from UIBase import UIBase
 from getpass import getpass
 import sys
-from threading import *
+from threading import Lock, currentThread
 
 class TTYUI(UIBase):
     def __init__(s, config, verbose = 0):
