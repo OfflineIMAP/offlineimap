@@ -328,7 +328,6 @@ class OfflineImap:
             signal.signal(signal.SIGUSR2,sig_handler)
     
             #various initializations that need to be performed:
-            threadutil.initexitnotify()       #TODO: Why?
             offlineimap.mbnames.init(config, syncaccounts)
 
             if options.singlethreading:

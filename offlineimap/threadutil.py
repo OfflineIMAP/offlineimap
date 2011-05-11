@@ -83,15 +83,6 @@ class threadlist:
 ######################################################################
 
 exitthreads = Queue(100)
-inited = 0
-
-def initexitnotify():
-    """Initialize the exit notify system.  This MUST be called from the
-    SAME THREAD that will call monitorloop BEFORE it calls monitorloop.
-    This SHOULD be called before the main thread starts any other
-    ExitNotifyThreads, or else it may miss the ability to catch the exit
-    status from them!"""
-    pass
 
 def exitnotifymonitorloop(callback):
     """An infinite "monitoring" loop watching for finished ExitNotifyThread's.
