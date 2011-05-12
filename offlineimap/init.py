@@ -218,7 +218,7 @@ class OfflineImap:
                 options.debugtype = 'imap,maildir,thread'
             #force single threading?
             if not ('thread' in options.debugtype.split(',') \
-                    and options.singlethreading):
+                    and not options.singlethreading):
                 ui._msg("Debug mode: Forcing to singlethreaded.")
                 options.singlethreading = True
 
