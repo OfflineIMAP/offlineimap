@@ -12,6 +12,62 @@ ChangeLog
   releases announces.
 
 
+OfflineIMAP v6.3.4-rc1 (2011-05-16)
+===================================
+
+Notes
+-----
+
+Welcome to the v6.3.4 pre-release cycle. Your favorite IMAP tool wins 2 new
+features which were asked for a long time:
+* an experimental SQL-based backend for the local cache;
+* one-way synchronization cabability.
+
+Logic synchronization is reviewed and simplified (from 4 to 3 passes) giving
+improved performance.
+
+Lot of work was done to give OfflineIMAP a better code base. Raised errors can
+now rely on a new error system and should become the default in the coming
+releases.
+
+As usual, we ask our users to test this release as much as possible, especially
+the SQL backend. Have fun!
+
+New Features
+------------
+
+* Begin sphinx-based documentation for the code.
+* Enable 1-way synchronization by settting a [Repository ...] to
+  readonly = True. When e.g. using offlineimap for backup purposes you
+  can thus make sure that no changes in your backup trickle back into
+  the main IMAP server.
+* Optional: experimental SQLite-based backend for the LocalStatus
+  cache. Plain text remains the default.
+
+Changes
+-------
+
+* Start a enhanced error handling background system. This is designed to not
+  stop a whole sync process on all errors (not much used, yet).
+* Documentation improvements: the FAQ wins new entries and add a new HACKING
+  file for developers.
+* Lot of code cleanups.
+* Reduced our sync logic from 4 passes to 3 passes (integrating upload of
+  "new" and "existing" messages into one function). This should result in a
+  slight speedup.
+* No whitespace is stripped from comma-separated arguments passed via
+  the -f option.
+* Give more detailed error when encountering a corrupt UID mapping file.
+
+Bug Fixes
+---------
+
+* Drop connection if synchronization failed. This is needed if resuming the
+  system from suspend mode gives a wrong connection.
+* Fix the offlineimap crash when invoking debug option 'thread'.
+* Make 'thread' command line option work.
+
+
 OfflineIMAP v6.3.3 (2011-04-24)
 ===============================
 

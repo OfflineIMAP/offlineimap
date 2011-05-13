@@ -13,30 +13,11 @@ others.
 New Features
 ------------
 
-* Enable 1-way synchronization by settting a [Repository ...] to
-  readonly = True. When e.g. using offlineimap for backup purposes you
-  can thus make sure that no changes in your backup trickle back into
-  the main IMAP server.
-* optional: experimental SQLite-based backend for the LocalStatus
-  cache. Plain text remains the default. Enable by setting
-  status_backend=sqlite in the [Account ...] section
-
 Changes
 -------
 
-* Reduced our sync logic from 4 passes to 3 passes (integrating upload of
-  "new" and "existing" messages into one function). This should result in a
-  slight speedup.
-* No whitespace is stripped from comma-separated arguments passed via
-  the -f option.
-* Give more detailed error when encountering a corrupt UID mapping file.
-
 Bug Fixes
 ---------
-
-* Drop connection if synchronisation failed. This is needed if resuming the
-  system from suspend mode gives a wrong connection.
-* Fix the offlineimap crash when invoking debug option 'thread'
 
 
 Pending for the next major release
