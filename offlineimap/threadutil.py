@@ -134,6 +134,7 @@ class ExitNotifyThread(Thread):
     exited and to provide for the ability for it to find out why."""
     def run(self):
         global exitthreads, profiledir
+        self.threadid = get_ident()
         try:
             if not profiledir:          # normal case
                 Thread.run(self)
@@ -148,7 +149,7 @@ class ExitNotifyThread(Thread):
                 except SystemExit:
                     pass
                 prof.dump_stats( \
-                            profiledir + "/" + str(get_ident()) + "_" + \
+                            profiledir + "/" + str(self.threadid) + "_" + \
                             self.getName() + ".prof")
         except:
             self.setExitCause('EXCEPTION')
