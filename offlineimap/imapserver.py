@@ -21,7 +21,6 @@ from offlineimap.ui import getglobalui
 from threading import Lock, BoundedSemaphore, Thread, Event, currentThread
 from thread import get_ident	# python < 2.6 support
 import offlineimap.accounts
-import time
 import hmac
 import socket
 import base64
@@ -330,8 +329,6 @@ class IMAPServer:
         self.ui.debug('imap', 'keepalive thread started')
         while 1:
             self.ui.debug('imap', 'keepalive: top of loop')
-            time.sleep(timeout)
-            self.ui.debug('imap', 'keepalive: after wait')
             if event.isSet():
                 self.ui.debug('imap', 'keepalive: event is set; exiting')
                 return
@@ -342,29 +339,27 @@ class IMAPServer:
             self.connectionlock.release()
             self.ui.debug('imap', 'keepalive: connectionlock released')
             threads = []
-            imapobjs = []
         
             for i in range(numconnections):
                 self.ui.debug('imap', 'keepalive: processing connection %d of %d' % (i, numconnections))
-                imapobj = self.acquireconnection()
-                self.ui.debug('imap', 'keepalive: connection %d acquired' % i)
-                imapobjs.append(imapobj)
-                thr = threadutil.ExitNotifyThread(target = imapobj.noop)
-                thr.setDaemon(1)
-                thr.start()
-                threads.append(thr)
+                if len(self.idlefolders) > i:
+                    idler = IdleThread(self, self.idlefolders[i])
+                else:
+                    idler = IdleThread(self)
+                idler.start()
+                threads.append(idler)
                 self.ui.debug('imap', 'keepalive: thread started')
+
+            self.ui.debug('imap', 'keepalive: waiting for timeout')
+            event.wait(timeout)
+            self.ui.debug('imap', 'keepalive: after wait')
 
             self.ui.debug('imap', 'keepalive: joining threads')
 
-            for thr in threads:
+            for idler in threads:
                 # Make sure all the commands have completed.
-                thr.join()
-
-            self.ui.debug('imap', 'keepalive: releasing connections')
-
-            for imapobj in imapobjs:
-                self.releaseconnection(imapobj)
+                idler.stop()
+                idler.join()
 
             self.ui.debug('imap', 'keepalive: bottom of loop')
 
