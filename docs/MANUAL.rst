@@ -288,6 +288,17 @@ KNOWN BUGS
     last stable version and send us a report to the mailing list including the
     full log.
 
+* IDLE support is incomplete and experimental.  Bugs may be encountered.
+
+  * No hook exists for "run after an IDLE response".  Email will
+    show up, but may not be processed until the next refresh cycle.
+
+  * nametrans may not be supported correctly.
+
+  * IMAP IDLE <-> IMAP IDLE doesn't work yet.
+
+  * IDLE may only work "once" per refresh.  If you encounter this bug,
+    please send a report to the list!
 
 SEE ALSO
 ========

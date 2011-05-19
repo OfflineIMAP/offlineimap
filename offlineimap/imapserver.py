@@ -43,7 +43,7 @@ class IMAPServer:
                  username = None, password = None, hostname = None,
                  port = None, ssl = 1, maxconnections = 1, tunnel = None,
                  reference = '""', sslclientcert = None, sslclientkey = None,
-                 sslcacertfile= None):
+                 sslcacertfile = None, idlefolders = []):
         self.ui = getglobalui()
         self.reposname = reposname
         self.config = config
@@ -72,6 +72,7 @@ class IMAPServer:
         self.semaphore = BoundedSemaphore(self.maxconnections)
         self.connectionlock = Lock()
         self.reference = reference
+        self.idlefolders = idlefolders
         self.gss_step = self.GSS_STATE_STEP
         self.gss_vc = None
         self.gssapi = False
@@ -386,6 +387,7 @@ class ConfigedIMAPServer(IMAPServer):
             sslclientkey = self.repos.getsslclientkey()
             sslcacertfile = self.repos.getsslcacertfile()
         reference = self.repos.getreference()
+        idlefolders = self.repos.getidlefolders()
         server = None
         password = None
         
@@ -397,6 +399,7 @@ class ConfigedIMAPServer(IMAPServer):
             IMAPServer.__init__(self, self.config, self.repos.getname(),
                                 tunnel = usetunnel,
                                 reference = reference,
+                                idlefolders = idlefolders,
                                 maxconnections = self.repos.getmaxconnections())
         else:
             if not password:
@@ -405,6 +408,7 @@ class ConfigedIMAPServer(IMAPServer):
                                 user, password, host, port, ssl,
                                 self.repos.getmaxconnections(),
                                 reference = reference,
+                                idlefolders = idlefolders,
                                 sslclientcert = sslclientcert,
                                 sslclientkey = sslclientkey,
                                 sslcacertfile = sslcacertfile)
