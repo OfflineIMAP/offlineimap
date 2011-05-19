@@ -84,9 +84,11 @@ class IMAPRepository(BaseRepository):
         return self.getconfboolean("holdconnectionopen", 0)
 
     def getkeepalive(self):
-        if self.getidlefolders():
+        num = self.getconfint("keepalive", 0)
+        if num == 0 and self.getidlefolders():
             return 29*60
-        return self.getconfint("keepalive", 0)
+        else:
+            return num
 
     def getsep(self):
         return self.imapserver.delim
