@@ -411,7 +411,15 @@ class IdleThread(object):
                     self.event.set()
             imapobj = self.parent.acquireconnection()
             imapobj.select(self.folder)
-            imapobj.idle(callback=callback)
+            if "IDLE" in imapobj.capabilities:
+                imapobj.idle(callback=callback)
+            else:
+                ui = getglobalui()
+                ui.warn("IMAP IDLE not supported on connection to %s."
+                        "Falling back to old behavior: sleeping until next"
+                        "refresh cycle."
+                        %(imapobj.identifier,))
+                imapobj.noop()
             self.event.wait()
             if self.event.isSet():
                 imapobj.noop()
