@@ -289,6 +289,13 @@ class IMAPServer:
                          "ver name correctly and that you are online."\
                          % (self.hostname, self.reposname)
                 raise OfflineImapError(reason, severity)
+            # Could not acquire connection to the remote;
+            # socket.error(last_error) raised
+            if str(e)[:24] == "can't open socket; error":
+                raise OfflineImapError("Could not connect to remote server '%s' "\
+                    "for repository '%s'. Remote does not answer."
+                    % (self.hostname, self.reposname),
+                    OfflineImapError.ERROR.REPO)
             else:
                 # re-raise all other errors
                 raise

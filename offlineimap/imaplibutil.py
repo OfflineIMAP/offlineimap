@@ -172,8 +172,8 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
             else:
                 self.sock.close()
         if last_error != 0:
-            # FIXME
-            raise socket.error(last_error)
+            raise Exception("can't open socket; error: %s"\
+                % socket.error(last_error))
 
         # Allow sending of keep-alive message seems to prevent some servers
         # from closing SSL on us leading to deadlocks
@@ -276,8 +276,8 @@ class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
             else:
                 self.sock.close()
         if last_error != 0:
-            # FIXME
-            raise socket.error(last_error)
+            raise Exception("can't open socket; error: %s"\
+                % socket.error(last_error))
         self.file = self.sock.makefile('rb')
 
         # imaplib2 uses this to poll()
