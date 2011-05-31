@@ -17,7 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from Base import BaseRepository
-from offlineimap.folder.LocalStatus import LocalStatusFolder
+from offlineimap.folder.LocalStatus import LocalStatusFolder, magicline
 from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
 import os
 import re
@@ -67,7 +67,7 @@ class LocalStatusRepository(BaseRepository):
 
         filename = self.getfolderfilename(foldername)
         file = open(filename + ".tmp", "wt")
-        file.write(offlineimap.folder.LocalStatus.magicline + '\n')
+        file.write(magicline + '\n')
         file.close()
         os.rename(filename + ".tmp", filename)
         # Invalidate the cache.
