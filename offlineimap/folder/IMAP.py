@@ -127,7 +127,7 @@ class IMAPFolder(BaseFolder):
 
                         #format this manually - otherwise locales could cause problems
                         monthnames_standard = ["Jan", "Feb", "Mar", "Apr", "May", \
-                            "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                            "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
                         our_monthname = monthnames_standard[oldest_time_struct[1]-1]
                         daystr = "%(day)02d" % {'day' : oldest_time_struct[2]}
