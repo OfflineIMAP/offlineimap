@@ -97,6 +97,7 @@ class MaildirRepository(BaseRepository):
                        (foldername, subdir)
         else:
             self.debug("makefolder: calling makedirs %s" % foldername)
+            assert foldername != '', "Can not create root MailDir."
             os.makedirs(foldername, 0700)
         self.debug("makefolder: creating cur, new, tmp")
         for subdir in ['cur', 'new', 'tmp']:
