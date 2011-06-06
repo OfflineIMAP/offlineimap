@@ -65,46 +65,46 @@ class MaildirRepository(BaseRepository):
         return self.getconf('sep', '.').strip()
 
     def makefolder(self, foldername):
-        self.debug("makefolder called with arg " + repr(foldername))
-        # Do the chdir thing so the call to makedirs does not make the
-        # self.root directory (we'd prefer to raise an error in that case),
-        # but will make the (relative) paths underneath it.  Need to use
-        # makedirs to support a / separator.
-        self.debug("Is dir? " + repr(os.path.isdir(foldername)))
-        if self.getsep() == '/':
-            for invalid in ['new', 'cur', 'tmp', 'offlineimap.uidvalidity']:
-                for component in foldername.split('/'):
-                    assert component != invalid, "When using nested folders (/ as a separator in the account config), your folder names may not contain 'new', 'cur', 'tmp', or 'offlineimap.uidvalidity'."
+        """Create new Maildir folder if necessary
 
-        assert foldername.find('./') == -1, "Folder names may not contain ../"
+        :param foldername: A relative mailbox name. The maildir will be
+            created in self.root+'/'+foldername. All intermediate folder
+            levels will be created if they do not exist yet. 'cur',
+            'tmp', and 'new' subfolders will be created in the maildir.
+        """
+        self.debug("makefolder called with arg '%s'" % (foldername))
+        full_path = os.path.abspath(os.path.join(self.root, foldername))
+    
+        # sanity tests
+        if self.getsep() == '/':
+            for component in foldername.split('/'):
+                assert not component in ['new', 'cur', 'tmp'],\
+                    "When using nested folders (/ as a Maildir separator), "\
+                    "folder names may not contain 'new', 'cur', 'tmp'."
+        assert foldername.find('../') == -1, "Folder names may not contain ../"
         assert not foldername.startswith('/'), "Folder names may not begin with /"
 
-        oldcwd = os.getcwd()
-        os.chdir(self.root)
-
-        # If we're using hierarchical folders, it's possible that sub-folders
-        # may be created before higher-up ones.  If this is the case,
-        # makedirs will fail because the higher-up dir already exists.
-        # So, check to see if this is indeed the case.
-
-        if (self.getsep() == '/' or self.getconfboolean('existsok', 0) or foldername == '.') \
-            and os.path.isdir(foldername):
-            self.debug("makefolder: %s already is a directory" % foldername)
-            # Already exists.  Sanity-check that it's not a Maildir.
-            for subdir in ['cur', 'new', 'tmp']:
-                assert not os.path.isdir(os.path.join(foldername, subdir)), \
-                       "Tried to create folder %s but it already had dir %s" %\
-                       (foldername, subdir)
-        else:
-            self.debug("makefolder: calling makedirs %s" % foldername)
-            assert foldername != '', "Can not create root MailDir."
-            os.makedirs(foldername, 0700)
-        self.debug("makefolder: creating cur, new, tmp")
+        # If we're using hierarchical folders, it's possible that
+        # sub-folders may be created before higher-up ones.
+        self.debug("makefolder: calling makedirs '%s'" % full_path)
+        try:
+            os.makedirs(full_path, 0700)
+        except OSError, e:
+            if e.errno == 17 and os.path.isdir(full_path):
+                self.debug("makefolder: '%s' already a directory" % foldername)
+            else:
+                raise
         for subdir in ['cur', 'new', 'tmp']:
-            os.mkdir(os.path.join(foldername, subdir), 0700)
-        # Invalidate the cache
+            try:
+                os.mkdir(os.path.join(full_path, subdir), 0700)
+            except OSError, e:
+                if e.errno == 17 and os.path.isdir(full_path):
+                    self.debug("makefolder: '%s' already has subdir %s" %
+                               (foldername, sudir))
+                else:
+                    raise
+        # Invalidate the folder cache
         self.folders = None
-        os.chdir(oldcwd)
 
     def deletefolder(self, foldername):
         self.ui.warn("NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername)
@@ -132,11 +132,11 @@ class MaildirRepository(BaseRepository):
 
         self.debug("  toppath = %s" % toppath)
 
-        # Iterate over directories in top.
-        for dirname in os.listdir(toppath) + ['.']:
+        # Iterate over directories in top & top itself.
+        for dirname in os.listdir(toppath) + [toppath]:
             self.debug("  *** top of loop")
             self.debug("  dirname = %s" % dirname)
-            if dirname in ['cur', 'new', 'tmp', 'offlineimap.uidvalidity']:
+            if dirname in ['cur', 'new', 'tmp']:
                 self.debug("  skipping this dir (Maildir special)")
                 # Bypass special files.
                 continue
@@ -162,7 +162,7 @@ class MaildirRepository(BaseRepository):
                 retval.append(folder.Maildir.MaildirFolder(self.root, foldername,
                                                            self.getsep(), self, self.accountname,
                                                            self.config))
-            if self.getsep() == '/' and dirname != '.':
+            if self.getsep() == '/' and dirname:
                 # Check sub-directories for folders.
                 retval.extend(self._getfolders_scandir(root, foldername))
         self.debug("_GETFOLDERS_SCANDIR RETURNING %s" % \
