@@ -17,7 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap.repository.Base import BaseRepository
-from offlineimap import folder, imaputil, imapserver
+from offlineimap import folder, imaputil, imapserver, OfflineImapError
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
 from threading import Event
@@ -32,6 +32,7 @@ class IMAPRepository(BaseRepository):
         """Initialize an IMAPRepository object."""
         BaseRepository.__init__(self, reposname, account)
         # self.ui is being set by the BaseRepository
+        self._host = None
         self.imapserver = imapserver.ConfigedIMAPServer(self)
         self.folders = None
         self.nametrans = lambda foldername: foldername
@@ -94,17 +95,34 @@ class IMAPRepository(BaseRepository):
         return self.imapserver.delim
 
     def gethost(self):
-        host = None
-        localeval = self.localeval
+        """Return the configured hostname to connect to
 
+        :returns: hostname as string or throws Exception"""
+        if self._host:  # use cached value if possible
+            return self._host
+
+        # 1) check for remotehosteval setting
         if self.config.has_option(self.getsection(), 'remotehosteval'):
             host = self.getconf('remotehosteval')
+            try:
+                host = self.localeval.eval(host)
+            except Exception, e:
+                raise OfflineImapError("remotehosteval option for repository "\
+                                       "'%s' failed:\n%s" % (self, e),
+                                       OfflineImapError.ERROR.REPO)
+            if host:
+                self._host = host
+                return self._host
+        # 2) check for plain remotehost setting
+        host = self.getconf('remotehost', None)
         if host != None:
-            return localeval.eval(host)
+            self._host = host
+            return self._host
 
-        host = self.getconf('remotehost')
-        if host != None:
-            return host
+        # no success
+        raise OfflineImapError("No remote host for repository "\
+                                   "'%s' specified." % self,
+                               OfflineImapError.ERROR.REPO)
 
     def getuser(self):
         user = None

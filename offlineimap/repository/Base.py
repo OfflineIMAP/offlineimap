@@ -21,7 +21,7 @@ import traceback
 from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
 
-class BaseRepository(CustomConfig.ConfigHelperMixin):
+class BaseRepository(object, CustomConfig.ConfigHelperMixin):
     def __init__(self, reposname, account):
         self.ui = getglobalui()
         self.account = account

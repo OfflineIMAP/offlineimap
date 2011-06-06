@@ -16,33 +16,37 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap.repository.IMAP import IMAPRepository
-from offlineimap import folder
+from offlineimap import folder, OfflineImapError
 
 class GmailRepository(IMAPRepository):
     """Gmail IMAP repository.
 
-    Uses hard-coded host name and port, see:
-      http://mail.google.com/support/bin/answer.py?answer=78799&topic=12814
+    Falls back to hard-coded gmail host name and port, if none were specified:
+    http://mail.google.com/support/bin/answer.py?answer=78799&topic=12814
     """
-
-    #: Gmail IMAP server hostname
+    # Gmail IMAP server hostname
     HOSTNAME = "imap.gmail.com"
-
-    #: Gmail IMAP server port
+    # Gmail IMAP server port
     PORT = 993
     
     def __init__(self, reposname, account):
         """Initialize a GmailRepository object."""
-        account.getconfig().set('Repository ' + reposname,
-                                'remotehost', GmailRepository.HOSTNAME)
-        account.getconfig().set('Repository ' + reposname,
-                                'remoteport', GmailRepository.PORT)
+        # Enforce SSL usage
         account.getconfig().set('Repository ' + reposname,
                                 'ssl', 'yes')
         IMAPRepository.__init__(self, reposname, account)
 
     def gethost(self):
-        return GmailRepository.HOSTNAME
+        """Return the server name to connect to.
+
+        Gmail implementation first checks for the usual IMAP settings
+        and falls back to imap.gmail.com if not specified."""
+        try:
+            return super(GmailRepository, self).gethost()
+        except OfflineImapError:
+            # nothing was configured, cache and return hardcoded one
+            self._host = GmailRepository.HOSTNAME
+            return self._host
 
     def getport(self):
         return GmailRepository.PORT
