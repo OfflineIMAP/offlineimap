@@ -164,13 +164,11 @@ class IMAPFolder(BaseFolder):
                 maxmsgid = 0
                 for msgid in imapdata:
                     maxmsgid = max(long(msgid), maxmsgid)
-
-                maxmsgid = long(imapdata[0])
-                messagesToFetch = '1:%d' % maxmsgid;
-
                 if maxmsgid < 1:
                     #no messages; return
                     return
+                messagesToFetch = '1:%d' % maxmsgid;
+
             # Now, get the flags and UIDs for these.
             # We could conceivably get rid of maxmsgid and just say
             # '1:*' here.
