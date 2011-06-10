@@ -63,12 +63,15 @@ class MaildirFolder(BaseFolder):
         self.accountname = accountname
         BaseFolder.__init__(self)
         #self.ui is set in BaseFolder.init()
+        # Cache the full folder path, as we use getfullname() very often
+        self._fullname = os.path.join(self.getroot(), self.getname())
 
     def getaccountname(self):
         return self.accountname
 
     def getfullname(self):
-        return os.path.join(self.getroot(), self.getname())
+        """Return the absolute file path to the Maildir folder (sans cur|new)"""
+        return self._fullname
 
     def getuidvalidity(self):
         """Maildirs have no notion of uidvalidity, so we just return a magic
