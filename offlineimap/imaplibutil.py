@@ -229,6 +229,13 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
         dnsname = hostname.lower()
         certnames = []
 
+        # cert expired?
+        notafter = cert.get('notAfter') 
+        if notafter:
+            if time.time() >= ssl.cert_time_to_seconds(notafter):
+                return ('server certificate error: certificate expired %s'
+                        ) % notafter
+
         # First read commonName
         for s in cert.get('subject', []):
             key, value = s[0]
