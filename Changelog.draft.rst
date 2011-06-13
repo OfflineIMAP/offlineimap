@@ -16,9 +16,12 @@ New Features
 Changes
 -------
 
+* Maildirs use less memory while syncing.
+
 Bug Fixes
 ---------
 
+* Saving to Maildirs now checks for file existence without race conditions.
 
 Pending for the next major release
 ==================================
