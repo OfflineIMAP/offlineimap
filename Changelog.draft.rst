@@ -16,17 +16,9 @@ New Features
 Changes
 -------
 
-* Maildirs use less memory while syncing.
-
 Bug Fixes
 ---------
 
-* Saving to Maildirs now checks for file existence without race conditions.
-* A bug in the underlying imap library has been fixed that could
-  potentially lead to data loss if the server interrupted responses with
-  unexpected but legal server status responses. This would mainly occur
-  in folders with many thousands of emails. Upgrading from the previous
-  release is strongly recommended.
 
 Pending for the next major release
 ==================================

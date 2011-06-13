@@ -12,6 +12,25 @@ ChangeLog
   releases announces.
 
 
+OfflineIMAP v6.3.4-rc2 (2011-06-15)
+===================================
+
+Changes
+-------
+
+* Maildirs use less memory while syncing.
+
+Bug Fixes
+---------
+
+* Saving to Maildirs now checks for file existence without race conditions.
+* A bug in the underlying imap library has been fixed that could
+  potentially lead to data loss if the server interrupted responses with
+  unexpected but legal server status responses. This would mainly occur
+  in folders with many thousands of emails. Upgrading from the previous
+  release is strongly recommended.
+
+
 OfflineIMAP v6.3.4-rc1 (2011-05-16)
 ===================================
 
