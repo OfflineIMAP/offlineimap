@@ -15,6 +15,18 @@ ChangeLog
 OfflineIMAP v6.3.4-rc2 (2011-06-15)
 ===================================
 
+Notes
+-----
+
+This was a very active rc1 and we could expect a lot of new fixes for the next
+release. 
+
+The most important fix is about a bug that could lead to data loss. Find more
+information about his bug here:
+
+  http://permalink.gmane.org/gmane.mail.imap.offlineimap.general/3803
+
+
 Changes
 -------
 
