@@ -117,23 +117,23 @@ class MaildirRepository(BaseRepository):
                                             self.accountname, self.config)
     
     def _getfolders_scandir(self, root, extension = None):
+        """Recursively scan folder 'root'; return a list of MailDirFolder
+
+        :param root: (absolute) path to Maildir root
+        :param extension: (relative) subfolder to examine within root"""
         self.debug("_GETFOLDERS_SCANDIR STARTING. root = %s, extension = %s" \
                    % (root, extension))
-        # extension willl only be non-None when called recursively when
-        # getsep() returns '/'.
         retval = []
 
         # Configure the full path to this repository -- "toppath"
-
-        if extension == None:
-            toppath = root
-        else:
+        if extension:
             toppath = os.path.join(root, extension)
-
+        else:
+            toppath = root
         self.debug("  toppath = %s" % toppath)
 
         # Iterate over directories in top & top itself.
-        for dirname in os.listdir(toppath) + [toppath]:
+        for dirname in os.listdir(toppath) + ['.']:
             self.debug("  *** top of loop")
             self.debug("  dirname = %s" % dirname)
             if dirname in ['cur', 'new', 'tmp']:
@@ -153,17 +153,21 @@ class MaildirRepository(BaseRepository):
                 os.path.isdir(os.path.join(fullname, 'new')) and
                 os.path.isdir(os.path.join(fullname, 'tmp'))):
                 # This directory has maildir stuff -- process
-                self.debug("  This is a maildir folder.")
+                self.debug("  This is maildir folder '%s'." % foldername)
 
-                self.debug("  foldername = %s" % foldername)
-
-		if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
+		if self.config.has_option('Repository %s' % self,
+                                          'restoreatime') and \
+                    self.config.getboolean('Repository %s' % self,
+                                           'restoreatime'):
 		    self._append_folder_atimes(foldername)
-                retval.append(folder.Maildir.MaildirFolder(self.root, foldername,
-                                                           self.getsep(), self, self.accountname,
+                retval.append(folder.Maildir.MaildirFolder(self.root,
+                                                           foldername,
+                                                           self.getsep(),
+                                                           self,
+                                                           self.accountname,
                                                            self.config))
-            if self.getsep() == '/' and dirname:
-                # Check sub-directories for folders.
+            if self.getsep() == '/' and dirname != '.':
+                # Recursively check sub-directories for folders too.
                 retval.extend(self._getfolders_scandir(root, foldername))
         self.debug("_GETFOLDERS_SCANDIR RETURNING %s" % \
                    repr([x.getname() for x in retval]))
