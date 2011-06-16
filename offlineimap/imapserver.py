@@ -24,14 +24,9 @@ import offlineimap.accounts
 import hmac
 import socket
 import base64
-import errno
 
 from socket import gaierror
-try:
-    from ssl import SSLError
-except ImportError:
-    # Protect against python<2.6, use dummy and won't get SSL errors.
-    SSLError = None
+
 try:
     # do we have a recent pykerberos?
     have_gss = False
@@ -290,37 +285,14 @@ class IMAPServer:
             if(self.connectionlock.locked()):
                 self.connectionlock.release()
 
-            # now, check for known errors and throw OfflineImapErrors
-            severity = OfflineImapError.ERROR.REPO
-            if isinstance(e, gaierror):
+            if type(e) == gaierror:
                 #DNS related errors. Abort Repo sync
+                severity = OfflineImapError.ERROR.REPO
                 #TODO: special error msg for e.errno == 2 "Name or service not known"?
                 reason = "Could not resolve name '%s' for repository "\
                          "'%s'. Make sure you have configured the ser"\
-                         "ver name correctly and that you are online."%\
-                         (self.hostname, self.reposname)
-                raise OfflineImapError(reason, severity)
-
-            elif isinstance(e, SSLError) and e.errno == 1:
-                # SSL unknown protocol error
-                # happens e.g. when connecting via SSL to a non-SSL service
-                if self.port != 443:
-                    reason = "Could not connect via SSL to host '%s' and non-s"\
-                        "tandard ssl port %d configured. Make sure you connect"\
-                        " to the correct port." % (self.hostname, self.port)
-                else:
-                    reason = "Unknown SSL protocol connecting to host '%s' for"\
-                         "repository '%s'. OpenSSL responded:\n%s"\
-                         % (self.hostname, self.reposname, e)
-                raise OfflineImapError(reason, severity)
-
-            elif isinstance(e, socket.error) and e.args[0] == errno.ECONNREFUSED:
-                # "Connection refused", can be a non-existing port, or an unauthorized
-                # webproxy (open WLAN?)
-                reason = "Connection to host '%s:%d' for repository '%s' was "\
-                    "refused. Make sure you have the right host and port "\
-                    "configured and that you are actually able to access the "\
-                    "network." % (self.hostname, self.port, self.reposname)
+                         "ver name correctly and that you are online."\
+                         % (self.hostname, self.reposname)
                 raise OfflineImapError(reason, severity)
             # Could not acquire connection to the remote;
             # socket.error(last_error) raised
