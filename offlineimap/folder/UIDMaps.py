@@ -197,6 +197,7 @@ class MappingFolderMixIn:
             self._savemaps(dolock = 0)
         finally:
             self.maplock.release()
+        return uid
 
     def getmessageflags(self, uid):
         return self._mb.getmessageflags(self, self.r2l[uid])
