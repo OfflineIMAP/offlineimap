@@ -301,7 +301,7 @@ class IMAPServer:
                          (self.hostname, self.reposname)
                 raise OfflineImapError(reason, severity)
 
-            elif isinstance(e, SSLError) and e.errno == 1:
+            elif SSLError and isinstance(e, SSLError) and e.errno == 1:
                 # SSL unknown protocol error
                 # happens e.g. when connecting via SSL to a non-SSL service
                 if self.port != 443:

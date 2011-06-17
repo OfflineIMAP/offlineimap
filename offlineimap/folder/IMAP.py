@@ -23,7 +23,7 @@ import re
 import time
 from copy import copy
 from Base import BaseFolder
-from offlineimap import imaputil, imaplibutil
+from offlineimap import imaputil, imaplibutil, OfflineImapError
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
@@ -195,13 +195,24 @@ class IMAPFolder(BaseFolder):
     def getmessage(self, uid):
         """Retrieve message with UID from the IMAP server (incl body)
 
-        :returns: the message body
+        :returns: the message body or throws and OfflineImapError
+                  (probably severity MESSAGE) if e.g. no message with
+                  this UID could be found.
         """
         imapobj = self.imapserver.acquireconnection()
         try:
             imapobj.select(self.getfullname(), readonly = 1)
-            res_type, data = imapobj.uid('fetch', '%d' % uid, '(BODY.PEEK[])')
-            assert res_type == 'OK', "Fetching message with UID '%d' failed" % uid
+            res_type, data = imapobj.uid('fetch', str(uid), '(BODY.PEEK[])')
+            if data == [None] or res_type != 'OK':
+                #IMAP server says bad request or UID does not exist
+                severity = OfflineImapError.ERROR.MESSAGE
+                reason = "IMAP server '%s' responded with '%s' to fetching "\
+                    "message UID '%d'" % (self.getrepository(), res_type, uid)
+                if data == [None]:
+                    #IMAP server did not find a message with this UID
+                    reason = "IMAP server '%s' does not have a message "\
+                             "with UID '%s'" % (self.getrepository(), uid)
+                raise OfflineImapError(reason, severity)
             # data looks now e.g. [('320 (UID 17061 BODY[]
             # {2565}','msgbody....')]  we only asked for one message,
             # and that msg is in data[0]. msbody is in [0][1]
