@@ -100,7 +100,7 @@ class MaildirRepository(BaseRepository):
             except OSError, e:
                 if e.errno == 17 and os.path.isdir(full_path):
                     self.debug("makefolder: '%s' already has subdir %s" %
-                               (foldername, sudir))
+                               (foldername, subdir))
                 else:
                     raise
         # Invalidate the folder cache
