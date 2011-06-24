@@ -13,6 +13,9 @@ others.
 New Features
 ------------
 
+* Added StartTLS support, it will automatically be used if the server
+  supports it.
+
 Changes
 -------
 
