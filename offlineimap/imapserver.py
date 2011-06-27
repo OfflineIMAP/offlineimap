@@ -292,9 +292,9 @@ class IMAPServer:
             if(self.connectionlock.locked()):
                 self.connectionlock.release()
 
+            severity = OfflineImapError.ERROR.REPO
             if type(e) == gaierror:
                 #DNS related errors. Abort Repo sync
-                severity = OfflineImapError.ERROR.REPO
                 #TODO: special error msg for e.errno == 2 "Name or service not known"?
                 reason = "Could not resolve name '%s' for repository "\
                          "'%s'. Make sure you have configured the ser"\
@@ -328,8 +328,7 @@ class IMAPServer:
             if str(e)[:24] == "can't open socket; error":
                 raise OfflineImapError("Could not connect to remote server '%s' "\
                     "for repository '%s'. Remote does not answer."
-                    % (self.hostname, self.reposname),
-                    OfflineImapError.ERROR.REPO)
+                    % (self.hostname, self.reposname), severity)
             else:
                 # re-raise all other errors
                 raise
