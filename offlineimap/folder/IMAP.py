@@ -137,7 +137,7 @@ class IMAPFolder(BaseFolder):
                         search_condition += date_search_str
 
                     if(maxsize != -1):
-                        if(maxage != 1): #There are two conditions - add a space
+                        if(maxage != -1): #There are two conditions - add a space
                             search_condition += " "
 
                         search_condition += "SMALLER " + self.config.getdefault("Account " + self.accountname, "maxsize", -1)
