@@ -44,9 +44,13 @@ class OfflineImap:
     """
     def run(self):
         """Parse the commandline and invoke everything"""
+        # next line also sets self.config
+        options = self.parse_cmd_options()
+        self.sync(options)
 
+    def parse_cmd_options(self):
         parser = OptionParser(version=offlineimap.__version__,
-                              description="%s.\n\n%s" % 
+                              description="%s.\n\n%s" %
                               (offlineimap.__copyright__,
                                offlineimap.__license__))
         parser.add_option("-1",
@@ -103,7 +107,7 @@ class OfflineImap:
               "Only sync the specified folders. The folder names "
               "are the *untranslated* foldernames. This "
               "command-line option overrides any 'folderfilter' "
-              "and 'folderincludes' options in the configuration " 
+              "and 'folderincludes' options in the configuration "
               "file.")
 
         parser.add_option("-k", dest="configoverride",
@@ -187,19 +191,19 @@ class OfflineImap:
                             'of %s' % ', '.join(UI_LIST.keys()))
         try:
             # create the ui class
-            ui = UI_LIST[ui_type.lower()](config)
+            self.ui = UI_LIST[ui_type.lower()](config)
         except KeyError:
             logging.error("UI '%s' does not exist, choose one of: %s" % \
                               (ui_type,', '.join(UI_LIST.keys())))
             sys.exit(1)
-        setglobalui(ui)
+        setglobalui(self.ui)
 
         #set up additional log files
         if options.logfile:
-            ui.setlogfd(open(options.logfile, 'wt'))
+            self.ui.setlogfd(open(options.logfile, 'wt'))
     
         #welcome blurb
-        ui.init_banner()
+        self.ui.init_banner()
 
         if options.debugtype:
             if options.debugtype.lower() == 'all':
@@ -207,13 +211,13 @@ class OfflineImap:
             #force single threading?
             if not ('thread' in options.debugtype.split(',') \
                     and not options.singlethreading):
-                ui._msg("Debug mode: Forcing to singlethreaded.")
+                self.ui._msg("Debug mode: Forcing to singlethreaded.")
                 options.singlethreading = True
 
             debugtypes = options.debugtype.split(',') + ['']
             for type in debugtypes:
                 type = type.strip()
-                ui.add_debug(type)
+                self.ui.add_debug(type)
                 if type.lower() == 'imap':
                     imaplib.Debug = 5
 
@@ -241,47 +245,64 @@ class OfflineImap:
                     config.set(section, "folderfilter", folderfilter)
                     config.set(section, "folderincludes", folderincludes)
 
-        self.config = config
+        if options.logfile:
+            sys.stderr = self.ui.logfile
     
+        socktimeout = config.getdefaultint("general", "socktimeout", 0)
+        if socktimeout > 0:
+            socket.setdefaulttimeout(socktimeout)
+
+        threadutil.initInstanceLimit('ACCOUNTLIMIT',
+            config.getdefaultint('general', 'maxsyncaccounts', 1))
+
+        for reposname in config.getsectionlist('Repository'):
+            for instancename in ["FOLDER_" + reposname,
+                                 "MSGCOPY_" + reposname]:
+                if options.singlethreading:
+                    threadutil.initInstanceLimit(instancename, 1)
+                else:
+                    threadutil.initInstanceLimit(instancename,
+                        config.getdefaultint('Repository ' + reposname,
+                                                  'maxconnections', 2))
+        self.config = config
+        return options
+
+    def sync(self, options):
+        """Invoke the correct single/multithread syncing
+
+        self.config is supposed to have been correctly initialized
+        already."""
         def sigterm_handler(signum, frame):
             # die immediately
-            ui = getglobalui()
-            ui.terminate(errormsg="terminating...")
-
-        signal.signal(signal.SIGTERM,sigterm_handler)
+            self.ui.terminate(errormsg="terminating...")
+        signal.signal(signal.SIGTERM, sigterm_handler)
     
         try:
-            pidfd = open(config.getmetadatadir() + "/pid", "w")
+            pidfd = open(self.config.getmetadatadir() + "/pid", "w")
             pidfd.write(str(os.getpid()) + "\n")
             pidfd.close()
         except:
             pass
     
-        try:
-            if options.logfile:
-                sys.stderr = ui.logfile
-    
-            socktimeout = config.getdefaultint("general", "socktimeout", 0)
-            if socktimeout > 0:
-                socket.setdefaulttimeout(socktimeout)
-    
-            activeaccounts = config.get("general", "accounts")
+        try: 
+            activeaccounts = self.config.get("general", "accounts")
             if options.accounts:
                 activeaccounts = options.accounts
             activeaccounts = activeaccounts.replace(" ", "")
             activeaccounts = activeaccounts.split(",")
-            allaccounts = accounts.AccountHashGenerator(config)
+            allaccounts = accounts.AccountHashGenerator(self.config)
     
             syncaccounts = []
             for account in activeaccounts:
                 if account not in allaccounts:
                     if len(allaccounts) == 0:
-                        errormsg = 'The account "%s" does not exist because no accounts are defined!'%account
+                        errormsg = "The account '%s' does not exist because no"\
+                        " accounts are defined!" % account
                     else:
-                        errormsg = 'The account "%s" does not exist.  Valid accounts are:'%account
-                        for name in allaccounts.keys():
-                            errormsg += '\n%s'%name
-                    ui.terminate(1, errortitle = 'Unknown Account "%s"'%account, errormsg = errormsg)
+                        errormsg = "The account '%s' does not exist.  Valid ac"\
+                        "counts are: " % account
+                        errormsg += ", ".join(allaccounts.keys())
+                    self.ui.terminate(1, errormsg = errormsg)
                 if account not in syncaccounts:
                     syncaccounts.append(account)
     
@@ -289,19 +310,6 @@ class OfflineImap:
             remoterepos = None
             localrepos = None
     
-            threadutil.initInstanceLimit('ACCOUNTLIMIT',
-                                    config.getdefaultint('general',
-                                                         'maxsyncaccounts', 1))
-    
-            for reposname in config.getsectionlist('Repository'):
-                for instancename in ["FOLDER_" + reposname,
-                                     "MSGCOPY_" + reposname]:
-                    if options.singlethreading:
-                        threadutil.initInstanceLimit(instancename, 1)
-                    else:
-                        threadutil.initInstanceLimit(instancename,
-                               config.getdefaultint('Repository ' + reposname,
-                                                    'maxconnections', 2))
             def sig_handler(sig, frame):
                 if sig == signal.SIGUSR1 or sig == signal.SIGHUP:
                     # tell each account to stop sleeping
@@ -315,7 +323,7 @@ class OfflineImap:
             signal.signal(signal.SIGUSR2,sig_handler)
     
             #various initializations that need to be performed:
-            offlineimap.mbnames.init(config, syncaccounts)
+            offlineimap.mbnames.init(self.config, syncaccounts)
 
             #TODO: keep legacy lock for a few versions, then remove.
             self._legacy_lock = open(self.config.getmetadatadir() + "/lock",
@@ -331,20 +339,20 @@ class OfflineImap:
 
             if options.singlethreading:
                 #singlethreaded
-                self.sync_singlethreaded(syncaccounts, config)
+                self.sync_singlethreaded(syncaccounts)
             else:
                 # multithreaded
                 t = threadutil.ExitNotifyThread(target=syncmaster.syncitall,
                                  name='Sync Runner',
                                  kwargs = {'accounts': syncaccounts,
-                                           'config': config})
+                                           'config': self.config})
                 t.setDaemon(1)
                 t.start()
                 threadutil.exitnotifymonitorloop(threadutil.threadexited)
 
-            ui.terminate()
+            self.ui.terminate()
         except KeyboardInterrupt:
-            ui.terminate(1, errormsg = 'CTRL-C pressed, aborting...')
+            self.ui.terminate(1, errormsg = 'CTRL-C pressed, aborting...')
             return
         except (SystemExit):
             raise
@@ -352,13 +360,13 @@ class OfflineImap:
             ui.error(e)
             ui.terminate()
 
-    def sync_singlethreaded(self, accs, config):
+    def sync_singlethreaded(self, accs):
         """Executed if we do not want a separate syncmaster thread
 
         :param accs: A list of accounts that should be synced
-        :param config: The CustomConfig object
         """
         for accountname in accs:
-            account = offlineimap.accounts.SyncableAccount(config, accountname)
+            account = offlineimap.accounts.SyncableAccount(self.config,
+                                                           accountname)
             threading.currentThread().name = "Account sync %s" % accountname
             account.syncrunner()
