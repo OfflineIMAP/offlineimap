@@ -13,6 +13,9 @@ others.
 New Features
 ------------
 
+* add a --info command line switch that outputs useful information about
+  the server and the configuration for all enabled accounts.
+ 
 Changes
 -------
 

@@ -322,6 +322,53 @@ class UIBase:
             s._msg("Deleting flag %s from %d messages on %s" % \
                    (", ".join(flags), len(uidlist), dest))
 
+    def serverdiagnostics(self, repository, type):
+        """Connect to repository and output useful information for debugging"""
+        conn = None
+        self._msg("%s repository '%s': type '%s'" % (type, repository.name,
+                  self.getnicename(repository)))
+        try:
+            if hasattr(repository, 'gethost'): # IMAP
+                self._msg("Host: %s Port: %s SSL: %s" % (repository.gethost(),
+                                                         repository.getport(),
+                                                         repository.getssl()))
+                try:
+                    conn = repository.imapserver.acquireconnection()
+                except OfflineImapError, e:
+                    self._msg("Failed to connect. Reason %s" % e)
+                else:
+                    if 'ID' in conn.capabilities:
+                        self._msg("Server supports ID extension.")
+                        #TODO: Debug and make below working, it hangs Gmail
+                        #res_type, response = conn.id((
+                        #    'name', offlineimap.__productname__,
+                        #    'version', offlineimap.__version__))
+                        #self._msg("Server ID: %s %s" % (res_type, response[0]))
+                    self._msg("Server welcome string: %s" % str(conn.welcome))
+                    self._msg("Server capabilities: %s\n" % str(conn.capabilities))
+                    repository.imapserver.releaseconnection(conn)
+            if type != 'Status':
+                folderfilter = repository.getconf('folderfilter', None)
+                if folderfilter:
+                    self._msg("folderfilter= %s\n" % folderfilter)
+                folderincludes = repository.getconf('folderincludes', None)
+                if folderincludes:
+                    self._msg("folderincludes= %s\n" % folderincludes)
+                nametrans = repository.getconf('nametrans', None)
+                if nametrans:
+                    self._msg("nametrans= %s\n" % nametrans)
+
+                folders = repository.getfolders()
+                foldernames = [(f.name, f.getvisiblename()) for f in folders]
+                folders = []
+                for name, visiblename in foldernames:
+                    if name == visiblename: folders.append(name)
+                    else: folders.append("%s -> %s" % (name, visiblename))
+                self._msg("Folderlist: %s\n" % str(folders))
+        finally:
+            if conn: #release any existing IMAP connection
+                repository.imapserver.close()
+
     ################################################## Threads
 
     def getThreadDebugLog(s, thread):

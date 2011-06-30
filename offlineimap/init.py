@@ -44,9 +44,12 @@ class OfflineImap:
     """
     def run(self):
         """Parse the commandline and invoke everything"""
-        # next line also sets self.config
-        options = self.parse_cmd_options()
-        self.sync(options)
+        # next line also sets self.config and self.ui
+        options, args = self.parse_cmd_options()
+        if options.diagnostics:
+            self.serverdiagnostics(options)
+        else:
+            self.sync(options)
 
     def parse_cmd_options(self):
         parser = OptionParser(version=offlineimap.__version__,
@@ -142,6 +145,13 @@ class OfflineImap:
               "be forced to be used, even if checks determine that it is "
               "not usable. Possible interface choices are: %s " %
               ", ".join(UI_LIST.keys()))
+
+        parser.add_option("--info",
+                  action="store_true", dest="diagnostics",
+                  default=False,
+                  help="Output information on the configured email repositories"
+              ". Useful for debugging and bug reporting. Use in conjunction wit"
+              "h the -a option to limit the output to a single account")
 
         (options, args) = parser.parse_args()
 
@@ -265,7 +275,7 @@ class OfflineImap:
                         config.getdefaultint('Repository ' + reposname,
                                                   'maxconnections', 2))
         self.config = config
-        return options
+        return (options, args)
 
     def sync(self, options):
         """Invoke the correct single/multithread syncing
@@ -276,7 +286,7 @@ class OfflineImap:
             # die immediately
             self.ui.terminate(errormsg="terminating...")
         signal.signal(signal.SIGTERM, sigterm_handler)
-    
+
         try:
             pidfd = open(self.config.getmetadatadir() + "/pid", "w")
             pidfd.write(str(os.getpid()) + "\n")
@@ -305,11 +315,7 @@ class OfflineImap:
                     self.ui.terminate(1, errormsg = errormsg)
                 if account not in syncaccounts:
                     syncaccounts.append(account)
-    
-            server = None
-            remoterepos = None
-            localrepos = None
-    
+
             def sig_handler(sig, frame):
                 if sig == signal.SIGUSR1 or sig == signal.SIGHUP:
                     # tell each account to stop sleeping
@@ -370,3 +376,13 @@ class OfflineImap:
                                                            accountname)
             threading.currentThread().name = "Account sync %s" % accountname
             account.syncrunner()
+
+    def serverdiagnostics(self, options):
+        activeaccounts = self.config.get("general", "accounts")
+        if options.accounts:
+            activeaccounts = options.accounts
+        activeaccounts = activeaccounts.split(",")
+        allaccounts = accounts.AccountListGenerator(self.config)
+        for account in allaccounts:
+            if account.name not in activeaccounts: continue
+            account.serverdiagnostics()

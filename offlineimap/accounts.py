@@ -82,6 +82,9 @@ class Account(CustomConfig.ConfigHelperMixin):
     def __str__(self):
         return self.name
 
+    def getaccountmeta(self):
+        return os.path.join(self.metadatadir, 'Account-' + self.name)
+
     def getsection(self):
         return 'Account ' + self.getname()
 
@@ -154,8 +157,16 @@ class Account(CustomConfig.ConfigHelperMixin):
             self.quicknum = 0
             return 1
         return 0
-            
-    
+
+    def serverdiagnostics(self):
+        """Output diagnostics for all involved repositories"""
+        remote_repo = Repository(self, 'remote')
+        local_repo  = Repository(self, 'local')
+        #status_repo = Repository(self, 'status')
+        self.ui.serverdiagnostics(remote_repo, 'Remote')
+        self.ui.serverdiagnostics(local_repo, 'Local')
+        #self.ui.serverdiagnostics(statusrepos, 'Status')
+        
 class SyncableAccount(Account):
     """A syncable email account connecting 2 repositories
 
@@ -232,9 +243,6 @@ class SyncableAccount(Account):
                 self.unlock()
                 if looping and self.sleeper() >= 2:
                     looping = 0                    
-
-    def getaccountmeta(self):
-        return os.path.join(self.metadatadir, 'Account-' + self.name)
 
     def sync(self):
         """Synchronize the account once, then return
