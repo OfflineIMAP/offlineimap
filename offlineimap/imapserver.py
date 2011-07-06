@@ -26,6 +26,11 @@ import socket
 import base64
 
 from socket import gaierror
+try:
+    from ssl import SSLError
+except ImportError:
+    # Protect against python<2.6, use dummy and won't get SSL errors.
+    SSLError = None
 
 try:
     # do we have a recent pykerberos?
