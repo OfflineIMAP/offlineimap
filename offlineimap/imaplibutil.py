@@ -33,11 +33,9 @@ except ImportError:
     pass
 
 class UsefulIMAPMixIn:
-    def getstate(self):
-        return self.state
     def getselectedfolder(self):
-        if self.getstate() == 'SELECTED':
-            return self.selectedfolder
+        if self.state == 'SELECTED':
+            return self.mailbox
         return None
 
     def select(self, mailbox='INBOX', readonly=None, force = 0):
@@ -58,10 +56,6 @@ class UsefulIMAPMixIn:
                 (mailbox, result)
             severity = OfflineImapError.ERROR.FOLDER
             raise OfflineImapError(errstr, severity) 
-        if self.getstate() == 'SELECTED':
-            self.selectedfolder = mailbox
-        else:
-            self.selectedfolder = None
         return result
 
     def _mesg(self, s, tn=None, secs=None):
