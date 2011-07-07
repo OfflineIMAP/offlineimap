@@ -20,8 +20,11 @@ from threading import *
 from IMAP import IMAPFolder
 import os.path
 
-class MappingFolderMixIn:
-    """Helper class to map between Folder() instances where both side assign a uid
+class MappedIMAPFolder(IMAPFolder):
+    """IMAP class to map between Folder() instances where both side assign a uid
+
+    This Folder is used on the local side, while the remote side should
+    be an IMAPFolder.
 
     Instance variables (self.):
       r2l: dict mapping message uids: self.r2l[remoteuid]=localuid
@@ -29,10 +32,13 @@ class MappingFolderMixIn:
       #TODO: what is the difference, how are they used?
       diskr2l: dict mapping message uids: self.r2l[remoteuid]=localuid
       diskl2r: dict mapping message uids: self.r2l[localuid]=remoteuid"""
-    def _initmapping(self):
+
+    def __init__(self, *args, **kwargs):
+	IMAPFolder.__init__(self, *args, **kwargs)
         self.maplock = Lock()
         (self.diskr2l, self.diskl2r) = self._loadmaps()
-        self._mb = self.__class__.__bases__[1]
+        self._mb = IMAPFolder(*args, **kwargs)
+        """Representing the local IMAP Folder using local UIDs"""
 
     def _getmapfilename(self):
         return os.path.join(self.repository.getmapdir(),
@@ -81,8 +87,8 @@ class MappingFolderMixIn:
         return [mapping[x] for x in items]
 
     def cachemessagelist(self):
-        self._mb.cachemessagelist(self)
-        reallist = self._mb.getmessagelist(self)
+        self._mb.cachemessagelist()
+        reallist = self._mb.getmessagelist()
 
         self.maplock.acquire()
         try:
@@ -137,7 +143,7 @@ class MappingFolderMixIn:
         cachemessagelist() before calling this function!"""
 
         retval = {}
-        localhash = self._mb.getmessagelist(self)
+        localhash = self._mb.getmessagelist()
         self.maplock.acquire()
         try:
             for key, value in localhash.items():
@@ -158,7 +164,7 @@ class MappingFolderMixIn:
 
     def getmessage(self, uid):
         """Returns the content of the specified message."""
-        return self._mb.getmessage(self, self.r2l[uid])
+        return self._mb.getmessage(self.r2l[uid])
 
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
@@ -185,7 +191,7 @@ class MappingFolderMixIn:
             self.savemessageflags(uid, flags)
             return uid
 
-        newluid = self._mb.savemessage(self, -1, content, flags, rtime)
+        newluid = self._mb.savemessage(-1, content, flags, rtime)
         if newluid < 1:
             raise ValueError("Backend could not find uid for message")
         self.maplock.acquire()
@@ -197,21 +203,22 @@ class MappingFolderMixIn:
             self._savemaps(dolock = 0)
         finally:
             self.maplock.release()
+        return uid
 
     def getmessageflags(self, uid):
-        return self._mb.getmessageflags(self, self.r2l[uid])
+        return self._mb.getmessageflags(self.r2l[uid])
 
     def getmessagetime(self, uid):
         return None
 
     def savemessageflags(self, uid, flags):
-        self._mb.savemessageflags(self, self.r2l[uid], flags)
+        self._mb.savemessageflags(self.r2l[uid], flags)
 
     def addmessageflags(self, uid, flags):
-        self._mb.addmessageflags(self, self.r2l[uid], flags)
+        self._mb.addmessageflags(self.r2l[uid], flags)
 
     def addmessagesflags(self, uidlist, flags):
-        self._mb.addmessagesflags(self, self._uidlist(self.r2l, uidlist),
+        self._mb.addmessagesflags(self._uidlist(self.r2l, uidlist),
                                   flags)
 
     def _mapped_delete(self, uidlist):
@@ -232,22 +239,16 @@ class MappingFolderMixIn:
             self.maplock.release()
 
     def deletemessageflags(self, uid, flags):
-        self._mb.deletemessageflags(self, self.r2l[uid], flags)
+        self._mb.deletemessageflags(self.r2l[uid], flags)
 
     def deletemessagesflags(self, uidlist, flags):
-        self._mb.deletemessagesflags(self, self._uidlist(self.r2l, uidlist),
+        self._mb.deletemessagesflags(self._uidlist(self.r2l, uidlist),
                                      flags)
 
     def deletemessage(self, uid):
-        self._mb.deletemessage(self, self.r2l[uid])
+        self._mb.deletemessage(self.r2l[uid])
         self._mapped_delete([uid])
 
     def deletemessages(self, uidlist):
-        self._mb.deletemessages(self, self._uidlist(self.r2l, uidlist))
+        self._mb.deletemessages(self._uidlist(self.r2l, uidlist))
         self._mapped_delete(uidlist)
-
-# Define a class for local part of IMAP.
-class MappedIMAPFolder(MappingFolderMixIn, IMAPFolder):
-    def __init__(self, *args, **kwargs):
-	IMAPFolder.__init__(self, *args, **kwargs)
-        self._initmapping()

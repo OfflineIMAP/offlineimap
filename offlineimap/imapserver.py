@@ -24,7 +24,6 @@ import offlineimap.accounts
 import hmac
 import socket
 import base64
-import errno
 
 from socket import gaierror
 try:
@@ -32,6 +31,7 @@ try:
 except ImportError:
     # Protect against python<2.6, use dummy and won't get SSL errors.
     SSLError = None
+
 try:
     # do we have a recent pykerberos?
     have_gss = False
@@ -219,6 +219,7 @@ class IMAPServer:
                     try:
                         # Try GSSAPI and continue if it fails
                         if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
+                            self.connectionlock.acquire()
                             self.ui.debug('imap',
                                 'Attempting GSSAPI authentication')
                             try:
@@ -229,15 +230,26 @@ class IMAPServer:
                                     'GSSAPI Authentication failed')
                             else:
                                 self.gssapi = True
+                                kerberos.authGSSClientClean(self.gss_vc)
+                                self.gss_vc = None
+                                self.gss_step = self.GSS_STATE_STEP
                                 #if we do self.password = None then the next attempt cannot try...
                                 #self.password = None
+                            self.connectionlock.release()
 
                         if not self.gssapi:
+                            if 'STARTTLS' in imapobj.capabilities and not\
+                                    self.usessl:
+                                self.ui.debug('imap',
+                                              'Using STARTTLS connection')
+                                imapobj.starttls()
+
                             if 'AUTH=CRAM-MD5' in imapobj.capabilities:
                                 self.ui.debug('imap',
-                                                       'Attempting CRAM-MD5 authentication')
+                                           'Attempting CRAM-MD5 authentication')
                                 try:
-                                    imapobj.authenticate('CRAM-MD5', self.md5handler)
+                                    imapobj.authenticate('CRAM-MD5',
+                                                         self.md5handler)
                                 except imapobj.error, val:
                                     self.plainauth(imapobj)
                             else:
@@ -285,9 +297,8 @@ class IMAPServer:
             if(self.connectionlock.locked()):
                 self.connectionlock.release()
 
-            # now, check for known errors and throw OfflineImapErrors
             severity = OfflineImapError.ERROR.REPO
-            if isinstance(e, gaierror):
+            if type(e) == gaierror:
                 #DNS related errors. Abort Repo sync
                 #TODO: special error msg for e.errno == 2 "Name or service not known"?
                 reason = "Could not resolve name '%s' for repository "\
@@ -296,7 +307,7 @@ class IMAPServer:
                          (self.hostname, self.reposname)
                 raise OfflineImapError(reason, severity)
 
-            elif isinstance(e, SSLError) and e.errno == 1:
+            elif SSLError and isinstance(e, SSLError) and e.errno == 1:
                 # SSL unknown protocol error
                 # happens e.g. when connecting via SSL to a non-SSL service
                 if self.port != 443:
@@ -322,8 +333,7 @@ class IMAPServer:
             if str(e)[:24] == "can't open socket; error":
                 raise OfflineImapError("Could not connect to remote server '%s' "\
                     "for repository '%s'. Remote does not answer."
-                    % (self.hostname, self.reposname),
-                    OfflineImapError.ERROR.REPO)
+                    % (self.hostname, self.reposname), severity)
             else:
                 # re-raise all other errors
                 raise

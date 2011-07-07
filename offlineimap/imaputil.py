@@ -143,7 +143,6 @@ def imapsplit(imapstring):
             elif splitslen == 0:
                 # There was not even an unquoted word.
                 break
-    debug("imapsplit() returning:", retval)
     return retval
             
 flagmap = [('\\Seen', 'S'),

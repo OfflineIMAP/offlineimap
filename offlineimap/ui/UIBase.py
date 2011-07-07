@@ -21,7 +21,6 @@ import time
 import sys
 import traceback
 import threading
-from StringIO import StringIO
 import offlineimap
 
 debugtypes = {'':'Other offlineimap related sync messages',
@@ -309,10 +308,8 @@ class UIBase:
         s.terminate(100)
 
     def getMainExceptionString(s):
-        sbuf = StringIO()
-        traceback.print_exc(file = sbuf)
-        return "Main program terminated with exception:\n" + \
-               sbuf.getvalue() + "\n" + \
+        return "Main program terminated with exception:\n%s\n" %\
+               traceback.format_exc() + \
                s.getThreadDebugLog(threading.currentThread())
 
     def mainException(s):
