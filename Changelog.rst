@@ -12,6 +12,38 @@ ChangeLog
   releases announces.
 
 
+OfflineIMAP v6.3.4-rc3 (2011-07-07)
+===================================
+
+Notes
+-----
+
+Here is a surprising release. :-)
+
+As expected we have a lot bug fixes in this round (see git log for details),
+including a fix for a bug we had for ages (details below) which is a very good
+news.
+
+What makes this cycle so unusual is that I merged a feature to support StartTLS
+automatically (thanks Sebastian!). Another very good news.
+
+We usually don't do much changes so late in a cycle. Now, things are highly
+calming down and I hope a lot of people will test this release. Next one could
+be the stable!
+
+New Features
+------------
+
+* Added StartTLS support, it will automatically be used if the server
+  supports it.
+
+Bug Fixes
+---------
+
+* We protect more robustly against asking for inexistent messages from the
+  IMAP server, when someone else deletes or moves messages while we sync.
+
+
 OfflineIMAP v6.3.4-rc2 (2011-06-15)
 ===================================
 
