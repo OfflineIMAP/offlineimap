@@ -25,4 +25,3 @@ Pending for the next major release
 ==================================
 
 * UIs get shorter and nicer names. (API changing)
-* Implement IDLE feature. (delayed until next major release)

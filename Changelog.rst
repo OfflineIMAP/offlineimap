@@ -58,6 +58,12 @@ information about his bug here:
 
   http://permalink.gmane.org/gmane.mail.imap.offlineimap.general/3803
 
+The IDLE support is merged as experimental feature.
+
+New Features
+------------
+
+* Implement experimental IDLE feature.
 
 Changes
 -------
