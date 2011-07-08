@@ -172,6 +172,7 @@ class SyncableAccount(Account):
 
     def lock(self):
         """Lock the account, throwing an exception if it is locked already"""
+        # Take a new-style per-account lock
         self._lockfd = open(self._lockfilepath, 'w')
         try:
             fcntl.lockf(self._lockfd, fcntl.LOCK_EX|fcntl.LOCK_NB)
