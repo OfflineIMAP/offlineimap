@@ -13,6 +13,13 @@ others.
 New Features
 ------------
 
+* Implement per-account locking, so that it will possible to sync
+  different accounts at the same time. The old global lock is still in
+  place for backward compatibility reasons (to be able to run old and
+  new versions of OfflineImap concurrently) and will be removed in the
+  future. Starting with this version, OfflineImap will be
+  forward-compatible with the per-account locking style.
+
 Changes
 -------
 

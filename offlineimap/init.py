@@ -30,14 +30,6 @@ from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 
 
-try:
-    import fcntl
-    hasfcntl = 1
-except:
-    hasfcntl = 0
-
-lockfd = None
-
 class OfflineImap:
     """The main class that encapsulates the high level use of OfflineImap.
 
@@ -46,17 +38,6 @@ class OfflineImap:
       oi = OfflineImap()
       oi.run()
     """
-    def lock(self, config, ui):
-        global lockfd, hasfcntl
-        if not hasfcntl:
-            return
-        lockfd = open(config.getmetadatadir() + "/lock", "w")
-        try:
-            fcntl.flock(lockfd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except IOError:
-            ui.locked()
-            ui.terminate(1)
-    
     def run(self):
         """Parse the commandline and invoke everything"""
 
@@ -253,7 +234,6 @@ class OfflineImap:
                     config.set(section, "folderfilter", folderfilter)
                     config.set(section, "folderincludes", folderincludes)
 
-        self.lock(config, ui)
         self.config = config
     
         def sigterm_handler(signum, frame):

@@ -25,6 +25,11 @@ import os
 from sys import exc_info
 import traceback
 
+try:
+    import fcntl
+except:
+    pass # ok if this fails, we can do without
+
 def getaccountlist(customconfig):
     return customconfig.getsectionlist('Account')
 
@@ -159,6 +164,35 @@ class SyncableAccount(Account):
     functions :meth:`syncrunner`, :meth:`sync`, :meth:`syncfolders`,
     used for syncing."""
 
+    def __init__(self, *args, **kwargs):
+        Account.__init__(self, *args, **kwargs)
+        self._lockfd = None
+        self._lockfilepath = os.path.join(self.config.getmetadatadir(),
+                                          "%s.lock" % self)
+
+    def lock(self):
+        """Lock the account, throwing an exception if it is locked already"""
+        self._lockfd = open(self._lockfilepath, 'w')
+        try:
+            fcntl.lockf(self._lockfd, fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except NameError:
+            #fcntl not available (Windows), disable file locking... :(
+            pass
+        except IOError:
+            self._lockfd.close()
+            raise OfflineImapError("Could not lock account %s." % self,
+                                   OfflineImapError.ERROR.REPO)
+
+    def unlock(self):
+        """Unlock the account, deleting the lock file"""
+        #If we own the lock file, delete it
+        if self._lockfd and not self._lockfd.closed:
+            self._lockfd.close()
+            try:
+                os.unlink(self._lockfilepath)
+            except OSError:
+                pass #Failed to delete for some reason.
+
     def syncrunner(self):
         self.ui.registerthread(self.name)
         self.ui.acct(self.name)
@@ -175,6 +209,7 @@ class SyncableAccount(Account):
         while looping:
             try:
                 try:
+                    self.lock()
                     self.sync()
                 except (KeyboardInterrupt, SystemExit):
                     raise
@@ -194,6 +229,7 @@ class SyncableAccount(Account):
                     if self.refreshperiod:
                         looping = 3
             finally:
+                self.unlock()
                 if looping and self.sleeper() >= 2:
                     looping = 0                    
                 self.ui.acctdone(self.name)
