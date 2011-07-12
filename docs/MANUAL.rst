@@ -300,5 +300,26 @@ KNOWN BUGS
   * IDLE may only work "once" per refresh.  If you encounter this bug,
     please send a report to the list!
 
+* Maildir support in Windows drive
+    Maildir uses colon caracter (:) in message file names. Colon is however
+    forbidden character in windows drives. There are several workarounds for
+    that situation:
+
+   * Use "maildir-windows-compatible = yes" account OfflineIMAP configuration.
+      - That makes OfflineIMAP to use exclamation mark (!) instead of colon for
+        storing messages. Such files can be written to windows partitions. But
+        you will probably loose compatibility with other programs trying to
+        read the same Maildir.
+      - Exclamation mark was choosed because of the note in
+        http://docs.python.org/library/mailbox.html
+      - If you have some messages already stored without this option, you will
+        have to re-sync them again
+
+   * Enable file name character translation in windows registry (not tested)
+      - http://support.microsoft.com/kb/289627
+
+   * Use cygwin managed mount (not tested)
+      - not available anymore since cygwin 1.7
+
 SEE ALSO
 ========
