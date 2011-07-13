@@ -251,9 +251,9 @@ Quiet
 
 Quiet is designed for non-attended running in situations where normal
 status messages are not desired.  It will output nothing except errors
-and serious warnings.  Like Noninteractive.Basic, this user interface is
-not capable of reading a password from the keyboard; account passwords
-must be specified using one of the configuration file options.
+and serious warnings.  Like Basic, this user interface is not capable
+of reading a password from the keyboard; account passwords must be
+specified using one of the configuration file options.
 
 MachineUI
 ---------
