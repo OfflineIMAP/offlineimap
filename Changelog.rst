@@ -12,6 +12,26 @@ ChangeLog
   releases announces.
 
 
+OfflineIMAP v6.3.4-rc4 (2011-07-27)
+===================================
+
+Notes
+-----
+
+There is nothing exciting in this release. This is somewhat expected due to the
+late merge on -rc3.
+
+New Features
+------------
+
+* Support maildir for Windows.
+
+Changes
+-------
+
+* Manual improved.
+
+
 OfflineIMAP v6.3.4-rc3 (2011-07-07)
 ===================================
 
