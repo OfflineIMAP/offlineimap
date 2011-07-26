@@ -276,7 +276,7 @@ class IMAPFolder(BaseFolder):
         self.ui.debug('imap',
                  'savemessage_addheader: called to add %s: %s' % (headername,
                                                                   headervalue))
-        insertionpoint = content.find("\r\n")
+        insertionpoint = content.find("\r\n\r\n")
         self.ui.debug('imap', 'savemessage_addheader: insertionpoint = %d' % insertionpoint)
         leader = content[0:insertionpoint]
         self.ui.debug('imap', 'savemessage_addheader: leader = %s' % repr(leader))
