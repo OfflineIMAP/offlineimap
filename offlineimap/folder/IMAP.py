@@ -409,8 +409,10 @@ class IMAPFolder(BaseFolder):
         the new message after sucessfully saving it.
 
         :param rtime: A timestamp to be used as the mail date
-        :returns: the UID of the new message as assigned by the
-                  server. If the folder is read-only it will return 0."""
+        :returns: the UID of the new message as assigned by the server. If the
+                  message is saved, but it's UID can not be found, it will
+                  return 0. If the message can't be written (folder is
+                  read-only for example) it will return -1."""
         self.ui.debug('imap', 'savemessage: called')
 
         # already have it, just save modified flags
