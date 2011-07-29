@@ -31,7 +31,6 @@ except ImportError:
 from offlineimap import OfflineImapError
 
 uidmatchre = re.compile(',U=(\d+)')
-flagmatchre = re.compile(':.*2,([A-Z]+)')
 timestampmatchre = re.compile('(\d+)');
 
 timeseq = 0
@@ -63,6 +62,17 @@ class MaildirFolder(BaseFolder):
         self.messagelist = None
         self.repository = repository
         self.accountname = accountname
+
+        self.wincompatible = self.config.getdefaultboolean(
+            "Account "+self.accountname, "maildir-windows-compatible", False)
+
+        if self.wincompatible == False:
+            self.infosep = ':'
+        else:
+            self.infosep = '!'
+
+        self.flagmatchre = re.compile(self.infosep + '.*2,([A-Z]+)')
+
         BaseFolder.__init__(self)
         #self.ui is set in BaseFolder.init()
         # Cache the full folder path, as we use getfullname() very often
@@ -156,7 +166,7 @@ class MaildirFolder(BaseFolder):
                     nouidcounter -= 1
                 else:
                     uid = long(uidmatch.group(1))
-            flagmatch = flagmatchre.search(messagename)
+            flagmatch = self.flagmatchre.search(messagename)
             flags = []
             if flagmatch:
                 flags = [x for x in flagmatch.group(1)]
@@ -271,11 +281,12 @@ class MaildirFolder(BaseFolder):
             dir_prefix = 'cur'
         else:
             dir_prefix = 'new'
-        infostr = ':'
-        infomatch = re.search('(:.*)$', newname)
+
+        infostr = self.infosep
+        infomatch = re.search('(' + self.infosep + '.*)$', newname)
         if infomatch:                   # If the info string is present..
             infostr = infomatch.group(1)
-            newname = newname.split(':')[0] # Strip off the info string.
+            newname = newname.split(self.infosep)[0] # Strip off the info string.
         infostr = re.sub('2,[A-Z]*', '', infostr)
         flags.sort()
         infostr += '2,' + ''.join(flags)

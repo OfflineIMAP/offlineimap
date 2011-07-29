@@ -251,9 +251,9 @@ Quiet
 
 Quiet is designed for non-attended running in situations where normal
 status messages are not desired.  It will output nothing except errors
-and serious warnings.  Like Noninteractive.Basic, this user interface is
-not capable of reading a password from the keyboard; account passwords
-must be specified using one of the configuration file options.
+and serious warnings.  Like Basic, this user interface is not capable
+of reading a password from the keyboard; account passwords must be
+specified using one of the configuration file options.
 
 MachineUI
 ---------
@@ -300,5 +300,114 @@ KNOWN BUGS
   * IDLE may only work "once" per refresh.  If you encounter this bug,
     please send a report to the list!
 
-SEE ALSO
-========
+* Maildir support in Windows drive
+    Maildir uses colon caracter (:) in message file names. Colon is however
+    forbidden character in windows drives. There are several workarounds for
+    that situation:
+
+   * Use "maildir-windows-compatible = yes" account OfflineIMAP configuration.
+      - That makes OfflineIMAP to use exclamation mark (!) instead of colon for
+        storing messages. Such files can be written to windows partitions. But
+        you will probably loose compatibility with other programs trying to
+        read the same Maildir.
+      - Exclamation mark was choosed because of the note in
+        http://docs.python.org/library/mailbox.html
+      - If you have some messages already stored without this option, you will
+        have to re-sync them again
+
+   * Enable file name character translation in windows registry (not tested)
+      - http://support.microsoft.com/kb/289627
+
+   * Use cygwin managed mount (not tested)
+      - not available anymore since cygwin 1.7
+
+
+Synchronization Performance
+===========================
+
+By default, we use fairly conservative settings that are good for
+syncing but that might not be the best performing one. Once you got
+everything set up and running, you might want to look into speeding up
+your synchronization. Here are a couple of hints and tips on how to
+achieve this.
+
+ 1) Use maxconnections > 1. By default we only use one connection to an
+    IMAP server. Using 2 or even 3 speeds things up considerably in most
+    cases. This setting goes into the [Repository XXX] section.
+
+ 2) Use folderfilters. The quickest sync is a sync that can ignore some
+    folders. I sort my inbox into monthly folders, and ignore every
+    folder that is more than 2-3 months old, this lets me only inspect a
+    fraction of my Mails on every sync. If you haven't done this yet, do
+    it :). See the folderfilter section the example offlineimap.conf.
+
+ 3) The default status cache is a plain text file that will write out
+    the complete file for each single new message (or even changed flag)
+    to a temporary file. If you have plenty of files in a folder, this
+    is a few hundred kilo to megabytes for each mail and is bound to
+    make things slower. I recommend to use the sqlite backend for
+    that. See the status_backend = sqlite setting in the example
+    offlineimap.conf. You will need to have python-sqlite installed in
+    order to use this. This will save you plenty of disk activity. Do
+    note that the sqlite backend is still considered experimental as it
+    has only been included recently (although a loss of your status
+    cache should not be a tragedy as that file can be rebuild
+    automatically)
+
+ 4) Use quick sync. A regular sync will request all flags and all UIDs
+    of all mails in each folder which takes quite some time. A 'quick'
+    sync only compares the number of messages in a folder on the IMAP
+    side (it will detect flag changes on the Maildir side of things
+    though). A quick sync on my smallish account will take 7 seconds
+    rather than 40 seconds. Eg, I run a cron script that does a regular
+    sync once a day, and does quick syncs inbetween.
+
+ 5) Turn off fsync. In the [general] section you can set fsync to True
+    or False. If you want to play 110% safe and wait for all operations
+    to hit the disk before continueing, you can set this to True. If you
+    set it to False, you lose some of that safety trading it for speed.
+
+Security and SSL
+================
+
+Some words on OfflineImap and its use of SSL/TLS. By default, we will
+connect using any method that openssl supports, that is SSLv2, SSLv3, or
+TLSv1. Do note that SSLv2 is notoriously insecure and deprecated.
+Unfortunately, python2 does not offer easy ways to disable SSLv2. It is
+recommended you test your setup and make sure that the mail server does
+not use an SSLv2 connection. Use e.g. "openssl s_client -host
+mail.server -port 443" to find out the connection that is used by
+default.
+
+Certificate checking
+^^^^^^^^^^^^^^^^^^^^
+
+Unfortunately, by default we will not verify the certificate of an IMAP
+TLS/SSL server we connect to, so connecting by SSL is no guarantee
+against man-in-the-middle attacks. While verifying a server certificate
+fingerprint is being planned, it is not implemented yet. There is
+currently only one safe way to ensure that you connect to the correct
+server in an encrypted manner: You can specify a 'sslcacertfile' setting
+in your repository section of offlineimap.conf pointing to a file that
+contains (among others) a CA Certificate in PEM format which validating
+your server certificate. In this case, we will check that: 1) The server
+SSL certificate is validated by the CA Certificate 2) The server host
+name matches the SSL certificate 3) The server certificate is not past
+its expiration date. The FAQ contains an entry on how to create your own
+certificate and CA certificate.
+
+StartTLS
+^^^^^^^^
+
+If you have not configured your account to connect via SSL anyway,
+OfflineImap will still attempt to set up an SSL connection via the
+STARTTLS function, in case the imap server supports it. Do note, that
+there is no certificate or fingerprint checking involved at all, when
+using STARTTLS (the underlying imaplib library does not support this
+yet). This means that you will be protected against passively listening
+eavesdroppers and they will not be able to see your password or email
+contents. However, this will not protect you from active attacks, such
+as Man-In-The-Middle attacks which cause you to connect to the wrong
+server and pretend to be your mail server. DO NOT RELY ON STARTTLS AS A
+SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF YOUR IMAP SERVER!
+=======
