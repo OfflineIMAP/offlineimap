@@ -13,6 +13,8 @@ others.
 New Features
 ------------
 
+* Handle when UID can't be found on saved messages.
+
 Changes
 -------
 
