@@ -276,7 +276,7 @@ class IMAPFolder(BaseFolder):
         self.ui.debug('imap',
                  'savemessage_addheader: called to add %s: %s' % (headername,
                                                                   headervalue))
-        insertionpoint = content.find("\r\n")
+        insertionpoint = content.find("\r\n\r\n")
         self.ui.debug('imap', 'savemessage_addheader: insertionpoint = %d' % insertionpoint)
         leader = content[0:insertionpoint]
         self.ui.debug('imap', 'savemessage_addheader: leader = %s' % repr(leader))
@@ -409,8 +409,10 @@ class IMAPFolder(BaseFolder):
         the new message after sucessfully saving it.
 
         :param rtime: A timestamp to be used as the mail date
-        :returns: the UID of the new message as assigned by the
-                  server. If the folder is read-only it will return 0."""
+        :returns: the UID of the new message as assigned by the server. If the
+                  message is saved, but it's UID can not be found, it will
+                  return 0. If the message can't be written (folder is
+                  read-only for example) it will return -1."""
         self.ui.debug('imap', 'savemessage: called')
 
         # already have it, just save modified flags
@@ -504,7 +506,7 @@ class IMAPFolder(BaseFolder):
                 return
             result = imapobj.uid('store', '%d' % uid, 'FLAGS',
                                  imaputil.flagsmaildir2imap(flags))
-            assert result[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
+            assert result[0] == 'OK', 'Error with store: ' + '. '.join(result[1])
         finally:
             self.imapserver.releaseconnection(imapobj)
         result = result[1][0]

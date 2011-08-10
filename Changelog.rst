@@ -12,6 +12,20 @@ ChangeLog
   releases announces.
 
 
+OfflineIMAP v6.3.4 (2011-08-10)
+===============================
+
+Notes
+-----
+
+Here we are. A nice release since v6.3.3, I think.
+
+Changes
+-------
+
+* Handle when UID can't be found on saved messages.
+
+
 OfflineIMAP v6.3.4-rc4 (2011-07-27)
 ===================================
 

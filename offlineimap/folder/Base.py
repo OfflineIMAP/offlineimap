@@ -264,6 +264,14 @@ class BaseFolder(object):
                     uid = newuid
                 # Save uploaded status in the statusfolder
                 statusfolder.savemessage(uid, message, flags, rtime)
+            elif newuid == 0:
+                # Message was stored to dstfolder, but we can't find it's UID
+                # This means we can't link current message to the one created
+                # in IMAP. So we just delete local message and on next run
+                # we'll sync it back
+                # XXX This could cause infinite loop on syncing between two
+                # IMAP servers ...
+                self.deletemessage(uid)
             else:
                 raise UserWarning("Trying to save msg (uid %d) on folder "
                                   "%s returned invalid uid %d" % \

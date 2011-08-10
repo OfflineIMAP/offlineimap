@@ -189,6 +189,11 @@ Then, on your next sync, the message will be re-downloaded with the proper UID.
 `OfflineIMAP`_ makes sure that the message was properly uploaded before
 deleting it, so there should be no risk of data loss.
 
+But if you try to sync between two IMAP servers, where both are unable to
+provide you with UID of the new message, then this will lead to infinite loop.
+`OfflineIMAP`_ will upload the message to one server and delete on second. On
+next run it will upload the message to second server and delete on first, etc.
+
 Does OfflineIMAP support POP?
 -----------------------------
 
