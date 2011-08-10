@@ -13,6 +13,21 @@ This is the Changelog of the maintenance branch.
   releases announces.
 
 
+OfflineIMAP v6.3.2.3 (2011-08-10)
+=================================
+
+Changes
+-------
+
+* Output more detailed error on corrupt LocalStatus.
+* More detailed error output on corrupt UID mapping files.
+
+Bug Fixes
+---------
+
+* Fix typo to force singlethreading in debug mode.
+
+
 OfflineIMAP v6.3.2.2 (2011-04-24)
 =================================
 
@@ -20,6 +35,7 @@ Changes
 -------
 
 * Improve traceback on some crashes.
+
 
 OfflineIMAP v6.3.2.1 (2011-03-23)
 =================================
