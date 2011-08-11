@@ -13,6 +13,10 @@ others.
 New Features
 ------------
 
+* When a message upload/download fails, we do not abort the whole folder
+  synchronization, but only skip that message, informing the user at the
+  end of the sync run.
+ 
 Changes
 -------
 
