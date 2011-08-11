@@ -450,16 +450,20 @@ class IMAPFolder(BaseFolder):
                                           content[-50:])
             else:
                 dbg_output = content
-
             self.ui.debug('imap', "savemessage: date: %s, content: '%s'" %
                           (date, dbg_output))
 
-            (typ,dat) = imapobj.append(self.getfullname(),
+            #Do the APPEND
+            (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
-            assert(typ == 'OK')
-
-            # Checkpoint.  Let it write out the messages, etc.
+            if typ != 'OK': #APPEND failed
+                raise OfflineImapError("Saving msg in folder '%s', repository "
+                    "'%s' failed. Server reponded; %s %s\nMessage content was:"
+                    " %s" % (self, self.getrepository(), typ, dat, dbg_output),
+                                       OfflineImapError.ERROR.MESSAGE)
+            # Checkpoint. Let it write out stuff, etc. Eg searches for
+            # just uploaded messages won't work if we don't do this.
             (typ,dat) = imapobj.check()
             assert(typ == 'OK')
 
