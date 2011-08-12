@@ -24,6 +24,7 @@ from threading import Event
 import re
 import types
 import os
+from sys import exc_info
 import netrc
 import errno
 
@@ -307,7 +308,12 @@ class IMAPRepository(BaseRepository):
                 for foldername in self.folderincludes:
                     try:
                         imapobj.select(foldername, readonly = 1)
-                    except ValueError:
+                    except OfflineImapError, e:
+                        # couldn't select this folderinclude, so ignore folder.
+                        if e.severity > OfflineImapError.ERROR.FOLDER:
+                            raise
+                        self.ui.error(e, exc_info()[2],
+                                      'Invalid folderinclude:')
                         continue
                     retval.append(self.getfoldertype()(self.imapserver,
                                                        foldername,

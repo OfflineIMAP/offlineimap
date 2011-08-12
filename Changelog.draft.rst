@@ -23,7 +23,9 @@ Changes
 Bug Fixes
 ---------
 
-
+* Selecting inexistent folders specified in folderincludes now throws
+  nice errors and continues to sync with all other folders rather than
+  exiting offlineimap with a traceback.
 
 Pending for the next major release
 ==================================
