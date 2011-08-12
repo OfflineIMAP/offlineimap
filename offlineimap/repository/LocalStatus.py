@@ -80,14 +80,13 @@ class LocalStatusRepository(BaseRepository):
                                            self.config)
 
     def getfolders(self):
-        """Returns a list of ALL folders on this server.
-
-        This is currently nowhere used in the code."""
+        """Returns a list of all cached folders."""
         if self._folders != None:
             return self._folders
 
+        self._folders = []
         for folder in os.listdir(self.directory):
-            self._folders = retval.append(self.getfolder(folder))
+            self._folders.append(self.getfolder(folder))
         return self._folders
 
     def forgetfolders(self):
