@@ -33,7 +33,7 @@ class IMAPRepository(BaseRepository):
         BaseRepository.__init__(self, reposname, account)
         # self.ui is being set by the BaseRepository
         self._host = None
-        self.imapserver = imapserver.ConfigedIMAPServer(self)
+        self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
         self.nametrans = lambda foldername: foldername
         self.folderfilter = lambda foldername: 1

@@ -42,58 +42,56 @@ except ImportError:
     pass
 
 class IMAPServer:
+    """Initializes all variables from an IMAPRepository() instance
+
+    Various functions, such as acquireconnection() return an IMAP4
+    object on which we can operate."""
     GSS_STATE_STEP = 0
     GSS_STATE_WRAP = 1
-    def __init__(self, config, reposname,
-                 username = None, password = None, hostname = None,
-                 port = None, ssl = 1, maxconnections = 1, tunnel = None,
-                 reference = '""', sslclientcert = None, sslclientkey = None,
-                 sslcacertfile = None, idlefolders = []):
+    def __init__(self, repos):
         self.ui = getglobalui()
-        self.reposname = reposname
-        self.config = config
-        self.username = username
-        self.password = password
+        self.repos = repos
+        self.config = repos.getconfig()
+        self.tunnel = repos.getpreauthtunnel()
+        self.usessl = repos.getssl()
+        self.username = repos.getuser()
+        self.password = None
         self.passworderror = None
         self.goodpassword = None
-        self.hostname = hostname
-        self.tunnel = tunnel
-        self.port = port
-        self.usessl = ssl
-        self.sslclientcert = sslclientcert
-        self.sslclientkey = sslclientkey
-        self.sslcacertfile = sslcacertfile
+        self.hostname = repos.gethost()
+        self.port = repos.getport()
+        if self.port == None:
+            self.port = 993 if self.usessl else 143
+        self.sslclientcert = repos.getsslclientcert()
+        self.sslclientkey = repos.getsslclientkey()
+        self.sslcacertfile = repos.getsslcacertfile()
         self.delim = None
         self.root = None
-        if port == None:
-            if ssl:
-                self.port = 993
-            else:
-                self.port = 143
-        self.maxconnections = maxconnections
+        self.maxconnections = repos.getmaxconnections()
         self.availableconnections = []
         self.assignedconnections = []
         self.lastowner = {}
         self.semaphore = BoundedSemaphore(self.maxconnections)
         self.connectionlock = Lock()
-        self.reference = reference
-        self.idlefolders = idlefolders
+        self.reference = repos.getreference()
+        self.idlefolders = repos.getidlefolders()
         self.gss_step = self.GSS_STATE_STEP
         self.gss_vc = None
         self.gssapi = False
 
     def getpassword(self):
-        if self.goodpassword != None:
+        """Returns the server password or None"""
+        if self.goodpassword != None: # use cached good one first
             return self.goodpassword
 
         if self.password != None and self.passworderror == None:
-            return self.password
+            return self.password # non-failed preconfigured one
 
-        self.password = self.ui.getpass(self.reposname,
-                                                     self.config,
-                                                     self.passworderror)
+        # get 1) configured password first 2) fall back to asking via UI
+        self.password = self.repos.getpassword() or \
+                        self.ui.getpass(self.repos.getname(), self.config,
+                                        self.passworderror)
         self.passworderror = None
-
         return self.password
 
     def getdelim(self):
@@ -204,7 +202,8 @@ class IMAPServer:
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
-                    imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname, self.port,
+                    imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname,
+                                                           self.port,
                                                            self.sslclientkey, self.sslclientcert,
                                                            timeout=socket.getdefaulttimeout(),
                                                            cacertfile = self.sslcacertfile)
@@ -260,7 +259,6 @@ class IMAPServer:
                     except imapobj.error, val:
                         self.passworderror = str(val)
                         raise
-                        #self.password = None
 
             if self.delim == None:
                 listres = imapobj.list(self.reference, '""')[1]
@@ -292,8 +290,6 @@ class IMAPServer:
             error..."""
             self.semaphore.release()
 
-            #Make sure that this can be retried the next time...
-            self.passworderror = None
             if(self.connectionlock.locked()):
                 self.connectionlock.release()
 
@@ -304,7 +300,7 @@ class IMAPServer:
                 reason = "Could not resolve name '%s' for repository "\
                          "'%s'. Make sure you have configured the ser"\
                          "ver name correctly and that you are online."%\
-                         (self.hostname, self.reposname)
+                         (self.hostname, self.repos)
                 raise OfflineImapError(reason, severity)
 
             elif SSLError and isinstance(e, SSLError) and e.errno == 1:
@@ -317,7 +313,7 @@ class IMAPServer:
                 else:
                     reason = "Unknown SSL protocol connecting to host '%s' for"\
                          "repository '%s'. OpenSSL responded:\n%s"\
-                         % (self.hostname, self.reposname, e)
+                         % (self.hostname, self.repos, e)
                 raise OfflineImapError(reason, severity)
 
             elif isinstance(e, socket.error) and e.args[0] == errno.ECONNREFUSED:
@@ -333,7 +329,8 @@ class IMAPServer:
             if str(e)[:24] == "can't open socket; error":
                 raise OfflineImapError("Could not connect to remote server '%s' "\
                     "for repository '%s'. Remote does not answer."
-                    % (self.hostname, self.reposname), severity)
+                    % (self.hostname, self.repos),
+                    OfflineImapError.ERROR.REPO)
             else:
                 # re-raise all other errors
                 raise
@@ -484,49 +481,3 @@ class IdleThread(object):
             if self.needsync:
                 self.event.clear()
                 self.dosync()
-
-class ConfigedIMAPServer(IMAPServer):
-    """This class is designed for easier initialization given a ConfigParser
-    object and an account name.  The passwordhash is used if
-    passwords for certain accounts are known.  If the password for this
-    account is listed, it will be obtained from there."""
-    def __init__(self, repository, passwordhash = {}):
-        """Initialize the object.  If the account is not a tunnel,
-        the password is required."""
-        self.repos = repository
-        self.config = self.repos.getconfig()
-        usetunnel = self.repos.getpreauthtunnel()
-        if not usetunnel:
-            host = self.repos.gethost()
-            user = self.repos.getuser()
-            port = self.repos.getport()
-            ssl = self.repos.getssl()
-            sslclientcert = self.repos.getsslclientcert()
-            sslclientkey = self.repos.getsslclientkey()
-            sslcacertfile = self.repos.getsslcacertfile()
-        reference = self.repos.getreference()
-        idlefolders = self.repos.getidlefolders()
-        server = None
-        password = None
-        
-        if repository.getname() in passwordhash:
-            password = passwordhash[repository.getname()]
-
-        # Connect to the remote server.
-        if usetunnel:
-            IMAPServer.__init__(self, self.config, self.repos.getname(),
-                                tunnel = usetunnel,
-                                reference = reference,
-                                idlefolders = idlefolders,
-                                maxconnections = self.repos.getmaxconnections())
-        else:
-            if not password:
-                password = self.repos.getpassword()
-            IMAPServer.__init__(self, self.config, self.repos.getname(),
-                                user, password, host, port, ssl,
-                                self.repos.getmaxconnections(),
-                                reference = reference,
-                                idlefolders = idlefolders,
-                                sslclientcert = sslclientcert,
-                                sslclientkey = sslclientkey,
-                                sslcacertfile = sslcacertfile)

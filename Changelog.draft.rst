@@ -20,10 +20,14 @@ New Features
 Changes
 -------
 
+* Refactor our IMAPServer class. Background work without user-visible
+  changes.
+
 Bug Fixes
 ---------
 
-
+* We protect more robustly against asking for inexistent messages from the
+  IMAP server, when someone else deletes or moves messages while we sync.
 
 Pending for the next major release
 ==================================
