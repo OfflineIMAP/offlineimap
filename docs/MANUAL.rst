@@ -380,7 +380,7 @@ mail.server -port 443" to find out the connection that is used by
 default.
 
 Certificate checking
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 
 Unfortunately, by default we will not verify the certificate of an IMAP
 TLS/SSL server we connect to, so connecting by SSL is no guarantee
@@ -397,7 +397,7 @@ its expiration date. The FAQ contains an entry on how to create your own
 certificate and CA certificate.
 
 StartTLS
-^^^^^^^^
+--------
 
 If you have not configured your account to connect via SSL anyway,
 OfflineImap will still attempt to set up an SSL connection via the
@@ -410,4 +410,3 @@ contents. However, this will not protect you from active attacks, such
 as Man-In-The-Middle attacks which cause you to connect to the wrong
 server and pretend to be your mail server. DO NOT RELY ON STARTTLS AS A
 SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF YOUR IMAP SERVER!
-=======
