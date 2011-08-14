@@ -295,12 +295,14 @@ class IMAPRepository(BaseRepository):
             if '\\noselect' in flaglist:
                 continue
             foldername = imaputil.dequote(name)
-            if not self.folderfilter(foldername):
-                self.ui.debug('imap',"Filtering out '%s' due to folderfilter" %\
-                                  foldername)
-                continue
             retval.append(self.getfoldertype()(self.imapserver, foldername,
                                                self))
+            # filter out the folder?
+            if not self.folderfilter(foldername):
+                self.ui.debug('imap', "Filtering out '%s'[%s] due to folderfilt"
+                              "er" % (foldername, self))
+                retval[-1].sync_this = False
+        # Add all folderincludes
         if len(self.folderincludes):
             imapobj = self.imapserver.acquireconnection()
             try:
@@ -322,7 +324,7 @@ class IMAPRepository(BaseRepository):
                 
         retval.sort(lambda x, y: self.foldersort(x.getvisiblename(), y.getvisiblename()))
         self.folders = retval
-        return retval
+        return self.folders
 
     def makefolder(self, foldername):
         #if self.getreference() != '""':

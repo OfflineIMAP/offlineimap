@@ -274,6 +274,10 @@ class SyncableAccount(Account):
 
             # iterate through all folders on the remote repo and sync
             for remotefolder in remoterepos.getfolders():
+                if not remotefolder.sync_this:
+                    self.ui.debug('', "Not syncing filtered remote folder '%s'"
+                                  "[%s]" % (remotefolder, remoterepos))
+                    continue # Filtered out remote folder
                 thread = InstanceLimitedThread(\
                     instancename = 'FOLDER_' + self.remoterepos.getname(),
                     target = syncfolder,
@@ -323,7 +327,9 @@ class SyncableAccount(Account):
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos, quick):
     """This function is called as target for the
-    InstanceLimitedThread invokation in SyncableAccount."""
+    InstanceLimitedThread invokation in SyncableAccount.
+
+    Filtered folders on the remote side will not invoke this function."""
     ui = getglobalui()
     ui.registerthread(accountname)
     try:
@@ -331,6 +337,14 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         localfolder = localrepos.\
                       getfolder(remotefolder.getvisiblename().\
                                 replace(remoterepos.getsep(), localrepos.getsep()))
+
+        #Filtered folders on the remote side will not invoke this
+        #function, but we need to NOOP if the local folder is filtered
+        #out too:
+        if not localfolder.sync_this:
+            ui.debug('', "Not syncing filtered local folder '%s'" \
+                         % localfolder)
+            return
         # Write the mailboxes
         mbnames.add(accountname, localfolder.getvisiblename())
 

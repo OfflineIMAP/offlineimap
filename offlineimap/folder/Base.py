@@ -33,6 +33,8 @@ class BaseFolder(object):
         :para name: Path & name of folder minus root or reference
         :para repository: Repository() in which the folder is.
         """
+        self.sync_this = True
+        """Should this folder be included in syncing?"""
         self.ui = getglobalui()
         self.name = name
         self.repository = repository
