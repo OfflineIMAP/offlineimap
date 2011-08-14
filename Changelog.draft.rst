@@ -24,6 +24,13 @@ New Features
   attempt a plaintext login but the server has explicitly disabled
   plaintext logins rather than crashing.
 
+* Folders will now also be automatically created on the REMOTE side of
+  an account if they exist on the local side. Use the folderfilters
+  setting on the local side to prevent some folders from migrating to
+  the remote side.  Also, if you have a nametrans setting on the remote
+  repository, you might need a nametrans setting on the local repository
+  that leads to the original name (reverse nametrans).
+
 Changes
 -------
 

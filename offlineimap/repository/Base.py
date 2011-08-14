@@ -19,8 +19,10 @@
 import re
 import os.path
 import traceback
+from sys import exc_info
 from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
+from offlineimap.error import OfflineImapError
 
 class BaseRepository(object, CustomConfig.ConfigHelperMixin):
 
@@ -134,7 +136,11 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
     def syncfoldersto(self, dst_repo, status_repo):
         """Syncs the folders in this repository to those in dest.
 
-        It does NOT sync the contents of those folders."""
+        It does NOT sync the contents of those folders. nametrans rules
+        in both directions will be honored, but there are NO checks yet
+        that forward and backward nametrans actually match up!
+        Configuring nametrans on BOTH repositories therefore could lead
+        to infinite folder creation cycles."""
         src_repo = self
         src_folders = src_repo.getfolders()
         dst_folders = dst_repo.getfolders()
@@ -149,30 +155,46 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         for folder in dst_folders:
             dst_hash[folder.getvisiblename()] = folder
 
-        #
-        # Find new folders.
-        for key in src_hash.keys():
-            if not key in dst_hash:
+        # Find new folders on src_repo.
+        for src_name, src_folder in src_hash.iteritems():
+            if src_folder.sync_this and not src_name in dst_hash:
                 try:
-                    dst_repo.makefolder(key)
-                    status_repo.makefolder(key.replace(dst_repo.getsep(),
-                                                      status_repo.getsep()))
-                except (KeyboardInterrupt):
+                    dst_repo.makefolder(src_name)
+                except OfflineImapError, e:
+                    self.ui.error(e, exc_info()[2],
+                                  "Creating folder %s on repository %s" %\
+                                      (src_name, dst_repo))
                     raise
-                except:
-                    self.ui.warn("ERROR Attempting to create folder " \
-                        + key + ":"  +traceback.format_exc())
+                status_repo.makefolder(src_name.replace(dst_repo.getsep(),
+                                                   status_repo.getsep()))
+        # Find new folders on dst_repo.
+        for dst_name, dst_folder in dst_hash.iteritems():
+            if dst_folder.sync_this and not dst_name in src_hash:
+                # Check that back&forth nametrans lead to identical names
+                #src_name is the unmodified full src_name
+                newsrc_name = dst_name.replace(dst_repo.getsep(),
+                                               src_repo.getsep())
+                folder = self.getfolder(newsrc_name)
+                newdst_name = folder.getvisiblename().replace(
+                    src_repo.getsep(), dst_repo.getsep()) 
+                if newsrc_name == newdst_name:
+                    assert False, "newdstname %s equals newsrcname %s %s %s" % (newdst_name, newsrc_name, dst_name, folder)
+                else:
+                    assert False, "newdstname %s Does not equal newsrcname %s %s %s" % (newdst_name, newsrc_name, dst_name, folder)
+                # end sanity check, actually create the folder
 
-        #
+                try:
+                    src_repo.makefolder(dst_name.replace(
+                            dst_repo.getsep(), src_repo.getsep()))
+                except OfflineImapError, e:
+                    self.ui.error(e, exc_info()[2],
+                                  "Creating folder %s on repository %s" %\
+                                      (src_name, dst_repo))
+                    raise
+                status_repo.makefolder(dst_name.replace(
+                                dst_repo.getsep(), status_repo.getsep()))
         # Find deleted folders.
-        #
         # We don't delete folders right now.
-
-        #for key in desthash.keys():
-        #    if not key in srchash:
-        #        dest.deletefolder(key)
-        
-    ##### Keepalive
 
     def startkeepalive(self):
         """The default implementation will do nothing."""
