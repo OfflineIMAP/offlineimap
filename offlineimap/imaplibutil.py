@@ -284,8 +284,6 @@ class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
         # imaplib2 uses this to poll()
         self.read_fd = self.sock.fileno()
 
-mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
-
 def Internaldate2epoch(resp):
     """Convert IMAP4 INTERNALDATE to UT.
 

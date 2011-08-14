@@ -212,8 +212,6 @@ class IMAPServer:
                     imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
                                                        timeout=socket.getdefaulttimeout())
 
-                imapobj.mustquote = imaplibutil.mustquote
-
                 if not self.tunnel:
                     try:
                         # Try GSSAPI and continue if it fails
