@@ -92,7 +92,7 @@ class UIBase:
         error "msg", detailing at what point the error occurred.
 
         In debug mode, we also output the full traceback that occurred
-        if one has been passed in via sys.exc_traceback.
+        if one has been passed in via sys.info()[2].
 
         Also save the Exception to a stack that can be output at the end
         of the sync run when offlineiamp exits. It is recommended to
@@ -101,7 +101,7 @@ class UIBase:
 
         One example of such a call might be:
 
-           ui.error(exc, sys.exc_traceback, msg="While syncing Folder %s in "
+           ui.error(exc, sys.exc_info()[2], msg="While syncing Folder %s in "
                                                 "repo %s")
         """
         cur_thread = threading.currentThread()
