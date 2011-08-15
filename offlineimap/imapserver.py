@@ -24,6 +24,7 @@ import offlineimap.accounts
 import hmac
 import socket
 import base64
+import errno
 
 from socket import gaierror
 try:
