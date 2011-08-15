@@ -22,9 +22,9 @@ Changes
 
 * Refactor our IMAPServer class. Background work without user-visible
   changes.
-
 * Remove the configurability of the Blinkenlights statuschar. It
   cluttered the main configuration file for little gain.
+* Updated bundled imaplib2 to version 2.28.
 
 Bug Fixes
 ---------
