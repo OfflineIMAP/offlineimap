@@ -17,6 +17,7 @@
 
 from offlineimap import threadutil
 from offlineimap.ui import getglobalui
+from offlineimap.error import OfflineImapError
 import os.path
 import re
 from sys import exc_info
@@ -233,52 +234,63 @@ class BaseFolder(object):
         if register: # output that we start a new thread
             self.ui.registerthread(self.getaccountname())
 
-        message = None
-        flags = self.getmessageflags(uid)
-        rtime = self.getmessagetime(uid)
+        try:
+            message = None
+            flags = self.getmessageflags(uid)
+            rtime = self.getmessagetime(uid)
 
-        if uid > 0 and dstfolder.uidexists(uid):
-            # dst has message with that UID already, only update status
-            statusfolder.savemessage(uid, None, flags, rtime)
-            return
+            if uid > 0 and dstfolder.uidexists(uid):
+                # dst has message with that UID already, only update status
+                statusfolder.savemessage(uid, None, flags, rtime)
+                return
 
-        self.ui.copyingmessage(uid, self, [dstfolder])
-        # If any of the destinations actually stores the message body,
-        # load it up.
-        if dstfolder.storesmessages():
-            message = self.getmessage(uid)
-        #Succeeded? -> IMAP actually assigned a UID. If newid
-        #remained negative, no server was willing to assign us an
-        #UID. If newid is 0, saving succeeded, but we could not
-        #retrieve the new UID. Ignore message in this case.
-        newuid = dstfolder.savemessage(uid, message, flags, rtime)
-        if newuid > 0:
-            if newuid != uid:
-                # Got new UID, change the local uid.
-                #TODO: Maildir could do this with a rename rather than
-                #load/save/del operation, IMPLEMENT a changeuid()
-                #function or so.
-                self.savemessage(newuid, message, flags, rtime)
+            self.ui.copyingmessage(uid, self, [dstfolder])
+            # If any of the destinations actually stores the message body,
+            # load it up.
+            if dstfolder.storesmessages():
+                message = self.getmessage(uid)
+            #Succeeded? -> IMAP actually assigned a UID. If newid
+            #remained negative, no server was willing to assign us an
+            #UID. If newid is 0, saving succeeded, but we could not
+            #retrieve the new UID. Ignore message in this case.
+            newuid = dstfolder.savemessage(uid, message, flags, rtime)
+            if newuid > 0:
+                if newuid != uid:
+                    # Got new UID, change the local uid.
+                    #TODO: Maildir could do this with a rename rather than
+                    #load/save/del operation, IMPLEMENT a changeuid()
+                    #function or so.
+                    self.savemessage(newuid, message, flags, rtime)
+                    self.deletemessage(uid)
+                    uid = newuid
+                # Save uploaded status in the statusfolder
+                statusfolder.savemessage(uid, message, flags, rtime)
+    
+            elif newuid == 0:
+                # Message was stored to dstfolder, but we can't find it's UID
+                # This means we can't link current message to the one created
+                # in IMAP. So we just delete local message and on next run
+                # we'll sync it back
+                # XXX This could cause infinite loop on syncing between two
+                # IMAP servers ...
                 self.deletemessage(uid)
-                uid = newuid
-            # Save uploaded status in the statusfolder
-            statusfolder.savemessage(uid, message, flags, rtime)
+            else:
+                raise OfflineImapError("Trying to save msg (uid %d) on folder "
+                                  "%s returned invalid uid %d" % \
+                                      (uid,
+                                       dstfolder.getvisiblename(),
+                                       newuid),
+                                       OfflineImapError.ERROR.MESSAGE)
+        except OfflineImapError, e:
+            if e.severity > OfflineImapError.ERROR.MESSAGE:
+                raise # buble severe errors up
+            self.ui.error(e, exc_info()[2])
+        except Exception, e:
+            self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
+                              (uid, self.getaccountname(),
+                               traceback.format_exc()))
+            raise    #raise on unknown errors, so we can fix those
 
-        elif newuid == 0:
-            # Message was stored to dstfolder, but we can't find it's UID
-            # This means we can't link current message to the one created
-            # in IMAP. So we just delete local message and on next run
-            # we'll sync it back
-            # XXX This could cause infinite loop on syncing between two
-            # IMAP servers ...
-            self.deletemessage(uid)
-        else:
-            raise OfflineImapError("Trying to save msg (uid %d) on folder "
-                              "%s returned invalid uid %d" % \
-                                  (uid,
-                                   dstfolder.getvisiblename(),
-                                   newuid),
-                                   OfflineImapError.ERROR.MESSAGE)
 
     def syncmessagesto_copy(self, dstfolder, statusfolder):
         """Pass1: Copy locally existing messages not on the other side
@@ -297,30 +309,21 @@ class BaseFolder(object):
                               statusfolder.uidexists(uid),
                             self.getmessageuidlist())
         for uid in copylist:
-            try:
-                if self.suggeststhreads():
-                    self.waitforthread()
-                    thread = threadutil.InstanceLimitedThread(\
-                        self.getcopyinstancelimit(),
-                        target = self.copymessageto,
-                        name = "Copy message %d from %s" % (uid,
-                                                        self.getvisiblename()),
-                        args = (uid, dstfolder, statusfolder))
-                    thread.setDaemon(1)
-                    thread.start()
-                    threads.append(thread)
-                else:
-                    self.copymessageto(uid, dstfolder, statusfolder,
-                                       register = 0)
-            except OfflineImapError, e:
-                if e.severity > OfflineImapError.ERROR.Message:
-                    raise # buble severe errors up
-                self.ui.error(e, exc_info()[2])
-            except Exception, e:
-                self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
-                                  (uid, self.getaccountname(),
-                                   traceback.format_exc()))
-                raise    #raise on unknown errors, so we can fix those
+            # exceptions are caught in copymessageto()
+            if self.suggeststhreads():
+                self.waitforthread()
+                thread = threadutil.InstanceLimitedThread(\
+                    self.getcopyinstancelimit(),
+                    target = self.copymessageto,
+                    name = "Copy message %d from %s" % (uid,
+                                                    self.getvisiblename()),
+                    args = (uid, dstfolder, statusfolder))
+                thread.setDaemon(1)
+                thread.start()
+                threads.append(thread)
+            else:
+                self.copymessageto(uid, dstfolder, statusfolder,
+                                   register = 0)
         for thread in threads:
             thread.join()
 
