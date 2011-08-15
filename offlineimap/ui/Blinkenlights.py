@@ -54,9 +54,9 @@ class BlinkenBase:
         s.gettf().setcolor('blue')
         s.__class__.__bases__[-1].syncingmessages(s, sr, sf, dr, df)
 
-    def copyingmessage(s, uid, src, destlist):
+    def copyingmessage(s, uid, src, destfolder):
         s.gettf().setcolor('orange')
-        s.__class__.__bases__[-1].copyingmessage(s, uid, src, destlist)
+        s.__class__.__bases__[-1].copyingmessage(s, uid, src, destfolder)
 
     def deletingmessages(s, uidlist, destlist):
         s.gettf().setcolor('red')

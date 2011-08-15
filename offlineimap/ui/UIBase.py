@@ -285,11 +285,12 @@ class UIBase:
                                                           s.getnicename(dr),
                                                           df.getname()))
 
-    def copyingmessage(s, uid, src, destlist):
-        if s.verbose >= 0:
-            ds = s.folderlist(destlist)
-            s._msg("Copy message %d %s[%s] -> %s" % (uid, s.getnicename(src),
-                                                     src.getname(), ds))
+    def copyingmessage(self, uid, src, destfolder):
+        """Output a log line stating which message we copy"""
+        if self.verbose >= 0:
+            self._msg("Copy message %d %s[%s] -> %s[%s]" % \
+                       (uid, self.getnicename(src), src, 
+                        self.getnicename(destfolder), destfolder))
 
     def deletingmessage(s, uid, destlist):
         if s.verbose >= 0:

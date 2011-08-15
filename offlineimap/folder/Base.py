@@ -244,7 +244,7 @@ class BaseFolder(object):
                 statusfolder.savemessage(uid, None, flags, rtime)
                 return
 
-            self.ui.copyingmessage(uid, self, [dstfolder])
+            self.ui.copyingmessage(uid, self, dstfolder)
             # If any of the destinations actually stores the message body,
             # load it up.
             if dstfolder.storesmessages():
@@ -254,6 +254,7 @@ class BaseFolder(object):
             #UID. If newid is 0, saving succeeded, but we could not
             #retrieve the new UID. Ignore message in this case.
             newuid = dstfolder.savemessage(uid, message, flags, rtime)
+
             if newuid > 0:
                 if newuid != uid:
                     # Got new UID, change the local uid.
