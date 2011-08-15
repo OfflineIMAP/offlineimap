@@ -206,8 +206,9 @@ class IMAPFolder(BaseFolder):
             if data == [None] or res_type != 'OK':
                 #IMAP server says bad request or UID does not exist
                 severity = OfflineImapError.ERROR.MESSAGE
-                reason = "IMAP server '%s' responded with '%s' to fetching "\
-                    "message UID '%d'" % (self.getrepository(), res_type, uid)
+                reason = "IMAP server '%s' failed to fetch message UID '%d'."\
+                    "Server responded: %s %s" % (self.getrepository(), uid,
+                                                 res_type, data)
                 if data == [None]:
                     #IMAP server did not find a message with this UID
                     reason = "IMAP server '%s' does not have a message "\
