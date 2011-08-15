@@ -454,9 +454,14 @@ class IMAPFolder(BaseFolder):
                           (date, dbg_output))
 
             #Do the APPEND
-            (typ, dat) = imapobj.append(self.getfullname(),
+            try:
+                (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
+            except Exception, e:
+                # If the server responds with 'BAD', append() raise()s directly.
+                # So we need to prepare a response ourselves.
+                typ, dat = 'BAD', str(e)
             if typ != 'OK': #APPEND failed
                 raise OfflineImapError("Saving msg in folder '%s', repository "
                     "'%s' failed. Server reponded; %s %s\nMessage content was:"
