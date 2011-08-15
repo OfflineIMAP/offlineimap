@@ -25,6 +25,7 @@ import hmac
 import socket
 import base64
 import time
+import errno
 
 from socket import gaierror
 try:
