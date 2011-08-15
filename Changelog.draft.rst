@@ -23,6 +23,8 @@ Changes
 * Refactor our IMAPServer class. Background work without user-visible
   changes.
 
+* Updated bundled imaplib2 to version 2.28
+
 Bug Fixes
 ---------
 

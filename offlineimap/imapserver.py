@@ -24,10 +24,11 @@ import offlineimap.accounts
 import hmac
 import socket
 import base64
+import time
 
 from socket import gaierror
 try:
-    from ssl import SSLError
+    from ssl import SSLError, cert_time_to_seconds
 except ImportError:
     # Protect against python<2.6, use dummy and won't get SSL errors.
     SSLError = None
@@ -204,9 +205,12 @@ class IMAPServer:
                     self.ui.connecting(self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname,
                                                            self.port,
-                                                           self.sslclientkey, self.sslclientcert,
+                                                           self.sslclientkey,
+                                                           self.sslclientcert,
+                                                           self.sslcacertfile,
+                                                           self.verifycert,
                                                            timeout=socket.getdefaulttimeout(),
-                                                           cacertfile = self.sslcacertfile)
+                                                           )
                 else:
                     self.ui.connecting(self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
@@ -402,6 +406,47 @@ class IMAPServer:
                 idler.join()
 
             self.ui.debug('imap', 'keepalive: bottom of loop')
+
+
+    def verifycert(self, cert, hostname):
+        '''Verify that cert (in socket.getpeercert() format) matches hostname.
+        CRLs are not handled.
+        
+        Returns error message if any problems are found and None on success.
+        '''
+        errstr = "CA Cert verifying failed: "
+        if not cert:
+            return ('%s no certificate received' % errstr)
+        dnsname = hostname.lower()
+        certnames = []
+
+        # cert expired?
+        notafter = cert.get('notAfter') 
+        if notafter:
+            if time.time() >= cert_time_to_seconds(notafter):
+                return '%s certificate expired %s' % (errstr, notafter)
+
+        # First read commonName
+        for s in cert.get('subject', []):
+            key, value = s[0]
+            if key == 'commonName':
+                certnames.append(value.lower())
+        if len(certnames) == 0:
+            return ('%s no commonName found in certificate' % errstr)
+
+        # Then read subjectAltName
+        for key, value in cert.get('subjectAltName', []):
+            if key == 'DNS':
+                certnames.append(value.lower())
+
+        # And finally try to match hostname with one of these names
+        for certname in certnames:
+            if (certname == dnsname or
+                '.' in dnsname and certname == '*.' + dnsname.split('.', 1)[1]):
+                return None
+
+        return ('%s no matching domain name found in certificate' % errstr)
+
 
 class IdleThread(object):
     def __init__(self, parent, folder=None):
