@@ -2,7 +2,7 @@
 
 """Threaded IMAP4 client.
 
-Based on RFC 2060 and original imaplib module.
+Based on RFC 3501 and original imaplib module.
 
 Public classes:   IMAP4
                   IMAP4_SSL
@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.24"
+__version__ = "2.28"
 __release__ = "2"
-__revision__ = "24"
+__revision__ = "28"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -38,7 +38,8 @@ Improved timeout handling contributed by Ivan Vovnenko <ivovnenko@gmail.com> Oct
 Timeout handling further improved by Ethan Glasser-Camp <glasse@cs.rpi.edu> December 2010.
 Time2Internaldate() patch to match RFC2060 specification of English month names from bugs.python.org/issue11024 March 2011.
 starttls() bug fixed with the help of Sebastian Spaeth <sebastian@sspaeth.de> April 2011.
-Threads now set the "daemon" flag (suggested by offlineimap-project)."""
+Threads now set the "daemon" flag (suggested by offlineimap-project) April 2011.
+Single quoting introduced with the help of Vladimir Marek <vladimir.marek@oracle.com> August 2011."""
 __author__ = "Piers Lauder <piers@janeelix.com>"
 __URL__ = "http://imaplib2.sourceforge.net"
 __license__ = "Python License"
@@ -57,7 +58,7 @@ IMAP4_SSL_PORT = 993
 IDLE_TIMEOUT_RESPONSE = '* IDLE TIMEOUT\r\n'
 IDLE_TIMEOUT = 60*29                            # Don't stay in IDLE state longer
 READ_POLL_TIMEOUT = 30                          # Without this timeout interrupted network connections can hang reader
-READ_SIZE = 32768				# Consume all available in socket
+READ_SIZE = 32768                               # Consume all available in socket
 
 DFLT_DEBUG_BUF_LVL = 3                          # Level above which the logging output goes directly to stderr
 
@@ -88,7 +89,7 @@ Commands = {
         'GETANNOTATION':((AUTH, SELECTED),            True),
         'GETQUOTA':     ((AUTH, SELECTED),            True),
         'GETQUOTAROOT': ((AUTH, SELECTED),            True),
-        'ID':           ((NONAUTH, AUTH, SELECTED),   True),
+        'ID':           ((NONAUTH, AUTH, LOGOUT, SELECTED),   True),
         'IDLE':         ((SELECTED,),                 False),
         'LIST':         ((AUTH, SELECTED),            True),
         'LOGIN':        ((NONAUTH,),                  False),
@@ -137,11 +138,14 @@ class Request(object):
 
     """Private class to represent a request awaiting response."""
 
-    def __init__(self, parent, name=None, callback=None, cb_arg=None):
+    def __init__(self, parent, name=None, callback=None, cb_arg=None, cb_self=False):
         self.parent = parent
         self.name = name
-        self.callback = callback    # Function called to process result
-        self.callback_arg = cb_arg  # Optional arg passed to "callback"
+        self.callback = callback               # Function called to process result
+        if not cb_self:
+            self.callback_arg = cb_arg         # Optional arg passed to "callback"
+        else:
+            self.callback_arg = (self, cb_arg) # Self reference required in callback arg
 
         self.tag = '%s%s' % (parent.tagpre, parent.tagnum)
         parent.tagnum += 1
@@ -153,9 +157,6 @@ class Request(object):
 
 
     def abort(self, typ, val):
-        """Called whenever we abort a command
-
-        Sets self.aborted reason, and deliver()s nothing"""
         self.aborted = (typ, val)
         self.deliver(None)
 
@@ -238,12 +239,17 @@ class IMAP4(object):
     All (non-callback) arguments to commands are converted to strings,
     except for AUTHENTICATE, and the last argument to APPEND which is
     passed as an IMAP4 literal.  If necessary (the string contains any
-    non-printing characters or white-space and isn't enclosed with either
-    parentheses or double quotes) each string is quoted.  However, the
-    'password' argument to the LOGIN command is always quoted.  If you
-    want to avoid having an argument string quoted (eg: the 'flags'
-    argument to STORE) then enclose the string in parentheses (eg:
-    "(\Deleted)").
+    non-printing characters or white-space and isn't enclosed with
+    either parentheses or double or single quotes) each string is
+    quoted.  However, the 'password' argument to the LOGIN command is
+    always quoted.  If you want to avoid having an argument string
+    quoted (eg: the 'flags' argument to STORE) then enclose the string
+    in parentheses (eg: "(\Deleted)"). If you are using "sequence sets"
+    containing the wildcard character '*', then enclose the argument
+    in single quotes: the quotes will be removed and the resulting
+    string passed unquoted. Note also that you can pass in an argument
+    with a type that doesn't evaluate to 'basestring' (eg: 'bytearray')
+    and it will be converted to a string without quoting.
 
     There is one instance variable, 'state', that is useful for tracking
     whether the client needs to login to the server. If it has the
@@ -275,6 +281,7 @@ class IMAP4(object):
         # so match not the inverse set
     mustquote_cre = re.compile(r"[^!#$&'+,./0-9:;<=>?@A-Z\[^_`a-z|}~-]")
     response_code_cre = re.compile(r'\[(?P<type>[A-Z-]+)( (?P<data>[^\]]*))?\]')
+    # sequence_set_cre = re.compile(r"^[0-9]+(:([0-9]+|\*))?(,[0-9]+(:([0-9]+|\*))?)*$")
     untagged_response_cre = re.compile(r'\* (?P<type>[A-Z-]+)( (?P<data>.*))?')
     untagged_status_cre = re.compile(r'\* (?P<data>\d+) (?P<type>[A-Z-]+)( (?P<data2>.*))?')
 
@@ -339,8 +346,6 @@ class IMAP4(object):
         self.state_change_free = threading.Event()
         self.state_change_pending = threading.Lock()
         self.commands_lock = threading.Lock()
-        """commands_lock prevents self.untagged_responses to be
-        manipulated concurrently"""
         self.idle_lock = threading.Lock()
 
         self.ouq = Queue.Queue(10)
@@ -368,7 +373,7 @@ class IMAP4(object):
             elif self._get_untagged_response('OK'):
                 if __debug__: self._log(1, 'state => NONAUTH')
             else:
-                raise self.error(self.welcome)
+                raise self.error('unrecognised server welcome message: %s' % `self.welcome`)
 
             typ, dat = self.capability()
             if dat == [None]:
@@ -441,6 +446,35 @@ class IMAP4(object):
             raise socket.error(msg)
 
         return s
+
+
+    def ssl_wrap_socket(self):
+
+        # Allow sending of keep-alive messages - seems to prevent some servers
+        # from closing SSL, leading to deadlocks.
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+
+        try:
+            import ssl
+            if self.ca_certs is not None:
+                cert_reqs = ssl.CERT_REQUIRED
+            else:
+                cert_reqs = ssl.CERT_NONE
+            self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, ca_certs=self.ca_certs, cert_reqs=cert_reqs)
+            ssl_exc = ssl.SSLError
+        except ImportError:
+            # No ssl module, and socket.ssl does not allow certificate verification
+            if self.ca_certs is not None:
+                raise socket.sslerror("SSL CA certificates cannot be checked without ssl module")
+            self.sock = socket.ssl(self.sock, self.keyfile, self.certfile)
+            ssl_exc = socket.sslerror
+
+        if self.cert_verify_cb is not None:
+            cert_err = self.cert_verify_cb(self.sock.getpeercert(), self.host)
+            if cert_err:
+                raise ssl_exc(cert_err)
+
+        self.read_fd = self.sock.fileno()
 
 
     def start_compressing(self):
@@ -671,7 +705,7 @@ class IMAP4(object):
 
 
     def examine(self, mailbox='INBOX', **kw):
-        """(typ, [data]) = examine(mailbox='INBOX', readonly=False)
+        """(typ, [data]) = examine(mailbox='INBOX')
         Select a mailbox for READ-ONLY access. (Flushes all untagged responses.)
         'data' is count of messages in mailbox ('EXISTS' response).
         Mandated responses are ('FLAGS', 'EXISTS', 'RECENT', 'UIDVALIDITY'), so
@@ -745,13 +779,23 @@ class IMAP4(object):
 
     def id(self, *kv_pairs, **kw):
         """(typ, [data]) = <instance>.id(kv_pairs)
-        'data' is list of ID key value pairs.
-        Request information for problem analysis and determination.
+        'kv_pairs' is a possibly empty list of keys and values.
+        'data' is a list of ID key value pairs or NIL.
+        NB: a single argument is assumed to be correctly formatted and is passed through unchanged
+        (for backward compatibility with earlier version).
+        Exchange information for problem analysis and determination.
         The ID extension is defined in RFC 2971. """
 
         name = 'ID'
         kw['untagged_response'] = name
-        return self._simple_command(name, *kv_pairs, **kw)
+
+        if not kv_pairs:
+            data = 'NIL'
+        elif len(kv_pairs) == 1:
+            data = kv_pairs[0]     # Assume invoker passing correctly formatted string (back-compat)
+        else:
+            data = '(%s)' % ' '.join([(arg and self._quote(arg) or 'NIL') for arg in kv_pairs])
+        return self._simple_command(name, (data,), **kw)
 
 
     def idle(self, timeout=None, **kw):
@@ -999,8 +1043,8 @@ class IMAP4(object):
         return self._simple_command(name, sort_criteria, charset, *search_criteria, **kw)
 
 
-    def starttls(self, keyfile=None, certfile=None, **kw):
-        """(typ, [data]) = starttls(keyfile=None, certfile=None)
+    def starttls(self, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, **kw):
+        """(typ, [data]) = starttls(keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None)
         Start TLS negotiation as per RFC 2595."""
 
         name = 'STARTTLS'
@@ -1013,7 +1057,7 @@ class IMAP4(object):
 
         # Must now shutdown reader thread after next response, and restart after changing read_fd
 
-        self.read_size = 1                # Don't consume TLS handshake	
+        self.read_size = 1                # Don't consume TLS handshake
         self.TerminateReader = True
 
         try:
@@ -1031,14 +1075,13 @@ class IMAP4(object):
             self.rdth.start()
             raise self.error("Couldn't establish TLS session: %s" % dat)
 
-        try:
-            try:
-                import ssl
-                self.sock = ssl.wrap_socket(self.sock, keyfile, certfile)
-            except ImportError:
-                self.sock = socket.ssl(self.sock, keyfile, certfile)
+        self.keyfile = keyfile
+        self.certfile = certfile
+        self.ca_certs = ca_certs
+        self.cert_verify_cb = cert_verify_cb
 
-            self.read_fd = self.sock.fileno()
+        try:
+            self.ssl_wrap_socket()
         finally:
             # Restart reader thread
             self.rdth = threading.Thread(target=self._reader)
@@ -1140,29 +1183,34 @@ class IMAP4(object):
 
 
     def _append_untagged(self, typ, dat):
-        """Append new untagged response
 
-        Append new 'dat' to end of last untagged response if same 'typ',
-        else append new response."""
+        # Append new 'dat' to end of last untagged response if same 'typ',
+        # else append new response.
+
         if dat is None: dat = ''
-        ur_data = []
 
-        self.commands_lock.acquire() # protect untagged_responses
+        self.commands_lock.acquire()
 
-        if self.untagged_responses and self.untagged_responses[-1][0] == typ:
-            # last respons is of type 'typ', get ur_data for appending
-            ur_data = self.untagged_responses[-1][1]
+        if self.untagged_responses:
+            urn, urd = self.untagged_responses[-1]
+            if urn != typ:
+                 urd = None
         else:
-            # need to create new untagged response of this type
-            self.untagged_responses.append([typ, ur_data])
+            urd = None
 
-        ur_data.append(dat)
+        if urd is None:
+            urd = []
+            self.untagged_responses.append([typ, urd])
+
+        urd.append(dat)
+
         self.commands_lock.release()
-        if __debug__: self._log(5, 'untagged_responses[%s] %s += ["%s"]' % (typ, len(ur_data)-1, dat))
+
+        if __debug__: self._log(5, 'untagged_responses[%s] %s += ["%s"]' % (typ, len(urd)-1, dat))
 
 
     def _check_bye(self):
-        """raise Exception if untagged responses contains a 'BYE'"""
+
         bye = self._get_untagged_response('BYE', leave=True)
         if bye:
             raise self.abort(bye[-1])
@@ -1171,12 +1219,14 @@ class IMAP4(object):
     def _checkquote(self, arg):
 
         # Must quote command args if "atom-specials" present,
-        # and not already quoted.
+        # and not already quoted. NB: single quotes are removed.
 
         if not isinstance(arg, basestring):
             return arg
         if len(arg) >= 2 and (arg[0],arg[-1]) in (('(',')'),('"','"')):
             return arg
+        if len(arg) >= 2 and (arg[0],arg[-1]) in (("'","'"),):
+            return arg[1:-1]
         if arg and self.mustquote_cre.search(arg) is None:
             return arg
         return self._quote(arg)
@@ -1372,11 +1422,7 @@ class IMAP4(object):
 
 
     def _get_untagged_response(self, name, leave=False):
-        """Return an untagged response of type 'name'
 
-        :param leave: If leave (default: False) is True, we keep the
-            fetched responsem; otherwise it will be deleted. Returns
-            None if no such response found."""
         self.commands_lock.acquire()
 
         for i, (typ, dat) in enumerate(self.untagged_responses):
@@ -1543,24 +1589,13 @@ class IMAP4(object):
     def _simple_command(self, name, *args, **kw):
 
         if 'callback' in kw:
-            rqb = self._command(name, callback=self._command_completer, *args)
-            rqb.callback_arg = (rqb, kw)
+            self._command(name, *args, callback=self._command_completer, cb_arg=kw, cb_self=True)
             return (None, None)
         return self._command_complete(self._command(name, *args), kw)
 
 
     def _untagged_response(self, typ, dat, name):
-        """Returns an untagged response for 'name' of type 'typ'
 
-        :param typ: 'OK, 'NO', etc... which will be used for the type of
-            the response.
-        :param dat: The fallback data to be used in case `typ` is
-            'NO'. Otherwise the data from the existing untagged
-            responses will be searched for data to be returned. If there
-            is no such response, we return `[None]` as data.
-        :param name: The name of the response.
-        :returns: (typ, data)
-        """
         if typ == 'NO':
             return typ, dat
         data = self._get_untagged_response(name)
@@ -1936,22 +1971,27 @@ class IMAP4_SSL(IMAP4):
     Instantiate with:
         IMAP4_SSL(host=None, port=None, keyfile=None, certfile=None, debug=None, debug_file=None, identifier=None, timeout=None)
 
-        host       - host's name (default: localhost);
-        port       - port number (default: standard IMAP4 SSL port);
-        keyfile    - PEM formatted file that contains your private key (default: None);
-        certfile   - PEM formatted certificate chain file (default: None);
-        debug      - debug level (default: 0 - no debug);
-        debug_file - debug stream (default: sys.stderr);
-        identifier - thread identifier prefix (default: host);
-        timeout    - timeout in seconds when expecting a command response.
+        host           - host's name (default: localhost);
+        port           - port number (default: standard IMAP4 SSL port);
+        keyfile        - PEM formatted file that contains your private key (default: None);
+        certfile       - PEM formatted certificate chain file (default: None);
+        ca_certs       - PEM formatted certificate chain file used to validate server certificates (default: None);
+        cert_verify_cb - function to verify authenticity of server certificates (default: None);
+        debug          - debug level (default: 0 - no debug);
+        debug_file     - debug stream (default: sys.stderr);
+        identifier     - thread identifier prefix (default: host);
+        timeout        - timeout in seconds when expecting a command response.
+        debug_buf_lvl  - debug level at which buffering is turned off.
 
     For more documentation see the docstring of the parent class IMAP4.
     """
 
 
-    def __init__(self, host=None, port=None, keyfile=None, certfile=None, debug=None, debug_file=None, identifier=None, timeout=None, debug_buf_lvl=None):
+    def __init__(self, host=None, port=None, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, debug=None, debug_file=None, identifier=None, timeout=None, debug_buf_lvl=None):
         self.keyfile = keyfile
         self.certfile = certfile
+        self.ca_certs = ca_certs
+        self.cert_verify_cb = cert_verify_cb
         IMAP4.__init__(self, host, port, debug, debug_file, identifier, timeout, debug_buf_lvl)
 
 
@@ -1965,14 +2005,7 @@ class IMAP4_SSL(IMAP4):
         self.host = self._choose_nonull_or_dflt('', host)
         self.port = self._choose_nonull_or_dflt(IMAP4_SSL_PORT, port)
         self.sock = self.open_socket()
-
-        try:
-            import ssl
-            self.sslobj = ssl.wrap_socket(self.sock, self.keyfile, self.certfile)
-        except ImportError:
-            self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
-
-        self.read_fd = self.sock.fileno()
+        self.ssl_wrap_socket()
 
 
     def read(self, size):
@@ -1980,12 +2013,12 @@ class IMAP4_SSL(IMAP4):
         Read at most 'size' bytes from remote."""
 
         if self.decompressor is None:
-            return self.sslobj.read(size)
+            return self.sock.read(size)
 
         if self.decompressor.unconsumed_tail:
             data = self.decompressor.unconsumed_tail
         else:
-            data = self.sslobj.read(8192)
+            data = self.sock.read(8192)
 
         return self.decompressor.decompress(data, size)
 
@@ -1998,21 +2031,23 @@ class IMAP4_SSL(IMAP4):
             data = self.compressor.compress(data)
             data += self.compressor.flush(zlib.Z_SYNC_FLUSH)
 
-        # NB: socket.ssl needs a "sendall" method to match socket objects.
-        bytes = len(data)
-        while bytes > 0:
-            sent = self.sslobj.write(data)
-            if sent == bytes:
-                break    # avoid copy
-            data = data[sent:]
-            bytes = bytes - sent
+        if hasattr(self.sock, "sendall"):
+            self.sock.sendall(data)
+        else:
+            bytes = len(data)
+            while bytes > 0:
+                sent = self.sock.write(data)
+                if sent == bytes:
+                    break    # avoid copy
+                data = data[sent:]
+                bytes = bytes - sent
 
 
     def ssl(self):
         """ssl = ssl()
         Return socket.ssl instance used to communicate with the IMAP4 server."""
 
-        return self.sslobj
+        return self.sock
 
 
 
@@ -2021,13 +2056,14 @@ class IMAP4_stream(IMAP4):
     """IMAP4 client class over a stream
 
     Instantiate with:
-        IMAP4_stream(command, debug=None, debug_file=None, identifier=None, timeout=None)
+        IMAP4_stream(command, debug=None, debug_file=None, identifier=None, timeout=None, debug_buf_lvl=None)
 
-        command    - string that can be passed to subprocess.Popen();
-        debug      - debug level (default: 0 - no debug);
-        debug_file - debug stream (default: sys.stderr);
-        identifier - thread identifier prefix (default: host);
-        timeout    - timeout in seconds when expecting a command response.
+        command        - string that can be passed to subprocess.Popen();
+        debug          - debug level (default: 0 - no debug);
+        debug_file     - debug stream (default: sys.stderr);
+        identifier     - thread identifier prefix (default: host);
+        timeout        - timeout in seconds when expecting a command response.
+        debug_buf_lvl  - debug level at which buffering is turned off.
 
     For more documentation see the docstring of the parent class IMAP4.
     """
@@ -2296,7 +2332,7 @@ if __name__ == '__main__':
     ('list', ('/tmp', 'imaplib2_test*')),
     ('select', ('/tmp/imaplib2_test.2',)),
     ('search', (None, 'SUBJECT', 'IMAP4 test')),
-    ('fetch', ('1', '(FLAGS INTERNALDATE RFC822)')),
+    ('fetch', ("'1:*'", '(FLAGS INTERNALDATE RFC822)')),
     ('store', ('1', 'FLAGS', '(\Deleted)')),
     ('namespace', ()),
     ('expunge', ()),
@@ -2380,6 +2416,11 @@ if __name__ == '__main__':
             else: path = ml.split()[-1]
             run('delete', (path,))
 
+        if 'ID' in M.capabilities:
+            run('id', ())
+            run('id', ('("name", "imaplib2")',))
+            run('id', ("version", __version__, "os", os.uname()[0]))
+ 
         for cmd,args in test_seq2:
             if (cmd,args) != ('uid', ('SEARCH', 'SUBJECT', 'IMAP4 test')):
                 run(cmd, args)
