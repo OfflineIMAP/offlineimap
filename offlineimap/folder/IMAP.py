@@ -318,6 +318,74 @@ class IMAPFolder(BaseFolder):
         matchinguids.sort()
         return long(matchinguids[0])
 
+    def savemessage_fetchheaders(self, imapobj, headername, headervalue):
+        """ We fetch all new mail headers and search for the right
+        X-OfflineImap line by hand. The response from the server has form:
+        (
+          'OK',
+          [
+            (
+              '185 (RFC822.HEADER {1789}',
+              '... mail headers ...'
+            ),
+            ' UID 2444)',
+            (
+              '186 (RFC822.HEADER {1789}',
+              '... 2nd mail headers ...'
+            ),
+            ' UID 2445)'
+          ]
+        )
+        We need to locate the UID just after mail headers containing our
+        X-OfflineIMAP line.
+
+        Returns UID when found, 0 when not found.
+        """
+        self.ui.debug('imap', 'savemessage_fetchheaders called for %s: %s' % \
+                 (headername, headervalue))
+
+        # run "fetch X:* rfc822.header"
+        # since we stored the mail we are looking for just recently, it would
+        # not be optimal to fetch all messages. So we'll find highest message
+        # UID in our local messagelist and search from there (exactly from
+        # UID+1). That works because UIDs are guaranteed to be unique and
+        # ascending.
+
+        if self.getmessagelist():
+            start = 1+max(self.getmessagelist().keys())
+        else:
+            # Folder was empty - start from 1
+            start = 1
+
+        # Imaplib quotes all parameters of a string type. That must not happen
+        # with the range X:*. So we use bytearray to stop imaplib from getting
+        # in our way
+
+        result = imapobj.uid('FETCH', bytearray('%d:*' % start), 'rfc822.header')
+        if result[0] != 'OK':
+            raise OfflineImapError('Error fetching mail headers: ' + '. '.join(result[1]),
+                     OfflineImapError.ERROR.MESSAGE)
+
+        result = result[1]
+
+        found = 0
+        for item in result:
+            if found == 0 and type(item) == type( () ):
+                # Walk just tuples
+                if re.search("(?:^|\\r|\\n)%s:\s*%s(?:\\r|\\n)" % (headername, headervalue),
+                        item[1], flags=re.IGNORECASE):
+                    found = 1
+            elif found == 1:
+                if type(item) == type (""):
+                    uid = re.search("UID\s+(\d+)", item, flags=re.IGNORECASE)
+                    if uid:
+                        return int(uid.group(1))
+                    else:
+                        self.ui.warn("Can't parse FETCH response, can't find UID: %s", result.__repr__())
+                else:
+                    self.ui.warn("Can't parse FETCH response, we awaited string: %s", result.__repr__())
+
+        return 0
 
     def getmessageinternaldate(self, content, rtime=None):
         """Parses mail and returns an INTERNALDATE string
@@ -491,10 +559,15 @@ class IMAPFolder(BaseFolder):
                                                        headervalue)
                 # See docs for savemessage in Base.py for explanation of this and other return values
                 if uid == 0:
-                    self.ui.debug('imap', 'savemessage: first attempt to get new UID failed.  Going to run a NOOP and try again.')
+                    self.ui.debug('imap', 'savemessage: first attempt to get new UID failed. \
+                            Going to run a NOOP and try again.')
                     assert(imapobj.noop()[0] == 'OK')
                     uid = self.savemessage_searchforheader(imapobj, headername,
                                                        headervalue)
+                    if uid == 0:
+                        self.ui.debug('imap', 'savemessage: second attempt to get new UID failed. \
+                                Going to try search headers manually')
+                        uid = self.savemessage_fetchheaders(imapobj, headername, headervalue)
 
         finally:
             self.imapserver.releaseconnection(imapobj)
