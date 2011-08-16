@@ -73,7 +73,7 @@ class GmailRepository(IMAPRepository):
     def gettrashfolder(self, foldername):
         #: Where deleted mail should be moved
         return  self.getconf('trashfolder','[Gmail]/Trash')
-	
+
     def getspamfolder(self):
         #: Gmail also deletes messages upon EXPUNGE in the Spam folder
         return  self.getconf('spamfolder','[Gmail]/Spam')

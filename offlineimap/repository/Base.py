@@ -42,14 +42,14 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
     # The 'restoreatime' config parameter only applies to local Maildir
     # mailboxes.
     def restore_atime(self):
-	if self.config.get('Repository ' + self.name, 'type').strip() != \
-		'Maildir':
-	    return
+        if self.config.get('Repository ' + self.name, 'type').strip() != \
+                'Maildir':
+            return
 
-	if not self.config.has_option('Repository ' + self.name, 'restoreatime') or not self.config.getboolean('Repository ' + self.name, 'restoreatime'):
-	    return
+        if not self.config.has_option('Repository ' + self.name, 'restoreatime') or not self.config.getboolean('Repository ' + self.name, 'restoreatime'):
+            return
 
-	return self.restore_folder_atimes()
+        return self.restore_folder_atimes()
 
     def connect(self):
         """Establish a connection to the remote, if necessary.  This exists
