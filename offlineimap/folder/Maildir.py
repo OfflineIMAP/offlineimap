@@ -28,6 +28,11 @@ try:
 except ImportError:
     from md5 import md5
 
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
+
 from offlineimap import OfflineImapError
 
 uidmatchre = re.compile(',U=(\d+)')
@@ -166,11 +171,12 @@ class MaildirFolder(BaseFolder):
                     nouidcounter -= 1
                 else:
                     uid = long(uidmatch.group(1))
+            #identify flags in the path name
             flagmatch = self.flagmatchre.search(messagename)
-            flags = []
             if flagmatch:
-                flags = [x for x in flagmatch.group(1)]
-            flags.sort()
+                flags = set(flagmatch.group(1))
+            else:
+                flags = set()
             retval[uid] = {'uid': uid,
                            'flags': flags,
                            'filename': file}
@@ -261,7 +267,7 @@ class MaildirFolder(BaseFolder):
         if rtime != None:
             os.utime(os.path.join(tmpdir, messagename), (rtime, rtime))
 
-        self.messagelist[uid] = {'uid': uid, 'flags': [],
+        self.messagelist[uid] = {'uid': uid, 'flags': set(),
                                  'filename': os.path.join('tmp', messagename)}
         # savemessageflags moves msg to 'cur' or 'new' as appropriate
         self.savemessageflags(uid, flags)
@@ -288,8 +294,7 @@ class MaildirFolder(BaseFolder):
             infostr = infomatch.group(1)
             newname = newname.split(self.infosep)[0] # Strip off the info string.
         infostr = re.sub('2,[A-Z]*', '', infostr)
-        flags.sort()
-        infostr += '2,' + ''.join(flags)
+        infostr += '2,' + ''.join(sorted(flags))
         newname += infostr
         
         newfilename = os.path.join(dir_prefix, newname)

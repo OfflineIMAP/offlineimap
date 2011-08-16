@@ -21,7 +21,6 @@
 
 from IMAP import IMAPFolder
 from offlineimap import imaputil
-from copy import copy
 
 
 class GmailFolder(IMAPFolder):
@@ -45,7 +44,7 @@ class GmailFolder(IMAPFolder):
     def deletemessages_noconvert(self, uidlist):
         uidlist = [uid for uid in uidlist if uid in self.messagelist]
         if not len(uidlist):
-            return        
+            return
 
         if self.realdelete and not (self.getname() in self.real_delete_folders):
             # IMAP expunge is just "remove label" in this folder,

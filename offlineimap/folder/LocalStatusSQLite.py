@@ -23,6 +23,11 @@ try:
 except:
     pass #fail only if needed later on, not on import
 
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
+
 class LocalStatusSQLiteFolder(LocalStatusFolder):
     """LocalStatus backend implemented with an SQLite database
 
@@ -127,7 +132,6 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
                 for line in file.xreadlines():
                     uid, flags = line.strip().split(':')
                     uid = long(uid)
-                    flags = list(flags)
                     flags = ''.join(sorted(flags))
                     data.append((uid,flags))
                 self.connection.executemany('INSERT INTO status (id,flags) VALUES (?,?)',
@@ -167,7 +171,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         self.messagelist = {}
         cursor = self.connection.execute('SELECT id,flags from status')
         for row in cursor:
-                flags = [x for x in row[1]]
+                flags = set(row[1])
                 self.messagelist[row[0]] = {'uid': row[0], 'flags': flags}
 
     def save(self):

@@ -24,6 +24,11 @@ import time
 from copy import copy
 from Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, OfflineImapError
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
+
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
@@ -176,7 +181,8 @@ class IMAPFolder(BaseFolder):
         finally:
             self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
-            # Discard the message number.
+            # looks like: '1 (FLAGS (\\Seen Old) UID 4807)'
+            # Discard initial message number.
             messagestr = messagestr.split(' ', 1)[1]
             options = imaputil.flags2hash(messagestr)
             if not options.has_key('UID'):
@@ -652,23 +658,18 @@ class IMAPFolder(BaseFolder):
             if not ('UID' in attributehash and 'FLAGS' in attributehash):
                 # Compensate for servers that don't return a UID attribute.
                 continue
-            lflags = attributehash['FLAGS']
+            flagstr = attributehash['FLAGS']
             uid = long(attributehash['UID'])
-            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(lflags)
+            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flagstr)
             try:
                 needupdate.remove(uid)
             except ValueError:          # Let it slide if it's not in the list
                 pass
         for uid in needupdate:
             if operation == '+':
-                for flag in flags:
-                    if not flag in self.messagelist[uid]['flags']:
-                        self.messagelist[uid]['flags'].append(flag)
-                    self.messagelist[uid]['flags'].sort()
+                self.messagelist[uid]['flags'] |= flags
             elif operation == '-':
-                for flag in flags:
-                    if flag in self.messagelist[uid]['flags']:
-                        self.messagelist[uid]['flags'].remove(flag)
+                self.messagelist[uid]['flags'] -= flags
 
     def deletemessage(self, uid):
         self.deletemessages_noconvert([uid])
@@ -682,7 +683,7 @@ class IMAPFolder(BaseFolder):
         if not len(uidlist):
             return
 
-        self.addmessagesflags_noconvert(uidlist, ['T'])
+        self.addmessagesflags_noconvert(uidlist, set('T'))
         imapobj = self.imapserver.acquireconnection()
         try:
             try:

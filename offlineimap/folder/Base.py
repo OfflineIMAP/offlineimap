@@ -22,6 +22,10 @@ import os.path
 import re
 from sys import exc_info
 import traceback
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
 
 class BaseFolder(object):
     def __init__(self):
@@ -189,12 +193,9 @@ class BaseFolder(object):
 
     def addmessageflags(self, uid, flags):
         """Adds the specified flags to the message's flag set.  If a given
-        flag is already present, it will not be duplicated."""
-        newflags = self.getmessageflags(uid)
-        for flag in flags:
-            if not flag in newflags:
-                newflags.append(flag)
-        newflags.sort()
+        flag is already present, it will not be duplicated.
+        :param flags: A set() of flags"""
+        newflags = self.getmessageflags(uid) | flags
         self.savemessageflags(uid, newflags)
 
     def addmessagesflags(self, uidlist, flags):
@@ -204,11 +205,7 @@ class BaseFolder(object):
     def deletemessageflags(self, uid, flags):
         """Removes each flag given from the message's flag set.  If a given
         flag is already removed, no action will be taken for that flag."""
-        newflags = self.getmessageflags(uid)
-        for flag in flags:
-            if flag in newflags:
-                newflags.remove(flag)
-        newflags.sort()
+        newflags = self.getmessageflags(uid) - flags
         self.savemessageflags(uid, newflags)
 
     def deletemessagesflags(self, uidlist, flags):
@@ -362,8 +359,8 @@ class BaseFolder(object):
         addflaglist = {}
         delflaglist = {}
         for uid in self.getmessageuidlist():
-            # Ignore messages with negative UIDs missed by pass 1
-            # also don't do anything if the message has been deleted remotely
+            # Ignore messages with negative UIDs missed by pass 1 and
+            # don't do anything if the message has been deleted remotely
             if uid < 0 or not dstfolder.uidexists(uid):
                 continue
 
@@ -371,30 +368,31 @@ class BaseFolder(object):
             statusflags = statusfolder.getmessageflags(uid)
             #if we could not get message flags from LocalStatus, assume empty.
             if statusflags is None:
-                statusflags = []
-            addflags = [x for x in selfflags if x not in statusflags]
+                statusflags = set()
+
+            addflags = selfflags - statusflags
+            delflags = statusflags - selfflags
 
             for flag in addflags:
                 if not flag in addflaglist:
                     addflaglist[flag] = []
                 addflaglist[flag].append(uid)
 
-            delflags = [x for x in statusflags if x not in selfflags]
             for flag in delflags:
                 if not flag in delflaglist:
                     delflaglist[flag] = []
                 delflaglist[flag].append(uid)
 
-        for flag in addflaglist.keys():
-            self.ui.addingflags(addflaglist[flag], flag, dstfolder)
-            dstfolder.addmessagesflags(addflaglist[flag], [flag])
-            statusfolder.addmessagesflags(addflaglist[flag], [flag])
+        for flag, uids in addflaglist.items():
+            self.ui.addingflags(uids, flag, dstfolder)
+            dstfolder.addmessagesflags(uids, set(flag))
+            statusfolder.addmessagesflags(uids, set(flag))
 
-        for flag in delflaglist.keys():
-            self.ui.deletingflags(delflaglist[flag], flag, dstfolder)
-            dstfolder.deletemessagesflags(delflaglist[flag], [flag])
-            statusfolder.deletemessagesflags(delflaglist[flag], [flag])
-
+        for flag,uids in delflaglist.items():
+            self.ui.deletingflags(uids, flag, dstfolder)
+            dstfolder.deletemessagesflags(uids, set(flag))
+            statusfolder.deletemessagesflags(uids, set(flag))
+                
     def syncmessagesto(self, dstfolder, statusfolder):
         """Syncs messages in this folder to the destination dstfolder.
 
