@@ -67,6 +67,8 @@ class IMAPServer:
         self.sslclientcert = repos.getsslclientcert()
         self.sslclientkey = repos.getsslclientkey()
         self.sslcacertfile = repos.getsslcacertfile()
+        if self.sslcacertfile is None:
+            self.verifycert = None # disable cert verification
         self.delim = None
         self.root = None
         self.maxconnections = repos.getmaxconnections()
