@@ -114,12 +114,12 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
     def getfolder(self, foldername):
         raise NotImplementedError
     
-    def syncfoldersto(self, dest, copyfolders):
+    def syncfoldersto(self, dest, status):
         """Syncs the folders in this repository to those in dest.
         It does NOT sync the contents of those folders.
 
-        For every time dest.makefolder() is called, also call makefolder()
-        on each folder in copyfolders."""
+        Whenever makefolder() is called, also call makefolder() on status
+        folder."""
         src = self
         srcfolders = src.getfolders()
         destfolders = dest.getfolders()
@@ -143,8 +143,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
             if not key in desthash:
                 try:
                     dest.makefolder(key)
-                    for copyfolder in copyfolders:
-                        copyfolder.makefolder(key.replace(dest.getsep(), copyfolder.getsep()))
+                    status.makefolder(key.replace(dest.getsep(), status.getsep()))
                 except (KeyboardInterrupt):
                     raise
                 except:

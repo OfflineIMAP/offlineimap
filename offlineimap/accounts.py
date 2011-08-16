@@ -233,7 +233,7 @@ class SyncableAccount(Account):
             # replicate the folderstructure from REMOTE to LOCAL
             if not localrepos.getconf('readonly', False):
                 self.ui.syncfolders(remoterepos, localrepos)
-                remoterepos.syncfoldersto(localrepos, [statusrepos])
+                remoterepos.syncfoldersto(localrepos, statusrepos)
 
             # iterate through all folders on the remote repo and sync
             for remotefolder in remoterepos.getfolders():
