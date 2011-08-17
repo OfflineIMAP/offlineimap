@@ -431,7 +431,7 @@ class BaseFolder(object):
                 action(dstfolder, statusfolder)
             except (KeyboardInterrupt):
                 raise
-            except OfflineImap, e:
+            except OfflineImapError, e:
                 if e.severity > OfflineImapError.ERROR.FOLDER:
                     raise
                 self.ui.error(e, exc_info()[2])
