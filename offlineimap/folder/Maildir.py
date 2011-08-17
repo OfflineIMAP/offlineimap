@@ -299,8 +299,14 @@ class MaildirFolder(BaseFolder):
         
         newfilename = os.path.join(dir_prefix, newname)
         if (newfilename != oldfilename):
-            os.rename(os.path.join(self.getfullname(), oldfilename),
-                      os.path.join(self.getfullname(), newfilename))
+            try:
+                os.rename(os.path.join(self.getfullname(), oldfilename),
+                          os.path.join(self.getfullname(), newfilename))
+            except OSError, e:
+                raise OfflineImapError("Can't rename file '%s' to '%s': %s" % (
+                                       oldfilename, newfilename, e[1]),
+                                       OfflineImapError.ERROR.FOLDER)
+                
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename
 
