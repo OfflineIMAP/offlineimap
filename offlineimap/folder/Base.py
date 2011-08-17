@@ -72,11 +72,15 @@ class BaseFolder(object):
             return self.getname()
 
     def getfolderbasename(self):
-        foldername = self.getname()
-        foldername = foldername.replace(self.repository.getsep(), '.')
-        foldername = re.sub('/\.$', '/dot', foldername)
-        foldername = re.sub('^\.$', 'dot', foldername)
-        return foldername
+        """Return base file name of file to store Status/UID info in"""
+        if not self.name:
+            basename = '.'
+        else: #avoid directory hierarchies and file names such as '/'
+            basename = self.name.replace('/', '.')
+        # replace with literal 'dot' if final path name is '.' as '.' is
+        # an invalid file name.
+        basename = re.sub('(^|\/)\.$','\\1dot', basename)
+        return basename
 
     def isuidvalidityok(self):
         """Does the cached UID match the real UID

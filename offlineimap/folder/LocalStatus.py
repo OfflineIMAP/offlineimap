@@ -28,7 +28,7 @@ class LocalStatusFolder(BaseFolder):
         self.root = root
         self.sep = '.'
         self.config = config
-        self.filename = repository.getfolderfilename(name)
+        self.filename = os.path.join(root, self.getfolderbasename())
         self.messagelist = {}
         self.repository = repository
         self.savelock = threading.Lock()

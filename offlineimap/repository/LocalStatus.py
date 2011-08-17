@@ -50,10 +50,17 @@ class LocalStatusRepository(BaseRepository):
         return '.'
 
     def getfolderfilename(self, foldername):
-        """Return the full path of the status file"""
-        # replace with 'dot' if final path name is '.'
-        foldername = re.sub('(^|\/)\.$','\\1dot', foldername)
-        return os.path.join(self.directory, foldername)
+        """Return the full path of the status file
+
+        This mimics the path that Folder().getfolderbasename() would return"""
+        if not foldername:
+            basename = '.'
+        else: #avoid directory hierarchies and file names such as '/'
+            basename = foldername.replace('/', '.')
+        # replace with literal 'dot' if final path name is '.' as '.' is
+        # an invalid file name.
+        basename = re.sub('(^|\/)\.$','\\1dot', basename)
+        return os.path.join(self.directory, basename)
 
     def makefolder(self, foldername):
         """Create a LocalStatus Folder

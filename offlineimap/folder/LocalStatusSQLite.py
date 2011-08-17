@@ -115,7 +115,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
             plaintextfilename = os.path.join(
                 self.repository.account.getaccountmeta(),
                 'LocalStatus',
-                re.sub('(^|\/)\.$','\\1dot', self.name))
+                self.getfolderbasename(self.name))
             # MIGRATE from plaintext if needed
             if os.path.exists(plaintextfilename):
                 self.ui._msg('Migrating LocalStatus cache from plain text '
