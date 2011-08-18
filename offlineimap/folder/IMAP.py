@@ -107,51 +107,48 @@ class IMAPFolder(BaseFolder):
 
     # TODO: Make this so that it can define a date that would be the oldest messages etc.
     def cachemessagelist(self):
-        imapobj = self.imapserver.acquireconnection()
+        maxage = self.config.getdefaultint("Account %s" % self.accountname,
+                                           "maxage", -1)
+        maxsize = self.config.getdefaultint("Account %s" % self.accountname,
+                                            "maxsize", -1)
         self.messagelist = {}
+
+        imapobj = self.imapserver.acquireconnection()
 
         try:
             # Primes untagged_responses
             imaptype, imapdata = imapobj.select(self.getfullname(), readonly = 1, force = 1)
 
-            maxage = self.config.getdefaultint("Account " + self.accountname, "maxage", -1)
-            maxsize = self.config.getdefaultint("Account " + self.accountname, "maxsize", -1)
-
             if (maxage != -1) | (maxsize != -1):
-                try:
-                    search_condition = "(";
+                search_cond = "(";
 
-                    if(maxage != -1):
-                        #find out what the oldest message is that we should look at
-                        oldest_time_struct = time.gmtime(time.time() - (60*60*24*maxage))
+                if(maxage != -1):
+                    #find out what the oldest message is that we should look at
+                    oldest_struct = time.gmtime(time.time() - (60*60*24*maxage))
 
-                        #format this manually - otherwise locales could cause problems
-                        monthnames_standard = ["Jan", "Feb", "Mar", "Apr", "May", \
-                            "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                    #format months manually - otherwise locales cause problems
+                    monthnames = ["Jan", "Feb", "Mar", "Apr", "May", \
+                        "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-                        our_monthname = monthnames_standard[oldest_time_struct[1]-1]
-                        daystr = "%(day)02d" % {'day' : oldest_time_struct[2]}
-                        date_search_str = "SINCE " + daystr + "-" + our_monthname \
-                            + "-" + str(oldest_time_struct[0])
+                    month = monthnames[oldest_struct[1]-1]
+                    daystr = "%(day)02d" % {'day' : oldest_struct[2]}
 
-                        search_condition += date_search_str
+                    search_cond += "SINCE %s-%s-%s" % (daystr, month,
+                                                       oldest_struct[0])
 
-                    if(maxsize != -1):
-                        if(maxage != -1): #There are two conditions - add a space
-                            search_condition += " "
+                if(maxsize != -1):
+                    if(maxage != -1): # There are two conditions, add space
+                        search_cond += " "
+                    search_cond += "SMALLER %d" % maxsize
 
-                        search_condition += "SMALLER " + self.config.getdefault("Account " + self.accountname, "maxsize", -1)
+                search_cond += ")"
 
-                    search_condition += ")"
-
-                    res_type, res_data = imapobj.search(None, search_condition)
-                    #result UIDs come back seperated by space
-                    messagesToFetch = imaputil.uid_sequence(res_data.split())
-                except KeyError:
-                    return
+                res_type, res_data = imapobj.search(None, search_cond)
+                # Result UIDs seperated by space, coalesce into ranges
+                messagesToFetch = imaputil.uid_sequence(res_data.split())
                 if not messagesToFetch:
-                    # No messages; return
-                    return
+                    return # No messages to sync
+
             else:
                 # 1. Some mail servers do not return an EXISTS response
                 # if the folder is empty.  2. ZIMBRA servers can return
