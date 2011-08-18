@@ -143,14 +143,13 @@ class IMAPFolder(BaseFolder):
                         search_condition += "SMALLER " + self.config.getdefault("Account " + self.accountname, "maxsize", -1)
 
                     search_condition += ")"
-                    searchresult = imapobj.search(None, search_condition)
 
-                    #result would come back seperated by space - to change into a fetch
-                    #statement we need to change space to comma
-                    messagesToFetch = searchresult[1][0].replace(" ", ",")
+                    res_type, res_data = imapobj.search(None, search_condition)
+                    #result UIDs come back seperated by space
+                    messagesToFetch = imaputil.uid_sequence(res_data.split())
                 except KeyError:
                     return
-                if len(messagesToFetch) < 1:
+                if not messagesToFetch:
                     # No messages; return
                     return
             else:
@@ -172,7 +171,7 @@ class IMAPFolder(BaseFolder):
             # Now, get the flags and UIDs for these.
             # We could conceivably get rid of maxmsgid and just say
             # '1:*' here.
-            response = imapobj.fetch(messagesToFetch, '(FLAGS UID)')[1]
+            response = imapobj.fetch("'%s'" % messagesToFetch, '(FLAGS UID)')[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
