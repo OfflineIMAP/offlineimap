@@ -105,7 +105,6 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
         return False
 
-    # TODO: Make this so that it can define a date that would be the oldest messages etc.
     def cachemessagelist(self):
         maxage = self.config.getdefaultint("Account %s" % self.accountname,
                                            "maxage", -1)
@@ -114,10 +113,11 @@ class IMAPFolder(BaseFolder):
         self.messagelist = {}
 
         imapobj = self.imapserver.acquireconnection()
-
         try:
-            # Primes untagged_responses
-            imaptype, imapdata = imapobj.select(self.getfullname(), readonly = 1, force = 1)
+            res_type, imapdata = imapobj.select(self.getfullname(), True)
+
+            # By default examine all UIDs in this folder
+            msgsToFetch = '1:*'
 
             if (maxage != -1) | (maxsize != -1):
                 search_cond = "(";
@@ -149,28 +149,13 @@ class IMAPFolder(BaseFolder):
                 if not messagesToFetch:
                     return # No messages to sync
 
-            else:
-                # 1. Some mail servers do not return an EXISTS response
-                # if the folder is empty.  2. ZIMBRA servers can return
-                # multiple EXISTS replies in the form 500, 1000, 1500,
-                # 1623 so check for potentially multiple replies.
-                if imapdata == [None]:
-                    return
-
-                maxmsgid = 0
-                for msgid in imapdata:
-                    maxmsgid = max(long(msgid), maxmsgid)
-                if maxmsgid < 1:
-                    #no messages; return
-                    return
-                messagesToFetch = '1:%d' % maxmsgid;
-
-            # Now, get the flags and UIDs for these.
-            # We could conceivably get rid of maxmsgid and just say
-            # '1:*' here.
-            response = imapobj.fetch("'%s'" % messagesToFetch, '(FLAGS UID)')[1]
+            # Get the flags and UIDs for these. single-quotes prevent
+            # imaplib2 from quoting the sequence.
+            res_type, response = imapobj.fetch("'%s'" % msgsToFetch,
+                                               '(FLAGS UID)')
         finally:
             self.imapserver.releaseconnection(imapobj)
+
         for messagestr in response:
             # Discard the message number.
             messagestr = messagestr.split(' ', 1)[1]
