@@ -144,15 +144,28 @@ class IMAPFolder(BaseFolder):
                 search_cond += ")"
 
                 res_type, res_data = imapobj.search(None, search_cond)
-                # Result UIDs seperated by space, coalesce into ranges
-                messagesToFetch = imaputil.uid_sequence(res_data.split())
-                if not messagesToFetch:
+                if res_type != 'OK':
+                    raise OfflineImapError("SEARCH in folder [%s]%s failed. "
+                        "Search string was '%s'. Server responded '[%s] %s'" % (
+                            self.getrepository(), self,
+                            search_cond, res_type, res_data),
+                        OfflineImapError.ERROR.FOLDER)
+
+                # Result UIDs are seperated by space, coalesce into ranges
+                msgsToFetch = imaputil.uid_sequence(res_data.split())
+                if not msgsToFetch:
                     return # No messages to sync
 
             # Get the flags and UIDs for these. single-quotes prevent
             # imaplib2 from quoting the sequence.
             res_type, response = imapobj.fetch("'%s'" % msgsToFetch,
                                                '(FLAGS UID)')
+            if res_type != 'OK':
+                raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. "
+                                       "Server responded '[%s] %s'" % (
+                            self.getrepository(), self,
+                            res_type, response),
+                        OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
 
