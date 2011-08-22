@@ -231,8 +231,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
 
     def savemessageflags(self, uid, flags):
         self.messagelist[uid] = {'uid': uid, 'flags': flags}
-        flags.sort()
-        flags = ''.join(flags)
+        flags = ''.join(sorted(flags))
         self.sql_write('UPDATE status SET flags=? WHERE id=?',(flags,uid))
 
     def deletemessages(self, uidlist):
