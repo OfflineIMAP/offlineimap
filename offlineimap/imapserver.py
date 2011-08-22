@@ -311,7 +311,7 @@ class IMAPServer:
             elif SSLError and isinstance(e, SSLError) and e.errno == 1:
                 # SSL unknown protocol error
                 # happens e.g. when connecting via SSL to a non-SSL service
-                if self.port != 443:
+                if self.port != 993:
                     reason = "Could not connect via SSL to host '%s' and non-s"\
                         "tandard ssl port %d configured. Make sure you connect"\
                         " to the correct port." % (self.hostname, self.port)
