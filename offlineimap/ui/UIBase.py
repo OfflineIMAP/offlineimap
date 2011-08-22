@@ -344,14 +344,6 @@ class UIBase:
         s.delThreadDebugLog(thread)
         s.terminate(100)
 
-    def getMainExceptionString(s):
-        return "Main program terminated with exception:\n%s\n" %\
-               traceback.format_exc() + \
-               s.getThreadDebugLog(threading.currentThread())
-
-    def mainException(s):
-        s._msg(s.getMainExceptionString())
-
     def terminate(self, exitstatus = 0, errortitle = None, errormsg = None):
         """Called to terminate the application."""
         #print any exceptions that have occurred over the run

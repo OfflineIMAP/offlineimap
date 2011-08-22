@@ -347,7 +347,8 @@ class OfflineImap:
         except (SystemExit):
             raise
         except Exception, e:
-            ui.mainException()
+            ui.error(e)
+            ui.terminate()
 
     def sync_singlethreaded(self, accs, config):
         """Executed if we do not want a separate syncmaster thread
