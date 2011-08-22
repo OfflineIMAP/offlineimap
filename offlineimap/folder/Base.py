@@ -436,7 +436,6 @@ class BaseFolder(object):
                     raise
                 self.ui.error(e, exc_info()[2])
             except Exception, e:
-                self.ui.error(e, msg = "ERROR attempting to sync folder %s "
-                             "[acc: %s]:\n  %s" (self, self.getaccountname(),
-                                                 traceback.format_exc()))
+                self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
+                                  (self, self.getaccountname()))
                 raise # raise unknown Exceptions so we can fix them
