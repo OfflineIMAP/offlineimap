@@ -302,7 +302,7 @@ class UIBase:
             ds = s.folderlist(destlist)
             s._msg("Deleting %d messages (%s) in %s" % \
                    (len(uidlist),
-                    ", ".join([str(u) for u in uidlist]),
+                    offlineimap.imaputil.uid_sequence(uidlist),
                     ds))
 
     def addingflags(s, uidlist, flags, dest):
