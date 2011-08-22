@@ -55,7 +55,7 @@ class GmailFolder(IMAPFolder):
             try:
                 imapobj.select(self.getfullname())
                 result = imapobj.uid('copy',
-                                     imaputil.listjoin(uidlist),
+                                     imaputil.uid_sequence(uidlist),
                                      self.trash_folder)
                 assert result[0] == 'OK', \
                        "Bad IMAPlib result: %s" % result[0]

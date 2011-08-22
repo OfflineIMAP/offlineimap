@@ -626,7 +626,7 @@ class IMAPFolder(BaseFolder):
                 self.ui.flagstoreadonly(self, uidlist, flags)
                 return
             r = imapobj.uid('store',
-                            imaputil.listjoin(uidlist),
+                            imaputil.uid_sequence(uidlist),
                             operation + 'FLAGS',
                             imaputil.flagsmaildir2imap(flags))
             assert r[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
