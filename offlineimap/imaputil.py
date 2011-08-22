@@ -188,33 +188,31 @@ def flagsmaildir2imap(maildirflaglist):
     retval.sort()
     return '(' + ' '.join(retval) + ')'
 
-def listjoin(list):
-    start = None
-    end = None
-    retval = []
+def uid_sequence(uidlist):
+    """Collapse UID lists into shorter sequence sets
 
-    def getlist(start, end):
+    [1,2,3,4,5,10,12,13] will return "1:5,10,12:13".  This function does
+    not sort the list, and only collapses if subsequent entries form a
+    range.
+    :returns: The collapsed UID list as string"""
+    def getrange(start, end):
         if start == end:
             return(str(start))
-        else:
-            return(str(start) + ":" + str(end))
-        
+        return "%s:%s" % (start, end)
 
-    for item in list:
-        if start == None:
-            # First item.
-            start = item
-            end = item
-        elif item == end + 1:
-            # An addition to the list.
-            end = item
-        else:
-            # Here on: starting a new list.
-            retval.append(getlist(start, end))
-            start = item
-            end = item
+    if not len(uidlist): return '' # Empty list, return
+    start, end = None, None
+    retval = []
 
-    if start != None:
-        retval.append(getlist(start, end))
+    for item in iter(uidlist):
+        item = int(item)
+        if start == None:     # First item
+            start, end = item, item
+        elif item == end + 1: # Next item in a range
+            end = item
+        else:                 # Starting a new range
+            retval.append(getrange(start, end))
+            start, end = item, item
 
+    retval.append(getrange(start, end)) # Add final range/item
     return ",".join(retval)
