@@ -133,7 +133,7 @@ class MaildirFolder(BaseFolder):
         folderstr = ',FMD5=' + foldermd5
         for dirannex in ['new', 'cur']:
             fulldirname = os.path.join(self.getfullname(), dirannex)
-            files.extend(os.path.join(fulldirname, filename) for
+            files.extend(os.path.join(dirannex, filename) for
                          filename in os.listdir(fulldirname))
         for file in files:
             messagename = os.path.basename(file)
@@ -151,10 +151,9 @@ class MaildirFolder(BaseFolder):
 
             #Check and see if the message is too big if the maxsize for this account is set
             if(maxsize != -1):
-                filesize = os.path.getsize(file)
-                if(filesize > maxsize):
+                size = os.path.getsize(os.path.join(self.getfullname(), file))
+                if(size > maxsize):
                     continue
-            
 
             foldermatch = messagename.find(folderstr) != -1
             if not foldermatch:
@@ -177,6 +176,7 @@ class MaildirFolder(BaseFolder):
                 flags = set(flagmatch.group(1))
             else:
                 flags = set()
+            # 'filename' is 'dirannex/filename', e.g. cur/123_U=1_FMD5=1:2,S
             retval[uid] = {'uid': uid,
                            'flags': flags,
                            'filename': file}
