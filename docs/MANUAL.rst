@@ -14,37 +14,42 @@ Powerful IMAP/Maildir synchronization and reader support
 .. TODO: :Manual group:
 
 
-SYNOPSIS
-========
-
-	offlineimap [-h|--help]
-
-	offlineimap [OPTIONS]
-
-|    -1
-|    -P profiledir
-|    -a accountlist
-|    -c configfile
-|    -d debugtype[,...]
-|      -f foldername[,...]
-|      -k [section:]option=value
-|    -l filename
-|    -o
-|    -u interface
-
-
 DESCRIPTION
 ===========
 
-Most configuration is done via the configuration file.  Nevertheless, there are
-a few command-line options that you may set for OfflineIMAP.
+OfflineImap operates on a REMOTE and a LOCAL repository and synchronizes
+emails between them, so that you can read the same mailbox from multiple
+computers. The REMOTE repository is some IMAP server, while LOCAL can be
+either a local Maildir or another IMAP server.
+
+Missing folders will be automatically created on the LOCAL side, however
+NO folders will currently be created on the REMOTE repository
+automatically (it will sync your emails from local folders if
+corresponding REMOTE folders already exist).
+
+Configuring OfflineImap in basic mode is quite easy, however it provides
+an amazing amount of flexibility for those with special needs.  You can
+specify the number of connections to your IMAP server, use arbitrary
+python functions (including regular expressions) to limit the number of
+folders being synchronized. You can transpose folder names between
+repositories using any python function, to mangle and modify folder
+names on the LOCAL repository. There are six different ways to hand the
+IMAP password to OfflineImap from console input, specifying in the
+configuration file, .netrc support, specifying in a separate file, to
+using arbitrary python functions that somehow return the
+password. Finally, you can use IMAPs IDLE infrastructure to always keep
+a connection to your IMAP server open and immediately be notified (and
+synchronized) when a new mail arrives (aka Push mail).
+
+Most configuration is done via the configuration file.  However, any setting can also be overriden by command line options handed to OfflineIMAP.
+
+OfflineImap is well suited to be frequently invoked by cron jobs, or can run in daemon mode to periodically check your email (however, it will exit in some error situations).
+
+Check out the `Use Cases`_ section for some example configurations.
 
 
 OPTIONS
 =======
-
-
-
 
 
 -1                Disable most multithreading operations
@@ -152,8 +157,7 @@ Blinkenlights
 ---------------
 
 Blinkenlights is an interface designed to be sleek, fun to watch, and
-informative of the overall picture of what OfflineIMAP is doing.  I consider it
-to be the best general-purpose interface in OfflineIMAP.
+informative of the overall picture of what OfflineIMAP is doing.
 
 
 Blinkenlights contains a row of "LEDs" with command buttons and a log.
@@ -230,30 +234,27 @@ English-speaking world. One version ran in its entirety as follows:
 TTYUI
 ---------
 
-TTYUI interface is for people running in basic, non-color terminals.  It
-prints out basic status messages and is generally friendly to use on a console
-or xterm.
+TTYUI interface is for people running in terminals.  It prints out basic
+status messages and is generally friendly to use on a console or xterm.
 
 
 Basic
---------------------
+------
 
 Basic is designed for situations in which OfflineIMAP will be run
-non-attended and the status of its execution will be logged.  You might use it,
-for instance, to have the system run automatically and e-mail you the results of
-the synchronization.  This user interface is not capable of reading a password
-from the keyboard; account passwords must be specified using one of the
-configuration file options.
+non-attended and the status of its execution will be logged.  This user
+interface is not capable of reading a password from the keyboard;
+account passwords must be specified using one of the configuration file
+options.
 
 
 Quiet
 -----
 
-Quiet is designed for non-attended running in situations where normal
-status messages are not desired.  It will output nothing except errors
-and serious warnings.  Like Basic, this user interface is not capable
-of reading a password from the keyboard; account passwords must be
-specified using one of the configuration file options.
+It will output nothing except errors and serious warnings.  Like Basic,
+this user interface is not capable of reading a password from the
+keyboard; account passwords must be specified using one of the
+configuration file options.
 
 MachineUI
 ---------
@@ -262,8 +263,98 @@ MachineUI generates output in a machine-parsable format.  It is designed
 for other programs that will interface to OfflineIMAP.
 
 
-Signals
-=======
+Synchronization Performance
+===========================
+
+By default, we use fairly conservative settings that are safe for
+syncing but that might not be the best performing one. Once you got
+everything set up and running, you might want to look into speeding up
+your synchronization. Here are a couple of hints and tips on how to
+achieve this.
+
+ 1) Use maxconnections > 1. By default we only use one connection to an
+    IMAP server. Using 2 or even 3 speeds things up considerably in most
+    cases. This setting goes into the [Repository XXX] section.
+
+ 2) Use folderfilters. The quickest sync is a sync that can ignore some
+    folders. I sort my inbox into monthly folders, and ignore every
+    folder that is more than 2-3 months old, this lets me only inspect a
+    fraction of my Mails on every sync. If you haven't done this yet, do
+    it :). See the folderfilter section the example offlineimap.conf.
+
+ 3) The default status cache is a plain text file that will write out
+    the complete file for each single new message (or even changed flag)
+    to a temporary file. If you have plenty of files in a folder, this
+    is a few hundred kilo to megabytes for each mail and is bound to
+    make things slower. I recommend to use the sqlite backend for
+    that. See the status_backend = sqlite setting in the example
+    offlineimap.conf. You will need to have python-sqlite installed in
+    order to use this. This will save you plenty of disk activity. Do
+    note that the sqlite backend is still considered experimental as it
+    has only been included recently (although a loss of your status
+    cache should not be a tragedy as that file can be rebuild
+    automatically)
+
+ 4) Use quick sync. A regular sync will request all flags and all UIDs
+    of all mails in each folder which takes quite some time. A 'quick'
+    sync only compares the number of messages in a folder on the IMAP
+    side (it will detect flag changes on the Maildir side of things
+    though). A quick sync on my smallish account will take 7 seconds
+    rather than 40 seconds. Eg, I run a cron script that does a regular
+    sync once a day, and does quick syncs (-q) only synchronizing the
+    "-f INBOX" in between.
+
+ 5) Turn off fsync. In the [general] section you can set fsync to True
+    or False. If you want to play 110% safe and wait for all operations
+    to hit the disk before continueing, you can set this to True. If you
+    set it to False, you lose some of that safety, trading it for speed.
+
+Security and SSL
+================
+
+Some words on OfflineImap and its use of SSL/TLS. By default, we will
+connect using any method that openssl supports, that is SSLv2, SSLv3, or
+TLSv1. Do note that SSLv2 is notoriously insecure and deprecated.
+Unfortunately, python2 does not offer easy ways to disable SSLv2. It is
+recommended you test your setup and make sure that the mail server does
+not use an SSLv2 connection. Use e.g. "openssl s_client -host
+mail.server -port 443" to find out the connection that is used by
+default.
+
+Certificate checking
+--------------------
+
+Unfortunately, by default we will not verify the certificate of an IMAP
+TLS/SSL server we connect to, so connecting by SSL is no guarantee
+against man-in-the-middle attacks. While verifying a server certificate
+fingerprint is being planned, it is not implemented yet. There is
+currently only one safe way to ensure that you connect to the correct
+server in an encrypted manner: You can specify a 'sslcacertfile' setting
+in your repository section of offlineimap.conf pointing to a file that
+contains (among others) a CA Certificate in PEM format which validating
+your server certificate. In this case, we will check that: 1) The server
+SSL certificate is validated by the CA Certificate 2) The server host
+name matches the SSL certificate 3) The server certificate is not past
+its expiration date. The FAQ contains an entry on how to create your own
+certificate and CA certificate.
+
+StartTLS
+--------
+
+If you have not configured your account to connect via SSL anyway,
+OfflineImap will still attempt to set up an SSL connection via the
+STARTTLS function, in case the imap server supports it. Do note, that
+there is no certificate or fingerprint checking involved at all, when
+using STARTTLS (the underlying imaplib library does not support this
+yet). This means that you will be protected against passively listening
+eavesdroppers and they will not be able to see your password or email
+contents. However, this will not protect you from active attacks, such
+as Man-In-The-Middle attacks which cause you to connect to the wrong
+server and pretend to be your mail server. DO NOT RELY ON STARTTLS AS A
+SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF YOUR IMAP SERVER!
+
+UNIX Signals
+============
 
 OfflineImap listens to the unix signals SIGUSR1 and SIGUSR2.
 
@@ -310,7 +401,7 @@ KNOWN BUGS
         storing messages. Such files can be written to windows partitions. But
         you will probably loose compatibility with other programs trying to
         read the same Maildir.
-      - Exclamation mark was choosed because of the note in
+      - Exclamation mark was chosen because of the note in
         http://docs.python.org/library/mailbox.html
       - If you have some messages already stored without this option, you will
         have to re-sync them again
@@ -322,91 +413,145 @@ KNOWN BUGS
       - not available anymore since cygwin 1.7
 
 
-Synchronization Performance
-===========================
+PITFALLS & ISSUES
+=================
 
-By default, we use fairly conservative settings that are good for
-syncing but that might not be the best performing one. Once you got
-everything set up and running, you might want to look into speeding up
-your synchronization. Here are a couple of hints and tips on how to
-achieve this.
+Sharing a maildir with multiple IMAP servers
+--------------------------------------------
 
- 1) Use maxconnections > 1. By default we only use one connection to an
-    IMAP server. Using 2 or even 3 speeds things up considerably in most
-    cases. This setting goes into the [Repository XXX] section.
+ Generally a word of caution mixing IMAP repositories on the same
+ Maildir root. You have to be careful that you *never* use the same
+ maildir folder for 2 IMAP servers. In the best case, the folder MD5
+ will be different, and you will get a loop where it will upload your
+ mails to both servers in turn (infinitely!) as it thinks you have
+ placed new mails in the local Maildir. In the worst case, the MD5 is
+ the same (likely) and mail UIDs overlap (likely too!) and it will fail to
+ sync some mails as it thinks they are already existent.
 
- 2) Use folderfilters. The quickest sync is a sync that can ignore some
-    folders. I sort my inbox into monthly folders, and ignore every
-    folder that is more than 2-3 months old, this lets me only inspect a
-    fraction of my Mails on every sync. If you haven't done this yet, do
-    it :). See the folderfilter section the example offlineimap.conf.
+ I would create a new local Maildir Repository for the Personal Gmail and
+ use a different root to be on the safe side here. You could e.g. use
+ `~/mail/Pro` as Maildir root for the ProGmail and
+ `~/mail/Personal` as root for the personal one.
 
- 3) The default status cache is a plain text file that will write out
-    the complete file for each single new message (or even changed flag)
-    to a temporary file. If you have plenty of files in a folder, this
-    is a few hundred kilo to megabytes for each mail and is bound to
-    make things slower. I recommend to use the sqlite backend for
-    that. See the status_backend = sqlite setting in the example
-    offlineimap.conf. You will need to have python-sqlite installed in
-    order to use this. This will save you plenty of disk activity. Do
-    note that the sqlite backend is still considered experimental as it
-    has only been included recently (although a loss of your status
-    cache should not be a tragedy as that file can be rebuild
-    automatically)
+ If you then point your local mutt, or whatever MUA you use to `~/mail/`
+ as root, it should still recognize all folders. (see the 2 IMAP setup
+ in the `Use Cases`_ section.
 
- 4) Use quick sync. A regular sync will request all flags and all UIDs
-    of all mails in each folder which takes quite some time. A 'quick'
-    sync only compares the number of messages in a folder on the IMAP
-    side (it will detect flag changes on the Maildir side of things
-    though). A quick sync on my smallish account will take 7 seconds
-    rather than 40 seconds. Eg, I run a cron script that does a regular
-    sync once a day, and does quick syncs inbetween.
+USE CASES
+=========
 
- 5) Turn off fsync. In the [general] section you can set fsync to True
-    or False. If you want to play 110% safe and wait for all operations
-    to hit the disk before continueing, you can set this to True. If you
-    set it to False, you lose some of that safety trading it for speed.
+Sync from GMail to another IMAP server
+--------------------------------------
 
-Security and SSL
-================
+This is an example of a setup where "TheOtherImap" requires all folders to be under INBOX::
 
-Some words on OfflineImap and its use of SSL/TLS. By default, we will
-connect using any method that openssl supports, that is SSLv2, SSLv3, or
-TLSv1. Do note that SSLv2 is notoriously insecure and deprecated.
-Unfortunately, python2 does not offer easy ways to disable SSLv2. It is
-recommended you test your setup and make sure that the mail server does
-not use an SSLv2 connection. Use e.g. "openssl s_client -host
-mail.server -port 443" to find out the connection that is used by
-default.
+    [Repository Gmailserver-foo]
+    #This is the remote repository
+    type = Gmail
+    remotepass = XXX
+    remoteuser = XXX
+    # The below will put all GMAIL folders as sub-folders of the 'local' INBOX,
+    # assuming that your path separator on 'local' is a dot.
+    nametrans = lambda x: 'INBOX.' + x
+    
+    [Repository TheOtherImap]
+    #This is the 'local' repository
+    type = IMAP
+    remotehost = XXX
+    remotepass = XXX
+    remoteuser = XXX
+    #Do not use nametrans here.
 
-Certificate checking
---------------------
+Selecting only a few folders to sync
+------------------------------------
+Add this to the remote gmail repository section to only sync mails which are in a certain folder::
 
-Unfortunately, by default we will not verify the certificate of an IMAP
-TLS/SSL server we connect to, so connecting by SSL is no guarantee
-against man-in-the-middle attacks. While verifying a server certificate
-fingerprint is being planned, it is not implemented yet. There is
-currently only one safe way to ensure that you connect to the correct
-server in an encrypted manner: You can specify a 'sslcacertfile' setting
-in your repository section of offlineimap.conf pointing to a file that
-contains (among others) a CA Certificate in PEM format which validating
-your server certificate. In this case, we will check that: 1) The server
-SSL certificate is validated by the CA Certificate 2) The server host
-name matches the SSL certificate 3) The server certificate is not past
-its expiration date. The FAQ contains an entry on how to create your own
-certificate and CA certificate.
+    folderfilter = lambda folder: folder.startswith('MyLabel')
 
-StartTLS
---------
+To only get the All Mail folder from a Gmail account, you would e.g. do::
 
-If you have not configured your account to connect via SSL anyway,
-OfflineImap will still attempt to set up an SSL connection via the
-STARTTLS function, in case the imap server supports it. Do note, that
-there is no certificate or fingerprint checking involved at all, when
-using STARTTLS (the underlying imaplib library does not support this
-yet). This means that you will be protected against passively listening
-eavesdroppers and they will not be able to see your password or email
-contents. However, this will not protect you from active attacks, such
-as Man-In-The-Middle attacks which cause you to connect to the wrong
-server and pretend to be your mail server. DO NOT RELY ON STARTTLS AS A
-SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF YOUR IMAP SERVER!
+    folderfilter = lambda folder: folder.startswith('[Gmail]/All Mail') 
+
+
+Another nametrans transpose example
+-----------------------------------
+
+Put everything in a GMX. subfolder except for the boxes INBOX, Draft, and Sent which should keep the same name::
+
+     folderfilter = lambda folder: re.sub(r'^(?!INBOX$|Draft$|Sent$)',r'GMX.', folder)
+
+2 IMAP using name translations
+------------------------------
+
+Synchronizing 2 IMAP accounts to local Maildirs that are "next to each other", so that mutt can work on both. Full email setup described by Thomas Kahle at `http://dev.gentoo.org/~tomka/mail.html`_
+
+offlineimap.conf::
+
+    [general]
+    accounts = acc1, acc2
+    maxsyncaccounts = 2
+    ui = ttyui
+    pythonfile=~/bin/offlineimap-helpers.py
+    socktimeout = 90
+    
+    [Account acc1]
+    localrepository = acc1local
+    remoterepository = acc1remote
+    autorefresh = 2
+    
+    [Account acc2]
+    localrepository = acc2local
+    remoterepository = acc2remote
+    autorefresh = 4
+    
+    [Repository acc1local]
+    type = Maildir
+    localfolders = ~/Mail/acc1
+    
+    [Repository acc2local]
+    type = Maildir
+    localfolders = ~/Mail/acc2
+    
+    [Repository acc1remote]
+    type = IMAP
+    remotehost = imap.acc1.com
+    remoteusereval = get_username("imap.acc1.net")
+    remotepasseval = get_password("imap.acc1.net")
+    nametrans = oimaptransfolder_acc1
+    ssl = yes
+    maxconnections = 2
+    # Folders to get:
+    folderfilter = lambda foldername: foldername in [
+                 'INBOX', 'Drafts', 'Sent', 'archiv']
+    
+    [Repository acc2remote]
+    type = IMAP
+    remotehost = imap.acc2.net
+    remoteusereval = get_username("imap.acc2.net")
+    remotepasseval = get_password("imap.acc2.net")
+    nametrans = oimaptransfolder_acc2
+    ssl = yes
+    maxconnections = 2
+
+One of the coolest things about offlineimap is that you can inject arbitrary python code. The file specified with::
+
+    pythonfile=~/bin/offlineimap-helpers.py
+
+contains python functions that I used for two purposes: Fetching passwords from the gnome-keyring and translating folder names on the server to local foldernames. The python file should contain all the functions that are called here. get_username and get_password are part of the interaction with gnome-keyring and not printed here. Find them in the example file that is in the tarball or here. The folderfilter is a lambda term that, well, filters which folders to get. `oimaptransfolder_acc2` translates remote folders into local folders with a very simple logic. The `INBOX` folder will simply have the same name as the account while any other folder will have the account name and a dot as a prefix. offlineimap handles the renaming correctly in both directions::
+
+    import re
+    def oimaptransfolder_acc1(foldername):
+        if(foldername == "INBOX"):
+            retval = "acc1"
+        else:
+            retval = "acc1." + foldername
+        retval = re.sub("/", ".", retval)
+        return retval
+    
+    def oimaptransfolder_acc2(foldername):
+        if(foldername == "INBOX"):
+            retval = "acc2"
+        else:
+            retval = "acc2." + foldername
+        retval = re.sub("/", ".", retval)
+        return retval
