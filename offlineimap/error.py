@@ -2,11 +2,14 @@ class OfflineImapError(Exception):
     """An Error during offlineimap synchronization"""
 
     class ERROR:
-        """Severity levels"""
-        MESSAGE  = 0
-        FOLDER   = 10
-        REPO     = 20
-        CRITICAL = 30
+        """Severity level of an Exception
+
+        * **MESSAGE**:  Abort the current message, but continue with folder
+        * **FOLDER**:   Abort folder sync, but continue with next folder
+        * **REPO**:     Abort repository sync, continue with next account
+        * **CRITICAL**: Immediately exit offlineimap
+        """
+        MESSAGE, FOLDER, REPO, CRITICAL = 0, 10, 20, 30
 
     def __init__(self, reason, severity, errcode=None):
         """
@@ -17,7 +20,7 @@ class OfflineImapError(Exception):
                message, but a ERROR.REPO occurs when the server is
                offline.
 
-         :param errcode: optional number denoting a predefined error
+        :param errcode: optional number denoting a predefined error
                situation (which let's us exit with a predefined exit
                value). So far, no errcodes have been defined yet.
 

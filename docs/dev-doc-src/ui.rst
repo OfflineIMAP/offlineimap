@@ -1,4 +1,4 @@
-:mod:`offlineimap.ui` -- A pluggable logging system
+:mod:`offlineimap.ui` -- A flexible logging system
 --------------------------------------------------------
 
 .. currentmodule:: offlineimap.ui

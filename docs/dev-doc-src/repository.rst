@@ -25,8 +25,8 @@ on your configuration. So when you want to instanciate a new
 
 
 
-:mod:`offlineimap.repository` -- Basic representation of a mail repository
---------------------------------------------------------------------------
+:mod:`offlineimap.repository.Base.BaseRepository` -- Representation of a mail repository
+------------------------------------------------------------------------------------------
 .. autoclass:: offlineimap.repository.Base.BaseRepository
    :members:
    :inherited-members:
