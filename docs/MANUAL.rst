@@ -478,7 +478,8 @@ Another nametrans transpose example
 
 Put everything in a GMX. subfolder except for the boxes INBOX, Draft, and Sent which should keep the same name::
 
-     folderfilter = lambda folder: re.sub(r'^(?!INBOX$|Draft$|Sent$)',r'GMX.', folder)
+     nametrans = lambda folder: folder if folder in ['INBOX', 'Drafts', 'Sent'] \
+                               else re.sub(r'^', r'GMX.', folder)
 
 2 IMAP using name translations
 ------------------------------
