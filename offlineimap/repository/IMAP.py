@@ -21,7 +21,6 @@ from offlineimap import folder, imaputil, imapserver, OfflineImapError
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
 from threading import Event
-import re
 import types
 import os
 from sys import exc_info
@@ -36,23 +35,6 @@ class IMAPRepository(BaseRepository):
         self._host = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
-        self.nametrans = lambda foldername: foldername
-        self.folderfilter = lambda foldername: 1
-        self.folderincludes = []
-        self.foldersort = cmp
-        localeval = self.localeval
-        if self.config.has_option(self.getsection(), 'nametrans'):
-            self.nametrans = localeval.eval(self.getconf('nametrans'),
-                                            {'re': re})
-        if self.config.has_option(self.getsection(), 'folderfilter'):
-            self.folderfilter = localeval.eval(self.getconf('folderfilter'),
-                                               {'re': re})
-        if self.config.has_option(self.getsection(), 'folderincludes'):
-            self.folderincludes = localeval.eval(self.getconf('folderincludes'),
-                                                 {'re': re})
-        if self.config.has_option(self.getsection(), 'foldersort'):
-            self.foldersort = localeval.eval(self.getconf('foldersort'),
-                                             {'re': re})
 
     def startkeepalive(self):
         keepalivetime = self.getkeepalive()

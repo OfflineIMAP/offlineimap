@@ -16,6 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import re
 import os.path
 import traceback
 from offlineimap import CustomConfig
@@ -39,6 +40,23 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         self.uiddir = os.path.join(self.uiddir, 'FolderValidity')
         if not os.path.exists(self.uiddir):
             os.mkdir(self.uiddir, 0700)
+
+        self.nametrans = lambda foldername: foldername
+        self.folderfilter = lambda foldername: 1
+        self.folderincludes = []
+        self.foldersort = cmp
+        if self.config.has_option(self.getsection(), 'nametrans'):
+            self.nametrans = self.localeval.eval(
+                self.getconf('nametrans'), {'re': re})
+        if self.config.has_option(self.getsection(), 'folderfilter'):
+            self.folderfilter = self.localeval.eval(
+                self.getconf('folderfilter'), {'re': re})
+        if self.config.has_option(self.getsection(), 'folderincludes'):
+            self.folderincludes = self.localeval.eval(
+                self.getconf('folderincludes'), {'re': re})
+        if self.config.has_option(self.getsection(), 'foldersort'):
+            self.foldersort = self.localeval.eval(
+                self.getconf('foldersort'), {'re': re})
 
     def restore_atime(self):
         """Sets folders' atime back to their values after a sync
