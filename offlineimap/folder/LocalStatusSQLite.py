@@ -111,7 +111,8 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
 
         if hasattr(self, 'connection'):
             self.connection.close() #close old connections first
-        self.connection = sqlite.connect(self.filename, check_same_thread = False)
+        self.connection = sqlite.connect(self.filename,
+                                         check_same_thread = False)
 
         if from_ver == 0:
             # from_ver==0: no db existent: plain text migration?
@@ -120,7 +121,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
             plaintextfilename = os.path.join(
                 self.repository.account.getaccountmeta(),
                 'LocalStatus',
-                self.getfolderbasename(self.name))
+                self.getfolderbasename())
             # MIGRATE from plaintext if needed
             if os.path.exists(plaintextfilename):
                 self.ui._msg('Migrating LocalStatus cache from plain text '
