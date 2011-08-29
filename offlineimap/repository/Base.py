@@ -114,36 +114,32 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
     def getfolder(self, foldername):
         raise NotImplementedError
     
-    def syncfoldersto(self, dest, status):
+    def syncfoldersto(self, dst_repo, status_repo):
         """Syncs the folders in this repository to those in dest.
-        It does NOT sync the contents of those folders.
 
-        Whenever makefolder() is called, also call makefolder() on status
-        folder."""
-        src = self
-        srcfolders = src.getfolders()
-        destfolders = dest.getfolders()
+        It does NOT sync the contents of those folders."""
+        src_repo = self
+        src_folders = src_repo.getfolders()
+        dst_folders = dst_repo.getfolders()
 
         # Create hashes with the names, but convert the source folders
         # to the dest folder's sep.
-
-        srchash = {}
-        for folder in srcfolders:
-            srchash[folder.getvisiblename().replace(src.getsep(), dest.getsep())] = \
-                                                           folder
-        desthash = {}
-        for folder in destfolders:
-            desthash[folder.getvisiblename()] = folder
+        src_hash = {}
+        for folder in src_folders:
+            src_hash[folder.getvisiblename().replace(
+                    src_repo.getsep(), dst_repo.getsep())] = folder
+        dst_hash = {}
+        for folder in dst_folders:
+            dst_hash[folder.getvisiblename()] = folder
 
         #
         # Find new folders.
-        #
-        
-        for key in srchash.keys():
-            if not key in desthash:
+        for key in src_hash.keys():
+            if not key in dst_hash:
                 try:
-                    dest.makefolder(key)
-                    status.makefolder(key.replace(dest.getsep(), status.getsep()))
+                    dst_repo.makefolder(key)
+                    status_repo.makefolder(key.replace(dst_repo.getsep(),
+                                                      status_repo.getsep()))
                 except (KeyboardInterrupt):
                     raise
                 except:
