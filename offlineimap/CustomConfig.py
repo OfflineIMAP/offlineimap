@@ -15,11 +15,11 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from ConfigParser import ConfigParser
+from ConfigParser import SafeConfigParser
 from offlineimap.localeval import LocalEval
 import os
 
-class CustomConfigParser(ConfigParser):
+class CustomConfigParser(SafeConfigParser):
     def getdefault(self, section, option, default, *args, **kwargs):
         """Same as config.get, but returns the "default" option if there
         is no such option specified."""
