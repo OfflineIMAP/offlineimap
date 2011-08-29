@@ -29,6 +29,8 @@ Changes
 
 * Documentation improvements concerning 'restoreatime' and some code cleanup
 
+* Maildir repositories now also respond to folderfilter= configurations.
+
 Bug Fixes
 ---------
 
