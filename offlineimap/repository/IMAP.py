@@ -327,16 +327,27 @@ class IMAPRepository(BaseRepository):
         return self.folders
 
     def makefolder(self, foldername):
+        """Create a folder on the IMAP server
+
+        :param foldername: Full path of the folder to be created."""
+        #TODO: IMHO this existing commented out code is correct and
+        #should be enabled, but this would change the behavior for
+        #existing configurations who have a 'reference' set on a Mapped
+        #IMAP server....:
         #if self.getreference() != '""':
         #    newname = self.getreference() + self.getsep() + foldername
         #else:
         #    newname = foldername
-        newname = foldername
         imapobj = self.imapserver.acquireconnection()
         try:
-            result = imapobj.create(newname)
+            self.ui._msg("Creating new IMAP folder '%s' on server %s" %\
+                              (foldername, self))
+            result = imapobj.create(foldername)
             if result[0] != 'OK':
-                raise RuntimeError, "Repository %s could not create folder %s: %s" % (self.getname(), foldername, str(result))
+                raise OfflineImapError("Folder '%s'[%s] could not be created. "
+                                       "Server responded: %s" % \
+                                           (foldername, self, str(result)),
+                                       OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
             
