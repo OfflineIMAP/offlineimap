@@ -19,6 +19,7 @@
 from Base import BaseRepository
 from offlineimap import folder
 from offlineimap.ui import getglobalui
+from offlineimap.error import OfflineImapError
 import os
 from stat import *
 
@@ -114,11 +115,20 @@ class MaildirRepository(BaseRepository):
         self.ui.warn("NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername)
 
     def getfolder(self, foldername):
-        if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
-            self._append_folder_atimes(foldername)
-        return folder.Maildir.MaildirFolder(self.root, foldername,
-                                            self.getsep(), self)
-    
+        """Return a Folder instance of this Maildir
+
+        If necessary, scan and cache all foldernames to make sure that
+        we only return existing folders and that 2 calls with the same
+        name will return the same object."""
+        # getfolders() will scan and cache the values *if* necessary
+        folders = self.getfolders()
+        for folder in folders:
+            if foldername == folder.name:
+                return folder
+        raise OfflineImapError("getfolder() asked for a nonexisting "
+                               "folder '%s'." % foldername,
+                               OfflineImapError.ERROR.FOLDER)
+
     def _getfolders_scandir(self, root, extension = None):
         """Recursively scan folder 'root'; return a list of MailDirFolder
 
@@ -157,11 +167,7 @@ class MaildirRepository(BaseRepository):
                 os.path.isdir(os.path.join(fullname, 'tmp'))):
                 # This directory has maildir stuff -- process
                 self.debug("  This is maildir folder '%s'." % foldername)
-
-                if self.config.has_option('Repository %s' % self,
-                                          'restoreatime') and \
-                    self.config.getboolean('Repository %s' % self,
-                                           'restoreatime'):
+                if self.getconfboolean('restoreatime', False):
                     self._append_folder_atimes(foldername)
                 retval.append(folder.Maildir.MaildirFolder(self.root,
                                                            foldername,
