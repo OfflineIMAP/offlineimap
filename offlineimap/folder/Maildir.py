@@ -165,10 +165,8 @@ class MaildirFolder(BaseFolder):
                 flags = set(flagmatch.group(1))
             else:
                 flags = set()
-            # 'filename' is 'dirannex/filename', e.g. cur/123_U=1_FMD5=1:2,S
-            retval[uid] = {'uid': uid,
-                           'flags': flags,
-                           'filename': file}
+            # 'filename' is 'dirannex/filename', e.g. cur/123,U=1,FMD5=1:2,S
+            retval[uid] = {'flags': flags, 'filename': file}
         return retval
 
     def quickchanged(self, statusfolder):
@@ -255,7 +253,7 @@ class MaildirFolder(BaseFolder):
         if rtime != None:
             os.utime(os.path.join(tmpdir, messagename), (rtime, rtime))
 
-        self.messagelist[uid] = {'uid': uid, 'flags': set(),
+        self.messagelist[uid] = {'flags': set(),
                                  'filename': os.path.join('tmp', messagename)}
         # savemessageflags moves msg to 'cur' or 'new' as appropriate
         self.savemessageflags(uid, flags)
