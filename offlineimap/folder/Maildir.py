@@ -202,11 +202,10 @@ class MaildirFolder(BaseFolder):
         #      read it as text?
         return retval.replace("\r\n", "\n")
 
-    def getmessagetime( self, uid ):
+    def getmessagetime(self, uid):
         filename = self.messagelist[uid]['filename']
         filepath = os.path.join(self.getfullname(), filename)
-        st = os.stat(filepath)
-        return st.st_mtime
+        return os.path.getmtime(filepath)
 
     def savemessage(self, uid, content, flags, rtime):
         # This function only ever saves to tmp/,
