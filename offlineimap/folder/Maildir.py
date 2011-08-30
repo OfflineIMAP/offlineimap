@@ -221,6 +221,17 @@ class MaildirFolder(BaseFolder):
         filepath = os.path.join(self.getfullname(), filename)
         return os.path.getmtime(filepath)
 
+    def new_message_filename(self, uid, flags=set()):
+        """Creates a new unique Maildir filename
+
+        :param uid: The UID`None`, or a set of maildir flags
+        :param flags: A set of maildir flags
+        :returns: String containing unique message filename"""
+        timeval, timeseq = gettimeseq()
+        return '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s' % \
+            (timeval, timeseq, os.getpid(), socket.gethostname(),
+             uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
+        
     def savemessage(self, uid, content, flags, rtime):
         # This function only ever saves to tmp/,
         # but it calls savemessageflags() to actually save to cur/ or new/.
@@ -237,14 +248,7 @@ class MaildirFolder(BaseFolder):
         # Otherwise, save the message in tmp/ and then call savemessageflags()
         # to give it a permanent home.
         tmpdir = os.path.join(self.getfullname(), 'tmp')
-        timeval, timeseq = gettimeseq()
-        messagename = '%d_%d.%d.%s,U=%d,FMD5=%s' % \
-            (timeval,
-             timeseq,
-             os.getpid(),
-             socket.gethostname(),
-             uid,
-             md5(self.getvisiblename()).hexdigest())
+        messagename = self.new_message_filename(uid, flags)
         # open file and write it out
         try:
             fd = os.open(os.path.join(tmpdir, messagename),
