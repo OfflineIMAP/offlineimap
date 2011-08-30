@@ -68,11 +68,8 @@ class MaildirFolder(BaseFolder):
         self.wincompatible = self.config.getdefaultboolean(
             "Account "+self.accountname, "maildir-windows-compatible", False)
 
-        if self.wincompatible == False:
-            self.infosep = ':'
-        else:
-            self.infosep = '!'
-
+        self.infosep = '!' if self.wincompatible else ':'
+        """infosep is the separator between maildir name and flag appendix"""
         self.flagmatchre = re.compile(self.infosep + '.*2,([A-Z]+)')
         #self.ui is set in BaseFolder.init()
         # Cache the full folder path, as we use getfullname() very often
