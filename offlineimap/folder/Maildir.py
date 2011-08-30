@@ -287,22 +287,24 @@ class MaildirFolder(BaseFolder):
         """Sets the specified message's flags to the given set.
 
         This function moves the message to the cur or new subdir,
-        depending on the Seen flag."""
-        # TODO: This function could be improved to only parse the
-        # filenames if the flags actually changed.
+        depending on the 'S'een flag."""
+
         oldfilename = self.messagelist[uid]['filename']
         dir_prefix, filename = os.path.split(oldfilename)
         # If a message has been seen, it goes into 'cur'
         dir_prefix = 'cur' if 'S' in flags else 'new'
-        # Strip off existing infostring (preserving small letter flags that
-        # dovecot uses)
-        infomatch = self.flagmatchre.search(filename)
-        if infomatch:
-            filename = filename[:-len(infomatch.group())] #strip off
-        infostr = '%s2,%s' % (self.infosep, ''.join(sorted(flags)))
-        filename += infostr
-        newfilename = os.path.join(dir_prefix, filename)
 
+        if flags != self.messagelist[uid]['flags']:
+            # Flags have actually changed, construct new filename
+            # Strip off existing infostring (preserving small letter flags that
+            # dovecot uses)
+            infomatch = self.flagmatchre.search(filename)
+            if infomatch:
+                filename = filename[:-len(infomatch.group())] #strip off
+            infostr = '%s2,%s' % (self.infosep, ''.join(sorted(flags)))
+            filename += infostr
+
+        newfilename = os.path.join(dir_prefix, filename)
         if (newfilename != oldfilename):
             try:
                 os.rename(os.path.join(self.getfullname(), oldfilename),
