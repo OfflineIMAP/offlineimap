@@ -273,7 +273,7 @@ class MaildirFolder(BaseFolder):
         if rtime != None:
             os.utime(os.path.join(tmpdir, messagename), (rtime, rtime))
 
-        self.messagelist[uid] = {'flags': set(),
+        self.messagelist[uid] = {'flags': flags,
                                  'filename': os.path.join('tmp', messagename)}
         # savemessageflags moves msg to 'cur' or 'new' as appropriate
         self.savemessageflags(uid, flags)
@@ -284,25 +284,25 @@ class MaildirFolder(BaseFolder):
         return self.messagelist[uid]['flags']
 
     def savemessageflags(self, uid, flags):
+        """Sets the specified message's flags to the given set.
+
+        This function moves the message to the cur or new subdir,
+        depending on the Seen flag."""
+        # TODO: This function could be improved to only parse the
+        # filenames if the flags actually changed.
         oldfilename = self.messagelist[uid]['filename']
-        dir_prefix, newname = os.path.split(oldfilename)
-        tmpdir = os.path.join(self.getfullname(), 'tmp')
-        if 'S' in flags:
-            # If a message has been seen, it goes into the cur
-            # directory.  CR debian#152482
-            dir_prefix = 'cur'
-        else:
-            dir_prefix = 'new'
-
-        # Strip off existing infostring (preserving small letter flags, that
+        dir_prefix, filename = os.path.split(oldfilename)
+        # If a message has been seen, it goes into 'cur'
+        dir_prefix = 'cur' if 'S' in flags else 'new'
+        # Strip off existing infostring (preserving small letter flags that
         # dovecot uses)
-        infomatch = self.flagmatchre.search(newname)
+        infomatch = self.flagmatchre.search(filename)
         if infomatch:
-            newname = newname[:-len(infomatch.group())] #strip off
+            filename = filename[:-len(infomatch.group())] #strip off
         infostr = '%s2,%s' % (self.infosep, ''.join(sorted(flags)))
-        newname += infostr
+        filename += infostr
+        newfilename = os.path.join(dir_prefix, filename)
 
-        newfilename = os.path.join(dir_prefix, newname)
         if (newfilename != oldfilename):
             try:
                 os.rename(os.path.join(self.getfullname(), oldfilename),
@@ -315,10 +315,26 @@ class MaildirFolder(BaseFolder):
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename
 
-        # By now, the message had better not be in tmp/ land!
-        final_dir, final_name = os.path.split(self.messagelist[uid]['filename'])
-        assert final_dir != 'tmp'
+    def change_message_uid(self, uid, new_uid):
+        """Change the message from existing uid to new_uid
 
+        This will not update the statusfolder UID, you need to do that yourself.
+        :param new_uid: (optional) If given, the old UID will be changed
+            to a new UID. The Maildir backend can implement this as an efficient
+            rename."""
+        if not uid in self.messagelist:
+            raise OfflineImapError("Cannot change unknown Maildir UID %s" % uid)
+        if uid == new_uid: return
+
+        oldfilename = self.messagelist[uid]['filename']
+        dir_prefix, filename = os.path.split(oldfilename)
+        flags = self.getmessageflags(uid)
+        filename = self.new_message_filename(new_uid, flags)
+        os.rename(os.path.join(self.getfullname(), oldfilename),
+                  os.path.join(self.getfullname(), dir_prefix, filename))
+        self.messagelist[new_uid] = self.messagelist[uid]
+        del self.messagelist[uid]
+        
     def deletemessage(self, uid):
         """Unlinks a message file from the Maildir.
 

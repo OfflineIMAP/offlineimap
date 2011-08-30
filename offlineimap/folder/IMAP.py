@@ -597,8 +597,8 @@ class IMAPFolder(BaseFolder):
         self.ui.debug('imap', 'savemessage: returning new UID %d' % uid)
         return uid
 
-
     def savemessageflags(self, uid, flags):
+        """Change a message's flags to `flags`."""
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
@@ -684,6 +684,14 @@ class IMAPFolder(BaseFolder):
             elif operation == '-':
                 self.messagelist[uid]['flags'] -= flags
 
+    def change_message_uid(self, uid, new_uid):
+        """Change the message from existing uid to new_uid
+
+        If the backend supports it. IMAP does not and will throw errors.""" 
+        raise OfflineImapError('IMAP backend cannot change a messages UID from '
+                               '%d to %d' % (uid, new_uid),
+                               OfflineImapError.ERROR.MESSAGE)
+        
     def deletemessage(self, uid):
         self.deletemessages_noconvert([uid])
 

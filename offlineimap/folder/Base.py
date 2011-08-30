@@ -234,6 +234,15 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessageflags(uid, flags)
 
+    def change_message_uid(self, uid, new_uid):
+        """Change the message from existing uid to new_uid
+
+        If the backend supports it (IMAP does not).
+        :param new_uid: (optional) If given, the old UID will be changed
+            to a new UID. This allows backends efficient renaming of
+            messages if the UID has changed."""
+        raise NotImplementedException
+
     def deletemessage(self, uid):
         raise NotImplementedException
 
@@ -275,20 +284,15 @@ class BaseFolder(object):
             #remained negative, no server was willing to assign us an
             #UID. If newid is 0, saving succeeded, but we could not
             #retrieve the new UID. Ignore message in this case.
-            newuid = dstfolder.savemessage(uid, message, flags, rtime)
-
-            if newuid > 0:
-                if newuid != uid:
+            new_uid = dstfolder.savemessage(uid, message, flags, rtime)
+            if new_uid > 0:
+                if new_uid != uid:
+                    # Got new UID, change the local uid to match the new one.
+                    self.change_message_uid(uid, new_uid)
+                    statusfolder.deletemessage(uid)
                     # Got new UID, change the local uid.
-                    #TODO: Maildir could do this with a rename rather than
-                    #load/save/del operation, IMPLEMENT a changeuid()
-                    #function or so.
-                    self.savemessage(newuid, message, flags, rtime)
-                    self.deletemessage(uid)
-                    uid = newuid
                 # Save uploaded status in the statusfolder
-                statusfolder.savemessage(uid, message, flags, rtime)
-    
+                statusfolder.savemessage(new_uid, message, flags, rtime)
             elif newuid == 0:
                 # Message was stored to dstfolder, but we can't find it's UID
                 # This means we can't link current message to the one created
@@ -299,11 +303,11 @@ class BaseFolder(object):
                 self.deletemessage(uid)
             else:
                 raise OfflineImapError("Trying to save msg (uid %d) on folder "
-                                  "%s returned invalid uid %d" % \
-                                      (uid,
-                                       dstfolder.getvisiblename(),
-                                       newuid),
+                                       "%s returned invalid uid %d" % (uid,
+                                       dstfolder.getvisiblename(), new_uid),
                                        OfflineImapError.ERROR.MESSAGE)
+        except (KeyboardInterrupt): # bubble up CTRL-C
+            raise
         except OfflineImapError, e:
             if e.severity > OfflineImapError.ERROR.MESSAGE:
                 raise # buble severe errors up
@@ -311,9 +315,8 @@ class BaseFolder(object):
         except Exception, e:
             self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
                               (uid, self.accountname,
-                               traceback.format_exc()))
+                               exc_info()[2]))
             raise    #raise on unknown errors, so we can fix those
-
 
     def syncmessagesto_copy(self, dstfolder, statusfolder):
         """Pass1: Copy locally existing messages not on the other side
