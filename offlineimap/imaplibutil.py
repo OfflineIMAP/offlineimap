@@ -49,7 +49,14 @@ class UsefulIMAPMixIn:
             return
         # Wipe out all old responses, to maintain semantics with old imaplib2
         del self.untagged_responses[:]
-        result = self.__class__.__bases__[1].select(self, mailbox, readonly)
+        try:
+            result = self.__class__.__bases__[1].select(self, mailbox, readonly)
+        except self.abort, e:
+            # self.abort is raised when we are supposed to retry
+            errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
+                "ver said: %s" % (self.host, mailbox, e.args[0])
+            severity = OfflineImapError.ERROR.FOLDER_RETRY
+            raise OfflineImapError(errstr, severity) 
         if result[0] != 'OK':
             #in case of error, bail out with OfflineImapError
             errstr = "Error SELECTing mailbox '%s', server reply:\n%s" %\
