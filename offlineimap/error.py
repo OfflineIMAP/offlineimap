@@ -5,11 +5,12 @@ class OfflineImapError(Exception):
         """Severity level of an Exception
 
         * **MESSAGE**:  Abort the current message, but continue with folder
+        * **FOLDER_RETRY**: Error syncing folder, but do retry
         * **FOLDER**:   Abort folder sync, but continue with next folder
         * **REPO**:     Abort repository sync, continue with next account
         * **CRITICAL**: Immediately exit offlineimap
         """
-        MESSAGE, FOLDER, REPO, CRITICAL = 0, 10, 20, 30
+        MESSAGE, FOLDER_RETRY, FOLDER, REPO, CRITICAL = 0, 10, 15, 20, 30
 
     def __init__(self, reason, severity, errcode=None):
         """
