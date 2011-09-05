@@ -207,8 +207,21 @@ class IMAPFolder(BaseFolder):
         """
         imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj.select(self.getfullname(), readonly = 1)
-            res_type, data = imapobj.uid('fetch', str(uid), '(BODY.PEEK[])')
+            fails_left = 2 # retry on dropped connection
+            while fails_left:
+                try:
+                    imapobj.select(self.getfullname(), readonly = 1)
+                    res_type, data = imapobj.uid('fetch', str(uid),
+                                                 '(BODY.PEEK[])')
+                    fails_left = 0
+                except imapobj.abort(), e:
+                    # Release dropped connection, and get a new one
+                    self.imapserver.releaseconnection(imapobj)
+                    imapobj = self.imapserver.acquireconnection()
+                    self.ui.error(e, exc_info()[2])
+                    fails_left -= 1
+                    if not fails_left:
+                        raise e
             if data == [None] or res_type != 'OK':
                 #IMAP server says bad request or UID does not exist
                 severity = OfflineImapError.ERROR.MESSAGE
@@ -223,16 +236,6 @@ class IMAPFolder(BaseFolder):
             # data looks now e.g. [('320 (UID 17061 BODY[]
             # {2565}','msgbody....')]  we only asked for one message,
             # and that msg is in data[0]. msbody is in [0][1]
-
-            #NB & TODO: When the message on the IMAP server has been
-            #deleted in the mean time, it will respond with an 'OK'
-            #res_type, but it will simply not send any data. This will
-            #lead to a crash in the below line. We need urgently to
-            #detect this, protect from this and need to think about what
-            #to return in this case. Probably returning `None` in this
-            #case would be good. But we need to make sure that all
-            #Backends behave the same, and that we actually check the
-            #return value and behave accordingly.
             data = data[0][1].replace("\r\n", "\n")
 
             if len(data)>200:
