@@ -181,8 +181,10 @@ class IMAPFolder(BaseFolder):
         finally:
             self.imapserver.releaseconnection(imapobj)
         for messagestr in response:
-            # looks like: '1 (FLAGS (\\Seen Old) UID 4807)'
+            # looks like: '1 (FLAGS (\\Seen Old) UID 4807)' or None if no msg
             # Discard initial message number.
+            if messagestr == None:
+                continue
             messagestr = messagestr.split(' ', 1)[1]
             options = imaputil.flags2hash(messagestr)
             if not options.has_key('UID'):
