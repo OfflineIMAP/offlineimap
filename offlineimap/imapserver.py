@@ -26,7 +26,7 @@ import socket
 import base64
 import time
 import errno
-
+from sys import exc_info
 from socket import gaierror
 try:
     from ssl import SSLError, cert_time_to_seconds
@@ -456,6 +456,7 @@ class IdleThread(object):
         self.parent = parent
         self.folder = folder
         self.event = Event()
+        self.ui = getglobalui()
         if folder is None:
             self.thread = Thread(target=self.noop)
         else:
@@ -505,13 +506,24 @@ class IdleThread(object):
                     self.imapaborted = True
                     self.stop()
 
-            imapobj = self.parent.acquireconnection()
-            imapobj.select(self.folder)
+            success = False # successfully selected FOLDER?
+            while not success:
+                imapobj = self.parent.acquireconnection()
+                try:
+                    imapobj.select(self.folder)
+                except OfflineImapError, e:
+                    if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
+                        # Connection closed, release connection and retry
+                        self.ui.error(e, exc_info()[2])
+                        self.parent.releaseconnection(imapobj)
+                    else:
+                        raise e
+                else:
+                    success = True
             if "IDLE" in imapobj.capabilities:
                 imapobj.idle(callback=callback)
             else:
-                ui = getglobalui()
-                ui.warn("IMAP IDLE not supported on connection to %s."
+                self.ui.warn("IMAP IDLE not supported on connection to %s."
                         "Falling back to old behavior: sleeping until next"
                         "refresh cycle."
                         %(imapobj.identifier,))
