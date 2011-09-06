@@ -109,12 +109,15 @@ class IMAPServer:
         return self.root
 
 
-    def releaseconnection(self, connection):
-        """Releases a connection, returning it to the pool."""
+    def releaseconnection(self, connection, drop_conn=False):
+        """Releases a connection, returning it to the pool.
+
+        :param drop_conn: If True, the connection will be released and
+           not be reused. This can be used to indicate broken connections."""
         self.connectionlock.acquire()
         self.assignedconnections.remove(connection)
         # Don't reuse broken connections
-        if connection.Terminate:
+        if connection.Terminate or drop_conn:
             connection.logout()
         else:
             self.availableconnections.append(connection)
