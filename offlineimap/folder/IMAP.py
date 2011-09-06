@@ -22,7 +22,6 @@ import binascii
 import re
 import time
 from sys import exc_info
-from copy import copy
 from Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, OfflineImapError
 try: # python 2.6 has set() built in
@@ -663,7 +662,7 @@ class IMAPFolder(BaseFolder):
         # Some IMAP servers do not always return a result.  Therefore,
         # only update the ones that it talks about, and manually fix
         # the others.
-        needupdate = copy(uidlist)
+        needupdate = list(uidlist)
         for result in r:
             if result == None:
                 # Compensate for servers that don't return anything from
