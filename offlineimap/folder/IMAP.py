@@ -110,76 +110,70 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
         return False
 
-    # TODO: Make this so that it can define a date that would be the oldest messages etc.
     def cachemessagelist(self):
-        imapobj = self.imapserver.acquireconnection()
+        maxage = self.config.getdefaultint("Account %s" % self.accountname,
+                                           "maxage", -1)
+        maxsize = self.config.getdefaultint("Account %s" % self.accountname,
+                                            "maxsize", -1)
         self.messagelist = {}
 
+        imapobj = self.imapserver.acquireconnection()
         try:
-            # Primes untagged_responses
-            imaptype, imapdata = imapobj.select(self.getfullname(), readonly = 1, force = 1)
+            res_type, imapdata = imapobj.select(self.getfullname(), True)
 
-            maxage = self.config.getdefaultint("Account " + self.accountname, "maxage", -1)
-            maxsize = self.config.getdefaultint("Account " + self.accountname, "maxsize", -1)
+            # By default examine all UIDs in this folder
+            msgsToFetch = '1:*'
 
             if (maxage != -1) | (maxsize != -1):
-                try:
-                    search_condition = "(";
+                search_cond = "(";
 
-                    if(maxage != -1):
-                        #find out what the oldest message is that we should look at
-                        oldest_time_struct = time.gmtime(time.time() - (60*60*24*maxage))
+                if(maxage != -1):
+                    #find out what the oldest message is that we should look at
+                    oldest_struct = time.gmtime(time.time() - (60*60*24*maxage))
 
-                        #format this manually - otherwise locales could cause problems
-                        monthnames_standard = ["Jan", "Feb", "Mar", "Apr", "May", \
-                            "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                    #format months manually - otherwise locales cause problems
+                    monthnames = ["Jan", "Feb", "Mar", "Apr", "May", \
+                        "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-                        our_monthname = monthnames_standard[oldest_time_struct[1]-1]
-                        daystr = "%(day)02d" % {'day' : oldest_time_struct[2]}
-                        date_search_str = "SINCE " + daystr + "-" + our_monthname \
-                            + "-" + str(oldest_time_struct[0])
+                    month = monthnames[oldest_struct[1]-1]
+                    daystr = "%(day)02d" % {'day' : oldest_struct[2]}
 
-                        search_condition += date_search_str
+                    search_cond += "SINCE %s-%s-%s" % (daystr, month,
+                                                       oldest_struct[0])
 
-                    if(maxsize != -1):
-                        if(maxage != -1): #There are two conditions - add a space
-                            search_condition += " "
+                if(maxsize != -1):
+                    if(maxage != -1): # There are two conditions, add space
+                        search_cond += " "
+                    search_cond += "SMALLER %d" % maxsize
 
-                        search_condition += "SMALLER " + self.config.getdefault("Account " + self.accountname, "maxsize", -1)
+                search_cond += ")"
 
-                    search_condition += ")"
-                    searchresult = imapobj.search(None, search_condition)
+                res_type, res_data = imapobj.search(None, search_cond)
+                if res_type != 'OK':
+                    raise OfflineImapError("SEARCH in folder [%s]%s failed. "
+                        "Search string was '%s'. Server responded '[%s] %s'" % (
+                            self.getrepository(), self,
+                            search_cond, res_type, res_data),
+                        OfflineImapError.ERROR.FOLDER)
 
-                    #result would come back seperated by space - to change into a fetch
-                    #statement we need to change space to comma
-                    messagesToFetch = searchresult[1][0].replace(" ", ",")
-                except KeyError:
-                    return
-                if len(messagesToFetch) < 1:
-                    # No messages; return
-                    return
-            else:
-                # 1. Some mail servers do not return an EXISTS response
-                # if the folder is empty.  2. ZIMBRA servers can return
-                # multiple EXISTS replies in the form 500, 1000, 1500,
-                # 1623 so check for potentially multiple replies.
-                if imapdata == [None]:
-                    return
+                # Result UIDs are seperated by space, coalesce into ranges
+                msgsToFetch = imaputil.uid_sequence(res_data.split())
+                if not msgsToFetch:
+                    return # No messages to sync
 
-                maxmsgid = 0
-                for msgid in imapdata:
-                    maxmsgid = max(long(msgid), maxmsgid)
-                if maxmsgid < 1:
-                    #no messages; return
-                    return
-                messagesToFetch = '1:%d' % maxmsgid;
-
-            # Now, get the flags and UIDs for these.
-            # We could conceivably get rid of maxmsgid and just say
-            # '1:*' here.
-            response = imapobj.fetch(messagesToFetch, '(FLAGS UID)')[1]
+            # Get the flags and UIDs for these. single-quotes prevent
+            # imaplib2 from quoting the sequence.
+            res_type, response = imapobj.fetch("'%s'" % msgsToFetch,
+                                               '(FLAGS UID)')
+            if res_type != 'OK':
+                raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. "
+                                       "Server responded '[%s] %s'" % (
+                            self.getrepository(), self,
+                            res_type, response),
+                        OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
+
         for messagestr in response:
             # looks like: '1 (FLAGS (\\Seen Old) UID 4807)' or None if no msg
             # Discard initial message number.

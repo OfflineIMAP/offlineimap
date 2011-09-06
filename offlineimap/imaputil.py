@@ -191,10 +191,8 @@ def flagsmaildir2imap(maildirflaglist):
 def uid_sequence(uidlist):
     """Collapse UID lists into shorter sequence sets
 
-    [1,2,3,4,5,10,12,13] will return "1:5,10,12:13".  This function
-    converts items to numeric type and sorts the list to always produce
-    the minimal collapsed set.
-
+    [1,2,3,4,5,10,12,13] will return "1:5,10,12:13".  This function sorts
+    the list, and only collapses if subsequent entries form a range.
     :returns: The collapsed UID list as string"""
     def getrange(start, end):
         if start == end:
@@ -208,6 +206,7 @@ def uid_sequence(uidlist):
     sorted_uids = sorted(map(int, uidlist))
 
     for item in iter(sorted_uids):
+        item = int(item)
         if start == None:     # First item
             start, end = item, item
         elif item == end + 1: # Next item in a range
