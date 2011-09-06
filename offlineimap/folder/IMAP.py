@@ -21,6 +21,7 @@ import random
 import binascii
 import re
 import time
+from sys import exc_info
 from copy import copy
 from Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, OfflineImapError
@@ -500,53 +501,62 @@ class IMAPFolder(BaseFolder):
             self.savemessageflags(uid, flags)
             return uid
 
+        imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj = self.imapserver.acquireconnection()
+            success = False # succeeded in APPENDING?
+            while not success:
 
-            try:
-                imapobj.select(self.getfullname()) # Needed for search and making the box READ-WRITE
-            except imapobj.readonly:
-                # readonly exception. Return original uid to notify that
-                # we did not save the message. (see savemessage in Base.py)
-                self.ui.msgtoreadonly(self, uid, content, flags)
-                return uid
+                # UIDPLUS extension provides us with an APPENDUID response.
+                use_uidplus = 'UIDPLUS' in imapobj.capabilities
 
-            # UIDPLUS extension provides us with an APPENDUID response to our append()
-            use_uidplus = 'UIDPLUS' in imapobj.capabilities
+                # get the date of the message, so we can pass it to the server.
+                date = self.getmessageinternaldate(content, rtime)
+                content = re.sub("(?<!\r)\n", "\r\n", content)
 
-            # get the date of the message file, so we can pass it to the server.
-            date = self.getmessageinternaldate(content, rtime)
-            content = re.sub("(?<!\r)\n", "\r\n", content)
+                if not use_uidplus:
+                    # insert a random unique header that we can fetch later
+                    (headername, headervalue) = self.generate_randomheader(
+                                                    content)
+                    self.ui.debug('imap', 'savemessage: header is: %s: %s' %\
+                                      (headername, headervalue))
+                    content = self.savemessage_addheader(content, headername,
+                                                         headervalue)    
+                if len(content)>200:
+                    dbg_output = "%s...%s" % (content[:150], content[-50:])
+                else:
+                    dbg_output = content
+                self.ui.debug('imap', "savemessage: date: %s, content: '%s'" %
+                             (date, dbg_output))
 
-            if not use_uidplus:
-                # insert a random unique header that we can fetch later
-                (headername, headervalue) = self.generate_randomheader(content)
-                self.ui.debug('imap', 'savemessage: new header is: %s: %s' % \
-                             (headername, headervalue))
-                content = self.savemessage_addheader(content, headername,
-                                                     headervalue)    
-            if len(content)>200:
-                dbg_output = "%s...%s" % (content[:150],
-                                          content[-50:])
-            else:
-                dbg_output = content
-            self.ui.debug('imap', "savemessage: date: %s, content: '%s'" %
-                          (date, dbg_output))
+                try:
+                    # Select folder for append and make the box READ-WRITE
+                    imapobj.select(self.getfullname())
+                except imapobj.readonly:
+                    # readonly exception. Return original uid to notify that
+                    # we did not save the message. (see savemessage in Base.py)
+                    self.ui.msgtoreadonly(self, uid, content, flags)
+                    return uid
 
-            #Do the APPEND
-            try:
-                (typ, dat) = imapobj.append(self.getfullname(),
+                #Do the APPEND
+                try:
+                    (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
-            except Exception, e:
-                # If the server responds with 'BAD', append() raise()s directly.
-                # So we need to prepare a response ourselves.
-                typ, dat = 'BAD', str(e)
-            if typ != 'OK': #APPEND failed
-                raise OfflineImapError("Saving msg in folder '%s', repository "
-                    "'%s' failed. Server reponded; %s %s\nMessage content was:"
-                    " %s" % (self, self.getrepository(), typ, dat, dbg_output),
-                                       OfflineImapError.ERROR.MESSAGE)
+                    success = True
+                except imapobj.abort, e:
+                    # connection has been reset, release connection and retry.
+                    self.ui.error(e, exc_info()[2])
+                    self.imapserver.releaseconnection(imapobj, True)
+                    imapobj = self.imapserver.acquireconnection()
+                except imapobj.error, e:
+                    # If the server responds with 'BAD', append() raise()s directly.
+                    # So we need to prepare a response ourselves.
+                    typ, dat = 'BAD', str(e)
+                    if typ != 'OK': #APPEND failed
+                        raise OfflineImapError("Saving msg in folder '%s', repository "
+                                               "'%s' failed. Server reponded; %s %s\nMessage content was:"
+                                               " %s" % (self, self.getrepository(), typ, dat, dbg_output),
+                                               OfflineImapError.ERROR.MESSAGE)
             # Checkpoint. Let it write out stuff, etc. Eg searches for
             # just uploaded messages won't work if we don't do this.
             (typ,dat) = imapobj.check()
