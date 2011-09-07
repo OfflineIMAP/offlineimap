@@ -159,7 +159,7 @@ class IMAPFolder(BaseFolder):
                         OfflineImapError.ERROR.FOLDER)
 
                 # Result UIDs are seperated by space, coalesce into ranges
-                msgsToFetch = imaputil.uid_sequence(res_data.split())
+                msgsToFetch = imaputil.uid_sequence(res_data[0].split())
                 if not msgsToFetch:
                     return # No messages to sync
 
