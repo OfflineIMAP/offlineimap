@@ -133,6 +133,10 @@ class IMAPFolder(BaseFolder):
                 if(maxage != -1):
                     #find out what the oldest message is that we should look at
                     oldest_struct = time.gmtime(time.time() - (60*60*24*maxage))
+                    if oldest_struct[0] < 1900:
+                        raise OfflineImapError("maxage setting led to year %d. "
+                                               "Abort syncing." % oldest_struct[0],
+                                               OfflineImapError.ERROR.REPO)
                     search_cond += "SINCE %02d-%s-%d" % (
                         oldest_struct[2],
                         MonthNames[oldest_struct[1]],
