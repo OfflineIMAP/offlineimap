@@ -24,6 +24,7 @@ import time
 from sys import exc_info
 from Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, OfflineImapError
+from offlineimap.imaplib2 import MonthNames
 try: # python 2.6 has set() built in
     set
 except NameError:
@@ -132,16 +133,10 @@ class IMAPFolder(BaseFolder):
                 if(maxage != -1):
                     #find out what the oldest message is that we should look at
                     oldest_struct = time.gmtime(time.time() - (60*60*24*maxage))
-
-                    #format months manually - otherwise locales cause problems
-                    monthnames = ["Jan", "Feb", "Mar", "Apr", "May", \
-                        "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-                    month = monthnames[oldest_struct[1]-1]
-                    daystr = "%(day)02d" % {'day' : oldest_struct[2]}
-
-                    search_cond += "SINCE %s-%s-%s" % (daystr, month,
-                                                       oldest_struct[0])
+                    search_cond += "SINCE %02d-%s-%d" % (
+                        oldest_struct[2],
+                        MonthNames[oldest_struct[1]],
+                        oldest_struct[0])
 
                 if(maxsize != -1):
                     if(maxage != -1): # There are two conditions, add space
