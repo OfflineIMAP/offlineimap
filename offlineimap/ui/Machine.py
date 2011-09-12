@@ -108,10 +108,10 @@ class MachineUI(UIBase):
                 (s.getnicename(sr), sf.getname(), s.getnicename(dr),
                  df.getname()))
 
-    def copyingmessage(s, uid, src, destlist):
-        ds = s.folderlist(destlist)
-        s._printData('copyingmessage', "%d\n%s\n%s\n%s"  % \
-                (uid, s.getnicename(src), src.getname(), ds))
+    def copyingmessage(self, uid, srcfolder, destfolder):
+        self._printData('copyingmessage', "%d\n%s\n%s\n%s[%s]" % \
+                (uid, self.getnicename(srcfolder), srcfolder.getname(),
+                 self.getnicename(destfolder), destfolder))
         
     def folderlist(s, list):
         return ("\f".join(["%s\t%s" % (s.getnicename(x), x.getname()) for x in list]))

@@ -17,9 +17,15 @@
 
 from offlineimap import threadutil
 from offlineimap.ui import getglobalui
+from offlineimap.error import OfflineImapError
 import os.path
 import re
+from sys import exc_info
 import traceback
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
 
 class BaseFolder(object):
     def __init__(self):
@@ -70,11 +76,15 @@ class BaseFolder(object):
             return self.getname()
 
     def getfolderbasename(self):
-        foldername = self.getname()
-        foldername = foldername.replace(self.repository.getsep(), '.')
-        foldername = re.sub('/\.$', '/dot', foldername)
-        foldername = re.sub('^\.$', 'dot', foldername)
-        return foldername
+        """Return base file name of file to store Status/UID info in"""
+        if not self.name:
+            basename = '.'
+        else: #avoid directory hierarchies and file names such as '/'
+            basename = self.name.replace('/', '.')
+        # replace with literal 'dot' if final path name is '.' as '.' is
+        # an invalid file name.
+        basename = re.sub('(^|\/)\.$','\\1dot', basename)
+        return basename
 
     def isuidvalidityok(self):
         """Does the cached UID match the real UID
@@ -183,12 +193,9 @@ class BaseFolder(object):
 
     def addmessageflags(self, uid, flags):
         """Adds the specified flags to the message's flag set.  If a given
-        flag is already present, it will not be duplicated."""
-        newflags = self.getmessageflags(uid)
-        for flag in flags:
-            if not flag in newflags:
-                newflags.append(flag)
-        newflags.sort()
+        flag is already present, it will not be duplicated.
+        :param flags: A set() of flags"""
+        newflags = self.getmessageflags(uid) | flags
         self.savemessageflags(uid, newflags)
 
     def addmessagesflags(self, uidlist, flags):
@@ -198,11 +205,7 @@ class BaseFolder(object):
     def deletemessageflags(self, uid, flags):
         """Removes each flag given from the message's flag set.  If a given
         flag is already removed, no action will be taken for that flag."""
-        newflags = self.getmessageflags(uid)
-        for flag in flags:
-            if flag in newflags:
-                newflags.remove(flag)
-        newflags.sort()
+        newflags = self.getmessageflags(uid) - flags
         self.savemessageflags(uid, newflags)
 
     def deletemessagesflags(self, uidlist, flags):
@@ -229,10 +232,10 @@ class BaseFolder(object):
         # synced to the status cache.  This is only a problem with
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
-        try:
-            if register: # output that we start a new thread
-                self.ui.registerthread(self.getaccountname())
+        if register: # output that we start a new thread
+            self.ui.registerthread(self.getaccountname())
 
+        try:
             message = None
             flags = self.getmessageflags(uid)
             rtime = self.getmessagetime(uid)
@@ -242,17 +245,17 @@ class BaseFolder(object):
                 statusfolder.savemessage(uid, None, flags, rtime)
                 return
 
-            self.ui.copyingmessage(uid, self, [dstfolder])
+            self.ui.copyingmessage(uid, self, dstfolder)
             # If any of the destinations actually stores the message body,
             # load it up.
             if dstfolder.storesmessages():
-
                 message = self.getmessage(uid)
             #Succeeded? -> IMAP actually assigned a UID. If newid
             #remained negative, no server was willing to assign us an
             #UID. If newid is 0, saving succeeded, but we could not
             #retrieve the new UID. Ignore message in this case.
             newuid = dstfolder.savemessage(uid, message, flags, rtime)
+
             if newuid > 0:
                 if newuid != uid:
                     # Got new UID, change the local uid.
@@ -264,6 +267,7 @@ class BaseFolder(object):
                     uid = newuid
                 # Save uploaded status in the statusfolder
                 statusfolder.savemessage(uid, message, flags, rtime)
+    
             elif newuid == 0:
                 # Message was stored to dstfolder, but we can't find it's UID
                 # This means we can't link current message to the one created
@@ -273,18 +277,22 @@ class BaseFolder(object):
                 # IMAP servers ...
                 self.deletemessage(uid)
             else:
-                raise UserWarning("Trying to save msg (uid %d) on folder "
+                raise OfflineImapError("Trying to save msg (uid %d) on folder "
                                   "%s returned invalid uid %d" % \
                                       (uid,
                                        dstfolder.getvisiblename(),
-                                       newuid))
-        except (KeyboardInterrupt):
-            raise
-        except:
-            self.ui.warn("ERROR attempting to copy message " + str(uid) \
-                 + " for account " + self.getaccountname() + ":" \
-                 + traceback.format_exc())
-            raise
+                                       newuid),
+                                       OfflineImapError.ERROR.MESSAGE)
+        except OfflineImapError, e:
+            if e.severity > OfflineImapError.ERROR.MESSAGE:
+                raise # buble severe errors up
+            self.ui.error(e, exc_info()[2])
+        except Exception, e:
+            self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
+                              (uid, self.getaccountname(),
+                               traceback.format_exc()))
+            raise    #raise on unknown errors, so we can fix those
+
 
     def syncmessagesto_copy(self, dstfolder, statusfolder):
         """Pass1: Copy locally existing messages not on the other side
@@ -303,20 +311,21 @@ class BaseFolder(object):
                               statusfolder.uidexists(uid),
                             self.getmessageuidlist())
         for uid in copylist:
+            # exceptions are caught in copymessageto()
             if self.suggeststhreads():
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(\
                     self.getcopyinstancelimit(),
                     target = self.copymessageto,
                     name = "Copy message %d from %s" % (uid,
-                                                        self.getvisiblename()),
+                                                    self.getvisiblename()),
                     args = (uid, dstfolder, statusfolder))
                 thread.setDaemon(1)
                 thread.start()
                 threads.append(thread)
             else:
-                self.copymessageto(uid, dstfolder, statusfolder, register = 0)
-
+                self.copymessageto(uid, dstfolder, statusfolder,
+                                   register = 0)
         for thread in threads:
             thread.join()
 
@@ -350,8 +359,8 @@ class BaseFolder(object):
         addflaglist = {}
         delflaglist = {}
         for uid in self.getmessageuidlist():
-            # Ignore messages with negative UIDs missed by pass 1
-            # also don't do anything if the message has been deleted remotely
+            # Ignore messages with negative UIDs missed by pass 1 and
+            # don't do anything if the message has been deleted remotely
             if uid < 0 or not dstfolder.uidexists(uid):
                 continue
 
@@ -359,30 +368,31 @@ class BaseFolder(object):
             statusflags = statusfolder.getmessageflags(uid)
             #if we could not get message flags from LocalStatus, assume empty.
             if statusflags is None:
-                statusflags = []
-            addflags = [x for x in selfflags if x not in statusflags]
+                statusflags = set()
+
+            addflags = selfflags - statusflags
+            delflags = statusflags - selfflags
 
             for flag in addflags:
                 if not flag in addflaglist:
                     addflaglist[flag] = []
                 addflaglist[flag].append(uid)
 
-            delflags = [x for x in statusflags if x not in selfflags]
             for flag in delflags:
                 if not flag in delflaglist:
                     delflaglist[flag] = []
                 delflaglist[flag].append(uid)
 
-        for flag in addflaglist.keys():
-            self.ui.addingflags(addflaglist[flag], flag, dstfolder)
-            dstfolder.addmessagesflags(addflaglist[flag], [flag])
-            statusfolder.addmessagesflags(addflaglist[flag], [flag])
+        for flag, uids in addflaglist.items():
+            self.ui.addingflags(uids, flag, dstfolder)
+            dstfolder.addmessagesflags(uids, set(flag))
+            statusfolder.addmessagesflags(uids, set(flag))
 
-        for flag in delflaglist.keys():
-            self.ui.deletingflags(delflaglist[flag], flag, dstfolder)
-            dstfolder.deletemessagesflags(delflaglist[flag], [flag])
-            statusfolder.deletemessagesflags(delflaglist[flag], [flag])
-
+        for flag,uids in delflaglist.items():
+            self.ui.deletingflags(uids, flag, dstfolder)
+            dstfolder.deletemessagesflags(uids, set(flag))
+            statusfolder.deletemessagesflags(uids, set(flag))
+                
     def syncmessagesto(self, dstfolder, statusfolder):
         """Syncs messages in this folder to the destination dstfolder.
 
@@ -421,8 +431,11 @@ class BaseFolder(object):
                 action(dstfolder, statusfolder)
             except (KeyboardInterrupt):
                 raise
-            except:
-                self.ui.warn("ERROR attempting to sync flags " \
-                             + "for account " + self.getaccountname() \
-                             + ":" + traceback.format_exc())
-                raise
+            except OfflineImapError, e:
+                if e.severity > OfflineImapError.ERROR.FOLDER:
+                    raise
+                self.ui.error(e, exc_info()[2])
+            except Exception, e:
+                self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
+                                  (self, self.getaccountname()))
+                raise # raise unknown Exceptions so we can fix them

@@ -28,6 +28,11 @@ try:
 except ImportError:
     from md5 import md5
 
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
+
 from offlineimap import OfflineImapError
 
 uidmatchre = re.compile(',U=(\d+)')
@@ -128,7 +133,7 @@ class MaildirFolder(BaseFolder):
         folderstr = ',FMD5=' + foldermd5
         for dirannex in ['new', 'cur']:
             fulldirname = os.path.join(self.getfullname(), dirannex)
-            files.extend(os.path.join(fulldirname, filename) for
+            files.extend(os.path.join(dirannex, filename) for
                          filename in os.listdir(fulldirname))
         for file in files:
             messagename = os.path.basename(file)
@@ -146,10 +151,9 @@ class MaildirFolder(BaseFolder):
 
             #Check and see if the message is too big if the maxsize for this account is set
             if(maxsize != -1):
-                filesize = os.path.getsize(file)
-                if(filesize > maxsize):
+                size = os.path.getsize(os.path.join(self.getfullname(), file))
+                if(size > maxsize):
                     continue
-            
 
             foldermatch = messagename.find(folderstr) != -1
             if not foldermatch:
@@ -166,11 +170,13 @@ class MaildirFolder(BaseFolder):
                     nouidcounter -= 1
                 else:
                     uid = long(uidmatch.group(1))
+            #identify flags in the path name
             flagmatch = self.flagmatchre.search(messagename)
-            flags = []
             if flagmatch:
-                flags = [x for x in flagmatch.group(1)]
-            flags.sort()
+                flags = set(flagmatch.group(1))
+            else:
+                flags = set()
+            # 'filename' is 'dirannex/filename', e.g. cur/123_U=1_FMD5=1:2,S
             retval[uid] = {'uid': uid,
                            'flags': flags,
                            'filename': file}
@@ -261,7 +267,7 @@ class MaildirFolder(BaseFolder):
         if rtime != None:
             os.utime(os.path.join(tmpdir, messagename), (rtime, rtime))
 
-        self.messagelist[uid] = {'uid': uid, 'flags': [],
+        self.messagelist[uid] = {'uid': uid, 'flags': set(),
                                  'filename': os.path.join('tmp', messagename)}
         # savemessageflags moves msg to 'cur' or 'new' as appropriate
         self.savemessageflags(uid, flags)
@@ -288,14 +294,19 @@ class MaildirFolder(BaseFolder):
             infostr = infomatch.group(1)
             newname = newname.split(self.infosep)[0] # Strip off the info string.
         infostr = re.sub('2,[A-Z]*', '', infostr)
-        flags.sort()
-        infostr += '2,' + ''.join(flags)
+        infostr += '2,' + ''.join(sorted(flags))
         newname += infostr
         
         newfilename = os.path.join(dir_prefix, newname)
         if (newfilename != oldfilename):
-            os.rename(os.path.join(self.getfullname(), oldfilename),
-                      os.path.join(self.getfullname(), newfilename))
+            try:
+                os.rename(os.path.join(self.getfullname(), oldfilename),
+                          os.path.join(self.getfullname(), newfilename))
+            except OSError, e:
+                raise OfflineImapError("Can't rename file '%s' to '%s': %s" % (
+                                       oldfilename, newfilename, e[1]),
+                                       OfflineImapError.ERROR.FOLDER)
+                
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename
 

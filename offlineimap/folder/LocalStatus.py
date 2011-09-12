@@ -1,6 +1,5 @@
 # Local status cache virtual folder
-# Copyright (C) 2002 - 2008 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002 - 2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,6 +18,10 @@
 from Base import BaseFolder
 import os
 import threading
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
 
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
@@ -28,7 +31,7 @@ class LocalStatusFolder(BaseFolder):
         self.root = root
         self.sep = '.'
         self.config = config
-        self.filename = repository.getfolderfilename(name)
+        self.filename = os.path.join(root, self.getfolderbasename())
         self.messagelist = {}
         self.repository = repository
         self.savelock = threading.Lock()
@@ -80,11 +83,12 @@ class LocalStatusFolder(BaseFolder):
             try:
                 uid, flags = line.split(':')
                 uid = long(uid)
+                flags = set(flags)
             except ValueError, e:
-                errstr = "Corrupt line '%s' in cache file '%s'" % (line, self.filename)
+                errstr = "Corrupt line '%s' in cache file '%s'" % \
+                    (line, self.filename)
                 self.ui.warn(errstr)
                 raise ValueError(errstr)
-            flags = [x for x in flags]
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
         file.close()
 
@@ -95,8 +99,7 @@ class LocalStatusFolder(BaseFolder):
             file.write(magicline + "\n")
             for msg in self.messagelist.values():
                 flags = msg['flags']
-                flags.sort()
-                flags = ''.join(flags)
+                flags = ''.join(sorted(flags))
                 file.write("%s:%s\n" % (msg['uid'], flags))
             file.flush()
             if self.doautosave:

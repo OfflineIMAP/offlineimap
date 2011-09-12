@@ -230,7 +230,7 @@ class CursesThreadFrame:
             if self.getcolor() == 'black':
                 self.window.addstr(self.y, self.x, ' ', self.color)
             else:
-                self.window.addstr(self.y, self.x, self.ui.config.getdefault("ui.Curses.Blinkenlights", "statuschar", '.'), self.color)
+                self.window.addstr(self.y, self.x, '.', self.color)
             self.c.stdscr.move(self.c.height - 1, self.c.width - 1)
             self.window.refresh()
         self.c.locked(lockedstuff)

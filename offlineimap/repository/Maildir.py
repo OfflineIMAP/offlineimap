@@ -32,28 +32,28 @@ class MaildirRepository(BaseRepository):
         self.folders = None
         self.ui = getglobalui()
         self.debug("MaildirRepository initialized, sep is " + repr(self.getsep()))
-	self.folder_atimes = []
+        self.folder_atimes = []
 
         # Create the top-level folder if it doesn't exist
         if not os.path.isdir(self.root):
             os.mkdir(self.root, 0700)
 
     def _append_folder_atimes(self, foldername):
-	p = os.path.join(self.root, foldername)
-	new = os.path.join(p, 'new')
-	cur = os.path.join(p, 'cur')
-	f = p, os.stat(new)[ST_ATIME], os.stat(cur)[ST_ATIME]
-	self.folder_atimes.append(f)
+        p = os.path.join(self.root, foldername)
+        new = os.path.join(p, 'new')
+        cur = os.path.join(p, 'cur')
+        f = p, os.stat(new)[ST_ATIME], os.stat(cur)[ST_ATIME]
+        self.folder_atimes.append(f)
 
     def restore_folder_atimes(self):
-	if not self.folder_atimes:
-	    return
+        if not self.folder_atimes:
+            return
 
-	for f in self.folder_atimes:
-	    t = f[1], os.stat(os.path.join(f[0], 'new'))[ST_MTIME]
-	    os.utime(os.path.join(f[0], 'new'), t)
-	    t = f[2], os.stat(os.path.join(f[0], 'cur'))[ST_MTIME]
-	    os.utime(os.path.join(f[0], 'cur'), t)
+        for f in self.folder_atimes:
+            t = f[1], os.stat(os.path.join(f[0], 'new'))[ST_MTIME]
+            os.utime(os.path.join(f[0], 'new'), t)
+            t = f[2], os.stat(os.path.join(f[0], 'cur'))[ST_MTIME]
+            os.utime(os.path.join(f[0], 'cur'), t)
 
     def getlocalroot(self):
         return os.path.expanduser(self.getconf('localfolders'))
@@ -110,8 +110,8 @@ class MaildirRepository(BaseRepository):
         self.ui.warn("NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername)
 
     def getfolder(self, foldername):
-	if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
-	    self._append_folder_atimes(foldername)
+        if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
+            self._append_folder_atimes(foldername)
         return folder.Maildir.MaildirFolder(self.root, foldername,
                                             self.getsep(), self, 
                                             self.accountname, self.config)
@@ -155,11 +155,11 @@ class MaildirRepository(BaseRepository):
                 # This directory has maildir stuff -- process
                 self.debug("  This is maildir folder '%s'." % foldername)
 
-		if self.config.has_option('Repository %s' % self,
+                if self.config.has_option('Repository %s' % self,
                                           'restoreatime') and \
                     self.config.getboolean('Repository %s' % self,
                                            'restoreatime'):
-		    self._append_folder_atimes(foldername)
+                    self._append_folder_atimes(foldername)
                 retval.append(folder.Maildir.MaildirFolder(self.root,
                                                            foldername,
                                                            self.getsep(),

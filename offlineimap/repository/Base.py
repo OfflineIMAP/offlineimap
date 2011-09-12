@@ -42,14 +42,14 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
     # The 'restoreatime' config parameter only applies to local Maildir
     # mailboxes.
     def restore_atime(self):
-	if self.config.get('Repository ' + self.name, 'type').strip() != \
-		'Maildir':
-	    return
+        if self.config.get('Repository ' + self.name, 'type').strip() != \
+                'Maildir':
+            return
 
-	if not self.config.has_option('Repository ' + self.name, 'restoreatime') or not self.config.getboolean('Repository ' + self.name, 'restoreatime'):
-	    return
+        if not self.config.has_option('Repository ' + self.name, 'restoreatime') or not self.config.getboolean('Repository ' + self.name, 'restoreatime'):
+            return
 
-	return self.restore_folder_atimes()
+        return self.restore_folder_atimes()
 
     def connect(self):
         """Establish a connection to the remote, if necessary.  This exists
@@ -114,37 +114,32 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
     def getfolder(self, foldername):
         raise NotImplementedError
     
-    def syncfoldersto(self, dest, copyfolders):
+    def syncfoldersto(self, dst_repo, status_repo):
         """Syncs the folders in this repository to those in dest.
-        It does NOT sync the contents of those folders.
 
-        For every time dest.makefolder() is called, also call makefolder()
-        on each folder in copyfolders."""
-        src = self
-        srcfolders = src.getfolders()
-        destfolders = dest.getfolders()
+        It does NOT sync the contents of those folders."""
+        src_repo = self
+        src_folders = src_repo.getfolders()
+        dst_folders = dst_repo.getfolders()
 
         # Create hashes with the names, but convert the source folders
         # to the dest folder's sep.
-
-        srchash = {}
-        for folder in srcfolders:
-            srchash[folder.getvisiblename().replace(src.getsep(), dest.getsep())] = \
-                                                           folder
-        desthash = {}
-        for folder in destfolders:
-            desthash[folder.getvisiblename()] = folder
+        src_hash = {}
+        for folder in src_folders:
+            src_hash[folder.getvisiblename().replace(
+                    src_repo.getsep(), dst_repo.getsep())] = folder
+        dst_hash = {}
+        for folder in dst_folders:
+            dst_hash[folder.getvisiblename()] = folder
 
         #
         # Find new folders.
-        #
-        
-        for key in srchash.keys():
-            if not key in desthash:
+        for key in src_hash.keys():
+            if not key in dst_hash:
                 try:
-                    dest.makefolder(key)
-                    for copyfolder in copyfolders:
-                        copyfolder.makefolder(key.replace(dest.getsep(), copyfolder.getsep()))
+                    dst_repo.makefolder(key)
+                    status_repo.makefolder(key.replace(dst_repo.getsep(),
+                                                      status_repo.getsep()))
                 except (KeyboardInterrupt):
                     raise
                 except:

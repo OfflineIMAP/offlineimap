@@ -5,9 +5,9 @@
 Welcome to :mod:`offlineimaps`'s documentation
 ==============================================
 
-The :mod:`offlineimap` module provides the user interface for synchronization between IMAP servers and MailDirs or between IMAP servers. The homepage containing the source code repository can be found at the `offlineimap homepage <http://offlineimap.org>`_.
+The :mod:`offlineimap` module provides the user interface for synchronization between IMAP servers and MailDirs or between IMAP servers. The homepage containing the source code repository can be found at the `offlineimap homepage <http://offlineimap.org>`_. The following provides the developer documentation for those who are interested in modifying the source code or otherwise peek into the OfflineImap internals. End users might want to check the MANUAL, our INSTALLation instructions, and the FAQ.
 
-Within :mod:`offlineimap`, the classes :class:`OfflineImap` provides the high-level functionality. The rest of the classes should usually not needed to be touched by the user. A folder is represented by a :class:`offlineimap.folder.Base.BaseFolder` or any derivative :mod:`offlineimap.folder`.
+Within :mod:`offlineimap`, the classes :class:`OfflineImap` provides the high-level functionality. The rest of the classes should usually not needed to be touched by the user. Email repositories are represented by a :class:`offlineimap.repository.Base.BaseRepository` or derivatives (see :mod:`offlineimap.repository` for details). A folder within a repository is represented by a :class:`offlineimap.folder.Base.BaseFolder` or any derivative from :mod:`offlineimap.folder`.
 
 .. moduleauthor:: John Goerzen, and many others. See AUTHORS and the git history for a full list.
 
@@ -15,7 +15,7 @@ Within :mod:`offlineimap`, the classes :class:`OfflineImap` provides the high-le
 
 This page contains the main API overview of OfflineImap |release|. 
 
-Notmuch can be imported as::
+OfflineImap can be imported as::
 
  from offlineimap import OfflineImap
 
@@ -58,11 +58,12 @@ An :class:`accounts.Account` connects two email repositories that are to be sync
 
       Contains the current :mod:`offlineimap.ui`, and can be used for logging etc.
 
-
-:exc:`OfflineImapException` -- A Notmuch execution error
+:exc:`OfflineImapError` -- A Notmuch execution error
 --------------------------------------------------------
 
-.. autoexception:: offlineimap.OfflineImapException
+.. autoexception:: offlineimap.error.OfflineImapError
    :members:
 
-   This execption inherits directly from :exc:`Exception` and is raised on errors during the offlineimap execution.
+   This execption inherits directly from :exc:`Exception` and is raised
+   on errors during the offlineimap execution. It has an attribute
+   `severity` that denotes the severity level of the error.

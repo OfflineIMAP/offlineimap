@@ -21,6 +21,7 @@ import time
 import sys
 import traceback
 import threading
+from Queue import Queue
 import offlineimap
 
 debugtypes = {'':'Other offlineimap related sync messages',
@@ -47,7 +48,9 @@ class UIBase:
         s.debugmsglen = 50
         s.threadaccounts = {}
         s.logfile = None
-    
+        s.exc_queue = Queue()
+        """saves all occuring exceptions, so we can output them at the end"""
+
     ################################################## UTILS
     def _msg(s, msg):
         """Generic tool called when no other works."""
@@ -81,6 +84,39 @@ class UIBase:
             s._msg("warning: " + msg)
         else:
             s._msg("WARNING: " + msg)
+
+    def error(self, exc, exc_traceback=None, msg=None):
+        """Log a message at severity level ERROR
+
+        Log Exception 'exc' to error log, possibly prepended by a preceding
+        error "msg", detailing at what point the error occurred.
+
+        In debug mode, we also output the full traceback that occurred
+        if one has been passed in via sys.info()[2].
+
+        Also save the Exception to a stack that can be output at the end
+        of the sync run when offlineiamp exits. It is recommended to
+        always pass in exceptions if possible, so we can give the user
+        the best debugging info.
+
+        One example of such a call might be:
+
+           ui.error(exc, sys.exc_info()[2], msg="While syncing Folder %s in "
+                                                "repo %s")
+        """
+        cur_thread = threading.currentThread()
+        if msg:
+            self._msg("ERROR [%s]: %s\n  %s" % (cur_thread, msg, exc))
+        else:
+            self._msg("ERROR [%s]: %s" % (cur_thread, exc))
+
+        if not self.debuglist:
+            # only output tracebacks in debug mode
+            exc_traceback = None
+        # push exc on the queue for later output
+        self.exc_queue.put((msg, exc, exc_traceback))
+        if exc_traceback:
+            self._msg(traceback.format_tb(exc_traceback))
 
     def registerthread(s, account):
         """Provides a hint to UIs about which account this particular
@@ -249,11 +285,12 @@ class UIBase:
                                                           s.getnicename(dr),
                                                           df.getname()))
 
-    def copyingmessage(s, uid, src, destlist):
-        if s.verbose >= 0:
-            ds = s.folderlist(destlist)
-            s._msg("Copy message %d %s[%s] -> %s" % (uid, s.getnicename(src),
-                                                     src.getname(), ds))
+    def copyingmessage(self, uid, src, destfolder):
+        """Output a log line stating which message we copy"""
+        if self.verbose >= 0:
+            self._msg("Copy message %d %s[%s] -> %s[%s]" % \
+                       (uid, self.getnicename(src), src, 
+                        self.getnicename(destfolder), destfolder))
 
     def deletingmessage(s, uid, destlist):
         if s.verbose >= 0:
@@ -265,7 +302,7 @@ class UIBase:
             ds = s.folderlist(destlist)
             s._msg("Deleting %d messages (%s) in %s" % \
                    (len(uidlist),
-                    ", ".join([str(u) for u in uidlist]),
+                    offlineimap.imaputil.uid_sequence(uidlist),
                     ds))
 
     def addingflags(s, uidlist, flags, dest):
@@ -315,12 +352,24 @@ class UIBase:
     def mainException(s):
         s._msg(s.getMainExceptionString())
 
-    def terminate(s, exitstatus = 0, errortitle = None, errormsg = None):
+    def terminate(self, exitstatus = 0, errortitle = None, errormsg = None):
         """Called to terminate the application."""
-        if errormsg <> None:
-            if errortitle <> None:
-                sys.stderr.write('ERROR: %s\n\n%s\n'%(errortitle, errormsg))
+        #print any exceptions that have occurred over the run
+        if not self.exc_queue.empty():
+           self._msg("\nERROR: Exceptions occurred during the run!")
+        while not self.exc_queue.empty():
+            msg, exc, exc_traceback = self.exc_queue.get()
+            if msg:
+                self._msg("ERROR: %s\n  %s" % (msg, exc))
             else:
+                self._msg("ERROR: %s" % (exc))
+            if exc_traceback:
+                self._msg("\nTraceback:\n%s" %"".join(
+                        traceback.format_tb(exc_traceback)))
+
+        if errormsg and errortitle:
+            sys.stderr.write('ERROR: %s\n\n%s\n'%(errortitle, errormsg))
+        elif errormsg:
                 sys.stderr.write('%s\n' % errormsg)
         sys.exit(exitstatus)
 

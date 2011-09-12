@@ -23,6 +23,11 @@ try:
 except:
     pass #fail only if needed later on, not on import
 
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
+
 class LocalStatusSQLiteFolder(LocalStatusFolder):
     """LocalStatus backend implemented with an SQLite database
 
@@ -106,7 +111,8 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
 
         if hasattr(self, 'connection'):
             self.connection.close() #close old connections first
-        self.connection = sqlite.connect(self.filename, check_same_thread = False)
+        self.connection = sqlite.connect(self.filename,
+                                         check_same_thread = False)
 
         if from_ver == 0:
             # from_ver==0: no db existent: plain text migration?
@@ -115,7 +121,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
             plaintextfilename = os.path.join(
                 self.repository.account.getaccountmeta(),
                 'LocalStatus',
-                re.sub('(^|\/)\.$','\\1dot', self.name))
+                self.getfolderbasename())
             # MIGRATE from plaintext if needed
             if os.path.exists(plaintextfilename):
                 self.ui._msg('Migrating LocalStatus cache from plain text '
@@ -127,7 +133,6 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
                 for line in file.xreadlines():
                     uid, flags = line.strip().split(':')
                     uid = long(uid)
-                    flags = list(flags)
                     flags = ''.join(sorted(flags))
                     data.append((uid,flags))
                 self.connection.executemany('INSERT INTO status (id,flags) VALUES (?,?)',
@@ -167,7 +172,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         self.messagelist = {}
         cursor = self.connection.execute('SELECT id,flags from status')
         for row in cursor:
-                flags = [x for x in row[1]]
+                flags = set(row[1])
                 self.messagelist[row[0]] = {'uid': row[0], 'flags': flags}
 
     def save(self):
@@ -227,8 +232,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
 
     def savemessageflags(self, uid, flags):
         self.messagelist[uid] = {'uid': uid, 'flags': flags}
-        flags.sort()
-        flags = ''.join(flags)
+        flags = ''.join(sorted(flags))
         self.sql_write('UPDATE status SET flags=? WHERE id=?',(flags,uid))
 
     def deletemessages(self, uidlist):

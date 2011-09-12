@@ -22,6 +22,7 @@ from offlineimap.threadutil import InstanceLimitedThread
 from subprocess import Popen, PIPE
 from threading import Event
 import os
+from sys import exc_info
 import traceback
 
 def getaccountlist(customconfig):
@@ -178,16 +179,16 @@ class SyncableAccount(Account):
                 except (KeyboardInterrupt, SystemExit):
                     raise
                 except OfflineImapError, e:                    
-                    self.ui.warn(e.reason)
                     # Stop looping and bubble up Exception if needed.
                     if e.severity >= OfflineImapError.ERROR.REPO:
                         if looping:
                             looping -= 1
                         if e.severity >= OfflineImapError.ERROR.CRITICAL:
                             raise
-                except:
-                    self.ui.warn("Error occured attempting to sync account "\
-                                 "'%s':\n%s"% (self, traceback.format_exc()))
+                    self.ui.error(e, exc_info()[2])
+                except Exception, e:
+                    self.ui.error(e, msg = "While attempting to sync "
+                        "account %s:\n  %s"% (self, traceback.format_exc()))
                 else:
                     # after success sync, reset the looping counter to 3
                     if self.refreshperiod:
@@ -232,7 +233,7 @@ class SyncableAccount(Account):
             # replicate the folderstructure from REMOTE to LOCAL
             if not localrepos.getconf('readonly', False):
                 self.ui.syncfolders(remoterepos, localrepos)
-                remoterepos.syncfoldersto(localrepos, [statusrepos])
+                remoterepos.syncfoldersto(localrepos, statusrepos)
 
             # iterate through all folders on the remote repo and sync
             for remotefolder in remoterepos.getfolders():
@@ -276,8 +277,10 @@ class SyncableAccount(Account):
             r = p.communicate()
             self.ui.callhook("Hook stdout: %s\nHook stderr:%s\n" % r)
             self.ui.callhook("Hook return code: %d" % p.returncode)
-        except:
-            self.ui.warn("Exception occured while calling hook")
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception, e:
+            self.ui.error(e, exc_info()[2], msg = "Calling hook")
 
 
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
@@ -366,9 +369,9 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         if e.severity > OfflineImapError.ERROR.FOLDER:
             raise
         else:
-            ui.warn("Aborting folder sync '%s' [acc: '%s']\nReason was: %s" %\
-                        (localfolder.name, accountname, e.reason))
-    except:
-        ui.warn("ERROR in syncfolder for %s folder %s: %s" % \
+            ui.error(e, exc_info()[2], msg = "Aborting folder sync '%s' "
+                     "[acc: '%s']" % (localfolder, accountname))
+    except Exception, e:
+        ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
                 (accountname,remotefolder.getvisiblename(),
                  traceback.format_exc()))

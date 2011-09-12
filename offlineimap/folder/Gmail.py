@@ -21,7 +21,6 @@
 
 from IMAP import IMAPFolder
 from offlineimap import imaputil
-from copy import copy
 
 
 class GmailFolder(IMAPFolder):
@@ -45,7 +44,7 @@ class GmailFolder(IMAPFolder):
     def deletemessages_noconvert(self, uidlist):
         uidlist = [uid for uid in uidlist if uid in self.messagelist]
         if not len(uidlist):
-            return        
+            return
 
         if self.realdelete and not (self.getname() in self.real_delete_folders):
             # IMAP expunge is just "remove label" in this folder,
@@ -55,7 +54,7 @@ class GmailFolder(IMAPFolder):
             try:
                 imapobj.select(self.getfullname())
                 result = imapobj.uid('copy',
-                                     imaputil.listjoin(uidlist),
+                                     imaputil.uid_sequence(uidlist),
                                      self.trash_folder)
                 assert result[0] == 'OK', \
                        "Bad IMAPlib result: %s" % result[0]
@@ -65,57 +64,3 @@ class GmailFolder(IMAPFolder):
                 del self.messagelist[uid]
         else:
             IMAPFolder.deletemessages_noconvert(self, uidlist)
-            
-    def processmessagesflags(self, operation, uidlist, flags):
-        # XXX: the imapobj.myrights(...) calls dies with an error
-        # report from Gmail server stating that IMAP command
-        # 'MYRIGHTS' is not implemented.  So, this
-        # `processmessagesflags` is just a copy from `IMAPFolder`,
-        # with the references to `imapobj.myrights()` deleted This
-        # shouldn't hurt, however, Gmail users always have full
-        # control over all their mailboxes (apparently).
-        if len(uidlist) > 101:
-            # Hack for those IMAP ervers with a limited line length
-            self.processmessagesflags(operation, uidlist[:100], flags)
-            self.processmessagesflags(operation, uidlist[100:], flags)
-            return
-        
-        imapobj = self.imapserver.acquireconnection()
-        try:
-            imapobj.select(self.getfullname())
-            r = imapobj.uid('store',
-                            imaputil.listjoin(uidlist),
-                            operation + 'FLAGS',
-                            imaputil.flagsmaildir2imap(flags))
-            assert r[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
-            r = r[1]
-        finally:
-            self.imapserver.releaseconnection(imapobj)
-
-        needupdate = copy(uidlist)
-        for result in r:
-            if result == None:
-                # Compensate for servers that don't return anything from
-                # STORE.
-                continue
-            attributehash = imaputil.flags2hash(imaputil.imapsplit(result)[1])
-            if not ('UID' in attributehash and 'FLAGS' in attributehash):
-                # Compensate for servers that don't return a UID attribute.
-                continue
-            flags = attributehash['FLAGS']
-            uid = long(attributehash['UID'])
-            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flags)
-            try:
-                needupdate.remove(uid)
-            except ValueError:          # Let it slide if it's not in the list
-                pass
-        for uid in needupdate:
-            if operation == '+':
-                for flag in flags:
-                    if not flag in self.messagelist[uid]['flags']:
-                        self.messagelist[uid]['flags'].append(flag)
-                    self.messagelist[uid]['flags'].sort()
-            elif operation == '-':
-                for flag in flags:
-                    if flag in self.messagelist[uid]['flags']:
-                        self.messagelist[uid]['flags'].remove(flag)

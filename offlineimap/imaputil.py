@@ -20,6 +20,11 @@ import re
 import string
 import types
 from offlineimap.ui import getglobalui
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
+
 quotere = re.compile('^("(?:[^"]|\\\\")*")')
 
 def debug(*args):
@@ -42,11 +47,21 @@ def dequote(string):
     return string
 
 def flagsplit(string):
+    """Converts a string of IMAP flags to a list
+
+    :returns: E.g. '(\\Draft \\Deleted)' returns  ['\\Draft','\\Deleted'].
+        (FLAGS (\\Seen Old) UID 4807) returns
+        ['FLAGS,'(\\Seen Old)','UID', '4807']
+    """
     if string[0] != '(' or string[-1] != ')':
         raise ValueError, "Passed string '%s' is not a flag list" % string
     return imapsplit(string[1:-1])
 
 def options2hash(list):
+    """convert list [1,2,3,4,5,6] to {1:2, 3:4, 5:6}"""
+    # effectively this does dict(zip(l[::2],l[1::2])), however
+    # measurements seemed to have indicated that the manual variant is
+    # faster for mosly small lists.
     retval = {}
     counter = 0
     while (counter < len(list)):
@@ -55,8 +70,12 @@ def options2hash(list):
     debug("options2hash returning:", retval)
     return retval
 
-def flags2hash(string):
-    return options2hash(flagsplit(string))
+def flags2hash(flags):
+    """Converts IMAP response string from eg IMAP4.fetch() to a hash.
+    
+    E.g. '(FLAGS (\\Seen Old) UID 4807)' leads to
+    {'FLAGS': '(\\Seen Old)', 'UID': '4807'}"""
+    return options2hash(flagsplit(flags))
 
 def imapsplit(imapstring):
     """Takes a string from an IMAP conversation and returns a list containing
@@ -152,15 +171,16 @@ flagmap = [('\\Seen', 'S'),
            ('\\Draft', 'D')]
 
 def flagsimap2maildir(flagstring):
-    retval = []
-    imapflaglist = [x.lower() for x in flagstring[1:-1].split()]
+    """Convert string '(\\Draft \\Deleted)' into a flags set(DR)"""
+    retval = set()
+    imapflaglist = flagstring[1:-1].split()
     for imapflag, maildirflag in flagmap:
-        if imapflag.lower() in imapflaglist:
-            retval.append(maildirflag)
-    retval.sort()
+        if imapflag in imapflaglist:
+            retval.add(maildirflag)
     return retval
 
 def flagsmaildir2imap(maildirflaglist):
+    """Convert set of flags ([DR]) into a string '(\\Draft \\Deleted)'"""
     retval = []
     for imapflag, maildirflag in flagmap:
         if maildirflag in maildirflaglist:
@@ -168,38 +188,32 @@ def flagsmaildir2imap(maildirflaglist):
     retval.sort()
     return '(' + ' '.join(retval) + ')'
 
-def listjoin(list):
-    start = None
-    end = None
-    retval = []
+def uid_sequence(uidlist):
+    """Collapse UID lists into shorter sequence sets
 
-    def getlist(start, end):
+    [1,2,3,4,5,10,12,13] will return "1:5,10,12:13".  This function sorts
+    the list, and only collapses if subsequent entries form a range.
+    :returns: The collapsed UID list as string"""
+    def getrange(start, end):
         if start == end:
             return(str(start))
-        else:
-            return(str(start) + ":" + str(end))
-        
+        return "%s:%s" % (start, end)
 
-    for item in list:
-        if start == None:
-            # First item.
-            start = item
-            end = item
-        elif item == end + 1:
-            # An addition to the list.
-            end = item
-        else:
-            # Here on: starting a new list.
-            retval.append(getlist(start, end))
-            start = item
-            end = item
+    if not len(uidlist): return '' # Empty list, return
+    start, end = None, None
+    retval = []
+    # Force items to be longs and sort them
+    sorted_uids = sorted(map(int, uidlist))
 
-    if start != None:
-        retval.append(getlist(start, end))
+    for item in iter(sorted_uids):
+        item = int(item)
+        if start == None:     # First item
+            start, end = item, item
+        elif item == end + 1: # Next item in a range
+            end = item
+        else:                 # Starting a new range
+            retval.append(getrange(start, end))
+            start, end = item, item
 
+    retval.append(getrange(start, end)) # Add final range/item
     return ",".join(retval)
-
-
-
-            
-        

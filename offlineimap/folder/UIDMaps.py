@@ -34,7 +34,7 @@ class MappedIMAPFolder(IMAPFolder):
       diskl2r: dict mapping message uids: self.r2l[localuid]=remoteuid"""
 
     def __init__(self, *args, **kwargs):
-	IMAPFolder.__init__(self, *args, **kwargs)
+        IMAPFolder.__init__(self, *args, **kwargs)
         self.maplock = Lock()
         (self.diskr2l, self.diskl2r) = self._loadmaps()
         self._mb = IMAPFolder(*args, **kwargs)

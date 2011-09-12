@@ -24,10 +24,12 @@ import offlineimap.accounts
 import hmac
 import socket
 import base64
-
+import time
+import errno
+from sys import exc_info
 from socket import gaierror
 try:
-    from ssl import SSLError
+    from ssl import SSLError, cert_time_to_seconds
 except ImportError:
     # Protect against python<2.6, use dummy and won't get SSL errors.
     SSLError = None
@@ -42,58 +44,58 @@ except ImportError:
     pass
 
 class IMAPServer:
+    """Initializes all variables from an IMAPRepository() instance
+
+    Various functions, such as acquireconnection() return an IMAP4
+    object on which we can operate."""
     GSS_STATE_STEP = 0
     GSS_STATE_WRAP = 1
-    def __init__(self, config, reposname,
-                 username = None, password = None, hostname = None,
-                 port = None, ssl = 1, maxconnections = 1, tunnel = None,
-                 reference = '""', sslclientcert = None, sslclientkey = None,
-                 sslcacertfile = None, idlefolders = []):
+    def __init__(self, repos):
         self.ui = getglobalui()
-        self.reposname = reposname
-        self.config = config
-        self.username = username
-        self.password = password
+        self.repos = repos
+        self.config = repos.getconfig()
+        self.tunnel = repos.getpreauthtunnel()
+        self.usessl = repos.getssl()
+        self.username = repos.getuser()
+        self.password = None
         self.passworderror = None
         self.goodpassword = None
-        self.hostname = hostname
-        self.tunnel = tunnel
-        self.port = port
-        self.usessl = ssl
-        self.sslclientcert = sslclientcert
-        self.sslclientkey = sslclientkey
-        self.sslcacertfile = sslcacertfile
+        self.hostname = repos.gethost()
+        self.port = repos.getport()
+        if self.port == None:
+            self.port = 993 if self.usessl else 143
+        self.sslclientcert = repos.getsslclientcert()
+        self.sslclientkey = repos.getsslclientkey()
+        self.sslcacertfile = repos.getsslcacertfile()
+        if self.sslcacertfile is None:
+            self.verifycert = None # disable cert verification
         self.delim = None
         self.root = None
-        if port == None:
-            if ssl:
-                self.port = 993
-            else:
-                self.port = 143
-        self.maxconnections = maxconnections
+        self.maxconnections = repos.getmaxconnections()
         self.availableconnections = []
         self.assignedconnections = []
         self.lastowner = {}
         self.semaphore = BoundedSemaphore(self.maxconnections)
         self.connectionlock = Lock()
-        self.reference = reference
-        self.idlefolders = idlefolders
+        self.reference = repos.getreference()
+        self.idlefolders = repos.getidlefolders()
         self.gss_step = self.GSS_STATE_STEP
         self.gss_vc = None
         self.gssapi = False
 
     def getpassword(self):
-        if self.goodpassword != None:
+        """Returns the server password or None"""
+        if self.goodpassword != None: # use cached good one first
             return self.goodpassword
 
         if self.password != None and self.passworderror == None:
-            return self.password
+            return self.password # non-failed preconfigured one
 
-        self.password = self.ui.getpass(self.reposname,
-                                                     self.config,
-                                                     self.passworderror)
+        # get 1) configured password first 2) fall back to asking via UI
+        self.password = self.repos.getpassword() or \
+                        self.ui.getpass(self.repos.getname(), self.config,
+                                        self.passworderror)
         self.passworderror = None
-
         return self.password
 
     def getdelim(self):
@@ -107,12 +109,15 @@ class IMAPServer:
         return self.root
 
 
-    def releaseconnection(self, connection):
-        """Releases a connection, returning it to the pool."""
+    def releaseconnection(self, connection, drop_conn=False):
+        """Releases a connection, returning it to the pool.
+
+        :param drop_conn: If True, the connection will be released and
+           not be reused. This can be used to indicate broken connections."""
         self.connectionlock.acquire()
         self.assignedconnections.remove(connection)
         # Don't reuse broken connections
-        if connection.Terminate:
+        if connection.Terminate or drop_conn:
             connection.logout()
         else:
             self.availableconnections.append(connection)
@@ -204,16 +209,20 @@ class IMAPServer:
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
-                    imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname, self.port,
-                                                           self.sslclientkey, self.sslclientcert,
+                    fingerprint = self.repos.get_ssl_fingerprint()
+                    imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname,
+                                                           self.port,
+                                                           self.sslclientkey,
+                                                           self.sslclientcert,
+                                                           self.sslcacertfile,
+                                                           self.verifycert,
                                                            timeout=socket.getdefaulttimeout(),
-                                                           cacertfile = self.sslcacertfile)
+                                                           fingerprint=fingerprint
+                                                           )
                 else:
                     self.ui.connecting(self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
                                                        timeout=socket.getdefaulttimeout())
-
-                imapobj.mustquote = imaplibutil.mustquote
 
                 if not self.tunnel:
                     try:
@@ -260,7 +269,6 @@ class IMAPServer:
                     except imapobj.error, val:
                         self.passworderror = str(val)
                         raise
-                        #self.password = None
 
             if self.delim == None:
                 listres = imapobj.list(self.reference, '""')[1]
@@ -292,8 +300,6 @@ class IMAPServer:
             error..."""
             self.semaphore.release()
 
-            #Make sure that this can be retried the next time...
-            self.passworderror = None
             if(self.connectionlock.locked()):
                 self.connectionlock.release()
 
@@ -304,20 +310,20 @@ class IMAPServer:
                 reason = "Could not resolve name '%s' for repository "\
                          "'%s'. Make sure you have configured the ser"\
                          "ver name correctly and that you are online."%\
-                         (self.hostname, self.reposname)
+                         (self.hostname, self.repos)
                 raise OfflineImapError(reason, severity)
 
             elif SSLError and isinstance(e, SSLError) and e.errno == 1:
                 # SSL unknown protocol error
                 # happens e.g. when connecting via SSL to a non-SSL service
-                if self.port != 443:
+                if self.port != 993:
                     reason = "Could not connect via SSL to host '%s' and non-s"\
                         "tandard ssl port %d configured. Make sure you connect"\
                         " to the correct port." % (self.hostname, self.port)
                 else:
                     reason = "Unknown SSL protocol connecting to host '%s' for"\
                          "repository '%s'. OpenSSL responded:\n%s"\
-                         % (self.hostname, self.reposname, e)
+                         % (self.hostname, self.repos, e)
                 raise OfflineImapError(reason, severity)
 
             elif isinstance(e, socket.error) and e.args[0] == errno.ECONNREFUSED:
@@ -333,7 +339,8 @@ class IMAPServer:
             if str(e)[:24] == "can't open socket; error":
                 raise OfflineImapError("Could not connect to remote server '%s' "\
                     "for repository '%s'. Remote does not answer."
-                    % (self.hostname, self.reposname), severity)
+                    % (self.hostname, self.repos),
+                    OfflineImapError.ERROR.REPO)
             else:
                 # re-raise all other errors
                 raise
@@ -408,11 +415,56 @@ class IMAPServer:
 
             self.ui.debug('imap', 'keepalive: bottom of loop')
 
+
+    def verifycert(self, cert, hostname):
+        '''Verify that cert (in socket.getpeercert() format) matches hostname.
+        CRLs are not handled.
+        
+        Returns error message if any problems are found and None on success.
+        '''
+        errstr = "CA Cert verifying failed: "
+        if not cert:
+            return ('%s no certificate received' % errstr)
+        dnsname = hostname.lower()
+        certnames = []
+
+        # cert expired?
+        notafter = cert.get('notAfter') 
+        if notafter:
+            if time.time() >= cert_time_to_seconds(notafter):
+                return '%s certificate expired %s' % (errstr, notafter)
+
+        # First read commonName
+        for s in cert.get('subject', []):
+            key, value = s[0]
+            if key == 'commonName':
+                certnames.append(value.lower())
+        if len(certnames) == 0:
+            return ('%s no commonName found in certificate' % errstr)
+
+        # Then read subjectAltName
+        for key, value in cert.get('subjectAltName', []):
+            if key == 'DNS':
+                certnames.append(value.lower())
+
+        # And finally try to match hostname with one of these names
+        for certname in certnames:
+            if (certname == dnsname or
+                '.' in dnsname and certname == '*.' + dnsname.split('.', 1)[1]):
+                return None
+
+        return ('%s no matching domain name found in certificate' % errstr)
+
+
 class IdleThread(object):
     def __init__(self, parent, folder=None):
+        """If invoked without 'folder', perform a NOOP and wait for
+        self.stop() to be called. If invoked with folder, switch to IDLE
+        mode and synchronize once we have a new message"""
         self.parent = parent
         self.folder = folder
-        self.event = Event()
+        self.stop_sig = Event()
+        self.ui = getglobalui()
         if folder is None:
             self.thread = Thread(target=self.noop)
         else:
@@ -423,7 +475,7 @@ class IdleThread(object):
         self.thread.start()
 
     def stop(self):
-        self.event.set()
+        self.stop_sig.set()
 
     def join(self):
         self.thread.join()
@@ -431,7 +483,7 @@ class IdleThread(object):
     def noop(self):
         imapobj = self.parent.acquireconnection()
         imapobj.noop()
-        self.event.wait()
+        self.stop_sig.wait()
         self.parent.releaseconnection(imapobj)
 
     def dosync(self):
@@ -446,87 +498,56 @@ class IdleThread(object):
         ui.unregisterthread(currentThread())
 
     def idle(self):
-        while True:
-            if self.event.isSet():
-                return
-            self.needsync = False
-            self.imapaborted = False
-            def callback(args):
-                result, cb_arg, exc_data = args
-                if exc_data is None:
-                    if not self.event.isSet():
-                        self.needsync = True
-                        self.event.set()
-                else:
-                    # We got an "abort" signal.
-                    self.imapaborted = True
-                    self.stop()
+        """Invoke IDLE mode until timeout or self.stop() is invoked"""
+        def callback(args):
+            """IDLE callback function invoked by imaplib2
 
-            imapobj = self.parent.acquireconnection()
-            imapobj.select(self.folder)
+            This is invoked when a) The IMAP server tells us something
+            while in IDLE mode, b) we get an Exception (e.g. on dropped
+            connections, or c) the standard imaplib IDLE timeout of 29
+            minutes kicks in."""
+            result, cb_arg, exc_data = args
+            if exc_data is None and not self.stop_sig.isSet():
+                # No Exception, and we are not supposed to stop:
+                self.needsync = True
+            self.stop_sig.set() # continue to sync
+
+        while not self.stop_sig.isSet():
+            self.needsync = False
+
+            success = False # successfully selected FOLDER?
+            while not success:
+                imapobj = self.parent.acquireconnection()
+                try:
+                    imapobj.select(self.folder)
+                except OfflineImapError, e:
+                    if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
+                        # Connection closed, release connection and retry
+                        self.ui.error(e, exc_info()[2])
+                        self.parent.releaseconnection(imapobj, True)
+                    else:
+                        raise e
+                else:
+                    success = True
             if "IDLE" in imapobj.capabilities:
                 imapobj.idle(callback=callback)
             else:
-                ui = getglobalui()
-                ui.warn("IMAP IDLE not supported on connection to %s."
-                        "Falling back to old behavior: sleeping until next"
-                        "refresh cycle."
-                        %(imapobj.identifier,))
+                self.ui.warn("IMAP IDLE not supported on server '%s'."
+                    "Sleep until next refresh cycle." % imapobj.identifier)
                 imapobj.noop()
-            self.event.wait()
-            if self.event.isSet():
-                # Can't NOOP on a bad connection.
-                if not self.imapaborted:
-                    imapobj.noop()
-                    # We don't do event.clear() so that we'll fall out
-                    # of the loop next time around.
-            self.parent.releaseconnection(imapobj)
+            self.stop_sig.wait() # self.stop() or IDLE callback are invoked
+            try:
+                # End IDLE mode with noop, imapobj can point to a dropped conn.
+                imapobj.noop()
+            except imapobj.abort():
+                self.ui.warn('Attempting NOOP on dropped connection %s' % \
+                                 imapobj.identifier)
+                self.parent.releaseconnection(imapobj, True)
+            else:
+                self.parent.releaseconnection(imapobj)
+
             if self.needsync:
-                self.event.clear()
+                # here not via self.stop, but because IDLE responded. Do
+                # another round and invoke actual syncing.
+                self.stop_sig.clear()
                 self.dosync()
-
-class ConfigedIMAPServer(IMAPServer):
-    """This class is designed for easier initialization given a ConfigParser
-    object and an account name.  The passwordhash is used if
-    passwords for certain accounts are known.  If the password for this
-    account is listed, it will be obtained from there."""
-    def __init__(self, repository, passwordhash = {}):
-        """Initialize the object.  If the account is not a tunnel,
-        the password is required."""
-        self.repos = repository
-        self.config = self.repos.getconfig()
-        usetunnel = self.repos.getpreauthtunnel()
-        if not usetunnel:
-            host = self.repos.gethost()
-            user = self.repos.getuser()
-            port = self.repos.getport()
-            ssl = self.repos.getssl()
-            sslclientcert = self.repos.getsslclientcert()
-            sslclientkey = self.repos.getsslclientkey()
-            sslcacertfile = self.repos.getsslcacertfile()
-        reference = self.repos.getreference()
-        idlefolders = self.repos.getidlefolders()
-        server = None
-        password = None
-        
-        if repository.getname() in passwordhash:
-            password = passwordhash[repository.getname()]
-
-        # Connect to the remote server.
-        if usetunnel:
-            IMAPServer.__init__(self, self.config, self.repos.getname(),
-                                tunnel = usetunnel,
-                                reference = reference,
-                                idlefolders = idlefolders,
-                                maxconnections = self.repos.getmaxconnections())
-        else:
-            if not password:
-                password = self.repos.getpassword()
-            IMAPServer.__init__(self, self.config, self.repos.getname(),
-                                user, password, host, port, ssl,
-                                self.repos.getmaxconnections(),
-                                reference = reference,
-                                idlefolders = idlefolders,
-                                sslclientcert = sslclientcert,
-                                sslclientkey = sslclientkey,
-                                sslcacertfile = sslcacertfile)

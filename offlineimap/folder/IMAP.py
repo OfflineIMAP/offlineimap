@@ -21,9 +21,15 @@ import random
 import binascii
 import re
 import time
-from copy import copy
+from sys import exc_info
 from Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, OfflineImapError
+from offlineimap.imaplib2 import MonthNames
+try: # python 2.6 has set() built in
+    set
+except NameError:
+    from sets import Set as set
+
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
@@ -105,78 +111,75 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
         return False
 
-    # TODO: Make this so that it can define a date that would be the oldest messages etc.
     def cachemessagelist(self):
-        imapobj = self.imapserver.acquireconnection()
+        maxage = self.config.getdefaultint("Account %s" % self.accountname,
+                                           "maxage", -1)
+        maxsize = self.config.getdefaultint("Account %s" % self.accountname,
+                                            "maxsize", -1)
         self.messagelist = {}
 
+        imapobj = self.imapserver.acquireconnection()
         try:
-            # Primes untagged_responses
-            imaptype, imapdata = imapobj.select(self.getfullname(), readonly = 1, force = 1)
-
-            maxage = self.config.getdefaultint("Account " + self.accountname, "maxage", -1)
-            maxsize = self.config.getdefaultint("Account " + self.accountname, "maxsize", -1)
+            res_type, imapdata = imapobj.select(self.getfullname(), True)
+            if imapdata == [None] or imapdata[0] == '0':
+                # Empty folder, no need to populate message list
+                return
+            # By default examine all UIDs in this folder
+            msgsToFetch = '1:*'
 
             if (maxage != -1) | (maxsize != -1):
-                try:
-                    search_condition = "(";
+                search_cond = "(";
 
-                    if(maxage != -1):
-                        #find out what the oldest message is that we should look at
-                        oldest_time_struct = time.gmtime(time.time() - (60*60*24*maxage))
+                if(maxage != -1):
+                    #find out what the oldest message is that we should look at
+                    oldest_struct = time.gmtime(time.time() - (60*60*24*maxage))
+                    if oldest_struct[0] < 1900:
+                        raise OfflineImapError("maxage setting led to year %d. "
+                                               "Abort syncing." % oldest_struct[0],
+                                               OfflineImapError.ERROR.REPO)
+                    search_cond += "SINCE %02d-%s-%d" % (
+                        oldest_struct[2],
+                        MonthNames[oldest_struct[1]],
+                        oldest_struct[0])
 
-                        #format this manually - otherwise locales could cause problems
-                        monthnames_standard = ["Jan", "Feb", "Mar", "Apr", "May", \
-                            "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                if(maxsize != -1):
+                    if(maxage != -1): # There are two conditions, add space
+                        search_cond += " "
+                    search_cond += "SMALLER %d" % maxsize
 
-                        our_monthname = monthnames_standard[oldest_time_struct[1]-1]
-                        daystr = "%(day)02d" % {'day' : oldest_time_struct[2]}
-                        date_search_str = "SINCE " + daystr + "-" + our_monthname \
-                            + "-" + str(oldest_time_struct[0])
+                search_cond += ")"
 
-                        search_condition += date_search_str
+                res_type, res_data = imapobj.search(None, search_cond)
+                if res_type != 'OK':
+                    raise OfflineImapError("SEARCH in folder [%s]%s failed. "
+                        "Search string was '%s'. Server responded '[%s] %s'" % (
+                            self.getrepository(), self,
+                            search_cond, res_type, res_data),
+                        OfflineImapError.ERROR.FOLDER)
 
-                    if(maxsize != -1):
-                        if(maxage != -1): #There are two conditions - add a space
-                            search_condition += " "
+                # Result UIDs are seperated by space, coalesce into ranges
+                msgsToFetch = imaputil.uid_sequence(res_data[0].split())
+                if not msgsToFetch:
+                    return # No messages to sync
 
-                        search_condition += "SMALLER " + self.config.getdefault("Account " + self.accountname, "maxsize", -1)
-
-                    search_condition += ")"
-                    searchresult = imapobj.search(None, search_condition)
-
-                    #result would come back seperated by space - to change into a fetch
-                    #statement we need to change space to comma
-                    messagesToFetch = searchresult[1][0].replace(" ", ",")
-                except KeyError:
-                    return
-                if len(messagesToFetch) < 1:
-                    # No messages; return
-                    return
-            else:
-                # 1. Some mail servers do not return an EXISTS response
-                # if the folder is empty.  2. ZIMBRA servers can return
-                # multiple EXISTS replies in the form 500, 1000, 1500,
-                # 1623 so check for potentially multiple replies.
-                if imapdata == [None]:
-                    return
-
-                maxmsgid = 0
-                for msgid in imapdata:
-                    maxmsgid = max(long(msgid), maxmsgid)
-                if maxmsgid < 1:
-                    #no messages; return
-                    return
-                messagesToFetch = '1:%d' % maxmsgid;
-
-            # Now, get the flags and UIDs for these.
-            # We could conceivably get rid of maxmsgid and just say
-            # '1:*' here.
-            response = imapobj.fetch(messagesToFetch, '(FLAGS UID)')[1]
+            # Get the flags and UIDs for these. single-quotes prevent
+            # imaplib2 from quoting the sequence.
+            res_type, response = imapobj.fetch("'%s'" % msgsToFetch,
+                                               '(FLAGS UID)')
+            if res_type != 'OK':
+                raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. "
+                                       "Server responded '[%s] %s'" % (
+                            self.getrepository(), self,
+                            res_type, response),
+                        OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
+
         for messagestr in response:
-            # Discard the message number.
+            # looks like: '1 (FLAGS (\\Seen Old) UID 4807)' or None if no msg
+            # Discard initial message number.
+            if messagestr == None:
+                continue
             messagestr = messagestr.split(' ', 1)[1]
             options = imaputil.flags2hash(messagestr)
             if not options.has_key('UID'):
@@ -201,13 +204,27 @@ class IMAPFolder(BaseFolder):
         """
         imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj.select(self.getfullname(), readonly = 1)
-            res_type, data = imapobj.uid('fetch', str(uid), '(BODY.PEEK[])')
+            fails_left = 2 # retry on dropped connection
+            while fails_left:
+                try:
+                    imapobj.select(self.getfullname(), readonly = 1)
+                    res_type, data = imapobj.uid('fetch', str(uid),
+                                                 '(BODY.PEEK[])')
+                    fails_left = 0
+                except imapobj.abort(), e:
+                    # Release dropped connection, and get a new one
+                    self.imapserver.releaseconnection(imapobj)
+                    imapobj = self.imapserver.acquireconnection()
+                    self.ui.error(e, exc_info()[2])
+                    fails_left -= 1
+                    if not fails_left:
+                        raise e
             if data == [None] or res_type != 'OK':
                 #IMAP server says bad request or UID does not exist
                 severity = OfflineImapError.ERROR.MESSAGE
-                reason = "IMAP server '%s' responded with '%s' to fetching "\
-                    "message UID '%d'" % (self.getrepository(), res_type, uid)
+                reason = "IMAP server '%s' failed to fetch message UID '%d'."\
+                    "Server responded: %s %s" % (self.getrepository(), uid,
+                                                 res_type, data)
                 if data == [None]:
                     #IMAP server did not find a message with this UID
                     reason = "IMAP server '%s' does not have a message "\
@@ -216,16 +233,6 @@ class IMAPFolder(BaseFolder):
             # data looks now e.g. [('320 (UID 17061 BODY[]
             # {2565}','msgbody....')]  we only asked for one message,
             # and that msg is in data[0]. msbody is in [0][1]
-
-            #NB & TODO: When the message on the IMAP server has been
-            #deleted in the mean time, it will respond with an 'OK'
-            #res_type, but it will simply not send any data. This will
-            #lead to a crash in the below line. We need urgently to
-            #detect this, protect from this and need to think about what
-            #to return in this case. Probably returning `None` in this
-            #case would be good. But we need to make sure that all
-            #Backends behave the same, and that we actually check the
-            #return value and behave accordingly.
             data = data[0][1].replace("\r\n", "\n")
 
             if len(data)>200:
@@ -317,6 +324,74 @@ class IMAPFolder(BaseFolder):
         matchinguids.sort()
         return long(matchinguids[0])
 
+    def savemessage_fetchheaders(self, imapobj, headername, headervalue):
+        """ We fetch all new mail headers and search for the right
+        X-OfflineImap line by hand. The response from the server has form:
+        (
+          'OK',
+          [
+            (
+              '185 (RFC822.HEADER {1789}',
+              '... mail headers ...'
+            ),
+            ' UID 2444)',
+            (
+              '186 (RFC822.HEADER {1789}',
+              '... 2nd mail headers ...'
+            ),
+            ' UID 2445)'
+          ]
+        )
+        We need to locate the UID just after mail headers containing our
+        X-OfflineIMAP line.
+
+        Returns UID when found, 0 when not found.
+        """
+        self.ui.debug('imap', 'savemessage_fetchheaders called for %s: %s' % \
+                 (headername, headervalue))
+
+        # run "fetch X:* rfc822.header"
+        # since we stored the mail we are looking for just recently, it would
+        # not be optimal to fetch all messages. So we'll find highest message
+        # UID in our local messagelist and search from there (exactly from
+        # UID+1). That works because UIDs are guaranteed to be unique and
+        # ascending.
+
+        if self.getmessagelist():
+            start = 1+max(self.getmessagelist().keys())
+        else:
+            # Folder was empty - start from 1
+            start = 1
+
+        # Imaplib quotes all parameters of a string type. That must not happen
+        # with the range X:*. So we use bytearray to stop imaplib from getting
+        # in our way
+
+        result = imapobj.uid('FETCH', bytearray('%d:*' % start), 'rfc822.header')
+        if result[0] != 'OK':
+            raise OfflineImapError('Error fetching mail headers: ' + '. '.join(result[1]),
+                     OfflineImapError.ERROR.MESSAGE)
+
+        result = result[1]
+
+        found = 0
+        for item in result:
+            if found == 0 and type(item) == type( () ):
+                # Walk just tuples
+                if re.search("(?:^|\\r|\\n)%s:\s*%s(?:\\r|\\n)" % (headername, headervalue),
+                        item[1], flags=re.IGNORECASE):
+                    found = 1
+            elif found == 1:
+                if type(item) == type (""):
+                    uid = re.search("UID\s+(\d+)", item, flags=re.IGNORECASE)
+                    if uid:
+                        return int(uid.group(1))
+                    else:
+                        self.ui.warn("Can't parse FETCH response, can't find UID: %s", result.__repr__())
+                else:
+                    self.ui.warn("Can't parse FETCH response, we awaited string: %s", result.__repr__())
+
+        return 0
 
     def getmessageinternaldate(self, content, rtime=None):
         """Parses mail and returns an INTERNALDATE string
@@ -420,46 +495,64 @@ class IMAPFolder(BaseFolder):
             self.savemessageflags(uid, flags)
             return uid
 
+        imapobj = self.imapserver.acquireconnection()
         try:
-            imapobj = self.imapserver.acquireconnection()
+            success = False # succeeded in APPENDING?
+            while not success:
 
-            try:
-                imapobj.select(self.getfullname()) # Needed for search and making the box READ-WRITE
-            except imapobj.readonly:
-                # readonly exception. Return original uid to notify that
-                # we did not save the message. (see savemessage in Base.py)
-                self.ui.msgtoreadonly(self, uid, content, flags)
-                return uid
+                # UIDPLUS extension provides us with an APPENDUID response.
+                use_uidplus = 'UIDPLUS' in imapobj.capabilities
 
-            # UIDPLUS extension provides us with an APPENDUID response to our append()
-            use_uidplus = 'UIDPLUS' in imapobj.capabilities
+                # get the date of the message, so we can pass it to the server.
+                date = self.getmessageinternaldate(content, rtime)
+                content = re.sub("(?<!\r)\n", "\r\n", content)
 
-            # get the date of the message file, so we can pass it to the server.
-            date = self.getmessageinternaldate(content, rtime)
-            content = re.sub("(?<!\r)\n", "\r\n", content)
+                if not use_uidplus:
+                    # insert a random unique header that we can fetch later
+                    (headername, headervalue) = self.generate_randomheader(
+                                                    content)
+                    self.ui.debug('imap', 'savemessage: header is: %s: %s' %\
+                                      (headername, headervalue))
+                    content = self.savemessage_addheader(content, headername,
+                                                         headervalue)    
+                if len(content)>200:
+                    dbg_output = "%s...%s" % (content[:150], content[-50:])
+                else:
+                    dbg_output = content
+                self.ui.debug('imap', "savemessage: date: %s, content: '%s'" %
+                             (date, dbg_output))
 
-            if not use_uidplus:
-                # insert a random unique header that we can fetch later
-                (headername, headervalue) = self.generate_randomheader(content)
-                self.ui.debug('imap', 'savemessage: new header is: %s: %s' % \
-                             (headername, headervalue))
-                content = self.savemessage_addheader(content, headername,
-                                                     headervalue)    
-            if len(content)>200:
-                dbg_output = "%s...%s" % (content[:150],
-                                          content[-50:])
-            else:
-                dbg_output = content
+                try:
+                    # Select folder for append and make the box READ-WRITE
+                    imapobj.select(self.getfullname())
+                except imapobj.readonly:
+                    # readonly exception. Return original uid to notify that
+                    # we did not save the message. (see savemessage in Base.py)
+                    self.ui.msgtoreadonly(self, uid, content, flags)
+                    return uid
 
-            self.ui.debug('imap', "savemessage: date: %s, content: '%s'" %
-                          (date, dbg_output))
-
-            (typ,dat) = imapobj.append(self.getfullname(),
+                #Do the APPEND
+                try:
+                    (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
-            assert(typ == 'OK')
-
-            # Checkpoint.  Let it write out the messages, etc.
+                    success = True
+                except imapobj.abort, e:
+                    # connection has been reset, release connection and retry.
+                    self.ui.error(e, exc_info()[2])
+                    self.imapserver.releaseconnection(imapobj, True)
+                    imapobj = self.imapserver.acquireconnection()
+                except imapobj.error, e:
+                    # If the server responds with 'BAD', append() raise()s directly.
+                    # So we need to prepare a response ourselves.
+                    typ, dat = 'BAD', str(e)
+                    if typ != 'OK': #APPEND failed
+                        raise OfflineImapError("Saving msg in folder '%s', repository "
+                                               "'%s' failed. Server reponded; %s %s\nMessage content was:"
+                                               " %s" % (self, self.getrepository(), typ, dat, dbg_output),
+                                               OfflineImapError.ERROR.MESSAGE)
+            # Checkpoint. Let it write out stuff, etc. Eg searches for
+            # just uploaded messages won't work if we don't do this.
             (typ,dat) = imapobj.check()
             assert(typ == 'OK')
 
@@ -481,10 +574,15 @@ class IMAPFolder(BaseFolder):
                                                        headervalue)
                 # See docs for savemessage in Base.py for explanation of this and other return values
                 if uid == 0:
-                    self.ui.debug('imap', 'savemessage: first attempt to get new UID failed.  Going to run a NOOP and try again.')
+                    self.ui.debug('imap', 'savemessage: first attempt to get new UID failed. \
+                            Going to run a NOOP and try again.')
                     assert(imapobj.noop()[0] == 'OK')
                     uid = self.savemessage_searchforheader(imapobj, headername,
                                                        headervalue)
+                    if uid == 0:
+                        self.ui.debug('imap', 'savemessage: second attempt to get new UID failed. \
+                                Going to try search headers manually')
+                        uid = self.savemessage_fetchheaders(imapobj, headername, headervalue)
 
         finally:
             self.imapserver.releaseconnection(imapobj)
@@ -549,7 +647,7 @@ class IMAPFolder(BaseFolder):
                 self.ui.flagstoreadonly(self, uidlist, flags)
                 return
             r = imapobj.uid('store',
-                            imaputil.listjoin(uidlist),
+                            imaputil.uid_sequence(uidlist),
                             operation + 'FLAGS',
                             imaputil.flagsmaildir2imap(flags))
             assert r[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
@@ -559,7 +657,7 @@ class IMAPFolder(BaseFolder):
         # Some IMAP servers do not always return a result.  Therefore,
         # only update the ones that it talks about, and manually fix
         # the others.
-        needupdate = copy(uidlist)
+        needupdate = list(uidlist)
         for result in r:
             if result == None:
                 # Compensate for servers that don't return anything from
@@ -569,23 +667,18 @@ class IMAPFolder(BaseFolder):
             if not ('UID' in attributehash and 'FLAGS' in attributehash):
                 # Compensate for servers that don't return a UID attribute.
                 continue
-            lflags = attributehash['FLAGS']
+            flagstr = attributehash['FLAGS']
             uid = long(attributehash['UID'])
-            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(lflags)
+            self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flagstr)
             try:
                 needupdate.remove(uid)
             except ValueError:          # Let it slide if it's not in the list
                 pass
         for uid in needupdate:
             if operation == '+':
-                for flag in flags:
-                    if not flag in self.messagelist[uid]['flags']:
-                        self.messagelist[uid]['flags'].append(flag)
-                    self.messagelist[uid]['flags'].sort()
+                self.messagelist[uid]['flags'] |= flags
             elif operation == '-':
-                for flag in flags:
-                    if flag in self.messagelist[uid]['flags']:
-                        self.messagelist[uid]['flags'].remove(flag)
+                self.messagelist[uid]['flags'] -= flags
 
     def deletemessage(self, uid):
         self.deletemessages_noconvert([uid])
@@ -599,7 +692,7 @@ class IMAPFolder(BaseFolder):
         if not len(uidlist):
             return
 
-        self.addmessagesflags_noconvert(uidlist, ['T'])
+        self.addmessagesflags_noconvert(uidlist, set('T'))
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
