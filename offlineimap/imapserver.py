@@ -461,7 +461,7 @@ class IdleThread(object):
         mode and synchronize once we have a new message"""
         self.parent = parent
         self.folder = folder
-        self.event = Event()
+        self.stop_sig = Event()
         self.ui = getglobalui()
         if folder is None:
             self.thread = Thread(target=self.noop)
@@ -473,7 +473,7 @@ class IdleThread(object):
         self.thread.start()
 
     def stop(self):
-        self.event.set()
+        self.stop_sig.set()
 
     def join(self):
         self.thread.join()
@@ -481,7 +481,7 @@ class IdleThread(object):
     def noop(self):
         imapobj = self.parent.acquireconnection()
         imapobj.noop()
-        self.event.wait()
+        self.stop_sig.wait()
         self.parent.releaseconnection(imapobj)
 
     def dosync(self):
@@ -506,16 +506,16 @@ class IdleThread(object):
             minutes kicks in."""
             result, cb_arg, exc_data = args
             if exc_data is None:
-                if not self.event.isSet():
+                if not self.stop_sig.isSet():
                     self.needsync = True
-                    self.event.set()
+                    self.stop_sig.set()
             else:
                 # We got an "abort" signal.
                 self.imapaborted = True
                 self.stop()
 
         while True:
-            if self.event.isSet():
+            if self.stop_sig.isSet():
                 return
             self.needsync = False
             self.imapaborted = False
@@ -540,8 +540,8 @@ class IdleThread(object):
                 self.ui.warn("IMAP IDLE not supported on server '%s'."
                     "Sleep until next refresh cycle." % imapobj.identifier)
                 imapobj.noop()
-            self.event.wait()
-            if self.event.isSet():
+            self.stop_sig.wait() # self.stop() or IDLE callback are invoked
+            if self.stop_sig.isSet():
                 # Can't NOOP on a bad connection.
                 if not self.imapaborted:
                     imapobj.noop()
@@ -551,5 +551,5 @@ class IdleThread(object):
             if self.needsync:
                 # here not via self.stop, but because IDLE responded. Do
                 # another round and invoke actual syncing.
-                self.event.clear()
+                self.stop_sig.clear()
                 self.dosync()
