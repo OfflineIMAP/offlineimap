@@ -89,27 +89,35 @@ class IMAPFolder(BaseFolder):
         # An IMAP folder has definitely changed if the number of
         # messages or the UID of the last message have changed.  Otherwise
         # only flag changes could have occurred.
-        imapobj = self.imapserver.acquireconnection()
-        try:
-            # Primes untagged_responses
-            imaptype, imapdata = imapobj.select(self.getfullname(), readonly = 1, force = 1)
-            # 1. Some mail servers do not return an EXISTS response
-            # if the folder is empty.  2. ZIMBRA servers can return
-            # multiple EXISTS replies in the form 500, 1000, 1500,
-            # 1623 so check for potentially multiple replies.
-            if imapdata == [None]:
-                return True
-            maxmsgid = 0
-            for msgid in imapdata:
-                maxmsgid = max(long(msgid), maxmsgid)
-
-            # Different number of messages than last time?
-            if maxmsgid != statusfolder.getmessagecount():
-                return True
-
-        finally:
-            self.imapserver.releaseconnection(imapobj)
-        return False
+        retry = True # Should we attempt another round or exit?
+        while retry:
+            retry = False
+            imapobj = self.imapserver.acquireconnection()
+            try:
+                # Select folder and get number of messages
+                restype, imapdata = imapobj.select(self.getfullname(), True,
+                                                   True)
+            except OfflineImapError, e:
+                # retry on dropped connections, raise otherwise
+                self.imapserver.releaseconnection(imapobj, true)
+                if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
+                    retry = True
+                else: raise
+            finally:
+                self.imapserver.releaseconnection(imapobj)
+        # 1. Some mail servers do not return an EXISTS response
+        # if the folder is empty.  2. ZIMBRA servers can return
+        # multiple EXISTS replies in the form 500, 1000, 1500,
+        # 1623 so check for potentially multiple replies.
+        if imapdata == [None]:
+            return True
+        maxmsgid = 0
+        for msgid in imapdata:
+            maxmsgid = max(long(msgid), maxmsgid)
+        # Different number of messages than last time?
+        if maxmsgid != statusfolder.getmessagecount():
+            return True      
+    return False
 
     def cachemessagelist(self):
         maxage = self.config.getdefaultint("Account %s" % self.accountname,
