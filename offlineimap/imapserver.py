@@ -505,18 +505,13 @@ class IdleThread(object):
             connections, or c) the standard imaplib IDLE timeout of 29
             minutes kicks in."""
             result, cb_arg, exc_data = args
-            if exc_data is None:
-                if not self.stop_sig.isSet():
-                    self.needsync = True
-                    self.stop_sig.set()
-            else:
-                # We got an "abort" signal.
-                self.imapaborted = True
-                self.stop()
+            if exc_data is None and not self.stop_sig.isSet():
+                # No Exception, and we are not supposed to stop:
+                self.needsync = True
+            self.stop_sig.set() # continue to sync
 
         while not self.stop_sig.isSet():
             self.needsync = False
-            self.imapaborted = False
 
             success = False # successfully selected FOLDER?
             while not success:
@@ -527,7 +522,7 @@ class IdleThread(object):
                     if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
                         # Connection closed, release connection and retry
                         self.ui.error(e, exc_info()[2])
-                        self.parent.releaseconnection(imapobj)
+                        self.parent.releaseconnection(imapobj, True)
                     else:
                         raise e
                 else:
@@ -539,13 +534,16 @@ class IdleThread(object):
                     "Sleep until next refresh cycle." % imapobj.identifier)
                 imapobj.noop()
             self.stop_sig.wait() # self.stop() or IDLE callback are invoked
-            if self.stop_sig.isSet():
-                # Can't NOOP on a bad connection.
-                if not self.imapaborted:
-                    imapobj.noop()
-                    # We don't do event.clear() so that we'll fall out
-                    # of the loop next time around.
-            self.parent.releaseconnection(imapobj)
+            try:
+                # End IDLE mode with noop, imapobj can point to a dropped conn.
+                imapobj.noop()
+            except imapobj.abort():
+                self.ui.warn('Attempting NOOP on dropped connection %s' % \
+                                 imapobj.identifier)
+                self.parent.releaseconnection(imapobj, True)
+            else:
+                self.parent.releaseconnection(imapobj)
+
             if self.needsync:
                 # here not via self.stop, but because IDLE responded. Do
                 # another round and invoke actual syncing.
