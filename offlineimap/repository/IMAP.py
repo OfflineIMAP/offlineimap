@@ -182,6 +182,9 @@ class IMAPRepository(BaseRepository):
                                 % (self.name, cacertfile))
         return cacertfile
 
+    def get_ssl_fingerprint(self):
+        return self.getconf('cert_fingerprint', None)
+
     def getpreauthtunnel(self):
         return self.getconf('preauthtunnel', None)
 

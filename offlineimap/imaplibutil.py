@@ -21,8 +21,10 @@ import re
 import socket
 import time
 import subprocess
-from offlineimap.ui import getglobalui
 import threading
+from hashlib import sha1
+
+from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
 from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, IMAP4_PORT, InternalDate, Mon2num
 
@@ -137,7 +139,23 @@ def new_mesg(self, s, tn=None, secs=None):
 
 class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
     """Improved version of imaplib.IMAP4_SSL overriding select()"""
-    pass
+    def __init__(self, *args, **kwargs):
+        self._fingerprint = kwargs.get('fingerprint', None)
+        if kwargs.has_key('fingerprint'):
+            del kwargs['fingerprint']
+        super(WrappedIMAP4_SSL, self).__init__(*args, **kwargs)
+
+    def open(self, host=None, port=None):
+        super(WrappedIMAP4_SSL, self).open(host, port)
+        if self._fingerprint or not self.ca_certs:
+            # compare fingerprints
+            fingerprint = sha1(self.sslobj.getpeercert(True)).hexdigest()
+            if fingerprint != self._fingerprint:
+                raise OfflineImapError("Server SSL fingerprint '%s' for hostnam"
+                      "e '%s' does not match configured fingerprint. Please ver"
+                      "ify and set 'cert_fingerprint' accordingly if not set ye"
+                      "t." % (fingerprint, host),
+                                       OfflineImapError.ERROR.REPO)
 
 
 class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):

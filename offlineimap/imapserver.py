@@ -209,6 +209,7 @@ class IMAPServer:
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
+                    fingerprint = self.repos.get_ssl_fingerprint()
                     imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname,
                                                            self.port,
                                                            self.sslclientkey,
@@ -216,6 +217,7 @@ class IMAPServer:
                                                            self.sslcacertfile,
                                                            self.verifycert,
                                                            timeout=socket.getdefaulttimeout(),
+                                                           fingerprint=fingerprint
                                                            )
                 else:
                     self.ui.connecting(self.hostname, self.port)

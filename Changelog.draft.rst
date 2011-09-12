@@ -17,6 +17,10 @@ New Features
   synchronization, but only skip that message, informing the user at the
   end of the sync run.
  
+* If you connect via ssl and 'cert_fingerprint' is configured, we check
+  that the server certificate is actually known and identical by
+  comparing the stored sha1 fingerprint with the current one.
+
 Changes
 -------
 
