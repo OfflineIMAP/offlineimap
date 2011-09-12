@@ -456,6 +456,9 @@ class IMAPServer:
 
 class IdleThread(object):
     def __init__(self, parent, folder=None):
+        """If invoked without 'folder', perform a NOOP and wait for
+        self.stop() to be called. If invoked with folder, switch to IDLE
+        mode and synchronize once we have a new message"""
         self.parent = parent
         self.folder = folder
         self.event = Event()
@@ -493,7 +496,14 @@ class IdleThread(object):
         ui.unregisterthread(currentThread())
 
     def idle(self):
+        """Invoke IDLE mode until timeout or self.stop() is invoked"""
         def callback(args):
+            """IDLE callback function invoked by imaplib2
+
+            This is invoked when a) The IMAP server tells us something
+            while in IDLE mode, b) we get an Exception (e.g. on dropped
+            connections, or c) the standard imaplib IDLE timeout of 29
+            minutes kicks in."""
             result, cb_arg, exc_data = args
             if exc_data is None:
                 if not self.event.isSet():
@@ -527,10 +537,8 @@ class IdleThread(object):
             if "IDLE" in imapobj.capabilities:
                 imapobj.idle(callback=callback)
             else:
-                self.ui.warn("IMAP IDLE not supported on connection to %s."
-                        "Falling back to old behavior: sleeping until next"
-                        "refresh cycle."
-                        %(imapobj.identifier,))
+                self.ui.warn("IMAP IDLE not supported on server '%s'."
+                    "Sleep until next refresh cycle." % imapobj.identifier)
                 imapobj.noop()
             self.event.wait()
             if self.event.isSet():
@@ -541,5 +549,7 @@ class IdleThread(object):
                     # of the loop next time around.
             self.parent.releaseconnection(imapobj)
             if self.needsync:
+                # here not via self.stop, but because IDLE responded. Do
+                # another round and invoke actual syncing.
                 self.event.clear()
                 self.dosync()
