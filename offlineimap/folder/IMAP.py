@@ -99,7 +99,7 @@ class IMAPFolder(BaseFolder):
                                                    True)
             except OfflineImapError, e:
                 # retry on dropped connections, raise otherwise
-                self.imapserver.releaseconnection(imapobj, true)
+                self.imapserver.releaseconnection(imapobj, True)
                 if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
                     retry = True
                 else: raise
@@ -117,7 +117,7 @@ class IMAPFolder(BaseFolder):
         # Different number of messages than last time?
         if maxmsgid != statusfolder.getmessagecount():
             return True      
-    return False
+        return False
 
     def cachemessagelist(self):
         maxage = self.config.getdefaultint("Account %s" % self.accountname,
@@ -221,7 +221,7 @@ class IMAPFolder(BaseFolder):
                     fails_left = 0
                 except imapobj.abort(), e:
                     # Release dropped connection, and get a new one
-                    self.imapserver.releaseconnection(imapobj)
+                    self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
                     self.ui.error(e, exc_info()[2])
                     fails_left -= 1
