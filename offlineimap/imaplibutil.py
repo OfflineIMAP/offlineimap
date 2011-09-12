@@ -147,7 +147,8 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
 
     def open(self, host=None, port=None):
         super(WrappedIMAP4_SSL, self).open(host, port)
-        if self._fingerprint or not self.ca_certs:
+        if (self._fingerprint or not self.ca_certs) and\
+                'ssl' in locals(): # <--disable for python 2.5
             # compare fingerprints
             fingerprint = sha1(self.sock.getpeercert(True)).hexdigest()
             if fingerprint != self._fingerprint:
