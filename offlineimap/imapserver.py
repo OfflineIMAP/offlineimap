@@ -493,21 +493,22 @@ class IdleThread(object):
         ui.unregisterthread(currentThread())
 
     def idle(self):
+        def callback(args):
+            result, cb_arg, exc_data = args
+            if exc_data is None:
+                if not self.event.isSet():
+                    self.needsync = True
+                    self.event.set()
+            else:
+                # We got an "abort" signal.
+                self.imapaborted = True
+                self.stop()
+
         while True:
             if self.event.isSet():
                 return
             self.needsync = False
             self.imapaborted = False
-            def callback(args):
-                result, cb_arg, exc_data = args
-                if exc_data is None:
-                    if not self.event.isSet():
-                        self.needsync = True
-                        self.event.set()
-                else:
-                    # We got an "abort" signal.
-                    self.imapaborted = True
-                    self.stop()
 
             success = False # successfully selected FOLDER?
             while not success:
