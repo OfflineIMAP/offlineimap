@@ -514,9 +514,7 @@ class IdleThread(object):
                 self.imapaborted = True
                 self.stop()
 
-        while True:
-            if self.stop_sig.isSet():
-                return
+        while not self.stop_sig.isSet():
             self.needsync = False
             self.imapaborted = False
 
