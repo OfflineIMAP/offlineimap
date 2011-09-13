@@ -495,11 +495,10 @@ class IMAPFolder(BaseFolder):
             self.savemessageflags(uid, flags)
             return uid
 
+        retry_left = 2 # succeeded in APPENDING?
         imapobj = self.imapserver.acquireconnection()
         try:
-            success = False # succeeded in APPENDING?
-            while not success:
-
+            while retry_left:
                 # UIDPLUS extension provides us with an APPENDUID response.
                 use_uidplus = 'UIDPLUS' in imapobj.capabilities
 
@@ -536,12 +535,20 @@ class IMAPFolder(BaseFolder):
                     (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
-                    success = True
+                    retry_left = 0 # Mark as success
                 except imapobj.abort, e:
                     # connection has been reset, release connection and retry.
                     self.ui.error(e, exc_info()[2])
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
+                    if not retry_left:
+                        raise OfflineImapError("Saving msg in folder '%s', "
+                              "repository '%s' failed. Server reponded; %s %s\n"
+                              "Message content was: %s" %
+                                               (self, self.getrepository(),
+                                                typ, dat, dbg_output),
+                                               OfflineImapError.ERROR.MESSAGE)
+                    retry_left -= 1
                 except imapobj.error, e:
                     # If the server responds with 'BAD', append() raise()s directly.
                     # So we need to prepare a response ourselves.
