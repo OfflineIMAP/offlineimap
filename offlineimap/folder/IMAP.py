@@ -120,7 +120,7 @@ class IMAPFolder(BaseFolder):
 
         imapobj = self.imapserver.acquireconnection()
         try:
-            res_type, imapdata = imapobj.select(self.getfullname(), True)
+            res_type, imapdata = imapobj.select(self.getfullname(), True, True)
             if imapdata == [None] or imapdata[0] == '0':
                 # Empty folder, no need to populate message list
                 return
