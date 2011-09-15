@@ -16,6 +16,8 @@ New Features
 Changes
 -------
 
+* Documentation improvements concerning 'restoreatime' and some code cleanup
+
 Bug Fixes
 ---------
 
