@@ -231,7 +231,7 @@ class SyncableAccount(Account):
             localrepos = self.localrepos
             statusrepos = self.statusrepos
             # replicate the folderstructure from REMOTE to LOCAL
-            if not localrepos.getconf('readonly', False):
+            if not localrepos.getconfboolean('readonly', False):
                 self.ui.syncfolders(remoterepos, localrepos)
                 remoterepos.syncfoldersto(localrepos, statusrepos)
 
@@ -345,7 +345,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                              remotefolder.getmessagecount())
 
         # Synchronize remote changes.
-        if not localrepos.getconf('readonly', False):
+        if not localrepos.getconfboolean('readonly', False):
             ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
             remotefolder.syncmessagesto(localfolder, statusfolder)
         else:
@@ -353,7 +353,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                          % localrepos.getname())
         
         # Synchronize local changes
-        if not remoterepos.getconf('readonly', False):
+        if not remoterepos.getconfboolean('readonly', False):
             ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
             localfolder.syncmessagesto(remotefolder, statusfolder)
         else:
