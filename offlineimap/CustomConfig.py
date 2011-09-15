@@ -71,6 +71,14 @@ class CustomConfigParser(SafeConfigParser):
         return [x[len(key):] for x in self.sections() \
                 if x.startswith(key)]
 
+    def set_if_not_exists(self, section, option, value):
+        """Set a value if it does not exist yet
+
+        This allows to set default if the user has not explicitly
+        configured anything."""
+        if not self.has_option(section, option):
+            self.set(section, option, value)
+
 def CustomConfigDefault():
     """Just a constant that won't occur anywhere else.
 
