@@ -298,6 +298,12 @@ class UIBase(object):
                            (src_repo, dst_repo))
 
     ############################## Folder syncing
+    def makefolder(self, repo, foldername):
+        """Called when a folder is created"""
+        prefix = "[DRYRUN] " if self.dryrun else ""
+        self.info("{}Creating folder {}[{}]".format(
+                prefix, foldername, repo))
+
     def syncingfolder(self, srcrepos, srcfolder, destrepos, destfolder):
         """Called when a folder sync operation is started."""
         self.logger.info("Syncing %s: %s -> %s" % (srcfolder,

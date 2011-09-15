@@ -81,7 +81,9 @@ class MaildirRepository(BaseRepository):
             levels will be created if they do not exist yet. 'cur',
             'tmp', and 'new' subfolders will be created in the maildir.
         """
-        self.debug("makefolder called with arg '%s'" % (foldername))
+        self.ui.makefolder(self, foldername)
+        if self.account.dryrun:
+            return
         full_path = os.path.abspath(os.path.join(self.root, foldername))
     
         # sanity tests

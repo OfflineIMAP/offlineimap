@@ -67,10 +67,11 @@ class LocalStatusRepository(BaseRepository):
 
         Empty Folder for plain backend. NoOp for sqlite backend as those
         are created on demand."""
-        # Invalidate the cache.
-        self._folders = None
         if self._backend == 'sqlite':
-            return
+            return # noop for sqlite which creates on-demand
+
+        if self.account.dryrun:
+            return # bail out in dry-run mode
 
         filename = self.getfolderfilename(foldername)
         file = open(filename + ".tmp", "wt")

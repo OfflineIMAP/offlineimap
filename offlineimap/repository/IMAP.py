@@ -341,11 +341,11 @@ class IMAPRepository(BaseRepository):
             foldername = self.getreference() + self.getsep() + foldername
         if not foldername: # Create top level folder as folder separator
             foldername = self.getsep()
-
+        self.ui.makefolder(self, foldername)
+        if self.account.dryrun:
+            return
         imapobj = self.imapserver.acquireconnection()
         try:
-            self.ui._msg("Creating new IMAP folder '%s' on server %s" %\
-                              (foldername, self))
             result = imapobj.create(foldername)
             if result[0] != 'OK':
                 raise OfflineImapError("Folder '%s'[%s] could not be created. "
