@@ -52,6 +52,13 @@ class OfflineImap:
                               description="%s.\n\n%s" %
                               (offlineimap.__copyright__,
                                offlineimap.__license__))
+        parser.add_option("--dry-run",
+                  action="store_true", dest="dryrun",
+                  default=False,
+                  help="Do not actually modify any store but check and print "
+              "what synchronization actions would be taken if a sync would be"
+              " performed.")
+
         parser.add_option("-1",
                   action="store_true", dest="singlethreading",
                   default=False,
@@ -201,6 +208,12 @@ class OfflineImap:
             logging.warning('Using old interface name, consider using one '
                             'of %s' % ', '.join(UI_LIST.keys()))
         if options.diagnostics: ui_type = 'basic' # enforce basic UI for --info
+
+        #dry-run? Set [general]dry-run=True
+        if options.dryrun:
+            dryrun = config.set('general','dry-run', "True")
+        config.set_if_not_exists('general','dry-run','False')
+
         try:
             # create the ui class
             self.ui = UI_LIST[ui_type.lower()](config)
