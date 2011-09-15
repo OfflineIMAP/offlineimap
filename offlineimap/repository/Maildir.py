@@ -43,21 +43,21 @@ class MaildirRepository(BaseRepository):
         p = os.path.join(self.root, foldername)
         new = os.path.join(p, 'new')
         cur = os.path.join(p, 'cur')
-        f = p, os.stat(new)[ST_ATIME], os.stat(cur)[ST_ATIME]
-        self.folder_atimes.append(f)
+        atimes = (p, os.path.getatime(new), os.path.getatime(cur))
+        self.folder_atimes.append(atimes)
 
     def restore_atime(self):
         """Sets folders' atime back to their values after a sync
 
         Controlled by the 'restoreatime' config parameter."""
         if not self.getconfboolean('restoreatime', False):
-            return # not configured
+            return # not configured to restore
 
-        for f in self.folder_atimes:
-            t = f[1], os.stat(os.path.join(f[0], 'new'))[ST_MTIME]
-            os.utime(os.path.join(f[0], 'new'), t)
-            t = f[2], os.stat(os.path.join(f[0], 'cur'))[ST_MTIME]
-            os.utime(os.path.join(f[0], 'cur'), t)
+        for (dirpath, new_atime, cur_atime) in self.folder_atimes:
+            new_dir = os.path.join(dirpath, 'new')
+            cur_dir = os.path.join(dirpath, 'cur')
+            os.utime(new_dir, (new_atime, os.path.getmtime(new_dir)))
+            os.utime(cur_dir, (cur_atime, os.path.getmtime(cur_dir)))
 
     def getlocalroot(self):
         return os.path.expanduser(self.getconf('localfolders'))
