@@ -39,15 +39,19 @@ class MaildirRepository(BaseRepository):
             os.mkdir(self.root, 0700)
 
     def _append_folder_atimes(self, foldername):
+        """Store the atimes of a folder's new|cur in self.folder_atimes"""
         p = os.path.join(self.root, foldername)
         new = os.path.join(p, 'new')
         cur = os.path.join(p, 'cur')
         f = p, os.stat(new)[ST_ATIME], os.stat(cur)[ST_ATIME]
         self.folder_atimes.append(f)
 
-    def restore_folder_atimes(self):
-        if not self.folder_atimes:
-            return
+    def restore_atime(self):
+        """Sets folders' atime back to their values after a sync
+
+        Controlled by the 'restoreatime' config parameter."""
+        if not self.getconfboolean('restoreatime', False):
+            return # not configured
 
         for f in self.folder_atimes:
             t = f[1], os.stat(os.path.join(f[0], 'new'))[ST_MTIME]

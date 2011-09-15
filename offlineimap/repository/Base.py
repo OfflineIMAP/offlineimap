@@ -39,17 +39,13 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         if not os.path.exists(self.uiddir):
             os.mkdir(self.uiddir, 0700)
 
-    # The 'restoreatime' config parameter only applies to local Maildir
-    # mailboxes.
     def restore_atime(self):
-        if self.config.get('Repository ' + self.name, 'type').strip() != \
-                'Maildir':
-            return
+        """Sets folders' atime back to their values after a sync
 
-        if not self.config.has_option('Repository ' + self.name, 'restoreatime') or not self.config.getboolean('Repository ' + self.name, 'restoreatime'):
-            return
-
-        return self.restore_folder_atimes()
+        Controlled by the 'restoreatime' config parameter (default
+        False), applies only to local Maildir mailboxes and does nothing
+        on all other repository types."""
+        pass
 
     def connect(self):
         """Establish a connection to the remote, if necessary.  This exists
