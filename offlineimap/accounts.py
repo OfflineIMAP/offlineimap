@@ -65,9 +65,11 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.name = name
         self.metadatadir = config.getmetadatadir()
         self.localeval = config.getlocaleval()
-        #Contains the current :mod:`offlineimap.ui`, and can be used for logging etc.
+        # current :mod:`offlineimap.ui`, can be used for logging:
         self.ui = getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
+        # should we run in "dry-run" mode?
+        self.dryrun = self.config.getboolean('general', 'dry-run')
         self.quicknum = 0
         if self.refreshperiod == 0.0:
             self.refreshperiod = None
@@ -312,7 +314,9 @@ class SyncableAccount(Account):
             # wait for all threads to finish
             for thr in folderthreads:
                 thr.join()
-            mbnames.write()
+            # Write out mailbox names if required and not in dry-run mode
+            if not self.dryrun:
+                mbnames.write()
             localrepos.forgetfolders()
             remoterepos.forgetfolders()
         except:
@@ -337,6 +341,8 @@ class SyncableAccount(Account):
             return
         try:
             self.ui.callhook("Calling hook: " + cmd)
+            if self.dryrun: # don't if we are in dry-run mode
+                return
             p = Popen(cmd, shell=True,
                       stdin=PIPE, stdout=PIPE, stderr=PIPE,
                       close_fds=True)

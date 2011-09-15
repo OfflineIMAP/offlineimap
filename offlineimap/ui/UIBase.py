@@ -461,7 +461,10 @@ class UIBase(object):
     ################################################## Hooks
 
     def callhook(self, msg):
-        self.info(msg)
+        if self.dryrun:
+            self.info("[DRYRUN] {}".format(msg))
+        else:
+            self.info(msg)
 
     ################################################## Other
 
