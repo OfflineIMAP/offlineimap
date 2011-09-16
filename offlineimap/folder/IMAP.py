@@ -488,12 +488,16 @@ class IMAPFolder(BaseFolder):
         This function will update the self.messagelist dict to contain
         the new message after sucessfully saving it.
 
+        See folder/Base for details. Note that savemessage() does not
+        check against dryrun settings, so you need to ensure that
+        savemessage is never called in a dryrun mode.
+
         :param rtime: A timestamp to be used as the mail date
         :returns: the UID of the new message as assigned by the server. If the
                   message is saved, but it's UID can not be found, it will
                   return 0. If the message can't be written (folder is
                   read-only for example) it will return -1."""
-        self.ui.debug('imap', 'savemessage: called')
+        self.ui.savemessage('imap', uid, flags, self)
 
         # already have it, just save modified flags
         if uid > 0 and self.uidexists(uid):
@@ -611,7 +615,11 @@ class IMAPFolder(BaseFolder):
         return uid
 
     def savemessageflags(self, uid, flags):
-        """Change a message's flags to `flags`."""
+        """Change a message's flags to `flags`.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         imapobj = self.imapserver.acquireconnection()
         try:
             try:

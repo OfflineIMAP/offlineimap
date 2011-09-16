@@ -237,13 +237,18 @@ class MaildirFolder(BaseFolder):
              uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
         
     def savemessage(self, uid, content, flags, rtime):
+        """Writes a new message, with the specified uid.
+
+        See folder/Base for detail. Note that savemessage() does not
+        check against dryrun settings, so you need to ensure that
+        savemessage is never called in a dryrun mode."""
         # This function only ever saves to tmp/,
         # but it calls savemessageflags() to actually save to cur/ or new/.
-        self.ui.debug('maildir', 'savemessage: called to write with flags %s '
-                      'and content %s' % (repr(flags), repr(content)))
+        self.ui.savemessage('maildir', uid, flags, self)
         if uid < 0:
             # We cannot assign a new uid.
             return uid
+
         if uid in self.messagelist:
             # We already have it, just update flags.
             self.savemessageflags(uid, flags)
@@ -291,8 +296,11 @@ class MaildirFolder(BaseFolder):
         """Sets the specified message's flags to the given set.
 
         This function moves the message to the cur or new subdir,
-        depending on the 'S'een flag."""
+        depending on the 'S'een flag.
 
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         oldfilename = self.messagelist[uid]['filename']
         dir_prefix, filename = os.path.split(oldfilename)
         # If a message has been seen, it goes into 'cur'

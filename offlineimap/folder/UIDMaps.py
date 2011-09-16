@@ -184,7 +184,12 @@ class MappedIMAPFolder(IMAPFolder):
         If the uid is > 0, the backend should set the uid to this, if it can.
         If it cannot set the uid to that, it will save it anyway.
         It will return the uid assigned in any case.
+
+        See folder/Base for details. Note that savemessage() does not
+        check against dryrun settings, so you need to ensure that
+        savemessage is never called in a dryrun mode.
         """
+        self.ui.savemessage('imap', uid, flags, self)
         # Mapped UID instances require the source to already have a
         # positive UID, so simply return here.
         if uid < 0:
@@ -217,6 +222,11 @@ class MappedIMAPFolder(IMAPFolder):
         return None
 
     def savemessageflags(self, uid, flags):
+        """
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         self._mb.savemessageflags(self.r2l[uid], flags)
 
     def addmessageflags(self, uid, flags):

@@ -208,6 +208,10 @@ class BaseFolder(object):
         If the uid is > 0, the backend should set the uid to this, if it can.
            If it cannot set the uid to that, it will save it anyway.
            It will return the uid assigned in any case.
+
+        Note that savemessage() does not check against dryrun settings,
+        so you need to ensure that savemessage is never called in a
+        dryrun mode.
         """
         raise NotImplementedException
 
@@ -220,27 +224,48 @@ class BaseFolder(object):
         raise NotImplementedException
 
     def savemessageflags(self, uid, flags):
-        """Sets the specified message's flags to the given set."""
+        """Sets the specified message's flags to the given set.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         raise NotImplementedException
 
     def addmessageflags(self, uid, flags):
         """Adds the specified flags to the message's flag set.  If a given
         flag is already present, it will not be duplicated.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
+
         :param flags: A set() of flags"""
         newflags = self.getmessageflags(uid) | flags
         self.savemessageflags(uid, newflags)
 
     def addmessagesflags(self, uidlist, flags):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         for uid in uidlist:
             self.addmessageflags(uid, flags)
 
     def deletemessageflags(self, uid, flags):
         """Removes each flag given from the message's flag set.  If a given
-        flag is already removed, no action will be taken for that flag."""
+        flag is already removed, no action will be taken for that flag.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         newflags = self.getmessageflags(uid) - flags
         self.savemessageflags(uid, newflags)
 
     def deletemessagesflags(self, uidlist, flags):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         for uid in uidlist:
             self.deletemessageflags(uid, flags)
 
@@ -345,6 +370,10 @@ class BaseFolder(object):
                               statusfolder.uidexists(uid),
                             self.getmessageuidlist())
         num_to_copy = len(copylist)
+        if num_to_copy and self.repository.account.dryrun:
+            self.ui.info("[DRYRUN] Copy {} messages from {}[{}] to {}".format(
+                    num_to_copy, self, self.repository, dstfolder.repository))
+            return
         for num, uid in enumerate(copylist):
             # bail out on CTRL-C or SIGTERM
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
@@ -422,11 +451,15 @@ class BaseFolder(object):
 
         for flag, uids in addflaglist.items():
             self.ui.addingflags(uids, flag, dstfolder)
+            if self.repository.account.dryrun:
+                continue #don't actually add in a dryrun
             dstfolder.addmessagesflags(uids, set(flag))
             statusfolder.addmessagesflags(uids, set(flag))
 
         for flag,uids in delflaglist.items():
             self.ui.deletingflags(uids, flag, dstfolder)
+            if self.repository.account.dryrun:
+                continue #don't actually remove in a dryrun
             dstfolder.deletemessagesflags(uids, set(flag))
             statusfolder.deletemessagesflags(uids, set(flag))
                 

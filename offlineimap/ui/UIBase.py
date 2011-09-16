@@ -408,6 +408,11 @@ class UIBase(object):
             if conn: #release any existing IMAP connection
                 repository.imapserver.close()
 
+    def savemessage(self, debugtype, uid, flags, folder):
+        """Output a log line stating that we save a msg"""
+        self.debug(debugtype, "Write mail '%s:%d' with flags %s" %
+                   (folder, uid, repr(flags)))
+
     ################################################## Threads
 
     def getThreadDebugLog(self, thread):
