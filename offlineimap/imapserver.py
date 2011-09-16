@@ -262,6 +262,12 @@ class IMAPServer:
                                 except imapobj.error, val:
                                     self.plainauth(imapobj)
                             else:
+                                # Use plaintext login, unless
+                                # LOGINDISABLED (RFC2595)
+                                if 'LOGINDISABLED' in imapobj.capabilities:
+                                    raise OfflineImapError("Plaintext login "
+                                       "disabled by server. Need to use SSL?",
+                                        OfflineImapError.ERROR.REPO)
                                 self.plainauth(imapobj)
                         # Would bail by here if there was a failure.
                         success = 1

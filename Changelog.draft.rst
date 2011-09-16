@@ -20,6 +20,10 @@ New Features
   future. Starting with this version, OfflineImap will be
   forward-compatible with the per-account locking style.
 
+* Implement RFC 2595 LOGINDISABLED. Warn the user and abort when we
+  attempt a plaintext login but the server has explicitly disabled
+  plaintext logins rather than crashing.
+
 Changes
 -------
 
@@ -30,8 +34,3 @@ Bug Fixes
 
 * New emails are not created with "-rwxr-xr-x" but as "-rw-r--r--"
   anymore, fixing a regression in 6.3.4.
-
-Pending for the next major release
-==================================
-
-* UIs get shorter and nicer names. (API changing)
