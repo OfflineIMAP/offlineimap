@@ -35,7 +35,6 @@ class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, repository):
         name = imaputil.dequote(name)
         super(IMAPFolder, self).__init__(name, repository)
-        self.config = imapserver.config
         self.expunge = repository.getexpunge()
         self.root = None # imapserver.root
         self.sep = imapserver.delim

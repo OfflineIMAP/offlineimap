@@ -117,8 +117,7 @@ class MaildirRepository(BaseRepository):
         if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
             self._append_folder_atimes(foldername)
         return folder.Maildir.MaildirFolder(self.root, foldername,
-                                            self.getsep(), self, 
-                                            self.config)
+                                            self.getsep(), self)
     
     def _getfolders_scandir(self, root, extension = None):
         """Recursively scan folder 'root'; return a list of MailDirFolder
@@ -167,8 +166,7 @@ class MaildirRepository(BaseRepository):
                 retval.append(folder.Maildir.MaildirFolder(self.root,
                                                            foldername,
                                                            self.getsep(),
-                                                           self,
-                                                           self.config))
+                                                           self))
             if self.getsep() == '/' and dirname != '.':
                 # Recursively check sub-directories for folders too.
                 retval.extend(self._getfolders_scandir(root, foldername))

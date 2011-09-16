@@ -36,6 +36,7 @@ class BaseFolder(object):
         self.ui = getglobalui()
         self.name = name
         self.repository = repository
+        self.config = repository.getconfig()
 
     def getname(self):
         """Returns name"""

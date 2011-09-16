@@ -83,8 +83,7 @@ class LocalStatusRepository(BaseRepository):
     def getfolder(self, foldername):
         """Return the Folder() object for a foldername"""
         return self.LocalStatusFolderClass(self.directory, foldername,
-                                           self,
-                                           self.config)
+                                           self)
 
     def getfolders(self):
         """Returns a list of all cached folders."""

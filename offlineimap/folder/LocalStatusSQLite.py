@@ -46,10 +46,9 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     #current version of our db format
     cur_version = 1
 
-    def __init__(self, root, name, repository, config):
+    def __init__(self, root, name, repository):
         super(LocalStatusSQLiteFolder, self).__init__(root, name, 
-                                                      repository, 
-                                                      config)       
+                                                      repository)       
 
         # dblock protects against concurrent writes in same connection
         self._dblock = Lock()
