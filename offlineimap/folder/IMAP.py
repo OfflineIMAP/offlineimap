@@ -32,7 +32,7 @@ except NameError:
 
 
 class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name, visiblename, repository):
+    def __init__(self, imapserver, name, repository):
         name = imaputil.dequote(name)
         super(IMAPFolder, self).__init__(name, repository)
         self.expunge = repository.getexpunge()
@@ -40,7 +40,7 @@ class IMAPFolder(BaseFolder):
         self.sep = imapserver.delim
         self.imapserver = imapserver
         self.messagelist = None
-        self.visiblename = visiblename
+        self.visiblename = repository.nametrans(name)
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
 

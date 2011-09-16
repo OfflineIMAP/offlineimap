@@ -259,9 +259,7 @@ class IMAPRepository(BaseRepository):
 
 
     def getfolder(self, foldername):
-        return self.getfoldertype()(self.imapserver, foldername,
-                                    self.nametrans(foldername),
-                                    self)
+        return self.getfoldertype()(self.imapserver, foldername, self)
 
     def getfoldertype(self):
         return folder.IMAP.IMAPFolder
@@ -302,7 +300,6 @@ class IMAPRepository(BaseRepository):
                                   foldername)
                 continue
             retval.append(self.getfoldertype()(self.imapserver, foldername,
-                                               self.nametrans(foldername),
                                                self))
         if len(self.folderincludes):
             imapobj = self.imapserver.acquireconnection()
@@ -319,7 +316,6 @@ class IMAPRepository(BaseRepository):
                         continue
                     retval.append(self.getfoldertype()(self.imapserver,
                                                        foldername,
-                                                       self.nametrans(foldername),
                                                        self))
             finally:
                 self.imapserver.releaseconnection(imapobj)
