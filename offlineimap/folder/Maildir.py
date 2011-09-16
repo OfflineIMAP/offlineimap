@@ -58,14 +58,13 @@ def gettimeseq():
         timelock.release()
 
 class MaildirFolder(BaseFolder):
-    def __init__(self, root, name, sep, repository, accountname, config):
+    def __init__(self, root, name, sep, repository, config):
         super(MaildirFolder, self).__init__(name, repository)
         self.config = config
         self.dofsync = config.getdefaultboolean("general", "fsync", True)
         self.root = root
         self.sep = sep
         self.messagelist = None
-        self.accountname = accountname
 
         self.wincompatible = self.config.getdefaultboolean(
             "Account "+self.accountname, "maildir-windows-compatible", False)
@@ -79,9 +78,6 @@ class MaildirFolder(BaseFolder):
         #self.ui is set in BaseFolder.init()
         # Cache the full folder path, as we use getfullname() very often
         self._fullname = os.path.join(self.getroot(), self.getname())
-
-    def getaccountname(self):
-        return self.accountname
 
     def getfullname(self):
         """Return the absolute file path to the Maildir folder (sans cur|new)"""

@@ -32,7 +32,7 @@ except NameError:
 
 
 class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name, visiblename, accountname, repository):
+    def __init__(self, imapserver, name, visiblename, repository):
         name = imaputil.dequote(name)
         super(IMAPFolder, self).__init__(name, repository)
         self.config = imapserver.config
@@ -42,7 +42,6 @@ class IMAPFolder(BaseFolder):
         self.imapserver = imapserver
         self.messagelist = None
         self.visiblename = visiblename
-        self.accountname = accountname
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
 
@@ -59,9 +58,6 @@ class IMAPFolder(BaseFolder):
             imapobj.select(self.getfullname())
         except imapobj.readonly:
             imapobj.select(self.getfullname(), readonly = 1)
-
-    def getaccountname(self):
-        return self.accountname
 
     def suggeststhreads(self):
         return 1

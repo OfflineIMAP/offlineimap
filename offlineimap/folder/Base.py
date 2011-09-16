@@ -44,6 +44,11 @@ class BaseFolder(object):
     def __str__(self):
         return self.name
 
+    @property
+    def accountname(self):
+        """Account name as string"""
+        return self.repository.accountname
+
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
         false otherwise.  Probably only IMAP will return true."""
@@ -239,7 +244,7 @@ class BaseFolder(object):
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
         if register: # output that we start a new thread
-            self.ui.registerthread(self.getaccountname())
+            self.ui.registerthread(self.accountname)
 
         try:
             message = None
@@ -295,7 +300,7 @@ class BaseFolder(object):
             self.ui.error(e, exc_info()[2])
         except Exception, e:
             self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
-                              (uid, self.getaccountname(),
+                              (uid, self.accountname,
                                traceback.format_exc()))
             raise    #raise on unknown errors, so we can fix those
 
@@ -443,5 +448,5 @@ class BaseFolder(object):
                 self.ui.error(e, exc_info()[2])
             except Exception, e:
                 self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
-                                  (self, self.getaccountname()))
+                                  (self, self.accountname))
                 raise # raise unknown Exceptions so we can fix them

@@ -83,7 +83,7 @@ class LocalStatusRepository(BaseRepository):
     def getfolder(self, foldername):
         """Return the Folder() object for a foldername"""
         return self.LocalStatusFolderClass(self.directory, foldername,
-                                           self, self.accountname,
+                                           self,
                                            self.config)
 
     def getfolders(self):

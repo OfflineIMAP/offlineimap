@@ -22,13 +22,14 @@ from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
 
 class BaseRepository(object, CustomConfig.ConfigHelperMixin):
+
     def __init__(self, reposname, account):
         self.ui = getglobalui()
         self.account = account
         self.config = account.getconfig()
         self.name = reposname
         self.localeval = account.getlocaleval()
-        self.accountname = self.account.getname()
+        self._accountname = self.account.getname()
         self.uiddir = os.path.join(self.config.getmetadatadir(), 'Repository-' + self.name)
         if not os.path.exists(self.uiddir):
             os.mkdir(self.uiddir, 0700)
@@ -71,14 +72,16 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
     def __str__(self):
         return self.name
 
+    @property
+    def accountname(self):
+        """Account name as string"""
+        return self._accountname
+
     def getuiddir(self):
         return self.uiddir
 
     def getmapdir(self):
         return self.mapdir
-
-    def getaccountname(self):
-        return self.accountname
 
     def getsection(self):
         return 'Repository ' + self.name

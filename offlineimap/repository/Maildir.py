@@ -118,7 +118,7 @@ class MaildirRepository(BaseRepository):
             self._append_folder_atimes(foldername)
         return folder.Maildir.MaildirFolder(self.root, foldername,
                                             self.getsep(), self, 
-                                            self.accountname, self.config)
+                                            self.config)
     
     def _getfolders_scandir(self, root, extension = None):
         """Recursively scan folder 'root'; return a list of MailDirFolder
@@ -168,7 +168,6 @@ class MaildirRepository(BaseRepository):
                                                            foldername,
                                                            self.getsep(),
                                                            self,
-                                                           self.accountname,
                                                            self.config))
             if self.getsep() == '/' and dirname != '.':
                 # Recursively check sub-directories for folders too.

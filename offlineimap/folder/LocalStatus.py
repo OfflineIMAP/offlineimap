@@ -26,7 +26,7 @@ except NameError:
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
 class LocalStatusFolder(BaseFolder):
-    def __init__(self, root, name, repository, accountname, config):
+    def __init__(self, root, name, repository, config):
         super(LocalStatusFolder, self).__init__(name, repository)
         self.root = root
         self.sep = '.'
@@ -36,10 +36,6 @@ class LocalStatusFolder(BaseFolder):
         self.savelock = threading.Lock()
         self.doautosave = config.getdefaultboolean("general", "fsync", False)
         """Should we perform fsyncs as often as possible?"""
-        self.accountname = accountname
-
-    def getaccountname(self):
-        return self.accountname
 
     def storesmessages(self):
         return 0
