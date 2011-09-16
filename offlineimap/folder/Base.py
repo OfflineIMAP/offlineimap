@@ -28,8 +28,14 @@ except NameError:
     from sets import Set as set
 
 class BaseFolder(object):
-    def __init__(self):
+    def __init__(self, name, repository):
+        """
+        :para name: Path & name of folder minus root or reference
+        :para repository: Repository() in which the folder is.
+        """
         self.ui = getglobalui()
+        self.name = name
+        self.repository = repository
 
     def getname(self):
         """Returns name"""

@@ -59,13 +59,12 @@ def gettimeseq():
 
 class MaildirFolder(BaseFolder):
     def __init__(self, root, name, sep, repository, accountname, config):
-        self.name = name
+        super(MaildirFolder, self).__init__(name, repository)
         self.config = config
         self.dofsync = config.getdefaultboolean("general", "fsync", True)
         self.root = root
         self.sep = sep
         self.messagelist = None
-        self.repository = repository
         self.accountname = accountname
 
         self.wincompatible = self.config.getdefaultboolean(
@@ -77,8 +76,6 @@ class MaildirFolder(BaseFolder):
             self.infosep = '!'
 
         self.flagmatchre = re.compile(self.infosep + '.*2,([A-Z]+)')
-
-        BaseFolder.__init__(self)
         #self.ui is set in BaseFolder.init()
         # Cache the full folder path, as we use getfullname() very often
         self._fullname = os.path.join(self.getroot(), self.getname())

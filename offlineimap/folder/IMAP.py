@@ -33,18 +33,17 @@ except NameError:
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, visiblename, accountname, repository):
+        name = imaputil.dequote(name)
+        super(IMAPFolder, self).__init__(name, repository)
         self.config = imapserver.config
         self.expunge = repository.getexpunge()
-        self.name = imaputil.dequote(name)
         self.root = None # imapserver.root
         self.sep = imapserver.delim
         self.imapserver = imapserver
         self.messagelist = None
         self.visiblename = visiblename
         self.accountname = accountname
-        self.repository = repository
         self.randomgenerator = random.Random()
-        BaseFolder.__init__(self)
         #self.ui is set in BaseFolder
 
     def selectro(self, imapobj):
