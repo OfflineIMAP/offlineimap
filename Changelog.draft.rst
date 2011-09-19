@@ -21,6 +21,9 @@ Changes
 Bug Fixes
 ---------
 
+* New emails are not created with "-rwxr-xr-x" but as "-rw-r--r--"
+  anymore, fixing a regression in 6.3.4.
+
 Pending for the next major release
 ==================================
 

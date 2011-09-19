@@ -238,7 +238,7 @@ class MaildirFolder(BaseFolder):
         # open file and write it out
         try:
             fd = os.open(os.path.join(tmpdir, messagename),
-                           os.O_EXCL|os.O_CREAT|os.O_WRONLY)
+                           os.O_EXCL|os.O_CREAT|os.O_WRONLY, 0666)
         except OSError, e:
             if e.errno == 17: 
                 #FILE EXISTS ALREADY
