@@ -59,8 +59,7 @@ class GmailRepository(IMAPRepository):
 
     def getfolder(self, foldername):
         return self.getfoldertype()(self.imapserver, foldername,
-                                    self.nametrans(foldername),
-                                    self.accountname, self)
+                                    self)
 
     def getfoldertype(self):
         return folder.Gmail.GmailFolder
