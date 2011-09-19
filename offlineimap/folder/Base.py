@@ -38,6 +38,7 @@ class BaseFolder(object):
         self.ui = getglobalui()
         self.name = name
         self.repository = repository
+        self.visiblename = repository.nametrans(name)
         self.config = repository.getconfig()
 
     def getname(self):
@@ -69,7 +70,8 @@ class BaseFolder(object):
         return 1
 
     def getvisiblename(self):
-        return self.name
+        """The nametrans-transposed name of the folder's name"""
+        return self.visiblename
 
     def getrepository(self):
         """Returns the repository object that this folder is within."""

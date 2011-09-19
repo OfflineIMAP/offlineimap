@@ -40,7 +40,6 @@ class IMAPFolder(BaseFolder):
         self.sep = imapserver.delim
         self.imapserver = imapserver
         self.messagelist = None
-        self.visiblename = repository.nametrans(name)
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
 
@@ -66,9 +65,6 @@ class IMAPFolder(BaseFolder):
 
     def getcopyinstancelimit(self):
         return 'MSGCOPY_' + self.repository.getname()
-
-    def getvisiblename(self):
-        return self.visiblename
 
     def getuidvalidity(self):
         imapobj = self.imapserver.acquireconnection()
