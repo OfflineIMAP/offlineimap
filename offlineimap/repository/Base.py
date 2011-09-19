@@ -153,7 +153,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                     src_repo.getsep(), dst_repo.getsep())] = folder
         dst_hash = {}
         for folder in dst_folders:
-            dst_hash[folder.getvisiblename()] = folder
+            dst_hash[folder.name] = folder
 
         # Find new folders on src_repo.
         for src_name, src_folder in src_hash.iteritems():
@@ -173,21 +173,23 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                 # nametrans sanity check!
                 # Does nametrans back&forth lead to identical names?
                 #src_name is the unmodified full src_name
-                newsrc_name = dst_name.replace(dst_repo.getsep(),
-                                               src_repo.getsep())
+                newsrc_name = dst_folder.getvisiblename().replace(
+                    dst_repo.getsep(),
+                    src_repo.getsep())
                 folder = self.getfolder(newsrc_name)
                 newdst_name = folder.getvisiblename().replace(
                     src_repo.getsep(), dst_repo.getsep())
-                if newsrc_name != newdst_name:
+                if dst_name != newdst_name:
                     raise OfflineImapError("INFINITE FOLDER CREATION DETECTED! "
                         "Folder '%s' (repository '%s') would be created as fold"
                         "er '%s' (repository '%s'). The latter becomes '%s' in "
                         "return, leading to infinite folder creation cycles.\n "
-                        "SOLUTION: 1) Do set your nametrans rules on both reposi"
-                        "tories so they lead to identical names if applied back"
-                        " and forth. 2) Use folderfilter settings on a reposito"
-                        "ry to prevent some folders from being created on the o"                        "ther side." % (dst_folder, dst_repo, newsrc_name,
-                                        src_repo, newdst_name),
+                        "SOLUTION: 1) Do set your nametrans rules on both repos"
+                        "itories so they lead to identical names if applied bac"
+                        "k and forth. 2) Use folderfilter settings on a reposit"
+                        "ory to prevent some folders from being created on the "
+                        "other side." % (dst_name, dst_repo, newsrc_name,
+                                         src_repo, newdst_name),
                                            OfflineImapError.ERROR.REPO)
                 # end sanity check, actually create the folder
 
