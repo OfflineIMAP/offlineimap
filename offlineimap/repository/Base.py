@@ -181,9 +181,9 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                 if newsrc_name != newdst_name:
                     raise OfflineImapError("INFINITE FOLDER CREATION DETECTED! "
                         "Folder '%s' (repository '%s') would be created as fold"
-                        "er '%s' (repository '%s'). The atter becomes '%s' in r"
-                        "eturn, leading to infinite folder creation cycles.\n S"
-                        "OLUTION: 1) Do set your nametrans rules on both reposi"
+                        "er '%s' (repository '%s'). The latter becomes '%s' in "
+                        "return, leading to infinite folder creation cycles.\n "
+                        "SOLUTION: 1) Do set your nametrans rules on both reposi"
                         "tories so they lead to identical names if applied back"
                         " and forth. 2) Use folderfilter settings on a reposito"
                         "ry to prevent some folders from being created on the o"                        "ther side." % (dst_folder, dst_repo, newsrc_name,
