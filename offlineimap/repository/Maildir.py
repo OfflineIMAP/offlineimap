@@ -146,7 +146,7 @@ class MaildirRepository(BaseRepository):
         self.debug("  toppath = %s" % toppath)
 
         # Iterate over directories in top & top itself.
-        for dirname in os.listdir(toppath) + ['.']:
+        for dirname in os.listdir(toppath) + ['']:
             self.debug("  *** top of loop")
             self.debug("  dirname = %s" % dirname)
             if dirname in ['cur', 'new', 'tmp']:
@@ -173,7 +173,7 @@ class MaildirRepository(BaseRepository):
                                                            foldername,
                                                            self.getsep(),
                                                            self))
-            if self.getsep() == '/' and dirname != '.':
+            if self.getsep() == '/' and dirname != '':
                 # Recursively check sub-directories for folders too.
                 retval.extend(self._getfolders_scandir(root, foldername))
         self.debug("_GETFOLDERS_SCANDIR RETURNING %s" % \
