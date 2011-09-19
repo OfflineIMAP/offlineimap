@@ -170,17 +170,25 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         # Find new folders on dst_repo.
         for dst_name, dst_folder in dst_hash.iteritems():
             if dst_folder.sync_this and not dst_name in src_hash:
-                # Check that back&forth nametrans lead to identical names
+                # nametrans sanity check!
+                # Does nametrans back&forth lead to identical names?
                 #src_name is the unmodified full src_name
                 newsrc_name = dst_name.replace(dst_repo.getsep(),
                                                src_repo.getsep())
                 folder = self.getfolder(newsrc_name)
                 newdst_name = folder.getvisiblename().replace(
-                    src_repo.getsep(), dst_repo.getsep()) 
-                if newsrc_name == newdst_name:
-                    assert False, "newdstname %s equals newsrcname %s %s %s" % (newdst_name, newsrc_name, dst_name, folder)
-                else:
-                    assert False, "newdstname %s Does not equal newsrcname %s %s %s" % (newdst_name, newsrc_name, dst_name, folder)
+                    src_repo.getsep(), dst_repo.getsep())
+                if newsrc_name != newdst_name:
+                    raise OfflineImapError("INFINITE FOLDER CREATION DETECTED! "
+                        "Folder '%s' (repository '%s') would be created as fold"
+                        "er '%s' (repository '%s'). The atter becomes '%s' in r"
+                        "eturn, leading to infinite folder creation cycles.\n S"
+                        "OLUTION: 1) Do set your nametrans rules on both reposi"
+                        "tories so they lead to identical names if applied back"
+                        " and forth. 2) Use folderfilter settings on a reposito"
+                        "ry to prevent some folders from being created on the o"                        "ther side." % (dst_folder, dst_repo, newsrc_name,
+                                        src_repo, newdst_name),
+                                           OfflineImapError.ERROR.REPO)
                 # end sanity check, actually create the folder
 
                 try:
