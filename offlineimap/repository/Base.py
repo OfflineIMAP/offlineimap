@@ -177,6 +177,13 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                     dst_repo.getsep(),
                     src_repo.getsep())
                 folder = self.getfolder(newsrc_name)
+                # would src repo filter out the new folder name? In this
+                # case don't create it on it:
+                if not self.folderfilter(newsrc_name):
+                    self.ui.debug('', "Not creating folder '%s' (repository '%s"
+                        "') as it would be filtered out on that repository." %
+                                  (newsrc_name, self))
+                    continue
                 newdst_name = folder.getvisiblename().replace(
                     src_repo.getsep(), dst_repo.getsep())
                 if dst_name != newdst_name:
