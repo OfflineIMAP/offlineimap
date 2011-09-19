@@ -60,7 +60,7 @@ class IMAPServer:
         self.password = None
         self.passworderror = None
         self.goodpassword = None
-        self.hostname = repos.gethost()
+        self.hostname = None if self.tunnel else repos.gethost()
         self.port = repos.getport()
         if self.port == None:
             self.port = 993 if self.usessl else 143
