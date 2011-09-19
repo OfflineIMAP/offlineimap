@@ -104,11 +104,10 @@ class UIBase:
            ui.error(exc, sys.exc_info()[2], msg="While syncing Folder %s in "
                                                 "repo %s")
         """
-        cur_thread = threading.currentThread()
         if msg:
-            self._msg("ERROR [%s]: %s\n  %s" % (cur_thread, msg, exc))
+            self._msg("ERROR: %s\n  %s" % (msg, exc))
         else:
-            self._msg("ERROR [%s]: %s" % (cur_thread, exc))
+            self._msg("ERROR: %s" % (exc))
 
         if not self.debuglist:
             # only output tracebacks in debug mode
