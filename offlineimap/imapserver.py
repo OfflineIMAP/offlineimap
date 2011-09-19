@@ -56,7 +56,7 @@ class IMAPServer:
         self.config = repos.getconfig()
         self.tunnel = repos.getpreauthtunnel()
         self.usessl = repos.getssl()
-        self.username = repos.getuser()
+        self.username = None if self.tunnel else repos.getuser()
         self.password = None
         self.passworderror = None
         self.goodpassword = None
