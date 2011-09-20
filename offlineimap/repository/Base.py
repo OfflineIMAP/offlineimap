@@ -172,7 +172,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
             if dst_folder.sync_this and not dst_name in src_hash:
                 # nametrans sanity check!
                 # Does nametrans back&forth lead to identical names?
-                #src_name is the unmodified full src_name
+                #src_name is the unmodified full src_name that would be created
                 newsrc_name = dst_folder.getvisiblename().replace(
                     dst_repo.getsep(),
                     src_repo.getsep())
@@ -184,6 +184,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                         "') as it would be filtered out on that repository." %
                                   (newsrc_name, self))
                     continue
+                # apply reverse nametrans to see if we end up with the same name
                 newdst_name = folder.getvisiblename().replace(
                     src_repo.getsep(), dst_repo.getsep())
                 if dst_name != newdst_name:
@@ -201,15 +202,14 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                 # end sanity check, actually create the folder
 
                 try:
-                    src_repo.makefolder(dst_name.replace(
-                            dst_repo.getsep(), src_repo.getsep()))
+                    src_repo.makefolder(newsrc_name)
                 except OfflineImapError, e:
                     self.ui.error(e, exc_info()[2],
                                   "Creating folder %s on repository %s" %\
                                       (src_name, dst_repo))
                     raise
-                status_repo.makefolder(dst_name.replace(
-                                dst_repo.getsep(), status_repo.getsep()))
+                status_repo.makefolder(newsrc_name.replace(
+                                src_repo.getsep(), status_repo.getsep()))
         # Find deleted folders.
         # We don't delete folders right now.
 
