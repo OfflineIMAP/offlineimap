@@ -15,10 +15,6 @@ New Features
 
 Changes
 -------
-
-* Refresh server capabilities after login, so we know that Gmail
-  supports UIDPLUS (it only announces that after login, not
-  before). This prevents us from adding custom headers to Gmail uploads.
   
 Bug Fixes
 ---------
