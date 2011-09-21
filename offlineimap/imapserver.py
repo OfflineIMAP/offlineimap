@@ -1,6 +1,5 @@
 # IMAP server support
-# Copyright (C) 2002 - 2007 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002 - 2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -275,6 +274,11 @@ class IMAPServer:
                     except imapobj.error, val:
                         self.passworderror = str(val)
                         raise
+
+            # update capabilities after login, e.g. gmail serves different ones
+            typ, dat = imapobj.capability()
+            if dat != [None]:
+                imapobj.capabilities = tuple(dat[-1].upper().split())
 
             if self.delim == None:
                 listres = imapobj.list(self.reference, '""')[1]
