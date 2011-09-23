@@ -39,6 +39,11 @@ class BaseFolder(object):
         self.name = name
         self.repository = repository
         self.visiblename = repository.nametrans(name)
+        # In case the visiblename becomes '.' (top-level) we use '' as
+        # that is the name that e.g. the Maildir scanning will return
+        # for the top-level dir.
+        if self.visiblename == '.':
+            self.visiblename = ''
         self.config = repository.getconfig()
 
     def getname(self):
