@@ -476,7 +476,8 @@ To only get the All Mail folder from a Gmail account, you would e.g. do::
 Another nametrans transpose example
 -----------------------------------
 
-Put everything in a GMX. subfolder except for the boxes INBOX, Draft, and Sent which should keep the same name::
+Put everything in a GMX. subfolder except for the boxes INBOX, Draft,
+and Sent which should keep the same name::
 
      nametrans: lambda folder: folder if folder in ['INBOX', 'Drafts', 'Sent'] \
                                else re.sub(r'^', r'GMX.', folder)
@@ -484,7 +485,9 @@ Put everything in a GMX. subfolder except for the boxes INBOX, Draft, and Sent w
 2 IMAP using name translations
 ------------------------------
 
-Synchronizing 2 IMAP accounts to local Maildirs that are "next to each other", so that mutt can work on both. Full email setup described by Thomas Kahle at `http://dev.gentoo.org/~tomka/mail.html`_
+Synchronizing 2 IMAP accounts to local Maildirs that are "next to each
+other", so that mutt can work on both. Full email setup described by
+Thomas Kahle at `http://dev.gentoo.org/~tomka/mail.html`_
 
 offlineimap.conf::
 
@@ -534,11 +537,25 @@ offlineimap.conf::
     ssl = yes
     maxconnections = 2
 
-One of the coolest things about offlineimap is that you can inject arbitrary python code. The file specified with::
+One of the coolest things about offlineimap is that you can call
+arbitrary python code from your configuration.  To do this, specify a
+pythonfile with::
 
     pythonfile=~/bin/offlineimap-helpers.py
 
-contains python functions that I used for two purposes: Fetching passwords from the gnome-keyring and translating folder names on the server to local foldernames. The python file should contain all the functions that are called here. get_username and get_password are part of the interaction with gnome-keyring and not printed here. Find them in the example file that is in the tarball or here. The folderfilter is a lambda term that, well, filters which folders to get. `oimaptransfolder_acc2` translates remote folders into local folders with a very simple logic. The `INBOX` folder will simply have the same name as the account while any other folder will have the account name and a dot as a prefix. offlineimap handles the renaming correctly in both directions::
+Your pythonfile needs to contain implementations for the functions
+that you want to use in offflineimaprc.  The example uses it for two
+purposes: Fetching passwords from the gnome-keyring and translating
+folder names on the server to local foldernames.  An example
+implementation of get_username and get_password showing how to query
+gnome-keyring is contained in
+`http://dev.gentoo.org/~tomka/mail-setup.tar.bz2`_ The folderfilter is
+a lambda term that, well, filters which folders to get. The function
+`oimaptransfolder_acc2` translates remote folders into local folders
+with a very simple logic. The `INBOX` folder will have the same name
+as the account while any other folder will have the account name and a
+dot as a prefix. This is useful for hierarchichal display in mutt.
+Offlineimap handles the renaming correctly in both directions::
 
     import re
     def oimaptransfolder_acc1(foldername):
