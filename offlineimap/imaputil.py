@@ -34,16 +34,15 @@ def debug(*args):
     getglobalui().debug('imap', " ".join(msg))
 
 def dequote(string):
-    """Takes a string which may or may not be quoted and returns it, unquoted.
-    This function does NOT consider parenthised lists to be quoted.
-    """
+    """Takes string which may or may not be quoted and unquotes it.
 
-    if not (string[0] == '"' and string[-1] == '"'):
-        return string
-    string = string[1:-1]               # Strip off quotes.
-    string = string.replace('\\"', '"')
-    string = string.replace('\\\\', '\\')
-    debug("dequote() returning:", string)
+    It only considers double quotes. This function does NOT consider
+    parenthised lists to be quoted.
+    """
+    if string and string.startswith('"') and string.endswith('"'):
+        string = string[1:-1]  # Strip off the surrounding quotes.
+        string = string.replace('\\"', '"')
+        string = string.replace('\\\\', '\\')
     return string
 
 def flagsplit(string):
