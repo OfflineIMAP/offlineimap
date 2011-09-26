@@ -420,8 +420,15 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         if e.severity > OfflineImapError.ERROR.FOLDER:
             raise
         else:
-            ui.error(e, exc_info()[2], msg = "Aborting folder sync '%s' "
-                     "[acc: '%s']" % (localfolder, accountname))
+            #if the initial localfolder assignement bailed out, the localfolder var will not be available, so we need
+            ui.error(e, exc_info()[2], msg = "Aborting sync, folder '%s' "
+                     "[acc: '%s']" % (
+                    remotefolder.getvisiblename().\
+                        replace(remoterepos.getsep(), localrepos.getsep()),
+                    accountname))
+                    # we reconstruct foldername above rather than using
+                    # localfolder, as the localfolder var is not
+                    # available if assignment fails.
     except Exception, e:
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
                 (accountname,remotefolder.getvisiblename(),
