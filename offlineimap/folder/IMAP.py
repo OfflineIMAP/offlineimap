@@ -541,21 +541,18 @@ class IMAPFolder(BaseFolder):
                     imapobj = self.imapserver.acquireconnection()
                     if not retry_left:
                         raise OfflineImapError("Saving msg in folder '%s', "
-                              "repository '%s' failed. Server reponded; %s %s\n"
+                              "repository '%s' failed. Server reponded: %s\n"
                               "Message content was: %s" %
-                                               (self, self.getrepository(),
-                                                typ, dat, dbg_output),
+                              (self, self.getrepository(), str(e), dbg_output),
                                                OfflineImapError.ERROR.MESSAGE)
                     retry_left -= 1
-                except imapobj.error, e:
-                    # If the server responds with 'BAD', append() raise()s directly.
-                    # So we need to prepare a response ourselves.
-                    typ, dat = 'BAD', str(e)
-                    if typ != 'OK': #APPEND failed
-                        raise OfflineImapError("Saving msg in folder '%s', repository "
-                                               "'%s' failed. Server reponded; %s %s\nMessage content was:"
-                                               " %s" % (self, self.getrepository(), typ, dat, dbg_output),
-                                               OfflineImapError.ERROR.MESSAGE)
+                except imapobj.error, e: # APPEND failed
+                    # If the server responds with 'BAD', append()
+                    # raise()s directly.  So we catch that too.
+                    raise OfflineImapError("Saving msg folder '%s', repo '%s'"
+                        "failed. Server reponded: %s\nMessage content was: "
+                        "%s" % (self, self.getrepository(), str(e), dbg_output),
+                                           OfflineImapError.ERROR.MESSAGE)
             # Checkpoint. Let it write out stuff, etc. Eg searches for
             # just uploaded messages won't work if we don't do this.
             (typ,dat) = imapobj.check()
