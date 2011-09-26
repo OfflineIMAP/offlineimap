@@ -536,7 +536,7 @@ class IMAPFolder(BaseFolder):
                     retry_left = 0 # Mark as success
                 except imapobj.abort, e:
                     # connection has been reset, release connection and retry.
-                    self.ui.error(e, exc_info()[2])
+                    retry_left -= 1
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
                     if not retry_left:
@@ -545,7 +545,8 @@ class IMAPFolder(BaseFolder):
                               "Message content was: %s" %
                               (self, self.getrepository(), str(e), dbg_output),
                                                OfflineImapError.ERROR.MESSAGE)
-                    retry_left -= 1
+                    self.ui.error(e, exc_info()[2])
+
                 except imapobj.error, e: # APPEND failed
                     # If the server responds with 'BAD', append()
                     # raise()s directly.  So we catch that too.
