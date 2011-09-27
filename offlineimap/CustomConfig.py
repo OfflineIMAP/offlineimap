@@ -24,26 +24,25 @@ class CustomConfigParser(SafeConfigParser):
         """Same as config.get, but returns the "default" option if there
         is no such option specified."""
         if self.has_option(section, option):
-            return apply(self.get, [section, option] + list(args), kwargs)
+            return self.get(*(section, option) + args, **kwargs)
         else:
             return default
     
     def getdefaultint(self, section, option, default, *args, **kwargs):
         if self.has_option(section, option):
-            return apply(self.getint, [section, option] + list(args), kwargs)
+            return self.getint (*(section, option) + args, **kwargs)
         else:
             return default
 
     def getdefaultfloat(self, section, option, default, *args, **kwargs):
         if self.has_option(section, option):
-            return apply(self.getfloat, [section, option] + list(args), kwargs)
+            return self.getfloat(*(section, option) + args, **kwargs)
         else:
             return default
 
     def getdefaultboolean(self, section, option, default, *args, **kwargs):
         if self.has_option(section, option):
-            return apply(self.getboolean, [section, option] + list(args),
-                         kwargs)
+            return self.getboolean(*(section, option) + args, **kwargs)
         else:
             return default
 
@@ -91,9 +90,9 @@ class ConfigHelperMixin:
     def _confighelper_runner(self, option, default, defaultfunc, mainfunc):
         """Return config value for getsection()"""
         if default == CustomConfigDefault:
-            return apply(mainfunc, [self.getsection(), option])
+            return mainfunc(*[self.getsection(), option])
         else:
-            return apply(defaultfunc, [self.getsection(), option, default])
+            return defaultfunc(*[self.getsection(), option, default])
 
 
     def getconf(self, option,
