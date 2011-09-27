@@ -549,7 +549,7 @@ class IdleThread(object):
             try:
                 # End IDLE mode with noop, imapobj can point to a dropped conn.
                 imapobj.noop()
-            except imapobj.abort():
+            except imapobj.abort:
                 self.ui.warn('Attempting NOOP on dropped connection %s' % \
                                  imapobj.identifier)
                 self.parent.releaseconnection(imapobj, True)

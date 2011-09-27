@@ -209,7 +209,7 @@ class IMAPFolder(BaseFolder):
                     res_type, data = imapobj.uid('fetch', str(uid),
                                                  '(BODY.PEEK[])')
                     fails_left = 0
-                except imapobj.abort(), e:
+                except imapobj.abort, e:
                     # Release dropped connection, and get a new one
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
