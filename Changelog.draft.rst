@@ -15,7 +15,9 @@ New Features
 
 Changes
 -------
-  
+
+* Indicate progress when copying many messages (slightly change log format)
+
 Bug Fixes
 ---------
 

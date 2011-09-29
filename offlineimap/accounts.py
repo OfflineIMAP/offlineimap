@@ -281,7 +281,7 @@ class SyncableAccount(Account):
                 thread = InstanceLimitedThread(\
                     instancename = 'FOLDER_' + self.remoterepos.getname(),
                     target = syncfolder,
-                    name = "Folder sync [%s]" % self,
+                    name = "Folder %s [acc: %s]" % (remotefolder, self),
                     args = (self.name, remoterepos, remotefolder, localrepos,
                             statusrepos, quick))
                 thread.setDaemon(1)
