@@ -49,50 +49,40 @@ increase performance of the sync.
 Don’t set the number too high. If you do that, things might actually slow down
 as your link gets saturated. Also, too many connections can cause mail servers
 to have excessive load. Administrators might take unkindly to this, and the
-server might bog down. There are many variables in the optimal setting;
-experimentation may help.
+server might bog down. There are many variables in the optimal setting; experimentation may help.
 
-An informal benchmark yields these results for my setup::
-
-    * 10 minutes with MacOS X Mail.app “manual cache”
-    * 5 minutes with GNUS agent sync
-    * 20 seconds with OfflineIMAP 1.x
-    * 9 seconds with OfflineIMAP 2.x
-    * 3 seconds with OfflineIMAP 3.x “cold start”
-    * 2 seconds with OfflineIMAP 3.x “held connection”
+See the Performance section in the MANUAL for some tips.
 
 What platforms does OfflineIMAP support?
 ----------------------------------------
 
-It should run on most platforms supported by Python, which are quite a few. I
-do not support Windows myself, but some have made it work there.  Use on
-Windows
+It should run on most platforms supported by Python, with one exception: we do not support Windows, but some have made it work there.
 
-These answers have been reported by OfflineIMAP users. I do not run OfflineIMAP
-on Windows myself, so I can’t directly address their accuracy.
+The following has been reported by OfflineIMAP users. We do not test
+OfflineIMAP on Windows, so we can’t directly address their accuracy.
 
 The basic answer is that it’s possible and doesn’t require hacking OfflineIMAP
 source code. However, it’s not necessarily trivial. The information below is
-based in instructions submitted by Chris Walker.
+based in instructions submitted by Chris Walker::
 
-First, you must run OfflineIMAP in the Cygwin environment. The Windows
-filesystem is not powerful enough to accomodate Maildir by itself.
-
-Next, you’ll need to mount your Maildir directory in a special way. There is
-information for doing that at http://barnson.org/node/295. That site gives this
-example::
-
-  mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
-
-That URL also has more details on making OfflineIMAP work with Windows.
+    First, you must run OfflineIMAP in the Cygwin environment. The Windows
+    filesystem is not powerful enough to accomodate Maildir by itself.
+    
+    Next, you’ll need to mount your Maildir directory in a special
+    way. There is information for doing that at
+    http://barnson.org/node/295. That site gives this example::
+    
+      mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
+    
+    That URL also has more details on making OfflineIMAP work with Windows.
 
 
 Does OfflineIMAP support mbox, mh, or anything else other than Maildir?
 -----------------------------------------------------------------------
 
-Not directly. Maildir was the easiest to implement. I’m not planning to write
-mbox code for OfflineIMAP, though if someone sent me well-written mbox support
-and pledged to support it, I’d commit it to the tree.
+Not directly. Maildir was the easiest to implement. We are not planning
+to write an mbox-backend, though if someone sent me well-written mbox
+support and pledged to support it, it would be committed it to the tree.
 
 However, OfflineIMAP can directly sync accounts on two different IMAP servers
 together. So you could install an IMAP server on your local machine that
@@ -105,22 +95,25 @@ point your mail readers to that IMAP server on localhost.
 What is the UID validity problem for folder?
 --------------------------------------------
 
-IMAP servers use a unique ID (UID) to refer to a specific message.  This number
-is guaranteed to be unique to a particular message forever.  No other message in
-the same folder will ever get the same UID.  UIDs are an integral part of
-`OfflineIMAP`_'s synchronization scheme; they are used to match up messages on
-your computer to messages on the server.
+IMAP servers use a folders UIDVALIDITY value in combination with a
+unique ID (UID) to refer to a specific message.  This is guaranteed to
+be unique to a particular message forever.  No other message in the same
+folder will ever get the same UID as long as UIDVALIDITY remains
+unchanged.  UIDs are an integral part of `OfflineIMAP`_'s
+synchronization scheme; they are used to match up messages on your
+computer to messages on the server.
 
-Sometimes, the UIDs on the server might get reset.  Usually this will happen if
-you delete and then recreate a folder.  When you create a folder, the server
-will often start the UID back from 1.  But `OfflineIMAP`_ might still have the
-UIDs from the previous folder by the same name stored.  `OfflineIMAP`_ will
-detect this condition and skip the folder.  This is GOOD, because it prevents
-data loss.
+Sometimes, the UIDs on the server might get reset.  Usually this will
+happen if you delete and then recreate a folder.  When you create a
+folder, the server will often start the UID back from 1.  But
+`OfflineIMAP`_ might still have the UIDs from the previous folder by the
+same name stored.  `OfflineIMAP`_ will detect this condition because of
+the changed UIDVALIDITY value and skip the folder.  This is GOOD,
+because it prevents data loss.
 
-You can fix it by removing your local folder and cache data.  For instance, if
-your folders are under `~/Folders` and the folder with the problem is INBOX,
-you'd type this::
+In the IMAP<->Maildir case, you can fix it by removing your local folder
+and cache data.  For instance, if your folders are under `~/Folders` and
+the folder with the problem is INBOX, you'd type this::
 
   rm -r ~/Folders/INBOX
   rm -r ~/.offlineimap/Account-AccountName/LocalStatus/INBOX
@@ -146,12 +139,10 @@ This question comes up frequently on the `mailing list`_.  You can find a detail
 discussion of the problem there
 http://lists.complete.org/offlineimap@complete.org/2003/04/msg00012.html.gz.
 
-How do I add or delete a folder?
---------------------------------
+How do I automatically delete a folder?
+---------------------------------------
 
-OfflineIMAP does not currently provide this feature. However, if you create a
-new folder on the remote server, OfflineIMAP will detect this and create the
-corresponding folder locally automatically.
+OfflineIMAP does not currently provide this feature. You will have to delete folders manually. See next entry too.
 
 May I delete local folders?
 ---------------------------
@@ -175,6 +166,7 @@ It will perform a check on startup and abort if another `OfflineIMAP`_ is
 already running.  If you need to schedule synchronizations, you'll probably
 find autorefresh settings more convenient than cron.  Alternatively, you can
 set a separate metadata directory for each instance.
+In the future, we will lock each account individually rather than having one global lock.
 
 Can I copy messages between folders?
 ---------------------------------------
@@ -197,10 +189,7 @@ next run it will upload the message to second server and delete on first, etc.
 Does OfflineIMAP support POP?
 -----------------------------
 
-No. POP is not robust enough to do a completely reliable multi-machine sync
-like OfflineIMAP can do.
-
-OfflineIMAP will never support POP.
+No.
 
 How is OfflineIMAP conformance?
 -------------------------------
@@ -214,17 +203,21 @@ How is OfflineIMAP conformance?
 Can I force OfflineIMAP to sync a folder right now?
 ---------------------------------------------------
 
-Yes, if you use the `Blinkenlights` UI.  That UI shows the active accounts
+Yes, 
+  1) if you use the `Blinkenlights` UI.  That UI shows the active accounts
 as follows::
 
-  4: [active]      *Control: .
-  3: [  4:36]      personal:
-  2: [  3:37]          work: .
-  1: [  6:28]           uni:
+   4: [active]      *Control: .
+   3: [  4:36]      personal:
+   2: [  3:37]          work: .
+   1: [  6:28]           uni:
 
-Simply press the appropriate digit (`3` for `personal`, etc.) to resync that
-account immediately.  This will be ignored if a resync is already in progress
-for that account.
+   Simply press the appropriate digit (`3` for `personal`, etc.) to
+   resync that account immediately.  This will be ignored if a resync is
+   already in progress for that account.
+
+  2) while in sleep mode, you can also send a SIGUSR1. See the `Signals
+    on UNIX`_ section in the MANUAL for details.
 
 Configuration Questions
 =======================
@@ -248,10 +241,12 @@ what folders are present on the IMAP server and synchronize them. You can use
 the folderfilter and nametrans configuration file options to request only
 certain folders and rename them as they come in if you like.
 
+Also you can configure OfflineImap to only synchronize "subscribed" folders.
+
 How do I prevent certain folders from being synced?
 ---------------------------------------------------
 
-Use the folderfilter option.
+Use the folderfilter option. See the MANUAL for details and examples.
 
 What is the mailbox name recorder (mbnames) for?
 ------------------------------------------------
@@ -261,9 +256,11 @@ Some mail readers, such as mutt, are not capable of automatically determining th
 Does OfflineIMAP verify SSL certificates?
 -----------------------------------------
 
-By default, no.  However, as of version 6.3.2, it is possible to enforce verification
-of SSL certificate on a per-repository basis by setting the `sslcacertfile` option in the
-config file.  (See the example offlineimap.conf for details.)
+You can verify an imapserver's certificate by specifying the CA
+certificate on a per-repository basis by setting the `sslcacertfile`
+option in the config file. (See the example offlineimap.conf for
+details.) If you do not specify any CA certificate, you will be presented with the server's certificate fingerprint and add that to the configuration file, to make sure it remains unchanged.
+No verification happens if connecting via STARTTLS.
 
 How do I generate an `sslcacertfile` file?
 ------------------------------------------
@@ -292,23 +289,6 @@ In general, OfflineIMAP works with any IMAP server that provides compatibility
 with the IMAP RFCs. Some servers provide imperfect compatibility that may be
 good enough for general clients. OfflineIMAP needs more features, specifically
 support for UIDs, in order to do its job accurately and completely.
-
-Microsoft Exchange
-------------------
-
-Several users have reported problems with Microsoft Exchange servers in
-conjunction with OfflineIMAP. This generally seems to be related to the
-Exchange servers not properly following the IMAP standards.
-
-Mark Biggers has posted some information to the OfflineIMAP `mailing list`_
-about how he made it work.
-
-Other users have indicated that older (5.5) releases of Exchange are so bad
-that they will likely not work at all.
-
-I do not have access to Exchange servers for testing, so any problems with it,
-if they can even be solved at all, will require help from OfflineIMAP users to
-find and fix.
 
 
 Client Notes
@@ -494,12 +474,13 @@ To send a patch, we recommend using 'git send-email'.
 Where from should my patches be based on?
 -----------------------------------------
 
-Depends. If you're not sure, it should start off of the master branch. master is
-the branch where new patches should be based on by default.
+Depends. If you're not sure, it should start off of the master
+branch. master is the branch where new patches should be based on by
+default.
 
-Obvious materials for next release (e.g. new features) start off of current
-next.  Also, next is the natural branch to write patches on top of commits not
-already in master.
+Obvious materials for next release (e.g. new features) start off of
+current next.  Also, next is the natural branch to write patches on top
+of commits not already in master.
 
 A fix for a very old bug or security issue may start off of maint. This isn't
 needed since such fix are backported by the maintainer, though.

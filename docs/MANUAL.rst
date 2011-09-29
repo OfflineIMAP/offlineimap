@@ -6,7 +6,7 @@
 Powerful IMAP/Maildir synchronization and reader support
 --------------------------------------------------------
 
-:Author: John Goerzen <jgoerzen@complete.org>
+:Author: John Goerzen <jgoerzen@complete.org> & contributors
 :Date: 2011-01-15
 :Copyright: GPL v2
 :Manual section: 1
@@ -22,10 +22,8 @@ emails between them, so that you can read the same mailbox from multiple
 computers. The REMOTE repository is some IMAP server, while LOCAL can be
 either a local Maildir or another IMAP server.
 
-Missing folders will be automatically created on the LOCAL side, however
-NO folders will currently be created on the REMOTE repository
-automatically (it will sync your emails from local folders if
-corresponding REMOTE folders already exist).
+Missing folders will be automatically created on both sides if
+needed. No folders will be deleted at the moment.
 
 Configuring OfflineImap in basic mode is quite easy, however it provides
 an amazing amount of flexibility for those with special needs.  You can
@@ -159,11 +157,9 @@ Blinkenlights
 Blinkenlights is an interface designed to be sleek, fun to watch, and
 informative of the overall picture of what OfflineIMAP is doing.
 
-
 Blinkenlights contains a row of "LEDs" with command buttons and a log.
 The  log shows more detail about what is happening and is color-coded to match
 the color of the lights.
-
 
 Each light in the Blinkenlights interface represents a thread of execution --
 that is, a particular task that OfflineIMAP is performing right now.  The colors
@@ -232,7 +228,7 @@ English-speaking world. One version ran in its entirety as follows:
 
 
 TTYUI
----------
+------
 
 TTYUI interface is for people running in terminals.  It prints out basic
 status messages and is generally friendly to use on a console or xterm.
@@ -245,7 +241,7 @@ Basic is designed for situations in which OfflineIMAP will be run
 non-attended and the status of its execution will be logged.  This user
 interface is not capable of reading a password from the keyboard;
 account passwords must be specified using one of the configuration file
-options.
+options. For example, it will not print periodic sleep announcements and tends to be a tad less verbose, in general.
 
 
 Quiet
@@ -367,6 +363,107 @@ accounts will abort any current sleep and will exit after a currently running
 synchronization has finished. This signal can be used to gracefully exit out of
 a running offlineimap "daemon".
 
+Folder filtering and Name translation
+=====================================
+
+OfflineImap provides advanced and potentially complex possibilities for
+filtering and translating folder names. If you don't need this, you can
+safely skip this section.
+
+folderfilter
+------------
+
+If you do not want to synchronize all your filters, you can specify a folderfilter function that determines which folders to include in a sync and which to exclude. Typically, you would set a folderfilter option on the remote repository only, and it would be a lambda or any other python function.
+
+If the filter function returns True, the folder will be synced, if it
+returns False, it. The folderfilter operates on the *UNTRANSLATED* name
+(before any nametrans translation takes place).
+
+Example 1: synchronizing only INBOX and Sent::
+
+   folderfilter = lambda foldername: foldername in ['INBOX', 'Sent']
+
+Example 2: synchronizing everything except Trash::
+
+   folderfilter = lambda foldername: foldername not in ['Trash']
+
+Example 3: Using a regular expression to exclude Trash and all folders
+containing the characters "Del"::
+
+    folderfilter = lambda foldername: not re.search('(^Trash$|Del)', foldername)
+
+If folderfilter is not specified, ALL remote folders will be
+synchronized.
+
+You can span multiple lines by indenting the others.  (Use backslashes
+at the end when required by Python syntax)  For instance::
+
+ folderfilter = lambda foldername: foldername in
+        ['INBOX', 'Sent Mail', 'Deleted Items',
+         'Received']
+
+You only need a folderfilter option on the local repository if you want to prevent some folders on the local repository to be created on the remote one.
+
+Even if you filtered out folders, You can specify folderincludes to
+include additional folders.  It should return a Python list.  This might
+be used to include a folder that was excluded by your folderfilter rule,
+to include a folder that your server does not specify with its LIST
+option, or to include a folder that is outside your basic reference. The
+'reference' value will not be prefixed to this folder name, even if you
+have specified one.  For example::
+
+   folderincludes = ['debian.user', 'debian.personal']
+
+nametrans
+----------
+
+Sometimes, folders need to have different names on the remote and the
+local repositories. To achieve this you can specify a folder name
+translator.  This must be a eval-able Python expression that takes a
+foldername arg and returns the new value.  I suggest a lambda.  This
+example below will remove "INBOX." from the leading edge of folders
+(great for Courier IMAP users)::
+
+   nametrans = lambda foldername: re.sub('^INBOX\.', '', foldername)
+
+Using Courier remotely and want to duplicate its mailbox naming
+locally?  Try this::
+
+   nametrans = lambda foldername: re.sub('^INBOX\.*', '.', foldername)
+
+
+WARNING: you MUST construct nametrans rules such that it NEVER returns
+the same value for two folders, UNLESS the second values are
+filtered out by folderfilter below. That is, two filters on one side may never point to the same folder on the other side. Failure to follow this rule
+will result in undefined behavior. See also *Sharing a maildir with multiple IMAP servers* in the `PITFALLS & ISSUES`_ section.
+
+Where to put nametrans rules, on the remote and/or local repository?
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If you never intend to create new folders on the LOCAL repository that need to be synced to the REMOTE repository, it is sufficient to create a nametrans rule on the remote Repository section. This will be used to determine the names of new folder names on the LOCAL repository, and to match existing folders that correspond.
+
+*IF* you create folders on the local repository, that are supposed to be automatically created on the remote repository, you will need to create a nametrans rule that provides the reverse name translation.
+
+(A nametrans rule provides only a one-way translation of names and in order to know which names folders on the LOCAL side would have on the REMOTE side, you need to specify the reverse nametrans rule on the local repository)
+
+OfflineImap will complain if it needs to create a new folder on the
+remote side and a back-and-forth nametrans-lation does not yield the
+original foldername (as that could potentially lead to infinite folder
+creation cycles).
+
+What folder separators do I need to use in nametrans rules?
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+**Q:** If I sync from an IMAP server with folder separator '/' to a Maildir using the default folder separator '.' which do I need to use in nametrans rules?::
+  nametrans = lambda f: "INBOX/" + f
+or::
+  nametrans = lambda f: "INBOX." + f
+
+**A:** Generally use the folder separator as defined in the repository you write the nametrans rule for. That is, use '/' in the above case. We will pass in the untranslated name of the IMAP folder as parameter (here `f`). The translated name will ultimately have all folder separators be replaced with the destination repositories' folder separator.
+
+So if ̀f` was "Sent", the first nametrans yields the translated name "INBOX/Sent" to be used on the other side. As that repository uses the folder separator '.' rather than '/', the ultimate name to be used will be "INBOX.Sent".
+
+(As a final note, the smart will see that both variants of the above nametrans rule would have worked identically in this case)
 
 KNOWN BUGS
 ==========
