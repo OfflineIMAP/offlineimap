@@ -228,16 +228,14 @@ class UIBase:
             s._msg(offlineimap.banner)
 
     def connecting(s, hostname, port):
-        if s.verbose < 0:
-            return
-        if hostname == None:
-            hostname = ''
-        if port != None:
-            port = ":%s" % str(port)
-        displaystr = ' to %s%s.' % (hostname, port)
-        if hostname == '' and port == None:
-            displaystr = '.'
-        s._msg("Establishing connection" + displaystr)
+        """Log 'Establishing connection to'"""
+        if s.verbose < 0: return
+        displaystr = ''
+        hostname = hostname if hostname else ''
+        port = "%d" % port if port else ''
+        if hostname:
+            displaystr = ' to %s:%s' % (hostname, port)
+        s._msg("Establishing connection%s" % displaystr)
 
     def acct(self, account):
         """Output that we start syncing an account (and start counting)"""
