@@ -1,6 +1,5 @@
 # UI base class
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -48,6 +47,8 @@ class UIBase:
         s.debugmsglen = 50
         s.threadaccounts = {}
         """dict linking active threads (k) to account names (v)"""
+        s.acct_startimes = {}
+        """linking active accounts with the time.time() when sync started"""
         s.logfile = None
         s.exc_queue = Queue()
         """saves all occuring exceptions, so we can output them at the end"""
@@ -238,13 +239,18 @@ class UIBase:
             displaystr = '.'
         s._msg("Establishing connection" + displaystr)
 
-    def acct(s, accountname):
-        if s.verbose >= 0:
-            s._msg("***** Processing account %s" % accountname)
+    def acct(self, account):
+        """Output that we start syncing an account (and start counting)"""
+        self.acct_startimes[account] = time.time()
+        if self.verbose >= 0:
+            self._msg("*** Processing account %s" % account)
 
-    def acctdone(s, accountname):
-        if s.verbose >= 0:
-            s._msg("***** Finished processing account " + accountname)
+    def acctdone(self, account):
+        """Output that we finished syncing an account (in which time)"""
+        sec = time.time() - self.acct_startimes[account]
+        del self.acct_startimes[account]
+        self._msg("*** Finished account '%s' in %d:%02d" %
+               (account, sec // 60, sec % 60))
 
     def syncfolders(s, srcrepos, destrepos):
         if s.verbose >= 0:

@@ -18,6 +18,8 @@ Changes
 
 * Indicate progress when copying many messages (slightly change log format)
 
+* Output how long an account sync took (min:sec).
+
 Bug Fixes
 ---------
 

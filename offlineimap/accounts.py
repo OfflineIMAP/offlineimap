@@ -1,5 +1,4 @@
-# Copyright (C) 2003 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2003-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -196,7 +195,6 @@ class SyncableAccount(Account):
 
     def syncrunner(self):
         self.ui.registerthread(self.name)
-        self.ui.acct(self.name)
         accountmetadata = self.getaccountmeta()
         if not os.path.exists(accountmetadata):
             os.mkdir(accountmetadata, 0700)            
@@ -208,32 +206,32 @@ class SyncableAccount(Account):
         # Loop account sync if needed (bail out after 3 failures)
         looping = 3
         while looping:
+            self.ui.acct(self)
             try:
-                try:
-                    self.lock()
-                    self.sync()
-                except (KeyboardInterrupt, SystemExit):
-                    raise
-                except OfflineImapError, e:                    
-                    # Stop looping and bubble up Exception if needed.
-                    if e.severity >= OfflineImapError.ERROR.REPO:
-                        if looping:
-                            looping -= 1
-                        if e.severity >= OfflineImapError.ERROR.CRITICAL:
-                            raise
-                    self.ui.error(e, exc_info()[2])
-                except Exception, e:
-                    self.ui.error(e, msg = "While attempting to sync "
-                        "account %s:\n  %s"% (self, traceback.format_exc()))
-                else:
-                    # after success sync, reset the looping counter to 3
-                    if self.refreshperiod:
-                        looping = 3
+                self.lock()
+                self.sync()
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except OfflineImapError, e:                    
+                # Stop looping and bubble up Exception if needed.
+                if e.severity >= OfflineImapError.ERROR.REPO:
+                    if looping:
+                        looping -= 1
+                    if e.severity >= OfflineImapError.ERROR.CRITICAL:
+                        raise
+                self.ui.error(e, exc_info()[2])
+            except Exception, e:
+                self.ui.error(e, exc_info()[2], msg = "While attempting to sync"
+                    " account '%s'" % self)
+            else:
+                # after success sync, reset the looping counter to 3
+                if self.refreshperiod:
+                    looping = 3
             finally:
+                self.ui.acctdone(self)
                 self.unlock()
                 if looping and self.sleeper() >= 2:
                     looping = 0                    
-                self.ui.acctdone(self.name)
 
     def getaccountmeta(self):
         return os.path.join(self.metadatadir, 'Account-' + self.name)
