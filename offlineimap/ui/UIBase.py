@@ -407,14 +407,14 @@ class UIBase:
         """Sleep for sleepsecs, display remainingsecs to go.
 
         Does nothing if sleepsecs <= 0.
-        Display a message on the screen every 10 seconds.
+        Display a message on the screen if we pass a full minute.
 
         This implementation in UIBase does not support this, but some
         implementations return 0 for successful sleep and 1 for an
         'abort', ie a request to sync immediately.
         """
         if sleepsecs > 0:
-            if remainingsecs % 10 == 0:
-                s._msg("Next refresh in %d seconds" % remainingsecs)
+            if remainingsecs//60 != (remainingsecs-sleepsecs)//60:
+                s._msg("Next refresh in %.1f minutes" % (remainingsecs/60.0))
             time.sleep(sleepsecs)
         return 0
