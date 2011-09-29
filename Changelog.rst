@@ -11,6 +11,13 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.4.0 (2011-09-29)
+===============================
+
+This is the first stable release to support the forward-compatible per-account locks and remote folder creation that has been introduced in the 6.3.5 series.
+
+* Various regression and bug fixes from the last couple of RCs
+
 OfflineIMAP v6.3.5-rc3 (2011-09-21)
 ===================================
 
