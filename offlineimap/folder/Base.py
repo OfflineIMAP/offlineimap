@@ -266,7 +266,6 @@ class BaseFolder(object):
                 statusfolder.savemessage(uid, None, flags, rtime)
                 return
 
-            self.ui.copyingmessage(uid, self, dstfolder)
             # If any of the destinations actually stores the message body,
             # load it up.
             if dstfolder.storesmessages():
@@ -331,15 +330,16 @@ class BaseFolder(object):
         copylist = filter(lambda uid: not \
                               statusfolder.uidexists(uid),
                             self.getmessageuidlist())
-        for uid in copylist:
+        num_to_copy = len(copylist)
+        for num, uid in enumerate(copylist):
+            self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
             # exceptions are caught in copymessageto()
             if self.suggeststhreads():
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(\
                     self.getcopyinstancelimit(),
                     target = self.copymessageto,
-                    name = "Copy message %d from %s" % (uid,
-                                                    self.getvisiblename()),
+                    name = "Copy message from %s:%s" % (self.repository, self),
                     args = (uid, dstfolder, statusfolder))
                 thread.setDaemon(1)
                 thread.start()
