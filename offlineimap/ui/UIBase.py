@@ -47,6 +47,7 @@ class UIBase:
         s.debugmessages = {}
         s.debugmsglen = 50
         s.threadaccounts = {}
+        """dict linking active threads (k) to account names (v)"""
         s.logfile = None
         s.exc_queue = Queue()
         """saves all occuring exceptions, so we can output them at the end"""
@@ -117,29 +118,32 @@ class UIBase:
         if exc_traceback:
             self._msg(traceback.format_tb(exc_traceback))
 
-    def registerthread(s, account):
-        """Provides a hint to UIs about which account this particular
-        thread is processing."""
-        if s.threadaccounts.has_key(threading.currentThread()):
-            raise ValueError, "Thread %s already registered (old %s, new %s)" %\
-                  (threading.currentThread().getName(),
-                   s.getthreadaccount(s), account)
-        s.threadaccounts[threading.currentThread()] = account
-        s.debug('thread', "Register new thread '%s' (account '%s')" %\
-                    (threading.currentThread().getName(), account))
+    def registerthread(self, account):
+        """Register current thread as being associated with an account name"""
+        cur_thread = threading.currentThread()
+        if cur_thread in self.threadaccounts:
+            # was already associated with an old account, update info
+            self.debug('thread', "Register thread '%s' (previously '%s', now "
+                    "'%s')" % (cur_thread.getName(),
+                               self.getthreadaccount(cur_thread), account))
+        else:
+            self.debug('thread', "Register new thread '%s' (account '%s')" %\
+                        (cur_thread.getName(), account))
+        self.threadaccounts[cur_thread] = account
 
-    def unregisterthread(s, thr):
-        """Recognizes a thread has exited."""
-        if s.threadaccounts.has_key(thr):
-            del s.threadaccounts[thr]
-        s.debug('thread', "Unregister thread '%s'" % thr.getName())
+    def unregisterthread(self, thr):
+        """Unregister a thread as being associated with an account name"""
+        if self.threadaccounts.has_key(thr):
+            del self.threadaccounts[thr]
+        self.debug('thread', "Unregister thread '%s'" % thr.getName())
 
-    def getthreadaccount(s, thr = None):
+    def getthreadaccount(self, thr = None):
+        """Get name of account for a thread (current if None)"""
         if not thr:
             thr = threading.currentThread()
-        if s.threadaccounts.has_key(thr):
-            return s.threadaccounts[thr]
-        return '*Control'
+        if thr in self.threadaccounts:
+            return self.threadaccounts[thr]
+        return '*Control' # unregistered thread is '*Control'
 
     def debug(s, debugtype, msg):
         thisthread = threading.currentThread()
