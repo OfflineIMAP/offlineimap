@@ -11,6 +11,65 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.4.0 (2011-09-29)
+===============================
+
+This is the first stable release to support the forward-compatible per-account locks and remote folder creation that has been introduced in the 6.3.5 series.
+
+* Various regression and bug fixes from the last couple of RCs
+
+OfflineIMAP v6.3.5-rc3 (2011-09-21)
+===================================
+
+Changes
+-------
+
+* Refresh server capabilities after login, so we know that Gmail
+  supports UIDPLUS (it only announces that after login, not
+  before). This prevents us from adding custom headers to Gmail uploads.
+  
+Bug Fixes
+---------
+
+* Fix the creation of folders on remote repositories, which was still
+  botched on rc2.
+
+OfflineIMAP v6.3.5-rc2 (2011-09-19)
+===================================
+
+New Features
+------------
+
+* Implement per-account locking, so that it will possible to sync
+  different accounts at the same time. The old global lock is still in
+  place for backward compatibility reasons (to be able to run old and
+  new versions of OfflineImap concurrently) and will be removed in the
+  future. Starting with this version, OfflineImap will be
+  forward-compatible with the per-account locking style.
+
+* Implement RFC 2595 LOGINDISABLED. Warn the user and abort when we
+  attempt a plaintext login but the server has explicitly disabled
+  plaintext logins rather than crashing.
+
+* Folders will now also be automatically created on the REMOTE side of
+  an account if they exist on the local side. Use the folderfilters
+  setting on the local side to prevent some folders from migrating to
+  the remote side.  Also, if you have a nametrans setting on the remote
+  repository, you might need a nametrans setting on the local repository
+  that leads to the original name (reverse nametrans).
+
+Changes
+-------
+
+* Documentation improvements concerning 'restoreatime' and some code cleanup
+
+* Maildir repositories now also respond to folderfilter= configurations.
+
+Bug Fixes
+---------
+
+* New emails are not created with "-rwxr-xr-x" but as "-rw-r--r--"
+  anymore, fixing a regression in 6.3.4.
 
 OfflineIMAP v6.3.5-rc1 (2011-09-12)
 ===================================

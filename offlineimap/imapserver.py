@@ -1,6 +1,5 @@
 # IMAP server support
-# Copyright (C) 2002 - 2007 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002 - 2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -56,11 +55,11 @@ class IMAPServer:
         self.config = repos.getconfig()
         self.tunnel = repos.getpreauthtunnel()
         self.usessl = repos.getssl()
-        self.username = repos.getuser()
+        self.username = None if self.tunnel else repos.getuser()
         self.password = None
         self.passworderror = None
         self.goodpassword = None
-        self.hostname = repos.gethost()
+        self.hostname = None if self.tunnel else repos.gethost()
         self.port = repos.getport()
         if self.port == None:
             self.port = 993 if self.usessl else 143
@@ -262,6 +261,12 @@ class IMAPServer:
                                 except imapobj.error, val:
                                     self.plainauth(imapobj)
                             else:
+                                # Use plaintext login, unless
+                                # LOGINDISABLED (RFC2595)
+                                if 'LOGINDISABLED' in imapobj.capabilities:
+                                    raise OfflineImapError("Plaintext login "
+                                       "disabled by server. Need to use SSL?",
+                                        OfflineImapError.ERROR.REPO)
                                 self.plainauth(imapobj)
                         # Would bail by here if there was a failure.
                         success = 1
@@ -269,6 +274,11 @@ class IMAPServer:
                     except imapobj.error, val:
                         self.passworderror = str(val)
                         raise
+
+            # update capabilities after login, e.g. gmail serves different ones
+            typ, dat = imapobj.capability()
+            if dat != [None]:
+                imapobj.capabilities = tuple(dat[-1].upper().split())
 
             if self.delim == None:
                 listres = imapobj.list(self.reference, '""')[1]
@@ -539,7 +549,7 @@ class IdleThread(object):
             try:
                 # End IDLE mode with noop, imapobj can point to a dropped conn.
                 imapobj.noop()
-            except imapobj.abort():
+            except imapobj.abort:
                 self.ui.warn('Attempting NOOP on dropped connection %s' % \
                                  imapobj.identifier)
                 self.parent.releaseconnection(imapobj, True)

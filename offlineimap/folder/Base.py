@@ -28,8 +28,23 @@ except NameError:
     from sets import Set as set
 
 class BaseFolder(object):
-    def __init__(self):
+    def __init__(self, name, repository):
+        """
+        :para name: Path & name of folder minus root or reference
+        :para repository: Repository() in which the folder is.
+        """
+        self.sync_this = True
+        """Should this folder be included in syncing?"""
         self.ui = getglobalui()
+        self.name = name
+        self.repository = repository
+        self.visiblename = repository.nametrans(name)
+        # In case the visiblename becomes '.' (top-level) we use '' as
+        # that is the name that e.g. the Maildir scanning will return
+        # for the top-level dir.
+        if self.visiblename == '.':
+            self.visiblename = ''
+        self.config = repository.getconfig()
 
     def getname(self):
         """Returns name"""
@@ -37,6 +52,11 @@ class BaseFolder(object):
 
     def __str__(self):
         return self.name
+
+    @property
+    def accountname(self):
+        """Account name as string"""
+        return self.repository.accountname
 
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
@@ -55,7 +75,8 @@ class BaseFolder(object):
         return 1
 
     def getvisiblename(self):
-        return self.name
+        """The nametrans-transposed name of the folder's name"""
+        return self.visiblename
 
     def getrepository(self):
         """Returns the repository object that this folder is within."""
@@ -233,7 +254,7 @@ class BaseFolder(object):
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
         if register: # output that we start a new thread
-            self.ui.registerthread(self.getaccountname())
+            self.ui.registerthread(self.accountname)
 
         try:
             message = None
@@ -289,7 +310,7 @@ class BaseFolder(object):
             self.ui.error(e, exc_info()[2])
         except Exception, e:
             self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
-                              (uid, self.getaccountname(),
+                              (uid, self.accountname,
                                traceback.format_exc()))
             raise    #raise on unknown errors, so we can fix those
 
@@ -437,5 +458,5 @@ class BaseFolder(object):
                 self.ui.error(e, exc_info()[2])
             except Exception, e:
                 self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
-                                  (self, self.getaccountname()))
+                                  (self, self.accountname))
                 raise # raise unknown Exceptions so we can fix them

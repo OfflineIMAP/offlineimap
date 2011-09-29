@@ -104,11 +104,10 @@ class UIBase:
            ui.error(exc, sys.exc_info()[2], msg="While syncing Folder %s in "
                                                 "repo %s")
         """
-        cur_thread = threading.currentThread()
         if msg:
-            self._msg("ERROR [%s]: %s\n  %s" % (cur_thread, msg, exc))
+            self._msg("ERROR: %s\n  %s" % (msg, exc))
         else:
-            self._msg("ERROR [%s]: %s" % (cur_thread, exc))
+            self._msg("ERROR: %s" % (exc))
 
         if not self.debuglist:
             # only output tracebacks in debug mode
@@ -343,14 +342,6 @@ class UIBase:
         s._msg(s.getThreadExceptionString(thread))
         s.delThreadDebugLog(thread)
         s.terminate(100)
-
-    def getMainExceptionString(s):
-        return "Main program terminated with exception:\n%s\n" %\
-               traceback.format_exc() + \
-               s.getThreadDebugLog(threading.currentThread())
-
-    def mainException(s):
-        s._msg(s.getMainExceptionString())
 
     def terminate(self, exitstatus = 0, errortitle = None, errormsg = None):
         """Called to terminate the application."""

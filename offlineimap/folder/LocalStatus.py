@@ -26,22 +26,15 @@ except NameError:
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
 class LocalStatusFolder(BaseFolder):
-    def __init__(self, root, name, repository, accountname, config):
-        self.name = name
-        self.root = root
+    def __init__(self, name, repository):
+        super(LocalStatusFolder, self).__init__(name, repository)
         self.sep = '.'
-        self.config = config
-        self.filename = os.path.join(root, self.getfolderbasename())
+        self.filename = os.path.join(self.getroot(), self.getfolderbasename())
         self.messagelist = {}
-        self.repository = repository
         self.savelock = threading.Lock()
-        self.doautosave = config.getdefaultboolean("general", "fsync", False)
+        self.doautosave = self.config.getdefaultboolean("general", "fsync",
+                                                        False)
         """Should we perform fsyncs as often as possible?"""
-        self.accountname = accountname
-        super(LocalStatusFolder, self).__init__()
-
-    def getaccountname(self):
-        return self.accountname
 
     def storesmessages(self):
         return 0
@@ -53,7 +46,7 @@ class LocalStatusFolder(BaseFolder):
         return self.name
 
     def getroot(self):
-        return self.root
+        return self.repository.root
 
     def getsep(self):
         return self.sep

@@ -33,13 +33,12 @@ class GmailFolder(IMAPFolder):
       http://mail.google.com/support/bin/answer.py?answer=77657&topic=12815
     """
 
-    def __init__(self, imapserver, name, visiblename, accountname, repository):
+    def __init__(self, imapserver, name, repository):
+        super(GmailFolder, self).__init__(imapserver, name, repository)
         self.realdelete = repository.getrealdelete(name)
         self.trash_folder = repository.gettrashfolder(name)
         #: Gmail will really delete messages upon EXPUNGE in these folders
         self.real_delete_folders =  [ self.trash_folder, repository.getspamfolder() ]
-        IMAPFolder.__init__(self, imapserver, name, visiblename, \
-                            accountname, repository)
 
     def deletemessages_noconvert(self, uidlist):
         uidlist = [uid for uid in uidlist if uid in self.messagelist]

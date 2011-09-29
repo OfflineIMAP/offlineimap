@@ -214,8 +214,7 @@ def initInstanceLimit(instancename, instancemax):
 class InstanceLimitedThread(ExitNotifyThread):
     def __init__(self, instancename, *args, **kwargs):
         self.instancename = instancename
-                                                   
-        apply(ExitNotifyThread.__init__, (self,) + args, kwargs)
+        super(InstanceLimitedThread, self).__init__(*args, **kwargs)
 
     def start(self):
         instancelimitedsems[self.instancename].acquire()

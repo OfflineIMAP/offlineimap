@@ -21,7 +21,6 @@ from offlineimap import folder, imaputil, imapserver, OfflineImapError
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
 from threading import Event
-import re
 import types
 import os
 from sys import exc_info
@@ -36,23 +35,6 @@ class IMAPRepository(BaseRepository):
         self._host = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
-        self.nametrans = lambda foldername: foldername
-        self.folderfilter = lambda foldername: 1
-        self.folderincludes = []
-        self.foldersort = cmp
-        localeval = self.localeval
-        if self.config.has_option(self.getsection(), 'nametrans'):
-            self.nametrans = localeval.eval(self.getconf('nametrans'),
-                                            {'re': re})
-        if self.config.has_option(self.getsection(), 'folderfilter'):
-            self.folderfilter = localeval.eval(self.getconf('folderfilter'),
-                                               {'re': re})
-        if self.config.has_option(self.getsection(), 'folderincludes'):
-            self.folderincludes = localeval.eval(self.getconf('folderincludes'),
-                                                 {'re': re})
-        if self.config.has_option(self.getsection(), 'foldersort'):
-            self.foldersort = localeval.eval(self.getconf('foldersort'),
-                                             {'re': re})
 
     def startkeepalive(self):
         keepalivetime = self.getkeepalive()
@@ -259,9 +241,7 @@ class IMAPRepository(BaseRepository):
 
 
     def getfolder(self, foldername):
-        return self.getfoldertype()(self.imapserver, foldername,
-                                    self.nametrans(foldername),
-                                    self.accountname, self)
+        return self.getfoldertype()(self.imapserver, foldername, self)
 
     def getfoldertype(self):
         return folder.IMAP.IMAPFolder
@@ -280,8 +260,7 @@ class IMAPRepository(BaseRepository):
         imapobj = self.imapserver.acquireconnection()
         # check whether to list all folders, or subscribed only
         listfunction = imapobj.list
-        if self.config.has_option(self.getsection(), 'subscribedonly'):
-          if self.getconf('subscribedonly') == "yes":
+        if self.getconfboolean('subscribedonly', False):
             listfunction = imapobj.lsub
         try:
             listresult = listfunction(directory = self.imapserver.reference)[1]
@@ -298,13 +277,14 @@ class IMAPRepository(BaseRepository):
             if '\\noselect' in flaglist:
                 continue
             foldername = imaputil.dequote(name)
-            if not self.folderfilter(foldername):
-                self.ui.debug('imap',"Filtering out '%s' due to folderfilter" %\
-                                  foldername)
-                continue
             retval.append(self.getfoldertype()(self.imapserver, foldername,
-                                               self.nametrans(foldername),
-                                               self.accountname, self))
+                                               self))
+            # filter out the folder?
+            if not self.folderfilter(foldername):
+                self.ui.debug('imap', "Filtering out '%s'[%s] due to folderfilt"
+                              "er" % (foldername, self))
+                retval[-1].sync_this = False
+        # Add all folderincludes
         if len(self.folderincludes):
             imapobj = self.imapserver.acquireconnection()
             try:
@@ -320,26 +300,36 @@ class IMAPRepository(BaseRepository):
                         continue
                     retval.append(self.getfoldertype()(self.imapserver,
                                                        foldername,
-                                                       self.nametrans(foldername),
-                                                       self.accountname, self))
+                                                       self))
             finally:
                 self.imapserver.releaseconnection(imapobj)
                 
         retval.sort(lambda x, y: self.foldersort(x.getvisiblename(), y.getvisiblename()))
         self.folders = retval
-        return retval
+        return self.folders
 
     def makefolder(self, foldername):
+        """Create a folder on the IMAP server
+
+        :param foldername: Full path of the folder to be created."""
+        #TODO: IMHO this existing commented out code is correct and
+        #should be enabled, but this would change the behavior for
+        #existing configurations who have a 'reference' set on a Mapped
+        #IMAP server....:
         #if self.getreference() != '""':
         #    newname = self.getreference() + self.getsep() + foldername
         #else:
         #    newname = foldername
-        newname = foldername
         imapobj = self.imapserver.acquireconnection()
         try:
-            result = imapobj.create(newname)
+            self.ui._msg("Creating new IMAP folder '%s' on server %s" %\
+                              (foldername, self))
+            result = imapobj.create(foldername)
             if result[0] != 'OK':
-                raise RuntimeError, "Repository %s could not create folder %s: %s" % (self.getname(), foldername, str(result))
+                raise OfflineImapError("Folder '%s'[%s] could not be created. "
+                                       "Server responded: %s" % \
+                                           (foldername, self, str(result)),
+                                       OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
             

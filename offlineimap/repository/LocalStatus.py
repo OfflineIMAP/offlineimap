@@ -25,14 +25,14 @@ import re
 class LocalStatusRepository(BaseRepository):
     def __init__(self, reposname, account):
         BaseRepository.__init__(self, reposname, account)
-        self.directory = os.path.join(account.getaccountmeta(), 'LocalStatus')
-
-        #statusbackend can be 'plain' or 'sqlite'
+        # Root directory in which the LocalStatus folders reside
+        self.root = os.path.join(account.getaccountmeta(), 'LocalStatus')
+        # statusbackend can be 'plain' or 'sqlite'
         backend = self.account.getconf('status_backend', 'plain')
         if backend == 'sqlite':
             self._backend = 'sqlite'
             self.LocalStatusFolderClass = LocalStatusSQLiteFolder
-            self.directory += '-sqlite'
+            self.root += '-sqlite'
         elif backend == 'plain':
             self._backend = 'plain'
             self.LocalStatusFolderClass = LocalStatusFolder
@@ -40,8 +40,8 @@ class LocalStatusRepository(BaseRepository):
             raise SyntaxWarning("Unknown status_backend '%s' for account '%s'" \
                                 % (backend, account.name))
 
-        if not os.path.exists(self.directory):
-            os.mkdir(self.directory, 0700)
+        if not os.path.exists(self.root):
+            os.mkdir(self.root, 0700)
 
         # self._folders is a list of LocalStatusFolders()
         self._folders = None
@@ -60,7 +60,7 @@ class LocalStatusRepository(BaseRepository):
         # replace with literal 'dot' if final path name is '.' as '.' is
         # an invalid file name.
         basename = re.sub('(^|\/)\.$','\\1dot', basename)
-        return os.path.join(self.directory, basename)
+        return os.path.join(self.root, basename)
 
     def makefolder(self, foldername):
         """Create a LocalStatus Folder
@@ -82,9 +82,7 @@ class LocalStatusRepository(BaseRepository):
 
     def getfolder(self, foldername):
         """Return the Folder() object for a foldername"""
-        return self.LocalStatusFolderClass(self.directory, foldername,
-                                           self, self.accountname,
-                                           self.config)
+        return self.LocalStatusFolderClass(foldername, self)
 
     def getfolders(self):
         """Returns a list of all cached folders."""
@@ -92,7 +90,7 @@ class LocalStatusRepository(BaseRepository):
             return self._folders
 
         self._folders = []
-        for folder in os.listdir(self.directory):
+        for folder in os.listdir(self.root):
             self._folders.append(self.getfolder(folder))
         return self._folders
 

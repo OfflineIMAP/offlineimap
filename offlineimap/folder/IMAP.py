@@ -32,19 +32,15 @@ except NameError:
 
 
 class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name, visiblename, accountname, repository):
-        self.config = imapserver.config
+    def __init__(self, imapserver, name, repository):
+        name = imaputil.dequote(name)
+        super(IMAPFolder, self).__init__(name, repository)
         self.expunge = repository.getexpunge()
-        self.name = imaputil.dequote(name)
         self.root = None # imapserver.root
         self.sep = imapserver.delim
         self.imapserver = imapserver
         self.messagelist = None
-        self.visiblename = visiblename
-        self.accountname = accountname
-        self.repository = repository
         self.randomgenerator = random.Random()
-        BaseFolder.__init__(self)
         #self.ui is set in BaseFolder
 
     def selectro(self, imapobj):
@@ -61,9 +57,6 @@ class IMAPFolder(BaseFolder):
         except imapobj.readonly:
             imapobj.select(self.getfullname(), readonly = 1)
 
-    def getaccountname(self):
-        return self.accountname
-
     def suggeststhreads(self):
         return 1
 
@@ -72,9 +65,6 @@ class IMAPFolder(BaseFolder):
 
     def getcopyinstancelimit(self):
         return 'MSGCOPY_' + self.repository.getname()
-
-    def getvisiblename(self):
-        return self.visiblename
 
     def getuidvalidity(self):
         imapobj = self.imapserver.acquireconnection()
@@ -89,26 +79,34 @@ class IMAPFolder(BaseFolder):
         # An IMAP folder has definitely changed if the number of
         # messages or the UID of the last message have changed.  Otherwise
         # only flag changes could have occurred.
-        imapobj = self.imapserver.acquireconnection()
-        try:
-            # Primes untagged_responses
-            imaptype, imapdata = imapobj.select(self.getfullname(), readonly = 1, force = 1)
-            # 1. Some mail servers do not return an EXISTS response
-            # if the folder is empty.  2. ZIMBRA servers can return
-            # multiple EXISTS replies in the form 500, 1000, 1500,
-            # 1623 so check for potentially multiple replies.
-            if imapdata == [None]:
-                return True
-            maxmsgid = 0
-            for msgid in imapdata:
-                maxmsgid = max(long(msgid), maxmsgid)
-
-            # Different number of messages than last time?
-            if maxmsgid != statusfolder.getmessagecount():
-                return True
-
-        finally:
-            self.imapserver.releaseconnection(imapobj)
+        retry = True # Should we attempt another round or exit?
+        while retry:
+            retry = False
+            imapobj = self.imapserver.acquireconnection()
+            try:
+                # Select folder and get number of messages
+                restype, imapdata = imapobj.select(self.getfullname(), True,
+                                                   True)
+            except OfflineImapError, e:
+                # retry on dropped connections, raise otherwise
+                self.imapserver.releaseconnection(imapobj, True)
+                if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
+                    retry = True
+                else: raise
+            finally:
+                self.imapserver.releaseconnection(imapobj)
+        # 1. Some mail servers do not return an EXISTS response
+        # if the folder is empty.  2. ZIMBRA servers can return
+        # multiple EXISTS replies in the form 500, 1000, 1500,
+        # 1623 so check for potentially multiple replies.
+        if imapdata == [None]:
+            return True
+        maxmsgid = 0
+        for msgid in imapdata:
+            maxmsgid = max(long(msgid), maxmsgid)
+        # Different number of messages than last time?
+        if maxmsgid != statusfolder.getmessagecount():
+            return True      
         return False
 
     def cachemessagelist(self):
@@ -120,7 +118,7 @@ class IMAPFolder(BaseFolder):
 
         imapobj = self.imapserver.acquireconnection()
         try:
-            res_type, imapdata = imapobj.select(self.getfullname(), True)
+            res_type, imapdata = imapobj.select(self.getfullname(), True, True)
             if imapdata == [None] or imapdata[0] == '0':
                 # Empty folder, no need to populate message list
                 return
@@ -211,9 +209,9 @@ class IMAPFolder(BaseFolder):
                     res_type, data = imapobj.uid('fetch', str(uid),
                                                  '(BODY.PEEK[])')
                     fails_left = 0
-                except imapobj.abort(), e:
+                except imapobj.abort, e:
                     # Release dropped connection, and get a new one
-                    self.imapserver.releaseconnection(imapobj)
+                    self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
                     self.ui.error(e, exc_info()[2])
                     fails_left -= 1
@@ -495,11 +493,10 @@ class IMAPFolder(BaseFolder):
             self.savemessageflags(uid, flags)
             return uid
 
+        retry_left = 2 # succeeded in APPENDING?
         imapobj = self.imapserver.acquireconnection()
         try:
-            success = False # succeeded in APPENDING?
-            while not success:
-
+            while retry_left:
                 # UIDPLUS extension provides us with an APPENDUID response.
                 use_uidplus = 'UIDPLUS' in imapobj.capabilities
 
@@ -536,21 +533,27 @@ class IMAPFolder(BaseFolder):
                     (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
-                    success = True
+                    retry_left = 0 # Mark as success
                 except imapobj.abort, e:
                     # connection has been reset, release connection and retry.
-                    self.ui.error(e, exc_info()[2])
+                    retry_left -= 1
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
-                except imapobj.error, e:
-                    # If the server responds with 'BAD', append() raise()s directly.
-                    # So we need to prepare a response ourselves.
-                    typ, dat = 'BAD', str(e)
-                    if typ != 'OK': #APPEND failed
-                        raise OfflineImapError("Saving msg in folder '%s', repository "
-                                               "'%s' failed. Server reponded; %s %s\nMessage content was:"
-                                               " %s" % (self, self.getrepository(), typ, dat, dbg_output),
+                    if not retry_left:
+                        raise OfflineImapError("Saving msg in folder '%s', "
+                              "repository '%s' failed. Server reponded: %s\n"
+                              "Message content was: %s" %
+                              (self, self.getrepository(), str(e), dbg_output),
                                                OfflineImapError.ERROR.MESSAGE)
+                    self.ui.error(e, exc_info()[2])
+
+                except imapobj.error, e: # APPEND failed
+                    # If the server responds with 'BAD', append()
+                    # raise()s directly.  So we catch that too.
+                    raise OfflineImapError("Saving msg folder '%s', repo '%s'"
+                        "failed. Server reponded: %s\nMessage content was: "
+                        "%s" % (self, self.getrepository(), str(e), dbg_output),
+                                           OfflineImapError.ERROR.MESSAGE)
             # Checkpoint. Let it write out stuff, etc. Eg searches for
             # just uploaded messages won't work if we don't do this.
             (typ,dat) = imapobj.check()

@@ -19,6 +19,7 @@
 from Base import BaseRepository
 from offlineimap import folder
 from offlineimap.ui import getglobalui
+from offlineimap.error import OfflineImapError
 import os
 from stat import *
 
@@ -39,21 +40,25 @@ class MaildirRepository(BaseRepository):
             os.mkdir(self.root, 0700)
 
     def _append_folder_atimes(self, foldername):
+        """Store the atimes of a folder's new|cur in self.folder_atimes"""
         p = os.path.join(self.root, foldername)
         new = os.path.join(p, 'new')
         cur = os.path.join(p, 'cur')
-        f = p, os.stat(new)[ST_ATIME], os.stat(cur)[ST_ATIME]
-        self.folder_atimes.append(f)
+        atimes = (p, os.path.getatime(new), os.path.getatime(cur))
+        self.folder_atimes.append(atimes)
 
-    def restore_folder_atimes(self):
-        if not self.folder_atimes:
-            return
+    def restore_atime(self):
+        """Sets folders' atime back to their values after a sync
 
-        for f in self.folder_atimes:
-            t = f[1], os.stat(os.path.join(f[0], 'new'))[ST_MTIME]
-            os.utime(os.path.join(f[0], 'new'), t)
-            t = f[2], os.stat(os.path.join(f[0], 'cur'))[ST_MTIME]
-            os.utime(os.path.join(f[0], 'cur'), t)
+        Controlled by the 'restoreatime' config parameter."""
+        if not self.getconfboolean('restoreatime', False):
+            return # not configured to restore
+
+        for (dirpath, new_atime, cur_atime) in self.folder_atimes:
+            new_dir = os.path.join(dirpath, 'new')
+            cur_dir = os.path.join(dirpath, 'cur')
+            os.utime(new_dir, (new_atime, os.path.getmtime(new_dir)))
+            os.utime(cur_dir, (cur_atime, os.path.getmtime(cur_dir)))
 
     def getlocalroot(self):
         return os.path.expanduser(self.getconf('localfolders'))
@@ -110,12 +115,20 @@ class MaildirRepository(BaseRepository):
         self.ui.warn("NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername)
 
     def getfolder(self, foldername):
-        if self.config.has_option('Repository ' + self.name, 'restoreatime') and self.config.getboolean('Repository ' + self.name, 'restoreatime'):
-            self._append_folder_atimes(foldername)
-        return folder.Maildir.MaildirFolder(self.root, foldername,
-                                            self.getsep(), self, 
-                                            self.accountname, self.config)
-    
+        """Return a Folder instance of this Maildir
+
+        If necessary, scan and cache all foldernames to make sure that
+        we only return existing folders and that 2 calls with the same
+        name will return the same object."""
+        # getfolders() will scan and cache the values *if* necessary
+        folders = self.getfolders()
+        for folder in folders:
+            if foldername == folder.name:
+                return folder
+        raise OfflineImapError("getfolder() asked for a nonexisting "
+                               "folder '%s'." % foldername,
+                               OfflineImapError.ERROR.FOLDER)
+
     def _getfolders_scandir(self, root, extension = None):
         """Recursively scan folder 'root'; return a list of MailDirFolder
 
@@ -133,7 +146,7 @@ class MaildirRepository(BaseRepository):
         self.debug("  toppath = %s" % toppath)
 
         # Iterate over directories in top & top itself.
-        for dirname in os.listdir(toppath) + ['.']:
+        for dirname in os.listdir(toppath) + ['']:
             self.debug("  *** top of loop")
             self.debug("  dirname = %s" % dirname)
             if dirname in ['cur', 'new', 'tmp']:
@@ -154,19 +167,19 @@ class MaildirRepository(BaseRepository):
                 os.path.isdir(os.path.join(fullname, 'tmp'))):
                 # This directory has maildir stuff -- process
                 self.debug("  This is maildir folder '%s'." % foldername)
-
-                if self.config.has_option('Repository %s' % self,
-                                          'restoreatime') and \
-                    self.config.getboolean('Repository %s' % self,
-                                           'restoreatime'):
+                if self.getconfboolean('restoreatime', False):
                     self._append_folder_atimes(foldername)
                 retval.append(folder.Maildir.MaildirFolder(self.root,
                                                            foldername,
                                                            self.getsep(),
-                                                           self,
-                                                           self.accountname,
-                                                           self.config))
-            if self.getsep() == '/' and dirname != '.':
+                                                           self))
+                # filter out the folder?
+                if not self.folderfilter(foldername):
+                    self.debug("Filtering out '%s'[%s] due to folderfilt"
+                               "er" % (foldername, self))
+                    retval[-1].sync_this = False
+
+            if self.getsep() == '/' and dirname != '':
                 # Recursively check sub-directories for folders too.
                 retval.extend(self._getfolders_scandir(root, foldername))
         self.debug("_GETFOLDERS_SCANDIR RETURNING %s" % \

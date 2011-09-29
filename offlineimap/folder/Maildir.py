@@ -58,33 +58,22 @@ def gettimeseq():
         timelock.release()
 
 class MaildirFolder(BaseFolder):
-    def __init__(self, root, name, sep, repository, accountname, config):
-        self.name = name
-        self.config = config
-        self.dofsync = config.getdefaultboolean("general", "fsync", True)
+    def __init__(self, root, name, sep, repository):
+        super(MaildirFolder, self).__init__(name, repository)
+        self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.root = root
         self.sep = sep
         self.messagelist = None
-        self.repository = repository
-        self.accountname = accountname
 
         self.wincompatible = self.config.getdefaultboolean(
             "Account "+self.accountname, "maildir-windows-compatible", False)
 
-        if self.wincompatible == False:
-            self.infosep = ':'
-        else:
-            self.infosep = '!'
-
+        self.infosep = '!' if self.wincompatible else ':'
+        """infosep is the separator between maildir name and flag appendix"""
         self.flagmatchre = re.compile(self.infosep + '.*2,([A-Z]+)')
-
-        BaseFolder.__init__(self)
         #self.ui is set in BaseFolder.init()
         # Cache the full folder path, as we use getfullname() very often
         self._fullname = os.path.join(self.getroot(), self.getname())
-
-    def getaccountname(self):
-        return self.accountname
 
     def getfullname(self):
         """Return the absolute file path to the Maildir folder (sans cur|new)"""
@@ -176,10 +165,8 @@ class MaildirFolder(BaseFolder):
                 flags = set(flagmatch.group(1))
             else:
                 flags = set()
-            # 'filename' is 'dirannex/filename', e.g. cur/123_U=1_FMD5=1:2,S
-            retval[uid] = {'uid': uid,
-                           'flags': flags,
-                           'filename': file}
+            # 'filename' is 'dirannex/filename', e.g. cur/123,U=1,FMD5=1:2,S
+            retval[uid] = {'flags': flags, 'filename': file}
         return retval
 
     def quickchanged(self, statusfolder):
@@ -213,11 +200,10 @@ class MaildirFolder(BaseFolder):
         #      read it as text?
         return retval.replace("\r\n", "\n")
 
-    def getmessagetime( self, uid ):
+    def getmessagetime(self, uid):
         filename = self.messagelist[uid]['filename']
         filepath = os.path.join(self.getfullname(), filename)
-        st = os.stat(filepath)
-        return st.st_mtime
+        return os.path.getmtime(filepath)
 
     def savemessage(self, uid, content, flags, rtime):
         # This function only ever saves to tmp/,
@@ -246,7 +232,7 @@ class MaildirFolder(BaseFolder):
         # open file and write it out
         try:
             fd = os.open(os.path.join(tmpdir, messagename),
-                           os.O_EXCL|os.O_CREAT|os.O_WRONLY)
+                           os.O_EXCL|os.O_CREAT|os.O_WRONLY, 0666)
         except OSError, e:
             if e.errno == 17: 
                 #FILE EXISTS ALREADY
@@ -267,7 +253,7 @@ class MaildirFolder(BaseFolder):
         if rtime != None:
             os.utime(os.path.join(tmpdir, messagename), (rtime, rtime))
 
-        self.messagelist[uid] = {'uid': uid, 'flags': set(),
+        self.messagelist[uid] = {'flags': set(),
                                  'filename': os.path.join('tmp', messagename)}
         # savemessageflags moves msg to 'cur' or 'new' as appropriate
         self.savemessageflags(uid, flags)

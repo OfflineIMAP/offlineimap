@@ -25,6 +25,11 @@ import os
 from sys import exc_info
 import traceback
 
+try:
+    import fcntl
+except:
+    pass # ok if this fails, we can do without
+
 def getaccountlist(customconfig):
     return customconfig.getsectionlist('Account')
 
@@ -159,6 +164,36 @@ class SyncableAccount(Account):
     functions :meth:`syncrunner`, :meth:`sync`, :meth:`syncfolders`,
     used for syncing."""
 
+    def __init__(self, *args, **kwargs):
+        Account.__init__(self, *args, **kwargs)
+        self._lockfd = None
+        self._lockfilepath = os.path.join(self.config.getmetadatadir(),
+                                          "%s.lock" % self)
+
+    def lock(self):
+        """Lock the account, throwing an exception if it is locked already"""
+        # Take a new-style per-account lock
+        self._lockfd = open(self._lockfilepath, 'w')
+        try:
+            fcntl.lockf(self._lockfd, fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except NameError:
+            #fcntl not available (Windows), disable file locking... :(
+            pass
+        except IOError:
+            self._lockfd.close()
+            raise OfflineImapError("Could not lock account %s." % self,
+                                   OfflineImapError.ERROR.REPO)
+
+    def unlock(self):
+        """Unlock the account, deleting the lock file"""
+        #If we own the lock file, delete it
+        if self._lockfd and not self._lockfd.closed:
+            self._lockfd.close()
+            try:
+                os.unlink(self._lockfilepath)
+            except OSError:
+                pass #Failed to delete for some reason.
+
     def syncrunner(self):
         self.ui.registerthread(self.name)
         self.ui.acct(self.name)
@@ -175,6 +210,7 @@ class SyncableAccount(Account):
         while looping:
             try:
                 try:
+                    self.lock()
                     self.sync()
                 except (KeyboardInterrupt, SystemExit):
                     raise
@@ -194,6 +230,7 @@ class SyncableAccount(Account):
                     if self.refreshperiod:
                         looping = 3
             finally:
+                self.unlock()
                 if looping and self.sleeper() >= 2:
                     looping = 0                    
                 self.ui.acctdone(self.name)
@@ -231,12 +268,16 @@ class SyncableAccount(Account):
             localrepos = self.localrepos
             statusrepos = self.statusrepos
             # replicate the folderstructure from REMOTE to LOCAL
-            if not localrepos.getconf('readonly', False):
+            if not localrepos.getconfboolean('readonly', False):
                 self.ui.syncfolders(remoterepos, localrepos)
                 remoterepos.syncfoldersto(localrepos, statusrepos)
 
             # iterate through all folders on the remote repo and sync
             for remotefolder in remoterepos.getfolders():
+                if not remotefolder.sync_this:
+                    self.ui.debug('', "Not syncing filtered remote folder '%s'"
+                                  "[%s]" % (remotefolder, remoterepos))
+                    continue # Filtered out remote folder
                 thread = InstanceLimitedThread(\
                     instancename = 'FOLDER_' + self.remoterepos.getname(),
                     target = syncfolder,
@@ -286,7 +327,9 @@ class SyncableAccount(Account):
 def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                statusrepos, quick):
     """This function is called as target for the
-    InstanceLimitedThread invokation in SyncableAccount."""
+    InstanceLimitedThread invokation in SyncableAccount.
+
+    Filtered folders on the remote side will not invoke this function."""
     ui = getglobalui()
     ui.registerthread(accountname)
     try:
@@ -294,6 +337,14 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         localfolder = localrepos.\
                       getfolder(remotefolder.getvisiblename().\
                                 replace(remoterepos.getsep(), localrepos.getsep()))
+
+        #Filtered folders on the remote side will not invoke this
+        #function, but we need to NOOP if the local folder is filtered
+        #out too:
+        if not localfolder.sync_this:
+            ui.debug('', "Not syncing filtered local folder '%s'" \
+                         % localfolder)
+            return
         # Write the mailboxes
         mbnames.add(accountname, localfolder.getvisiblename())
 
@@ -345,7 +396,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                              remotefolder.getmessagecount())
 
         # Synchronize remote changes.
-        if not localrepos.getconf('readonly', False):
+        if not localrepos.getconfboolean('readonly', False):
             ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
             remotefolder.syncmessagesto(localfolder, statusfolder)
         else:
@@ -353,7 +404,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                          % localrepos.getname())
         
         # Synchronize local changes
-        if not remoterepos.getconf('readonly', False):
+        if not remoterepos.getconfboolean('readonly', False):
             ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
             localfolder.syncmessagesto(remotefolder, statusfolder)
         else:
@@ -369,8 +420,15 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         if e.severity > OfflineImapError.ERROR.FOLDER:
             raise
         else:
-            ui.error(e, exc_info()[2], msg = "Aborting folder sync '%s' "
-                     "[acc: '%s']" % (localfolder, accountname))
+            #if the initial localfolder assignement bailed out, the localfolder var will not be available, so we need
+            ui.error(e, exc_info()[2], msg = "Aborting sync, folder '%s' "
+                     "[acc: '%s']" % (
+                    remotefolder.getvisiblename().\
+                        replace(remoterepos.getsep(), localrepos.getsep()),
+                    accountname))
+                    # we reconstruct foldername above rather than using
+                    # localfolder, as the localfolder var is not
+                    # available if assignment fails.
     except Exception, e:
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
                 (accountname,remotefolder.getvisiblename(),

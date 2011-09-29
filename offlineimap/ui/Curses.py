@@ -66,7 +66,7 @@ class CursesUtil:
         """Perform an operation with full locking."""
         self.lock()
         try:
-            apply(target, args, kwargs)
+            target(*args, **kwargs)
         finally:
             self.unlock()
 
