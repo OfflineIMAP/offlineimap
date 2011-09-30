@@ -440,11 +440,20 @@ will result in undefined behavior. See also *Sharing a maildir with multiple IMA
 Where to put nametrans rules, on the remote and/or local repository?
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-If you never intend to create new folders on the LOCAL repository that need to be synced to the REMOTE repository, it is sufficient to create a nametrans rule on the remote Repository section. This will be used to determine the names of new folder names on the LOCAL repository, and to match existing folders that correspond.
+If you never intend to create new folders on the LOCAL repository that
+need to be synced to the REMOTE repository, it is sufficient to create a
+nametrans rule on the remote Repository section. This will be used to
+determine the names of new folder names on the LOCAL repository, and to
+match existing folders that correspond.
 
-*IF* you create folders on the local repository, that are supposed to be automatically created on the remote repository, you will need to create a nametrans rule that provides the reverse name translation.
+*IF* you create folders on the local repository, that are supposed to be
+ automatically created on the remote repository, you will need to create
+ a nametrans rule that provides the reverse name translation.
 
-(A nametrans rule provides only a one-way translation of names and in order to know which names folders on the LOCAL side would have on the REMOTE side, you need to specify the reverse nametrans rule on the local repository)
+(A nametrans rule provides only a one-way translation of names and in
+order to know which names folders on the LOCAL side would have on the
+REMOTE side, you need to specify the reverse nametrans rule on the local
+repository)
 
 OfflineImap will complain if it needs to create a new folder on the
 remote side and a back-and-forth nametrans-lation does not yield the
@@ -454,16 +463,28 @@ creation cycles).
 What folder separators do I need to use in nametrans rules?
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-**Q:** If I sync from an IMAP server with folder separator '/' to a Maildir using the default folder separator '.' which do I need to use in nametrans rules?::
+**Q:** If I sync from an IMAP server with folder separator '/' to a
+  Maildir using the default folder separator '.' which do I need to use
+  in nametrans rules?::
+
   nametrans = lambda f: "INBOX/" + f
 or::
   nametrans = lambda f: "INBOX." + f
 
-**A:** Generally use the folder separator as defined in the repository you write the nametrans rule for. That is, use '/' in the above case. We will pass in the untranslated name of the IMAP folder as parameter (here `f`). The translated name will ultimately have all folder separators be replaced with the destination repositories' folder separator.
+**A:** Generally use the folder separator as defined in the repository
+  you write the nametrans rule for. That is, use '/' in the above
+  case. We will pass in the untranslated name of the IMAP folder as
+  parameter (here `f`). The translated name will ultimately have all
+  folder separators be replaced with the destination repositories'
+  folder separator.
 
-So if ̀f` was "Sent", the first nametrans yields the translated name "INBOX/Sent" to be used on the other side. As that repository uses the folder separator '.' rather than '/', the ultimate name to be used will be "INBOX.Sent".
+So if ̀f` was "Sent", the first nametrans yields the translated name
+"INBOX/Sent" to be used on the other side. As that repository uses the
+folder separator '.' rather than '/', the ultimate name to be used will
+be "INBOX.Sent".
 
-(As a final note, the smart will see that both variants of the above nametrans rule would have worked identically in this case)
+(As a final note, the smart will see that both variants of the above
+nametrans rule would have worked identically in this case)
 
 KNOWN BUGS
 ==========
