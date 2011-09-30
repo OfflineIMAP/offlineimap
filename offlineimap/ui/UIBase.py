@@ -232,7 +232,7 @@ class UIBase:
         if s.verbose < 0: return
         displaystr = ''
         hostname = hostname if hostname else ''
-        port = "%d" % port if port else ''
+        port = "%s" % port if port else ''
         if hostname:
             displaystr = ' to %s:%s' % (hostname, port)
         s._msg("Establishing connection%s" % displaystr)
