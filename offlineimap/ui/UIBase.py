@@ -250,10 +250,11 @@ class UIBase:
         self._msg("*** Finished account '%s' in %d:%02d" %
                (account, sec // 60, sec % 60))
 
-    def syncfolders(s, srcrepos, destrepos):
-        if s.verbose >= 0:
-            s._msg("Copying folder structure from %s to %s" % \
-                   (s.getnicename(srcrepos), s.getnicename(destrepos)))
+    def syncfolders(self, src_repo, dst_repo):
+        """Log 'Copying folder structure...'"""
+        if self.verbose < 0: return
+        self.debug('', "Copying folder structure from %s to %s" % \
+                       (src_repo, dst_repo))
 
     ############################## Folder syncing
     def syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder):
