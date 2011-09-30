@@ -15,7 +15,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-
 from UIBase import UIBase
 from getpass import getpass
 import sys
@@ -37,10 +36,7 @@ class TTYUI(UIBase):
             #if the next output comes from a different thread than our last one
             #add the info.
             #Most look like 'account sync foo' or 'Folder sync foo'.
-            try:
-                threadname = currentThread().name
-            except AttributeError:
-                threadname = currentThread().getName()
+            threadname = currentThread().getName()
             if (threadname == s._lastThreaddisplay \
                     or threadname == 'MainThread'):
                 print " %s" % msg

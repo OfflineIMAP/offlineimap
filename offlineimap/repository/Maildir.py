@@ -72,6 +72,10 @@ class MaildirRepository(BaseRepository):
     def makefolder(self, foldername):
         """Create new Maildir folder if necessary
 
+        This will not update the list cached in getfolders(). You will
+        need to invoke :meth:`forgetfolders` to force new caching when
+        you are done creating folders yourself.
+
         :param foldername: A relative mailbox name. The maildir will be
             created in self.root+'/'+foldername. All intermediate folder
             levels will be created if they do not exist yet. 'cur',
@@ -108,8 +112,6 @@ class MaildirRepository(BaseRepository):
                                (foldername, subdir))
                 else:
                     raise
-        # Invalidate the folder cache
-        self.folders = None
 
     def deletefolder(self, foldername):
         self.ui.warn("NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername)

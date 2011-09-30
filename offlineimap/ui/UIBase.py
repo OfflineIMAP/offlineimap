@@ -1,6 +1,5 @@
 # UI base class
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -47,6 +46,9 @@ class UIBase:
         s.debugmessages = {}
         s.debugmsglen = 50
         s.threadaccounts = {}
+        """dict linking active threads (k) to account names (v)"""
+        s.acct_startimes = {}
+        """linking active accounts with the time.time() when sync started"""
         s.logfile = None
         s.exc_queue = Queue()
         """saves all occuring exceptions, so we can output them at the end"""
@@ -117,29 +119,32 @@ class UIBase:
         if exc_traceback:
             self._msg(traceback.format_tb(exc_traceback))
 
-    def registerthread(s, account):
-        """Provides a hint to UIs about which account this particular
-        thread is processing."""
-        if s.threadaccounts.has_key(threading.currentThread()):
-            raise ValueError, "Thread %s already registered (old %s, new %s)" %\
-                  (threading.currentThread().getName(),
-                   s.getthreadaccount(s), account)
-        s.threadaccounts[threading.currentThread()] = account
-        s.debug('thread', "Register new thread '%s' (account '%s')" %\
-                    (threading.currentThread().getName(), account))
+    def registerthread(self, account):
+        """Register current thread as being associated with an account name"""
+        cur_thread = threading.currentThread()
+        if cur_thread in self.threadaccounts:
+            # was already associated with an old account, update info
+            self.debug('thread', "Register thread '%s' (previously '%s', now "
+                    "'%s')" % (cur_thread.getName(),
+                               self.getthreadaccount(cur_thread), account))
+        else:
+            self.debug('thread', "Register new thread '%s' (account '%s')" %\
+                        (cur_thread.getName(), account))
+        self.threadaccounts[cur_thread] = account
 
-    def unregisterthread(s, thr):
-        """Recognizes a thread has exited."""
-        if s.threadaccounts.has_key(thr):
-            del s.threadaccounts[thr]
-        s.debug('thread', "Unregister thread '%s'" % thr.getName())
+    def unregisterthread(self, thr):
+        """Unregister a thread as being associated with an account name"""
+        if self.threadaccounts.has_key(thr):
+            del self.threadaccounts[thr]
+        self.debug('thread', "Unregister thread '%s'" % thr.getName())
 
-    def getthreadaccount(s, thr = None):
+    def getthreadaccount(self, thr = None):
+        """Get name of account for a thread (current if None)"""
         if not thr:
             thr = threading.currentThread()
-        if s.threadaccounts.has_key(thr):
-            return s.threadaccounts[thr]
-        return '*Control'
+        if thr in self.threadaccounts:
+            return self.threadaccounts[thr]
+        return '*Control' # unregistered thread is '*Control'
 
     def debug(s, debugtype, msg):
         thisthread = threading.currentThread()
@@ -223,29 +228,33 @@ class UIBase:
             s._msg(offlineimap.banner)
 
     def connecting(s, hostname, port):
-        if s.verbose < 0:
-            return
-        if hostname == None:
-            hostname = ''
-        if port != None:
-            port = ":%s" % str(port)
-        displaystr = ' to %s%s.' % (hostname, port)
-        if hostname == '' and port == None:
-            displaystr = '.'
-        s._msg("Establishing connection" + displaystr)
+        """Log 'Establishing connection to'"""
+        if s.verbose < 0: return
+        displaystr = ''
+        hostname = hostname if hostname else ''
+        port = "%d" % port if port else ''
+        if hostname:
+            displaystr = ' to %s:%s' % (hostname, port)
+        s._msg("Establishing connection%s" % displaystr)
 
-    def acct(s, accountname):
-        if s.verbose >= 0:
-            s._msg("***** Processing account %s" % accountname)
+    def acct(self, account):
+        """Output that we start syncing an account (and start counting)"""
+        self.acct_startimes[account] = time.time()
+        if self.verbose >= 0:
+            self._msg("*** Processing account %s" % account)
 
-    def acctdone(s, accountname):
-        if s.verbose >= 0:
-            s._msg("***** Finished processing account " + accountname)
+    def acctdone(self, account):
+        """Output that we finished syncing an account (in which time)"""
+        sec = time.time() - self.acct_startimes[account]
+        del self.acct_startimes[account]
+        self._msg("*** Finished account '%s' in %d:%02d" %
+               (account, sec // 60, sec % 60))
 
-    def syncfolders(s, srcrepos, destrepos):
-        if s.verbose >= 0:
-            s._msg("Copying folder structure from %s to %s" % \
-                   (s.getnicename(srcrepos), s.getnicename(destrepos)))
+    def syncfolders(self, src_repo, dst_repo):
+        """Log 'Copying folder structure...'"""
+        if self.verbose < 0: return
+        self.debug('', "Copying folder structure from %s to %s" % \
+                       (src_repo, dst_repo))
 
     ############################## Folder syncing
     def syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder):
@@ -284,12 +293,11 @@ class UIBase:
                                                           s.getnicename(dr),
                                                           df.getname()))
 
-    def copyingmessage(self, uid, src, destfolder):
+    def copyingmessage(self, uid, num, num_to_copy, src, destfolder):
         """Output a log line stating which message we copy"""
-        if self.verbose >= 0:
-            self._msg("Copy message %d %s[%s] -> %s[%s]" % \
-                       (uid, self.getnicename(src), src, 
-                        self.getnicename(destfolder), destfolder))
+        if self.verbose < 0: return
+        self._msg("Copy message %s (%d of %d) %s:%s -> %s" % (uid, num,
+                  num_to_copy, src.repository, src, destfolder.repository))
 
     def deletingmessage(s, uid, destlist):
         if s.verbose >= 0:
@@ -400,14 +408,14 @@ class UIBase:
         """Sleep for sleepsecs, display remainingsecs to go.
 
         Does nothing if sleepsecs <= 0.
-        Display a message on the screen every 10 seconds.
+        Display a message on the screen if we pass a full minute.
 
         This implementation in UIBase does not support this, but some
         implementations return 0 for successful sleep and 1 for an
         'abort', ie a request to sync immediately.
         """
         if sleepsecs > 0:
-            if remainingsecs % 10 == 0:
-                s._msg("Next refresh in %d seconds" % remainingsecs)
+            if remainingsecs//60 != (remainingsecs-sleepsecs)//60:
+                s._msg("Next refresh in %.1f minutes" % (remainingsecs/60.0))
             time.sleep(sleepsecs)
         return 0

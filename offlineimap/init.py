@@ -1,6 +1,5 @@
 # OfflineIMAP initialization code
-# Copyright (C) 2002-2007 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -157,11 +156,14 @@ class OfflineImap:
             if not options.singlethreading:
                 logging.warn("Profile mode: Forcing to singlethreaded.")
                 options.singlethreading = True
-            profiledir = options.profiledir
-            os.mkdir(profiledir)
-            threadutil.setprofiledir(profiledir)
+            if os.path.exists(options.profiledir):
+                logging.warn("Profile mode: Directory '%s' already exists!" % 
+                             options.profiledir)
+            else:
+                os.mkdir(options.profiledir)
+            threadutil.ExitNotifyThread.set_profiledir(options.profiledir)
             logging.warn("Profile mode: Potentially large data will be "
-                         "created in '%s'" % profiledir)
+                         "created in '%s'" % options.profiledir)
 
         #override a config value
         if options.configoverride:

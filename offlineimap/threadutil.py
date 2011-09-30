@@ -1,6 +1,5 @@
-# Copyright (C) 2002, 2003 John Goerzen
+# Copyright (C) 2002-2011 John Goerzen & contributors
 # Thread support module
-# <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,14 +19,9 @@ from threading import Lock, Thread, BoundedSemaphore
 from Queue import Queue, Empty
 import traceback
 from thread import get_ident	# python < 2.6 support
+import os.path
 import sys
 from offlineimap.ui import getglobalui
-
-profiledir = None
-
-def setprofiledir(newdir):
-    global profiledir
-    profiledir = newdir
 
 ######################################################################
 # General utilities
@@ -132,11 +126,14 @@ def threadexited(thread):
 class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a thread has
     exited and to provide for the ability for it to find out why."""
+    profiledir = None
+    """class variable that is set to the profile directory if required"""
+
     def run(self):
-        global exitthreads, profiledir
+        global exitthreads
         self.threadid = get_ident()
         try:
-            if not profiledir:          # normal case
+            if not ExitNotifyThread.profiledir: # normal case
                 Thread.run(self)
             else:
                 try:
@@ -148,9 +145,8 @@ class ExitNotifyThread(Thread):
                     prof = prof.runctx("Thread.run(self)", globals(), locals())
                 except SystemExit:
                     pass
-                prof.dump_stats( \
-                            profiledir + "/" + str(self.threadid) + "_" + \
-                            self.getName() + ".prof")
+                prof.dump_stats(os.path.join(ExitNotifyThread.profiledir,
+                                "%s_%s.prof" % (self.threadid, self.getName())))
         except:
             self.setExitCause('EXCEPTION')
             if sys:
@@ -194,7 +190,12 @@ class ExitNotifyThread(Thread):
         a call to setExitMessage(), or None if there was no such message
         set."""
         return self.exitmessage
-            
+
+    @classmethod
+    def set_profiledir(cls, directory):
+        """If set, will output profile information to 'directory'"""
+        cls.profiledir = directory
+
 
 ######################################################################
 # Instance-limited threads
