@@ -26,3 +26,6 @@ Bug Fixes
 * Syncing multiple accounts in single-threaded mode would fail as we try
   to "register" a thread as belonging to two accounts which was
   fatal. Make it non-fatal (it can be legitimate).
+
+* New folders on the remote would be skipped on the very sync run they
+  are created and only by synced in subsequent runs. Fixed.

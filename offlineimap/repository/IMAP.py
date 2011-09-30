@@ -311,6 +311,10 @@ class IMAPRepository(BaseRepository):
     def makefolder(self, foldername):
         """Create a folder on the IMAP server
 
+        This will not update the list cached in :meth:`getfolders`. You
+        will need to invoke :meth:`forgetfolders` to force new caching
+        when you are done creating folders yourself.
+
         :param foldername: Full path of the folder to be created."""
         #TODO: IMHO this existing commented out code is correct and
         #should be enabled, but this would change the behavior for

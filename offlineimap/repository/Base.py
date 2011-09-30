@@ -144,7 +144,8 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         src_repo = self
         src_folders = src_repo.getfolders()
         dst_folders = dst_repo.getfolders()
-
+        # Do we need to refresh the folder list afterwards?
+        src_haschanged, dst_haschanged = False, False
         # Create hashes with the names, but convert the source folders
         # to the dest folder's sep.
         src_hash = {}
@@ -160,6 +161,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
             if src_folder.sync_this and not src_name in dst_hash:
                 try:
                     dst_repo.makefolder(src_name)
+                    dst_haschanged = True # Need to refresh list
                 except OfflineImapError, e:
                     self.ui.error(e, exc_info()[2],
                                   "Creating folder %s on repository %s" %\
@@ -203,6 +205,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
 
                 try:
                     src_repo.makefolder(newsrc_name)
+                    src_haschanged = True # Need to refresh list
                 except OfflineImapError, e:
                     self.ui.error(e, exc_info()[2],
                                   "Creating folder %s on repository %s" %\
@@ -211,7 +214,13 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                 status_repo.makefolder(newsrc_name.replace(
                                 src_repo.getsep(), status_repo.getsep()))
         # Find deleted folders.
-        # We don't delete folders right now.
+        # TODO: We don't delete folders right now.
+
+        #Forget old list of cached folders so we get new ones if needed
+        if src_haschanged:
+            self.forgetfolders()
+        if dst_haschanged:
+            dst_repo.forgetfolders()
 
     def startkeepalive(self):
         """The default implementation will do nothing."""
