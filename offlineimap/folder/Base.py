@@ -37,13 +37,14 @@ class BaseFolder(object):
         self.sync_this = True
         """Should this folder be included in syncing?"""
         self.ui = getglobalui()
-        self.name = name
+        # Top level dir name is always ''
+        self.name = name if not name == self.getsep() else ''
         self.repository = repository
         self.visiblename = repository.nametrans(name)
-        # In case the visiblename becomes '.' (top-level) we use '' as
-        # that is the name that e.g. the Maildir scanning will return
-        # for the top-level dir.
-        if self.visiblename == '.':
+        # In case the visiblename becomes '.' or '/' (top-level) we use
+        # '' as that is the name that e.g. the Maildir scanning will
+        # return for the top-level dir.
+        if self.visiblename == self.getsep():
             self.visiblename = ''
         self.config = repository.getconfig()
 

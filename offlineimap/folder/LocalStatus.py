@@ -27,8 +27,8 @@ magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
 
 class LocalStatusFolder(BaseFolder):
     def __init__(self, name, repository):
+        self.sep = '.' #needs to be set before super.__init__()
         super(LocalStatusFolder, self).__init__(name, repository)
-        self.sep = '.'
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
         self.messagelist = {}
         self.savelock = threading.Lock()

@@ -60,10 +60,10 @@ def gettimeseq():
 
 class MaildirFolder(BaseFolder):
     def __init__(self, root, name, sep, repository):
+        self.sep = sep # needs to be set before super().__init__
         super(MaildirFolder, self).__init__(name, repository)
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.root = root
-        self.sep = sep
         self.messagelist = None
         # check if we should use a different infosep to support Win file systems
         self.wincompatible = self.config.getdefaultboolean(
