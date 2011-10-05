@@ -207,9 +207,8 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                     src_repo.makefolder(newsrc_name)
                     src_haschanged = True # Need to refresh list
                 except OfflineImapError, e:
-                    self.ui.error(e, exc_info()[2],
-                                  "Creating folder %s on repository %s" %\
-                                      (src_name, dst_repo))
+                    self.ui.error(e, exc_info()[2], "Creating folder %s on "
+                                  "repository %s" % (newsrc_name, src_repo))
                     raise
                 status_repo.makefolder(newsrc_name.replace(
                                 src_repo.getsep(), status_repo.getsep()))
