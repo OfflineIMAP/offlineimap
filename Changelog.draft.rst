@@ -32,3 +32,6 @@ Bug Fixes
 
 * New folders on the remote would be skipped on the very sync run they
   are created and only by synced in subsequent runs. Fixed.
+
+* Make NOOPs to keep a server connection open more resistant against dropped 
+  connections.

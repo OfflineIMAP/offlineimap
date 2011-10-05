@@ -491,10 +491,24 @@ class IdleThread(object):
         self.thread.join()
 
     def noop(self):
+        #TODO: AFAIK this is not optimal, we will send a NOOP on one
+        #random connection (ie not enough to keep all connections
+        #open). In case we do the noop multiple times, we can well use
+        #the same connection every time, as we get a random one. This
+        #function should IMHO send a noop on ALL available connections
+        #to the server.
         imapobj = self.parent.acquireconnection()
-        imapobj.noop()
-        self.stop_sig.wait()
-        self.parent.releaseconnection(imapobj)
+        try:
+            imapobj.noop()
+        except imapobj.abort:
+            self.ui.warn('Attempting NOOP on dropped connection %s' % \
+                             imapobj.identifier)
+            self.parent.releaseconnection(imapobj, True)
+            imapobj = None
+        finally:
+            if imapobj:
+                self.parent.releaseconnection(imapobj)
+        self.stop_sig.wait() # wait until we are supposed to quit
 
     def dosync(self):
         remoterepos = self.parent.repos
