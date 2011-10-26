@@ -157,9 +157,10 @@ class OfflineImap:
 
         #read in configuration file
         configfilename = os.path.expanduser(options.configfile)
-    
+
         config = CustomConfigParser()
         if not os.path.exists(configfilename):
+            # TODO, initialize and make use of chosen ui for logging
             logging.error(" *** Config file '%s' does not exist; aborting!" %
                           configfilename)
             sys.exit(1)
@@ -168,14 +169,17 @@ class OfflineImap:
         #profile mode chosen?
         if options.profiledir:
             if not options.singlethreading:
+                # TODO, make use of chosen ui for logging
                 logging.warn("Profile mode: Forcing to singlethreaded.")
                 options.singlethreading = True
             if os.path.exists(options.profiledir):
-                logging.warn("Profile mode: Directory '%s' already exists!" % 
+                # TODO, make use of chosen ui for logging
+                logging.warn("Profile mode: Directory '%s' already exists!" %
                              options.profiledir)
             else:
                 os.mkdir(options.profiledir)
             threadutil.ExitNotifyThread.set_profiledir(options.profiledir)
+            # TODO, make use of chosen ui for logging
             logging.warn("Profile mode: Potentially large data will be "
                          "created in '%s'" % options.profiledir)
 
@@ -197,6 +201,7 @@ class OfflineImap:
         if '.' in ui_type:
             #transform Curses.Blinkenlights -> Blinkenlights
             ui_type = ui_type.split('.')[-1]
+            # TODO, make use of chosen ui for logging
             logging.warning('Using old interface name, consider using one '
                             'of %s' % ', '.join(UI_LIST.keys()))
         try:
@@ -210,12 +215,13 @@ class OfflineImap:
 
         #set up additional log files
         if options.logfile:
-            self.ui.setlogfd(open(options.logfile, 'wt'))
-    
+            self.ui.setlogfile(options.logfile)
+
         #welcome blurb
         self.ui.init_banner()
 
         if options.debugtype:
+            self.ui.logger.setLevel(logging.DEBUG)
             if options.debugtype.lower() == 'all':
                 options.debugtype = 'imap,maildir,thread'
             #force single threading?
@@ -293,15 +299,15 @@ class OfflineImap:
             pidfd.close()
         except:
             pass
-    
-        try: 
+
+        try:
             activeaccounts = self.config.get("general", "accounts")
             if options.accounts:
                 activeaccounts = options.accounts
             activeaccounts = activeaccounts.replace(" ", "")
             activeaccounts = activeaccounts.split(",")
             allaccounts = accounts.AccountHashGenerator(self.config)
-    
+
             syncaccounts = []
             for account in activeaccounts:
                 if account not in allaccounts:
@@ -323,11 +329,11 @@ class OfflineImap:
                 elif sig == signal.SIGUSR2:
                     # tell each account to stop looping
                     accounts.Account.set_abort_event(self.config, 2)
-                
+
             signal.signal(signal.SIGHUP,sig_handler)
             signal.signal(signal.SIGUSR1,sig_handler)
             signal.signal(signal.SIGUSR2,sig_handler)
-    
+
             #various initializations that need to be performed:
             offlineimap.mbnames.init(self.config, syncaccounts)
 
@@ -352,10 +358,9 @@ class OfflineImap:
                                  name='Sync Runner',
                                  kwargs = {'accounts': syncaccounts,
                                            'config': self.config})
-                t.setDaemon(1)
+                t.setDaemon(True)
                 t.start()
                 threadutil.exitnotifymonitorloop(threadutil.threadexited)
-
             self.ui.terminate()
         except KeyboardInterrupt:
             self.ui.terminate(1, errormsg = 'CTRL-C pressed, aborting...')
@@ -363,8 +368,8 @@ class OfflineImap:
         except (SystemExit):
             raise
         except Exception, e:
-            ui.error(e)
-            ui.terminate()
+            self.ui.error(e)
+            self.ui.terminate()
 
     def sync_singlethreaded(self, accs):
         """Executed if we do not want a separate syncmaster thread

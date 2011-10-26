@@ -1,5 +1,4 @@
-# Copyright (C) 2007 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2007-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,48 +17,30 @@
 import urllib
 import sys
 import time
+import logging
 from UIBase import UIBase
-from threading import currentThread, Lock
+from threading import currentThread
 import offlineimap
 
-protocol = '6.0.0'
+protocol = '7.0.0'
 
 class MachineUI(UIBase):
-    def __init__(s, config, verbose = 0):
-        UIBase.__init__(s, config, verbose)
-        s.safechars=" ;,./-_=+()[]"
-        s.iswaiting = 0
-        s.outputlock = Lock()
-        s._printData('__init__', protocol)
+    def __init__(self, config, loglevel = logging.INFO):
+        super(MachineUI, self).__init__(config, loglevel)
+        self._log_con_handler.createLock()
+        """lock needed to block on password input"""
 
-    def isusable(s):
-        return True
+    def _printData(self, command, msg):
+        self.logger.info("%s:%s:%s:%s" % (
+                'msg', command, currentThread().getName(), msg))
 
-    def _printData(s, command, data, dolock = True):
-        s._printDataOut('msg', command, data, dolock)
-
-    def _printWarn(s, command, data, dolock = True):
-        s._printDataOut('warn', command, data, dolock)
-
-    def _printDataOut(s, datatype, command, data, dolock = True):
-        if dolock:
-            s.outputlock.acquire()
-        try:
-            print "%s:%s:%s:%s" % \
-                    (datatype,
-                     urllib.quote(command, s.safechars), 
-                     urllib.quote(currentThread().getName(), s.safechars),
-                     urllib.quote(data, s.safechars))
-            sys.stdout.flush()
-        finally:
-            if dolock:
-                s.outputlock.release()
-
-    def _display(s, msg):
+    def _msg(s, msg):
         s._printData('_display', msg)
 
     def warn(s, msg, minor = 0):
-        s._printData('warn', '%s\n%d' % (msg, int(minor)))
+        # TODO, remove and cleanup the unused minor stuff
+        self.logger.warning("%s:%s:%s:%s" % (
+                'warn', '', currentThread().getName(), msg))
 
     def registerthread(s, account):
         UIBase.registerthread(s, account)
@@ -112,12 +93,9 @@ class MachineUI(UIBase):
         self._printData('copyingmessage', "%d\n%s\n%s\n%s[%s]" % \
                 (uid, self.getnicename(srcfolder), srcfolder.getname(),
                  self.getnicename(destfolder), destfolder))
-        
+
     def folderlist(s, list):
         return ("\f".join(["%s\t%s" % (s.getnicename(x), x.getname()) for x in list]))
-
-    def deletingmessage(s, uid, destlist):
-        s.deletingmessages(s, [uid], destlist)
 
     def uidlist(s, list):
         return ("\f".join([str(u) for u in list]))
@@ -161,19 +139,21 @@ class MachineUI(UIBase):
         return 0
 
 
-    def getpass(s, accountname, config, errmsg = None):
-        s.outputlock.acquire()
+    def getpass(self, accountname, config, errmsg = None):
+        if errmsg:
+            self._printData('getpasserror', "%s\n%s" % (accountname, errmsg),
+                         False)
+
+        self._log_con_handler.acquire() # lock the console output
         try:
-            if errmsg:
-                s._printData('getpasserror', "%s\n%s" % (accountname, errmsg),
-                             False)
-            s._printData('getpass', accountname, False)
+            self._printData('getpass', accountname, False)
             return (sys.stdin.readline()[:-1])
         finally:
-            s.outputlock.release()
+            self._log_con_handler.release()
 
-    def init_banner(s):
-        s._printData('initbanner', offlineimap.banner)
+    def init_banner(self):
+        self._printData('protocol', protocol)
+        self._printData('initbanner', offlineimap.banner)
 
-    def callhook(s, msg):
-        s._printData('callhook', msg)
+    def callhook(self, msg):
+        self._printData('callhook', msg)

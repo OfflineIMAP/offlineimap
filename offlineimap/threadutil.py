@@ -35,7 +35,7 @@ def semaphorereset(semaphore, originalstate):
     # Now release these.
     for i in range(originalstate):
         semaphore.release()
-        
+
 class threadlist:
     def __init__(self):
         self.lock = Lock()
@@ -70,7 +70,7 @@ class threadlist:
             if not thread:
                 return
             thread.join()
-            
+
 
 ######################################################################
 # Exit-notify threads
@@ -81,20 +81,21 @@ exitthreads = Queue(100)
 def exitnotifymonitorloop(callback):
     """An infinite "monitoring" loop watching for finished ExitNotifyThread's.
 
-    :param callback: the function to call when a thread terminated. That 
-                     function is called with a single argument -- the 
-                     ExitNotifyThread that has terminated. The monitor will 
+    This one is supposed to run in the main thread.
+    :param callback: the function to call when a thread terminated. That
+                     function is called with a single argument -- the
+                     ExitNotifyThread that has terminated. The monitor will
                      not continue to monitor for other threads until
                      'callback' returns, so if it intends to perform long
                      calculations, it should start a new thread itself -- but
-                     NOT an ExitNotifyThread, or else an infinite loop 
+                     NOT an ExitNotifyThread, or else an infinite loop
                      may result.
-                     Furthermore, the monitor will hold the lock all the 
+                     Furthermore, the monitor will hold the lock all the
                      while the other thread is waiting.
     :type callback:  a callable function
     """
     global exitthreads
-    while 1:                            
+    while 1:
         # Loop forever and call 'callback' for each thread that exited
         try:
             # we need a timeout in the get() call, so that ctrl-c can throw
@@ -124,10 +125,18 @@ def threadexited(thread):
         ui.threadExited(thread)
 
 class ExitNotifyThread(Thread):
-    """This class is designed to alert a "monitor" to the fact that a thread has
-    exited and to provide for the ability for it to find out why."""
+    """This class is designed to alert a "monitor" to the fact that a
+    thread has exited and to provide for the ability for it to find out
+    why.  All instances are made daemon threads (setDaemon(True), so we
+    bail out when the mainloop dies."""
     profiledir = None
     """class variable that is set to the profile directory if required"""
+
+    def __init__(self, *args, **kwargs):
+        super(ExitNotifyThread, self).__init__(*args, **kwargs)
+        # These are all child threads that are supposed to go away when
+        # the main thread is killed.
+        self.setDaemon(True)
 
     def run(self):
         global exitthreads
@@ -220,7 +229,7 @@ class InstanceLimitedThread(ExitNotifyThread):
     def start(self):
         instancelimitedsems[self.instancename].acquire()
         ExitNotifyThread.start(self)
-        
+
     def run(self):
         try:
             ExitNotifyThread.run(self)

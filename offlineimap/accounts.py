@@ -143,7 +143,7 @@ class Account(CustomConfig.ConfigHelperMixin):
 
         for item in kaobjs:
             item.startkeepalive()
-        
+
         refreshperiod = int(self.refreshperiod * 60)
         sleepresult = self.ui.sleep(refreshperiod, self)
 
@@ -166,7 +166,8 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.ui.serverdiagnostics(remote_repo, 'Remote')
         self.ui.serverdiagnostics(local_repo, 'Local')
         #self.ui.serverdiagnostics(statusrepos, 'Status')
-        
+
+
 class SyncableAccount(Account):
     """A syncable email account connecting 2 repositories
 
@@ -208,7 +209,7 @@ class SyncableAccount(Account):
         self.ui.registerthread(self.name)
         accountmetadata = self.getaccountmeta()
         if not os.path.exists(accountmetadata):
-            os.mkdir(accountmetadata, 0700)            
+            os.mkdir(accountmetadata, 0700)
 
         self.remoterepos = Repository(self, 'remote')
         self.localrepos  = Repository(self, 'local')
@@ -223,7 +224,7 @@ class SyncableAccount(Account):
                 self.sync()
             except (KeyboardInterrupt, SystemExit):
                 raise
-            except OfflineImapError, e:                    
+            except OfflineImapError, e:
                 # Stop looping and bubble up Exception if needed.
                 if e.severity >= OfflineImapError.ERROR.REPO:
                     if looping:
@@ -242,7 +243,7 @@ class SyncableAccount(Account):
                 self.ui.acctdone(self)
                 self.unlock()
                 if looping and self.sleeper() >= 2:
-                    looping = 0                    
+                    looping = 0
 
     def sync(self):
         """Synchronize the account once, then return
@@ -408,7 +409,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         else:
             ui.debug('imap', "Not syncing to read-only repository '%s'" \
                          % localrepos.getname())
-        
+
         # Synchronize local changes
         if not remoterepos.getconfboolean('readonly', False):
             ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)

@@ -16,42 +16,67 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import RLock, Lock, Event
+from __future__ import with_statement # needed for python 2.5
+from threading import RLock, currentThread, Lock, Event, Thread
+from thread import get_ident	# python < 2.6 support
+from collections import deque
 import time
 import sys
 import os
 import signal
 import curses
-from Blinkenlights import BlinkenBase
-from UIBase import UIBase
+import logging
+from offlineimap.ui.UIBase import UIBase
+from offlineimap.threadutil import ExitNotifyThread
 import offlineimap
-
 
 acctkeys = '1234567890abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-=;/.,'
 
 class CursesUtil:
-    def __init__(self):
-        self.pairlock = Lock()
-        # iolock protects access to the 
+
+    def __init__(self, *args, **kwargs):
+        # iolock protects access to the
         self.iolock = RLock()
-        self.start()
+        self.tframe_lock = RLock()
+        """tframe_lock protects the self.threadframes manipulation to
+        only happen from 1 thread"""
+        self.colormap = {}
+        """dict, translating color string to curses color pair number"""
 
-    def initpairs(self):
-        self.pairlock.acquire()
-        try:
-            self.pairs = {self._getpairindex(curses.COLOR_WHITE,
-                                             curses.COLOR_BLACK): 0}
-            self.nextpair = 1
-        finally:
-            self.pairlock.release()
+    def curses_colorpair(self, col_name):
+        """Return the curses color pair, that corresponds to the color"""
+        return curses.color_pair(self.colormap[col_name])
 
-    def lock(self):
+    def init_colorpairs(self):
+        """initialize the curses color pairs available"""
+        # set special colors 'gray' and 'banner'
+        self.colormap['white'] = 0 #hardcoded by curses
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
+        self.colormap['banner'] = 1 # color 'banner' for bannerwin
+
+        bcol = curses.COLOR_BLACK
+        colors = ( # name, color, bold?
+                ('black', curses.COLOR_BLACK, False),
+                ('blue', curses.COLOR_BLUE,False),
+                ('red', curses.COLOR_RED, False),
+                ('purple', curses.COLOR_MAGENTA, False),
+                ('cyan', curses.COLOR_CYAN, False),
+                ('green', curses.COLOR_GREEN, False),
+                ('orange', curses.COLOR_YELLOW, False))
+        #set the rest of all colors starting at pair 2
+        i = 1
+        for name, fcol, bold  in colors:
+            i += 1
+            self.colormap[name] = i
+            curses.init_pair(i, fcol, bcol)
+
+    def lock(self, block=True):
         """Locks the Curses ui thread
 
         Can be invoked multiple times from the owning thread. Invoking
         from a non-owning thread blocks and waits until it has been
         unlocked by the owning thread."""
-        self.iolock.acquire()
+        return self.iolock.acquire(block)
 
     def unlock(self):
         """Unlocks the Curses ui thread
@@ -61,8 +86,8 @@ class CursesUtil:
         thread owns the lock. A RuntimeError is raised if this method is
         called when the lock is unlocked."""
         self.iolock.release()
-        
-    def locked(self, target, *args, **kwargs):
+
+    def exec_locked(self, target, *args, **kwargs):
         """Perform an operation with full locking."""
         self.lock()
         try:
@@ -74,102 +99,56 @@ class CursesUtil:
         def lockedstuff():
             curses.panel.update_panels()
             curses.doupdate()
-        self.locked(lockedstuff)
+        self.exec_locked(lockedstuff)
 
     def isactive(self):
         return hasattr(self, 'stdscr')
 
-    def _getpairindex(self, fg, bg):
-        return '%d/%d' % (fg,bg)
-
-    def getpair(self, fg, bg):
-        if not self.has_color:
-            return 0
-        pindex = self._getpairindex(fg, bg)
-        self.pairlock.acquire()
-        try:
-            if self.pairs.has_key(pindex):
-                return curses.color_pair(self.pairs[pindex])
-            else:
-                self.pairs[pindex] = self.nextpair
-                curses.init_pair(self.nextpair, fg, bg)
-                self.nextpair += 1
-                return curses.color_pair(self.nextpair - 1)
-        finally:
-            self.pairlock.release()
-    
-    def start(self):
-        self.stdscr = curses.initscr()
-        curses.noecho()
-        curses.cbreak()
-        self.stdscr.keypad(1)
-        try:
-            curses.start_color()
-            self.has_color = curses.has_colors()
-        except:
-            self.has_color = 0
-
-        self.oldcursor = None
-        try:
-            self.oldcursor = curses.curs_set(0)
-        except:
-            pass
-        
-        self.stdscr.clear()
-        self.stdscr.refresh()
-        (self.height, self.width) = self.stdscr.getmaxyx()
-        self.initpairs()
-
-    def stop(self):
-        if not hasattr(self, 'stdscr'):
-            return
-        #self.stdscr.addstr(self.height - 1, 0, "\n",
-        #                   self.getpair(curses.COLOR_WHITE,
-        #                                curses.COLOR_BLACK))
-        if self.oldcursor != None:
-            curses.curs_set(self.oldcursor)
-        self.stdscr.refresh()
-        self.stdscr.keypad(0)
-        curses.nocbreak()
-        curses.echo()
-        curses.endwin()
-        del self.stdscr
-
-    def reset(self):
-        # dirty walkaround for bug http://bugs.python.org/issue7567 in python 2.6 to 2.6.5 (fixed since #83743)
-        if (sys.version_info[0:3] >= (2,6) and  sys.version_info[0:3] <= (2,6,5)): return
-        self.stop()
-        self.start()
 
 class CursesAccountFrame:
-    def __init__(s, master, accountname, ui):
-        s.c = master
-        s.children = []
-        s.accountname = accountname
-        s.ui = ui
+    """Notable instance variables:
 
-    def drawleadstr(s, secs = None):
+    - accountname: String with associated account name
+    - children
+    - ui
+    - key
+    - window: curses window associated with an account
+    """
+
+    def __init__(self, ui, accountname):
+        self.children = []
+        self.accountname = accountname
+        self.ui = ui
+
+    def drawleadstr(self, secs = None):
+        #TODO: does what?
         if secs == None:
-            acctstr = '%s: [active] %13.13s: ' % (s.key, s.accountname)
+            acctstr = '%s: [active] %13.13s: ' % (self.key, self.accountname)
         else:
-            acctstr = '%s: [%3d:%02d] %13.13s: ' % (s.key,
+            acctstr = '%s: [%3d:%02d] %13.13s: ' % (self.key,
                                                     secs / 60, secs % 60,
-                                                    s.accountname)
-        s.c.locked(s.window.addstr, 0, 0, acctstr)
-        s.location = len(acctstr)
+                                                    self.accountname)
+        self.ui.exec_locked(self.window.addstr, 0, 0, acctstr)
+        self.location = len(acctstr)
 
-    def setwindow(s, window, key):
-        s.window = window
-        s.key = key
-        s.drawleadstr()
-        for child in s.children:
-            child.update(window, 0, s.location)
-            s.location += 1
+    def setwindow(self, curses_win, key):
+        #TODO: does what?
+        # the curses window associated with an account
+        self.window = curses_win
+        self.key = key
+        self.drawleadstr()
+        # Update the child ThreadFrames
+        for child in self.children:
+            child.update(curses_win, self.location, 0)
+            self.location += 1
 
-    def getnewthreadframe(s):
-        tf = CursesThreadFrame(s.c, s.ui, s.window, 0, s.location)
-        s.location += 1
-        s.children.append(tf)
+    def get_new_tframe(self):
+        """Create a new ThreadFrame and append it to self.children
+
+        :returns: The new ThreadFrame"""
+        tf = CursesThreadFrame(self.ui, self.window, self.location, 0)
+        self.location += 1
+        self.children.append(tf)
         return tf
 
     def startsleep(s, sleepsecs):
@@ -197,413 +176,456 @@ class CursesAccountFrame:
         s.sleeping_abort = 1
 
 class CursesThreadFrame:
-    def __init__(s, master, ui, window, y, x):
-        """master should be a CursesUtil object."""
-        s.c = master
-        s.ui = ui
-        s.window = window
-        s.x = x
-        s.y = y
-        s.colors = []
-        bg = curses.COLOR_BLACK
-        s.colormap = {'black': s.c.getpair(curses.COLOR_BLACK, bg),
-                         'gray': s.c.getpair(curses.COLOR_WHITE, bg),
-                         'white': curses.A_BOLD | s.c.getpair(curses.COLOR_WHITE, bg),
-                         'blue': s.c.getpair(curses.COLOR_BLUE, bg),
-                         'red': s.c.getpair(curses.COLOR_RED, bg),
-                         'purple': s.c.getpair(curses.COLOR_MAGENTA, bg),
-                         'cyan': s.c.getpair(curses.COLOR_CYAN, bg),
-                         'green': s.c.getpair(curses.COLOR_GREEN, bg),
-                         'orange': s.c.getpair(curses.COLOR_YELLOW, bg),
-                         'yellow': curses.A_BOLD | s.c.getpair(curses.COLOR_YELLOW, bg),
-                         'pink': curses.A_BOLD | s.c.getpair(curses.COLOR_RED, bg)}
-        #s.setcolor('gray')
-        s.setcolor('black')
+    """
+     curses_color: current color pair for logging"""
+    def __init__(self, ui, acc_win, x, y):
+        """
+        :param ui: is a Blinkenlights() instance
+        :param acc_win: curses Account window"""
+        self.ui = ui
+        self.window = acc_win
+        self.x = x
+        self.y = y
+        self.curses_color = curses.color_pair(0) #default color
 
-    def setcolor(self, color):
-        self.color = self.colormap[color]
+    def setcolor(self, color, modifier=0):
+        """Draw the thread symbol '.' in the specified color
+        :param modifier: Curses modified, such as curses.A_BOLD"""
+        self.curses_color = modifier | self.ui.curses_colorpair(color)
         self.colorname = color
         self.display()
 
     def display(self):
-        def lockedstuff():
-            if self.getcolor() == 'black':
-                self.window.addstr(self.y, self.x, ' ', self.color)
-            else:
-                self.window.addstr(self.y, self.x, '.', self.color)
-            self.c.stdscr.move(self.c.height - 1, self.c.width - 1)
+        def locked_display():
+            self.window.addch(self.y, self.x, '.', self.curses_color)
             self.window.refresh()
-        self.c.locked(lockedstuff)
+        # lock the curses IO while fudging stuff
+        self.ui.exec_locked(locked_display)
 
-    def getcolor(self):
-        return self.colorname
-
-    def getcolorpair(self):
-        return self.color
-
-    def update(self, window, y, x):
-        self.window = window
+    def update(self, acc_win, x, y):
+        """Update the xy position of the '.' (and possibly the aframe)"""
+        self.window = acc_win
         self.y = y
         self.x = x
         self.display()
 
-    def setthread(self, newthread):
+    def std_color(self):
         self.setcolor('black')
-        #if newthread:
-        #    self.setcolor('gray')
-        #else:
-        #    self.setcolor('black')
 
-class InputHandler:
-    def __init__(s, util):
-        s.c = util
-        s.bgchar = None
-        s.inputlock = Lock()
-        s.lockheld = 0
-        s.statuslock = Lock()
-        s.startup = Event()
-        s.startthread()
 
-    def startthread(s):
-        s.thread = offlineimap.threadutil.ExitNotifyThread(target = s.bgreaderloop,
-                                               name = "InputHandler loop")
-        s.thread.setDaemon(1)
-        s.thread.start()
+class InputHandler(ExitNotifyThread):
+    """Listens for input via the curses interfaces"""
+    #TODO, we need to use the ugly exitnotifythread (rather than simply
+    #threading.Thread here, so exiting this thread via the callback
+    #handler, kills off all parents too. Otherwise, they would simply
+    #continue.
+    def __init__(self, ui):
+        super(InputHandler, self).__init__()
+        self.char_handler = None
+        self.ui = ui
+        self.enabled = Event()
+        """We will only parse input if we are enabled"""
+        self.inputlock = RLock()
+        """denotes whether we should be handling the next char."""
+        self.start() #automatically start the thread
 
-    def bgreaderloop(s):
-        while 1:
-            s.statuslock.acquire()
-            if s.lockheld or s.bgchar == None:
-                s.statuslock.release()
-                s.startup.wait()
-            else:
-                s.statuslock.release()
-                ch = s.c.stdscr.getch()
-                s.statuslock.acquire()
-                try:
-                    if s.lockheld or s.bgchar == None:
-                        curses.ungetch(ch)
-                    else:
-                        s.bgchar(ch)
-                finally:
-                    s.statuslock.release()
+    def get_next_char(self):
+        """return the key pressed or -1
 
-    def set_bgchar(s, callback):
-        """Sets a "background" character handler.  If a key is pressed
-        while not doing anything else, it will be passed to this handler.
+        Wait until `enabled` and loop internally every stdscr.timeout()
+        msecs, releasing the inputlock.
+        :returns: char or None if disabled while in here"""
+        self.enabled.wait()
+        while self.enabled.is_set():
+            with self.inputlock:
+                char = self.ui.stdscr.getch()
+            if char != -1: yield char
+
+    def run(self):
+        while True:
+            char_gen = self.get_next_char()
+            for char in char_gen:
+                self.char_handler(char)
+                #curses.ungetch(char)
+
+    def set_char_hdlr(self, callback):
+        """Sets a character callback handler
+
+        If a key is pressed it will be passed to this handler. Keys
+        include the curses.KEY_RESIZE key.
 
         callback is a function taking a single arg -- the char pressed.
+        If callback is None, input will be ignored."""
+        with self.inputlock:
+            self.char_handler = callback
+            # start or stop the parsing of things
+            if callback is None:
+                self.enabled.clear()
+            else:
+                self.enabled.set()
 
-        If callback is None, clears the request."""
-        s.statuslock.acquire()
-        oldhandler = s.bgchar
-        newhandler = callback
-        s.bgchar = callback
-
-        if oldhandler and not newhandler:
-            pass
-        if newhandler and not oldhandler:
-            s.startup.set()
-            
-        s.statuslock.release()
-
-    def input_acquire(s):
+    def input_acquire(self):
         """Call this method when you want exclusive input control.
-        Make sure to call input_release afterwards!
+
+        Make sure to call input_release afterwards! While this lockis
+        held, input can go to e.g. the getpass input.
         """
+        self.enabled.clear()
+        self.inputlock.acquire()
 
-        s.inputlock.acquire()
-        s.statuslock.acquire()
-        s.lockheld = 1
-        s.statuslock.release()
-
-    def input_release(s):
+    def input_release(self):
         """Call this method when you are done getting input."""
-        s.statuslock.acquire()
-        s.lockheld = 0
-        s.statuslock.release()
-        s.inputlock.release()
-        s.startup.set()
-        
-class Blinkenlights(BlinkenBase, UIBase):
-    def init_banner(s):
-        s.af = {}
-        s.aflock = Lock()
-        s.c = CursesUtil()
-        s.text = []
-        BlinkenBase.init_banner(s)
-        s.setupwindows()
-        s.inputhandler = InputHandler(s.c)
-        s.gettf().setcolor('red')
-        s._msg(offlineimap.banner)
-        s.inputhandler.set_bgchar(s.keypress)
-        signal.signal(signal.SIGWINCH, s.resizehandler)
-        s.resizelock = Lock()
-        s.resizecount = 0
-
-    def resizehandler(s, signum, frame):
-        s.resizeterm()
-
-    def resizeterm(s, dosleep = 1):
-        if not s.resizelock.acquire(0):
-            s.resizecount += 1
-            return
-        signal.signal(signal.SIGWINCH, signal.SIG_IGN)
-        s.aflock.acquire()
-        s.c.lock()
-        s.resizecount += 1
-        while s.resizecount:
-            s.c.reset()
-            s.setupwindows()
-            s.resizecount -= 1
-        s.c.unlock()
-        s.aflock.release()
-        s.resizelock.release()
-        signal.signal(signal.SIGWINCH, s.resizehandler)
-        if dosleep:
-            time.sleep(1)
-            s.resizeterm(0)
-
-    def isusable(s):
-        # Not a terminal?  Can't use curses.
-        if not sys.stdout.isatty() and sys.stdin.isatty():
-            return 0
-
-        # No TERM specified?  Can't use curses.
-        try:
-            if not len(os.environ['TERM']):
-                return 0
-        except: return 0
-
-        # ncurses doesn't want to start?  Can't use curses.
-        # This test is nasty because initscr() actually EXITS on error.
-        # grr.
-
-        pid = os.fork()
-        if pid:
-            # parent
-            return not os.WEXITSTATUS(os.waitpid(pid, 0)[1])
-        else:
-            # child
-            curses.initscr()
-            curses.endwin()
-            # If we didn't die by here, indicate success.
-            sys.exit(0)
-
-    def keypress(s, key):
-        if key < 1 or key > 255:
-            return
-        
-        if chr(key) == 'q':
-            # Request to quit.
-            s.terminate()
-        
-        try:
-            index = acctkeys.index(chr(key))
-        except ValueError:
-            # Key not a valid one: exit.
-            return
-
-        if index >= len(s.hotkeys):
-            # Not in our list of valid hotkeys.
-            return
-
-        # Trying to end sleep somewhere.
-
-        s.getaccountframe(s.hotkeys[index]).syncnow()
-
-    def getpass(s, accountname, config, errmsg = None):
-        s.inputhandler.input_acquire()
-
-        # See comment on _msg for info on why both locks are obtained.
-        
-        s.tflock.acquire()
-        s.c.lock()
-        try:
-            s.gettf().setcolor('white')
-            s._addline(" *** Input Required", s.gettf().getcolorpair())
-            s._addline(" *** Please enter password for account %s: " % accountname,
-                   s.gettf().getcolorpair())
-            s.logwindow.refresh()
-            password = s.logwindow.getstr()
-        finally:
-            s.tflock.release()
-            s.c.unlock()
-            s.inputhandler.input_release()
-        return password
-
-    def setupwindows(s):
-        s.c.lock()
-        try:
-            s.bannerwindow = curses.newwin(1, s.c.width, 0, 0)
-            s.setupwindow_drawbanner()
-            s.logheight = s.c.height - 1 - len(s.af.keys())
-            s.logwindow = curses.newwin(s.logheight, s.c.width, 1, 0)
-            s.logwindow.idlok(1)
-            s.logwindow.scrollok(1)
-            s.logwindow.move(s.logheight - 1, 0)
-            s.setupwindow_drawlog()
-            accounts = s.af.keys()
-            accounts.sort()
-            accounts.reverse()
-
-            pos = s.c.height - 1
-            index = 0
-            s.hotkeys = []
-            for account in accounts:
-                accountwindow = curses.newwin(1, s.c.width, pos, 0)
-                s.af[account].setwindow(accountwindow, acctkeys[index])
-                s.hotkeys.append(account)
-                index += 1
-                pos -= 1
-
-            curses.doupdate()
-        finally:
-            s.c.unlock()
-
-    def setupwindow_drawbanner(s):
-        if s.c.has_color:
-            color = s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLUE) | \
-                    curses.A_BOLD
-        else:
-            color = curses.A_REVERSE
-        s.bannerwindow.bkgd(' ', color) # Fill background with that color
-        s.bannerwindow.addstr("%s %s" % (offlineimap.__productname__,
-                                         offlineimap.__version__))
-        s.bannerwindow.addstr(0, s.bannerwindow.getmaxyx()[1] - len(offlineimap.__copyright__) - 1,
-                              offlineimap.__copyright__)
-        
-        s.bannerwindow.noutrefresh()
-
-    def setupwindow_drawlog(s):
-        if s.c.has_color:
-            color = s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK)
-        else:
-            color = curses.A_NORMAL
-        s.logwindow.bkgd(' ', color)
-        for line, color in s.text:
-            s.logwindow.addstr("\n" + line, color)
-        s.logwindow.noutrefresh()
-
-    def getaccountframe(s, accountname = None):
-        if accountname == None:
-            accountname = s.getthreadaccount()
-        s.aflock.acquire()
-        try:
-            if accountname in s.af:
-                return s.af[accountname]
-
-            # New one.
-            s.af[accountname] = CursesAccountFrame(s.c, accountname, s)
-            s.c.lock()
-            try:
-                s.c.reset()
-                s.setupwindows()
-            finally:
-                s.c.unlock()
-        finally:
-            s.aflock.release()
-        return s.af[accountname]
+        self.inputlock.release()
+        self.enabled.set()
 
 
-    def _display(s, msg, color = None):
-        if "\n" in msg:
-            for thisline in msg.split("\n"):
-                s._msg(thisline)
-            return
+class CursesLogHandler(logging.StreamHandler):
 
+    def emit(self, record):
+        log_str = super(CursesLogHandler, self).format(record)
+        color = self.ui.gettf().curses_color
         # We must acquire both locks.  Otherwise, deadlock can result.
         # This can happen if one thread calls _msg (locking curses, then
         # tf) and another tries to set the color (locking tf, then curses)
         #
         # By locking both up-front here, in this order, we prevent deadlock.
-        
-        s.tflock.acquire()
-        s.c.lock()
+        self.ui.tframe_lock.acquire()
+        self.ui.lock()
         try:
-            if not s.c.isactive():
-                # For dumping out exceptions and stuff.
-                print msg
-                return
-            if color:
-                s.gettf().setcolor(color)
-            elif s.gettf().getcolor() == 'black':
-                s.gettf().setcolor('gray')
-            s._addline(msg, s.gettf().getcolorpair())
-            s.logwindow.refresh()
+            for line in log_str.split("\n"):
+                self.ui.logwin.addstr("\n" + line, color)
+                self.ui.text.append((line, color))
+            while len(self.ui.text) > self.ui.logheight:
+                self.ui.text.popleft()
         finally:
-            s.c.unlock()
-            s.tflock.release()
+            self.ui.unlock()
+            self.ui.tframe_lock.release()
+        self.ui.logwin.refresh()
+        self.ui.stdscr.refresh()
 
-    def _addline(s, msg, color):
-        s.c.lock()
+class Blinkenlights(UIBase, CursesUtil):
+    """Curses-cased fancy UI
+
+    Notable instance variables self. ....:
+
+       - stdscr: THe curses std screen
+       - bannerwin: The top line banner window
+       - width|height: The total curses screen dimensions
+       - logheight: Available height for the logging part
+       - log_con_handler: The CursesLogHandler()
+       - threadframes:
+       - accframes[account]: 'Accountframe'"""
+
+    def __init__(self, *args, **kwargs):
+        super(Blinkenlights, self).__init__(*args, **kwargs)
+        CursesUtil.__init__(self)
+
+    ################################################## UTILS
+    def setup_consolehandler(self):
+        """Backend specific console handler
+
+        Sets up things and adds them to self.logger.
+        :returns: The logging.Handler() for console output"""
+        # create console handler with a higher log level
+        ch = CursesLogHandler()
+        #ch.setLevel(logging.DEBUG)
+        # create formatter and add it to the handlers
+        self.formatter = logging.Formatter("%(message)s")
+        ch.setFormatter(self.formatter)
+        # add the handlers to the logger
+        self.logger.addHandler(ch)
+        # the handler is not usable yet. We still need all the
+        # intialization stuff currently done in init_banner. Move here?
+        return ch
+
+    def isusable(s):
+        """Returns true if the backend is usable ie Curses works"""
+        # Not a terminal?  Can't use curses.
+        if not sys.stdout.isatty() and sys.stdin.isatty():
+            return False
+        # No TERM specified?  Can't use curses.
+        if not os.environ.get('TERM', None):
+            return False
+        # Test if ncurses actually starts up fine. Only do so for
+        # python>=2.6.6 as calling initscr() twice messing things up.
+        # see http://bugs.python.org/issue7567 in python 2.6 to 2.6.5
+        if sys.version_info[0:3] < (2,6) or sys.version_info[0:3] >= (2,6,6):
+            try:
+                curses.initscr()
+                curses.endwin()
+            except:
+                return False
+        return True
+
+    def init_banner(self):
+        self.availablethreadframes = {}
+        self.threadframes = {}
+        self.accframes = {}
+        self.aflock = Lock()
+        self.text = deque()
+
+        self.stdscr = curses.initscr()
+        # turn off automatic echoing of keys to the screen
+        curses.noecho()
+        # react to keys instantly, without Enter key
+        curses.cbreak()
+        # return special key values, eg curses.KEY_LEFT
+        self.stdscr.keypad(1)
+        # wait 1s for input, so we don't block the InputHandler infinitely
+        self.stdscr.timeout(1000)
+        curses.start_color()
+        # turn off cursor and save original state
+        self.oldcursor = None
         try:
-            s.logwindow.addstr("\n" + msg, color)
-            s.text.append((msg, color))
-            while len(s.text) > s.logheight:
-                s.text = s.text[1:]
-        finally:
-            s.c.unlock()
+            self.oldcursor = curses.curs_set(0)
+        except:
+            pass
 
-    def terminate(s, exitstatus = 0, errortitle = None, errormsg = None):
-        s.c.stop()
-        UIBase.terminate(s, exitstatus = exitstatus, errortitle = errortitle, errormsg = errormsg)
+        self.stdscr.clear()
+        self.stdscr.refresh()
+        self.init_colorpairs()
+        # set log handlers ui to ourself
+        self._log_con_handler.ui = self
+        self.setupwindows()
+        # Settup keyboard handler
+        self.inputhandler = InputHandler(self)
+        self.inputhandler.set_char_hdlr(self.on_keypressed)
 
-    def threadException(s, thread):
-        s.c.stop()
-        UIBase.threadException(s, thread)
+        self.gettf().setcolor('red')
+        self.info(offlineimap.banner)
 
-    def mainException(s):
-        s.c.stop()
-        UIBase.mainException(s)
+    def acct(self, *args):
+        """Output that we start syncing an account (and start counting)"""
+        self.gettf().setcolor('purple')
+        super(Blinkenlights, self).acct(*args)
+
+    def connecting(self, *args):
+        self.gettf().setcolor('white')
+        super(Blinkenlights, self).connecting(*args)
+
+    def syncfolders(self, *args):
+        self.gettf().setcolor('blue')
+        super(Blinkenlights, self).syncfolders(*args)
+
+    def syncingfolder(self, *args):
+        self.gettf().setcolor('cyan')
+        super(Blinkenlights, self).syncingfolder(*args)
+
+    def skippingfolder(self, *args):
+        self.gettf().setcolor('cyan')
+        super(Blinkenlights, self).skippingfolder(*args)
+
+    def loadmessagelist(self, *args):
+        self.gettf().setcolor('green')
+        super(Blinkenlights, self).loadmessagelist(*args)
+
+    def syncingmessages(self, *args):
+        self.gettf().setcolor('blue')
+        super(Blinkenlights, self).syncingmessages(*args)
+
+    def copyingmessage(self, *args):
+        self.gettf().setcolor('orange')
+        super(Blinkenlights, self).copyingmessage(*args)
+
+    def deletingmessages(self, *args):
+        self.gettf().setcolor('red')
+        super(Blinkenlights, self).deletingmessages(*args)
+
+    def addingflags(self, *args):
+        self.gettf().setcolor('blue')
+        super(Blinkenlights, self).addingflags(*args)
+
+    def deletingflags(self, *args):
+        self.gettf().setcolor('blue')
+        super(Blinkenlights, self).deletingflags(*args)
+
+    def callhook(self, *args):
+        self.gettf().setcolor('white')
+        super(Blinkenlights, self).callhook(*args)
+
+    ############ Generic logging functions #############################
+    def warn(self, msg, minor=0):
+        self.gettf().setcolor('red', curses.A_BOLD)
+        super(Blinkenlights, self).warn(msg)
+
+    def threadExited(self, thread):
+        acc_name = self.getthreadaccount(thread)
+        with self.tframe_lock:
+            if thread in self.threadframes[acc_name]:
+                tf = self.threadframes[acc_name][thread]
+                tf.setcolor('black')
+                self.availablethreadframes[acc_name].append(tf)
+                del self.threadframes[acc_name][thread]
+        super(Blinkenlights, self).threadExited(thread)
+
+    def gettf(self):
+        """Return the ThreadFrame() of the current thread"""
+        cur_thread = currentThread()
+        acc_name = self.getthreadaccount()
+
+        with self.tframe_lock:
+            # Ideally we already have self.threadframes[accountname][thread]
+            try:
+                if cur_thread in self.threadframes[acc_name]:
+                    return self.threadframes[acc_name][cur_thread]
+            except KeyError:
+                # Ensure threadframes already has an account dict
+                self.threadframes[acc_name] = {}
+                self.availablethreadframes[acc_name] = deque()
+
+            # If available, return a ThreadFrame()
+            if len(self.availablethreadframes[acc_name]):
+                tf = self.availablethreadframes[acc_name].popleft()
+                tf.std_color()
+            else:
+                tf = self.getaccountframe(acc_name).get_new_tframe()
+            self.threadframes[acc_name][cur_thread] = tf
+        return tf
+
+    def on_keypressed(self, key):
+        # received special KEY_RESIZE, resize terminal
+        if key == curses.KEY_RESIZE:
+            self.resizeterm()
+
+        if key < 1 or key > 255:
+            return
+        if chr(key) == 'q':
+            # Request to quit.
+            #TODO: this causes us to bail out in main loop when the thread exits
+            #TODO: review and rework this mechanism.
+            currentThread().setExitCause('EXCEPTION')
+            self.terminate()
+        try:
+            index = acctkeys.index(chr(key))
+        except ValueError:
+            # Key not a valid one: exit.
+            return
+        if index >= len(self.hotkeys):
+            # Not in our list of valid hotkeys.
+            return
+        # Trying to end sleep somewhere.
+        self.getaccountframe(self.hotkeys[index]).syncnow()
 
     def sleep(s, sleepsecs, account):
         s.gettf().setcolor('red')
         s._msg("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
-        return BlinkenBase.sleep(s, sleepsecs, account)
-            
-if __name__ == '__main__':
-    x = Blinkenlights(None)
-    x.init_banner()
-    import time
-    time.sleep(5)
-    x.c.stop()
-    fgs = {'black': curses.COLOR_BLACK, 'red': curses.COLOR_RED,
-           'green': curses.COLOR_GREEN, 'yellow': curses.COLOR_YELLOW,
-           'blue': curses.COLOR_BLUE, 'magenta': curses.COLOR_MAGENTA,
-           'cyan': curses.COLOR_CYAN, 'white': curses.COLOR_WHITE}
-    
-    x = CursesUtil()
-    win1 = curses.newwin(x.height, x.width / 4 - 1, 0, 0)
-    win1.addstr("Black/normal\n")
-    for name, fg in fgs.items():
-        win1.addstr("%s\n" % name, x.getpair(fg, curses.COLOR_BLACK))
-    win2 = curses.newwin(x.height, x.width / 4 - 1, 0, win1.getmaxyx()[1])
-    win2.addstr("Blue/normal\n")
-    for name, fg in fgs.items():
-        win2.addstr("%s\n" % name, x.getpair(fg, curses.COLOR_BLUE))
-    win3 = curses.newwin(x.height, x.width / 4 - 1, 0, win1.getmaxyx()[1] +
-                         win2.getmaxyx()[1])
-    win3.addstr("Black/bright\n")
-    for name, fg in fgs.items():
-        win3.addstr("%s\n" % name, x.getpair(fg, curses.COLOR_BLACK) | \
-                    curses.A_BOLD)
-    win4 = curses.newwin(x.height, x.width / 4 - 1, 0, win1.getmaxyx()[1] * 3)
-    win4.addstr("Blue/bright\n")
-    for name, fg in fgs.items():
-        win4.addstr("%s\n" % name, x.getpair(fg, curses.COLOR_BLUE) | \
-                    curses.A_BOLD)
-        
-        
-    win1.refresh()
-    win2.refresh()
-    win3.refresh()
-    win4.refresh()
-    x.stdscr.refresh()
-    import time
-    time.sleep(5)
-    x.stop()
-    print x.has_color
-    print x.height
-    print x.width
+        s.getaccountframe().startsleep(sleepsecs)
+        return UIBase.sleep(s, sleepsecs, account)
+
+    def sleeping(self, sleepsecs, remainingsecs):
+        if remainingsecs and s.gettf().getcolor() == 'black':
+            self.gettf().setcolor('red')
+        else:
+            self.gettf().setcolor('black')
+        return self.getaccountframe().sleeping(sleepsecs, remainingsecs)
+
+    def resizeterm(self):
+        """Resize the current windows"""
+        self.exec_locked(self.setupwindows(True))
+
+    def mainException(self):
+        UIBase.mainException(self)
+
+    def getpass(self, accountname, config, errmsg = None):
+        # disable the hotkeys inputhandler
+        self.inputhandler.input_acquire()
+
+        # See comment on _msg for info on why both locks are obtained.
+        self.lock()
+        try:
+            #s.gettf().setcolor('white')
+            self.warn(" *** Input Required")
+            self.warn(" *** Please enter password for account %s: " % \
+                          accountname)
+            self.logwin.refresh()
+            password = self.logwin.getstr()
+        finally:
+            self.unlock()
+            self.inputhandler.input_release()
+        return password
+
+    def setupwindows(self, resize=False):
+        """Setup and draw bannerwin and logwin
+
+        If `resize`, don't create new windows, just adapt size"""
+        self.height, self.width = self.stdscr.getmaxyx()
+        if resize:
+            raise Exception("resizehandler %d" % self.width)
+
+        self.logheight = self.height - len(self.accframes) - 1
+        if resize:
+            curses.resizeterm(self.height, self.width)
+            self.bannerwin.resize(1, self.width)
+        else:
+            self.bannerwin = curses.newwin(1, self.width, 0, 0)
+            self.logwin = curses.newwin(self.logheight, self.width, 1, 0)
+
+        self.draw_bannerwin()
+        self.logwin.idlok(1)
+        self.logwin.scrollok(1)
+        self.logwin.move(self.logheight - 1, 0)
+        self.draw_logwin()
+        self.accounts = reversed(sorted(self.accframes.keys()))
+
+        pos = self.height - 1
+        index = 0
+        self.hotkeys = []
+        for account in self.accounts:
+                acc_win = curses.newwin(1, self.width, pos, 0)
+                self.accframes[account].setwindow(acc_win, acctkeys[index])
+                self.hotkeys.append(account)
+                index += 1
+                pos -= 1
+        curses.doupdate()
+
+    def draw_bannerwin(self):
+        """Draw the top-line banner line"""
+        if curses.has_colors():
+            color = curses.A_BOLD | self.curses_colorpair('banner')
+        else:
+            color = curses.A_REVERSE
+        self.bannerwin.bkgd(' ', color) # Fill background with that color
+        string = "%s %s" % (offlineimap.__productname__,
+                            offlineimap.__version__)
+        self.bannerwin.addstr(0, 0, string, color)
+        self.bannerwin.addstr(0, self.width -len(offlineimap.__copyright__) -1,
+                              offlineimap.__copyright__, color)
+        self.bannerwin.noutrefresh()
+
+    def draw_logwin(self):
+        #if curses.has_colors():
+        #    color = s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK)
+        #else:
+        color = curses.A_NORMAL
+        self.logwin.bkgd(' ', color)
+        for line, color in self.text:
+            self.logwin.addstr("\n" + line, color)
+        self.logwin.noutrefresh()
+
+    def getaccountframe(self, acc_name = None):
+        """Return an AccountFrame()"""
+        if acc_name == None:
+            acc_name = self.getthreadaccount()
+        with self.aflock:
+            # 1) Return existing or 2) create a new CursesAccountFrame.
+            if acc_name in self.accframes: return self.accframes[acc_name]
+            self.accframes[acc_name] = CursesAccountFrame(self, acc_name)
+            self.setupwindows()
+        return self.accframes[acc_name]
+
+    def terminate(self, *args, **kwargs):
+        curses.nocbreak();
+        self.stdscr.keypad(0);
+        curses.echo()
+        curses.endwin()
+        # need to remove the Curses console handler now and replace with
+        # basic one, so exceptions and stuff are properly displayed
+        self.logger.removeHandler(self._log_con_handler)
+        UIBase.setup_consolehandler(self)
+        # finally call parent terminate which prints out exceptions etc
+        super(Blinkenlights, self).terminate(*args, **kwargs)
+
+    def threadException(s, thread):
+        #self._log_con_handler.stop()
+        UIBase.threadException(s, thread)
 
