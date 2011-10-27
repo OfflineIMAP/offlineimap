@@ -229,4 +229,4 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         """Stop keep alive, but don't bother waiting
         for the threads to terminate."""
         pass
-    
+

@@ -389,47 +389,40 @@ class IMAPServer:
         to be invoked in a separate thread, which should be join()'d after
         the event is set."""
         self.ui.debug('imap', 'keepalive thread started')
-        while 1:
-            self.ui.debug('imap', 'keepalive: top of loop')
-            if event.isSet():
-                self.ui.debug('imap', 'keepalive: event is set; exiting')
-                return
-            self.ui.debug('imap', 'keepalive: acquiring connectionlock')
+        while not event.isSet():
             self.connectionlock.acquire()
             numconnections = len(self.assignedconnections) + \
                              len(self.availableconnections)
             self.connectionlock.release()
-            self.ui.debug('imap', 'keepalive: connectionlock released')
+
             threads = []
-        
             for i in range(numconnections):
                 self.ui.debug('imap', 'keepalive: processing connection %d of %d' % (i, numconnections))
                 if len(self.idlefolders) > i:
+                    # IDLE thread
                     idler = IdleThread(self, self.idlefolders[i])
                 else:
+                    # NOOP thread
                     idler = IdleThread(self)
                 idler.start()
                 threads.append(idler)
-                self.ui.debug('imap', 'keepalive: thread started')
 
             self.ui.debug('imap', 'keepalive: waiting for timeout')
             event.wait(timeout)
             self.ui.debug('imap', 'keepalive: after wait')
 
-            self.ui.debug('imap', 'keepalive: joining threads')
-
             for idler in threads:
                 # Make sure all the commands have completed.
                 idler.stop()
                 idler.join()
-
-            self.ui.debug('imap', 'keepalive: bottom of loop')
-
+            self.ui.debug('imap', 'keepalive: all threads joined')
+        self.ui.debug('imap', 'keepalive: event is set; exiting')
+        return
 
     def verifycert(self, cert, hostname):
         '''Verify that cert (in socket.getpeercert() format) matches hostname.
         CRLs are not handled.
-        
+
         Returns error message if any problems are found and None on success.
         '''
         errstr = "CA Cert verifying failed: "
@@ -508,7 +501,7 @@ class IdleThread(object):
         finally:
             if imapobj:
                 self.parent.releaseconnection(imapobj)
-        self.stop_sig.wait() # wait until we are supposed to quit
+                self.stop_sig.wait() # wait until we are supposed to quit
 
     def dosync(self):
         remoterepos = self.parent.repos
