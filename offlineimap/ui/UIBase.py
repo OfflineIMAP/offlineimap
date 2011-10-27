@@ -411,7 +411,7 @@ class UIBase(object):
 
     def getThreadExceptionString(self, thread):
         message = "Thread '%s' terminated with exception:\n%s" % \
-                  (thread.getName(), thread.getExitStackTrace())
+                  (thread.getName(), thread.exit_stacktrace)
         message += "\n" + self.getThreadDebugLog(thread)
         return message
 
