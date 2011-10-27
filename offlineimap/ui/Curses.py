@@ -506,11 +506,11 @@ class Blinkenlights(UIBase, CursesUtil):
         # Trying to end sleep somewhere.
         self.getaccountframe(self.hotkeys[index]).syncnow()
 
-    def sleep(s, sleepsecs, account):
-        s.gettf().setcolor('red')
-        s._msg("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
-        s.getaccountframe().startsleep(sleepsecs)
-        return UIBase.sleep(s, sleepsecs, account)
+    def sleep(self, sleepsecs, account):
+        self.gettf().setcolor('red')
+        self.info("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
+        self.getaccountframe().startsleep(sleepsecs)
+        return super(Blinkenlights, self).sleep(sleepsecs, account)
 
     def sleeping(self, sleepsecs, remainingsecs):
         if remainingsecs and s.gettf().getcolor() == 'black':
