@@ -109,15 +109,15 @@ def exitnotifymonitorloop(callback):
 def threadexited(thread):
     """Called when a thread exits."""
     ui = getglobalui()
-    if thread.getExitCause() == 'EXCEPTION':
-        if isinstance(thread.getExitException(), SystemExit):
+    if thread.exit_exception:
+        if isinstance(thread.exit_exception, SystemExit):
             # Bring a SystemExit into the main thread.
             # Do not send it back to UI layer right now.
             # Maybe later send it to ui.terminate?
             raise SystemExit
         ui.threadException(thread)      # Expected to terminate
         sys.exit(100)                   # Just in case...
-    elif thread.getExitMessage() == 'SYNC_WITH_TIMER_TERMINATE':
+    elif thread.exit_message == 'SYNC_WITH_TIMER_TERMINATE':
         ui.terminate()
         # Just in case...
         sys.exit(100)
@@ -128,7 +128,10 @@ class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a
     thread has exited and to provide for the ability for it to find out
     why.  All instances are made daemon threads (setDaemon(True), so we
-    bail out when the mainloop dies."""
+    bail out when the mainloop dies.
+
+    The thread can set instance variables self.exit_message for a human
+    readable reason of the thread exit."""
     profiledir = None
     """class variable that is set to the profile directory if required"""
 
@@ -137,6 +140,9 @@ class ExitNotifyThread(Thread):
         # These are all child threads that are supposed to go away when
         # the main thread is killed.
         self.setDaemon(True)
+        self.exit_message = None
+        self._exit_exc = None
+        self._exit_stacktrace = None
 
     def run(self):
         global exitthreads
@@ -156,49 +162,31 @@ class ExitNotifyThread(Thread):
                     pass
                 prof.dump_stats(os.path.join(ExitNotifyThread.profiledir,
                                 "%s_%s.prof" % (self.threadid, self.getName())))
-        except:
-            self.setExitCause('EXCEPTION')
-            if sys:
-                self.setExitException(sys.exc_info()[1])
-                tb = traceback.format_exc()
-                self.setExitStackTrace(tb)
-        else:
-            self.setExitCause('NORMAL')
-        if not hasattr(self, 'exitmessage'):
-            self.setExitMessage(None)
+        except Exception, e:
+            # Thread exited with Exception, store it
+            tb = traceback.format_exc()
+            self.set_exit_exception(e, tb)
 
         if exitthreads:
             exitthreads.put(self, True)
 
-    def setExitCause(self, cause):
-        self.exitcause = cause
-    def getExitCause(self):
+    def set_exit_exception(self, exc, st=None):
+        """Sets Exception and stacktrace of a thread, so that other
+        threads can query its exit status"""
+        self._exit_exc = exc
+        self._exit_stacktrace = st
+
+    @property
+    def exit_exception(self):
         """Returns the cause of the exit, one of:
-        'EXCEPTION' -- the thread aborted because of an exception
-        'NORMAL' -- normal termination."""
-        return self.exitcause
-    def setExitException(self, exc):
-        self.exitexception = exc
-    def getExitException(self):
-        """If getExitCause() is 'EXCEPTION', holds the value from
-        sys.exc_info()[1] for this exception."""
-        return self.exitexception
-    def setExitStackTrace(self, st):
-        self.exitstacktrace = st
-    def getExitStackTrace(self):
-        """If getExitCause() is 'EXCEPTION', returns a string representing
-        the stack trace for this exception."""
-        return self.exitstacktrace
-    def setExitMessage(self, msg):
-        """Sets the exit message to be fetched by a subsequent call to
-        getExitMessage.  This message may be any object or type except
-        None."""
-        self.exitmessage = msg
-    def getExitMessage(self):
-        """For any exit cause, returns the message previously set by
-        a call to setExitMessage(), or None if there was no such message
-        set."""
-        return self.exitmessage
+        Exception() -- the thread aborted with this exception
+        None -- normal termination."""
+        return self._exit_exc
+
+    @property
+    def exit_stacktrace(self):
+        """Returns a string representing the stack trace if set"""
+        return self._exit_stacktrace
 
     @classmethod
     def set_profiledir(cls, directory):

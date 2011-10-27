@@ -493,7 +493,7 @@ class Blinkenlights(UIBase, CursesUtil):
             # Request to quit.
             #TODO: this causes us to bail out in main loop when the thread exits
             #TODO: review and rework this mechanism.
-            currentThread().setExitCause('EXCEPTION')
+            currentThread().set_exit_exception(SystemExit("User requested shutdown"))
             self.terminate()
         try:
             index = acctkeys.index(chr(key))
