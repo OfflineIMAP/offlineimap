@@ -15,13 +15,21 @@ New Features
 
 * add a --info command line switch that outputs useful information about
   the server and the configuration for all enabled accounts.
- 
+
 Changes
 -------
 
 * Indicate progress when copying many messages (slightly change log format)
 
 * Output how long an account sync took (min:sec).
+
+* Reworked logging which was reported to e.g. not flush output to files
+  often enough. User-visible changes:
+  a) console output goes to stderr (for now).
+  b) file output has timestamps and looks identical in the basic and
+  ttyui UIs.
+  c) File output should be flushed after logging by default (do
+  report if not).
 
 Bug Fixes
 ---------
