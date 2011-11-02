@@ -113,6 +113,7 @@ class IMAPServer:
 
         :param drop_conn: If True, the connection will be released and
            not be reused. This can be used to indicate broken connections."""
+        if connection is None: return #noop on bad connection
         self.connectionlock.acquire()
         self.assignedconnections.remove(connection)
         # Don't reuse broken connections
