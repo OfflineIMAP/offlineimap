@@ -30,6 +30,8 @@ def syncaccount(threads, config, accountname):
     threads.add(thread)
 
 def syncitall(accounts, config):
+    # Special exit message for SyncRunner thread, so main thread can exit
+    currentThread().exit_message = 'SYNCRUNNER_EXITED_NORMALLY'
     threads = threadlist()
     for accountname in accounts:
         syncaccount(threads, config, accountname)

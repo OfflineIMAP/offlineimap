@@ -95,19 +95,23 @@ def exitnotifymonitorloop(callback):
     :type callback:  a callable function
     """
     global exitthreads
-    while 1:
+    do_loop = True
+    while do_loop:
         # Loop forever and call 'callback' for each thread that exited
         try:
             # we need a timeout in the get() call, so that ctrl-c can throw
             # a SIGINT (http://bugs.python.org/issue1360). A timeout with empty
             # Queue will raise `Empty`.
             thrd = exitthreads.get(True, 60)
-            callback(thrd)
+            # request to abort when callback returns true
+            do_loop = (callback(thrd) != True)
         except Empty:
             pass
 
 def threadexited(thread):
-    """Called when a thread exits."""
+    """Called when a thread exits.
+
+    Main thread is aborted when this returns True."""
     ui = getglobalui()
     if thread.exit_exception:
         if isinstance(thread.exit_exception, SystemExit):
@@ -117,12 +121,11 @@ def threadexited(thread):
             raise SystemExit
         ui.threadException(thread)      # Expected to terminate
         sys.exit(100)                   # Just in case...
-    elif thread.exit_message == 'SYNC_WITH_TIMER_TERMINATE':
-        ui.terminate()
-        # Just in case...
-        sys.exit(100)
+    elif thread.exit_message == 'SYNCRUNNER_EXITED_NORMALLY':
+        return True
     else:
         ui.threadExited(thread)
+        return False
 
 class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a
