@@ -15,6 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+from __future__ import with_statement # needed for python 2.5
 from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 from offlineimap.ui import getglobalui
 from threading import Lock, BoundedSemaphore, Thread, Event, currentThread
@@ -355,7 +356,7 @@ class IMAPServer:
             else:
                 # re-raise all other errors
                 raise
-    
+
     def connectionwait(self):
         """Waits until there is a connection available.  Note that between
         the time that a connection becomes available and the time it is
@@ -370,18 +371,18 @@ class IMAPServer:
     def close(self):
         # Make sure I own all the semaphores.  Let the threads finish
         # their stuff.  This is a blocking method.
-        self.connectionlock.acquire()
-        threadutil.semaphorereset(self.semaphore, self.maxconnections)
-        for imapobj in self.assignedconnections + self.availableconnections:
-            imapobj.logout()
-        self.assignedconnections = []
-        self.availableconnections = []
-        self.lastowner = {}
-        # reset kerberos state
-        self.gss_step = self.GSS_STATE_STEP
-        self.gss_vc = None
-        self.gssapi = False
-        self.connectionlock.release()
+        with self.connectionlock:
+            # first, wait till all
+            threadutil.semaphorereset(self.semaphore, self.maxconnections)
+            for imapobj in self.assignedconnections + self.availableconnections:
+                imapobj.logout()
+            self.assignedconnections = []
+            self.availableconnections = []
+            self.lastowner = {}
+            # reset kerberos state
+            self.gss_step = self.GSS_STATE_STEP
+            self.gss_vc = None
+            self.gssapi = False
 
     def keepalive(self, timeout, event):
         """Sends a NOOP to each connection recorded.   It will wait a maximum
