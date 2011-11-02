@@ -540,17 +540,19 @@ class IMAPFolder(BaseFolder):
                     imapobj = self.imapserver.acquireconnection()
                     if not retry_left:
                         raise OfflineImapError("Saving msg in folder '%s', "
-                              "repository '%s' failed. Server reponded: %s\n"
+                              "repository '%s' failed (abort). Server reponded: %s\n"
                               "Message content was: %s" %
                               (self, self.getrepository(), str(e), dbg_output),
                                                OfflineImapError.ERROR.MESSAGE)
                     self.ui.error(e, exc_info()[2])
-
                 except imapobj.error, e: # APPEND failed
                     # If the server responds with 'BAD', append()
                     # raise()s directly.  So we catch that too.
+                    # drop conn, it might be bad.
+                    self.imapserver.releaseconnection(imapobj, True)
+                    imapobj = None
                     raise OfflineImapError("Saving msg folder '%s', repo '%s'"
-                        "failed. Server reponded: %s\nMessage content was: "
+                        "failed (error). Server reponded: %s\nMessage content was: "
                         "%s" % (self, self.getrepository(), str(e), dbg_output),
                                            OfflineImapError.ERROR.MESSAGE)
             # Checkpoint. Let it write out stuff, etc. Eg searches for
