@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.28"
+__version__ = "2.29"
 __release__ = "2"
-__revision__ = "28"
+__revision__ = "29"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -1234,11 +1234,13 @@ class IMAP4(object):
 
     def _choose_nonull_or_dflt(self, dflt, *args):
         dflttyp = type(dflt)
+        if isinstance(dflttyp, basestring):
+            dflttyp = basestring            # Allow any string type
         for arg in args:
             if arg is not None:
-                 if type(arg) is dflttyp:
+                 if isinstance(arg, dflttyp):
                      return arg
-                 if __debug__: self._log(1, 'bad arg type is %s, expecting %s' % (type(arg), dflttyp))
+                 if __debug__: self._log(0, 'bad arg is %s, expecting %s' % (type(arg), dflttyp))
         return dflt
 
 
@@ -2323,6 +2325,7 @@ if __name__ == '__main__':
     data = open(os.path.exists("test.data") and "test.data" or __file__).read(1000)
     test_mesg = 'From: %(user)s@localhost%(lf)sSubject: IMAP4 test%(lf)s%(lf)s%(data)s' \
                      % {'user':USER, 'lf':'\n', 'data':data}
+
     test_seq1 = [
     ('list', ('""', '%')),
     ('create', ('/tmp/imaplib2_test.0',)),
@@ -2342,7 +2345,7 @@ if __name__ == '__main__':
 
     test_seq2 = (
     ('select', ()),
-    ('response',('UIDVALIDITY',)),
+    ('response', ('UIDVALIDITY',)),
     ('response', ('EXISTS',)),
     ('append', (None, None, None, test_mesg)),
     ('uid', ('SEARCH', 'SUBJECT', 'IMAP4 test')),
@@ -2350,6 +2353,7 @@ if __name__ == '__main__':
     ('uid', ('THREAD', 'references', 'UTF-8', '(SEEN)')),
     ('recent', ()),
     )
+
 
     AsyncError = None
 
@@ -2436,9 +2440,20 @@ if __name__ == '__main__':
 
         if 'IDLE' in M.capabilities:
             run('idle', (2,), cb=False)
-            run('idle', (99,), cb=True) # Asynchronous, to test interruption of 'idle' by 'noop'
+            run('idle', (99,))          # Asynchronous, to test interruption of 'idle' by 'noop'
             time.sleep(1)
             run('noop', (), cb=False)
+
+            run('append', (None, None, None, test_mesg), cb=False)
+            num = run('search', (None, 'ALL'), cb=False)[0].split()[0]
+            dat = run('fetch', (num, '(FLAGS INTERNALDATE RFC822)'), cb=False)
+            M._mesg('fetch %s => %s' % (num, `dat`))
+            run('idle', (2,))
+            run('store', (num, '-FLAGS', '(\Seen)'), cb=False),
+            dat = run('fetch', (num, '(FLAGS INTERNALDATE RFC822)'), cb=False)
+            M._mesg('fetch %s => %s' % (num, `dat`))
+            run('uid', ('STORE', num, 'FLAGS', '(\Deleted)'))
+            run('expunge', ())
 
         run('logout', (), cb=False)
 

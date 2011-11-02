@@ -31,6 +31,8 @@ Changes
   c) File output should be flushed after logging by default (do
   report if not).
 
+* Bumped bundled imaplib2 to release 2.29
+
 Bug Fixes
 ---------
 
