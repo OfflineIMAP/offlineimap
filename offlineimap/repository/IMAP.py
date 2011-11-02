@@ -290,7 +290,7 @@ class IMAPRepository(BaseRepository):
             try:
                 for foldername in self.folderincludes:
                     try:
-                        imapobj.select(foldername, readonly = 1)
+                        imapobj.select(foldername, readonly = True)
                     except OfflineImapError, e:
                         # couldn't select this folderinclude, so ignore folder.
                         if e.severity > OfflineImapError.ERROR.FOLDER:

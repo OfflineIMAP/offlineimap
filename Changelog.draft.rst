@@ -29,3 +29,7 @@ Bug Fixes
 
 * New folders on the remote would be skipped on the very sync run they
   are created and only by synced in subsequent runs. Fixed.
+
+* a readonly parameter to select() was not always treated correctly,
+  which could result in some folders being opened read-only when we
+  really needed read-write.

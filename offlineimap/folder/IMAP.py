@@ -55,7 +55,7 @@ class IMAPFolder(BaseFolder):
         try:
             imapobj.select(self.getfullname())
         except imapobj.readonly:
-            imapobj.select(self.getfullname(), readonly = 1)
+            imapobj.select(self.getfullname(), readonly = True)
 
     def suggeststhreads(self):
         return 1
@@ -205,7 +205,7 @@ class IMAPFolder(BaseFolder):
             fails_left = 2 # retry on dropped connection
             while fails_left:
                 try:
-                    imapobj.select(self.getfullname(), readonly = 1)
+                    imapobj.select(self.getfullname(), readonly = True)
                     res_type, data = imapobj.uid('fetch', str(uid),
                                                  '(BODY.PEEK[])')
                     fails_left = 0
