@@ -151,26 +151,15 @@ class CursesAccountFrame:
         self.children.append(tf)
         return tf
 
-    def startsleep(s, sleepsecs):
-        s.sleeping_abort = 0
+    def startsleep(self, sleepsecs):
+        self.sleeping_abort = 0
 
-    def sleeping(s, sleepsecs, remainingsecs):
-        if remainingsecs:
-            s.c.lock()
-            try:
-                s.drawleadstr(remainingsecs)
-                s.window.refresh()
-            finally:
-                s.c.unlock()
-            time.sleep(sleepsecs)
-        else:
-            s.c.lock()
-            try:
-                s.drawleadstr()
-                s.window.refresh()
-            finally:
-                s.c.unlock()
-        return s.sleeping_abort
+    def sleeping(self, sleepsecs, remainingsecs):
+        # show how long we are going to sleep and sleep
+        self.drawleadstr(remainingsecs)
+        self.ui.exec_locked(self.window.refresh)
+        time.sleep(sleepsecs)
+        return 0
 
     def syncnow(s):
         s.sleeping_abort = 1
@@ -513,10 +502,9 @@ class Blinkenlights(UIBase, CursesUtil):
         return super(Blinkenlights, self).sleep(sleepsecs, account)
 
     def sleeping(self, sleepsecs, remainingsecs):
-        if remainingsecs and s.gettf().getcolor() == 'black':
-            self.gettf().setcolor('red')
-        else:
-            self.gettf().setcolor('black')
+        if not sleepsecs:
+            # reset color to default if we are done sleeping.
+            self.gettf().setcolor('white')
         return self.getaccountframe().sleeping(sleepsecs, remainingsecs)
 
     def resizeterm(self):
