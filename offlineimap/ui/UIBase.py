@@ -81,7 +81,7 @@ class UIBase(object):
 
     def setlogfile(self, logfile):
         """Create file handler which logs to file"""
-        fh = logging.FileHandler(logfile, 'wt')
+        fh = logging.FileHandler(logfile, 'at')
         #fh.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter("%(asctime)s %(levelname)s: "
                          "%(message)s", '%Y-%m-%d %H:%M:%S')
