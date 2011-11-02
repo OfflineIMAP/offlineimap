@@ -372,7 +372,10 @@ class IMAPServer:
         # Make sure I own all the semaphores.  Let the threads finish
         # their stuff.  This is a blocking method.
         with self.connectionlock:
-            # first, wait till all
+            # first, wait till all connections had been released.
+            # TODO: won't work IMHO, as releaseconnection() also
+            # requires the connectionlock, leading to a potential
+            # deadlock! Audit & check!
             threadutil.semaphorereset(self.semaphore, self.maxconnections)
             for imapobj in self.assignedconnections + self.availableconnections:
                 imapobj.logout()
