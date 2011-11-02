@@ -358,7 +358,6 @@ class OfflineImap:
                                  name='Sync Runner',
                                  kwargs = {'accounts': syncaccounts,
                                            'config': self.config})
-                t.setDaemon(True)
                 t.start()
                 threadutil.exitnotifymonitorloop(threadutil.threadexited)
             self.ui.terminate()

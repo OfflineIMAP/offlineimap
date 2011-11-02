@@ -28,8 +28,8 @@ from offlineimap.ui import getglobalui
 ######################################################################
 
 def semaphorereset(semaphore, originalstate):
-    """Wait until the semaphore gets back to its original state -- all acquired
-    resources released."""
+    """Block until `semaphore` gets back to its original state, ie all acquired
+    resources have been released."""
     for i in range(originalstate):
         semaphore.acquire()
     # Now release these.

@@ -291,7 +291,6 @@ class SyncableAccount(Account):
                     name = "Folder %s [acc: %s]" % (remotefolder, self),
                     args = (self.name, remoterepos, remotefolder, localrepos,
                             statusrepos, quick))
-                thread.setDaemon(1)
                 thread.start()
                 folderthreads.append(thread)
             # wait for all threads to finish

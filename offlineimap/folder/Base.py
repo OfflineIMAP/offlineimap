@@ -341,7 +341,6 @@ class BaseFolder(object):
                     target = self.copymessageto,
                     name = "Copy message from %s:%s" % (self.repository, self),
                     args = (uid, dstfolder, statusfolder))
-                thread.setDaemon(1)
                 thread.start()
                 threads.append(thread)
             else:
