@@ -34,37 +34,37 @@ except ImportError:
     #fails on python <2.6
     pass
 
-class UsefulIMAPMixIn:
+class UsefulIMAPMixIn(object):
     def getselectedfolder(self):
         if self.state == 'SELECTED':
             return self.mailbox
         return None
 
-    def select(self, mailbox='INBOX', readonly=None, force = 0):
+    def select(self, mailbox='INBOX', readonly=False, force = 0):
         """Selects a mailbox on the IMAP server
 
         :returns: 'OK' on success, nothing if the folder was already
         selected or raises an :exc:`OfflineImapError`"""
-        if (not force) and self.getselectedfolder() == mailbox \
-           and self.is_readonly == readonly:
+        if self.getselectedfolder() == mailbox and self.is_readonly == readonly \
+                and not force:
             # No change; return.
             return
         # Wipe out all old responses, to maintain semantics with old imaplib2
         del self.untagged_responses[:]
         try:
-            result = self.__class__.__bases__[1].select(self, mailbox, readonly)
+            result = super(UsefulIMAPMixIn, self).select(mailbox, readonly)
         except self.abort, e:
             # self.abort is raised when we are supposed to retry
             errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
                 "ver said: %s" % (self.host, mailbox, e.args[0])
             severity = OfflineImapError.ERROR.FOLDER_RETRY
-            raise OfflineImapError(errstr, severity) 
+            raise OfflineImapError(errstr, severity)
         if result[0] != 'OK':
             #in case of error, bail out with OfflineImapError
             errstr = "Error SELECTing mailbox '%s', server reply:\n%s" %\
                 (mailbox, result)
             severity = OfflineImapError.ERROR.FOLDER
-            raise OfflineImapError(errstr, severity) 
+            raise OfflineImapError(errstr, severity)
         return result
 
     def _mesg(self, s, tn=None, secs=None):

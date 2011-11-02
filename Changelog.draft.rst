@@ -43,3 +43,7 @@ Bug Fixes
 
 * Make NOOPs to keep a server connection open more resistant against dropped 
   connections.
+
+* a readonly parameter to select() was not always treated correctly,
+  which could result in some folders being opened read-only when we
+  really needed read-write.
