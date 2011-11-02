@@ -119,6 +119,7 @@ class CursesAccountFrame:
         self.children = []
         self.accountname = accountname
         self.ui = ui
+        self.window = None
 
     def drawleadstr(self, secs = None):
         #TODO: does what?
@@ -178,7 +179,7 @@ class CursesThreadFrame:
         self.curses_color = curses.color_pair(0) #default color
 
     def setcolor(self, color, modifier=0):
-        """Draw the thread symbol '.' in the specified color
+        """Draw the thread symbol '@' in the specified color
         :param modifier: Curses modified, such as curses.A_BOLD"""
         self.curses_color = modifier | self.ui.curses_colorpair(color)
         self.colorname = color
@@ -186,7 +187,7 @@ class CursesThreadFrame:
 
     def display(self):
         def locked_display():
-            self.window.addch(self.y, self.x, '.', self.curses_color)
+            self.window.addch(self.y, self.x, '@', self.curses_color)
             self.window.refresh()
         # lock the curses IO while fudging stuff
         self.ui.exec_locked(locked_display)
@@ -289,7 +290,7 @@ class CursesLogHandler(logging.StreamHandler):
         finally:
             self.ui.unlock()
             self.ui.tframe_lock.release()
-        self.ui.logwin.refresh()
+        self.ui.logwin.noutrefresh()
         self.ui.stdscr.refresh()
 
 class Blinkenlights(UIBase, CursesUtil):
@@ -509,7 +510,7 @@ class Blinkenlights(UIBase, CursesUtil):
 
     def resizeterm(self):
         """Resize the current windows"""
-        self.exec_locked(self.setupwindows(True))
+        self.exec_locked(self.setupwindows, True)
 
     def mainException(self):
         UIBase.mainException(self)
@@ -537,33 +538,30 @@ class Blinkenlights(UIBase, CursesUtil):
 
         If `resize`, don't create new windows, just adapt size"""
         self.height, self.width = self.stdscr.getmaxyx()
-        if resize:
-            raise Exception("resizehandler %d" % self.width)
-
         self.logheight = self.height - len(self.accframes) - 1
         if resize:
             curses.resizeterm(self.height, self.width)
             self.bannerwin.resize(1, self.width)
+            self.logwin.resize(self.logheight, self.width)
         else:
             self.bannerwin = curses.newwin(1, self.width, 0, 0)
             self.logwin = curses.newwin(self.logheight, self.width, 1, 0)
 
         self.draw_bannerwin()
-        self.logwin.idlok(1)
-        self.logwin.scrollok(1)
+        self.logwin.idlok(True) # needed for scrollok below
+        self.logwin.scrollok(True) # scroll window when too many lines added
         self.logwin.move(self.logheight - 1, 0)
         self.draw_logwin()
         self.accounts = reversed(sorted(self.accframes.keys()))
-
         pos = self.height - 1
         index = 0
         self.hotkeys = []
         for account in self.accounts:
-                acc_win = curses.newwin(1, self.width, pos, 0)
-                self.accframes[account].setwindow(acc_win, acctkeys[index])
-                self.hotkeys.append(account)
-                index += 1
-                pos -= 1
+            acc_win = curses.newwin(1, self.width, pos, 0)
+            self.accframes[account].setwindow(acc_win, acctkeys[index])
+            self.hotkeys.append(account)
+            index += 1
+            pos -= 1
         curses.doupdate()
 
     def draw_bannerwin(self):
@@ -572,6 +570,7 @@ class Blinkenlights(UIBase, CursesUtil):
             color = curses.A_BOLD | self.curses_colorpair('banner')
         else:
             color = curses.A_REVERSE
+        self.bannerwin.clear() # Delete old content (eg before resizes)
         self.bannerwin.bkgd(' ', color) # Fill background with that color
         string = "%s %s" % (offlineimap.__productname__,
                             offlineimap.__version__)
@@ -581,10 +580,12 @@ class Blinkenlights(UIBase, CursesUtil):
         self.bannerwin.noutrefresh()
 
     def draw_logwin(self):
-        #if curses.has_colors():
-        #    color = s.c.getpair(curses.COLOR_WHITE, curses.COLOR_BLACK)
-        #else:
-        color = curses.A_NORMAL
+        """(Re)draw the current logwindow"""
+        if curses.has_colors():
+            color = curses.color_pair(0) #default colors
+        else:
+            color = curses.A_NORMAL
+        self.logwin.clear()
         self.logwin.bkgd(' ', color)
         for line, color in self.text:
             self.logwin.addstr("\n" + line, color)
@@ -598,7 +599,8 @@ class Blinkenlights(UIBase, CursesUtil):
             # 1) Return existing or 2) create a new CursesAccountFrame.
             if acc_name in self.accframes: return self.accframes[acc_name]
             self.accframes[acc_name] = CursesAccountFrame(self, acc_name)
-            self.setupwindows()
+            # update the window layout
+            self.setupwindows(resize= True)
         return self.accframes[acc_name]
 
     def terminate(self, *args, **kwargs):
