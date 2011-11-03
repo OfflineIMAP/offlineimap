@@ -1,6 +1,5 @@
 # Curses-based interfaces
-# Copyright (C) 2003 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2003-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,7 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from __future__ import with_statement # needed for python 2.5
-from threading import RLock, currentThread, Lock, Event, Thread
+from threading import RLock, currentThread, Lock, Event
 from thread import get_ident	# python < 2.6 support
 from collections import deque
 import time
@@ -29,8 +28,6 @@ import logging
 from offlineimap.ui.UIBase import UIBase
 from offlineimap.threadutil import ExitNotifyThread
 import offlineimap
-
-acctkeys = '1234567890abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-=;/.,'
 
 class CursesUtil:
 
@@ -115,28 +112,34 @@ class CursesAccountFrame:
     - window: curses window associated with an account
     """
 
-    def __init__(self, ui, accountname):
+    def __init__(self, ui, acc_name):
         self.children = []
-        self.accountname = accountname
+        self.acc_name = acc_name
         self.ui = ui
         self.window = None
+        """Curses window associated with this acc"""
+        self.acc_num = None
+        """Account number (& hotkey) associated with this acc"""
+        self.location = 0
+        """length of the account prefix string"""
 
-    def drawleadstr(self, secs = None):
-        #TODO: does what?
-        if secs == None:
-            acctstr = '%s: [active] %13.13s: ' % (self.key, self.accountname)
-        else:
-            acctstr = '%s: [%3d:%02d] %13.13s: ' % (self.key,
-                                                    secs / 60, secs % 60,
-                                                    self.accountname)
-        self.ui.exec_locked(self.window.addstr, 0, 0, acctstr)
-        self.location = len(acctstr)
+    def drawleadstr(self, secs = 0):
+        """Draw the account status string
 
-    def setwindow(self, curses_win, key):
-        #TODO: does what?
-        # the curses window associated with an account
+        secs tells us how long we are going to sleep."""
+        sleepstr = '%3d:%02d' % (secs // 60, secs % 60) if secs else 'active'
+        accstr = '%s: [%s] %12.12s: ' % (self.acc_num, sleepstr, self.acc_name)
+
+        self.ui.exec_locked(self.window.addstr, 0, 0, accstr)
+        self.location = len(accstr)
+
+    def setwindow(self, curses_win, acc_num):
+        """Register an curses win and a hotkey as Account window
+
+        :param curses_win: the curses window associated with an account
+        :param acc_num: int denoting the hotkey associated with this account."""
         self.window = curses_win
-        self.key = key
+        self.acc_num = acc_num
         self.drawleadstr()
         # Update the child ThreadFrames
         for child in self.children:
@@ -486,9 +489,9 @@ class Blinkenlights(UIBase, CursesUtil):
             currentThread().set_exit_exception(SystemExit("User requested shutdown"))
             self.terminate()
         try:
-            index = acctkeys.index(chr(key))
+            index = int(chr(key))
         except ValueError:
-            # Key not a valid one: exit.
+            # Key not a valid number: exit.
             return
         if index >= len(self.hotkeys):
             # Not in our list of valid hotkeys.
@@ -558,7 +561,7 @@ class Blinkenlights(UIBase, CursesUtil):
         self.hotkeys = []
         for account in self.accounts:
             acc_win = curses.newwin(1, self.width, pos, 0)
-            self.accframes[account].setwindow(acc_win, acctkeys[index])
+            self.accframes[account].setwindow(acc_win, index)
             self.hotkeys.append(account)
             index += 1
             pos -= 1
