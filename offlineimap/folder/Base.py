@@ -254,7 +254,7 @@ class BaseFolder(object):
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
         if register: # output that we start a new thread
-            self.ui.registerthread(self.accountname)
+            self.ui.registerthread(self.repository.account)
 
         try:
             message = None

@@ -206,7 +206,7 @@ class SyncableAccount(Account):
                 pass #Failed to delete for some reason.
 
     def syncrunner(self):
-        self.ui.registerthread(self.name)
+        self.ui.registerthread(self)
         accountmetadata = self.getaccountmeta()
         if not os.path.exists(accountmetadata):
             os.mkdir(accountmetadata, 0700)
@@ -338,7 +338,7 @@ def syncfolder(account, remotefolder, quick):
     statusrepos = account.statusrepos
 
     ui = getglobalui()
-    ui.registerthread(account.name)
+    ui.registerthread(account)
     try:
         # Load local folder.
         localfolder = localrepos.\

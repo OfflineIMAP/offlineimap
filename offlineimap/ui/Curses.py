@@ -105,16 +105,16 @@ class CursesUtil:
 class CursesAccountFrame:
     """Notable instance variables:
 
-    - accountname: String with associated account name
+    - account: corresponding Account()
     - children
     - ui
     - key
     - window: curses window associated with an account
     """
 
-    def __init__(self, ui, acc_name):
+    def __init__(self, ui, account):
         self.children = []
-        self.acc_name = acc_name
+        self.account = account
         self.ui = ui
         self.window = None
         """Curses window associated with this acc"""
@@ -128,7 +128,7 @@ class CursesAccountFrame:
 
         secs tells us how long we are going to sleep."""
         sleepstr = '%3d:%02d' % (secs // 60, secs % 60) if secs else 'active'
-        accstr = '%s: [%s] %12.12s: ' % (self.acc_num, sleepstr, self.acc_name)
+        accstr = '%s: [%s] %12.12s: ' % (self.acc_num, sleepstr, self.account)
 
         self.ui.exec_locked(self.window.addstr, 0, 0, accstr)
         self.location = len(accstr)
@@ -491,8 +491,7 @@ class Blinkenlights(UIBase, CursesUtil):
         try:
             index = int(chr(key))
         except ValueError:
-            # Key not a valid number: exit.
-            return
+            return # Key not a valid number: exit.
         if index >= len(self.hotkeys):
             # Not in our list of valid hotkeys.
             return

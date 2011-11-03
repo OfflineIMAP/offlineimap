@@ -160,12 +160,14 @@ class UIBase(object):
         self.debug('thread', "Unregister thread '%s'" % thr.getName())
 
     def getthreadaccount(self, thr = None):
-        """Get name of account for a thread (current if None)"""
-        if not thr:
+        """Get Account() for a thread (current if None)
+
+        If no account has been registered with this thread, return 'None'"""
+        if thr == None:
             thr = threading.currentThread()
         if thr in self.threadaccounts:
             return self.threadaccounts[thr]
-        return '*Control' # unregistered thread is '*Control'
+        return None
 
     def debug(self, debugtype, msg):
         cur_thread = threading.currentThread()

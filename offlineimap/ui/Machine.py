@@ -42,9 +42,9 @@ class MachineUI(UIBase):
         self.logger.warning("%s:%s:%s:%s" % (
                 'warn', '', currentThread().getName(), msg))
 
-    def registerthread(s, account):
-        UIBase.registerthread(s, account)
-        s._printData('registerthread', account)
+    def registerthread(self, account):
+        super(MachineUI, self).registerthread(self, account)
+        self._printData('registerthread', account)
 
     def unregisterthread(s, thread):
         UIBase.unregisterthread(s, thread)
