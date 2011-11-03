@@ -289,8 +289,7 @@ class SyncableAccount(Account):
                     instancename = 'FOLDER_' + self.remoterepos.getname(),
                     target = syncfolder,
                     name = "Folder %s [acc: %s]" % (remotefolder, self),
-                    args = (self.name, remoterepos, remotefolder, localrepos,
-                            statusrepos, quick))
+                    args = (self, remotefolder, quick))
                 thread.start()
                 folderthreads.append(thread)
             # wait for all threads to finish
@@ -329,15 +328,17 @@ class SyncableAccount(Account):
         except Exception, e:
             self.ui.error(e, exc_info()[2], msg = "Calling hook")
 
-
-def syncfolder(accountname, remoterepos, remotefolder, localrepos,
-               statusrepos, quick):
+def syncfolder(account, remotefolder, quick):
     """This function is called as target for the
     InstanceLimitedThread invokation in SyncableAccount.
 
     Filtered folders on the remote side will not invoke this function."""
+    remoterepos = account.remoterepos
+    localrepos = account.localrepos
+    statusrepos = account.statusrepos
+
     ui = getglobalui()
-    ui.registerthread(accountname)
+    ui.registerthread(account.name)
     try:
         # Load local folder.
         localfolder = localrepos.\
@@ -352,7 +353,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                          % localfolder)
             return
         # Write the mailboxes
-        mbnames.add(accountname, localfolder.getvisiblename())
+        mbnames.add(account.name, localfolder.getvisiblename())
 
         # Load status folder.
         statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
@@ -431,11 +432,11 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                      "[acc: '%s']" % (
                     remotefolder.getvisiblename().\
                         replace(remoterepos.getsep(), localrepos.getsep()),
-                    accountname))
+                    account))
                     # we reconstruct foldername above rather than using
                     # localfolder, as the localfolder var is not
                     # available if assignment fails.
     except Exception, e:
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
-                (accountname,remotefolder.getvisiblename(),
+                (account, remotefolder.getvisiblename(),
                  traceback.format_exc()))

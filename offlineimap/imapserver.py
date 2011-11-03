@@ -515,9 +515,9 @@ class IdleThread(object):
         remoterepos = account.remoterepos
         statusrepos = account.statusrepos
         remotefolder = remoterepos.getfolder(self.folder)
-        offlineimap.accounts.syncfolder(account.name, remoterepos, remotefolder, localrepos, statusrepos, quick=False)
+        offlineimap.accounts.syncfolder(account, remotefolder, quick=False)
         ui = getglobalui()
-        ui.unregisterthread(currentThread())
+        ui.unregisterthread(currentThread()) #syncfolder registered the thread
 
     def idle(self):
         """Invoke IDLE mode until timeout or self.stop() is invoked"""
