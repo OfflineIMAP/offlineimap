@@ -113,8 +113,10 @@ class CursesAccountFrame:
     """
 
     def __init__(self, ui, account):
+        """
+        :param account: An Account() or None (for eg SyncrunnerThread)"""
         self.children = []
-        self.account = account
+        self.account = account if account else '*Control'
         self.ui = ui
         self.window = None
         """Curses window associated with this acc"""
@@ -155,18 +157,21 @@ class CursesAccountFrame:
         self.children.append(tf)
         return tf
 
-    def startsleep(self, sleepsecs):
-        self.sleeping_abort = 0
-
     def sleeping(self, sleepsecs, remainingsecs):
         # show how long we are going to sleep and sleep
         self.drawleadstr(remainingsecs)
         self.ui.exec_locked(self.window.refresh)
         time.sleep(sleepsecs)
-        return 0
+        return self.account.abort_signal.is_set()
 
-    def syncnow(s):
-        s.sleeping_abort = 1
+    def syncnow(self):
+        """Request that we stop sleeping asap and continue to sync"""
+        # if this belongs to an Account (and not *Control), set the
+        # skipsleep pref
+        if isinstance(self.account, offlineimap.accounts.Account):
+            self.ui.info("Requested synchronization for acc: %s" % self.account)
+            self.account.config.set('Account %s' % self.account.name,
+                                        'skipsleep', '1')
 
 class CursesThreadFrame:
     """
@@ -442,37 +447,37 @@ class Blinkenlights(UIBase, CursesUtil):
         super(Blinkenlights, self).warn(msg)
 
     def threadExited(self, thread):
-        acc_name = self.getthreadaccount(thread)
+        acc = self.getthreadaccount(thread)
         with self.tframe_lock:
-            if thread in self.threadframes[acc_name]:
-                tf = self.threadframes[acc_name][thread]
+            if thread in self.threadframes[acc]:
+                tf = self.threadframes[acc][thread]
                 tf.setcolor('black')
-                self.availablethreadframes[acc_name].append(tf)
-                del self.threadframes[acc_name][thread]
+                self.availablethreadframes[acc].append(tf)
+                del self.threadframes[acc][thread]
         super(Blinkenlights, self).threadExited(thread)
 
     def gettf(self):
         """Return the ThreadFrame() of the current thread"""
         cur_thread = currentThread()
-        acc_name = self.getthreadaccount()
+        acc = self.getthreadaccount() #Account() or None
 
         with self.tframe_lock:
             # Ideally we already have self.threadframes[accountname][thread]
             try:
-                if cur_thread in self.threadframes[acc_name]:
-                    return self.threadframes[acc_name][cur_thread]
+                if cur_thread in self.threadframes[acc]:
+                    return self.threadframes[acc][cur_thread]
             except KeyError:
                 # Ensure threadframes already has an account dict
-                self.threadframes[acc_name] = {}
-                self.availablethreadframes[acc_name] = deque()
+                self.threadframes[acc] = {}
+                self.availablethreadframes[acc] = deque()
 
             # If available, return a ThreadFrame()
-            if len(self.availablethreadframes[acc_name]):
-                tf = self.availablethreadframes[acc_name].popleft()
+            if len(self.availablethreadframes[acc]):
+                tf = self.availablethreadframes[acc].popleft()
                 tf.std_color()
             else:
-                tf = self.getaccountframe(acc_name).get_new_tframe()
-            self.threadframes[acc_name][cur_thread] = tf
+                tf = self.getaccountframe(acc).get_new_tframe()
+            self.threadframes[acc][cur_thread] = tf
         return tf
 
     def on_keypressed(self, key):
@@ -501,14 +506,14 @@ class Blinkenlights(UIBase, CursesUtil):
     def sleep(self, sleepsecs, account):
         self.gettf().setcolor('red')
         self.info("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
-        self.getaccountframe().startsleep(sleepsecs)
         return super(Blinkenlights, self).sleep(sleepsecs, account)
 
     def sleeping(self, sleepsecs, remainingsecs):
         if not sleepsecs:
             # reset color to default if we are done sleeping.
             self.gettf().setcolor('white')
-        return self.getaccountframe().sleeping(sleepsecs, remainingsecs)
+        accframe = self.getaccountframe(self.getthreadaccount())
+        return accframe.sleeping(sleepsecs, remainingsecs)
 
     def resizeterm(self):
         """Resize the current windows"""
@@ -593,10 +598,10 @@ class Blinkenlights(UIBase, CursesUtil):
             self.logwin.addstr("\n" + line, color)
         self.logwin.noutrefresh()
 
-    def getaccountframe(self, acc_name = None):
-        """Return an AccountFrame()"""
-        if acc_name == None:
-            acc_name = self.getthreadaccount()
+    def getaccountframe(self, acc_name):
+        """Return an AccountFrame() corresponding to acc_name
+
+        Note that the *control thread uses acc_name `None`."""
         with self.aflock:
             # 1) Return existing or 2) create a new CursesAccountFrame.
             if acc_name in self.accframes: return self.accframes[acc_name]
@@ -617,7 +622,7 @@ class Blinkenlights(UIBase, CursesUtil):
         # finally call parent terminate which prints out exceptions etc
         super(Blinkenlights, self).terminate(*args, **kwargs)
 
-    def threadException(s, thread):
+    def threadException(self, thread):
         #self._log_con_handler.stop()
-        UIBase.threadException(s, thread)
+        UIBase.threadException(self, thread)
 

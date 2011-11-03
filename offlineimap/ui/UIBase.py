@@ -48,7 +48,7 @@ class UIBase(object):
         """list of debugtypes we are supposed to log"""
         self.debugmessages = {}
         """debugmessages in a deque(v) per thread(k)"""
-        self.debugmsglen = 50
+        self.debugmsglen = 15
         self.threadaccounts = {}
         """dict linking active threads (k) to account names (v)"""
         self.acct_startimes = {}
