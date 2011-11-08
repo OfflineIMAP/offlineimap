@@ -278,6 +278,7 @@ class InputHandler(ExitNotifyThread):
 
 
 class CursesLogHandler(logging.StreamHandler):
+    """self.ui has been set to the UI class before anything is invoked"""
 
     def emit(self, record):
         log_str = super(CursesLogHandler, self).format(record)
@@ -290,11 +291,9 @@ class CursesLogHandler(logging.StreamHandler):
         self.ui.tframe_lock.acquire()
         self.ui.lock()
         try:
-            for line in log_str.split("\n"):
-                self.ui.logwin.addstr("\n" + line, color)
-                self.ui.text.append((line, color))
-            while len(self.ui.text) > self.ui.logheight:
-                self.ui.text.popleft()
+            y,x = self.ui.logwin.getyx()
+            if y or x: self.ui.logwin.addch(10) # no \n before 1st item
+            self.ui.logwin.addstr(log_str, color)
         finally:
             self.ui.unlock()
             self.ui.tframe_lock.release()
@@ -360,7 +359,6 @@ class Blinkenlights(UIBase, CursesUtil):
         self.threadframes = {}
         self.accframes = {}
         self.aflock = Lock()
-        self.text = deque()
 
         self.stdscr = curses.initscr()
         # turn off automatic echoing of keys to the screen
@@ -543,7 +541,8 @@ class Blinkenlights(UIBase, CursesUtil):
     def setupwindows(self, resize=False):
         """Setup and draw bannerwin and logwin
 
-        If `resize`, don't create new windows, just adapt size"""
+        If `resize`, don't create new windows, just adapt size. This
+        function should be invoked with CursesUtils.locked()."""
         self.height, self.width = self.stdscr.getmaxyx()
         self.logheight = self.height - len(self.accframes) - 1
         if resize:
@@ -555,9 +554,8 @@ class Blinkenlights(UIBase, CursesUtil):
             self.logwin = curses.newwin(self.logheight, self.width, 1, 0)
 
         self.draw_bannerwin()
-        self.logwin.idlok(True) # needed for scrollok below
+        self.logwin.idlok(True)    # needed for scrollok below
         self.logwin.scrollok(True) # scroll window when too many lines added
-        self.logwin.move(self.logheight - 1, 0)
         self.draw_logwin()
         self.accounts = reversed(sorted(self.accframes.keys()))
         pos = self.height - 1
@@ -592,11 +590,9 @@ class Blinkenlights(UIBase, CursesUtil):
             color = curses.color_pair(0) #default colors
         else:
             color = curses.A_NORMAL
-        self.logwin.clear()
+        self.logwin.move(0, 0)
+        self.logwin.erase()
         self.logwin.bkgd(' ', color)
-        for line, color in self.text:
-            self.logwin.addstr("\n" + line, color)
-        self.logwin.noutrefresh()
 
     def getaccountframe(self, acc_name):
         """Return an AccountFrame() corresponding to acc_name
