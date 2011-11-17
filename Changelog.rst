@@ -11,7 +11,7 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
-OfflineIMAP v6.4.0 (2011-11-17)
+OfflineIMAP v6.4.1 (2011-11-17)
 ===============================
 
 Changes
