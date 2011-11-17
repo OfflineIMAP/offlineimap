@@ -19,10 +19,6 @@ New Features
 Changes
 -------
 
-* Indicate progress when copying many messages (slightly change log format)
-
-* Output how long an account sync took (min:sec).
-
 * Reworked logging which was reported to e.g. not flush output to files
   often enough. User-visible changes:
   a) console output goes to stderr (for now).
@@ -35,17 +31,3 @@ Changes
 
 Bug Fixes
 ---------
-
-* Syncing multiple accounts in single-threaded mode would fail as we try
-  to "register" a thread as belonging to two accounts which was
-  fatal. Make it non-fatal (it can be legitimate).
-
-* New folders on the remote would be skipped on the very sync run they
-  are created and only by synced in subsequent runs. Fixed.
-
-* Make NOOPs to keep a server connection open more resistant against dropped 
-  connections.
-
-* a readonly parameter to select() was not always treated correctly,
-  which could result in some folders being opened read-only when we
-  really needed read-write.
