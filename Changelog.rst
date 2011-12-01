@@ -11,6 +11,18 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.4.2 (2011-12-01)
+===============================
+
+* IMAP<->IMAP sync with a readonly local IMAP repository failed with a
+  rather mysterious "TypeError: expected a character buffer object"
+  error. Fix this my retrieving the list of folders early enough even
+  for readonly repositories.
+
+* Fix regression from 6.4.0. When using local Maildirs with "/" as a
+  folder separator, all folder names would get a trailing slash
+  appended, which is plain wrong.
+
 OfflineIMAP v6.4.1 (2011-11-17)
 ===============================
 
