@@ -74,6 +74,13 @@ class IMAPRepository(BaseRepository):
             return num
 
     def getsep(self):
+        """Return the folder separator for the IMAP repository
+
+        This requires that self.imapserver has been initialized with an
+        acquireconnection() or it will still be `None`"""
+        assert self.imapserver.delim != None, "'%s' " \
+            "repository called getsep() before the folder separator was " \
+            "queried from the server" % self
         return self.imapserver.delim
 
     def gethost(self):
