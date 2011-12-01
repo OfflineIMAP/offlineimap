@@ -47,7 +47,11 @@ class IMAPServer:
     """Initializes all variables from an IMAPRepository() instance
 
     Various functions, such as acquireconnection() return an IMAP4
-    object on which we can operate."""
+    object on which we can operate.
+
+    Public instance variables are: self.:
+     delim The server's folder delimiter. Only valid after acquireconnection()
+     """
     GSS_STATE_STEP = 0
     GSS_STATE_WRAP = 1
     def __init__(self, repos):
@@ -97,11 +101,6 @@ class IMAPServer:
                                         self.passworderror)
         self.passworderror = None
         return self.password
-
-    def getdelim(self):
-        """Returns this server's folder delimiter.  Can only be called
-        after one or more calls to acquireconnection."""
-        return self.delim
 
     def getroot(self):
         """Returns this server's folder root.  Can only be called after one
