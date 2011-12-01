@@ -162,7 +162,7 @@ class MaildirRepository(BaseRepository):
                 # Not a directory -- not a folder.
                 continue
             foldername = dirname
-            if extension != None:
+            if extension and dirname != '':
                 foldername = os.path.join(extension, dirname)
             if (os.path.isdir(os.path.join(fullname, 'cur')) and
                 os.path.isdir(os.path.join(fullname, 'new')) and
@@ -187,7 +187,7 @@ class MaildirRepository(BaseRepository):
         self.debug("_GETFOLDERS_SCANDIR RETURNING %s" % \
                    repr([x.getname() for x in retval]))
         return retval
-    
+
     def getfolders(self):
         if self.folders == None:
             self.folders = self._getfolders_scandir(self.root)
