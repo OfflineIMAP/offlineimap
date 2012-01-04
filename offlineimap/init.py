@@ -288,11 +288,6 @@ class OfflineImap:
 
         self.config is supposed to have been correctly initialized
         already."""
-        def sigterm_handler(signum, frame):
-            # die immediately
-            self.ui.terminate(errormsg="terminating...")
-        signal.signal(signal.SIGTERM, sigterm_handler)
-
         try:
             pidfd = open(self.config.getmetadatadir() + "/pid", "w")
             pidfd.write(str(os.getpid()) + "\n")
@@ -328,11 +323,19 @@ class OfflineImap:
                     accounts.Account.set_abort_event(self.config, 1)
                 elif sig == signal.SIGUSR2:
                     # tell each account to stop looping
+                    getglobalui().warn("Terminating after this sync...")
                     accounts.Account.set_abort_event(self.config, 2)
+                elif sig == signal.SIGTERM or sig == signal.SIGINT:
+                    # tell each account to ABORT ASAP (ctrl-c)
+                    getglobalui().warn("Terminating NOW (this may "\
+                                       "take a few seconds)...")
+                    accounts.Account.set_abort_event(self.config, 3)
 
             signal.signal(signal.SIGHUP,sig_handler)
             signal.signal(signal.SIGUSR1,sig_handler)
             signal.signal(signal.SIGUSR2,sig_handler)
+            signal.signal(signal.SIGTERM, sig_handler)
+            signal.signal(signal.SIGINT, sig_handler)
 
             #various initializations that need to be performed:
             offlineimap.mbnames.init(self.config, syncaccounts)
@@ -361,9 +364,6 @@ class OfflineImap:
                 t.start()
                 threadutil.exitnotifymonitorloop(threadutil.threadexited)
             self.ui.terminate()
-        except KeyboardInterrupt:
-            self.ui.terminate(1, errormsg = 'CTRL-C pressed, aborting...')
-            return
         except (SystemExit):
             raise
         except Exception, e:

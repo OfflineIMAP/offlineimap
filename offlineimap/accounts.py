@@ -50,7 +50,9 @@ class Account(CustomConfig.ConfigHelperMixin):
     :class:`accounts.SyncableAccount` which contains all functions used
     for syncing an account."""
     #signal gets set when we should stop looping
-    abort_signal = Event()
+    abort_soon_signal = Event()
+    #signal gets set on CTRL-C/SIGTERM
+    abort_NOW_signal = Event()
 
     def __init__(self, config, name):
         """
@@ -97,7 +99,8 @@ class Account(CustomConfig.ConfigHelperMixin):
         set_abort_event() to send the corresponding signal. Signum = 1
         implies that we want all accounts to abort or skip the current
         or next sleep phase. Signum = 2 will end the autorefresh loop,
-        ie all accounts will return after they finished a sync.
+        ie all accounts will return after they finished a sync. signum=3
+        means, abort NOW, e.g. on SIGINT or SIGTERM.
 
         This is a class method, it will send the signal to all accounts.
         """
@@ -107,7 +110,10 @@ class Account(CustomConfig.ConfigHelperMixin):
                 config.set('Account ' + acctsection, "skipsleep", '1')
         elif signum == 2:
             # don't autorefresh anymore
-            cls.abort_signal.set()
+            cls.abort_soon_signal.set()
+        elif signum == 3:
+            # abort ASAP
+            cls.abort_NOW_signal.set()
 
     def get_abort_event(self):
         """Checks if an abort signal had been sent
@@ -122,7 +128,8 @@ class Account(CustomConfig.ConfigHelperMixin):
         skipsleep = self.getconfboolean("skipsleep", 0)
         if skipsleep:
             self.config.set(self.getsection(), "skipsleep", '0')
-        return skipsleep or Account.abort_signal.is_set()
+        return skipsleep or Account.abort_soon_signal.is_set() or \
+            Account.abort_NOW_signal.is_set()
 
     def sleeper(self):
         """Sleep if the account is set to autorefresh
@@ -152,7 +159,8 @@ class Account(CustomConfig.ConfigHelperMixin):
             item.stopkeepalive()
 
         if sleepresult:
-            if Account.abort_signal.is_set():
+            if Account.abort_soon_signal.is_set() or \
+                    Account.abort_NOW_signal.is_set():
                 return 2
             self.quicknum = 0
             return 1
@@ -288,6 +296,8 @@ class SyncableAccount(Account):
 
             # iterate through all folders on the remote repo and sync
             for remotefolder in remoterepos.getfolders():
+                # check for CTRL-C or SIGTERM
+                if Account.abort_NOW_signal.is_set(): break
                 if not remotefolder.sync_this:
                     self.ui.debug('', "Not syncing filtered remote folder '%s'"
                                   "[%s]" % (remotefolder, remoterepos))
@@ -320,6 +330,9 @@ class SyncableAccount(Account):
         self.callhook(hook)
 
     def callhook(self, cmd):
+        # check for CTRL-C or SIGTERM and run postsynchook
+        if Account.abort_NOW_signal.is_set():
+            return
         if not cmd:
             return
         try:

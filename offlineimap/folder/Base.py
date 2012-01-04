@@ -18,6 +18,7 @@
 from offlineimap import threadutil
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
+import offlineimap.accounts
 import os.path
 import re
 from sys import exc_info
@@ -332,6 +333,9 @@ class BaseFolder(object):
                             self.getmessageuidlist())
         num_to_copy = len(copylist)
         for num, uid in enumerate(copylist):
+            # bail out on CTRL-C or SIGTERM
+            if offlineimap.accounts.Account.abort_NOW_signal.is_set():
+                break
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
             # exceptions are caught in copymessageto()
             if self.suggeststhreads():
@@ -447,6 +451,9 @@ class BaseFolder(object):
                   ('syncing flags'          , self.syncmessagesto_flags)]
 
         for (passdesc, action) in passes:
+            # bail out on CTRL-C or SIGTERM
+            if offlineimap.accounts.Account.abort_NOW_signal.is_set():
+                break
             try:
                 action(dstfolder, statusfolder)
             except (KeyboardInterrupt):

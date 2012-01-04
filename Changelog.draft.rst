@@ -29,5 +29,9 @@ Changes
 
 * Bumped bundled imaplib2 to release 2.29
 
+* Make ctrl-c exit cleanly rather aborting brutally (which could leave
+  around temporary files, half-written cache files, etc). Exiting on
+  SIGTERM and CTRL-C can take a little longer, but will be clean.
+
 Bug Fixes
 ---------
