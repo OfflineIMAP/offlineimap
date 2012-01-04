@@ -219,6 +219,27 @@ as follows::
   2) while in sleep mode, you can also send a SIGUSR1. See the `Signals
     on UNIX`_ section in the MANUAL for details.
 
+I get a "Mailbox already exists" error
+--------------------------------------
+**Q:** When synchronizing, I receive errors such as::
+
+     Folder 'sent'[main-remote] could not be created. Server responded:
+     ('NO', ['Mailbox already exists.'])
+
+**A:** IMAP folders are usually case sensitive. But some IMAP servers seem
+  to treat "special" folders as case insensitive (e.g. the initial
+  INBOX. part, or folders such as "Sent" or "Trash"). If you happen to
+  have a folder "sent" on one side of things and a folder called "Sent"
+  on the other side, offlineimap will try to create those folders on
+  both sides. If you server happens to treat those folders as
+  case-insensitive you can then see this warning.
+
+  You can solve this by excluding the "sent" folder by filtering it from
+  the repository settings::
+
+     folderfilter= lambda f: f not in ['sent']
+
+
 Configuration Questions
 =======================
 

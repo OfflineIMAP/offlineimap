@@ -18,8 +18,3 @@ Changes
 
 Bug Fixes
 ---------
-
-* IMAP<->IMAP sync with a readonly local IMAP repository failed with a
-  rather mysterious "TypeError: expected a character buffer object"
-  error. Fix this my retrieving the list of folders early enough even
-  for readonly repositories.

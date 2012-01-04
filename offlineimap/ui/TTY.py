@@ -1,6 +1,5 @@
 # TTY UI
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,53 +14,73 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-from UIBase import UIBase
-from getpass import getpass
+
+import logging
 import sys
-from threading import Lock, currentThread
+from getpass import getpass
+from offlineimap import banner
+from offlineimap.ui.UIBase import UIBase
+
+class TTYFormatter(logging.Formatter):
+    """Specific Formatter that adds thread information to the log output"""
+    def __init__(self, *args, **kwargs):
+        super(TTYFormatter, self).__init__(*args, **kwargs)
+        self._last_log_thread = None
+
+    def format(self, record):
+        """Override format to add thread information"""
+        log_str = super(TTYFormatter, self).format(record)
+        # If msg comes from a different thread than our last, prepend
+        # thread info.  Most look like 'Account sync foo' or 'Folder
+        # sync foo'.
+        t_name = record.threadName
+        if t_name == 'MainThread':
+            return log_str # main thread doesn't get things prepended
+        if t_name != self._last_log_thread:
+            self._last_log_thread = t_name
+            log_str = "%s:\n %s" % (t_name, log_str)
+        else:
+            log_str = " %s" % log_str
+        return log_str
 
 class TTYUI(UIBase):
-    def __init__(s, config, verbose = 0):
-        UIBase.__init__(s, config, verbose)
-        s.iswaiting = 0
-        s.outputlock = Lock()
-        s._lastThreaddisplay = None
+    def setup_consolehandler(self):
+        """Backend specific console handler
 
-    def isusable(s):
+        Sets up things and adds them to self.logger.
+        :returns: The logging.Handler() for console output"""
+        # create console handler with a higher log level
+        ch = logging.StreamHandler()
+        #ch.setLevel(logging.DEBUG)
+        # create formatter and add it to the handlers
+        self.formatter = TTYFormatter("%(message)s")
+        ch.setFormatter(self.formatter)
+        # add the handlers to the logger
+        self.logger.addHandler(ch)
+        self.logger.info(banner)
+        # init lock for console output
+        ch.createLock()
+        return ch
+
+    def isusable(self):
+        """TTYUI is reported as usable when invoked on a terminal"""
         return sys.stdout.isatty() and sys.stdin.isatty()
-        
-    def _display(s, msg):
-        s.outputlock.acquire()
-        try:
-            #if the next output comes from a different thread than our last one
-            #add the info.
-            #Most look like 'account sync foo' or 'Folder sync foo'.
-            threadname = currentThread().getName()
-            if (threadname == s._lastThreaddisplay \
-                    or threadname == 'MainThread'):
-                print " %s" % msg
-            else:
-                print "%s:\n %s" % (threadname, msg)
-                s._lastThreaddisplay = threadname
 
-            sys.stdout.flush()
-        finally:
-            s.outputlock.release()
-
-    def getpass(s, accountname, config, errmsg = None):
+    def getpass(self, accountname, config, errmsg = None):
+        """TTYUI backend is capable of querying the password"""
         if errmsg:
-            s._msg("%s: %s" % (accountname, errmsg))
-        s.outputlock.acquire()
+            self.warn("%s: %s" % (accountname, errmsg))
+        self._log_con_handler.acquire() # lock the console output
         try:
-            return getpass("%s: Enter password: " % accountname)
+            return getpass("Enter password for account '%s': " % accountname)
         finally:
-            s.outputlock.release()
+            self._log_con_handler.release()
 
-    def mainException(s):
-        if isinstance(sys.exc_info()[1], KeyboardInterrupt) and \
-           s.iswaiting:
-            sys.stdout.write("Timer interrupted at user request; program terminating.             \n")
-            s.terminate()
+    def mainException(self):
+        if isinstance(sys.exc_info()[1], KeyboardInterrupt):
+            self.logger.warn("Timer interrupted at user request; program "
+                             "terminating.\n")
+            self.terminate()
         else:
-            UIBase.mainException(s)
+            UIBase.mainException(self)
 

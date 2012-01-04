@@ -149,14 +149,12 @@ class MaildirRepository(BaseRepository):
 
         # Iterate over directories in top & top itself.
         for dirname in os.listdir(toppath) + ['']:
-            self.debug("  *** top of loop")
             self.debug("  dirname = %s" % dirname)
             if dirname in ['cur', 'new', 'tmp']:
                 self.debug("  skipping this dir (Maildir special)")
                 # Bypass special files.
                 continue
             fullname = os.path.join(toppath, dirname)
-            self.debug("  fullname = %s" % fullname)
             if not os.path.isdir(fullname):
                 self.debug("  skipping this entry (not a directory)")
                 # Not a directory -- not a folder.

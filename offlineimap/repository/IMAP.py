@@ -1,6 +1,5 @@
 # IMAP repository support
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2011 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -75,6 +74,13 @@ class IMAPRepository(BaseRepository):
             return num
 
     def getsep(self):
+        """Return the folder separator for the IMAP repository
+
+        This requires that self.imapserver has been initialized with an
+        acquireconnection() or it will still be `None`"""
+        assert self.imapserver.delim != None, "'%s' " \
+            "repository called getsep() before the folder separator was " \
+            "queried from the server" % self
         return self.imapserver.delim
 
     def gethost(self):
@@ -171,7 +177,7 @@ class IMAPRepository(BaseRepository):
         return self.getconf('preauthtunnel', None)
 
     def getreference(self):
-        return self.getconf('reference', '""')
+        return self.getconf('reference', '')
 
     def getidlefolders(self):
         localeval = self.localeval
@@ -316,14 +322,9 @@ class IMAPRepository(BaseRepository):
         when you are done creating folders yourself.
 
         :param foldername: Full path of the folder to be created."""
-        #TODO: IMHO this existing commented out code is correct and
-        #should be enabled, but this would change the behavior for
-        #existing configurations who have a 'reference' set on a Mapped
-        #IMAP server....:
-        #if self.getreference() != '""':
-        #    newname = self.getreference() + self.getsep() + foldername
-        #else:
-        #    newname = foldername
+        if self.getreference():
+            foldername = self.getreference() + self.getsep() + foldername
+
         imapobj = self.imapserver.acquireconnection()
         try:
             self.ui._msg("Creating new IMAP folder '%s' on server %s" %\

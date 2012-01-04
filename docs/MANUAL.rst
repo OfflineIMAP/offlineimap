@@ -478,7 +478,7 @@ or::
   folder separators be replaced with the destination repositories'
   folder separator.
 
-So if ̀f` was "Sent", the first nametrans yields the translated name
+So if 'f' was "Sent", the first nametrans yields the translated name
 "INBOX/Sent" to be used on the other side. As that repository uses the
 folder separator '.' rather than '/', the ultimate name to be used will
 be "INBOX.Sent".

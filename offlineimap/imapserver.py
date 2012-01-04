@@ -15,6 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+from __future__ import with_statement # needed for python 2.5
 from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 from offlineimap.ui import getglobalui
 from threading import Lock, BoundedSemaphore, Thread, Event, currentThread
@@ -46,7 +47,11 @@ class IMAPServer:
     """Initializes all variables from an IMAPRepository() instance
 
     Various functions, such as acquireconnection() return an IMAP4
-    object on which we can operate."""
+    object on which we can operate.
+
+    Public instance variables are: self.:
+     delim The server's folder delimiter. Only valid after acquireconnection()
+     """
     GSS_STATE_STEP = 0
     GSS_STATE_WRAP = 1
     def __init__(self, repos):
@@ -96,11 +101,6 @@ class IMAPServer:
                                         self.passworderror)
         self.passworderror = None
         return self.password
-
-    def getdelim(self):
-        """Returns this server's folder delimiter.  Can only be called
-        after one or more calls to acquireconnection."""
-        return self.delim
 
     def getroot(self):
         """Returns this server's folder root.  Can only be called after one
@@ -355,7 +355,7 @@ class IMAPServer:
             else:
                 # re-raise all other errors
                 raise
-    
+
     def connectionwait(self):
         """Waits until there is a connection available.  Note that between
         the time that a connection becomes available and the time it is
@@ -370,18 +370,21 @@ class IMAPServer:
     def close(self):
         # Make sure I own all the semaphores.  Let the threads finish
         # their stuff.  This is a blocking method.
-        self.connectionlock.acquire()
-        threadutil.semaphorereset(self.semaphore, self.maxconnections)
-        for imapobj in self.assignedconnections + self.availableconnections:
-            imapobj.logout()
-        self.assignedconnections = []
-        self.availableconnections = []
-        self.lastowner = {}
-        # reset kerberos state
-        self.gss_step = self.GSS_STATE_STEP
-        self.gss_vc = None
-        self.gssapi = False
-        self.connectionlock.release()
+        with self.connectionlock:
+            # first, wait till all connections had been released.
+            # TODO: won't work IMHO, as releaseconnection() also
+            # requires the connectionlock, leading to a potential
+            # deadlock! Audit & check!
+            threadutil.semaphorereset(self.semaphore, self.maxconnections)
+            for imapobj in self.assignedconnections + self.availableconnections:
+                imapobj.logout()
+            self.assignedconnections = []
+            self.availableconnections = []
+            self.lastowner = {}
+            # reset kerberos state
+            self.gss_step = self.GSS_STATE_STEP
+            self.gss_vc = None
+            self.gssapi = False
 
     def keepalive(self, timeout, event):
         """Sends a NOOP to each connection recorded.   It will wait a maximum
@@ -390,47 +393,40 @@ class IMAPServer:
         to be invoked in a separate thread, which should be join()'d after
         the event is set."""
         self.ui.debug('imap', 'keepalive thread started')
-        while 1:
-            self.ui.debug('imap', 'keepalive: top of loop')
-            if event.isSet():
-                self.ui.debug('imap', 'keepalive: event is set; exiting')
-                return
-            self.ui.debug('imap', 'keepalive: acquiring connectionlock')
+        while not event.isSet():
             self.connectionlock.acquire()
             numconnections = len(self.assignedconnections) + \
                              len(self.availableconnections)
             self.connectionlock.release()
-            self.ui.debug('imap', 'keepalive: connectionlock released')
+
             threads = []
-        
             for i in range(numconnections):
                 self.ui.debug('imap', 'keepalive: processing connection %d of %d' % (i, numconnections))
                 if len(self.idlefolders) > i:
+                    # IDLE thread
                     idler = IdleThread(self, self.idlefolders[i])
                 else:
+                    # NOOP thread
                     idler = IdleThread(self)
                 idler.start()
                 threads.append(idler)
-                self.ui.debug('imap', 'keepalive: thread started')
 
             self.ui.debug('imap', 'keepalive: waiting for timeout')
             event.wait(timeout)
             self.ui.debug('imap', 'keepalive: after wait')
 
-            self.ui.debug('imap', 'keepalive: joining threads')
-
             for idler in threads:
                 # Make sure all the commands have completed.
                 idler.stop()
                 idler.join()
-
-            self.ui.debug('imap', 'keepalive: bottom of loop')
-
+            self.ui.debug('imap', 'keepalive: all threads joined')
+        self.ui.debug('imap', 'keepalive: event is set; exiting')
+        return
 
     def verifycert(self, cert, hostname):
         '''Verify that cert (in socket.getpeercert() format) matches hostname.
         CRLs are not handled.
-        
+
         Returns error message if any problems are found and None on success.
         '''
         errstr = "CA Cert verifying failed: "
@@ -492,10 +488,24 @@ class IdleThread(object):
         self.thread.join()
 
     def noop(self):
+        #TODO: AFAIK this is not optimal, we will send a NOOP on one
+        #random connection (ie not enough to keep all connections
+        #open). In case we do the noop multiple times, we can well use
+        #the same connection every time, as we get a random one. This
+        #function should IMHO send a noop on ALL available connections
+        #to the server.
         imapobj = self.parent.acquireconnection()
-        imapobj.noop()
-        self.stop_sig.wait()
-        self.parent.releaseconnection(imapobj)
+        try:
+            imapobj.noop()
+        except imapobj.abort:
+            self.ui.warn('Attempting NOOP on dropped connection %s' % \
+                             imapobj.identifier)
+            self.parent.releaseconnection(imapobj, True)
+            imapobj = None
+        finally:
+            if imapobj:
+                self.parent.releaseconnection(imapobj)
+                self.stop_sig.wait() # wait until we are supposed to quit
 
     def dosync(self):
         remoterepos = self.parent.repos
@@ -504,9 +514,9 @@ class IdleThread(object):
         remoterepos = account.remoterepos
         statusrepos = account.statusrepos
         remotefolder = remoterepos.getfolder(self.folder)
-        offlineimap.accounts.syncfolder(account.name, remoterepos, remotefolder, localrepos, statusrepos, quick=False)
+        offlineimap.accounts.syncfolder(account, remotefolder, quick=False)
         ui = getglobalui()
-        ui.unregisterthread(currentThread())
+        ui.unregisterthread(currentThread()) #syncfolder registered the thread
 
     def idle(self):
         """Invoke IDLE mode until timeout or self.stop() is invoked"""

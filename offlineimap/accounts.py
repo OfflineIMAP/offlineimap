@@ -50,7 +50,9 @@ class Account(CustomConfig.ConfigHelperMixin):
     :class:`accounts.SyncableAccount` which contains all functions used
     for syncing an account."""
     #signal gets set when we should stop looping
-    abort_signal = Event()
+    abort_soon_signal = Event()
+    #signal gets set on CTRL-C/SIGTERM
+    abort_NOW_signal = Event()
 
     def __init__(self, config, name):
         """
@@ -82,6 +84,9 @@ class Account(CustomConfig.ConfigHelperMixin):
     def __str__(self):
         return self.name
 
+    def getaccountmeta(self):
+        return os.path.join(self.metadatadir, 'Account-' + self.name)
+
     def getsection(self):
         return 'Account ' + self.getname()
 
@@ -94,7 +99,8 @@ class Account(CustomConfig.ConfigHelperMixin):
         set_abort_event() to send the corresponding signal. Signum = 1
         implies that we want all accounts to abort or skip the current
         or next sleep phase. Signum = 2 will end the autorefresh loop,
-        ie all accounts will return after they finished a sync.
+        ie all accounts will return after they finished a sync. signum=3
+        means, abort NOW, e.g. on SIGINT or SIGTERM.
 
         This is a class method, it will send the signal to all accounts.
         """
@@ -104,7 +110,10 @@ class Account(CustomConfig.ConfigHelperMixin):
                 config.set('Account ' + acctsection, "skipsleep", '1')
         elif signum == 2:
             # don't autorefresh anymore
-            cls.abort_signal.set()
+            cls.abort_soon_signal.set()
+        elif signum == 3:
+            # abort ASAP
+            cls.abort_NOW_signal.set()
 
     def get_abort_event(self):
         """Checks if an abort signal had been sent
@@ -119,7 +128,8 @@ class Account(CustomConfig.ConfigHelperMixin):
         skipsleep = self.getconfboolean("skipsleep", 0)
         if skipsleep:
             self.config.set(self.getsection(), "skipsleep", '0')
-        return skipsleep or Account.abort_signal.is_set()
+        return skipsleep or Account.abort_soon_signal.is_set() or \
+            Account.abort_NOW_signal.is_set()
 
     def sleeper(self):
         """Sleep if the account is set to autorefresh
@@ -140,7 +150,7 @@ class Account(CustomConfig.ConfigHelperMixin):
 
         for item in kaobjs:
             item.startkeepalive()
-        
+
         refreshperiod = int(self.refreshperiod * 60)
         sleepresult = self.ui.sleep(refreshperiod, self)
 
@@ -149,13 +159,23 @@ class Account(CustomConfig.ConfigHelperMixin):
             item.stopkeepalive()
 
         if sleepresult:
-            if Account.abort_signal.is_set():
+            if Account.abort_soon_signal.is_set() or \
+                    Account.abort_NOW_signal.is_set():
                 return 2
             self.quicknum = 0
             return 1
         return 0
-            
-    
+
+    def serverdiagnostics(self):
+        """Output diagnostics for all involved repositories"""
+        remote_repo = Repository(self, 'remote')
+        local_repo  = Repository(self, 'local')
+        #status_repo = Repository(self, 'status')
+        self.ui.serverdiagnostics(remote_repo, 'Remote')
+        self.ui.serverdiagnostics(local_repo, 'Local')
+        #self.ui.serverdiagnostics(statusrepos, 'Status')
+
+
 class SyncableAccount(Account):
     """A syncable email account connecting 2 repositories
 
@@ -194,10 +214,10 @@ class SyncableAccount(Account):
                 pass #Failed to delete for some reason.
 
     def syncrunner(self):
-        self.ui.registerthread(self.name)
+        self.ui.registerthread(self)
         accountmetadata = self.getaccountmeta()
         if not os.path.exists(accountmetadata):
-            os.mkdir(accountmetadata, 0700)            
+            os.mkdir(accountmetadata, 0700)
 
         self.remoterepos = Repository(self, 'remote')
         self.localrepos  = Repository(self, 'local')
@@ -212,7 +232,7 @@ class SyncableAccount(Account):
                 self.sync()
             except (KeyboardInterrupt, SystemExit):
                 raise
-            except OfflineImapError, e:                    
+            except OfflineImapError, e:
                 # Stop looping and bubble up Exception if needed.
                 if e.severity >= OfflineImapError.ERROR.REPO:
                     if looping:
@@ -231,10 +251,7 @@ class SyncableAccount(Account):
                 self.ui.acctdone(self)
                 self.unlock()
                 if looping and self.sleeper() >= 2:
-                    looping = 0                    
-
-    def getaccountmeta(self):
-        return os.path.join(self.metadatadir, 'Account-' + self.name)
+                    looping = 0
 
     def sync(self):
         """Synchronize the account once, then return
@@ -279,6 +296,8 @@ class SyncableAccount(Account):
 
             # iterate through all folders on the remote repo and sync
             for remotefolder in remoterepos.getfolders():
+                # check for CTRL-C or SIGTERM
+                if Account.abort_NOW_signal.is_set(): break
                 if not remotefolder.sync_this:
                     self.ui.debug('', "Not syncing filtered remote folder '%s'"
                                   "[%s]" % (remotefolder, remoterepos))
@@ -287,9 +306,7 @@ class SyncableAccount(Account):
                     instancename = 'FOLDER_' + self.remoterepos.getname(),
                     target = syncfolder,
                     name = "Folder %s [acc: %s]" % (remotefolder, self),
-                    args = (self.name, remoterepos, remotefolder, localrepos,
-                            statusrepos, quick))
-                thread.setDaemon(1)
+                    args = (self, remotefolder, quick))
                 thread.start()
                 folderthreads.append(thread)
             # wait for all threads to finish
@@ -313,6 +330,9 @@ class SyncableAccount(Account):
         self.callhook(hook)
 
     def callhook(self, cmd):
+        # check for CTRL-C or SIGTERM and run postsynchook
+        if Account.abort_NOW_signal.is_set():
+            return
         if not cmd:
             return
         try:
@@ -328,15 +348,17 @@ class SyncableAccount(Account):
         except Exception, e:
             self.ui.error(e, exc_info()[2], msg = "Calling hook")
 
-
-def syncfolder(accountname, remoterepos, remotefolder, localrepos,
-               statusrepos, quick):
+def syncfolder(account, remotefolder, quick):
     """This function is called as target for the
     InstanceLimitedThread invokation in SyncableAccount.
 
     Filtered folders on the remote side will not invoke this function."""
+    remoterepos = account.remoterepos
+    localrepos = account.localrepos
+    statusrepos = account.statusrepos
+
     ui = getglobalui()
-    ui.registerthread(accountname)
+    ui.registerthread(account)
     try:
         # Load local folder.
         localfolder = localrepos.\
@@ -351,7 +373,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                          % localfolder)
             return
         # Write the mailboxes
-        mbnames.add(accountname, localfolder.getvisiblename())
+        mbnames.add(account.name, localfolder.getvisiblename())
 
         # Load status folder.
         statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
@@ -407,7 +429,7 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
         else:
             ui.debug('imap', "Not syncing to read-only repository '%s'" \
                          % localrepos.getname())
-        
+
         # Synchronize local changes
         if not remoterepos.getconfboolean('readonly', False):
             ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
@@ -430,11 +452,11 @@ def syncfolder(accountname, remoterepos, remotefolder, localrepos,
                      "[acc: '%s']" % (
                     remotefolder.getvisiblename().\
                         replace(remoterepos.getsep(), localrepos.getsep()),
-                    accountname))
+                    account))
                     # we reconstruct foldername above rather than using
                     # localfolder, as the localfolder var is not
                     # available if assignment fails.
     except Exception, e:
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
-                (accountname,remotefolder.getvisiblename(),
+                (account, remotefolder.getvisiblename(),
                  traceback.format_exc()))

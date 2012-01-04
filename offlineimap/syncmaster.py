@@ -25,12 +25,13 @@ def syncaccount(threads, config, accountname):
     thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                    target = account.syncrunner,
                                    name = "Account sync %s" % accountname)
-    thread.setDaemon(1)
+    thread.setDaemon(True)
     thread.start()
     threads.add(thread)
 
 def syncitall(accounts, config):
-    currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
+    # Special exit message for SyncRunner thread, so main thread can exit
+    currentThread().exit_message = 'SYNCRUNNER_EXITED_NORMALLY'
     threads = threadlist()
     for accountname in accounts:
         syncaccount(threads, config, accountname)
