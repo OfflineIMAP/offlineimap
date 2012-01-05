@@ -70,7 +70,7 @@ class MaildirFolder(BaseFolder):
 
         self.infosep = '!' if self.wincompatible else ':'
         """infosep is the separator between maildir name and flag appendix"""
-        self.flagmatchre = re.compile(self.infosep + '.*2,([A-Z]+)')
+        self.flagmatchre = re.compile(self.infosep + '2,([A-Z]+)')
         #self.ui is set in BaseFolder.init()
         # Cache the full folder path, as we use getfullname() very often
         self._fullname = os.path.join(self.getroot(), self.getname())
