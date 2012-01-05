@@ -190,4 +190,8 @@ class MaildirRepository(BaseRepository):
         if self.folders == None:
             self.folders = self._getfolders_scandir(self.root)
         return self.folders
-    
+
+    def forgetfolders(self):
+        """Forgets the cached list of folders, if any.  Useful to run
+        after a sync run."""
+        self.folders = None
