@@ -64,13 +64,13 @@ class MaildirFolder(BaseFolder):
         self.root = root
         self.sep = sep
         self.messagelist = None
-
+        # check if we should use a different infosep to support Win file systems
         self.wincompatible = self.config.getdefaultboolean(
             "Account "+self.accountname, "maildir-windows-compatible", False)
 
         self.infosep = '!' if self.wincompatible else ':'
         """infosep is the separator between maildir name and flag appendix"""
-        self.flagmatchre = re.compile(self.infosep + '2,([A-Z]+)')
+        self.flagmatchre = re.compile('(%s2,)(\w*)' % self.infosep)
         #self.ui is set in BaseFolder.init()
         # Cache the full folder path, as we use getfullname() very often
         self._fullname = os.path.join(self.getroot(), self.getname())
@@ -162,7 +162,7 @@ class MaildirFolder(BaseFolder):
             #identify flags in the path name
             flagmatch = self.flagmatchre.search(messagename)
             if flagmatch:
-                flags = set(flagmatch.group(1))
+                flags = set(flagmatch.group(2))
             else:
                 flags = set()
             # 'filename' is 'dirannex/filename', e.g. cur/123,U=1,FMD5=1:2,S
@@ -185,7 +185,7 @@ class MaildirFolder(BaseFolder):
     def cachemessagelist(self):
         if self.messagelist is None:
             self.messagelist = self._scanfolder()
-            
+
     def getmessagelist(self):
         return self.messagelist
 
@@ -259,7 +259,7 @@ class MaildirFolder(BaseFolder):
         self.savemessageflags(uid, flags)
         self.ui.debug('maildir', 'savemessage: returning uid %d' % uid)
         return uid
-        
+
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
 
@@ -274,15 +274,14 @@ class MaildirFolder(BaseFolder):
         else:
             dir_prefix = 'new'
 
-        infostr = self.infosep
-        infomatch = re.search('(' + self.infosep + '.*)$', newname)
-        if infomatch:                   # If the info string is present..
-            infostr = infomatch.group(1)
-            newname = newname.split(self.infosep)[0] # Strip off the info string.
-        infostr = re.sub('2,[A-Z]*', '', infostr)
-        infostr += '2,' + ''.join(sorted(flags))
+        # Strip off existing infostring (preserving small letter flags, that
+        # dovecot uses)
+        infomatch = self.flagmatchre.search(newname)
+        if infomatch:
+            newname = newname[:-len(infomatch.group())] #strip off
+        infostr = '%s2,%s' % (self.infosep, ''.join(sorted(flags)))
         newname += infostr
-        
+
         newfilename = os.path.join(dir_prefix, newname)
         if (newfilename != oldfilename):
             try:
@@ -292,7 +291,7 @@ class MaildirFolder(BaseFolder):
                 raise OfflineImapError("Can't rename file '%s' to '%s': %s" % (
                                        oldfilename, newfilename, e[1]),
                                        OfflineImapError.ERROR.FOLDER)
-                
+
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename
 
