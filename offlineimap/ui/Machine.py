@@ -43,7 +43,7 @@ class MachineUI(UIBase):
                 'warn', '', currentThread().getName(), msg))
 
     def registerthread(self, account):
-        super(MachineUI, self).registerthread(self, account)
+        super(MachineUI, self).registerthread(account)
         self._printData('registerthread', account)
 
     def unregisterthread(s, thread):
