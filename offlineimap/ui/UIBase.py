@@ -285,7 +285,7 @@ class UIBase(object):
         """Output that we finished syncing an account (in which time)"""
         sec = time.time() - self.acct_startimes[account]
         del self.acct_startimes[account]
-        self._msg("*** Finished account '%s' in %d:%02d" %
+        self.logger.info("*** Finished account '%s' in %d:%02d" %
                (account, sec // 60, sec % 60))
 
     def syncfolders(self, src_repo, dst_repo):

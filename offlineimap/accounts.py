@@ -289,10 +289,10 @@ class SyncableAccount(Account):
             localrepos.getfolders()
             statusrepos.getfolders()
 
+            remoterepos.sync_folder_structure(localrepos, statusrepos)
             # replicate the folderstructure between REMOTE to LOCAL
             if not localrepos.getconfboolean('readonly', False):
                 self.ui.syncfolders(remoterepos, localrepos)
-                remoterepos.syncfoldersto(localrepos, statusrepos)
 
             # iterate through all folders on the remote repo and sync
             for remotefolder in remoterepos.getfolders():

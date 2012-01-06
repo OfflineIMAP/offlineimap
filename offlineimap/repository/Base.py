@@ -132,8 +132,8 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
 
     def getfolder(self, foldername):
         raise NotImplementedError
-    
-    def syncfoldersto(self, dst_repo, status_repo):
+
+    def sync_folder_structure(self, dst_repo, status_repo):
         """Syncs the folders in this repository to those in dest.
 
         It does NOT sync the contents of those folders. nametrans rules
@@ -158,6 +158,9 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
 
         # Find new folders on src_repo.
         for src_name, src_folder in src_hash.iteritems():
+            # Don't create on dst_repo, if it is readonly
+            if dst_repo.getconfboolean('readonly', False):
+                break
             if src_folder.sync_this and not src_name in dst_hash:
                 try:
                     dst_repo.makefolder(src_name)
@@ -171,6 +174,10 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                                                    status_repo.getsep()))
         # Find new folders on dst_repo.
         for dst_name, dst_folder in dst_hash.iteritems():
+            if self.getconfboolean('readonly', False):
+                # Don't create missing folder on readonly repo.
+                break
+
             if dst_folder.sync_this and not dst_name in src_hash:
                 # nametrans sanity check!
                 # Does nametrans back&forth lead to identical names?
@@ -202,7 +209,6 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                                          src_repo, newdst_name),
                                            OfflineImapError.ERROR.REPO)
                 # end sanity check, actually create the folder
-
                 try:
                     src_repo.makefolder(newsrc_name)
                     src_haschanged = True # Need to refresh list
