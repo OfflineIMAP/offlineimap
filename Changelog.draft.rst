@@ -13,6 +13,12 @@ others.
 New Features
 ------------
 
+* Remove the old global locking system. We lock only the accounts that
+  we currently sync, so you can invoke OfflineImap multiple times now as
+  long as you sync different accounts. This system is compatible with
+  all releases >= 6.4.0, so don't run older releases simultanous to this
+  one.
+
 Changes
 -------
 
