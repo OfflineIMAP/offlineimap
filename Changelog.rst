@@ -11,6 +11,23 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.4.4 (2012-01-06)
+===============================
+
+This is a bugfix release, fixing regressions occurring in or since 6.4.0.
+
+* Fix the missing folder error that occured when a new remote folder was
+  detected (IMAP<->Maildir)
+
+* Possibly fixed bug that prevented us from ever re-reading Maildir
+  folders, so flag changes and deletions were not detected when running
+  in a refresh loop. This is a regression that was introduced in about
+  6.4.0.
+
+* Never mangle maildir file names when using nonstandard Maildir flags
+  (such as 'a'), note that they will still be deleted as they are not
+  supported in the sync to an IMAP server.
+
 OfflineIMAP v6.4.3 (2012-01-04)
 ===============================
 

@@ -18,7 +18,3 @@ Changes
 
 Bug Fixes
 ---------
-
-* Fix the missing folder error that occured when a new remote folder was
-  detected (IMAP<->Maildir)
-
