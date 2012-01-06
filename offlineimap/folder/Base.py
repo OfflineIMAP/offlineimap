@@ -294,7 +294,7 @@ class BaseFolder(object):
                     # Got new UID, change the local uid.
                 # Save uploaded status in the statusfolder
                 statusfolder.savemessage(new_uid, message, flags, rtime)
-            elif newuid == 0:
+            elif new_uid == 0:
                 # Message was stored to dstfolder, but we can't find it's UID
                 # This means we can't link current message to the one created
                 # in IMAP. So we just delete local message and on next run
