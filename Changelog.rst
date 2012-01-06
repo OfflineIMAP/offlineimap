@@ -11,6 +11,22 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.5.0 (2012-01-06)
+===============================
+
+This is a CRITICAL bug fix release for everyone who is on the 6.4.x series. Please upgrade to avoid potential data loss! The version has been bumped to 6.5.0, please let everyone know that the 6.4.x series is problematic.
+
+* Uploading multiple emails to an IMAP server would lead to wrong UIDs
+  being returned (ie the same for all), which confused offlineimap and
+  led to recurrent upload/download loops and inconsistencies in the
+  IMAP<->IMAP uid mapping.
+
+* Uploading of Messages from Maildir and IMAP<->IMAP has been made more
+  efficient by renaming files/mapping entries, rather than actually
+  loading and saving the message under a new UID.
+
+* Fix regression that broke MachineUI
+
 OfflineIMAP v6.4.4 (2012-01-06)
 ===============================
 
