@@ -221,6 +221,31 @@ class MappedIMAPFolder(IMAPFolder):
         self._mb.addmessagesflags(self._uidlist(self.r2l, uidlist),
                                   flags)
 
+    def change_message_uid(self, ruid, new_ruid):
+        """Change the message from existing ruid to new_ruid
+
+        :param new_uid: The old remote UID will be changed to a new
+            UID. The UIDMaps case handles this efficiently by simply
+            changing the mappings file."""
+        if ruid not in self.r2l:
+            raise OfflineImapError("Cannot change unknown Maildir UID %s" % ruid,
+                                   OfflineImapError.ERROR.MESSAGE)
+        if ruid == new_ruid: return  # sanity check shortcut
+        self.maplock.acquire()
+        try:
+            luid = self.r2l[ruid]
+            self.l2r[luid] = new_ruid
+            del self.r2l[ruid]
+            self.r2l[new_ruid] = luid
+            #TODO: diskl2r|r2l are a pain to sync and should be done away with
+            #diskl2r only contains positive UIDs, so wrap in ifs
+            if luid>0: self.diskl2r[luid] = new_ruid
+            if ruid>0: del self.diskr2l[ruid]
+            if new_ruid > 0: self.diskr2l[new_ruid] = luid
+            self._savemaps(dolock = 0)
+        finally:
+            self.maplock.release()
+
     def _mapped_delete(self, uidlist):
         self.maplock.acquire()
         try:

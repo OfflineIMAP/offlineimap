@@ -305,6 +305,25 @@ achieve this.
     to hit the disk before continueing, you can set this to True. If you
     set it to False, you lose some of that safety, trading it for speed.
 
+
+Upgrading from plain text cache to SQLITE based cache
+=====================================================
+
+OfflineImap uses a cache to store the last know status of mails (flags etc). Historically that has meant plain text files, but recently we introduced sqlite-based cache, which helps with performance and CPU usage on large folders. Here is how to upgrade existing plain text cache installations to sqlite based one:
+
+ 1) Sync to make sure things are reasonably similar
+ 3) Change the account section to status_backend = sqlite
+ 4) A new sync will convert your plain text cache to an sqlite cache (but
+ leave the old plain text cache around for easy reverting)
+    This should be quick and not involve any mail up/downloading.
+ 5) See if it works :-)
+ 6a) If it does not work, go back to the old version or set
+     status_backend=plain
+ 6b) Or once you are sure it works, you can delete the
+ .offlineimap/Account-foo/LocalStatus folder (the new cache will be in
+ the LocalStatus-sqlite folder)
+
+
 Security and SSL
 ================
 

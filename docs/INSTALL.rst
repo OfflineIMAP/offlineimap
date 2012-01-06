@@ -110,3 +110,23 @@ within the sample file.
 `OfflineIMAP`_ also ships a file named `offlineimap.conf.minimal` that you can
 also try.  It's useful if you want to get started with the most basic feature
 set, and you can read about other features later with `offlineimap.conf`.
+
+
+===============
+Uninstall
+===============
+
+If you installed a system-wide installation via "python setup.py
+install", there are a few files to purge to uninstall it again. I assume
+that /usr/local is the standard prefix that your system and you use
+python 2.7. Adapt to your system. In that case you need to:
+
+1) Delete:
+   /usr/local/lib/python2.7/dist-packages/offlineimap-6.4.4.egg-info
+   /usr/local/lib/python2.7/dist-packages/offlineimap
+
+2) Delete the cache at (default location) ~/.offlineimap
+   Delete your manually created (default loc) ~/.offlineimaprc
+   (It is possible that you created those in different spots)
+
+That's it. Have fun without OfflineImap.
