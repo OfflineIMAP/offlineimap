@@ -11,6 +11,14 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.5.1.1 (2012-01-07) - "Das machine control is nicht fur gerfinger-poken und mittengrabben"
+==================================================================================================================
+
+Blinkenlights UI 6.5.0 regression fixes only.
+
+* Sleep led to crash ('abort_signal' not existing)
+
+* Make exit via 'q' key work again cleanly
 
 OfflineIMAP v6.5.1 (2012-01-07) - "Quest for stability"
 =======================================================
