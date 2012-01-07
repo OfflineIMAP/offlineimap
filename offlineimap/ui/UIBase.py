@@ -386,12 +386,16 @@ class UIBase(object):
                     self._msg("nametrans= %s\n" % nametrans)
 
                 folders = repository.getfolders()
-                foldernames = [(f.name, f.getvisiblename()) for f in folders]
+                foldernames = [(f.name, f.getvisiblename(), f.sync_this) \
+                                   for f in folders]
                 folders = []
-                for name, visiblename in foldernames:
-                    if name == visiblename: folders.append(name)
-                    else: folders.append("%s -> %s" % (name, visiblename))
-                self._msg("Folderlist: %s\n" % str(folders))
+                for name, visiblename, sync_this in foldernames:
+                    syncstr = "" if sync_this else " (disabled)"
+                    if name == visiblename: folders.append("%s%s" % (name,
+                                                                     syncstr))
+                    else: folders.append("%s -> %s%s" % (name,
+                                                       visiblename, syncstr))
+                self._msg("Folderlist:\n %s\n" % "\n ".join(folders))
         finally:
             if conn: #release any existing IMAP connection
                 repository.imapserver.close()
