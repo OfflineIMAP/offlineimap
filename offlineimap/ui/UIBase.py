@@ -24,6 +24,7 @@ import traceback
 import threading
 from Queue import Queue
 from collections import deque
+from offlineimap.error import OfflineImapError
 import offlineimap
 
 debugtypes = {'':'Other offlineimap related sync messages',
@@ -360,7 +361,7 @@ class UIBase(object):
                                                          repository.getssl()))
                 try:
                     conn = repository.imapserver.acquireconnection()
-                except OfflineImapError, e:
+                except OfflineImapError as e:
                     self._msg("Failed to connect. Reason %s" % e)
                 else:
                     if 'ID' in conn.capabilities:
