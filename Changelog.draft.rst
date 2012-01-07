@@ -18,5 +18,3 @@ Changes
 
 Bug Fixes
 ---------
-
-* Fix regression that broke MachineUI

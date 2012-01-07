@@ -11,6 +11,25 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+
+OfflineIMAP v6.5.1 (2012-01-07) - "Quest for stability"
+=======================================================
+
+* Fixed Maildir regression "flagmatchre" not found. (regressed in 6.5.0)
+
+* Have console output go by default to STDOUT and not STDERR (regression
+  in 6.5.0)
+
+* Fixed MachineUI to urlencode() output lines again, rather than
+  outputting multi-line items. It's ugly as hell, but it had been that
+  way for years.
+
+* Remove the old global locking system. We lock only the accounts that
+  we currently sync, so you can invoke OfflineImap multiple times now as
+  long as you sync different accounts. This system is compatible with
+  all releases >= 6.4.0, so don't run older releases simultanous to this
+  one.
+
 OfflineIMAP v6.5.0 (2012-01-06)
 ===============================
 

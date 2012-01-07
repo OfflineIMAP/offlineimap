@@ -68,9 +68,10 @@ class IMAPFolder(BaseFolder):
     def getuidvalidity(self):
         imapobj = self.imapserver.acquireconnection()
         try:
-            # Primes untagged_responses
+            # SELECT receives UIDVALIDITY response
             self.selectro(imapobj)
-            return long(imapobj._get_untagged_response('UIDVALIDITY', True)[0])
+            typ, uidval = imapobj.response('UIDVALIDITY')
+            return long(uidval[0])
         finally:
             self.imapserver.releaseconnection(imapobj)
 
@@ -563,14 +564,15 @@ class IMAPFolder(BaseFolder):
             # get the new UID. Test for APPENDUID response even if the
             # server claims to not support it, as e.g. Gmail does :-(
             if use_uidplus or imapobj._get_untagged_response('APPENDUID', True):
-                # get the new UID from the APPENDUID response, it could look like
-                # OK [APPENDUID 38505 3955] APPEND completed
-                # with 38505 bein folder UIDvalidity and 3955 the new UID
-                if not imapobj._get_untagged_response('APPENDUID', True):
+                # get new UID from the APPENDUID response, it could look
+                # like OK [APPENDUID 38505 3955] APPEND completed with
+                # 38505 bein folder UIDvalidity and 3955 the new UID
+                typ, resp = imapobj.response('APPENDUID')
+                if resp == [None]:
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
                                  "appending a message.")
                     return 0
-                uid = long(imapobj._get_untagged_response('APPENDUID')[-1].split(' ')[1])
+                uid = long(resp[-1].split(' ')[1])
 
             else:
                 # we don't support UIDPLUS

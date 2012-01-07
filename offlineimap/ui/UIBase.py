@@ -69,7 +69,7 @@ class UIBase(object):
         Sets up things and adds them to self.logger.
         :returns: The logging.Handler() for console output"""
         # create console handler with a higher log level
-        ch = logging.StreamHandler()
+        ch = logging.StreamHandler(sys.stdout)
         #ch.setLevel(logging.DEBUG)
         # create formatter and add it to the handlers
         self.formatter = logging.Formatter("%(message)s")

@@ -13,7 +13,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-
+from urllib import urlencode
 import sys
 import time
 import logging
@@ -23,15 +23,24 @@ import offlineimap
 
 protocol = '7.0.0'
 
+class MachineLogFormatter(logging.Formatter):
+    """urlencodes any outputted line, to avoid multi-line output"""
+    def format(self, record):
+        # urlencode the "mesg" attribute and append to regular line...
+        line = super(MachineLogFormatter, self).format(record)
+        return line + urlencode([('', record.mesg)])[1:]
+
 class MachineUI(UIBase):
     def __init__(self, config, loglevel = logging.INFO):
         super(MachineUI, self).__init__(config, loglevel)
         self._log_con_handler.createLock()
         """lock needed to block on password input"""
+        # Set up the formatter that urlencodes the strings...
+        self._log_con_handler.setFormatter(MachineLogFormatter())
 
     def _printData(self, command, msg):
-        self.logger.info("%s:%s:%s:%s" % (
-                'msg', command, currentThread().getName(), msg))
+        self.logger.info("%s:%s:%s" % (
+                'msg', command, currentThread().getName()), extra={'mesg': msg})
 
     def _msg(s, msg):
         s._printData('_display', msg)

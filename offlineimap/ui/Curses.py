@@ -15,7 +15,6 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from __future__ import with_statement # needed for python 2.5
 from threading import RLock, currentThread, Lock, Event
 from thread import get_ident	# python < 2.6 support
 from collections import deque

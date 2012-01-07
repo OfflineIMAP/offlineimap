@@ -23,10 +23,6 @@ import signal
 import socket
 import logging
 from optparse import OptionParser
-try:
-    import fcntl
-except ImportError:
-    pass #it's OK
 import offlineimap
 from offlineimap import accounts, threadutil, syncmaster
 from offlineimap.error import OfflineImapError
@@ -339,18 +335,6 @@ class OfflineImap:
 
             #various initializations that need to be performed:
             offlineimap.mbnames.init(self.config, syncaccounts)
-
-            #TODO: keep legacy lock for a few versions, then remove.
-            self._legacy_lock = open(self.config.getmetadatadir() + "/lock",
-                                       'w')
-            try:
-                fcntl.lockf(self._legacy_lock, fcntl.LOCK_EX|fcntl.LOCK_NB)
-            except NameError:
-                #fcntl not available (Windows), disable file locking... :(
-                pass
-            except IOError:
-                raise OfflineImapError("Could not take global lock.",
-                                       OfflineImapError.ERROR.REPO)
 
             if options.singlethreading:
                 #singlethreaded
