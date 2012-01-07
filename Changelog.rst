@@ -11,6 +11,18 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.5.1.2 (2012-01-07) - "Baby steps"
+================================================
+
+Smallish bug fixes that deserve to be put out.
+
+* Fix possible crash during --info run
+* Fix reading in Maildirs, where we would attempt to create empty
+  directories on REMOTE.
+* Do not attempt to sync lower case custom Maildir flags. We do not
+  support them (yet) (this prevents many scary bogus sync messages)
+* Add filter information to the filter list in --info output
+
 OfflineIMAP v6.5.1.1 (2012-01-07) - "Das machine control is nicht fur gerfinger-poken und mittengrabben"
 ==================================================================================================================
 
