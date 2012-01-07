@@ -298,7 +298,7 @@ class MaildirFolder(BaseFolder):
             # Flags have actually changed, construct new filename
             # Strip off existing infostring (preserving small letter flags that
             # dovecot uses)
-            infomatch = self.flagmatchre.search(filename)
+            infomatch = self.re_flagmatch.search(filename)
             if infomatch:
                 filename = filename[:-len(infomatch.group())] #strip off
             infostr = '%s2,%s' % (self.infosep, ''.join(sorted(flags)))
