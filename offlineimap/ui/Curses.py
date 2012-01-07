@@ -157,11 +157,13 @@ class CursesAccountFrame:
         return tf
 
     def sleeping(self, sleepsecs, remainingsecs):
-        # show how long we are going to sleep and sleep
+        """show how long we are going to sleep and sleep
+
+        :returns: Boolean, whether we want to abort the sleep"""
         self.drawleadstr(remainingsecs)
         self.ui.exec_locked(self.window.refresh)
         time.sleep(sleepsecs)
-        return self.account.abort_signal.is_set()
+        return self.account.get_abort_event()
 
     def syncnow(self):
         """Request that we stop sleeping asap and continue to sync"""
@@ -485,11 +487,9 @@ class Blinkenlights(UIBase, CursesUtil):
         if key < 1 or key > 255:
             return
         if chr(key) == 'q':
-            # Request to quit.
-            #TODO: this causes us to bail out in main loop when the thread exits
-            #TODO: review and rework this mechanism.
-            currentThread().set_exit_exception(SystemExit("User requested shutdown"))
-            self.terminate()
+            # Request to quit completely.
+            self.warn("Requested shutdown via 'q'")
+            offlineimap.accounts.Account.set_abort_event(self.config, 3)
         try:
             index = int(chr(key))
         except ValueError:
