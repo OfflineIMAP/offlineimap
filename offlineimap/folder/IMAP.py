@@ -570,7 +570,7 @@ class IMAPFolder(BaseFolder):
                 typ, resp = imapobj.response('APPENDUID')
                 if resp == [None]:
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
-                                 "appending a message. %s" % imapobj._get_untagged_response('APPENDUID', True))
+                                 "appending a message.")
                     return 0
                 uid = long(resp[-1].split(' ')[1])
 
