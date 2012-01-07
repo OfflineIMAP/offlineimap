@@ -16,6 +16,8 @@ New Features
 Changes
 -------
 
+* Add folderfilter information to the --info output
+
 Bug Fixes
 ---------
 
