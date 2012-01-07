@@ -138,7 +138,9 @@ class MaildirFolder(BaseFolder):
                 uid = long(uidmatch.group(1))
         flagmatch = self.re_flagmatch.search(filename)
         if flagmatch:
-            flags = set(flagmatch.group(1))
+            # Filter out all lowercase (custom maildir) flags. We don't
+            # handle them yet.
+            flags = set((c for c in flagmatch.group(1) if not c.islower()))
         return prefix, uid, fmd5, flags
 
     def _scanfolder(self):
