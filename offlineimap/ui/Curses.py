@@ -487,11 +487,9 @@ class Blinkenlights(UIBase, CursesUtil):
         if key < 1 or key > 255:
             return
         if chr(key) == 'q':
-            # Request to quit.
-            #TODO: this causes us to bail out in main loop when the thread exits
-            #TODO: review and rework this mechanism.
-            currentThread().set_exit_exception(SystemExit("User requested shutdown"))
-            self.terminate()
+            # Request to quit completely.
+            self.warn("Requested shutdown via 'q'")
+            offlineimap.accounts.Account.set_abort_event(self.config, 3)
         try:
             index = int(chr(key))
         except ValueError:
