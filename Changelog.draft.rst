@@ -18,3 +18,5 @@ Changes
 
 Bug Fixes
 ---------
+
+* Fix possible crash during --info run
