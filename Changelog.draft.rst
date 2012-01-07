@@ -22,6 +22,9 @@ New Features
 Changes
 -------
 
+* Have console output go by default to STDOUT and not STDERR (regression
+  in 6.5.0)
+
 Bug Fixes
 ---------
 
