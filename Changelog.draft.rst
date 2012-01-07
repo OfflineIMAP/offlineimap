@@ -24,3 +24,5 @@ Bug Fixes
 ---------
 
 * Fix possible crash during --info run
+* Fix reading in Maildirs, where we would attempt to create empty
+  directories on REMOTE.

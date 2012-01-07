@@ -151,20 +151,23 @@ class MaildirRepository(BaseRepository):
         for dirname in os.listdir(toppath) + ['']:
             self.debug("  dirname = %s" % dirname)
             if dirname == '' and extension is not None:
-                self.debug('  skip this entry (extension set)')
+                self.debug('  skip this entry (already scanned)')
                 continue
             if dirname in ['cur', 'new', 'tmp']:
-                self.debug("  skipping this dir (Maildir special)")
+                self.debug("  skip this entry (Maildir special)")
                 # Bypass special files.
                 continue
             fullname = os.path.join(toppath, dirname)
             if not os.path.isdir(fullname):
-                self.debug("  skipping this entry (not a directory)")
+                self.debug("  skip this entry (not a directory)")
                 # Not a directory -- not a folder.
                 continue
-            foldername = dirname
-            if extension and dirname != '':
+            if extension:
+                # extension can be None which fails.
                 foldername = os.path.join(extension, dirname)
+            else:
+                foldername = dirname
+
             if (os.path.isdir(os.path.join(fullname, 'cur')) and
                 os.path.isdir(os.path.join(fullname, 'new')) and
                 os.path.isdir(os.path.join(fullname, 'tmp'))):
