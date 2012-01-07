@@ -16,7 +16,9 @@ New Features
 Changes
 -------
 
-* Add folderfilter information to the --info output
+* Do not attempt to sync lower case custom Maildir flags. We do not
+  support them (yet)
+* Add filter information to the filter list in --info output
 
 Bug Fixes
 ---------
