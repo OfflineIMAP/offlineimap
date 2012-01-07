@@ -19,3 +19,5 @@ Changes
 Bug Fixes
 ---------
 
+* Abort sleep in blinkenlights UI led to crash ('abort_signal' not existing),
+  regression from 6.5.0.

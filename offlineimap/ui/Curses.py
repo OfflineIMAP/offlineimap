@@ -157,11 +157,13 @@ class CursesAccountFrame:
         return tf
 
     def sleeping(self, sleepsecs, remainingsecs):
-        # show how long we are going to sleep and sleep
+        """show how long we are going to sleep and sleep
+
+        :returns: Boolean, whether we want to abort the sleep"""
         self.drawleadstr(remainingsecs)
         self.ui.exec_locked(self.window.refresh)
         time.sleep(sleepsecs)
-        return self.account.abort_signal.is_set()
+        return self.account.get_abort_event()
 
     def syncnow(self):
         """Request that we stop sleeping asap and continue to sync"""
