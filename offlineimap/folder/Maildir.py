@@ -295,9 +295,9 @@ class MaildirFolder(BaseFolder):
         dir_prefix = 'cur' if 'S' in flags else 'new'
 
         if flags != self.messagelist[uid]['flags']:
-            # Flags have actually changed, construct new filename
-            # Strip off existing infostring (preserving small letter flags that
-            # dovecot uses)
+            # Flags have actually changed, construct new filename Strip
+            # off existing infostring (possibly discarding small letter
+            # flags that dovecot uses TODO)
             infomatch = self.re_flagmatch.search(filename)
             if infomatch:
                 filename = filename[:-len(infomatch.group())] #strip off
