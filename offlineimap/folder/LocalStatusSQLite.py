@@ -73,24 +73,32 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
             if version < LocalStatusSQLiteFolder.cur_version:
                 self.upgrade_db(version)
 
-    def sql_write(self, sql, vars=None):
-        """execute some SQL retrying if the db was locked.
+    def sql_write(self, sql, vars=None, executemany=False):
+        """Execute some SQL, retrying if the db was locked.
 
-        :param sql: the SQL string passed to execute() :param args: the
-            variable values to `sql`. E.g. (1,2) or {uid:1, flags:'T'}. See
-            sqlite docs for possibilities.
+        :param sql: the SQL string passed to execute()
+        :param vars: the variable values to `sql`. E.g. (1,2) or {uid:1,
+            flags:'T'}. See sqlite docs for possibilities.
+        :param executemany: bool indicating whether we want to
+            perform conn.executemany() or conn.execute().
         :returns: the Cursor() or raises an Exception"""
         success = False
         while not success:
             self._dblock.acquire()
             try:
                 if vars is None:
-                    cursor = self.connection.execute(sql)
+                    if executemany:
+                        cursor = self.connection.executemany(sql)
+                    else:
+                        cursor = self.connection.execute(sql)
                 else:
-                    cursor = self.connection.execute(sql, vars)
+                    if executemany:
+                        cursor = self.connection.executemany(sql, vars)
+                    else:
+                        cursor = self.connection.execute(sql, vars)
                 success = True
                 self.connection.commit()
-            except sqlite.OperationalError, e:
+            except sqlite.OperationalError as e:
                 if e.args[0] == 'cannot commit - no transaction is active':
                     pass
                 elif e.args[0] == 'database is locked':
@@ -231,12 +239,23 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         flags = ''.join(sorted(flags))
         self.sql_write('UPDATE status SET flags=? WHERE id=?',(flags,uid))
 
+    def deletemessage(self, uid):
+        if not uid in self.messagelist:
+            return
+        self.sql_write('DELETE FROM status WHERE id=?', (uid, ))
+        del(self.messagelist[uid])
+
     def deletemessages(self, uidlist):
+        """Delete list of UIDs from status cache
+
+        This function uses sqlites executemany() function which is
+        much faster than iterating through deletemessage() when we have
+        many messages to delete."""
         # Weed out ones not in self.messagelist
         uidlist = [uid for uid in uidlist if uid in self.messagelist]
         if not len(uidlist):
             return
+        # arg2 needs to be an iterable of 1-tuples [(1,),(2,),...]
+        self.sql_write('DELETE FROM status WHERE id=?', zip(uidlist, ), True)
         for uid in uidlist:
             del(self.messagelist[uid])
-            #TODO: we want a way to do executemany(.., uidlist) to delete all
-            self.sql_write('DELETE FROM status WHERE id=?', (uid, ))
