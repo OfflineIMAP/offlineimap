@@ -42,19 +42,19 @@ class IMAPFolder(BaseFolder):
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
 
-    def selectro(self, imapobj):
+    def selectro(self, imapobj, force = False):
         """Select this folder when we do not need write access.
 
         Prefer SELECT to EXAMINE if we can, since some servers
         (Courier) do not stabilize UID validity until the folder is
         selected. 
         .. todo: Still valid? Needs verification
-
+        :param: Enforce new SELECT even if we are on that folder already.
         :returns: raises :exc:`OfflineImapError` severity FOLDER on error"""
         try:
-            imapobj.select(self.getfullname())
+            imapobj.select(self.getfullname(), force = force)
         except imapobj.readonly:
-            imapobj.select(self.getfullname(), readonly = True)
+            imapobj.select(self.getfullname(), readonly = True, force = force)
 
     def suggeststhreads(self):
         return 1

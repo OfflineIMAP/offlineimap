@@ -40,7 +40,7 @@ class UsefulIMAPMixIn(object):
             return self.mailbox
         return None
 
-    def select(self, mailbox='INBOX', readonly=False, force = 0):
+    def select(self, mailbox='INBOX', readonly=False, force = False):
         """Selects a mailbox on the IMAP server
 
         :returns: 'OK' on success, nothing if the folder was already
