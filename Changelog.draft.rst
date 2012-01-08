@@ -19,5 +19,10 @@ New Features
 Changes
 -------
 
+* Rather than to write out the nametrans'lated folder names for mbnames,
+  we now write out the local untransformed box names. This is generally
+  what we want. This became relevant since we support nametrans rules on
+  the local side since only a short time. Reported by Paul Collignan.
+
 Bug Fixes
 ---------

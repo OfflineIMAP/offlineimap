@@ -372,7 +372,7 @@ def syncfolder(account, remotefolder, quick):
                          % localfolder)
             return
         # Write the mailboxes
-        mbnames.add(account.name, localfolder.getvisiblename())
+        mbnames.add(account.name, localfolder.getname())
 
         # Load status folder.
         statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
