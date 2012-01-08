@@ -71,6 +71,7 @@ class IMAPFolder(BaseFolder):
             # SELECT receives UIDVALIDITY response
             self.selectro(imapobj)
             typ, uidval = imapobj.response('UIDVALIDITY')
+            assert uidval != [None], "response('UIDVALIDITY') returned [None]!"
             return long(uidval[0])
         finally:
             self.imapserver.releaseconnection(imapobj)
