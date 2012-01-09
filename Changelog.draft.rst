@@ -24,5 +24,10 @@ Changes
   what we want. This became relevant since we support nametrans rules on
   the local side since only a short time. Reported by Paul Collignan.
 
+* Some sanity checks and improved error messages.
+
+* Revert 6.5.1.1 change to use public imaplib2 function, it was reported to 
+  not always work.
+
 Bug Fixes
 ---------
