@@ -37,6 +37,9 @@ class OLITestLib():
             snippet for authenticating against the test IMAP server(s).
         :param cmd: command that will be executed to invoke offlineimap"""
         OLITestLib.cred_file = cred_file
+        if not os.path.isfile(cred_file):
+            raise UserWarning("Please copy 'credentials.conf.sample' to '%s' "
+                "and set your credentials there." % cred_file)
         OLITestLib.cmd = cmd
 
     @classmethod
