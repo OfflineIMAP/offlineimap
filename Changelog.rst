@@ -11,6 +11,18 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.5.2-rc1 (2012-01-09)
+===================================
+Commits v6.5.1.1 - v6.5.2-rc1:
+note: Proper Changelog still in Changelog-draft.rst
+d72bb88 Improve error message
+3284e01 Revert "use .response() rather _get_untagged_response()"
+81f194a mbnames should write out local and not nametransformed box names
+7184ec2 Sanity check return value of UIDVALIDTY response
+50de217 Allow to pass 'force' arg to selectro() to enforce a new select
+ed71805 Changelog entry about "realdelete" option
+0a275b9 Add scary warnings about "realdelete" option
+
 OfflineIMAP v6.5.1.2 (2012-01-07) - "Baby steps"
 ================================================
 

@@ -42,19 +42,19 @@ class IMAPFolder(BaseFolder):
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
 
-    def selectro(self, imapobj):
+    def selectro(self, imapobj, force = False):
         """Select this folder when we do not need write access.
 
         Prefer SELECT to EXAMINE if we can, since some servers
         (Courier) do not stabilize UID validity until the folder is
         selected. 
         .. todo: Still valid? Needs verification
-
+        :param: Enforce new SELECT even if we are on that folder already.
         :returns: raises :exc:`OfflineImapError` severity FOLDER on error"""
         try:
-            imapobj.select(self.getfullname())
+            imapobj.select(self.getfullname(), force = force)
         except imapobj.readonly:
-            imapobj.select(self.getfullname(), readonly = True)
+            imapobj.select(self.getfullname(), readonly = True, force = force)
 
     def suggeststhreads(self):
         return 1
@@ -70,8 +70,12 @@ class IMAPFolder(BaseFolder):
         try:
             # SELECT receives UIDVALIDITY response
             self.selectro(imapobj)
-            typ, uidval = imapobj.response('UIDVALIDITY')
-            return long(uidval[0])
+            # note: we would want to use .response() here but that
+            # often seems to return [None], even though we have
+            # data. TODO
+            uidval = imapobj._get_untagged_response('UIDVALIDITY')
+            assert uidval != [None], "response('UIDVALIDITY') returned [None]!"
+            return long(uidval[-1])
         finally:
             self.imapserver.releaseconnection(imapobj)
 
@@ -566,8 +570,11 @@ class IMAPFolder(BaseFolder):
             if use_uidplus or imapobj._get_untagged_response('APPENDUID', True):
                 # get new UID from the APPENDUID response, it could look
                 # like OK [APPENDUID 38505 3955] APPEND completed with
-                # 38505 bein folder UIDvalidity and 3955 the new UID
-                typ, resp = imapobj.response('APPENDUID')
+                # 38505 bein folder UIDvalidity and 3955 the new UID.
+                # note: we would want to use .response() here but that
+                # often seems to return [None], even though we have
+                # data. TODO
+                resp = imapobj._get_untagged_response('APPENDUID')
                 if resp == [None]:
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
                                  "appending a message.")
