@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+import logging
+from OLItest import OLITextTestRunner, TestLoader, OLITestLib
+
+if __name__ == '__main__':
+    logging.basicConfig(format='%(message)s')
+    OLITestLib(cred_file='./credentials.conf', cmd='../offlineimap.py')
+    suite = TestLoader().discover('./tests')
+    OLITextTestRunner(verbosity=2).run(suite)
