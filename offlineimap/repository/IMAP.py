@@ -138,7 +138,7 @@ class IMAPRepository(BaseRepository):
         try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
         except IOError, inst:
-            if inst.errno != errno.ENOENT:
+            if inst.errno not in (errno.ENOENT, errno.EACCES):
                 raise
         else:
             if netrcentry:
@@ -235,7 +235,7 @@ class IMAPRepository(BaseRepository):
         try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
         except IOError, inst:
-            if inst.errno != errno.ENOENT:
+            if inst.errno not in (errno.ENOENT, errno.EACCES):
                 raise
         else:
             if netrcentry:
