@@ -70,9 +70,12 @@ class IMAPFolder(BaseFolder):
         try:
             # SELECT receives UIDVALIDITY response
             self.selectro(imapobj)
-            typ, uidval = imapobj.response('UIDVALIDITY')
+            # note: we would want to use .response() here but that
+            # often seems to return [None], even though we have
+            # data. TODO
+            uidval = imapobj._get_untagged_response('UIDVALIDITY')
             assert uidval != [None], "response('UIDVALIDITY') returned [None]!"
-            return long(uidval[0])
+            return long(uidval[-1])
         finally:
             self.imapserver.releaseconnection(imapobj)
 
@@ -567,8 +570,11 @@ class IMAPFolder(BaseFolder):
             if use_uidplus or imapobj._get_untagged_response('APPENDUID', True):
                 # get new UID from the APPENDUID response, it could look
                 # like OK [APPENDUID 38505 3955] APPEND completed with
-                # 38505 bein folder UIDvalidity and 3955 the new UID
-                typ, resp = imapobj.response('APPENDUID')
+                # 38505 bein folder UIDvalidity and 3955 the new UID.
+                # note: we would want to use .response() here but that
+                # often seems to return [None], even though we have
+                # data. TODO
+                resp = imapobj._get_untagged_response('APPENDUID')
                 if resp == [None]:
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
                                  "appending a message.")
