@@ -191,7 +191,8 @@ class MappedIMAPFolder(IMAPFolder):
 
         newluid = self._mb.savemessage(-1, content, flags, rtime)
         if newluid < 1:
-            raise ValueError("Backend could not find uid for message")
+            raise ValueError("Backend could not find uid for message, returned "
+                             "%s" % newluid)
         self.maplock.acquire()
         try:
             self.diskl2r[newluid] = uid
