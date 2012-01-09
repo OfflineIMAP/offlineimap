@@ -29,5 +29,7 @@ Changes
 * Revert 6.5.1.1 change to use public imaplib2 function, it was reported to 
   not always work.
 
+* Don't fail when ~/netrc is not readable by us.
+
 Bug Fixes
 ---------
