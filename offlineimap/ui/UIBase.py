@@ -493,7 +493,7 @@ class UIBase(object):
         """
         if sleepsecs > 0:
             if remainingsecs//60 != (remainingsecs-sleepsecs)//60:
-                self.logger.info("Next refresh in %.1f minutes" % (
+                self.logger.debug("Next refresh in %.1f minutes" % (
                         remainingsecs/60.0))
             time.sleep(sleepsecs)
         return 0

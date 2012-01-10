@@ -31,5 +31,6 @@ Changes
 
 * Don't fail when ~/netrc is not readable by us.
 
+* Don't emit noisy regular sleeping announcements in Basic UI.
 Bug Fixes
 ---------
