@@ -43,6 +43,23 @@ Most configuration is done via the configuration file.  However, any setting can
 
 OfflineImap is well suited to be frequently invoked by cron jobs, or can run in daemon mode to periodically check your email (however, it will exit in some error situations).
 
+.. _configuration:
+
+Configuration
+=============
+
+`OfflineIMAP`_ is regulated by a configuration file that is normally stored in
+`~/.offlineimaprc`.  `OfflineIMAP`_ ships with a file named `offlineimap.conf`
+that you should copy to that location and then edit.  This file is vital to
+proper operation of the system; it sets everything you need to run
+`OfflineIMAP`_.  Full documentation for the configuration file is included
+within the sample file.
+
+
+`OfflineIMAP`_ also ships a file named `offlineimap.conf.minimal` that you can
+also try.  It's useful if you want to get started with the most basic feature
+set, and you can read about other features later with `offlineimap.conf`.
+
 Check out the `Use Cases`_ section for some example configurations.
 
 
