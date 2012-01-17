@@ -20,3 +20,5 @@ Changes
 
 Bug Fixes
 ---------
+
+* Fix python2.6 compatibility with the TTYUI backend (crash)

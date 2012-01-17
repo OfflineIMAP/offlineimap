@@ -24,12 +24,14 @@ from offlineimap.ui.UIBase import UIBase
 class TTYFormatter(logging.Formatter):
     """Specific Formatter that adds thread information to the log output"""
     def __init__(self, *args, **kwargs):
-        super(TTYFormatter, self).__init__(*args, **kwargs)
+        #super() doesn't work in py2.6 as 'logging' uses old-style class
+        logging.Formatter.__init__(self, *args, **kwargs)
         self._last_log_thread = None
 
     def format(self, record):
         """Override format to add thread information"""
-        log_str = super(TTYFormatter, self).format(record)
+        #super() doesn't work in py2.6 as 'logging' uses old-style class
+        log_str = logging.Formatter.format(self, record)
         # If msg comes from a different thread than our last, prepend
         # thread info.  Most look like 'Account sync foo' or 'Folder
         # sync foo'.
