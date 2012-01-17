@@ -16,5 +16,7 @@ New Features
 Changes
 -------
 
+* Improve delete msg performance with SQLITE backend
+
 Bug Fixes
 ---------
