@@ -84,3 +84,19 @@ class TTYUI(UIBase):
         else:
             UIBase.mainException(self)
 
+    def sleeping(self, sleepsecs, remainingsecs):
+        """Sleep for sleepsecs, display remainingsecs to go.
+
+        Does nothing if sleepsecs <= 0.
+        Display a message on the screen if we pass a full minute.
+
+        This implementation in UIBase does not support this, but some
+        implementations return 0 for successful sleep and 1 for an
+        'abort', ie a request to sync immediately.
+        """
+        if sleepsecs > 0:
+            if remainingsecs//60 != (remainingsecs-sleepsecs)//60:
+                self.logger.info("Next refresh in %.1f minutes" % (
+                        remainingsecs/60.0))
+            time.sleep(sleepsecs)
+        return 0

@@ -11,17 +11,27 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
-OfflineIMAP v6.5.2-rc1 (2012-01-09)
-===================================
-Commits v6.5.1.1 - v6.5.2-rc1:
-note: Proper Changelog still in Changelog-draft.rst
-d72bb88 Improve error message
-3284e01 Revert "use .response() rather _get_untagged_response()"
-81f194a mbnames should write out local and not nametransformed box names
-7184ec2 Sanity check return value of UIDVALIDTY response
-50de217 Allow to pass 'force' arg to selectro() to enforce a new select
-ed71805 Changelog entry about "realdelete" option
-0a275b9 Add scary warnings about "realdelete" option
+OfflineIMAP v6.5.2 (2012-01-17)
+===============================
+
+* Gmail "realdelete" option is considered harmful and has the potential
+  for data loss. Analysis at
+  http://article.gmane.org/gmane.mail.imap.offlineimap.general/5265
+  Warnings were added to offlineimap.conf
+
+* Rather than write out the nametrans'lated folder names for mbnames, we
+  now write out the local untransformed box names. This is generally
+  what we want. This became relevant since we support nametrans rules on
+  the local side since only a short time. Reported by Paul Collignan.
+
+* Some sanity checks and improved error messages.
+
+* Revert 6.5.1.1 change to use public imaplib2 function, it was reported to 
+  not always work.
+
+* Don't fail when ~/netrc is not readable by us.
+
+* Don't emit noisy regular sleeping announcements in Basic UI.
 
 OfflineIMAP v6.5.1.2 (2012-01-07) - "Baby steps"
 ================================================
