@@ -50,9 +50,10 @@ class OLITestLib():
         directory at a time. OLITestLib is not suited for running
         several tests in parallel.  The user is responsible for
         cleaning that up herself."""
-        # creating temporary directory for testing in current dir
+        # creating temporary dir for testing in same dir as credentials.conf
         cls.testdir = os.path.abspath(
-            tempfile.mkdtemp(prefix='tmp_%s_'%suffix, dir='.'))
+            tempfile.mkdtemp(prefix='tmp_%s_'%suffix,
+                             dir=os.path.dirname(cls.cred_file)))
         cls.create_config_file()
         return cls.testdir
 
