@@ -9,7 +9,8 @@ How to run the tests
   will change the account and upload/delete/modify it's contents and
   folder structure. So don't use a real used account here...
 
-- Execute './test'
+- go to the top level dir (one above this one) and execute:
+  'python setup.py test'
 
 System requirements
 ===================

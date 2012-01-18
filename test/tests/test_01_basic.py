@@ -17,11 +17,7 @@ import random
 import unittest
 import logging
 import os, sys
-# Insert ".." into the python search path to get OLItest
-cmd_folder = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if cmd_folder not in sys.path:
-     sys.path.insert(0, cmd_folder)
-from OLItest import OLITestLib
+from test.OLItest import OLITestLib
 
 def setUpModule():
     logging.info("Set Up test module %s" % __name__)
