@@ -21,7 +21,7 @@ import shutil
 import subprocess
 import tempfile
 from ConfigParser import SafeConfigParser
-from OLItest import default_conf
+from . import default_conf
 
 class OLITestLib():
     cred_file = None
