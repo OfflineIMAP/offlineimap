@@ -1,6 +1,7 @@
 .. -*- coding: utf-8 -*-
 
 .. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
+.. _commits mailing list: http://lists.offlineimap.org/listinfo.cgi/commits-offlineimap.org
 
 =================================================
 Checklist (and a short version for the impatient)
@@ -320,6 +321,12 @@ Know the status of your patch after submission
   tell you if your patch is merged in pu if you rebase on top of
   master).
 
+* You can follow upstream commits on
+`CIA.vc <http://cia.vc/stats/project/offlineimap>`,
+`Ohloh <http://www.ohloh.net/p/offlineimap>`,
+`GitHub <https://github.com/spaetz/offlineimap/commits/>`,
+or on the `commits mailing list`_.
+  
 .. * Read the git mailing list, the maintainer regularly posts messages
   entitled "What's cooking in git.git" and "What's in git.git" giving
   the status of various proposed changes.
