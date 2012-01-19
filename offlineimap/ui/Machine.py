@@ -70,7 +70,7 @@ class MachineUI(UIBase):
     def validityproblem(s, folder):
         s._printData('validityproblem', "%s\n%s\n%s\n%s" % \
                 (folder.getname(), folder.getrepository().getname(),
-                 folder.getsaveduidvalidity(), folder.get_uidvalidity()))
+                 folder.get_saveduidvalidity(), folder.get_uidvalidity()))
 
     def connecting(s, hostname, port):
         s._printData('connecting', "%s\n%s" % (hostname, str(port)))

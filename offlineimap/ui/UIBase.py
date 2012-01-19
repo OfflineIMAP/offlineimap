@@ -311,7 +311,7 @@ class UIBase(object):
                             "(saved %d; got %d); skipping it. Please see FAQ "
                             "and manual on how to handle this." % \
                (folder, folder.getrepository(),
-                folder.getsaveduidvalidity(), folder.get_uidvalidity()))
+                folder.get_saveduidvalidity(), folder.get_uidvalidity()))
 
     def loadmessagelist(self, repos, folder):
         self.logger.debug("Loading message list for %s[%s]" % (

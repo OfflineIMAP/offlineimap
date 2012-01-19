@@ -116,8 +116,8 @@ class BaseFolder(object):
         function is not threadsafe. So don't attempt to call it from
         concurrent threads."""
 
-        if self.getsaveduidvalidity() != None:
-            return self.getsaveduidvalidity() == self.get_uidvalidity()
+        if self.get_saveduidvalidity() != None:
+            return self.get_saveduidvalidity() == self.get_uidvalidity()
         else:
             self.saveuidvalidity()
             return 1
@@ -126,7 +126,11 @@ class BaseFolder(object):
         return os.path.join(self.repository.getuiddir(),
                             self.getfolderbasename())
 
-    def getsaveduidvalidity(self):
+    def get_saveduidvalidity(self):
+        """Return the previously cached UIDVALIDITY value
+
+        :returns: UIDVALIDITY as (long) number or None, if None had been
+            saved yet."""
         if hasattr(self, '_base_saved_uidvalidity'):
             return self._base_saved_uidvalidity
         uidfilename = self._getuidfilename()
