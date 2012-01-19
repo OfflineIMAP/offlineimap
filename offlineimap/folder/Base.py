@@ -154,9 +154,8 @@ class BaseFolder(object):
         newval = self.get_uidvalidity()
         uidfilename = self._getuidfilename()
 
-        file = open(uidfilename + ".tmp", "wt")
-        file.write("%d\n" % newval)
-        file.close()
+        with open(uidfilename + ".tmp", "wt") as file:
+            file.write("%d\n" % newval)
         os.rename(uidfilename + ".tmp", uidfilename)
         self._base_saved_uidvalidity = newval
 
