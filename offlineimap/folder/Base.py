@@ -126,6 +126,7 @@ class BaseFolder(object):
             return True
 
     def _getuidfilename(self):
+        """provides UIDVALIDITY cache filename for class internal purposes"""
         return os.path.join(self.repository.getuiddir(),
                             self.getfolderbasename())
 

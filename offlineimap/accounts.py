@@ -379,8 +379,10 @@ def syncfolder(account, remotefolder, quick):
                                              replace(remoterepos.getsep(),
                                                      statusrepos.getsep()))
         if localfolder.get_uidvalidity() == None:
-            # This is a new folder, so delete the status cache to be sure
-            # we don't have a conflict.
+            # This is a new folder, so delete the status cache to be
+            # sure we don't have a conflict.
+            # TODO: This does not work. We always return a value, need
+            # to rework this...
             statusfolder.deletemessagelist()
 
         statusfolder.cachemessagelist()
