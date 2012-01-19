@@ -288,33 +288,29 @@ How do I generate an `sslcacertfile` file?
 
 The `sslcacertfile` file must contain an SSL certificate (or a concatenated
 certificates chain) in PEM format.  (See the documentation of
-`ssl.wrap_socket`_'s `certfile` parameter for the gory details.)  The following
-command should generate a file in the proper format::
+`ssl.wrap_socket`_'s `certfile` parameter for the gory details.)  You can use either openssl or gnutls to create a certificate file in the required format.
 
+#. via openssl::
     openssl s_client -CApath /etc/ssl/certs -connect ${hostname}:imaps -showcerts \
        | perl -ne 'print if /BEGIN/../END/; print STDERR if /return/' > $sslcacertfile
     ^D
 
-Before using the resulting file, ensure that openssl verified the certificate
-successfully.
+#. via gnutls::
+    gnutls-cli --print-cert -p imaps ${host} </dev/null | sed -n \
+    |     '/^-----BEGIN CERT/,/^-----END CERT/p' > $sslcacertfile
 
 The path `/etc/ssl/certs` is not standardized; your system may store
 SSL certificates elsewhere.  (On some systems it may be in
 `/usr/local/share/certs/`.)
 
-If this does not work and you are getting error messages, you can test the certificate using a command like (credits to Daniel Shahaf for this)::
+Before using the resulting file, ensure that openssl verified the certificate
+successfully. In case of problems, you can test the certificate using a command such as (credits to Daniel Shahaf for this) to verify the certificate::
 
     % openssl s_client -CAfile $sslcacertfile -connect ${hostname}:imaps 2>&1 </dev/null
-    verify return:1
-    verify return:1
-(If you post the output, post the full output, without 'grep' filtering)
-
-    verify return:1
-        Verify return code: 0 (ok)
 
 If the server uses STARTTLS, pass the -starttls option and the 'imap' port.
 
-Also, you can test::
+Also, you can test using gnutls::
   gnutls-cli --x509cafile certs/mail.mydomain.eu.cert -p 993 mail.mydomain.eu
 
 IMAP Server Notes
