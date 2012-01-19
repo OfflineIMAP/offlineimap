@@ -302,6 +302,20 @@ The path `/etc/ssl/certs` is not standardized; your system may store
 SSL certificates elsewhere.  (On some systems it may be in
 `/usr/local/share/certs/`.)
 
+If this does not work and you are getting error messages, you can test the certificate using a command like (credits to Daniel Shahaf for this)::
+
+    % openssl s_client -CAfile $sslcacertfile -connect ${hostname}:imaps 2>&1 </dev/null
+    verify return:1
+    verify return:1
+(If you post the output, post the full output, without 'grep' filtering)
+
+    verify return:1
+        Verify return code: 0 (ok)
+
+If the server uses STARTTLS, pass the -starttls option and the 'imap' port.
+
+Also, you can test::
+  gnutls-cli --x509cafile certs/mail.mydomain.eu.cert -p 993 mail.mydomain.eu
 
 IMAP Server Notes
 =================
