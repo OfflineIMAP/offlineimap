@@ -413,8 +413,9 @@ def syncfolder(account, remotefolder, quick):
                 localrepos.restore_atime()
                 return
         else:
-            localfolder.saveuidvalidity()
-            remotefolder.saveuidvalidity()
+            # Both folders empty, just save new UIDVALIDITY
+            localfolder.save_uidvalidity()
+            remotefolder.save_uidvalidity()
 
         # Load remote folder.
         ui.loadmessagelist(remoterepos, remotefolder)

@@ -122,7 +122,7 @@ class BaseFolder(object):
         if self.get_saveduidvalidity() != None:
             return self.get_saveduidvalidity() == self.get_uidvalidity()
         else:
-            self.saveuidvalidity()
+            self.save_uidvalidity()
             return True
 
     def _getuidfilename(self):
@@ -145,8 +145,8 @@ class BaseFolder(object):
             file.close()
         return self._base_saved_uidvalidity
 
-    def saveuidvalidity(self):
-        """Save the UID value of the folder to the status
+    def save_uidvalidity(self):
+        """Save the UIDVALIDITY value of the folder to the cache
 
         This function is not threadsafe, so don't attempt to call it
         from concurrent threads."""
