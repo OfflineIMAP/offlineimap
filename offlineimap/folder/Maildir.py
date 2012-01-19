@@ -83,8 +83,10 @@ class MaildirFolder(BaseFolder):
         """Return the absolute file path to the Maildir folder (sans cur|new)"""
         return self._fullname
 
-    def getuidvalidity(self):
-        """Maildirs have no notion of uidvalidity, so we just return a magic
+    def get_uidvalidity(self):
+        """Retrieve the current connections UIDVALIDITY value
+
+        Maildirs have no notion of uidvalidity, so we just return a magic
         token."""
         return 42
 
