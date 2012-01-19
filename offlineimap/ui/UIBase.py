@@ -309,9 +309,9 @@ class UIBase(object):
     def validityproblem(self, folder):
         self.logger.warning("UID validity problem for folder %s (repo %s) "
                             "(saved %d; got %d); skipping it. Please see FAQ "
-                            "and manual how to handle this." % \
+                            "and manual on how to handle this." % \
                (folder, folder.getrepository(),
-                folder.getsaveduidvalidity(), folder.getuidvalidity()))
+                folder.getsaveduidvalidity(), folder.get_uidvalidity()))
 
     def loadmessagelist(self, repos, folder):
         self.logger.debug("Loading message list for %s[%s]" % (

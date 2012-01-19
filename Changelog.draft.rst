@@ -21,3 +21,4 @@ Bug Fixes
 
 * Fix python2.6 compatibility with the TTYUI backend (crash)
 * Fix TTYUI regression from 6.5.2 in refresh loop (crash)
+* Fix crashes related to UIDVALIDITY returning "None"

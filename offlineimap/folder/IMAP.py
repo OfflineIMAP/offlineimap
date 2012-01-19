@@ -65,17 +65,23 @@ class IMAPFolder(BaseFolder):
     def getcopyinstancelimit(self):
         return 'MSGCOPY_' + self.repository.getname()
 
-    def getuidvalidity(self):
+    def get_uidvalidity(self):
+        """Retrieve the current connections UIDVALIDITY value
+
+        UIDVALIDITY value will be cached on the first call.
+        :returns: The UIDVALIDITY as (long) number."""
+        if hasattr(self, '_uidvalidity'):
+            # use cached value if existing
+            return self._uidvalidity
         imapobj = self.imapserver.acquireconnection()
         try:
-            # SELECT receives UIDVALIDITY response
+            # SELECT (if not already done) and get current UIDVALIDITY
             self.selectro(imapobj)
-            # note: we would want to use .response() here but that
-            # often seems to return [None], even though we have
-            # data. TODO
-            uidval = imapobj._get_untagged_response('UIDVALIDITY')
-            assert uidval != [None], "response('UIDVALIDITY') returned [None]!"
-            return long(uidval[-1])
+            typ, uidval = imapobj.response('UIDVALIDITY')
+            assert uidval != [None] and uidval != None, \
+                "response('UIDVALIDITY') returned [None]!"
+            self._uidvalidity = long(uidval[-1])
+            return self._uidvalidity
         finally:
             self.imapserver.releaseconnection(imapobj)
 

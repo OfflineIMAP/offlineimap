@@ -110,13 +110,14 @@ class BaseFolder(object):
         return basename
 
     def isuidvalidityok(self):
-        """Does the cached UID match the real UID
+        """Tests if the cached UIDVALIDITY match the real current one
 
-        If required it caches the UID. In this case the function is not
-        threadsafe. So don't attempt to call it from concurrent threads."""
+        If required it saves the UIDVALIDITY value. In this case the
+        function is not threadsafe. So don't attempt to call it from
+        concurrent threads."""
 
         if self.getsaveduidvalidity() != None:
-            return self.getsaveduidvalidity() == self.getuidvalidity()
+            return self.getsaveduidvalidity() == self.get_uidvalidity()
         else:
             self.saveuidvalidity()
             return 1
@@ -142,7 +143,7 @@ class BaseFolder(object):
 
         This function is not threadsafe, so don't attempt to call it
         from concurrent threads."""
-        newval = self.getuidvalidity()
+        newval = self.get_uidvalidity()
         uidfilename = self._getuidfilename()
 
         file = open(uidfilename + ".tmp", "wt")
@@ -151,7 +152,11 @@ class BaseFolder(object):
         os.rename(uidfilename + ".tmp", uidfilename)
         self._base_saved_uidvalidity = newval
 
-    def getuidvalidity(self):
+    def get_uidvalidity(self):
+        """Retrieve the current connections UIDVALIDITY value
+
+        This function needs to be implemented by each Backend
+        :returns: UIDVALIDITY as a (long) number"""
         raise NotImplementedException
 
     def cachemessagelist(self):

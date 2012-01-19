@@ -378,7 +378,7 @@ def syncfolder(account, remotefolder, quick):
         statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().\
                                              replace(remoterepos.getsep(),
                                                      statusrepos.getsep()))
-        if localfolder.getuidvalidity() == None:
+        if localfolder.get_uidvalidity() == None:
             # This is a new folder, so delete the status cache to be sure
             # we don't have a conflict.
             statusfolder.deletemessagelist()
