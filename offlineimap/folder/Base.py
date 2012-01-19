@@ -109,18 +109,21 @@ class BaseFolder(object):
         basename = re.sub('(^|\/)\.$','\\1dot', basename)
         return basename
 
-    def isuidvalidityok(self):
+    def check_uidvalidity(self):
         """Tests if the cached UIDVALIDITY match the real current one
 
         If required it saves the UIDVALIDITY value. In this case the
         function is not threadsafe. So don't attempt to call it from
-        concurrent threads."""
+        concurrent threads.
+
+        :returns: Boolean indicating the match. Returns True in case it
+        implicitely saved the UIDVALIDITY."""
 
         if self.get_saveduidvalidity() != None:
             return self.get_saveduidvalidity() == self.get_uidvalidity()
         else:
             self.saveuidvalidity()
-            return 1
+            return True
 
     def _getuidfilename(self):
         return os.path.join(self.repository.getuiddir(),
