@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-__all__ = ['OLITestLib', 'OLITextTestRunner','TestLoader']
+__all__ = ['OLITestLib', 'TextTestRunner','TestLoader']
 
 __productname__ = 'OfflineIMAP Test suite'
 __version__     = '0'
@@ -29,6 +29,6 @@ banner = """%(__productname__)s %(__version__)s
   %(__license__)s""" % locals()
 
 import unittest
-from unittest import TestLoader
+from unittest import TestLoader, TextTestRunner
 from globals import default_conf
-from TestRunner import OLITestLib, OLITextTestRunner
+from TestRunner import OLITestLib

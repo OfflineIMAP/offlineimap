@@ -99,8 +99,34 @@ class OLITestLib():
             return (e.returncode, e.output)
         return (0, output)
 
-class OLITextTestRunner(unittest.TextTestRunner):
+    @classmethod
+    def create_maildir(cls, folder):
+        """Create empty maildir 'folder' in our test maildir
 
-    def __init__(self,*args, **kwargs):
-        logging.warning("OfflineImap testsuite")
-        return super(OLITextTestRunner, self).__init__(*args, **kwargs)
+        Does not fail if it already exists"""
+        assert cls.testdir != None
+        maildir = os.path.join(cls.testdir, 'mail', folder)
+        for subdir in ('','tmp','cur','new'):
+            try:
+                os.mkdir(os.path.join(maildir, subdir))
+            except OSError as e:
+                if e.errno != 17: # 'already exists' is ok.
+                    raise
+
+    @classmethod
+    def count_maildir_mails(cls, folder):
+        """Returns the number of mails in maildir 'folder'
+
+        Counting only those in cur&new (ignoring tmp)."""
+        assert cls.testdir != None
+        maildir = os.path.join(cls.testdir, 'mail', folder)
+
+        boxes, mails = 0, 0
+        for dirpath, dirs, files in os.walk(maildir, False):
+            if set(dirs) == set(['cur', 'new', 'tmp']):
+                # New maildir folder
+                boxes += 1
+                #raise RuntimeError("%s is not Maildir" % maildir)
+            if dirpath.endswith(('/cur', '/new')):
+                mails += len(files)
+        return boxes, mails

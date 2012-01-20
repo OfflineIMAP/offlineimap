@@ -55,17 +55,20 @@ class TestBasicFunctions(unittest.TestCase):
         It syncs all "OLItest* (specified in the default config) to our
         local Maildir at keeps it there."""
         code, res = OLITestLib.run_OLI()
-        #logging.warn("%s %s "% (code, res))
         self.assertEqual(res, "")
-        #TODO implement OLITestLib.countmails()
-        logging.warn("synced %d boxes, %d mails" % (0,0))
 
-    def test_02_wipedir(self):
-        """Wipe OLItest* maildir, sync and see if it's still empty
+        boxes, mails = OLITestLib.count_maildir_mails('')
+        logging.warn("%d boxes and %d mails" % (boxes, mails))
 
-        Wipes all "OLItest* (specified in the default config) to our
-        local Maildir at keeps it there."""
+    def test_02_createdir(self):
+        """Create local OLItest 1 & OLItest "1" maildir, sync
 
+        Folder names with quotes used to fail and have been fixed, so
+        one is included here as a small challenge."""
+        OLITestLib.create_maildir('INBOX.OLItest 1')
+        OLITestLib.create_maildir('INBOX.OLItest "1"')
         code, res = OLITestLib.run_OLI()
         #logging.warn("%s %s "% (code, res))
         self.assertEqual(res, "")
+        boxes, mails = OLITestLib.count_maildir_mails('')
+        logging.warn("%d boxes and %d mails" % (boxes, mails))

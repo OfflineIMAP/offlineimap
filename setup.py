@@ -25,7 +25,7 @@ import os
 from distutils.core import setup, Command
 import offlineimap
 import logging
-from test.OLItest import OLITextTestRunner, TestLoader, OLITestLib
+from test.OLItest import TextTestRunner, TestLoader, OLITestLib
 
 class TestCommand(Command):
     """runs the OLI testsuite"""
@@ -44,7 +44,7 @@ class TestCommand(Command):
         OLITestLib(cred_file='./test/credentials.conf', cmd='./offlineimap.py')
         suite = TestLoader().discover('./test/tests')
         #TODO: failfast does not seem to exist in python2.6?
-        OLITextTestRunner(verbosity=2,failfast=True).run(suite)
+        TextTestRunner(verbosity=2,failfast=True).run(suite)
 
 
 setup(name = "offlineimap",

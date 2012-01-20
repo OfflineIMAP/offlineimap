@@ -33,5 +33,5 @@ localfolders =
 
 [Repository IMAP]
 type=IMAP
-folderfilter= lambda f: f.startswith('OLItest')
+folderfilter= lambda f: f.startswith('INBOX.OLItest')
 """)
