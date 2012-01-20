@@ -538,12 +538,13 @@ class IMAPFolder(BaseFolder):
                     self.ui.msgtoreadonly(self, uid, content, flags)
                     return uid
 
-                #Do the APPEND
+                # Clean out existing APPENDUID responses and do APPEND
                 try:
-                    (typ, dat) = imapobj.append(self.getfullname(),
+                    imapobj.response('APPENDUID') # flush APPENDUID responses
+                    typ, dat = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
-                    retry_left = 0 # Mark as success
+                    retry_left = 0                # Mark as success
                 except imapobj.abort, e:
                     # connection has been reset, release connection and retry.
                     retry_left -= 1
@@ -568,41 +569,35 @@ class IMAPFolder(BaseFolder):
                                            OfflineImapError.ERROR.MESSAGE)
             # Checkpoint. Let it write out stuff, etc. Eg searches for
             # just uploaded messages won't work if we don't do this.
-            (typ,dat) = imapobj.check()
+            typ, dat = imapobj.check()
             assert(typ == 'OK')
 
-            # get the new UID. Test for APPENDUID response even if the
-            # server claims to not support it, as e.g. Gmail does :-(
-            if use_uidplus or imapobj._get_untagged_response('APPENDUID', True):
+            # get the new UID, default to 0 (=unknown)
+            uid = 0
+            if use_uidplus:
                 # get new UID from the APPENDUID response, it could look
                 # like OK [APPENDUID 38505 3955] APPEND completed with
-                # 38505 bein folder UIDvalidity and 3955 the new UID.
-                # note: we would want to use .response() here but that
-                # often seems to return [None], even though we have
-                # data. TODO
-                resp = imapobj._get_untagged_response('APPENDUID')
-                if resp == [None]:
+                # 38505 being folder UIDvalidity and 3955 the new UID.
+                typ, resp = imapobj.response('APPENDUID')
+                if resp == [None] or resp == None:
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
                                  "appending a message.")
-                    return 0
-                uid = long(resp[-1].split(' ')[1])
+                else:
+                    uid = long(resp[-1].split(' ')[1])
 
             else:
-                # we don't support UIDPLUS
+                # Don't support UIDPLUS
                 uid = self.savemessage_searchforheader(imapobj, headername,
                                                        headervalue)
-                # See docs for savemessage in Base.py for explanation of this and other return values
+                # If everything failed up to here, search the message
+                # manually TODO: rather than inserting and searching for our
+                # custom header, we should be searching the Message-ID and
+                # compare the message size...
                 if uid == 0:
-                    self.ui.debug('imap', 'savemessage: first attempt to get new UID failed. \
-                            Going to run a NOOP and try again.')
-                    assert(imapobj.noop()[0] == 'OK')
-                    uid = self.savemessage_searchforheader(imapobj, headername,
-                                                       headervalue)
-                    if uid == 0:
-                        self.ui.debug('imap', 'savemessage: second attempt to get new UID failed. \
-                                Going to try search headers manually')
-                        uid = self.savemessage_fetchheaders(imapobj, headername, headervalue)
-
+                    self.ui.debug('imap', 'savemessage: attempt to get new UID '
+                                  'UID failed. Search headers manually.')
+                    uid = self.savemessage_fetchheaders(imapobj, headername,
+                                                        headervalue)
         finally:
             self.imapserver.releaseconnection(imapobj)
 
