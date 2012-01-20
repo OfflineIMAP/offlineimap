@@ -25,7 +25,12 @@ try: # python 2.6 has set() built in
 except NameError:
     from sets import Set as set
 
-quotere = re.compile('^("(?:[^"]|\\\\")*")')
+# find the first quote in a string
+quotere = re.compile(
+    r"""(?P<quote>"(?:\\"|[^"])*") # Quote, possibly containing encoded
+                                   # quotation mark
+        \s*(?P<rest>.*)$           # Whitespace & remainder of string""",
+    re.VERBOSE)
 
 def debug(*args):
     msg = []
@@ -71,7 +76,7 @@ def options2hash(list):
 
 def flags2hash(flags):
     """Converts IMAP response string from eg IMAP4.fetch() to a hash.
-    
+
     E.g. '(FLAGS (\\Seen Old) UID 4807)' leads to
     {'FLAGS': '(\\Seen Old)', 'UID': '4807'}"""
     return options2hash(flagsplit(flags))
@@ -124,10 +129,11 @@ def imapsplit(imapstring):
                 retval.extend(imapsplit(arg))
         debug("imapsplit() non-string: returning %s" % str(retval))
         return retval
-        
+
     workstr = imapstring.strip()
     retval = []
     while len(workstr):
+        # handle parenthized fragments (...()...)
         if workstr[0] == '(':
             rparenc = 1 # count of right parenthesis to match
             rpareni = 1 # position to examine
@@ -141,9 +147,10 @@ def imapsplit(imapstring):
             workstr = workstr[rpareni:].lstrip()
             retval.append(parenlist)
         elif workstr[0] == '"':
-            quotelist = quotere.search(workstr).group(1)
-            workstr = workstr[len(quotelist):].lstrip()
-            retval.append(quotelist)
+            # quoted fragments '"...\"..."'
+            m = quotere.match(workstr)
+            retval.append(m.group('quote'))
+            workstr = m.group('rest')
         else:
             splits = string.split(workstr, maxsplit = 1)
             splitslen = len(splits)
@@ -161,8 +168,9 @@ def imapsplit(imapstring):
             elif splitslen == 0:
                 # There was not even an unquoted word.
                 break
+    getglobalui().warn("%s->%s" % (imapstring, retval))
     return retval
-            
+
 flagmap = [('\\Seen', 'S'),
            ('\\Answered', 'R'),
            ('\\Flagged', 'F'),

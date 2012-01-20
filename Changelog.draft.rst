@@ -16,6 +16,9 @@ New Features
 * Beginning of a test suite. So far there is only one test. Configure
   test/credentials.conf and invoke with "python setup.py test"
 
+* Make folders containing quotes work rather than crashing
+  (reported by Mark Eichin)
+
 Changes
 -------
 
