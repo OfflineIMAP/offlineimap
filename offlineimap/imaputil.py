@@ -168,7 +168,6 @@ def imapsplit(imapstring):
             elif splitslen == 0:
                 # There was not even an unquoted word.
                 break
-    getglobalui().warn("%s->%s" % (imapstring, retval))
     return retval
 
 flagmap = [('\\Seen', 'S'),
