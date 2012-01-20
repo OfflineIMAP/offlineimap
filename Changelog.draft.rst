@@ -19,6 +19,9 @@ New Features
 Changes
 -------
 
+* Slight performance enhancement uploading mails to an IMAP server in the
+  common case.
+
 Bug Fixes
 ---------
 

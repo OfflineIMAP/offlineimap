@@ -567,10 +567,6 @@ class IMAPFolder(BaseFolder):
                         "failed (error). Server reponded: %s\nMessage content was: "
                         "%s" % (self, self.getrepository(), str(e), dbg_output),
                                            OfflineImapError.ERROR.MESSAGE)
-            # Checkpoint. Let it write out stuff, etc. Eg searches for
-            # just uploaded messages won't work if we don't do this.
-            typ, dat = imapobj.check()
-            assert(typ == 'OK')
 
             # get the new UID, default to 0 (=unknown)
             uid = 0
@@ -587,6 +583,11 @@ class IMAPFolder(BaseFolder):
 
             else:
                 # Don't support UIDPLUS
+                # Checkpoint. Let it write out stuff, etc. Eg searches for
+                # just uploaded messages won't work if we don't do this.
+                typ, dat = imapobj.check()
+                assert(typ == 'OK')
+
                 uid = self.savemessage_searchforheader(imapobj, headername,
                                                        headervalue)
                 # If everything failed up to here, search the message
