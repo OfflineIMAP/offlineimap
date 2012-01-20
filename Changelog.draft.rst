@@ -13,6 +13,9 @@ others.
 New Features
 ------------
 
+* Make folders containing quotes work rather than crashing
+  (reported by Mark Eichin)
+
 Changes
 -------
 
