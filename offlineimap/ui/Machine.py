@@ -45,7 +45,7 @@ class MachineUI(UIBase):
     def _msg(s, msg):
         s._printData('_display', msg)
 
-    def warn(s, msg, minor = 0):
+    def warn(self, msg, minor = 0):
         # TODO, remove and cleanup the unused minor stuff
         self.logger.warning("%s:%s:%s:%s" % (
                 'warn', '', currentThread().getName(), msg))
