@@ -21,6 +21,7 @@ Changes
 
 * Slight performance enhancement uploading mails to an IMAP server in the
   common case.
+* Enforce basic UI when using the --info switch
 
 Bug Fixes
 ---------

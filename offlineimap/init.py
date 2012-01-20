@@ -200,6 +200,7 @@ class OfflineImap:
             # TODO, make use of chosen ui for logging
             logging.warning('Using old interface name, consider using one '
                             'of %s' % ', '.join(UI_LIST.keys()))
+        if options.diagnostics: ui_type = 'basic' # enforce basic UI for --info
         try:
             # create the ui class
             self.ui = UI_LIST[ui_type.lower()](config)
