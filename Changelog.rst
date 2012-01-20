@@ -11,6 +11,23 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
+OfflineIMAP v6.5.2.1-rc1 (2012-01-20)
+=====================================
+
+* Fix python2.6 compatibility with the TTYUI backend (crash)
+
+* Fix TTYUI regression from 6.5.2 in refresh loop (crash)
+
+* Fix crashes related to UIDVALIDITY returning "None"
+
+* Beginning of a test suite. So far there is only one test. Configure
+  test/credentials.conf and invoke with "python setup.py test"
+
+* Make folders containing quotes work rather than crashing
+  (reported by Mark Eichin)
+
+* Improve delete msg performance with SQLITE backend
+
 OfflineIMAP v6.5.2 (2012-01-17)
 ===============================
 

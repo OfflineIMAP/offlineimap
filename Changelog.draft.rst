@@ -13,20 +13,8 @@ others.
 New Features
 ------------
 
-* Beginning of a test suite. So far there is only one test. Configure
-  test/credentials.conf and invoke with "python setup.py test"
-
-* Make folders containing quotes work rather than crashing
-  (reported by Mark Eichin)
-
 Changes
 -------
 
-* Improve delete msg performance with SQLITE backend
-
 Bug Fixes
 ---------
-
-* Fix python2.6 compatibility with the TTYUI backend (crash)
-* Fix TTYUI regression from 6.5.2 in refresh loop (crash)
-* Fix crashes related to UIDVALIDITY returning "None"
