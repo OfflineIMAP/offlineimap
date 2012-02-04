@@ -11,7 +11,7 @@ ChangeLog
   on releases. And because I'm lazy, it will also be used as a draft for the
   releases announces.
 
-OfflineIMAP v6.5.2.1-rc1 (2012-01-20)
+OfflineIMAP v6.5.2.1 (2012-04-04)
 =====================================
 
 * Fix python2.6 compatibility with the TTYUI backend (crash)
@@ -27,6 +27,11 @@ OfflineIMAP v6.5.2.1-rc1 (2012-01-20)
   (reported by Mark Eichin)
 
 * Improve delete msg performance with SQLITE backend
+
+* Enforce basic UI when using the --info switch
+
+* Remove the Gmail "realdelete" option, as it could lead to potential
+  data loss.
 
 OfflineIMAP v6.5.2 (2012-01-17)
 ===============================
