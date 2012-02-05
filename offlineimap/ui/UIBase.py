@@ -22,7 +22,10 @@ import sys
 import os
 import traceback
 import threading
-from Queue import Queue
+try:
+    from Queue import Queue
+except ImportError: #python3
+    from queue import Queue
 from collections import deque
 from offlineimap.error import OfflineImapError
 import offlineimap

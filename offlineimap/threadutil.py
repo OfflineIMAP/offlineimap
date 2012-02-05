@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2012 John Goerzen & contributors
 # Thread support module
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,10 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from threading import Lock, Thread, BoundedSemaphore
-from Queue import Queue, Empty
+try:
+    from Queue import Queue, Empty
+except ImportError: # python3
+    from queue import Queue, Empty
 import traceback
 from thread import get_ident	# python < 2.6 support
 import os.path
