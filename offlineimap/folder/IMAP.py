@@ -1,5 +1,5 @@
 # IMAP folder support
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2012 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -327,7 +327,6 @@ class IMAPFolder(BaseFolder):
             raise ValueError("While attempting to find UID for message with "
                              "header %s, got wrong-sized matchinguids of %s" %\
                                  (headername, str(matchinguids)))
-        matchinguids.sort()
         return long(matchinguids[0])
 
     def savemessage_fetchheaders(self, imapobj, headername, headervalue):

@@ -182,13 +182,12 @@ def flagsimap2maildir(flagstring):
     return retval
 
 def flagsmaildir2imap(maildirflaglist):
-    """Convert set of flags ([DR]) into a string '(\\Draft \\Deleted)'"""
+    """Convert set of flags ([DR]) into a string '(\\Deleted \\Draft)'"""
     retval = []
     for imapflag, maildirflag in flagmap:
         if maildirflag in maildirflaglist:
             retval.append(imapflag)
-    retval.sort()
-    return '(' + ' '.join(retval) + ')'
+    return '(' + ' '.join(sorted(retval)) + ')'
 
 def uid_sequence(uidlist):
     """Collapse UID lists into shorter sequence sets
