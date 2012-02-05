@@ -16,10 +16,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from Base import BaseRepository
 from offlineimap import folder
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
+from offlineimap.repository.Base import BaseRepository
 import os
 from stat import *
 

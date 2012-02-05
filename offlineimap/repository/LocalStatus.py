@@ -16,9 +16,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from Base import BaseRepository
 from offlineimap.folder.LocalStatus import LocalStatusFolder, magicline
 from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
+from offlineimap.repository.Base import BaseRepository
 import os
 import re
 

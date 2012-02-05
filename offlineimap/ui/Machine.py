@@ -17,8 +17,8 @@ from urllib import urlencode
 import sys
 import time
 import logging
-from UIBase import UIBase
 from threading import currentThread
+from offlineimap.ui.UIBase import UIBase
 import offlineimap
 
 protocol = '7.0.0'
