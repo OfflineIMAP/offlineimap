@@ -203,9 +203,6 @@ class UIBase(object):
     def invaliddebug(self, debugtype):
         self.warn("Invalid debug type: %s" % debugtype)
 
-    def locked(s):
-        raise Exception, "Another OfflineIMAP is running with the same metadatadir; exiting."
-
     def getnicename(self, object):
         """Return the type of a repository or Folder as string
 

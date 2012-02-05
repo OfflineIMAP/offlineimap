@@ -199,7 +199,8 @@ class SyncableAccount(Account):
             pass
         except IOError:
             self._lockfd.close()
-            raise OfflineImapError("Could not lock account %s." % self,
+            raise OfflineImapError("Could not lock account %s. Is another "
+                                   "instance using this account?" % self,
                                    OfflineImapError.ERROR.REPO)
 
     def unlock(self):
