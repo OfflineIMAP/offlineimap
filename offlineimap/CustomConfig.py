@@ -1,5 +1,4 @@
-# Copyright (C) 2003 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2003-2012 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,7 +14,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from ConfigParser import SafeConfigParser
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError: #python3
+    from configparser import SafeConfigParser
 from offlineimap.localeval import LocalEval
 import os
 
