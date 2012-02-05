@@ -133,12 +133,12 @@ def imapsplit(imapstring):
         if workstr[0] == '(':
             rparenc = 1 # count of right parenthesis to match
             rpareni = 1 # position to examine
- 	    while rparenc: # Find the end of the group.
- 	    	if workstr[rpareni] == ')':  # end of a group
- 			rparenc -= 1
- 		elif workstr[rpareni] == '(':  # start of a group
- 			rparenc += 1
- 		rpareni += 1  # Move to next character.
+            while rparenc: # Find the end of the group.
+                if workstr[rpareni] == ')':  # end of a group
+                    rparenc -= 1
+                elif workstr[rpareni] == '(':  # start of a group
+                    rparenc += 1
+                rpareni += 1  # Move to next character.
             parenlist = workstr[0:rpareni]
             workstr = workstr[rpareni:].lstrip()
             retval.append(parenlist)
