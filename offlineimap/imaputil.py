@@ -18,7 +18,6 @@
 
 import re
 import string
-import types
 from offlineimap.ui import getglobalui
 
 
@@ -88,7 +87,7 @@ def imapsplit(imapstring):
 
     ['(\\HasNoChildren)', '"."', '"INBOX.Sent"']"""
 
-    if type(imapstring) != types.StringType:
+    if not isinstance(imapstring, basestring):
         debug("imapsplit() got a non-string input; working around.")
         # Sometimes, imaplib will throw us a tuple if the input
         # contains a literal.  See Python bug
