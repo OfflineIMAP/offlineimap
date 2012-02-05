@@ -328,7 +328,9 @@ class IMAPFolder(BaseFolder):
         self.ui.debug('imap', 'savemessage_searchforheader: matchinguids now ' + \
                  repr(matchinguids))
         if len(matchinguids) != 1 or matchinguids[0] == None:
-            raise ValueError, "While attempting to find UID for message with header %s, got wrong-sized matchinguids of %s" % (headername, str(matchinguids))
+            raise ValueError("While attempting to find UID for message with "
+                             "header %s, got wrong-sized matchinguids of %s" %\
+                                 (headername, str(matchinguids)))
         matchinguids.sort()
         return long(matchinguids[0])
 

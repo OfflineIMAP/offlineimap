@@ -58,7 +58,7 @@ def flagsplit(string):
         ['FLAGS,'(\\Seen Old)','UID', '4807']
     """
     if string[0] != '(' or string[-1] != ')':
-        raise ValueError, "Passed string '%s' is not a flag list" % string
+        raise ValueError("Passed string '%s' is not a flag list" % string)
     return imapsplit(string[1:-1])
 
 def options2hash(list):
