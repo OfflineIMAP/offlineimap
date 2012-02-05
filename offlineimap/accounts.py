@@ -216,7 +216,7 @@ class SyncableAccount(Account):
         self.ui.registerthread(self)
         accountmetadata = self.getaccountmeta()
         if not os.path.exists(accountmetadata):
-            os.mkdir(accountmetadata, 0700)
+            os.mkdir(accountmetadata, 0o700)
 
         self.remoterepos = Repository(self, 'remote')
         self.localrepos  = Repository(self, 'local')

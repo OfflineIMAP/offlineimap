@@ -41,7 +41,7 @@ class LocalStatusRepository(BaseRepository):
                                 % (backend, account.name))
 
         if not os.path.exists(self.root):
-            os.mkdir(self.root, 0700)
+            os.mkdir(self.root, 0o700)
 
         # self._folders is a list of LocalStatusFolders()
         self._folders = None

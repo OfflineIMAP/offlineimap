@@ -35,13 +35,13 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         self._accountname = self.account.getname()
         self.uiddir = os.path.join(self.config.getmetadatadir(), 'Repository-' + self.name)
         if not os.path.exists(self.uiddir):
-            os.mkdir(self.uiddir, 0700)
+            os.mkdir(self.uiddir, 0o700)
         self.mapdir = os.path.join(self.uiddir, 'UIDMapping')
         if not os.path.exists(self.mapdir):
-            os.mkdir(self.mapdir, 0700)
+            os.mkdir(self.mapdir, 0o700)
         self.uiddir = os.path.join(self.uiddir, 'FolderValidity')
         if not os.path.exists(self.uiddir):
-            os.mkdir(self.uiddir, 0700)
+            os.mkdir(self.uiddir, 0o700)
 
         self.nametrans = lambda foldername: foldername
         self.folderfilter = lambda foldername: 1
