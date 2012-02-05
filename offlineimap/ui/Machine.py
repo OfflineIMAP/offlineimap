@@ -122,12 +122,11 @@ class MachineUI(UIBase):
                                                       "\f".join(flags),
                                                       dest))
 
-    def threadException(s, thread):
-        print s.getThreadExceptionString(thread)
-        s._printData('threadException', "%s\n%s" % \
-                     (thread.getName(), s.getThreadExceptionString(thread)))
-        s.delThreadDebugLog(thread)
-        s.terminate(100)
+    def threadException(self, thread):
+        self._printData('threadException', "%s\n%s" % \
+                     (thread.getName(), self.getThreadExceptionString(thread)))
+        self.delThreadDebugLog(thread)
+        self.terminate(100)
 
     def terminate(s, exitstatus = 0, errortitle = '', errormsg = ''):
         s._printData('terminate', "%d\n%s\n%s" % (exitstatus, errortitle, errormsg))
