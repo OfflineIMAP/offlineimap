@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 from threading import Lock
-from IMAP import IMAPFolder
+from .IMAP import IMAPFolder
 import os.path
 
 class MappedIMAPFolder(IMAPFolder):

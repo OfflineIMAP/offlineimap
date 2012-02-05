@@ -18,7 +18,7 @@
 
 """Folder implementation to support features of the Gmail IMAP server.
 """
-from IMAP import IMAPFolder
+from .IMAP import IMAPFolder
 
 class GmailFolder(IMAPFolder):
     """Folder implementation to support features of the Gmail IMAP server.

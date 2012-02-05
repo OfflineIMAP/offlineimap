@@ -21,7 +21,7 @@ import binascii
 import re
 import time
 from sys import exc_info
-from Base import BaseFolder
+from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, OfflineImapError
 from offlineimap.imaplib2 import MonthNames
 

@@ -19,7 +19,7 @@ import socket
 import time
 import re
 import os
-from Base import BaseFolder
+from .Base import BaseFolder
 from threading import Lock
 
 try:
