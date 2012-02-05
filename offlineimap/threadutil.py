@@ -15,13 +15,12 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import Lock, Thread, BoundedSemaphore
+from threading import Lock, Thread, BoundedSemaphore, currentThread
 try:
     from Queue import Queue, Empty
 except ImportError: # python3
     from queue import Queue, Empty
 import traceback
-from thread import get_ident	# python < 2.6 support
 import os.path
 import sys
 from offlineimap.ui import getglobalui
@@ -152,7 +151,6 @@ class ExitNotifyThread(Thread):
 
     def run(self):
         global exitthreads
-        self.threadid = get_ident()
         try:
             if not ExitNotifyThread.profiledir: # normal case
                 Thread.run(self)
@@ -167,7 +165,7 @@ class ExitNotifyThread(Thread):
                 except SystemExit:
                     pass
                 prof.dump_stats(os.path.join(ExitNotifyThread.profiledir,
-                                "%s_%s.prof" % (self.threadid, self.getName())))
+                                "%s_%s.prof" % (self.ident, self.getName())))
         except Exception as e:
             # Thread exited with Exception, store it
             tb = traceback.format_exc()

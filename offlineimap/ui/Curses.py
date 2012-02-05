@@ -16,7 +16,6 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from threading import RLock, currentThread, Lock, Event
-from thread import get_ident	# python < 2.6 support
 from collections import deque
 import time
 import sys

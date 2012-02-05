@@ -18,7 +18,6 @@
 from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 from offlineimap.ui import getglobalui
 from threading import Lock, BoundedSemaphore, Thread, Event, currentThread
-from thread import get_ident	# python < 2.6 support
 import offlineimap.accounts
 import hmac
 import socket
@@ -167,6 +166,7 @@ class IMAPServer:
 
         self.semaphore.acquire()
         self.connectionlock.acquire()
+        curThread = currentThread()
         imapobj = None
 
         if len(self.availableconnections): # One is available.
@@ -176,7 +176,7 @@ class IMAPServer:
             imapobj = None
             for i in range(len(self.availableconnections) - 1, -1, -1):
                 tryobj = self.availableconnections[i]
-                if self.lastowner[tryobj] == get_ident():
+                if self.lastowner[tryobj] == curThread.ident:
                     imapobj = tryobj
                     del(self.availableconnections[i])
                     break
@@ -184,7 +184,7 @@ class IMAPServer:
                 imapobj = self.availableconnections[0]
                 del(self.availableconnections[0])
             self.assignedconnections.append(imapobj)
-            self.lastowner[imapobj] = get_ident()
+            self.lastowner[imapobj] = curThread.ident
             self.connectionlock.release()
             return imapobj
         
@@ -297,7 +297,7 @@ class IMAPServer:
 
             self.connectionlock.acquire()
             self.assignedconnections.append(imapobj)
-            self.lastowner[imapobj] = get_ident()
+            self.lastowner[imapobj] = curThread.ident
             self.connectionlock.release()
             return imapobj
         except Exception as e:
