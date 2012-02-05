@@ -137,7 +137,7 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
     """Improved version of imaplib.IMAP4_SSL overriding select()"""
     def __init__(self, *args, **kwargs):
         self._fingerprint = kwargs.get('fingerprint', None)
-        if kwargs.has_key('fingerprint'):
+        if 'fingerprint' in kwargs:
             del kwargs['fingerprint']
         super(WrappedIMAP4_SSL, self).__init__(*args, **kwargs)
 

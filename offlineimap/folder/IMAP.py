@@ -186,7 +186,7 @@ class IMAPFolder(BaseFolder):
                 continue
             messagestr = messagestr.split(' ', 1)[1]
             options = imaputil.flags2hash(messagestr)
-            if not options.has_key('UID'):
+            if not 'UID' in options:
                 self.ui.warn('No UID in message with options %s' %\
                                           str(options),
                                           minor = 1)

@@ -159,7 +159,7 @@ class UIBase(object):
 
     def unregisterthread(self, thr):
         """Unregister a thread as being associated with an account name"""
-        if self.threadaccounts.has_key(thr):
+        if thr in self.threadaccounts:
             del self.threadaccounts[thr]
         self.debug('thread', "Unregister thread '%s'" % thr.getName())
 
@@ -175,7 +175,7 @@ class UIBase(object):
 
     def debug(self, debugtype, msg):
         cur_thread = threading.currentThread()
-        if not self.debugmessages.has_key(cur_thread):
+        if not cur_thread in self.debugmessages:
             # deque(..., self.debugmsglen) would be handy but was
             # introduced in p2.6 only, so we'll need to work around and
             # shorten our debugmsg list manually :-(
@@ -403,7 +403,7 @@ class UIBase(object):
     ################################################## Threads
 
     def getThreadDebugLog(self, thread):
-        if self.debugmessages.has_key(thread):
+        if thread in self.debugmessages:
             message = "\nLast %d debug messages logged for %s prior to exception:\n"\
                        % (len(self.debugmessages[thread]), thread.getName())
             message += "\n".join(self.debugmessages[thread])

@@ -94,7 +94,7 @@ class MappedIMAPFolder(IMAPFolder):
             # summary that have been deleted from the folder.
 
             for luid in self.diskl2r.keys():
-                if not reallist.has_key(luid):
+                if not luid in reallist:
                     ruid = self.diskl2r[luid]
                     del self.diskr2l[ruid]
                     del self.diskl2r[luid]
@@ -107,7 +107,7 @@ class MappedIMAPFolder(IMAPFolder):
             self.l2r = self.diskl2r.copy()
 
             for luid in reallist.keys():
-                if not self.l2r.has_key(luid):
+                if not luid in self.l2r:
                     ruid = nextneg
                     nextneg -= 1
                     self.l2r[luid] = ruid

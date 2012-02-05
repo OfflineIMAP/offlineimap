@@ -209,7 +209,7 @@ def initInstanceLimit(instancename, instancemax):
     """Initialize the instance-limited thread implementation to permit
     up to intancemax threads with the given instancename."""
     instancelimitedlock.acquire()
-    if not instancelimitedsems.has_key(instancename):
+    if not instancename in instancelimitedsems:
         instancelimitedsems[instancename] = BoundedSemaphore(instancemax)
     instancelimitedlock.release()
 
