@@ -20,7 +20,6 @@ from offlineimap import folder, imaputil, imapserver, OfflineImapError
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
 from threading import Event
-import types
 import os
 from sys import exc_info
 import netrc
@@ -274,9 +273,9 @@ class IMAPRepository(BaseRepository):
             self.imapserver.releaseconnection(imapobj)
         for string in listresult:
             if string == None or \
-                   (type(string) == types.StringType and string == ''):
+                   (isinstance(string, basestring) and string == ''):
                 # Bug in imaplib: empty strings in results from
-                # literals.
+                # literals. TODO: still relevant?
                 continue
             flags, delim, name = imaputil.imapsplit(string)
             flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
