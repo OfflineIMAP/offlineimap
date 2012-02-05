@@ -40,7 +40,7 @@ re_uidmatch = re.compile(',U=(\d+)')
 re_timestampmatch = re.compile('(\d+)');
 
 timeseq = 0
-lasttime = long(0)
+lasttime = 0
 timelock = Lock()
 
 def gettimeseq():
