@@ -95,7 +95,7 @@ class IMAPRepository(BaseRepository):
             host = self.getconf('remotehosteval')
             try:
                 host = self.localeval.eval(host)
-            except Exception, e:
+            except Exception as e:
                 raise OfflineImapError("remotehosteval option for repository "\
                                        "'%s' failed:\n%s" % (self, e),
                                        OfflineImapError.ERROR.REPO)
@@ -128,7 +128,7 @@ class IMAPRepository(BaseRepository):
 
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
-        except IOError, inst:
+        except IOError as inst:
             if inst.errno != errno.ENOENT:
                 raise
         else:
@@ -137,7 +137,7 @@ class IMAPRepository(BaseRepository):
 
         try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
-        except IOError, inst:
+        except IOError as inst:
             if inst.errno not in (errno.ENOENT, errno.EACCES):
                 raise
         else:
@@ -223,7 +223,7 @@ class IMAPRepository(BaseRepository):
         # 4. read password from ~/.netrc
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
-        except IOError, inst:
+        except IOError as inst:
             if inst.errno != errno.ENOENT:
                 raise
         else:
@@ -234,7 +234,7 @@ class IMAPRepository(BaseRepository):
         # 5. read password from /etc/netrc
         try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
-        except IOError, inst:
+        except IOError as inst:
             if inst.errno not in (errno.ENOENT, errno.EACCES):
                 raise
         else:
@@ -297,7 +297,7 @@ class IMAPRepository(BaseRepository):
                 for foldername in self.folderincludes:
                     try:
                         imapobj.select(foldername, readonly = True)
-                    except OfflineImapError, e:
+                    except OfflineImapError as e:
                         # couldn't select this folderinclude, so ignore folder.
                         if e.severity > OfflineImapError.ERROR.FOLDER:
                             raise

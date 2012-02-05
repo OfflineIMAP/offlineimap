@@ -97,7 +97,7 @@ class IMAPFolder(BaseFolder):
                 # Select folder and get number of messages
                 restype, imapdata = imapobj.select(self.getfullname(), True,
                                                    True)
-            except OfflineImapError, e:
+            except OfflineImapError as e:
                 # retry on dropped connections, raise otherwise
                 self.imapserver.releaseconnection(imapobj, True)
                 if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
@@ -219,7 +219,7 @@ class IMAPFolder(BaseFolder):
                     res_type, data = imapobj.uid('fetch', str(uid),
                                                  '(BODY.PEEK[])')
                     fails_left = 0
-                except imapobj.abort, e:
+                except imapobj.abort as e:
                     # Release dropped connection, and get a new one
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
@@ -314,7 +314,7 @@ class IMAPFolder(BaseFolder):
         headervalue = imapobj._quote(headervalue)
         try:
             matchinguids = imapobj.uid('search', 'HEADER', headername, headervalue)[1][0]
-        except imapobj.error, err:
+        except imapobj.error as err:
             # IMAP server doesn't implement search or had a problem.
             self.ui.debug('imap', "savemessage_searchforheader: got IMAP error '%s' while attempting to UID SEARCH for message with header %s" % (err, headername))
             return 0
@@ -545,7 +545,7 @@ class IMAPFolder(BaseFolder):
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
                     retry_left = 0                # Mark as success
-                except imapobj.abort, e:
+                except imapobj.abort as e:
                     # connection has been reset, release connection and retry.
                     retry_left -= 1
                     self.imapserver.releaseconnection(imapobj, True)
@@ -557,7 +557,7 @@ class IMAPFolder(BaseFolder):
                               (self, self.getrepository(), str(e), dbg_output),
                                                OfflineImapError.ERROR.MESSAGE)
                     self.ui.error(e, exc_info()[2])
-                except imapobj.error, e: # APPEND failed
+                except imapobj.error as e: # APPEND failed
                     # If the server responds with 'BAD', append()
                     # raise()s directly.  So we catch that too.
                     # drop conn, it might be bad.

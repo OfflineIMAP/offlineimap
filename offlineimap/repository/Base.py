@@ -165,7 +165,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                 try:
                     dst_repo.makefolder(src_name)
                     dst_haschanged = True # Need to refresh list
-                except OfflineImapError, e:
+                except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2],
                                   "Creating folder %s on repository %s" %\
                                       (src_name, dst_repo))
@@ -212,7 +212,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                 try:
                     src_repo.makefolder(newsrc_name)
                     src_haschanged = True # Need to refresh list
-                except OfflineImapError, e:
+                except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
                                   "repository %s" % (newsrc_name, src_repo))
                     raise

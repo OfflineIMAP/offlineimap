@@ -165,7 +165,7 @@ class ExitNotifyThread(Thread):
                     pass
                 prof.dump_stats(os.path.join(ExitNotifyThread.profiledir,
                                 "%s_%s.prof" % (self.threadid, self.getName())))
-        except Exception, e:
+        except Exception as e:
             # Thread exited with Exception, store it
             tb = traceback.format_exc()
             self.set_exit_exception(e, tb)

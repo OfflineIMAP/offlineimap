@@ -257,7 +257,7 @@ class MaildirFolder(BaseFolder):
         try:
             fd = os.open(os.path.join(tmpdir, messagename),
                            os.O_EXCL|os.O_CREAT|os.O_WRONLY, 0666)
-        except OSError, e:
+        except OSError as e:
             if e.errno == 17: 
                 #FILE EXISTS ALREADY
                 severity = OfflineImapError.ERROR.MESSAGE
@@ -313,7 +313,7 @@ class MaildirFolder(BaseFolder):
             try:
                 os.rename(os.path.join(self.getfullname(), oldfilename),
                           os.path.join(self.getfullname(), newfilename))
-            except OSError, e:
+            except OSError as e:
                 raise OfflineImapError("Can't rename file '%s' to '%s': %s" % (
                                        oldfilename, newfilename, e[1]),
                                        OfflineImapError.ERROR.FOLDER)

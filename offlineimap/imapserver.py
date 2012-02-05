@@ -153,7 +153,7 @@ class IMAPServer:
                 rc = kerberos.authGSSClientWrap(self.gss_vc, response,
                                                 self.username)
             response = kerberos.authGSSClientResponse(self.gss_vc)
-        except kerberos.GSSError, err:
+        except kerberos.GSSError as err:
             # Kerberos errored out on us, respond with None to cancel the
             # authentication
             self.ui.debug('imap', '%s: %s' % (err[0][0], err[1][0]))
@@ -232,7 +232,7 @@ class IMAPServer:
                                 'Attempting GSSAPI authentication')
                             try:
                                 imapobj.authenticate('GSSAPI', self.gssauth)
-                            except imapobj.error, val:
+                            except imapobj.error as val:
                                 self.gssapi = False
                                 self.ui.debug('imap',
                                     'GSSAPI Authentication failed')
@@ -258,7 +258,7 @@ class IMAPServer:
                                 try:
                                     imapobj.authenticate('CRAM-MD5',
                                                          self.md5handler)
-                                except imapobj.error, val:
+                                except imapobj.error as val:
                                     self.plainauth(imapobj)
                             else:
                                 # Use plaintext login, unless
@@ -271,7 +271,7 @@ class IMAPServer:
                         # Would bail by here if there was a failure.
                         success = 1
                         self.goodpassword = self.password
-                    except imapobj.error, val:
+                    except imapobj.error as val:
                         self.passworderror = str(val)
                         raise
 
@@ -304,7 +304,7 @@ class IMAPServer:
             self.lastowner[imapobj] = get_ident()
             self.connectionlock.release()
             return imapobj
-        except Exception, e:
+        except Exception as e:
             """If we are here then we did not succeed in getting a
             connection - we should clean up and then re-raise the
             error..."""
@@ -540,7 +540,7 @@ class IdleThread(object):
                 imapobj = self.parent.acquireconnection()
                 try:
                     imapobj.select(self.folder)
-                except OfflineImapError, e:
+                except OfflineImapError as e:
                     if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
                         # Connection closed, release connection and retry
                         self.ui.error(e, exc_info()[2])

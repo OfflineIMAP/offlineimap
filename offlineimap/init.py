@@ -351,7 +351,7 @@ class OfflineImap:
             self.ui.terminate()
         except (SystemExit):
             raise
-        except Exception, e:
+        except Exception as e:
             self.ui.error(e)
             self.ui.terminate()
 

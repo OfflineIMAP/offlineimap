@@ -53,7 +53,7 @@ class UsefulIMAPMixIn(object):
         del self.untagged_responses[:]
         try:
             result = super(UsefulIMAPMixIn, self).select(mailbox, readonly)
-        except self.abort, e:
+        except self.abort as e:
             # self.abort is raised when we are supposed to retry
             errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
                 "ver said: %s" % (self.host, mailbox, e.args[0])

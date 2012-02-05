@@ -79,7 +79,7 @@ class LocalStatusFolder(BaseFolder):
                 uid, flags = line.split(':')
                 uid = long(uid)
                 flags = set(flags)
-            except ValueError, e:
+            except ValueError as e:
                 errstr = "Corrupt line '%s' in cache file '%s'" % \
                     (line, self.filename)
                 self.ui.warn(errstr)

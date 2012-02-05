@@ -231,7 +231,7 @@ class SyncableAccount(Account):
                 self.sync()
             except (KeyboardInterrupt, SystemExit):
                 raise
-            except OfflineImapError, e:
+            except OfflineImapError as e:
                 # Stop looping and bubble up Exception if needed.
                 if e.severity >= OfflineImapError.ERROR.REPO:
                     if looping:
@@ -239,7 +239,7 @@ class SyncableAccount(Account):
                     if e.severity >= OfflineImapError.ERROR.CRITICAL:
                         raise
                 self.ui.error(e, exc_info()[2])
-            except Exception, e:
+            except Exception as e:
                 self.ui.error(e, exc_info()[2], msg = "While attempting to sync"
                     " account '%s'" % self)
             else:
@@ -344,7 +344,7 @@ class SyncableAccount(Account):
             self.ui.callhook("Hook return code: %d" % p.returncode)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except Exception, e:
+        except Exception as e:
             self.ui.error(e, exc_info()[2], msg = "Calling hook")
 
 def syncfolder(account, remotefolder, quick):
@@ -445,7 +445,7 @@ def syncfolder(account, remotefolder, quick):
         localrepos.restore_atime()
     except (KeyboardInterrupt, SystemExit):
         raise
-    except OfflineImapError, e:
+    except OfflineImapError as e:
         # bubble up severe Errors, skip folder otherwise
         if e.severity > OfflineImapError.ERROR.FOLDER:
             raise
@@ -459,7 +459,7 @@ def syncfolder(account, remotefolder, quick):
                     # we reconstruct foldername above rather than using
                     # localfolder, as the localfolder var is not
                     # available if assignment fails.
-    except Exception, e:
+    except Exception as e:
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
                 (account, remotefolder.getvisiblename(),
                  traceback.format_exc()))

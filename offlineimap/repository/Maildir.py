@@ -98,7 +98,7 @@ class MaildirRepository(BaseRepository):
         self.debug("makefolder: calling makedirs '%s'" % full_path)
         try:
             os.makedirs(full_path, 0700)
-        except OSError, e:
+        except OSError as e:
             if e.errno == 17 and os.path.isdir(full_path):
                 self.debug("makefolder: '%s' already a directory" % foldername)
             else:
@@ -106,7 +106,7 @@ class MaildirRepository(BaseRepository):
         for subdir in ['cur', 'new', 'tmp']:
             try:
                 os.mkdir(os.path.join(full_path, subdir), 0700)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == 17 and os.path.isdir(full_path):
                     self.debug("makefolder: '%s' already has subdir %s" %
                                (foldername, subdir))

@@ -321,11 +321,11 @@ class BaseFolder(object):
                                        OfflineImapError.ERROR.MESSAGE)
         except (KeyboardInterrupt): # bubble up CTRL-C
             raise
-        except OfflineImapError, e:
+        except OfflineImapError as e:
             if e.severity > OfflineImapError.ERROR.MESSAGE:
                 raise # buble severe errors up
             self.ui.error(e, exc_info()[2])
-        except Exception, e:
+        except Exception as e:
             self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
                               (uid, self.accountname,
                                exc_info()[2]))
@@ -474,11 +474,11 @@ class BaseFolder(object):
                 action(dstfolder, statusfolder)
             except (KeyboardInterrupt):
                 raise
-            except OfflineImapError, e:
+            except OfflineImapError as e:
                 if e.severity > OfflineImapError.ERROR.FOLDER:
                     raise
                 self.ui.error(e, exc_info()[2])
-            except Exception, e:
+            except Exception as e:
                 self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
                                   (self, self.accountname))
                 raise # raise unknown Exceptions so we can fix them
