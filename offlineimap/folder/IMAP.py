@@ -24,10 +24,6 @@ from sys import exc_info
 from Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, OfflineImapError
 from offlineimap.imaplib2 import MonthNames
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
 
 
 class IMAPFolder(BaseFolder):

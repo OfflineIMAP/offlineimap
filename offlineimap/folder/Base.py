@@ -23,10 +23,7 @@ import os.path
 import re
 from sys import exc_info
 import traceback
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
+
 
 class BaseFolder(object):
     def __init__(self, name, repository):

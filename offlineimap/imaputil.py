@@ -20,10 +20,7 @@ import re
 import string
 import types
 from offlineimap.ui import getglobalui
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
+
 
 # find the first quote in a string
 quotere = re.compile(

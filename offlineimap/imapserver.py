@@ -27,11 +27,7 @@ import time
 import errno
 from sys import exc_info
 from socket import gaierror
-try:
-    from ssl import SSLError, cert_time_to_seconds
-except ImportError:
-    # Protect against python<2.6, use dummy and won't get SSL errors.
-    SSLError = None
+from ssl import SSLError, cert_time_to_seconds
 
 try:
     # do we have a recent pykerberos?
@@ -323,7 +319,7 @@ class IMAPServer:
                          (self.hostname, self.repos)
                 raise OfflineImapError(reason, severity)
 
-            elif SSLError and isinstance(e, SSLError) and e.errno == 1:
+            elif isinstance(e, SSLError) and e.errno == 1:
                 # SSL unknown protocol error
                 # happens e.g. when connecting via SSL to a non-SSL service
                 if self.port != 993:

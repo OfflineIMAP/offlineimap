@@ -19,6 +19,7 @@ import os
 import fcntl
 import re
 import socket
+import ssl
 import time
 import subprocess
 import threading
@@ -28,11 +29,6 @@ from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
 from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, IMAP4_PORT, InternalDate, Mon2num
 
-try:
-    import ssl
-except ImportError:
-    #fails on python <2.6
-    pass
 
 class UsefulIMAPMixIn(object):
     def getselectedfolder(self):

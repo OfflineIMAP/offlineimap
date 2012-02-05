@@ -18,12 +18,9 @@
 from Base import BaseFolder
 import os
 import threading
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
 
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
+
 
 class LocalStatusFolder(BaseFolder):
     def __init__(self, name, repository):

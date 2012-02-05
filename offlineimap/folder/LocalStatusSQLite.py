@@ -23,10 +23,6 @@ try:
 except:
     pass #fail only if needed later on, not on import
 
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
 
 class LocalStatusSQLiteFolder(LocalStatusFolder):
     """LocalStatus backend implemented with an SQLite database
