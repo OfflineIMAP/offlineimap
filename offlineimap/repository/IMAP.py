@@ -308,8 +308,24 @@ class IMAPRepository(BaseRepository):
                                                        self))
             finally:
                 self.imapserver.releaseconnection(imapobj)
-                
-        retval.sort(lambda x, y: self.foldersort(x.getvisiblename(), y.getvisiblename()))
+
+        if self.foldersort is None:
+            # default sorting by case insensitive transposed name
+            retval.sort(key=lambda x: str.lower(x.getvisiblename()))
+        else:
+            # do foldersort in a python3-compatible way
+            # http://bytes.com/topic/python/answers/844614-python-3-sorting-comparison-function
+            def cmp2key(mycmp):
+                """Converts a cmp= function into a key= function
+                We need to keep cmp functions for backward compatibility"""
+                class K:
+                    def __init__(self, obj, *args):
+                        self.obj = obj
+                    def __cmp__(self, other):
+                        return mycmp(self.obj, other.obj)
+                return K
+            retval.sort(key=cmp2key(self.foldersort))
+
         self.folders = retval
         return self.folders
 
