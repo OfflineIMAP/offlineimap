@@ -269,7 +269,7 @@ class UIBase(object):
 
     def connecting(self, hostname, port):
         """Log 'Establishing connection to'"""
-        if not self.logger.isEnabledFor(logging.info): return
+        if not self.logger.isEnabledFor(logging.INFO): return
         displaystr = ''
         hostname = hostname if hostname else ''
         port = "%s" % port if port else ''
