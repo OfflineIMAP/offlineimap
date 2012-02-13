@@ -17,6 +17,7 @@ More information on specific topics can be found on the following pages:
 **User documentation**
   * :doc:`installation/uninstall <INSTALL>`
   * :doc:`user manual/Configuration <MANUAL>`
+  * :doc:`Folder filtering & name transformation guide <nametrans>`
   * :doc:`command line options <offlineimap>`
   * :doc:`Frequently Asked Questions <FAQ>`
 
@@ -29,6 +30,7 @@ More information on specific topics can be found on the following pages:
 
    INSTALL
    MANUAL
+   nametrans
    offlineimap
    FAQ
 
