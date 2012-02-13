@@ -1,5 +1,5 @@
 # Sample minimal config file.  Copy this to ~/.offlineimaprc and edit to
-# suit to get started fast.
+# get started fast.
 
 [general]
 accounts = Test

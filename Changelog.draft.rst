@@ -16,5 +16,9 @@ New Features
 Changes
 -------
 
+* internal code changes to prepare for Python3
+
+* Improve user documentation of nametrans/folderfilter
+
 Bug Fixes
 ---------
