@@ -108,7 +108,7 @@ class OLITestLib():
         maildir = os.path.join(cls.testdir, 'mail', folder)
         for subdir in ('','tmp','cur','new'):
             try:
-                os.mkdir(os.path.join(maildir, subdir))
+                os.makedirs(os.path.join(maildir, subdir))
             except OSError as e:
                 if e.errno != 17: # 'already exists' is ok.
                     raise
