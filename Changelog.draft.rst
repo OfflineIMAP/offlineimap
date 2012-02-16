@@ -20,5 +20,10 @@ Changes
 
 * Improve user documentation of nametrans/folderfilter
 
+* Fixed some cases where invalid nametrans rules were not caught and
+  we would not propagate local folders to the remote repository.
+  (now tested in test03)
+
+
 Bug Fixes
 ---------
