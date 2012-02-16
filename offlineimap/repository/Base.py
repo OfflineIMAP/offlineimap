@@ -153,7 +153,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                     src_repo.getsep(), dst_repo.getsep())] = folder
         dst_hash = {}
         for folder in dst_folders:
-            dst_hash[folder.name] = folder
+            dst_hash[folder.getvisiblename().replace(
+                    dst_repo.getsep(), src_repo.getsep())] = folder
 
         # Find new folders on src_repo.
         for src_name_t, src_folder in src_hash.iteritems():
@@ -172,30 +173,30 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                 status_repo.makefolder(src_name_t.replace(dst_repo.getsep(),
                                                    status_repo.getsep()))
         # Find new folders on dst_repo.
-        for dst_name, dst_folder in dst_hash.iteritems():
+        for dst_name_t, dst_folder in dst_hash.iteritems():
             if self.getconfboolean('readonly', False):
                 # Don't create missing folder on readonly repo.
                 break
 
-            if dst_folder.sync_this and not dst_name in src_hash:
+            if dst_folder.sync_this and not dst_name_t in src_folders:
                 # nametrans sanity check!
                 # Does nametrans back&forth lead to identical names?
-                #src_name is the unmodified full src_name that would be created
-                newsrc_name = dst_folder.getvisiblename().replace(
-                    dst_repo.getsep(),
-                    src_repo.getsep())
-                folder = self.getfolder(newsrc_name)
-                # would src repo filter out the new folder name? In this
+                # 1) would src repo filter out the new folder name? In this
                 # case don't create it on it:
-                if not self.folderfilter(newsrc_name):
+                if not self.folderfilter(dst_name_t):
                     self.ui.debug('', "Not creating folder '%s' (repository '%s"
                         "') as it would be filtered out on that repository." %
-                                  (newsrc_name, self))
+                                  (dst_name_t, self))
                     continue
+                # get IMAPFolder and see if the reverse nametrans
+                # works fine TODO: getfolder() works only because we
+                # succeed in getting inexisting folders which I would
+                # like to change. Take care!
+                folder = self.getfolder(dst_name_t)
                 # apply reverse nametrans to see if we end up with the same name
                 newdst_name = folder.getvisiblename().replace(
                     src_repo.getsep(), dst_repo.getsep())
-                if dst_name != newdst_name:
+                if dst_folder.name != newdst_name:
                     raise OfflineImapError("INFINITE FOLDER CREATION DETECTED! "
                         "Folder '%s' (repository '%s') would be created as fold"
                         "er '%s' (repository '%s'). The latter becomes '%s' in "
@@ -204,18 +205,18 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                         "itories so they lead to identical names if applied bac"
                         "k and forth. 2) Use folderfilter settings on a reposit"
                         "ory to prevent some folders from being created on the "
-                        "other side." % (dst_name, dst_repo, newsrc_name,
+                        "other side." % (dst_folder.name, dst_repo, dst_name_t,
                                          src_repo, newdst_name),
                                            OfflineImapError.ERROR.REPO)
                 # end sanity check, actually create the folder
                 try:
-                    src_repo.makefolder(newsrc_name)
+                    src_repo.makefolder(dst_name_t)
                     src_haschanged = True # Need to refresh list
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
-                                  "repository %s" % (newsrc_name, src_repo))
+                                  "repository %s" % (dst_name_t, src_repo))
                     raise
-                status_repo.makefolder(newsrc_name.replace(
+                status_repo.makefolder(dst_name_t.replace(
                                 src_repo.getsep(), status_repo.getsep()))
         # Find deleted folders.
         # TODO: We don't delete folders right now.

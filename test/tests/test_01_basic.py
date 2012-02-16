@@ -72,3 +72,21 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
         logging.warn("%d boxes and %d mails" % (boxes, mails))
+
+    def test_03_nametransmismatch(self):
+        """Create mismatching remote and local nametrans rules
+
+        This should raise an error."""
+        config = OLITestLib.get_default_config()
+        config.set('Repository IMAP', 'nametrans',
+                   'lambda f: f' )
+        config.set('Repository Maildir', 'nametrans',
+                   'lambda f: f + "moo"' )
+        OLITestLib.write_config_file(config)
+        code, res = OLITestLib.run_OLI()
+        #logging.warn("%s %s "% (code, res))
+        # We expect an INFINITE FOLDER CREATION WARNING HERE....
+        mismatch = "ERROR: INFINITE FOLDER CREATION DETECTED!" in res
+        self.assertEqual(mismatch, True, "Mismatching nametrans rules did NOT"
+                         "trigger an 'infinite folder generation' error.")
+        boxes, mails = OLITestLib.count_maildir_mails('')
