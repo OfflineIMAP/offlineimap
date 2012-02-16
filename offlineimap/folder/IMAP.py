@@ -577,7 +577,10 @@ class IMAPFolder(BaseFolder):
                                  "appending a message.")
                 else:
                     uid = long(resp[-1].split(' ')[1])
-
+                    if uid == 0:
+                        self.ui.warn("savemessage: Server supports UIDPLUS, but"
+                            " we got no usable uid back. APPENDUID reponse was "
+                            "'%s'" % str(resp))
             else:
                 # Don't support UIDPLUS
                 # Checkpoint. Let it write out stuff, etc. Eg searches for
@@ -593,9 +596,11 @@ class IMAPFolder(BaseFolder):
                 # compare the message size...
                 if uid == 0:
                     self.ui.debug('imap', 'savemessage: attempt to get new UID '
-                                  'UID failed. Search headers manually.')
+                        'UID failed. Search headers manually.')
                     uid = self.savemessage_fetchheaders(imapobj, headername,
                                                         headervalue)
+                    self.ui.warn('imap', "savemessage: Searching mails for new "
+                        "Message-ID failed. Could not determine new UID.")
         finally:
             self.imapserver.releaseconnection(imapobj)
 
