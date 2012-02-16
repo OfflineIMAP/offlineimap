@@ -156,20 +156,20 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
             dst_hash[folder.name] = folder
 
         # Find new folders on src_repo.
-        for src_name, src_folder in src_hash.iteritems():
+        for src_name_t, src_folder in src_hash.iteritems():
             # Don't create on dst_repo, if it is readonly
             if dst_repo.getconfboolean('readonly', False):
                 break
-            if src_folder.sync_this and not src_name in dst_hash:
+            if src_folder.sync_this and not src_name_t in dst_folders:
                 try:
-                    dst_repo.makefolder(src_name)
+                    dst_repo.makefolder(src_name_t)
                     dst_haschanged = True # Need to refresh list
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2],
                                   "Creating folder %s on repository %s" %\
-                                      (src_name, dst_repo))
+                                      (src_name_t, dst_repo))
                     raise
-                status_repo.makefolder(src_name.replace(dst_repo.getsep(),
+                status_repo.makefolder(src_name_t.replace(dst_repo.getsep(),
                                                    status_repo.getsep()))
         # Find new folders on dst_repo.
         for dst_name, dst_folder in dst_hash.iteritems():
