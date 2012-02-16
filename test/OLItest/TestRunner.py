@@ -54,23 +54,36 @@ class OLITestLib():
         cls.testdir = os.path.abspath(
             tempfile.mkdtemp(prefix='tmp_%s_'%suffix,
                              dir=os.path.dirname(cls.cred_file)))
-        cls.create_config_file()
+        cls.write_config_file()
         return cls.testdir
 
     @classmethod
-    def create_config_file(cls):
-        """Creates a OLI configuration file
+    def get_default_config(cls):
+        """Creates a default ConfigParser file and returns it
 
-        It is created in testdir (so create_test_dir has to be called
-        earlier) using the credentials information given (so they had to
-        be set earlier). Failure to do either of them will raise an
-        AssertionException."""
+        The returned config can be manipulated and then saved with
+        write_config_file()"""
         assert cls.cred_file != None
         assert cls.testdir != None
         config = SafeConfigParser()
         config.readfp(default_conf)
+        default_conf.seek(0) # rewind config_file to start
         config.read(cls.cred_file)
         config.set("general", "metadata", cls.testdir)
+        return config
+
+    @classmethod
+    def write_config_file(cls, config=None):
+        """Creates a OLI configuration file
+
+        It is created in testdir (so create_test_dir has to be called
+        earlier) using the credentials information given (so they had
+        to be set earlier). Failure to do either of them will raise an
+        AssertionException. If config is None, a default one will be
+        used via get_default_config, otherwise it needs to be a config
+        object derived from that."""
+        if config is None:
+            config = cls.get_default_config()
         localfolders = os.path.join(cls.testdir, 'mail')
         config.set("Repository Maildir", "localfolders", localfolders)
         with open(os.path.join(cls.testdir, 'offlineimap.conf'), "wa") as f:
