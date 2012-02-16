@@ -479,3 +479,20 @@ class BaseFolder(object):
                 self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
                                   (self, self.accountname))
                 raise # raise unknown Exceptions so we can fix them
+
+    def __eq__(self, other):
+        """Comparisons work either on string comparing folder names or
+        on the same instance
+
+        MailDirFolder('foo') == 'foo' --> True
+        a = MailDirFolder('foo'); a == b --> True
+        MailDirFolder('foo') == 'moo' --> False
+        MailDirFolder('foo') == IMAPFolder('foo') --> False
+        MailDirFolder('foo') == MaildirFolder('foo') --> False
+        """
+        if isinstance(other, basestring):
+            return other == self.name
+        return id(self) == id(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
