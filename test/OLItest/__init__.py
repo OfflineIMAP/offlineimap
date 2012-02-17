@@ -30,5 +30,5 @@ banner = """%(__productname__)s %(__version__)s
 
 import unittest
 from unittest import TestLoader, TextTestRunner
-from globals import default_conf
+from .globals import default_conf
 from TestRunner import OLITestLib
