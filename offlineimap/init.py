@@ -57,7 +57,19 @@ class OfflineImap:
                   default=False,
                   help="Do not actually modify any store but check and print "
               "what synchronization actions would be taken if a sync would be"
-              " performed.")
+              " performed. It will not precisely give the exact information w"
+              "hat will happen. If e.g. we need to create a folder, it merely"
+              " outputs 'Would create folder X', but not how many and which m"
+              "ails it would transfer.")
+
+        parser.add_option("--info",
+                  action="store_true", dest="diagnostics",
+                  default=False,
+                  help="Output information on the configured email repositories"
+              ". Useful for debugging and bug reporting. Use in conjunction wit"
+              "h the -a option to limit the output to a single account. This mo"
+              "de will prevent any actual sync to occur and exits after it outp"
+              "ut the debug information.")
 
         parser.add_option("-1",
                   action="store_true", dest="singlethreading",
@@ -80,11 +92,11 @@ class OfflineImap:
               "implies the -1 option.")
 
         parser.add_option("-a", dest="accounts", metavar="ACCOUNTS",
-                  help="""Overrides the accounts section in the config file.
-              Lets you specify a particular account or set of
-              accounts to sync without having to edit the config
-              file. You might use this to exclude certain accounts,
-              or to sync some accounts that you normally prefer not to.""")
+                  help="Overrides the accounts section in the config file. "
+              "Lets you specify a particular account or set of "
+              "accounts to sync without having to edit the config "
+              "file. You might use this to exclude certain accounts, "
+              "or to sync some accounts that you normally prefer not to.")
 
         parser.add_option("-c", dest="configfile", metavar="FILE",
                   default="~/.offlineimaprc",
@@ -92,18 +104,18 @@ class OfflineImap:
                        "%default.")
 
         parser.add_option("-d", dest="debugtype", metavar="type1,[type2...]",
-                  help="""Enables debugging for OfflineIMAP. This is useful
-              if you are to track down a malfunction or figure out what is
-              going on under the hood. This option requires one or more
-              debugtypes, separated by commas. These define what exactly
-              will be debugged, and so far include two options: imap, thread,
-              maildir or ALL. The imap option will enable IMAP protocol
-              stream and parsing debugging. Note that the output may contain
-              passwords, so take care to remove that from the debugging
-              output before sending it to anyone else. The maildir option
-              will enable debugging for certain Maildir operations.
-              The use of any debug option (unless 'thread' is included),
-              implies the single-thread option -1.""")
+                  help="Enables debugging for OfflineIMAP. This is useful "
+              "if you are to track down a malfunction or figure out what is "
+              "going on under the hood. This option requires one or more "
+              "debugtypes, separated by commas. These define what exactly "
+              "will be debugged, and so far include two options: imap, thread, "
+              "maildir or ALL. The imap option will enable IMAP protocol "
+              "stream and parsing debugging. Note that the output may contain "
+              "passwords, so take care to remove that from the debugging "
+              "output before sending it to anyone else. The maildir option "
+              "will enable debugging for certain Maildir operations. "
+              "The use of any debug option (unless 'thread' is included), "
+              "implies the single-thread option -1.")
 
         parser.add_option("-l", dest="logfile", metavar="FILE",
                   help="Log to FILE")
@@ -148,13 +160,6 @@ class OfflineImap:
               "be forced to be used, even if checks determine that it is "
               "not usable. Possible interface choices are: %s " %
               ", ".join(UI_LIST.keys()))
-
-        parser.add_option("--info",
-                  action="store_true", dest="diagnostics",
-                  default=False,
-                  help="Output information on the configured email repositories"
-              ". Useful for debugging and bug reporting. Use in conjunction wit"
-              "h the -a option to limit the output to a single account")
 
         (options, args) = parser.parse_args()
 

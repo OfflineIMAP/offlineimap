@@ -6,6 +6,15 @@ Offlineimap is invoked with the following pattern: `offlineimap [args...]`.
 Where [args...] are as follows:
 
 Options:
+  --dry-run             This mode protects us from performing any actual action.
+                        It will not precisely give the exact information what
+ 			will happen. If e.g. it would need to create a folder,
+			it merely outputs "Would create folder X", but not how
+			many and which mails it would transfer.
+  --info                Output information on the configured email
+                        repositories. Useful for debugging and bug reporting.
+                        Use in conjunction with the -a option to limit the
+                        output to a single account.
   --version             show program's version number and exit
   -h, --help            show this help message and exit
   -1                    Disable all multithreading operations and use solely a
