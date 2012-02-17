@@ -279,14 +279,26 @@ class BaseFolder(object):
         raise NotImplementedException
 
     def deletemessage(self, uid):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         raise NotImplementedException
 
     def deletemessages(self, uidlist):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         for uid in uidlist:
             self.deletemessage(uid)
 
     def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
         """Copies a message from self to dst if needed, updating the status
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
 
         :param uid: uid of the message to be copied.
         :param dstfolder: A BaseFolder-derived instance
@@ -363,6 +375,8 @@ class BaseFolder(object):
         2) invoke copymessageto() on those which:
            - If dstfolder doesn't have it yet, add them to dstfolder.
            - Update statusfolder
+
+        This function checks and protects us from action in ryrun mode.
         """
         threads = []
 
@@ -400,12 +414,17 @@ class BaseFolder(object):
 
         Get all UIDS in statusfolder but not self. These are messages
         that were deleted in 'self'. Delete those from dstfolder and
-        statusfolder."""
+        statusfolder.
+
+        This function checks and protects us from action in ryrun mode.
+        """
         deletelist = filter(lambda uid: uid>=0 \
                                 and not self.uidexists(uid),
                             statusfolder.getmessageuidlist())
         if len(deletelist):
             self.ui.deletingmessages(deletelist, [dstfolder])
+            if self.repository.account.dryrun:
+                return #don't delete messages in dry-run mode
             # delete in statusfolder first to play safe. In case of abort, we
             # won't lose message, we will just retransmit some unneccessary.
             for folder in [statusfolder, dstfolder]:
@@ -418,6 +437,8 @@ class BaseFolder(object):
         msg has a valid UID and exists on dstfolder (has not e.g. been
         deleted there), sync the flag change to both dstfolder and
         statusfolder.
+
+        This function checks and protects us from action in ryrun mode.
         """
         # For each flag, we store a list of uids to which it should be
         # added.  Then, we can call addmessagesflags() to apply them in

@@ -345,8 +345,9 @@ class UIBase(object):
 
     def deletingmessages(self, uidlist, destlist):
         ds = self.folderlist(destlist)
-        self.logger.info("Deleting %d messages (%s) in %s" % (
-                len(uidlist),
+        prefix = "[DRYRUN] " if self.dryrun else ""
+        self.info("{}Deleting {} messages ({}) in {}".format(
+                prefix, len(uidlist),
                 offlineimap.imaputil.uid_sequence(uidlist), ds))
 
     def addingflags(self, uidlist, flags, dest):
