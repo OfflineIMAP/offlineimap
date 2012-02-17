@@ -19,6 +19,12 @@ import logging
 import os, sys
 from test.OLItest import OLITestLib
 
+# Things need to be setup first, usually setup.py initializes everything.
+# but if e.g. called from command line, we take care of default values here:
+if not OLITestLib.cred_file:
+    OLITestLib(cred_file='./test/credentials.conf', cmd='./offlineimap.py')
+
+
 def setUpModule():
     logging.info("Set Up test module %s" % __name__)
     tdir = OLITestLib.create_test_dir(suffix=__name__)
@@ -52,13 +58,16 @@ class TestBasicFunctions(unittest.TestCase):
     def test_01_olistartup(self):
         """Tests if OLI can be invoked without exceptions
 
-        It syncs all "OLItest* (specified in the default config) to our
-        local Maildir at keeps it there."""
+        Cleans existing remote tet folders. Then syncs all "OLItest*
+        (specified in the default config) to our local Maildir. The
+        result should be 0 folders and 0 mails."""
+        OLITestLib.delete_remote_testfolders()
         code, res = OLITestLib.run_OLI()
         self.assertEqual(res, "")
-
         boxes, mails = OLITestLib.count_maildir_mails('')
-        logging.warn("%d boxes and %d mails" % (boxes, mails))
+        self.assertTrue((boxes, mails)==(0,0), msg="Expected 0 folders and 0"
+            "mails, but sync led to {} folders and {} mails".format(
+                boxes, mails))
 
     def test_02_createdir(self):
         """Create local OLItest 1 & OLItest "1" maildir, sync
@@ -71,7 +80,9 @@ class TestBasicFunctions(unittest.TestCase):
         #logging.warn("%s %s "% (code, res))
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
-        logging.warn("%d boxes and %d mails" % (boxes, mails))
+        self.assertTrue((boxes, mails)==(2,0), msg="Expected 2 folders and 0"
+            "mails, but sync led to {} folders and {} mails".format(
+                boxes, mails))
 
     def test_03_nametransmismatch(self):
         """Create mismatching remote and local nametrans rules
@@ -87,6 +98,7 @@ class TestBasicFunctions(unittest.TestCase):
         #logging.warn("%s %s "% (code, res))
         # We expect an INFINITE FOLDER CREATION WARNING HERE....
         mismatch = "ERROR: INFINITE FOLDER CREATION DETECTED!" in res
-        self.assertEqual(mismatch, True, "Mismatching nametrans rules did NOT"
-                         "trigger an 'infinite folder generation' error.")
-        boxes, mails = OLITestLib.count_maildir_mails('')
+        self.assertEqual(mismatch, True, msg="Mismatching nametrans rules did "
+            "NOT trigger an 'infinite folder generation' error. Output was:\n"
+             "{}".format(res))
+

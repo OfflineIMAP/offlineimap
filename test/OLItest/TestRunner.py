@@ -13,9 +13,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+import imaplib
 import unittest
 import logging
 import os
+import re
 import sys
 import shutil
 import subprocess
@@ -50,6 +52,7 @@ class OLITestLib():
         directory at a time. OLITestLib is not suited for running
         several tests in parallel.  The user is responsible for
         cleaning that up herself."""
+        assert cls.cred_file != None
         # creating temporary dir for testing in same dir as credentials.conf
         cls.testdir = os.path.abspath(
             tempfile.mkdtemp(prefix='tmp_%s_'%suffix,
@@ -63,6 +66,7 @@ class OLITestLib():
 
         The returned config can be manipulated and then saved with
         write_config_file()"""
+        #TODO, only do first time and cache then for subsequent calls?
         assert cls.cred_file != None
         assert cls.testdir != None
         config = SafeConfigParser()
@@ -111,6 +115,51 @@ class OLITestLib():
         except subprocess.CalledProcessError as e:
             return (e.returncode, e.output)
         return (0, output)
+
+    @classmethod
+    def delete_remote_testfolders(cls, reponame=None):
+        """Delete all INBOX.OLITEST* folders on the remote IMAP repository
+
+        reponame: All on `reponame` or all IMAP-type repositories if None"""
+        config = cls.get_default_config()
+        if reponame:
+            sections = ['Repository {}'.format(reponame)]
+        else:
+            sections = [r for r in config.sections() \
+                            if r.startswith('Repository')]
+            sections = filter(lambda s: \
+                                  config.get(s, 'Type', None).lower() == 'imap',
+                              sections)
+        for sec in sections:
+            # Connect to each IMAP repo and delete all folders
+            # matching the folderfilter setting. We only allow basic
+            # settings and no fancy password getting here...
+            # 1) connect and get dir listing
+            host = config.get(sec, 'remotehost')
+            user = config.get(sec, 'remoteuser')
+            passwd = config.get(sec, 'remotepass')
+            imapobj = imaplib.IMAP4(host)
+            imapobj.login(user, passwd)
+            res_t, data = imapobj.list()
+            assert res_t == 'OK'
+            dirs = []
+            for d in data:
+                m = re.search(r'''        # Find last quote
+                    "((?:                 # Non-tripple quoted can contain...
+                    [^"]                | # a non-quote
+                    \\"                   # a backslashded quote
+                    )*)"                   # closing quote
+                    [^"]*$                # followed by no more quotes
+                    ''', d, flags=re.VERBOSE)
+                folder = m.group(1)
+                folder = folder.replace(r'\"', '"') # remove quoting
+                dirs.append(folder)
+            # 2) filter out those not starting with INBOX.OLItest and del...
+            dirs = [d for d in dirs if d.startswith('INBOX.OLItest')]
+            for folder in dirs:
+                res_t, data = imapobj.delete(folder)
+                assert res_t == 'OK'
+            imapobj.logout()
 
     @classmethod
     def create_maildir(cls, folder):
