@@ -22,7 +22,10 @@ import sys
 import shutil
 import subprocess
 import tempfile
-from ConfigParser import SafeConfigParser
+try:
+    from configparser import SafeConfigParser
+except ImportError: # python 2
+    from ConfigParser import SafeConfigParser
 from . import default_conf
 
 class OLITestLib():
@@ -90,7 +93,7 @@ class OLITestLib():
             config = cls.get_default_config()
         localfolders = os.path.join(cls.testdir, 'mail')
         config.set("Repository Maildir", "localfolders", localfolders)
-        with open(os.path.join(cls.testdir, 'offlineimap.conf'), "wa") as f:
+        with open(os.path.join(cls.testdir, 'offlineimap.conf'), "wt") as f:
             config.write(f)
 
     @classmethod
@@ -105,7 +108,7 @@ class OLITestLib():
     def run_OLI(cls):
         """Runs OfflineImap
 
-        :returns: (rescode, stdout)
+        :returns: (rescode, stdout (as unicode))
         """
         try:
             output = subprocess.check_output(
@@ -113,8 +116,8 @@ class OLITestLib():
                  "-c%s" % os.path.join(cls.testdir, 'offlineimap.conf')],
                 shell=False)
         except subprocess.CalledProcessError as e:
-            return (e.returncode, e.output)
-        return (0, output)
+            return (e.returncode, e.output.decode('utf-8'))
+        return (0, output.decode('utf-8'))
 
     @classmethod
     def delete_remote_testfolders(cls, reponame=None):
@@ -128,7 +131,7 @@ class OLITestLib():
             sections = [r for r in config.sections() \
                             if r.startswith('Repository')]
             sections = filter(lambda s: \
-                                  config.get(s, 'Type', None).lower() == 'imap',
+                                  config.get(s, 'Type').lower() == 'imap',
                               sections)
         for sec in sections:
             # Connect to each IMAP repo and delete all folders
@@ -144,21 +147,22 @@ class OLITestLib():
             assert res_t == 'OK'
             dirs = []
             for d in data:
-                m = re.search(r'''        # Find last quote
+                m = re.search(br'''        # Find last quote
                     "((?:                 # Non-tripple quoted can contain...
                     [^"]                | # a non-quote
                     \\"                   # a backslashded quote
                     )*)"                   # closing quote
                     [^"]*$                # followed by no more quotes
                     ''', d, flags=re.VERBOSE)
-                folder = m.group(1)
-                folder = folder.replace(r'\"', '"') # remove quoting
+                folder = bytearray(m.group(1))
+                folder = folder.replace(br'\"', b'"') # remove quoting
                 dirs.append(folder)
             # 2) filter out those not starting with INBOX.OLItest and del...
-            dirs = [d for d in dirs if d.startswith('INBOX.OLItest')]
+            dirs = [d for d in dirs if d.startswith(b'INBOX.OLItest')]
             for folder in dirs:
-                res_t, data = imapobj.delete(folder)
-                assert res_t == 'OK'
+                res_t, data = imapobj.delete(str(folder))
+                assert res_t == 'OK', "Folder deletion of {} failed with error"\
+                    ":\n{} {}".format(folder.decode('utf-8'), res_t, data)
             imapobj.logout()
 
     @classmethod

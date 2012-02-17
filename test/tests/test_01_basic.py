@@ -65,7 +65,7 @@ class TestBasicFunctions(unittest.TestCase):
         code, res = OLITestLib.run_OLI()
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
-        self.assertTrue((boxes, mails)==(0,0), msg="Expected 0 folders and 0"
+        self.assertTrue((boxes, mails)==(0,0), msg="Expected 0 folders and 0 "
             "mails, but sync led to {} folders and {} mails".format(
                 boxes, mails))
 
