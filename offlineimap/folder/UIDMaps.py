@@ -82,7 +82,13 @@ class MappedIMAPFolder(IMAPFolder):
             if dolock: self.maplock.release()
 
     def _uidlist(self, mapping, items):
-        return [mapping[x] for x in items]
+        try:
+            return [mapping[x] for x in items]
+        except KeyError as e:
+            raise OfflineImapError("Could not find UID for msg '{0}' (f:'{1}'."
+                " This is usually a bad thing and should be reported on the ma"
+                "iling list.".format(e.args[0], self),
+                                   OfflineImapError.ERROR.MESSAGE)
 
     def cachemessagelist(self):
         self._mb.cachemessagelist()
