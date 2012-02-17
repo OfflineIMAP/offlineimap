@@ -13,6 +13,12 @@ others.
 New Features
 ------------
 
+* --dry-run mode protects us from performing any actual action.
+    It will not precisely give the exact information what will
+    happen. If e.g. it would need to create a folder, it merely
+    outputs "Would create folder X", but not how many and which mails
+    it would transfer.
+
 Changes
 -------
 
