@@ -48,3 +48,5 @@ Changes
 
 Bug Fixes
 ---------
+
+* Improve compatability of the curses UI with python 2.6

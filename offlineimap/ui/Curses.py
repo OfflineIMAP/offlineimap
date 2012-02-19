@@ -281,7 +281,7 @@ class CursesLogHandler(logging.StreamHandler):
     """self.ui has been set to the UI class before anything is invoked"""
 
     def emit(self, record):
-        log_str = super(CursesLogHandler, self).format(record)
+        log_str = logging.StreamHandler.format(self, record)
         color = self.ui.gettf().curses_color
         # We must acquire both locks.  Otherwise, deadlock can result.
         # This can happen if one thread calls _msg (locking curses, then
