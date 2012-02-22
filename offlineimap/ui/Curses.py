@@ -613,6 +613,8 @@ class Blinkenlights(UIBase, CursesUtil):
         # basic one, so exceptions and stuff are properly displayed
         self.logger.removeHandler(self._log_con_handler)
         UIBase.setup_consolehandler(self)
+        # reset the warning method, we do not have curses anymore
+        self.warn = super(Blinkenlights, self).warn
         # finally call parent terminate which prints out exceptions etc
         super(Blinkenlights, self).terminate(*args, **kwargs)
 
