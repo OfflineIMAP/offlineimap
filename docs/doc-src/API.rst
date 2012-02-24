@@ -2,8 +2,10 @@
 
 .. currentmodule:: offlineimap
 
-Welcome to :mod:`offlineimaps`'s documentation
-==============================================
+.. _API docs:
+
+:mod:`offlineimap's` API documentation
+======================================
 
 Within :mod:`offlineimap`, the classes :class:`OfflineImap` provides the high-level functionality. The rest of the classes should usually not needed to be touched by the user. Email repositories are represented by a :class:`offlineimap.repository.Base.BaseRepository` or derivatives (see :mod:`offlineimap.repository` for details). A folder within a repository is represented by a :class:`offlineimap.folder.Base.BaseFolder` or any derivative from :mod:`offlineimap.folder`.
 

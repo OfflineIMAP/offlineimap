@@ -23,6 +23,7 @@ More information on specific topics can be found on the following pages:
   * :doc:`Frequently Asked Questions <FAQ>`
 
 **Developer documentation**
+  * :doc:`HACKING HowTo & git workflows <HACKING>`
   * :doc:`API documentation <API>` for internal details on the
     :mod:`offlineimap` module
 
@@ -36,6 +37,7 @@ More information on specific topics can be found on the following pages:
    offlineimap
    FAQ
 
+   HACKING
    API
    repository
    ui
