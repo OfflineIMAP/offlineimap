@@ -45,7 +45,6 @@ man:
 
 doc:
 	@$(MAKE) -C docs
-	$(RST2HTML) README.rst readme.html
 	$(RST2HTML) Changelog.rst Changelog.html
 
 targz: ../$(TARGZ)

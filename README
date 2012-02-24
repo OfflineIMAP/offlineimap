@@ -1,12 +1,8 @@
-.. -*- coding: utf-8 -*-
-.. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
-
-======
-README
-======
+OfflineImap README
+==================
 
 Description
-===========
+-----------
 
 OfflineIMAP is a tool to simplify your e-mail reading. With OfflineIMAP, you can
 read the same mailbox from multiple computers. You get a current copy of your
@@ -14,34 +10,35 @@ messages on each computer, and changes you make one place will be visible on all
 other systems. For instance, you can delete a message on your home computer, and
 it will appear deleted on your work computer as well. OfflineIMAP is also useful
 if you want to use a mail reader that does not have IMAP support, has poor IMAP
-support, or does not provide disconnected operation.
+support, or does not provide disconnected operation. It's homepage at http://offlineimap.org contains more information, source code, and online documentation.
 
-OfflineIMAP does not require additional python dependencies (although python-sqlite is strongly recommended)
+OfflineIMAP does not require additional python dependencies beyond python >=2.6
+(although python-sqlite is strongly recommended).
 
 OfflineIMAP is a Free Software project licensed under the GNU General Public
-License. You can download it for free, and you can modify it. In fact, you are
-encouraged to contribute to OfflineIMAP, and doing so is fast and easy.
+License version 2 (or later). You can download it for free, and you can modify
+it. In fact, you are encouraged to contribute to OfflineIMAP.
 
 Documentation
-=============
+-------------
 
-The documentation (in .rst format) is included in the `docs`
-directory. Read it directly or generate nicer html (python-sphinx
-needed) or the man page (python-docutils needed) via::
+The documentation is included (in .rst format) in the `docs` directory. 
+Read it directly or generate nice html docs (python-sphinx needed) and/or 
+the man page (python-docutils needed) while being in the `docs` dir via::
 
     'make doc' (user docs), 'make man' (man page only) or 'make' (both)
 
     (`make html` will simply create html versions of all *.rst files in /docs)
 
 The resulting user documentation will be in `docs/html`. The full user
-docs are also at: `<http://docs.offlineimap.org>`_. Please see there for
+docs are also at: http://docs.offlineimap.org. Please see there for
 detailed information on how to install and configure OfflineImap.
 
 Quick Start
 ===========
 
 First, install OfflineIMAP. See docs/INSTALL.rst or read
-`<http://docs.offlineimap.org/en/latest/INSTALL.html>`_. 
+http://docs.offlineimap.org/en/latest/INSTALL.html. 
 (hint: `sudo python setup.py install`)
 
 Second, set up your configuration file and run it! The distribution
@@ -76,42 +73,33 @@ line), the host name of your IMAP server (on the remotehost line), and your
 login name on the remote (on the remoteuser line).  That's it!
 
 To run OfflineIMAP, you just have to say `offlineimap` ― it will fire
-up, ask you for a login password if necessary, synchronize your
-folders, and exit.  See?
+up, ask you for a login password if necessary, synchronize your folders,
+and exit.  See?
 
-You can just throw away the rest of the finely-crafted,
-perfectly-honed user manual!  Of course, if you want to see how you can
-make OfflineIMAP FIVE TIMES FASTER FOR JUST $19.95 (err, well, $0),
-you have to read on our full user documentation and peruse the sample
-offlineimap.conf (which includes all available options) for further
-tweaks!
+You can just throw away the rest of the finely-crafted, perfectly-honed user
+manual!  Of course, if you want to see how you can make OfflineIMAP 
+FIVE TIMES FASTER FOR JUST $19.95 (err, well, $0), you have to read on our
+full user documentation and peruse the sample offlineimap.conf (which 
+includes all available options) for further tweaks!
 
 
-Mailing list
-============
+Mailing list & bug reporting
+----------------------------
 
 The user discussion, development and all exciting stuff take place in the
-`mailing list`_. You do *NOT* need to subscribe to send emails.
+OfflineImap mailing list at http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project. You do not need to subscribe to send emails.
 
+Bugs, issues and contributions should be reported to the mailing list. Bugs can also be reported in the issue tracker at https://github.com/spaetz/offlineimap/issues.
 
-Reporting bugs and contributions
-================================
-
-Bugs
-----
-
-Bugs, issues and contributions should be reported to the `mailing list`_.
-
-========
-Examples
-========
+Configuration Examples
+======================
 
 Here are some example configurations for various situations.  Please e-mail any
 other examples you have that may be useful to me.
 
 
 Multiple Accounts with Mutt
-===========================
+---------------------------
 
 This example shows you how to set up OfflineIMAP to synchronize multiple
 accounts with the mutt mail reader.
@@ -145,7 +133,7 @@ That's it!
 
 
 UW-IMAPD and References
-=======================
+-----------------------
 
 Some users with a UW-IMAPD server need to use OfflineIMAP's "reference" feature
 to get at their mailboxes, specifying a reference of ``~/Mail`` or ``#mh/``
@@ -183,7 +171,7 @@ folders synced to just three::
 
 
 pythonfile Configuration File Option
-====================================
+-------------------------------------
 
 You can have OfflineIMAP load up a Python file before evaluating the
 configuration file options that are Python expressions.  This example is based
@@ -222,19 +210,3 @@ Then, the ~/.offlineimap.py file will contain::
 
 This code snippet illustrates how the foldersort option can be customized with a
 Python function from the pythonfile to always synchronize certain folders first.
-
-
-Signals
-=======
-
-OfflineIMAP writes its current PID into ``~/.offlineimap/pid`` when it is
-running.  It is not guaranteed that this file will not exist when OfflineIMAP is
-not running.
-
-<!-- not done yet
-
-  You can send SIGINT to OfflineIMAP using this file to kill it.  SIGUSR1 will
-  force an immediate resync of all accounts.  This will be ignored for all
-  accounts for which a resync is already in progress.
-
--->
