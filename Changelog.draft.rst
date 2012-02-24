@@ -39,5 +39,10 @@ Changes
   sphinx). The resulting user docs are in `docs/html`. You can also
   only create the man pages with `make man` in the `docs` dir.
 
+* -f command line option only works on the untranslated remote
+  repository folder names now. Previously folderfilters had to match
+  both the local AND remote name which caused unwanted behavior in
+  combination with nametrans rules. Clarify in the help text.
+
 Bug Fixes
 ---------

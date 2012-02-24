@@ -121,12 +121,10 @@ class OfflineImap:
                   help="Log to FILE")
 
         parser.add_option("-f", dest="folders", metavar="folder1,[folder2...]",
-                  help=
-              "Only sync the specified folders. The folder names "
-              "are the *untranslated* foldernames. This "
-              "command-line option overrides any 'folderfilter' "
-              "and 'folderincludes' options in the configuration "
-              "file.")
+                  help="Only sync the specified folders. The folder names "
+              "are the *untranslated* foldernames of the remote repository. "
+              "This command-line option overrides any 'folderfilter' "
+              "and 'folderincludes' options in the configuration file.")
 
         parser.add_option("-k", dest="configoverride",
                   action="append",
@@ -269,12 +267,10 @@ class OfflineImap:
             for accountname in accounts.getaccountlist(config):
                 account_section = 'Account ' + accountname
                 remote_repo_section = 'Repository ' + \
-                                      config.get(account_section, 'remoterepository')
-                local_repo_section = 'Repository ' + \
-                                     config.get(account_section, 'localrepository')
-                for section in [remote_repo_section, local_repo_section]:
-                    config.set(section, "folderfilter", folderfilter)
-                    config.set(section, "folderincludes", folderincludes)
+                    config.get(account_section, 'remoterepository')
+                config.set(remote_repo_section, "folderfilter", folderfilter)
+                config.set(remote_repo_section, "folderincludes",
+                           folderincludes)
 
         if options.logfile:
             sys.stderr = self.ui.logfile
