@@ -48,7 +48,7 @@ at the end when required by Python syntax)  For instance::
 Usually it suffices to put a `folderfilter`_ setting in the remote repository section. You might want to put a folderfilter option on the local repository if you want to prevent some folders on the local repository to be created on the remote one. (Even in this case, folder filters on the remote repository will prevent that)
 
 folderincludes
-^^^^^^^^^^^^^^
+--------------
 
 You can specify `folderincludes`_ to manually include additional folders to be synced, even if they had been filtered out by a folderfilter setting. `folderincludes`_ should return a Python list.
 
@@ -92,8 +92,9 @@ locally?  Try this::
     this rule will result in undefined behavior. See also *Sharing a
     maildir with multiple IMAP servers* in the :ref:`pitfalls` section.
 
+
 Reverse nametrans
-^^^^^^^^^^^^^^^^^^
++++++++++++++++++
 
 Since 6.4.0, OfflineImap supports the creation of folders on the remote repository and that complicates things. Previously, only one nametrans setting on the remote repository was needed and that transformed a remote to a local name. However, nametrans transformations are one-way, and OfflineImap has no way using those rules on the remote repository to back local names to remote names.
 
@@ -161,9 +162,10 @@ What folder separators do I need to use in nametrans rules?
   Maildir using the default folder separator '.' which do I need to use
   in nametrans rules?::
 
-  nametrans = lambda f: "INBOX/" + f
-or::
-  nametrans = lambda f: "INBOX." + f
+      nametrans = lambda f: "INBOX/" + f
+
+  or::
+      nametrans = lambda f: "INBOX." + f
 
 **A:** Generally use the folder separator as defined in the repository
   you write the nametrans rule for. That is, use '/' in the above

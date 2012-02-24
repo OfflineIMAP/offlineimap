@@ -183,6 +183,5 @@ branch. ,-)
 API
 ===
 
-API is documented in the dev-doc-src directory using the sphinx tools (also used
-for python itself). This is a WIP. Contributions in this area would be very
+The API is documented in the user documentation in the docs/ directory and browsable at `<http://docs.offlineimap.org>`_. This is a WIP. Contributions in this area would be very
 appreciated.

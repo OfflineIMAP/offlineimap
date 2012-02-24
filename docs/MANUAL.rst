@@ -2,17 +2,14 @@
  OfflineIMAP Manual
 ====================
 
+.. _OfflineIMAP: http://offlineimap.org
+
 --------------------------------------------------------
 Powerful IMAP/Maildir synchronization and reader support
 --------------------------------------------------------
 
 :Author: John Goerzen <jgoerzen@complete.org> & contributors
-:Date: 2011-01-15
-:Copyright: GPL v2
-:Manual section: 1
-
-.. TODO: :Manual group:
-
+:Date: 2012-02-23
 
 DESCRIPTION
 ===========
@@ -45,7 +42,7 @@ OfflineImap is well suited to be frequently invoked by cron jobs, or can run in 
 
 The documentation is included in the git repository and can be created by 
 issueing `make dev-doc` in the `doc` folder (python-sphinx required), or it can
-be viewed online at `http://docs.offlineimap.org`_.
+be viewed online at http://docs.offlineimap.org.
 
 .. _configuration:
 
@@ -72,7 +69,7 @@ OPTIONS
 
 The command line options are described by issueing `offlineimap --help`.
 Details on their use can be found either in the sample offlineimap.conf file or
-in the user docs at `http://docs.offlineimap.org`_.
+in the user docs at http://docs.offlineimap.org.
 
 User Interfaces
 ===============
@@ -306,6 +303,8 @@ as Man-In-The-Middle attacks which cause you to connect to the wrong
 server and pretend to be your mail server. DO NOT RELY ON STARTTLS AS A
 SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF YOUR IMAP SERVER!
 
+.. _UNIX signals:
+
 UNIX Signals
 ============
 
@@ -445,7 +444,7 @@ and Sent which should keep the same name::
 
 Synchronizing 2 IMAP accounts to local Maildirs that are "next to each
 other", so that mutt can work on both. Full email setup described by
-Thomas Kahle at `http://dev.gentoo.org/~tomka/mail.html`_
+Thomas Kahle at `<http://dev.gentoo.org/~tomka/mail.html>`_
 
 offlineimap.conf::
 
@@ -507,7 +506,7 @@ purposes: Fetching passwords from the gnome-keyring and translating
 folder names on the server to local foldernames.  An example
 implementation of get_username and get_password showing how to query
 gnome-keyring is contained in
-`http://dev.gentoo.org/~tomka/mail-setup.tar.bz2`_ The folderfilter is
+`<http://dev.gentoo.org/~tomka/mail-setup.tar.bz2>`_ The folderfilter is
 a lambda term that, well, filters which folders to get. The function
 `oimaptransfolder_acc2` translates remote folders into local folders
 with a very simple logic. The `INBOX` folder will have the same name

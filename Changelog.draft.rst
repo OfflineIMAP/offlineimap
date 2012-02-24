@@ -33,5 +33,11 @@ Changes
 * Revert "* Slight performance enhancement uploading mails to an IMAP
   server in the common case." It might have led to instabilities.
 
+* Revamped documentation structure. `make` in the `docs` dir or `make
+  doc` in the root dir will now create the 1) man page and 2) the user
+  documentation using sphinx (requiring python-doctools, and
+  sphinx). The resulting user docs are in `docs/html`. You can also
+  only create the man pages with `make man` in the `docs` dir.
+
 Bug Fixes
 ---------

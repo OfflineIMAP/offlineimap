@@ -15,6 +15,7 @@ If you just want to get started with minimal fuzz, have a look at our `online qu
 More information on specific topics can be found on the following pages:
 
 **User documentation**
+  * :doc:`Overview and features <features>`
   * :doc:`installation/uninstall <INSTALL>`
   * :doc:`user manual/Configuration <MANUAL>`
   * :doc:`Folder filtering & name transformation guide <nametrans>`
@@ -28,6 +29,7 @@ More information on specific topics can be found on the following pages:
 .. toctree::
    :hidden:
 
+   features
    INSTALL
    MANUAL
    nametrans

@@ -1,25 +1,12 @@
 .. -*- coding: utf-8 -*-
-
 .. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
 
 ======
 README
 ======
 
-.. contents::
-.. sectnum::
-
-
 Description
 ===========
-
-Welcome to the official OfflineIMAP project.
-
-*NOTICE:* this software was written by John Goerzen, who retired from
-maintaining. It is now maintained by Nicolas Sebrecht at
-https://github.com/nicolas33/offlineimap. Thanks to John for his great job and
-to have share this project with us.
-
 
 OfflineIMAP is a tool to simplify your e-mail reading. With OfflineIMAP, you can
 read the same mailbox from multiple computers. You get a current copy of your
@@ -29,75 +16,42 @@ it will appear deleted on your work computer as well. OfflineIMAP is also useful
 if you want to use a mail reader that does not have IMAP support, has poor IMAP
 support, or does not provide disconnected operation.
 
-OfflineIMAP works on pretty much any POSIX operating system, such as Linux, BSD
-operating systems, MacOS X, Solaris, etc.
+OfflineIMAP does not require additional python dependencies (although python-sqlite is strongly recommended)
 
 OfflineIMAP is a Free Software project licensed under the GNU General Public
 License. You can download it for free, and you can modify it. In fact, you are
 encouraged to contribute to OfflineIMAP, and doing so is fast and easy.
 
+Documentation
+=============
 
-OfflineIMAP is FAST; it synchronizes my two accounts with over 50 folders in 3
-seconds.  Other similar tools might take over a minute, and achieve a
-less-reliable result.  Some mail readers can take over 10 minutes to do the same
-thing, and some don't even support it at all.  Unlike other mail tools,
-OfflineIMAP features a multi-threaded synchronization algorithm that can
-dramatically speed up performance in many situations by synchronizing several
-different things simultaneously.
+The documentation (in .rst format) is included in the `docs`
+directory. Read it directly or generate nicer html (python-sphinx
+needed) or the man page (python-docutils needed) via::
 
-OfflineIMAP is FLEXIBLE; you can customize which folders are synced via regular
-expressions, lists, or Python expressions; a versatile and comprehensive
-configuration file is used to control behavior; two user interfaces are
-built-in; fine-tuning of synchronization performance is possible; internal or
-external automation is supported; SSL and PREAUTH tunnels are both supported;
-offline (or "unplugged") reading is supported; and esoteric IMAP features are
-supported to ensure compatibility with the widest variety of IMAP servers.
+    'make doc' (user docs), 'make man' (man page only) or 'make' (both)
 
-OfflineIMAP is SAFE; it uses an algorithm designed to prevent mail loss at all
-costs.  Because of the design of this algorithm, even programming errors should
-not result in loss of mail.  I am so confident in the algorithm that I use my
-own personal and work accounts for testing of OfflineIMAP pre-release,
-development, and beta releases.  Of course, legally speaking, OfflineIMAP comes
-with no warranty, so I am not responsible if this turns out to be wrong.
+    (`make html` will simply create html versions of all *.rst files in /docs)
 
-
-Method of Operation
-===================
-
-OfflineIMAP traditionally operates by maintaining a hierarchy of mail folders in
-Maildir format locally.  Your own mail reader will read mail from this tree, and
-need never know that the mail comes from IMAP.  OfflineIMAP will detect changes
-to the mail folders on your IMAP server and your own computer and
-bi-directionally synchronize them, copying, marking, and deleting messages as
-necessary.
-
-With OfflineIMAP 4.0, a powerful new ability has been introduced ― the program
-can now synchronize two IMAP servers with each other, with no need to have a
-Maildir layer in-between.  Many people use this if they use a mail reader on
-their local machine that does not support Maildirs.  People may install an IMAP
-server on their local machine, and point both OfflineIMAP and their mail reader
-of choice at it.  This is often preferable to the mail reader's own IMAP support
-since OfflineIMAP supports many features (offline reading, for one) that most
-IMAP-aware readers don't.  However, this feature is not as time-tested as
-traditional syncing, so my advice is to stick with normal methods of operation
-for the time being.
-
+The resulting user documentation will be in `docs/html`. The full user
+docs are also at: `<http://docs.offlineimap.org>`_. Please see there for
+detailed information on how to install and configure OfflineImap.
 
 Quick Start
 ===========
 
-If you have already installed OfflineIMAP system-wide, or your system
-administrator has done that for you, your task for setting up OfflineIMAP for
-the first time is quite simple.  You just need to set up your configuration
-file, make your folder directory, and run it!
+First, install OfflineIMAP. See docs/INSTALL.rst or read
+`<http://docs.offlineimap.org/en/latest/INSTALL.html>`_. 
+(hint: `sudo python setup.py install`)
 
-You can quickly set up your configuration file.  The distribution includes a
-file offlineimap.conf.minimal (Debian users may find this at
-``/usr/share/doc/offlineimap/examples/offlineimap.conf.minimal``) that is a
-basic example of setting of OfflineIMAP.  You can simply copy this file into
-your home directory and name it ``.offlineimaprc`` (note the leading period).  A
-command such as ``cp offlineimap.conf.minimal ~/.offlineimaprc`` will do it.
-Or, if you prefer, you can just copy this text to ``~/.offlineimaprc``::
+Second, set up your configuration file and run it! The distribution
+includes offlineimap.conf.minimal (Debian users may find this at
+``/usr/share/doc/offlineimap/examples/offlineimap.conf.minimal``) that
+provides you with the bare minimum of setting up OfflineIMAP.  You can
+simply copy this file into your home directory and name it
+``.offlineimaprc``.  A command such as ``cp offlineimap.conf.minimal
+~/.offlineimaprc`` will do it.  Or, if you prefer, you can just copy
+this text to ``~/.offlineimaprc``::
 
   [general]
   accounts = Test
@@ -121,30 +75,23 @@ to do is specify a directory for your folders to be in (on the localfolders
 line), the host name of your IMAP server (on the remotehost line), and your
 login name on the remote (on the remoteuser line).  That's it!
 
-To run OfflineIMAP, you just have to say offlineimap ― it will fire up, ask you
-for a login password if necessary, synchronize your folders, and exit.  See?
+To run OfflineIMAP, you just have to say `offlineimap` ― it will fire
+up, ask you for a login password if necessary, synchronize your
+folders, and exit.  See?
 
-You can just throw away the rest of this finely-crafted, perfectly-honed manual!
-Of course, if you want to see how you can make OfflineIMAP FIVE TIMES FASTER FOR
-JUST $19.95 (err, well, $0), you have to read on!
-
-
-Documentation
-=============
-
-If you are reading this file on github, you can find more documentations in the
-`docs` directory.
-
-Using your git repository, you can generate documentation with::
-
-	$ make doc
+You can just throw away the rest of the finely-crafted,
+perfectly-honed user manual!  Of course, if you want to see how you can
+make OfflineIMAP FIVE TIMES FASTER FOR JUST $19.95 (err, well, $0),
+you have to read on our full user documentation and peruse the sample
+offlineimap.conf (which includes all available options) for further
+tweaks!
 
 
 Mailing list
 ============
 
 The user discussion, development and all exciting stuff take place in the
-`mailing list`_. You're *NOT* supposed to subscribe to send emails.
+`mailing list`_. You do *NOT* need to subscribe to send emails.
 
 
 Reporting bugs and contributions
@@ -154,9 +101,6 @@ Bugs
 ----
 
 Bugs, issues and contributions should be reported to the `mailing list`_.
-**Please, don't use the github features (messages, pull requests, etc) at all.
-It would most likely be discarded or ignored.**
-
 
 ========
 Examples

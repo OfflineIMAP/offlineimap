@@ -1,9 +1,10 @@
 # Generated files
-/docs/dev-doc/
+/docs/html/
 /build/
 *.pyc
 offlineimap.1
 # backups
 .*.swp
 .*.swo
+*.html
 *~
