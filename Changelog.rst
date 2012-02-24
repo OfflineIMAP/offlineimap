@@ -514,9 +514,8 @@ I'd like to thank reporters who involved in this cycle:
   - Pan Tsu
   - Vincent Beffara
   - Will Styler
-  (my apologies if I forget somebody)
-
-...and all active developers, of course!
+  
+(my apologies if I forget somebody) ...and all active developers, of course!
 
 The imaplib2 migration looks to go the right way to be definetly released but
 still needs more tests.  So, here we go...
@@ -595,9 +594,10 @@ OfflineIMAP v6.3.2 (2010-02-21)
 Notes
 -----
 
-First of all I'm really happy to announce our new official `website`_.  Most of
-the work started from the impulse of Philippe LeCavalier with the help of
-Sebastian Spaeth and other contributors. Thanks to everybody.
+First of all I'm really happy to announce our new official `website
+<http://offlineimap.org>`_. Most of the work started from the impulse
+of Philippe LeCavalier with the help of Sebastian Spaeth and other
+contributors. Thanks to everybody.
 
 In this release, we are still touched by the "SSL3 write pending" but I think
 time was long enough to try to fix it. We have our first entry in the "KNOWN
