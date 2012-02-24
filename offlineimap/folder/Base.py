@@ -114,7 +114,7 @@ class BaseFolder(object):
         concurrent threads.
 
         :returns: Boolean indicating the match. Returns True in case it
-        implicitely saved the UIDVALIDITY."""
+            implicitely saved the UIDVALIDITY."""
 
         if self.get_saveduidvalidity() != None:
             return self.get_saveduidvalidity() == self.get_uidvalidity()
@@ -273,6 +273,7 @@ class BaseFolder(object):
         """Change the message from existing uid to new_uid
 
         If the backend supports it (IMAP does not).
+
         :param new_uid: (optional) If given, the old UID will be changed
             to a new UID. This allows backends efficient renaming of
             messages if the UID has changed."""
