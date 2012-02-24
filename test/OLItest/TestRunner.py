@@ -22,11 +22,14 @@ import sys
 import shutil
 import subprocess
 import tempfile
+import random
+random.seed()
 try:
     from configparser import SafeConfigParser
 except ImportError: # python 2
     from ConfigParser import SafeConfigParser
 from . import default_conf
+
 
 class OLITestLib():
     cred_file = None
@@ -180,6 +183,36 @@ class OLITestLib():
                     raise
 
     @classmethod
+    def delete_maildir(cls, folder):
+        """Delete maildir 'folder' in our test maildir
+
+        Does not fail if not existing"""
+        assert cls.testdir != None
+        maildir = os.path.join(cls.testdir, 'mail', folder)
+        shutil.rmtree(maildir, ignore_errors=True)
+
+    @classmethod
+    def create_mail(cls, folder, mailfile=None, content=None):
+        """Create a mail in  maildir 'folder'/new
+
+        Use default mailfilename if not given.
+        Use some default content if not given"""
+        assert cls.testdir != None
+        while True:  # Loop till we found a unique filename
+            mailfile = '{}:2,'.format(random.randint(0,999999999))
+            mailfilepath = os.path.join(cls.testdir, 'mail',
+                                        folder, 'new', mailfile)
+            if not os.path.isfile(mailfilepath):
+                break
+        with open(mailfilepath,"wb") as mailf:
+                mailf.write(b'''From: test <test@offlineimap.org>
+Subject: Boo
+Date: 1 Jan 1980
+To: test@offlineimap.org
+
+Content here.''')
+
+    @classmethod
     def count_maildir_mails(cls, folder):
         """Returns the number of mails in maildir 'folder'
 
@@ -196,3 +229,22 @@ class OLITestLib():
             if dirpath.endswith(('/cur', '/new')):
                 mails += len(files)
         return boxes, mails
+
+    # find UID in a maildir filename
+    re_uidmatch = re.compile(',U=(\d+)')
+
+    @classmethod
+    def get_maildir_uids(cls, folder):
+        """Returns a list of maildir mail uids, 'None' if no valid uid"""
+        assert cls.testdir != None
+        mailfilepath = os.path.join(cls.testdir, 'mail', folder)
+        assert os.path.isdir(mailfilepath)
+        ret = []
+        for dirpath, dirs, files in os.walk(mailfilepath):
+            if not dirpath.endswith((os.path.sep + 'new', os.path.sep + 'cur')):
+                continue # only /new /cur are interesting
+            for file in files:
+                m = cls.re_uidmatch.search(file)
+                uid = m.group(1) if m else None
+                ret.append(uid)
+        return ret

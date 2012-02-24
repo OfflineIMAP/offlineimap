@@ -31,6 +31,7 @@ def setUpModule():
 
 def tearDownModule():
     logging.info("Tear Down test module")
+    # comment out next line to keep testdir after test runs. TODO: make nicer
     OLITestLib.delete_test_dir()
 
 #Stuff that can be used
@@ -80,7 +81,7 @@ class TestBasicFunctions(unittest.TestCase):
         #logging.warn("%s %s "% (code, res))
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
-        self.assertTrue((boxes, mails)==(2,0), msg="Expected 2 folders and 0"
+        self.assertTrue((boxes, mails)==(2,0), msg="Expected 2 folders and 0 "
             "mails, but sync led to {} folders and {} mails".format(
                 boxes, mails))
 
@@ -101,4 +102,27 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertEqual(mismatch, True, msg="Mismatching nametrans rules did "
             "NOT trigger an 'infinite folder generation' error. Output was:\n"
              "{}".format(res))
+        # Write out default config file again
+        OLITestLib.write_config_file()
 
+    def test_04_createmail(self):
+        """Create mail in OLItest 1, sync, wipe folder sync
+
+        Currently, this will mean the folder will be recreated
+        locally.  At some point when remote folder deletion is
+        implemented, this behavior will change."""
+        OLITestLib.delete_remote_testfolders()
+        OLITestLib.create_maildir('INBOX.OLItest')
+        OLITestLib.create_mail('INBOX.OLItest')
+        code, res = OLITestLib.run_OLI()
+        #logging.warn("%s %s "% (code, res))
+        self.assertEqual(res, "")
+        boxes, mails = OLITestLib.count_maildir_mails('')
+        self.assertTrue((boxes, mails)==(1,1), msg="Expected 1 folders and 1 "
+            "mails, but sync led to {} folders and {} mails".format(
+                boxes, mails))
+        # The local Mail should have been assigned a proper UID now, check!
+        uids = OLITestLib.get_maildir_uids('INBOX.OLItest')
+        self.assertFalse (None in uids, msg = "All mails should have been "+ \
+            "assigned the IMAP's UID number, but {} messages had no valid ID "\
+            .format(len([None for x in uids if x==None])))
