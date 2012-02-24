@@ -539,10 +539,9 @@ class IMAPFolder(BaseFolder):
                     self.ui.msgtoreadonly(self, uid, content, flags)
                     return uid
 
-                # Clean out existing APPENDUID responses and do APPEND
+                #Do the APPEND
                 try:
-                    imapobj.response('APPENDUID') # flush APPENDUID responses
-                    typ, dat = imapobj.append(self.getfullname(),
+                    (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
                     retry_left = 0                # Mark as success
@@ -570,33 +569,34 @@ class IMAPFolder(BaseFolder):
                                            OfflineImapError.ERROR.MESSAGE)
             # Checkpoint. Let it write out stuff, etc. Eg searches for
             # just uploaded messages won't work if we don't do this.
-            typ, dat = imapobj.check()
+            (typ,dat) = imapobj.check()
             assert(typ == 'OK')
 
-            # get the new UID, default to 0 (=unknown)
-            uid = 0
-            if use_uidplus:
+            # get the new UID. Test for APPENDUID response even if the
+            # server claims to not support it, as e.g. Gmail does :-(
+            if use_uidplus or imapobj._get_untagged_response('APPENDUID', True):
                 # get new UID from the APPENDUID response, it could look
                 # like OK [APPENDUID 38505 3955] APPEND completed with
-                # 38505 being folder UIDvalidity and 3955 the new UID.
-                typ, resp = imapobj.response('APPENDUID')
-                if resp == [None] or resp == None:
+                # 38505 bein folder UIDvalidity and 3955 the new UID.
+                # note: we would want to use .response() here but that
+                # often seems to return [None], even though we have
+                # data. TODO
+                resp = imapobj._get_untagged_response('APPENDUID')
+                if resp == [None]:
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
                                  "appending a message.")
-                else:
-                    uid = long(resp[-1].split(' ')[1])
-                    if uid == 0:
-                        self.ui.warn("savemessage: Server supports UIDPLUS, but"
+                    return 0
+                uid = long(resp[-1].split(' ')[1])
+                if uid == 0:
+                    self.ui.warn("savemessage: Server supports UIDPLUS, but"
                             " we got no usable uid back. APPENDUID reponse was "
                             "'%s'" % str(resp))
             else:
-                # Don't support UIDPLUS
+                # we don't support UIDPLUS
                 uid = self.savemessage_searchforheader(imapobj, headername,
                                                        headervalue)
-                # If everything failed up to here, search the message
-                # manually TODO: rather than inserting and searching for our
-                # custom header, we should be searching the Message-ID and
-                # compare the message size...
+                # See docs for savemessage in Base.py for explanation
+                # of this and other return values
                 if uid == 0:
                     self.ui.debug('imap', 'savemessage: attempt to get new UID '
                         'UID failed. Search headers manually.')
