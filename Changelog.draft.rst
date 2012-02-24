@@ -30,6 +30,8 @@ Changes
   we would not propagate local folders to the remote repository.
   (now tested in test03)
 
+* Revert "* Slight performance enhancement uploading mails to an IMAP
+  server in the common case." It might have led to instabilities.
 
 Bug Fixes
 ---------
