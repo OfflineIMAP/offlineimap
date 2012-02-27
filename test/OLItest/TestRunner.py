@@ -158,12 +158,12 @@ class OLITestLib():
                     [^"]*$                # followed by no more quotes
                     ''', d, flags=re.VERBOSE)
                 folder = bytearray(m.group(1))
-                folder = folder.replace(br'\"', b'"') # remove quoting
+                #folder = folder.replace(br'\"', b'"') # remove quoting
                 dirs.append(folder)
             # 2) filter out those not starting with INBOX.OLItest and del...
             dirs = [d for d in dirs if d.startswith(b'INBOX.OLItest')]
             for folder in dirs:
-                res_t, data = imapobj.delete(str(folder))
+                res_t, data = imapobj.delete(b'\"'+folder+b'\"')
                 assert res_t == 'OK', "Folder deletion of {} failed with error"\
                     ":\n{} {}".format(folder.decode('utf-8'), res_t, data)
             imapobj.logout()

@@ -112,6 +112,7 @@ class TestBasicFunctions(unittest.TestCase):
         locally.  At some point when remote folder deletion is
         implemented, this behavior will change."""
         OLITestLib.delete_remote_testfolders()
+        OLITestLib.delete_maildir('') #Delete all local maildir folders
         OLITestLib.create_maildir('INBOX.OLItest')
         OLITestLib.create_mail('INBOX.OLItest')
         code, res = OLITestLib.run_OLI()
