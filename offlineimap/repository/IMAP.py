@@ -33,6 +33,9 @@ class IMAPRepository(BaseRepository):
         self._host = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
+        if self.getconf('sep', None):
+            self.ui.info("The 'sep' setting is being ignored for IMAP "
+                         "repository '%s' (it's autodetected)" % self)
 
     def startkeepalive(self):
         keepalivetime = self.getkeepalive()

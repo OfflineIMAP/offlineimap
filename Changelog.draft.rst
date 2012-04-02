@@ -44,5 +44,7 @@ Changes
   both the local AND remote name which caused unwanted behavior in
   combination with nametrans rules. Clarify in the help text.
 
+* Some better output when using nonsensical configuration settings
+
 Bug Fixes
 ---------
