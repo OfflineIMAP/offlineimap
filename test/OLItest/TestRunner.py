@@ -24,10 +24,8 @@ import subprocess
 import tempfile
 import random
 random.seed()
-try:
-    from configparser import SafeConfigParser
-except ImportError: # python 2
-    from ConfigParser import SafeConfigParser
+
+from offlineimap.CustomConfig import CustomConfigParser
 from . import default_conf
 
 
@@ -75,7 +73,7 @@ class OLITestLib():
         #TODO, only do first time and cache then for subsequent calls?
         assert cls.cred_file != None
         assert cls.testdir != None
-        config = SafeConfigParser()
+        config = CustomConfigParser()
         config.readfp(default_conf)
         default_conf.seek(0) # rewind config_file to start
         config.read(cls.cred_file)
