@@ -16,10 +16,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from Base import BaseRepository
 from offlineimap import folder
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
+from offlineimap.repository.Base import BaseRepository
 import os
 from stat import *
 
@@ -37,7 +37,7 @@ class MaildirRepository(BaseRepository):
 
         # Create the top-level folder if it doesn't exist
         if not os.path.isdir(self.root):
-            os.mkdir(self.root, 0700)
+            os.mkdir(self.root, 0o700)
 
     def _append_folder_atimes(self, foldername):
         """Store the atimes of a folder's new|cur in self.folder_atimes"""
@@ -81,7 +81,9 @@ class MaildirRepository(BaseRepository):
             levels will be created if they do not exist yet. 'cur',
             'tmp', and 'new' subfolders will be created in the maildir.
         """
-        self.debug("makefolder called with arg '%s'" % (foldername))
+        self.ui.makefolder(self, foldername)
+        if self.account.dryrun:
+            return
         full_path = os.path.abspath(os.path.join(self.root, foldername))
     
         # sanity tests
@@ -97,16 +99,16 @@ class MaildirRepository(BaseRepository):
         # sub-folders may be created before higher-up ones.
         self.debug("makefolder: calling makedirs '%s'" % full_path)
         try:
-            os.makedirs(full_path, 0700)
-        except OSError, e:
+            os.makedirs(full_path, 0o700)
+        except OSError as e:
             if e.errno == 17 and os.path.isdir(full_path):
                 self.debug("makefolder: '%s' already a directory" % foldername)
             else:
                 raise
         for subdir in ['cur', 'new', 'tmp']:
             try:
-                os.mkdir(os.path.join(full_path, subdir), 0700)
-            except OSError, e:
+                os.mkdir(os.path.join(full_path, subdir), 0o700)
+            except OSError as e:
                 if e.errno == 17 and os.path.isdir(full_path):
                     self.debug("makefolder: '%s' already has subdir %s" %
                                (foldername, subdir))

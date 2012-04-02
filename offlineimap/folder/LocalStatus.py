@@ -15,15 +15,12 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from Base import BaseFolder
+from .Base import BaseFolder
 import os
 import threading
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
 
 magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT 1"
+
 
 class LocalStatusFolder(BaseFolder):
     def __init__(self, name, repository):
@@ -79,7 +76,7 @@ class LocalStatusFolder(BaseFolder):
                 uid, flags = line.split(':')
                 uid = long(uid)
                 flags = set(flags)
-            except ValueError, e:
+            except ValueError as e:
                 errstr = "Corrupt line '%s' in cache file '%s'" % \
                     (line, self.filename)
                 self.ui.warn(errstr)
@@ -114,6 +111,11 @@ class LocalStatusFolder(BaseFolder):
         return self.messagelist
 
     def savemessage(self, uid, content, flags, rtime):
+        """Writes a new message, with the specified uid.
+
+        See folder/Base for detail. Note that savemessage() does not
+        check against dryrun settings, so you need to ensure that
+        savemessage is never called in a dryrun mode."""
         if uid < 0:
             # We cannot assign a uid.
             return uid

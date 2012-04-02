@@ -1,5 +1,4 @@
-# Copyright (C) 2003 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2003-2012 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,7 +14,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from ConfigParser import SafeConfigParser
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError: #python3
+    from configparser import SafeConfigParser
 from offlineimap.localeval import LocalEval
 import os
 
@@ -49,7 +51,7 @@ class CustomConfigParser(SafeConfigParser):
     def getmetadatadir(self):
         metadatadir = os.path.expanduser(self.getdefault("general", "metadata", "~/.offlineimap"))
         if not os.path.exists(metadatadir):
-            os.mkdir(metadatadir, 0700)
+            os.mkdir(metadatadir, 0o700)
         return metadatadir
 
     def getlocaleval(self):
@@ -68,6 +70,14 @@ class CustomConfigParser(SafeConfigParser):
         key = key + ' '
         return [x[len(key):] for x in self.sections() \
                 if x.startswith(key)]
+
+    def set_if_not_exists(self, section, option, value):
+        """Set a value if it does not exist yet
+
+        This allows to set default if the user has not explicitly
+        configured anything."""
+        if not self.has_option(section, option):
+            self.set(section, option, value)
 
 def CustomConfigDefault():
     """Just a constant that won't occur anywhere else.

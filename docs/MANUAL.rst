@@ -2,17 +2,14 @@
  OfflineIMAP Manual
 ====================
 
+.. _OfflineIMAP: http://offlineimap.org
+
 --------------------------------------------------------
 Powerful IMAP/Maildir synchronization and reader support
 --------------------------------------------------------
 
 :Author: John Goerzen <jgoerzen@complete.org> & contributors
-:Date: 2011-01-15
-:Copyright: GPL v2
-:Manual section: 1
-
-.. TODO: :Manual group:
-
+:Date: 2012-02-23
 
 DESCRIPTION
 ===========
@@ -43,6 +40,10 @@ Most configuration is done via the configuration file.  However, any setting can
 
 OfflineImap is well suited to be frequently invoked by cron jobs, or can run in daemon mode to periodically check your email (however, it will exit in some error situations).
 
+The documentation is included in the git repository and can be created by 
+issueing `make dev-doc` in the `doc` folder (python-sphinx required), or it can
+be viewed online at http://docs.offlineimap.org.
+
 .. _configuration:
 
 Configuration
@@ -66,96 +67,9 @@ Check out the `Use Cases`_ section for some example configurations.
 OPTIONS
 =======
 
-
--1                Disable most multithreading operations
-
-  Use solely a single-connection sync.  This effectively sets the
-  maxsyncaccounts and all maxconnections configuration file variables to 1.
-
-
--P                profiledir
-
-  Sets OfflineIMAP into profile mode.  The program will create profiledir (it
-  must not already exist).  As it runs, Python profiling information about each
-  thread is logged into profiledir.  Please note: This option is present for
-  debugging and optimization only, and should NOT be used unless you have a
-  specific reason to do so.  It will significantly slow program performance, may
-  reduce reliability, and can generate huge amounts of data.  You must use the
-  -1 option when you use -P.
-
-
--a                accountlist
-
-  Overrides the accounts option in the general section of the configuration
-  file.  You might use this to exclude certain accounts, or to sync some
-  accounts that you normally prefer not to.  Separate the accounts by commas,
-  and use no embedded spaces.
-
-
--c                configfile
-
-  Specifies a configuration file to use in lieu of the default,
-  ``~/.offlineimaprc``.
-
-
--d                debugtype[,...]
-
-  Enables debugging for OfflineIMAP.  This is useful if you are trying to track
-  down a malfunction or figure out what is going on under the hood.  I suggest
-  that you use this with -1 to make the results more sensible.
-
-  -d requires one or more debugtypes, separated by commas.  These define what
-  exactly will be debugged, and include three options: imap, maildir, and
-  thread.  The imap option will enable IMAP protocol stream and parsing
-  debugging.  Note that the output may contain passwords, so take care to remove
-  that from the debugging output before sending it to anyone else.  The maildir
-  option will enable debugging for certain Maildir operations.  And thread will
-  debug the threading model.
-
-
--f                foldername[,foldername]
-
-  Only sync the specified folders.  The foldernames are the untranslated
-  foldernames.  This command-line option overrides any folderfilter and
-  folderincludes options in the configuration file.
-
-
--k                [section:]option=value
-
-  Override configuration file option.  If "section" is omitted, it defaults to
-  general.  Any underscores "_" in the section name are replaced with spaces:
-  for instance, to override option autorefresh in the "[Account Personal]"
-  section in the config file one would use "-k Account_Personal:autorefresh=30".
-  You may give more than one -k on the command line if you wish.
-
-
--l                filename
-
-  Enables logging to filename.  This will log everything that goes to the screen
-  to the specified file.  Additionally, if any debugging is specified with -d,
-  then debug messages will not go to the screen, but instead to the logfile
-  only.
-
-
--o                Run only once,
-
-  ignoring all autorefresh settings in the configuration file.
-
-
--q                Run only quick synchronizations.
-
-  Ignore any flag updates on IMAP servers.
-
-
--h|--help         Show summary of options.
-
-
--u                interface
-
-  Specifies an alternative user interface module to use.  This overrides the
-  default specified in the configuration file.  The pre-defined options are
-  listed in the User Interfaces section. The interface name is case insensitive.
-
+The command line options are described by issueing `offlineimap --help`.
+Details on their use can be found either in the sample offlineimap.conf file or
+in the user docs at http://docs.offlineimap.org.
 
 User Interfaces
 ===============
@@ -389,6 +303,8 @@ as Man-In-The-Middle attacks which cause you to connect to the wrong
 server and pretend to be your mail server. DO NOT RELY ON STARTTLS AS A
 SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF YOUR IMAP SERVER!
 
+.. _UNIX signals:
+
 UNIX Signals
 ============
 
@@ -528,7 +444,7 @@ and Sent which should keep the same name::
 
 Synchronizing 2 IMAP accounts to local Maildirs that are "next to each
 other", so that mutt can work on both. Full email setup described by
-Thomas Kahle at `http://dev.gentoo.org/~tomka/mail.html`_
+Thomas Kahle at `<http://dev.gentoo.org/~tomka/mail.html>`_
 
 offlineimap.conf::
 
@@ -590,7 +506,7 @@ purposes: Fetching passwords from the gnome-keyring and translating
 folder names on the server to local foldernames.  An example
 implementation of get_username and get_password showing how to query
 gnome-keyring is contained in
-`http://dev.gentoo.org/~tomka/mail-setup.tar.bz2`_ The folderfilter is
+`<http://dev.gentoo.org/~tomka/mail-setup.tar.bz2>`_ The folderfilter is
 a lambda term that, well, filters which folders to get. The function
 `oimaptransfolder_acc2` translates remote folders into local folders
 with a very simple logic. The `INBOX` folder will have the same name

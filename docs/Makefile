@@ -9,7 +9,7 @@ RST2HTML=`type rst2html >/dev/null 2>&1 && echo rst2html || echo rst2html.py`
 RST2MAN=`type rst2man >/dev/null 2>&1 && echo rst2man || echo rst2man.py`
 SPHINXBUILD = sphinx-build
 
-all: html dev-doc
+all: man doc
 
 html: $(HTML_TARGETS)
 
@@ -22,12 +22,12 @@ offlineimap.1: MANUAL.rst
 	$(RST2MAN) MANUAL.rst offlineimap.1
 	cp -f offlineimap.1 ..
 
-dev-doc:
-	$(SPHINXBUILD) -b html -d dev-doc/doctrees dev-doc-src dev-doc/html
+doc:
+	$(SPHINXBUILD) -b html -d html/doctrees doc-src html
 
 clean:
 	$(RM) -f $(HTML_TARGETS)
 	$(RM) -f offlineimap.1 ../offlineimap.1
-	$(RM) -rf dev-doc/*
+	$(RM) -rf html/*
 
-.PHONY: dev-doc
+.PHONY: clean doc

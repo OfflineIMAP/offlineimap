@@ -18,12 +18,8 @@
 
 import re
 import string
-import types
 from offlineimap.ui import getglobalui
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
+
 
 # find the first quote in a string
 quotere = re.compile(
@@ -58,7 +54,7 @@ def flagsplit(string):
         ['FLAGS,'(\\Seen Old)','UID', '4807']
     """
     if string[0] != '(' or string[-1] != ')':
-        raise ValueError, "Passed string '%s' is not a flag list" % string
+        raise ValueError("Passed string '%s' is not a flag list" % string)
     return imapsplit(string[1:-1])
 
 def options2hash(list):
@@ -91,7 +87,7 @@ def imapsplit(imapstring):
 
     ['(\\HasNoChildren)', '"."', '"INBOX.Sent"']"""
 
-    if type(imapstring) != types.StringType:
+    if not isinstance(imapstring, basestring):
         debug("imapsplit() got a non-string input; working around.")
         # Sometimes, imaplib will throw us a tuple if the input
         # contains a literal.  See Python bug
@@ -137,12 +133,12 @@ def imapsplit(imapstring):
         if workstr[0] == '(':
             rparenc = 1 # count of right parenthesis to match
             rpareni = 1 # position to examine
- 	    while rparenc: # Find the end of the group.
- 	    	if workstr[rpareni] == ')':  # end of a group
- 			rparenc -= 1
- 		elif workstr[rpareni] == '(':  # start of a group
- 			rparenc += 1
- 		rpareni += 1  # Move to next character.
+            while rparenc: # Find the end of the group.
+                if workstr[rpareni] == ')':  # end of a group
+                    rparenc -= 1
+                elif workstr[rpareni] == '(':  # start of a group
+                    rparenc += 1
+                rpareni += 1  # Move to next character.
             parenlist = workstr[0:rpareni]
             workstr = workstr[rpareni:].lstrip()
             retval.append(parenlist)
@@ -186,13 +182,12 @@ def flagsimap2maildir(flagstring):
     return retval
 
 def flagsmaildir2imap(maildirflaglist):
-    """Convert set of flags ([DR]) into a string '(\\Draft \\Deleted)'"""
+    """Convert set of flags ([DR]) into a string '(\\Deleted \\Draft)'"""
     retval = []
     for imapflag, maildirflag in flagmap:
         if maildirflag in maildirflaglist:
             retval.append(imapflag)
-    retval.sort()
-    return '(' + ' '.join(retval) + ')'
+    return '(' + ' '.join(sorted(retval)) + ')'
 
 def uid_sequence(uidlist):
     """Collapse UID lists into shorter sequence sets

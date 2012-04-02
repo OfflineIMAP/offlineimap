@@ -23,10 +23,7 @@ import os.path
 import re
 from sys import exc_info
 import traceback
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
+
 
 class BaseFolder(object):
     def __init__(self, name, repository):
@@ -117,7 +114,7 @@ class BaseFolder(object):
         concurrent threads.
 
         :returns: Boolean indicating the match. Returns True in case it
-        implicitely saved the UIDVALIDITY."""
+            implicitely saved the UIDVALIDITY."""
 
         if self.get_saveduidvalidity() != None:
             return self.get_saveduidvalidity() == self.get_uidvalidity()
@@ -211,6 +208,10 @@ class BaseFolder(object):
         If the uid is > 0, the backend should set the uid to this, if it can.
            If it cannot set the uid to that, it will save it anyway.
            It will return the uid assigned in any case.
+
+        Note that savemessage() does not check against dryrun settings,
+        so you need to ensure that savemessage is never called in a
+        dryrun mode.
         """
         raise NotImplementedException
 
@@ -223,27 +224,48 @@ class BaseFolder(object):
         raise NotImplementedException
 
     def savemessageflags(self, uid, flags):
-        """Sets the specified message's flags to the given set."""
+        """Sets the specified message's flags to the given set.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         raise NotImplementedException
 
     def addmessageflags(self, uid, flags):
         """Adds the specified flags to the message's flag set.  If a given
         flag is already present, it will not be duplicated.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
+
         :param flags: A set() of flags"""
         newflags = self.getmessageflags(uid) | flags
         self.savemessageflags(uid, newflags)
 
     def addmessagesflags(self, uidlist, flags):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         for uid in uidlist:
             self.addmessageflags(uid, flags)
 
     def deletemessageflags(self, uid, flags):
         """Removes each flag given from the message's flag set.  If a given
-        flag is already removed, no action will be taken for that flag."""
+        flag is already removed, no action will be taken for that flag.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         newflags = self.getmessageflags(uid) - flags
         self.savemessageflags(uid, newflags)
 
     def deletemessagesflags(self, uidlist, flags):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         for uid in uidlist:
             self.deletemessageflags(uid, flags)
 
@@ -251,20 +273,33 @@ class BaseFolder(object):
         """Change the message from existing uid to new_uid
 
         If the backend supports it (IMAP does not).
+
         :param new_uid: (optional) If given, the old UID will be changed
             to a new UID. This allows backends efficient renaming of
             messages if the UID has changed."""
         raise NotImplementedException
 
     def deletemessage(self, uid):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         raise NotImplementedException
 
     def deletemessages(self, uidlist):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         for uid in uidlist:
             self.deletemessage(uid)
 
     def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
         """Copies a message from self to dst if needed, updating the status
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
 
         :param uid: uid of the message to be copied.
         :param dstfolder: A BaseFolder-derived instance
@@ -321,11 +356,11 @@ class BaseFolder(object):
                                        OfflineImapError.ERROR.MESSAGE)
         except (KeyboardInterrupt): # bubble up CTRL-C
             raise
-        except OfflineImapError, e:
+        except OfflineImapError as e:
             if e.severity > OfflineImapError.ERROR.MESSAGE:
                 raise # buble severe errors up
             self.ui.error(e, exc_info()[2])
-        except Exception, e:
+        except Exception as e:
             self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
                               (uid, self.accountname,
                                exc_info()[2]))
@@ -341,6 +376,8 @@ class BaseFolder(object):
         2) invoke copymessageto() on those which:
            - If dstfolder doesn't have it yet, add them to dstfolder.
            - Update statusfolder
+
+        This function checks and protects us from action in ryrun mode.
         """
         threads = []
 
@@ -348,6 +385,10 @@ class BaseFolder(object):
                               statusfolder.uidexists(uid),
                             self.getmessageuidlist())
         num_to_copy = len(copylist)
+        if num_to_copy and self.repository.account.dryrun:
+            self.ui.info("[DRYRUN] Copy {} messages from {}[{}] to {}".format(
+                    num_to_copy, self, self.repository, dstfolder.repository))
+            return
         for num, uid in enumerate(copylist):
             # bail out on CTRL-C or SIGTERM
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
@@ -374,12 +415,17 @@ class BaseFolder(object):
 
         Get all UIDS in statusfolder but not self. These are messages
         that were deleted in 'self'. Delete those from dstfolder and
-        statusfolder."""
+        statusfolder.
+
+        This function checks and protects us from action in ryrun mode.
+        """
         deletelist = filter(lambda uid: uid>=0 \
                                 and not self.uidexists(uid),
                             statusfolder.getmessageuidlist())
         if len(deletelist):
             self.ui.deletingmessages(deletelist, [dstfolder])
+            if self.repository.account.dryrun:
+                return #don't delete messages in dry-run mode
             # delete in statusfolder first to play safe. In case of abort, we
             # won't lose message, we will just retransmit some unneccessary.
             for folder in [statusfolder, dstfolder]:
@@ -392,6 +438,8 @@ class BaseFolder(object):
         msg has a valid UID and exists on dstfolder (has not e.g. been
         deleted there), sync the flag change to both dstfolder and
         statusfolder.
+
+        This function checks and protects us from action in ryrun mode.
         """
         # For each flag, we store a list of uids to which it should be
         # added.  Then, we can call addmessagesflags() to apply them in
@@ -425,11 +473,15 @@ class BaseFolder(object):
 
         for flag, uids in addflaglist.items():
             self.ui.addingflags(uids, flag, dstfolder)
+            if self.repository.account.dryrun:
+                continue #don't actually add in a dryrun
             dstfolder.addmessagesflags(uids, set(flag))
             statusfolder.addmessagesflags(uids, set(flag))
 
         for flag,uids in delflaglist.items():
             self.ui.deletingflags(uids, flag, dstfolder)
+            if self.repository.account.dryrun:
+                continue #don't actually remove in a dryrun
             dstfolder.deletemessagesflags(uids, set(flag))
             statusfolder.deletemessagesflags(uids, set(flag))
                 
@@ -474,11 +526,28 @@ class BaseFolder(object):
                 action(dstfolder, statusfolder)
             except (KeyboardInterrupt):
                 raise
-            except OfflineImapError, e:
+            except OfflineImapError as e:
                 if e.severity > OfflineImapError.ERROR.FOLDER:
                     raise
                 self.ui.error(e, exc_info()[2])
-            except Exception, e:
+            except Exception as e:
                 self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
                                   (self, self.accountname))
                 raise # raise unknown Exceptions so we can fix them
+
+    def __eq__(self, other):
+        """Comparisons work either on string comparing folder names or
+        on the same instance
+
+        MailDirFolder('foo') == 'foo' --> True
+        a = MailDirFolder('foo'); a == b --> True
+        MailDirFolder('foo') == 'moo' --> False
+        MailDirFolder('foo') == IMAPFolder('foo') --> False
+        MailDirFolder('foo') == MaildirFolder('foo') --> False
+        """
+        if isinstance(other, basestring):
+            return other == self.name
+        return id(self) == id(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

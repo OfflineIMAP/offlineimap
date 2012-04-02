@@ -1,6 +1,5 @@
 # Base repository support
-# Copyright (C) 2002-2007 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2012 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,7 +23,7 @@ from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
 
-class BaseRepository(object, CustomConfig.ConfigHelperMixin):
+class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
     def __init__(self, reposname, account):
         self.ui = getglobalui()
@@ -35,18 +34,18 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         self._accountname = self.account.getname()
         self.uiddir = os.path.join(self.config.getmetadatadir(), 'Repository-' + self.name)
         if not os.path.exists(self.uiddir):
-            os.mkdir(self.uiddir, 0700)
+            os.mkdir(self.uiddir, 0o700)
         self.mapdir = os.path.join(self.uiddir, 'UIDMapping')
         if not os.path.exists(self.mapdir):
-            os.mkdir(self.mapdir, 0700)
+            os.mkdir(self.mapdir, 0o700)
         self.uiddir = os.path.join(self.uiddir, 'FolderValidity')
         if not os.path.exists(self.uiddir):
-            os.mkdir(self.uiddir, 0700)
+            os.mkdir(self.uiddir, 0o700)
 
         self.nametrans = lambda foldername: foldername
         self.folderfilter = lambda foldername: 1
         self.folderincludes = []
-        self.foldersort = cmp
+        self.foldersort = None
         if self.config.has_option(self.getsection(), 'nametrans'):
             self.nametrans = self.localeval.eval(
                 self.getconf('nametrans'), {'re': re})
@@ -125,6 +124,7 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
         raise NotImplementedError
 
     def makefolder(self, foldername):
+        """Create a new folder"""
         raise NotImplementedError
 
     def deletefolder(self, foldername):
@@ -154,49 +154,50 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                     src_repo.getsep(), dst_repo.getsep())] = folder
         dst_hash = {}
         for folder in dst_folders:
-            dst_hash[folder.name] = folder
+            dst_hash[folder.getvisiblename().replace(
+                    dst_repo.getsep(), src_repo.getsep())] = folder
 
         # Find new folders on src_repo.
-        for src_name, src_folder in src_hash.iteritems():
+        for src_name_t, src_folder in src_hash.iteritems():
             # Don't create on dst_repo, if it is readonly
             if dst_repo.getconfboolean('readonly', False):
                 break
-            if src_folder.sync_this and not src_name in dst_hash:
+            if src_folder.sync_this and not src_name_t in dst_folders:
                 try:
-                    dst_repo.makefolder(src_name)
+                    dst_repo.makefolder(src_name_t)
                     dst_haschanged = True # Need to refresh list
-                except OfflineImapError, e:
+                except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2],
                                   "Creating folder %s on repository %s" %\
-                                      (src_name, dst_repo))
+                                      (src_name_t, dst_repo))
                     raise
-                status_repo.makefolder(src_name.replace(dst_repo.getsep(),
+                status_repo.makefolder(src_name_t.replace(dst_repo.getsep(),
                                                    status_repo.getsep()))
         # Find new folders on dst_repo.
-        for dst_name, dst_folder in dst_hash.iteritems():
+        for dst_name_t, dst_folder in dst_hash.iteritems():
             if self.getconfboolean('readonly', False):
                 # Don't create missing folder on readonly repo.
                 break
 
-            if dst_folder.sync_this and not dst_name in src_hash:
+            if dst_folder.sync_this and not dst_name_t in src_folders:
                 # nametrans sanity check!
                 # Does nametrans back&forth lead to identical names?
-                #src_name is the unmodified full src_name that would be created
-                newsrc_name = dst_folder.getvisiblename().replace(
-                    dst_repo.getsep(),
-                    src_repo.getsep())
-                folder = self.getfolder(newsrc_name)
-                # would src repo filter out the new folder name? In this
+                # 1) would src repo filter out the new folder name? In this
                 # case don't create it on it:
-                if not self.folderfilter(newsrc_name):
+                if not self.folderfilter(dst_name_t):
                     self.ui.debug('', "Not creating folder '%s' (repository '%s"
                         "') as it would be filtered out on that repository." %
-                                  (newsrc_name, self))
+                                  (dst_name_t, self))
                     continue
+                # get IMAPFolder and see if the reverse nametrans
+                # works fine TODO: getfolder() works only because we
+                # succeed in getting inexisting folders which I would
+                # like to change. Take care!
+                folder = self.getfolder(dst_name_t)
                 # apply reverse nametrans to see if we end up with the same name
                 newdst_name = folder.getvisiblename().replace(
                     src_repo.getsep(), dst_repo.getsep())
-                if dst_name != newdst_name:
+                if dst_folder.name != newdst_name:
                     raise OfflineImapError("INFINITE FOLDER CREATION DETECTED! "
                         "Folder '%s' (repository '%s') would be created as fold"
                         "er '%s' (repository '%s'). The latter becomes '%s' in "
@@ -205,18 +206,18 @@ class BaseRepository(object, CustomConfig.ConfigHelperMixin):
                         "itories so they lead to identical names if applied bac"
                         "k and forth. 2) Use folderfilter settings on a reposit"
                         "ory to prevent some folders from being created on the "
-                        "other side." % (dst_name, dst_repo, newsrc_name,
+                        "other side." % (dst_folder.name, dst_repo, dst_name_t,
                                          src_repo, newdst_name),
                                            OfflineImapError.ERROR.REPO)
                 # end sanity check, actually create the folder
                 try:
-                    src_repo.makefolder(newsrc_name)
+                    src_repo.makefolder(dst_name_t)
                     src_haschanged = True # Need to refresh list
-                except OfflineImapError, e:
+                except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
-                                  "repository %s" % (newsrc_name, src_repo))
+                                  "repository %s" % (dst_name_t, src_repo))
                     raise
-                status_repo.makefolder(newsrc_name.replace(
+                status_repo.makefolder(dst_name_t.replace(
                                 src_repo.getsep(), status_repo.getsep()))
         # Find deleted folders.
         # TODO: We don't delete folders right now.

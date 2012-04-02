@@ -47,15 +47,15 @@ class Repository(object):
             return LocalStatusRepository(name, account)
 
         else:
-            raise ValueError, "Request type %s not supported" % reqtype
+            raise ValueError("Request type %s not supported" % reqtype)
 
         config = account.getconfig()
         repostype = config.get('Repository ' + name, 'type').strip()
         try:
             repo = typemap[repostype]
         except KeyError:
-            raise Exception, "'%s' repository not supported for %s repositories."%\
-                (repostype, reqtype)
+            raise ValueError("'%s' repository not supported for %s repositories"
+                             "." % (repostype, reqtype))
         return repo(name, account)
 
 

@@ -17,16 +17,12 @@
 import os.path
 import re
 from threading import Lock
-from LocalStatus import LocalStatusFolder
+from .LocalStatus import LocalStatusFolder
 try:
     import sqlite3 as sqlite
 except:
     pass #fail only if needed later on, not on import
 
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
 
 class LocalStatusSQLiteFolder(LocalStatusFolder):
     """LocalStatus backend implemented with an SQLite database
@@ -220,6 +216,11 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     #        assert False,"getmessageflags() called on non-existing message"
 
     def savemessage(self, uid, content, flags, rtime):
+        """Writes a new message, with the specified uid.
+
+        See folder/Base for detail. Note that savemessage() does not
+        check against dryrun settings, so you need to ensure that
+        savemessage is never called in a dryrun mode."""
         if uid < 0:
             # We cannot assign a uid.
             return uid

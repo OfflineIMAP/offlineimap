@@ -1,5 +1,5 @@
 # Noninteractive UI
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2012 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import logging
-from UIBase import UIBase
+from offlineimap.ui.UIBase import UIBase
 
 class Basic(UIBase):
     """'Quiet' simply sets log level to INFO"""

@@ -13,12 +13,15 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-from urllib import urlencode
+try:
+    from urllib import urlencode
+except ImportError: # python3
+    from urllib.parse import urlencode
 import sys
 import time
 import logging
-from UIBase import UIBase
 from threading import currentThread
+from offlineimap.ui.UIBase import UIBase
 import offlineimap
 
 protocol = '7.0.0'
@@ -122,12 +125,11 @@ class MachineUI(UIBase):
                                                       "\f".join(flags),
                                                       dest))
 
-    def threadException(s, thread):
-        print s.getThreadExceptionString(thread)
-        s._printData('threadException', "%s\n%s" % \
-                     (thread.getName(), s.getThreadExceptionString(thread)))
-        s.delThreadDebugLog(thread)
-        s.terminate(100)
+    def threadException(self, thread):
+        self._printData('threadException', "%s\n%s" % \
+                     (thread.getName(), self.getThreadExceptionString(thread)))
+        self.delThreadDebugLog(thread)
+        self.terminate(100)
 
     def terminate(s, exitstatus = 0, errortitle = '', errormsg = ''):
         s._printData('terminate', "%d\n%s\n%s" % (exitstatus, errortitle, errormsg))

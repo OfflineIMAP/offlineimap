@@ -52,6 +52,25 @@ class OfflineImap:
                               description="%s.\n\n%s" %
                               (offlineimap.__copyright__,
                                offlineimap.__license__))
+        parser.add_option("--dry-run",
+                  action="store_true", dest="dryrun",
+                  default=False,
+                  help="Do not actually modify any store but check and print "
+              "what synchronization actions would be taken if a sync would be"
+              " performed. It will not precisely give the exact information w"
+              "hat will happen. If e.g. we need to create a folder, it merely"
+              " outputs 'Would create folder X', but not how many and which m"
+              "ails it would transfer.")
+
+        parser.add_option("--info",
+                  action="store_true", dest="diagnostics",
+                  default=False,
+                  help="Output information on the configured email repositories"
+              ". Useful for debugging and bug reporting. Use in conjunction wit"
+              "h the -a option to limit the output to a single account. This mo"
+              "de will prevent any actual sync to occur and exits after it outp"
+              "ut the debug information.")
+
         parser.add_option("-1",
                   action="store_true", dest="singlethreading",
                   default=False,
@@ -73,11 +92,11 @@ class OfflineImap:
               "implies the -1 option.")
 
         parser.add_option("-a", dest="accounts", metavar="ACCOUNTS",
-                  help="""Overrides the accounts section in the config file.
-              Lets you specify a particular account or set of
-              accounts to sync without having to edit the config
-              file. You might use this to exclude certain accounts,
-              or to sync some accounts that you normally prefer not to.""")
+                  help="Overrides the accounts section in the config file. "
+              "Lets you specify a particular account or set of "
+              "accounts to sync without having to edit the config "
+              "file. You might use this to exclude certain accounts, "
+              "or to sync some accounts that you normally prefer not to.")
 
         parser.add_option("-c", dest="configfile", metavar="FILE",
                   default="~/.offlineimaprc",
@@ -85,29 +104,27 @@ class OfflineImap:
                        "%default.")
 
         parser.add_option("-d", dest="debugtype", metavar="type1,[type2...]",
-                  help="""Enables debugging for OfflineIMAP. This is useful
-              if you are to track down a malfunction or figure out what is
-              going on under the hood. This option requires one or more
-              debugtypes, separated by commas. These define what exactly
-              will be debugged, and so far include two options: imap, thread,
-              maildir or ALL. The imap option will enable IMAP protocol
-              stream and parsing debugging. Note that the output may contain
-              passwords, so take care to remove that from the debugging
-              output before sending it to anyone else. The maildir option
-              will enable debugging for certain Maildir operations.
-              The use of any debug option (unless 'thread' is included),
-              implies the single-thread option -1.""")
+                  help="Enables debugging for OfflineIMAP. This is useful "
+              "if you are to track down a malfunction or figure out what is "
+              "going on under the hood. This option requires one or more "
+              "debugtypes, separated by commas. These define what exactly "
+              "will be debugged, and so far include two options: imap, thread, "
+              "maildir or ALL. The imap option will enable IMAP protocol "
+              "stream and parsing debugging. Note that the output may contain "
+              "passwords, so take care to remove that from the debugging "
+              "output before sending it to anyone else. The maildir option "
+              "will enable debugging for certain Maildir operations. "
+              "The use of any debug option (unless 'thread' is included), "
+              "implies the single-thread option -1.")
 
         parser.add_option("-l", dest="logfile", metavar="FILE",
                   help="Log to FILE")
 
         parser.add_option("-f", dest="folders", metavar="folder1,[folder2...]",
-                  help=
-              "Only sync the specified folders. The folder names "
-              "are the *untranslated* foldernames. This "
-              "command-line option overrides any 'folderfilter' "
-              "and 'folderincludes' options in the configuration "
-              "file.")
+                  help="Only sync the specified folders. The folder names "
+              "are the *untranslated* foldernames of the remote repository. "
+              "This command-line option overrides any 'folderfilter' "
+              "and 'folderincludes' options in the configuration file.")
 
         parser.add_option("-k", dest="configoverride",
                   action="append",
@@ -141,13 +158,6 @@ class OfflineImap:
               "be forced to be used, even if checks determine that it is "
               "not usable. Possible interface choices are: %s " %
               ", ".join(UI_LIST.keys()))
-
-        parser.add_option("--info",
-                  action="store_true", dest="diagnostics",
-                  default=False,
-                  help="Output information on the configured email repositories"
-              ". Useful for debugging and bug reporting. Use in conjunction wit"
-              "h the -a option to limit the output to a single account")
 
         (options, args) = parser.parse_args()
 
@@ -201,6 +211,12 @@ class OfflineImap:
             logging.warning('Using old interface name, consider using one '
                             'of %s' % ', '.join(UI_LIST.keys()))
         if options.diagnostics: ui_type = 'basic' # enforce basic UI for --info
+
+        #dry-run? Set [general]dry-run=True
+        if options.dryrun:
+            dryrun = config.set('general','dry-run', "True")
+        config.set_if_not_exists('general','dry-run','False')
+
         try:
             # create the ui class
             self.ui = UI_LIST[ui_type.lower()](config)
@@ -251,12 +267,10 @@ class OfflineImap:
             for accountname in accounts.getaccountlist(config):
                 account_section = 'Account ' + accountname
                 remote_repo_section = 'Repository ' + \
-                                      config.get(account_section, 'remoterepository')
-                local_repo_section = 'Repository ' + \
-                                     config.get(account_section, 'localrepository')
-                for section in [remote_repo_section, local_repo_section]:
-                    config.set(section, "folderfilter", folderfilter)
-                    config.set(section, "folderincludes", folderincludes)
+                    config.get(account_section, 'remoterepository')
+                config.set(remote_repo_section, "folderfilter", folderfilter)
+                config.set(remote_repo_section, "folderincludes",
+                           folderincludes)
 
         if options.logfile:
             sys.stderr = self.ui.logfile
@@ -351,7 +365,7 @@ class OfflineImap:
             self.ui.terminate()
         except (SystemExit):
             raise
-        except Exception, e:
+        except Exception as e:
             self.ui.error(e)
             self.ui.terminate()
 

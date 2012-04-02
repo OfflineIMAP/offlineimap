@@ -203,9 +203,10 @@ How is OfflineIMAP conformance?
 Can I force OfflineIMAP to sync a folder right now?
 ---------------------------------------------------
 
-Yes, 
-  1) if you use the `Blinkenlights` UI.  That UI shows the active accounts
-as follows::
+Yes:
+
+1) if you use the `Blinkenlights` UI.  That UI shows the active
+accounts as follows::
 
    4: [active]      *Control: .
    3: [  4:36]      personal:
@@ -216,8 +217,9 @@ as follows::
    resync that account immediately.  This will be ignored if a resync is
    already in progress for that account.
 
-  2) while in sleep mode, you can also send a SIGUSR1. See the `Signals
-    on UNIX`_ section in the MANUAL for details.
+2) while in sleep mode, you can also send a SIGUSR1. See the :ref:`UNIX
+   signals` section in the MANUAL for details.
+
 
 I get a "Mailbox already exists" error
 --------------------------------------
@@ -291,13 +293,16 @@ certificates chain) in PEM format.  (See the documentation of
 `ssl.wrap_socket`_'s `certfile` parameter for the gory details.)  You can use either openssl or gnutls to create a certificate file in the required format.
 
 #. via openssl::
+
     openssl s_client -CApath /etc/ssl/certs -connect ${hostname}:imaps -showcerts \
        | perl -ne 'print if /BEGIN/../END/; print STDERR if /return/' > $sslcacertfile
     ^D
 
+
 #. via gnutls::
     gnutls-cli --print-cert -p imaps ${host} </dev/null | sed -n \
     |     '/^-----BEGIN CERT/,/^-----END CERT/p' > $sslcacertfile
+
 
 The path `/etc/ssl/certs` is not standardized; your system may store
 SSL certificates elsewhere.  (On some systems it may be in

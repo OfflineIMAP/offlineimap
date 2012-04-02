@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2012 John Goerzen & contributors
 # Thread support module
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -15,10 +15,12 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import Lock, Thread, BoundedSemaphore
-from Queue import Queue, Empty
+from threading import Lock, Thread, BoundedSemaphore, currentThread
+try:
+    from Queue import Queue, Empty
+except ImportError: # python3
+    from queue import Queue, Empty
 import traceback
-from thread import get_ident	# python < 2.6 support
 import os.path
 import sys
 from offlineimap.ui import getglobalui
@@ -149,7 +151,6 @@ class ExitNotifyThread(Thread):
 
     def run(self):
         global exitthreads
-        self.threadid = get_ident()
         try:
             if not ExitNotifyThread.profiledir: # normal case
                 Thread.run(self)
@@ -164,8 +165,8 @@ class ExitNotifyThread(Thread):
                 except SystemExit:
                     pass
                 prof.dump_stats(os.path.join(ExitNotifyThread.profiledir,
-                                "%s_%s.prof" % (self.threadid, self.getName())))
-        except Exception, e:
+                                "%s_%s.prof" % (self.ident, self.getName())))
+        except Exception as e:
             # Thread exited with Exception, store it
             tb = traceback.format_exc()
             self.set_exit_exception(e, tb)
@@ -208,7 +209,7 @@ def initInstanceLimit(instancename, instancemax):
     """Initialize the instance-limited thread implementation to permit
     up to intancemax threads with the given instancename."""
     instancelimitedlock.acquire()
-    if not instancelimitedsems.has_key(instancename):
+    if not instancename in instancelimitedsems:
         instancelimitedsems[instancename] = BoundedSemaphore(instancemax)
     instancelimitedlock.release()
 

@@ -19,6 +19,7 @@ import os
 import fcntl
 import re
 import socket
+import ssl
 import time
 import subprocess
 import threading
@@ -28,11 +29,6 @@ from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
 from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, IMAP4_PORT, InternalDate, Mon2num
 
-try:
-    import ssl
-except ImportError:
-    #fails on python <2.6
-    pass
 
 class UsefulIMAPMixIn(object):
     def getselectedfolder(self):
@@ -53,7 +49,7 @@ class UsefulIMAPMixIn(object):
         del self.untagged_responses[:]
         try:
             result = super(UsefulIMAPMixIn, self).select(mailbox, readonly)
-        except self.abort, e:
+        except self.abort as e:
             # self.abort is raised when we are supposed to retry
             errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
                 "ver said: %s" % (self.host, mailbox, e.args[0])
@@ -141,7 +137,7 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
     """Improved version of imaplib.IMAP4_SSL overriding select()"""
     def __init__(self, *args, **kwargs):
         self._fingerprint = kwargs.get('fingerprint', None)
-        if kwargs.has_key('fingerprint'):
+        if 'fingerprint' in kwargs:
             del kwargs['fingerprint']
         super(WrappedIMAP4_SSL, self).__init__(*args, **kwargs)
 

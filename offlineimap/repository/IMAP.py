@@ -20,7 +20,6 @@ from offlineimap import folder, imaputil, imapserver, OfflineImapError
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
 from threading import Event
-import types
 import os
 from sys import exc_info
 import netrc
@@ -34,6 +33,9 @@ class IMAPRepository(BaseRepository):
         self._host = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
+        if self.getconf('sep', None):
+            self.ui.info("The 'sep' setting is being ignored for IMAP "
+                         "repository '%s' (it's autodetected)" % self)
 
     def startkeepalive(self):
         keepalivetime = self.getkeepalive()
@@ -95,7 +97,7 @@ class IMAPRepository(BaseRepository):
             host = self.getconf('remotehosteval')
             try:
                 host = self.localeval.eval(host)
-            except Exception, e:
+            except Exception as e:
                 raise OfflineImapError("remotehosteval option for repository "\
                                        "'%s' failed:\n%s" % (self, e),
                                        OfflineImapError.ERROR.REPO)
@@ -128,7 +130,7 @@ class IMAPRepository(BaseRepository):
 
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
-        except IOError, inst:
+        except IOError as inst:
             if inst.errno != errno.ENOENT:
                 raise
         else:
@@ -137,7 +139,7 @@ class IMAPRepository(BaseRepository):
 
         try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
-        except IOError, inst:
+        except IOError as inst:
             if inst.errno not in (errno.ENOENT, errno.EACCES):
                 raise
         else:
@@ -223,7 +225,7 @@ class IMAPRepository(BaseRepository):
         # 4. read password from ~/.netrc
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
-        except IOError, inst:
+        except IOError as inst:
             if inst.errno != errno.ENOENT:
                 raise
         else:
@@ -234,7 +236,7 @@ class IMAPRepository(BaseRepository):
         # 5. read password from /etc/netrc
         try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
-        except IOError, inst:
+        except IOError as inst:
             if inst.errno not in (errno.ENOENT, errno.EACCES):
                 raise
         else:
@@ -274,9 +276,9 @@ class IMAPRepository(BaseRepository):
             self.imapserver.releaseconnection(imapobj)
         for string in listresult:
             if string == None or \
-                   (type(string) == types.StringType and string == ''):
+                   (isinstance(string, basestring) and string == ''):
                 # Bug in imaplib: empty strings in results from
-                # literals.
+                # literals. TODO: still relevant?
                 continue
             flags, delim, name = imaputil.imapsplit(string)
             flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
@@ -297,7 +299,7 @@ class IMAPRepository(BaseRepository):
                 for foldername in self.folderincludes:
                     try:
                         imapobj.select(foldername, readonly = True)
-                    except OfflineImapError, e:
+                    except OfflineImapError as e:
                         # couldn't select this folderinclude, so ignore folder.
                         if e.severity > OfflineImapError.ERROR.FOLDER:
                             raise
@@ -309,8 +311,24 @@ class IMAPRepository(BaseRepository):
                                                        self))
             finally:
                 self.imapserver.releaseconnection(imapobj)
-                
-        retval.sort(lambda x, y: self.foldersort(x.getvisiblename(), y.getvisiblename()))
+
+        if self.foldersort is None:
+            # default sorting by case insensitive transposed name
+            retval.sort(key=lambda x: str.lower(x.getvisiblename()))
+        else:
+            # do foldersort in a python3-compatible way
+            # http://bytes.com/topic/python/answers/844614-python-3-sorting-comparison-function
+            def cmp2key(mycmp):
+                """Converts a cmp= function into a key= function
+                We need to keep cmp functions for backward compatibility"""
+                class K:
+                    def __init__(self, obj, *args):
+                        self.obj = obj
+                    def __cmp__(self, other):
+                        return mycmp(self.obj, other.obj)
+                return K
+            retval.sort(key=cmp2key(self.foldersort))
+
         self.folders = retval
         return self.folders
 
@@ -326,11 +344,11 @@ class IMAPRepository(BaseRepository):
             foldername = self.getreference() + self.getsep() + foldername
         if not foldername: # Create top level folder as folder separator
             foldername = self.getsep()
-
+        self.ui.makefolder(self, foldername)
+        if self.account.dryrun:
+            return
         imapobj = self.imapserver.acquireconnection()
         try:
-            self.ui._msg("Creating new IMAP folder '%s' on server %s" %\
-                              (foldername, self))
             result = imapobj.create(foldername)
             if result[0] != 'OK':
                 raise OfflineImapError("Folder '%s'[%s] could not be created. "

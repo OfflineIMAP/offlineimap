@@ -1,14 +1,134 @@
 .. -*- coding: utf-8 -*-
-
-.. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
+.. _OfflineIMAP: http://offlineimap.org
 .. _commits mailing list: http://lists.offlineimap.org/listinfo.cgi/commits-offlineimap.org
+.. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
 
-=================================================
-Checklist (and a short version for the impatient)
-=================================================
+Hacking OfflineIMAP
+===================
 
-Commits
-=======
+In this section you'll find all the information you need to start
+hacking `OfflineIMAP`_. Be aware there are a lot of very usefull tips
+in the mailing list.  You may want to subscribe if you didn't,
+yet. This is where you will get help.
+
+.. contents:: :depth: 2
+
+API
+---
+
+:ref:`OfflineImap's API <API docs>` documentation is included in the user
+documentation (next section) and online browsable at
+`<http://docs.offlineimap.org>`_. It is mostly auto-generated from the
+source code and is a work in progress. Contributions in this area
+would be very appreciated.
+
+Following new commits
+---------------------
+
+You can follow upstream commits on
+  - `CIA.vc <http://cia.vc/stats/project/offlineimap>`,
+  - `Ohloh <http://www.ohloh.net/p/offlineimap>`,
+  - `GitHub <https://github.com/spaetz/offlineimap/commits/>`,
+  - or on the `commits mailing list`_.
+
+
+
+Git: OfflineImap's branching Model And Workflow
+===============================================
+
+Introduction
+------------
+
+This optional section provides you with information on how we use git
+branches and do releases. You will need to know very little about git
+to get started.
+
+For the impatient, see the :ref:`contribution checklist` below.
+
+Git Branching model
+--------------------
+
+OfflineIMAP uses the following branches:
+
+ * master
+ * next
+ * maint
+ * (pu)
+ * & several topic oriented feature branches. A topic may consist of
+   one or more patches.
+
+master
+++++++
+
+If you're not sure what branch you should use, this one is for you.
+This is the mainline. Simple users should use this branch to follow
+OfflineIMAP's evolution.
+
+Usually, patches submitted to the mailing list should start off of
+this branch.
+
+next
+++++
+
+Patches recently merged are good candidates for this branch. The content of next
+is merged into the mainline (master) at release time for both stable and -rc
+releases.
+
+When patches are sent to the mailing list, contributors discuss about them. Once
+done and when patches looks ready for mainline, patches are first merged into
+next. Advanced users and testers use this branch to test last merged patches
+before they hit the mainline. This helps not introducing strong breackages
+directly in master.
+
+pu
++++
+
+pu stands for "proposed updates". If a topic is not ready for master nor next,
+it may be merged into pu. This branch only help developers to work on someone
+else topic or an earlier pending topic.
+
+This branch is **not intended to be checkouted**; never. Even developers don't
+do that. Due to the way pu is built you can't expect content there to work in
+any way... unless you clearly want to run into troubles.
+
+Developers can extract a topic from this branch to work on it. See the following
+section "Extract a topic from pu" in this documentation.
+
+maint
++++++
+
+This is the maintenance branch. It gets its own releases starting from an old
+stable release. It helps both users having troubles with last stable releases
+and users not wanting latest features or so to still benefit from strong bug
+fixes and security fixes.
+
+Release cycles
+--------------
+
+A typical release cycle works like this:
+
+1. A stable release is out.
+
+2. Feature topics are sent, discussed and merged.
+
+3. When enough work was merged, we start the freeze cycle: the first release
+   candidate is out.
+
+4. During the freeze cycle, no more features are merged. It's time to test
+   OfflineIMAP. New candidates version are released. The more we are late in -rc
+   releases the less patches are merged but bug fixes.
+
+5. When we think a release is stable enough, we restart from step 1.
+
+
+.. _contribution checklist:
+
+
+Contribution Checklist (and a short version for the impatient)
+===============================================================
+
+Create commits
+--------------
 
 * make commits of logical units
 * check for unnecessary whitespace with ``git diff --check``
@@ -28,8 +148,9 @@ Commits
 * make sure that you have tests for the bug you are fixing
 * make sure that the test suite passes after your commit
 
-Patch
-=====
+
+Export commits as patches
+-------------------------
 
 * use ``git format-patch -M`` to create the patch
 * do not PGP sign your patch
@@ -52,9 +173,9 @@ Patch
 * see below for instructions specific to your mailer
 
 
-============
+
 Long version
-============
+------------
 
 I started reading over the SubmittingPatches document for Git, primarily because
 I wanted to have a document similar to it for OfflineIMAP to make sure people
@@ -64,8 +185,8 @@ But the patch submission requirements are a lot more relaxed here on the
 technical/contents front, because the OfflineIMAP is a lot smaller ;-).  So here
 is only the relevant bits.
 
-Decide what to base your work on
-================================
+Decide what branch to base your work on
++++++++++++++++++++++++++++++++++++++++
 
 In general, always base your work on the oldest branch that your
 change is relevant to.
@@ -92,13 +213,12 @@ master..pu`` and look for the merge commit. The second parent of this
 commit is the tip of the topic branch.
 
 Make separate commits for logically separate changes
-====================================================
+++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Unless your patch is really trivial, you should not be sending
-out a patch that was generated between your working tree and
-your commit head.  Instead, always make a commit with complete
-commit message and generate a series of patches from your
-repository.  It is a good discipline.
+Unless your patch is really trivial, you should not be sending your
+changes in a single patch.  Instead, always make a commit with
+complete commit message and generate a series of small patches from
+your repository.
 
 Describe the technical detail of the change(s).
 
@@ -115,7 +235,7 @@ but for code.
 
 
 Generate your patch using git tools out of your commits
--------------------------------------------------------
++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 git based diff tools (git, Cogito, and StGIT included) generate
 unidiff which is the preferred format.
@@ -133,7 +253,7 @@ that is fine, but please mark it as such.
 
 
 Sending your patches
-====================
+++++++++++++++++++++
 
 People on the mailing list need to be able to read and
 comment on the changes you are submitting.  It is important for
@@ -205,7 +325,7 @@ necessary.
 
 
 Sign your work
-==============
+++++++++++++++
 
 To improve tracking of who did what, we've borrowed the
 "sign-off" procedure from the Linux kernel project on patches
@@ -218,7 +338,7 @@ the right to pass it on as a open-source patch**.  The rules are
 pretty simple: if you can certify the below:
 
 **Developer's Certificate of Origin 1.1**
------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   By making a contribution to this project, I certify that:
 
@@ -320,13 +440,7 @@ Know the status of your patch after submission
   of the branch in which your patch has been merged (i.e. it will not
   tell you if your patch is merged in pu if you rebase on top of
   master).
-
-* You can follow upstream commits on
-`CIA.vc <http://cia.vc/stats/project/offlineimap>`,
-`Ohloh <http://www.ohloh.net/p/offlineimap>`,
-`GitHub <https://github.com/spaetz/offlineimap/commits/>`,
-or on the `commits mailing list`_.
-  
+ 
 .. * Read the git mailing list, the maintainer regularly posts messages
   entitled "What's cooking in git.git" and "What's in git.git" giving
   the status of various proposed changes.
@@ -601,3 +715,69 @@ Just make sure to disable line wrapping in the email client (GMail web
 interface will line wrap no matter what, so you need to use a real
 IMAP client).
 
+Working with Git
+================
+
+Extract a topic from pu
+-----------------------
+
+pu is built this way::
+
+  git checkout pu
+  git reset --keep next
+  git merge --no-ff -X theirs topic1
+  git merge --no-ff -X theirs topic2
+  git merge --no-ff -X theirs blue
+  git merge --no-ff -X theirs orange
+  ...
+
+As a consequence:
+
+1. Each topic merged uses a merge commit. A merge commit is a commit having 2
+   ancestors. Actually, Git allows more than 2 parents but we don't use this
+   feature. It's intended.
+
+2. Paths in pu may mix up multiple versions if all the topics don't use the same
+   base commit. This is very often the case as topics aren't rebased: it guarantees
+   each topic is strictly identical to the last version sent to the mailing list.
+   No surprise.
+
+
+What you need to extract a particular topic is the sha1 of the tip of that
+branch (the last commit of the topic). Assume you want the branch of the topic
+called 'blue'. First, look at the log given by this command::
+
+  git log --reverse --merges --parents origin/next..origin/pu
+
+With this command you ask for the log:
+
+* from next to pu
+* in reverse order (older first)
+* merge commits only
+* with the sha1 of the ancestors
+
+In this list, find the topic you're looking for, basing you search on the lines
+like::
+
+  Merge branch 'topic/name' into pu
+
+By convention, it has the form <author_initials>/<brief_title>. When you're at
+it, pick the topic ancestor sha1. It's always the last sha1 in the line starting
+by 'commit'. For you to know:
+
+* the first is the sha1 of the commit you see: the merge commit
+* the following sha1 is the ancestor of the branch checkouted at merge time
+  (always the previous merged topic or the ancien next in our case)
+* last is the branch merged
+
+Giving::
+
+  commit sha1_of_merge_commit sha1_of_ancient_pu sha1_of_topic_blue
+
+Then, you only have to checkout the topic from there::
+
+  git checkout -b blue sha1_of_topic_blue
+
+and you're done! You've just created a new branch called "blue" with the blue
+content. Be aware this topic is almostly not updated against current next
+branch. ,-)

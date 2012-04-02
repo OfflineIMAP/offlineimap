@@ -29,7 +29,10 @@ from test.OLItest import TextTestRunner, TestLoader, OLITestLib
 
 class TestCommand(Command):
     """runs the OLI testsuite"""
-    description = "Runs the test suite"
+    description = """Runs the test suite. In order to execute only a single
+        test, you could also issue e.g. 'python -m unittest
+        test.tests.test_01_basic.TestBasicFunctions.test_01_olistartup' on the
+        command line."""
     user_options = []
 
     def initialize_options(self):

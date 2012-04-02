@@ -1,5 +1,5 @@
 # IMAP folder support
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2012 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,13 +21,9 @@ import binascii
 import re
 import time
 from sys import exc_info
-from Base import BaseFolder
+from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, OfflineImapError
 from offlineimap.imaplib2 import MonthNames
-try: # python 2.6 has set() built in
-    set
-except NameError:
-    from sets import Set as set
 
 
 class IMAPFolder(BaseFolder):
@@ -97,7 +93,7 @@ class IMAPFolder(BaseFolder):
                 # Select folder and get number of messages
                 restype, imapdata = imapobj.select(self.getfullname(), True,
                                                    True)
-            except OfflineImapError, e:
+            except OfflineImapError as e:
                 # retry on dropped connections, raise otherwise
                 self.imapserver.releaseconnection(imapobj, True)
                 if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
@@ -190,7 +186,7 @@ class IMAPFolder(BaseFolder):
                 continue
             messagestr = messagestr.split(' ', 1)[1]
             options = imaputil.flags2hash(messagestr)
-            if not options.has_key('UID'):
+            if not 'UID' in options:
                 self.ui.warn('No UID in message with options %s' %\
                                           str(options),
                                           minor = 1)
@@ -219,7 +215,7 @@ class IMAPFolder(BaseFolder):
                     res_type, data = imapobj.uid('fetch', str(uid),
                                                  '(BODY.PEEK[])')
                     fails_left = 0
-                except imapobj.abort, e:
+                except imapobj.abort as e:
                     # Release dropped connection, and get a new one
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
@@ -314,7 +310,7 @@ class IMAPFolder(BaseFolder):
         headervalue = imapobj._quote(headervalue)
         try:
             matchinguids = imapobj.uid('search', 'HEADER', headername, headervalue)[1][0]
-        except imapobj.error, err:
+        except imapobj.error as err:
             # IMAP server doesn't implement search or had a problem.
             self.ui.debug('imap', "savemessage_searchforheader: got IMAP error '%s' while attempting to UID SEARCH for message with header %s" % (err, headername))
             return 0
@@ -328,8 +324,9 @@ class IMAPFolder(BaseFolder):
         self.ui.debug('imap', 'savemessage_searchforheader: matchinguids now ' + \
                  repr(matchinguids))
         if len(matchinguids) != 1 or matchinguids[0] == None:
-            raise ValueError, "While attempting to find UID for message with header %s, got wrong-sized matchinguids of %s" % (headername, str(matchinguids))
-        matchinguids.sort()
+            raise ValueError("While attempting to find UID for message with "
+                             "header %s, got wrong-sized matchinguids of %s" %\
+                                 (headername, str(matchinguids)))
         return long(matchinguids[0])
 
     def savemessage_fetchheaders(self, imapobj, headername, headervalue):
@@ -491,12 +488,16 @@ class IMAPFolder(BaseFolder):
         This function will update the self.messagelist dict to contain
         the new message after sucessfully saving it.
 
+        See folder/Base for details. Note that savemessage() does not
+        check against dryrun settings, so you need to ensure that
+        savemessage is never called in a dryrun mode.
+
         :param rtime: A timestamp to be used as the mail date
         :returns: the UID of the new message as assigned by the server. If the
                   message is saved, but it's UID can not be found, it will
                   return 0. If the message can't be written (folder is
                   read-only for example) it will return -1."""
-        self.ui.debug('imap', 'savemessage: called')
+        self.ui.savemessage('imap', uid, flags, self)
 
         # already have it, just save modified flags
         if uid > 0 and self.uidexists(uid):
@@ -538,14 +539,13 @@ class IMAPFolder(BaseFolder):
                     self.ui.msgtoreadonly(self, uid, content, flags)
                     return uid
 
-                # Clean out existing APPENDUID responses and do APPEND
+                #Do the APPEND
                 try:
-                    imapobj.response('APPENDUID') # flush APPENDUID responses
-                    typ, dat = imapobj.append(self.getfullname(),
+                    (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
                     retry_left = 0                # Mark as success
-                except imapobj.abort, e:
+                except imapobj.abort as e:
                     # connection has been reset, release connection and retry.
                     retry_left -= 1
                     self.imapserver.releaseconnection(imapobj, True)
@@ -557,7 +557,7 @@ class IMAPFolder(BaseFolder):
                               (self, self.getrepository(), str(e), dbg_output),
                                                OfflineImapError.ERROR.MESSAGE)
                     self.ui.error(e, exc_info()[2])
-                except imapobj.error, e: # APPEND failed
+                except imapobj.error as e: # APPEND failed
                     # If the server responds with 'BAD', append()
                     # raise()s directly.  So we catch that too.
                     # drop conn, it might be bad.
@@ -567,38 +567,43 @@ class IMAPFolder(BaseFolder):
                         "failed (error). Server reponded: %s\nMessage content was: "
                         "%s" % (self, self.getrepository(), str(e), dbg_output),
                                            OfflineImapError.ERROR.MESSAGE)
+            # Checkpoint. Let it write out stuff, etc. Eg searches for
+            # just uploaded messages won't work if we don't do this.
+            (typ,dat) = imapobj.check()
+            assert(typ == 'OK')
 
-            # get the new UID, default to 0 (=unknown)
-            uid = 0
-            if use_uidplus:
+            # get the new UID. Test for APPENDUID response even if the
+            # server claims to not support it, as e.g. Gmail does :-(
+            if use_uidplus or imapobj._get_untagged_response('APPENDUID', True):
                 # get new UID from the APPENDUID response, it could look
                 # like OK [APPENDUID 38505 3955] APPEND completed with
-                # 38505 being folder UIDvalidity and 3955 the new UID.
-                typ, resp = imapobj.response('APPENDUID')
-                if resp == [None] or resp == None:
+                # 38505 bein folder UIDvalidity and 3955 the new UID.
+                # note: we would want to use .response() here but that
+                # often seems to return [None], even though we have
+                # data. TODO
+                resp = imapobj._get_untagged_response('APPENDUID')
+                if resp == [None]:
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
                                  "appending a message.")
-                else:
-                    uid = long(resp[-1].split(' ')[1])
-
+                    return 0
+                uid = long(resp[-1].split(' ')[1])
+                if uid == 0:
+                    self.ui.warn("savemessage: Server supports UIDPLUS, but"
+                            " we got no usable uid back. APPENDUID reponse was "
+                            "'%s'" % str(resp))
             else:
-                # Don't support UIDPLUS
-                # Checkpoint. Let it write out stuff, etc. Eg searches for
-                # just uploaded messages won't work if we don't do this.
-                typ, dat = imapobj.check()
-                assert(typ == 'OK')
-
+                # we don't support UIDPLUS
                 uid = self.savemessage_searchforheader(imapobj, headername,
                                                        headervalue)
-                # If everything failed up to here, search the message
-                # manually TODO: rather than inserting and searching for our
-                # custom header, we should be searching the Message-ID and
-                # compare the message size...
+                # See docs for savemessage in Base.py for explanation
+                # of this and other return values
                 if uid == 0:
                     self.ui.debug('imap', 'savemessage: attempt to get new UID '
-                                  'UID failed. Search headers manually.')
+                        'UID failed. Search headers manually.')
                     uid = self.savemessage_fetchheaders(imapobj, headername,
                                                         headervalue)
+                    self.ui.warn('imap', "savemessage: Searching mails for new "
+                        "Message-ID failed. Could not determine new UID.")
         finally:
             self.imapserver.releaseconnection(imapobj)
 
@@ -609,7 +614,11 @@ class IMAPFolder(BaseFolder):
         return uid
 
     def savemessageflags(self, uid, flags):
-        """Change a message's flags to `flags`."""
+        """Change a message's flags to `flags`.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         imapobj = self.imapserver.acquireconnection()
         try:
             try:

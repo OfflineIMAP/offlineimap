@@ -65,9 +65,11 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.name = name
         self.metadatadir = config.getmetadatadir()
         self.localeval = config.getlocaleval()
-        #Contains the current :mod:`offlineimap.ui`, and can be used for logging etc.
+        # current :mod:`offlineimap.ui`, can be used for logging:
         self.ui = getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
+        # should we run in "dry-run" mode?
+        self.dryrun = self.config.getboolean('general', 'dry-run')
         self.quicknum = 0
         if self.refreshperiod == 0.0:
             self.refreshperiod = None
@@ -199,7 +201,8 @@ class SyncableAccount(Account):
             pass
         except IOError:
             self._lockfd.close()
-            raise OfflineImapError("Could not lock account %s." % self,
+            raise OfflineImapError("Could not lock account %s. Is another "
+                                   "instance using this account?" % self,
                                    OfflineImapError.ERROR.REPO)
 
     def unlock(self):
@@ -216,7 +219,7 @@ class SyncableAccount(Account):
         self.ui.registerthread(self)
         accountmetadata = self.getaccountmeta()
         if not os.path.exists(accountmetadata):
-            os.mkdir(accountmetadata, 0700)
+            os.mkdir(accountmetadata, 0o700)
 
         self.remoterepos = Repository(self, 'remote')
         self.localrepos  = Repository(self, 'local')
@@ -231,7 +234,7 @@ class SyncableAccount(Account):
                 self.sync()
             except (KeyboardInterrupt, SystemExit):
                 raise
-            except OfflineImapError, e:
+            except OfflineImapError as e:
                 # Stop looping and bubble up Exception if needed.
                 if e.severity >= OfflineImapError.ERROR.REPO:
                     if looping:
@@ -239,7 +242,7 @@ class SyncableAccount(Account):
                     if e.severity >= OfflineImapError.ERROR.CRITICAL:
                         raise
                 self.ui.error(e, exc_info()[2])
-            except Exception, e:
+            except Exception as e:
                 self.ui.error(e, exc_info()[2], msg = "While attempting to sync"
                     " account '%s'" % self)
             else:
@@ -311,7 +314,9 @@ class SyncableAccount(Account):
             # wait for all threads to finish
             for thr in folderthreads:
                 thr.join()
-            mbnames.write()
+            # Write out mailbox names if required and not in dry-run mode
+            if not self.dryrun:
+                mbnames.write()
             localrepos.forgetfolders()
             remoterepos.forgetfolders()
         except:
@@ -336,6 +341,8 @@ class SyncableAccount(Account):
             return
         try:
             self.ui.callhook("Calling hook: " + cmd)
+            if self.dryrun: # don't if we are in dry-run mode
+                return
             p = Popen(cmd, shell=True,
                       stdin=PIPE, stdout=PIPE, stderr=PIPE,
                       close_fds=True)
@@ -344,7 +351,7 @@ class SyncableAccount(Account):
             self.ui.callhook("Hook return code: %d" % p.returncode)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except Exception, e:
+        except Exception as e:
             self.ui.error(e, exc_info()[2], msg = "Calling hook")
 
 def syncfolder(account, remotefolder, quick):
@@ -445,7 +452,7 @@ def syncfolder(account, remotefolder, quick):
         localrepos.restore_atime()
     except (KeyboardInterrupt, SystemExit):
         raise
-    except OfflineImapError, e:
+    except OfflineImapError as e:
         # bubble up severe Errors, skip folder otherwise
         if e.severity > OfflineImapError.ERROR.FOLDER:
             raise
@@ -459,7 +466,7 @@ def syncfolder(account, remotefolder, quick):
                     # we reconstruct foldername above rather than using
                     # localfolder, as the localfolder var is not
                     # available if assignment fails.
-    except Exception, e:
+    except Exception as e:
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
                 (account, remotefolder.getvisiblename(),
                  traceback.format_exc()))

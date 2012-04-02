@@ -14,7 +14,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError: #python3
+    from io import StringIO
 
 default_conf=StringIO("""[general]
 #will be set automatically
@@ -33,5 +36,7 @@ localfolders =
 
 [Repository IMAP]
 type=IMAP
+# Don't hammer the server with too many connection attempts:
+maxconnections=1
 folderfilter= lambda f: f.startswith('INBOX.OLItest')
 """)

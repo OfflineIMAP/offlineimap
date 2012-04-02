@@ -16,9 +16,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from Base import BaseRepository
 from offlineimap.folder.LocalStatus import LocalStatusFolder, magicline
 from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
+from offlineimap.repository.Base import BaseRepository
 import os
 import re
 
@@ -41,7 +41,7 @@ class LocalStatusRepository(BaseRepository):
                                 % (backend, account.name))
 
         if not os.path.exists(self.root):
-            os.mkdir(self.root, 0700)
+            os.mkdir(self.root, 0o700)
 
         # self._folders is a list of LocalStatusFolders()
         self._folders = None
@@ -67,10 +67,11 @@ class LocalStatusRepository(BaseRepository):
 
         Empty Folder for plain backend. NoOp for sqlite backend as those
         are created on demand."""
-        # Invalidate the cache.
-        self._folders = None
         if self._backend == 'sqlite':
-            return
+            return # noop for sqlite which creates on-demand
+
+        if self.account.dryrun:
+            return # bail out in dry-run mode
 
         filename = self.getfolderfilename(foldername)
         file = open(filename + ".tmp", "wt")

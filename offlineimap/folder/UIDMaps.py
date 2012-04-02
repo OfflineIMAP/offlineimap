@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 from threading import Lock
-from IMAP import IMAPFolder
+from .IMAP import IMAPFolder
 import os.path
 
 class MappedIMAPFolder(IMAPFolder):
@@ -82,7 +82,13 @@ class MappedIMAPFolder(IMAPFolder):
             if dolock: self.maplock.release()
 
     def _uidlist(self, mapping, items):
-        return [mapping[x] for x in items]
+        try:
+            return [mapping[x] for x in items]
+        except KeyError as e:
+            raise OfflineImapError("Could not find UID for msg '{0}' (f:'{1}'."
+                " This is usually a bad thing and should be reported on the ma"
+                "iling list.".format(e.args[0], self),
+                                   OfflineImapError.ERROR.MESSAGE)
 
     def cachemessagelist(self):
         self._mb.cachemessagelist()
@@ -94,7 +100,7 @@ class MappedIMAPFolder(IMAPFolder):
             # summary that have been deleted from the folder.
 
             for luid in self.diskl2r.keys():
-                if not reallist.has_key(luid):
+                if not luid in reallist:
                     ruid = self.diskl2r[luid]
                     del self.diskr2l[ruid]
                     del self.diskl2r[luid]
@@ -107,7 +113,7 @@ class MappedIMAPFolder(IMAPFolder):
             self.l2r = self.diskl2r.copy()
 
             for luid in reallist.keys():
-                if not self.l2r.has_key(luid):
+                if not luid in self.l2r:
                     ruid = nextneg
                     nextneg -= 1
                     self.l2r[luid] = ruid
@@ -178,7 +184,12 @@ class MappedIMAPFolder(IMAPFolder):
         If the uid is > 0, the backend should set the uid to this, if it can.
         If it cannot set the uid to that, it will save it anyway.
         It will return the uid assigned in any case.
+
+        See folder/Base for details. Note that savemessage() does not
+        check against dryrun settings, so you need to ensure that
+        savemessage is never called in a dryrun mode.
         """
+        self.ui.savemessage('imap', uid, flags, self)
         # Mapped UID instances require the source to already have a
         # positive UID, so simply return here.
         if uid < 0:
@@ -211,6 +222,11 @@ class MappedIMAPFolder(IMAPFolder):
         return None
 
     def savemessageflags(self, uid, flags):
+        """
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
         self._mb.savemessageflags(self.r2l[uid], flags)
 
     def addmessageflags(self, uid, flags):

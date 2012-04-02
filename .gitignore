@@ -6,4 +6,5 @@ offlineimap.1
 # backups
 .*.swp
 .*.swo
+*.html
 *~

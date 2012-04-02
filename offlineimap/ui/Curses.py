@@ -16,7 +16,6 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from threading import RLock, currentThread, Lock, Event
-from thread import get_ident	# python < 2.6 support
 from collections import deque
 import time
 import sys
@@ -282,7 +281,7 @@ class CursesLogHandler(logging.StreamHandler):
     """self.ui has been set to the UI class before anything is invoked"""
 
     def emit(self, record):
-        log_str = super(CursesLogHandler, self).format(record)
+        log_str = logging.StreamHandler.format(self, record)
         color = self.ui.gettf().curses_color
         # We must acquire both locks.  Otherwise, deadlock can result.
         # This can happen if one thread calls _msg (locking curses, then

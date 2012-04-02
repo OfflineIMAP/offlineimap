@@ -22,7 +22,10 @@ import sys
 import os
 import traceback
 import threading
-from Queue import Queue
+try:
+    from Queue import Queue
+except ImportError: #python3
+    from queue import Queue
 from collections import deque
 from offlineimap.error import OfflineImapError
 import offlineimap
@@ -45,6 +48,8 @@ def getglobalui():
 class UIBase(object):
     def __init__(self, config, loglevel = logging.INFO):
         self.config = config
+        # Is this a 'dryrun'?
+        self.dryrun = config.getboolean('general', 'dry-run')
         self.debuglist = []
         """list of debugtypes we are supposed to log"""
         self.debugmessages = {}
@@ -156,7 +161,7 @@ class UIBase(object):
 
     def unregisterthread(self, thr):
         """Unregister a thread as being associated with an account name"""
-        if self.threadaccounts.has_key(thr):
+        if thr in self.threadaccounts:
             del self.threadaccounts[thr]
         self.debug('thread', "Unregister thread '%s'" % thr.getName())
 
@@ -172,7 +177,7 @@ class UIBase(object):
 
     def debug(self, debugtype, msg):
         cur_thread = threading.currentThread()
-        if not self.debugmessages.has_key(cur_thread):
+        if not cur_thread in self.debugmessages:
             # deque(..., self.debugmsglen) would be handy but was
             # introduced in p2.6 only, so we'll need to work around and
             # shorten our debugmsg list manually :-(
@@ -202,9 +207,6 @@ class UIBase(object):
 
     def invaliddebug(self, debugtype):
         self.warn("Invalid debug type: %s" % debugtype)
-
-    def locked(s):
-        raise Exception, "Another OfflineIMAP is running with the same metadatadir; exiting."
 
     def getnicename(self, object):
         """Return the type of a repository or Folder as string
@@ -269,7 +271,7 @@ class UIBase(object):
 
     def connecting(self, hostname, port):
         """Log 'Establishing connection to'"""
-        if not self.logger.isEnabledFor(logging.info): return
+        if not self.logger.isEnabledFor(logging.INFO): return
         displaystr = ''
         hostname = hostname if hostname else ''
         port = "%s" % port if port else ''
@@ -296,6 +298,12 @@ class UIBase(object):
                            (src_repo, dst_repo))
 
     ############################## Folder syncing
+    def makefolder(self, repo, foldername):
+        """Called when a folder is created"""
+        prefix = "[DRYRUN] " if self.dryrun else ""
+        self.info("{}Creating folder {}[{}]".format(
+                prefix, foldername, repo))
+
     def syncingfolder(self, srcrepos, srcfolder, destrepos, destfolder):
         """Called when a folder sync operation is started."""
         self.logger.info("Syncing %s: %s -> %s" % (srcfolder,
@@ -337,8 +345,9 @@ class UIBase(object):
 
     def deletingmessages(self, uidlist, destlist):
         ds = self.folderlist(destlist)
-        self.logger.info("Deleting %d messages (%s) in %s" % (
-                len(uidlist),
+        prefix = "[DRYRUN] " if self.dryrun else ""
+        self.info("{}Deleting {} messages ({}) in {}".format(
+                prefix, len(uidlist),
                 offlineimap.imaputil.uid_sequence(uidlist), ds))
 
     def addingflags(self, uidlist, flags, dest):
@@ -400,10 +409,15 @@ class UIBase(object):
             if conn: #release any existing IMAP connection
                 repository.imapserver.close()
 
+    def savemessage(self, debugtype, uid, flags, folder):
+        """Output a log line stating that we save a msg"""
+        self.debug(debugtype, "Write mail '%s:%d' with flags %s" %
+                   (folder, uid, repr(flags)))
+
     ################################################## Threads
 
     def getThreadDebugLog(self, thread):
-        if self.debugmessages.has_key(thread):
+        if thread in self.debugmessages:
             message = "\nLast %d debug messages logged for %s prior to exception:\n"\
                        % (len(self.debugmessages[thread]), thread.getName())
             message += "\n".join(self.debugmessages[thread])
@@ -459,7 +473,10 @@ class UIBase(object):
     ################################################## Hooks
 
     def callhook(self, msg):
-        self.info(msg)
+        if self.dryrun:
+            self.info("[DRYRUN] {}".format(msg))
+        else:
+            self.info(msg)
 
     ################################################## Other
 
