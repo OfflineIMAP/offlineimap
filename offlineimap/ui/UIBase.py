@@ -49,7 +49,7 @@ class UIBase(object):
     def __init__(self, config, loglevel = logging.INFO):
         self.config = config
         # Is this a 'dryrun'?
-        self.dryrun = config.getboolean('general', 'dry-run')
+        self.dryrun = config.getdefaultboolean('general', 'dry-run', False)
         self.debuglist = []
         """list of debugtypes we are supposed to log"""
         self.debugmessages = {}
