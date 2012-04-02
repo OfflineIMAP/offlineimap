@@ -5,11 +5,52 @@ ChangeLog
 :website: http://offlineimap.org
 
 
-**NOTE FROM THE MAINTAINER:**
-  Contributors should use the `WIP` section in Changelog.draft.rst in order to
-  add changes they are working on. I will use it to make the new changelog entry
-  on releases. And because I'm lazy, it will also be used as a draft for the
-  releases announces.
+WIP (add new stuff for the next release)
+========================================
+
+New Features
+------------
+
+Changes
+-------
+
+Bug Fixes
+---------
+
+
+OfflineIMAP v6.5.3 (2012-04-02)
+===============================
+
+* --dry-run mode protects us from performing any actual action.  It will
+  not precisely give the exact information what will happen. If e.g. it
+  would need to create a folder, it merely outputs "Would create folder
+  X", but not how many and which mails it would transfer.
+
+* internal code changes to prepare for Python3
+
+* Improve user documentation of nametrans/folderfilter
+
+* Fixed some cases where invalid nametrans rules were not caught and
+  we would not propagate local folders to the remote repository.
+  (now tested in test03)
+
+* Revert "* Slight performance enhancement uploading mails to an IMAP
+  server in the common case." It might have led to instabilities.
+
+* Revamped documentation structure. `make` in the `docs` dir or `make
+  doc` in the root dir will now create the 1) man page and 2) the user
+  documentation using sphinx (requiring python-doctools, and
+  sphinx). The resulting user docs are in `docs/html`. You can also
+  only create the man pages with `make man` in the `docs` dir.
+
+* -f command line option only works on the untranslated remote
+  repository folder names now. Previously folderfilters had to match
+  both the local AND remote name which caused unwanted behavior in
+  combination with nametrans rules. Clarify in the help text.
+
+* Some better output when using nonsensical configuration settings
+
+* Improve compatability of the curses UI with python 2.6
 
 OfflineIMAP v6.5.2.1 (2012-04-04)
 =====================================
