@@ -24,6 +24,9 @@ OfflineIMAP v6.5.3.1 (2012-04-03)
 * Don't fail if no dry-run setting exists in offlineimap.conf
   (introduced in 6.5.3)
 
+* Don't fail if no dry-run setting exists in offlineimap.conf
+  (introduced in 6.5.3)
+
 
 OfflineIMAP v6.5.3 (2012-04-02)
 ===============================
