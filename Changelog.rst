@@ -8,14 +8,7 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
-New Features
-------------
-
-Changes
--------
-
-Bug Fixes
----------
+* bump bundled imaplib2 library 2.29 --> 2.33
 
 OfflineIMAP v6.5.3.1 (2012-04-03)
 =================================

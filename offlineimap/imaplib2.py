@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.29"
+__version__ = "2.33"
 __release__ = "2"
-__revision__ = "29"
+__revision__ = "33"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -462,19 +462,16 @@ class IMAP4(object):
                 cert_reqs = ssl.CERT_NONE
             self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, ca_certs=self.ca_certs, cert_reqs=cert_reqs)
             ssl_exc = ssl.SSLError
+            self.read_fd = self.sock.fileno()
         except ImportError:
-            # No ssl module, and socket.ssl does not allow certificate verification
-            if self.ca_certs is not None:
-                raise socket.sslerror("SSL CA certificates cannot be checked without ssl module")
-            self.sock = socket.ssl(self.sock, self.keyfile, self.certfile)
-            ssl_exc = socket.sslerror
+            # No ssl module, and socket.ssl has no fileno(), and does not allow certificate verification
+            raise socket.sslerror("imaplib2 SSL mode does not work without ssl module")
 
         if self.cert_verify_cb is not None:
             cert_err = self.cert_verify_cb(self.sock.getpeercert(), self.host)
             if cert_err:
                 raise ssl_exc(cert_err)
 
-        self.read_fd = self.sock.fileno()
 
 
     def start_compressing(self):
@@ -496,7 +493,7 @@ class IMAP4(object):
         if self.decompressor.unconsumed_tail:
             data = self.decompressor.unconsumed_tail
         else:
-            data = self.sock.recv(8192)
+            data = self.sock.recv(READ_SIZE)
 
         return self.decompressor.decompress(data, size)
 
@@ -1233,9 +1230,10 @@ class IMAP4(object):
 
 
     def _choose_nonull_or_dflt(self, dflt, *args):
-        dflttyp = type(dflt)
-        if isinstance(dflttyp, basestring):
+        if isinstance(dflt, basestring):
             dflttyp = basestring            # Allow any string type
+        else:
+            dflttyp = type(dflt)
         for arg in args:
             if arg is not None:
                  if isinstance(arg, dflttyp):
@@ -1591,7 +1589,8 @@ class IMAP4(object):
     def _simple_command(self, name, *args, **kw):
 
         if 'callback' in kw:
-            self._command(name, *args, callback=self._command_completer, cb_arg=kw, cb_self=True)
+            # Note: old calling sequence for back-compat with python <2.6
+            self._command(name, callback=self._command_completer, cb_arg=kw, cb_self=True, *args)
             return (None, None)
         return self._command_complete(self._command(name, *args), kw)
 
@@ -1752,8 +1751,9 @@ class IMAP4(object):
                         if rxzero > 5:
                             raise IOError("Too many read 0")
                         time.sleep(0.1)
-                    else:
-                        rxzero = 0
+                        continue                                # Try again
+                    rxzero = 0
+
                     while True:
                         stop = data.find('\n', start)
                         if stop < 0:
@@ -1818,8 +1818,9 @@ class IMAP4(object):
                     if rxzero > 5:
                         raise IOError("Too many read 0")
                     time.sleep(0.1)
-                else:
-                    rxzero = 0
+                    continue                                    # Try again
+                rxzero = 0
+
                 while True:
                     stop = data.find('\n', start)
                     if stop < 0:
@@ -2020,7 +2021,7 @@ class IMAP4_SSL(IMAP4):
         if self.decompressor.unconsumed_tail:
             data = self.decompressor.unconsumed_tail
         else:
-            data = self.sock.read(8192)
+            data = self.sock.read(READ_SIZE)
 
         return self.decompressor.decompress(data, size)
 
@@ -2047,7 +2048,7 @@ class IMAP4_SSL(IMAP4):
 
     def ssl(self):
         """ssl = ssl()
-        Return socket.ssl instance used to communicate with the IMAP4 server."""
+        Return ssl instance used to communicate with the IMAP4 server."""
 
         return self.sock
 
@@ -2103,7 +2104,7 @@ class IMAP4_stream(IMAP4):
         if self.decompressor.unconsumed_tail:
             data = self.decompressor.unconsumed_tail
         else:
-            data = os.read(self.read_fd, 8192)
+            data = os.read(self.read_fd, READ_SIZE)
 
         return self.decompressor.decompress(data, size)
 
