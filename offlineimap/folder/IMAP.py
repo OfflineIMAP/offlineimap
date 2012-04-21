@@ -93,14 +93,17 @@ class IMAPFolder(BaseFolder):
                 # Select folder and get number of messages
                 restype, imapdata = imapobj.select(self.getfullname(), True,
                                                    True)
+                self.imapserver.releaseconnection(imapobj)
             except OfflineImapError as e:
                 # retry on dropped connections, raise otherwise
                 self.imapserver.releaseconnection(imapobj, True)
                 if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
                     retry = True
                 else: raise
-            finally:
-                self.imapserver.releaseconnection(imapobj)
+            except:
+                # cleanup and raise on all other errors
+                self.imapserver.releaseconnection(imapobj, True)
+                raise
         # 1. Some mail servers do not return an EXISTS response
         # if the folder is empty.  2. ZIMBRA servers can return
         # multiple EXISTS replies in the form 500, 1000, 1500,

@@ -12,6 +12,7 @@ WIP (add new stuff for the next release)
 * Actually perform the SSL fingerprint check (reported by J. Cook)
 * Curses UI, don't use colors after we shut down curses already (C.Höger)
 * Document that '%' needs encoding as '%%' in *.conf
+* Fix crash when IMAP.quickchanged() led to an Error (reported by sharat87)
 
 OfflineIMAP v6.5.3.1 (2012-04-03)
 =================================
