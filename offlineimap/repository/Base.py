@@ -32,6 +32,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         self.name = reposname
         self.localeval = account.getlocaleval()
         self._accountname = self.account.getname()
+        self._readonly = self.getconfboolean('readonly', False)
         self.uiddir = os.path.join(self.config.getmetadatadir(), 'Repository-' + self.name)
         if not os.path.exists(self.uiddir):
             os.mkdir(self.uiddir, 0o700)
@@ -107,6 +108,11 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
     def getconfig(self):
         return self.config
+
+    @property
+    def readonly(self):
+        """Is the repository readonly?"""
+        return self._readonly
 
     def getlocaleval(self):
         return self.account.getlocaleval()
