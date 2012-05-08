@@ -65,6 +65,22 @@ have filtered out everything starting with "debian" in your folderfilter
 settings.
 
 
+createfolders
+-------------
+
+By default OfflineImap propagates new folders in both
+directions. Sometimes this is not what you want. E.g. you might want
+new folders on your IMAP server to propagate to your local MailDir,
+but not the other way around. The 'readonly' setting on a repository
+will not help here, as it prevents any change from occuring on that
+repository. This is what the `createfolders` setting is for. By
+default it is `True`, meaning that new folders can be created on this
+repository. To prevent folders from ever being created on a
+repository, set this to `False`. If you set this to False on the
+REMOTE repository, you will not have to create the `Reverse
+nametrans`_ rules on the LOCAL repository.
+
+
 nametrans
 ----------
 

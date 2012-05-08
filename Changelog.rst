@@ -13,6 +13,7 @@ WIP (add new stuff for the next release)
 * Curses UI, don't use colors after we shut down curses already (C.Höger)
 * Document that '%' needs encoding as '%%' in *.conf
 * Fix crash when IMAP.quickchanged() led to an Error (reported by sharat87)
+* Implement the createfolders setting to disable folder propagation (see docs)
 
 OfflineIMAP v6.5.3.1 (2012-04-03)
 =================================

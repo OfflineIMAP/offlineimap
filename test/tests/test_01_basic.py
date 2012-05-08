@@ -105,6 +105,7 @@ class TestBasicFunctions(unittest.TestCase):
         # Write out default config file again
         OLITestLib.write_config_file()
 
+
     def test_04_createmail(self):
         """Create mail in OLItest 1, sync, wipe folder sync
 
@@ -127,3 +128,30 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertFalse (None in uids, msg = "All mails should have been "+ \
             "assigned the IMAP's UID number, but {} messages had no valid ID "\
             .format(len([None for x in uids if x==None])))
+
+    def test_05_createfolders(self):
+        """Test if createfolders works as expected
+
+        Create a local Maildir, then sync with remote "createfolders"
+        disabled. Delete local Maildir and sync. We should have no new
+        local maildir then. TODO: Rewrite this test to directly test
+        and count the remote folders when the helper functions have
+        been written"""
+        config = OLITestLib.get_default_config()
+        config.set('Repository IMAP', 'createfolders',
+                   'False' )
+        OLITestLib.write_config_file(config)
+
+        # delete all remote and local testfolders
+        OLITestLib.delete_remote_testfolders()
+        OLITestLib.delete_maildir('')
+        OLITestLib.create_maildir('INBOX.OLItest')
+        code, res = OLITestLib.run_OLI()
+        #logging.warn("%s %s "% (code, res))
+        self.assertEqual(res, "")
+        OLITestLib.delete_maildir('INBOX.OLItest')
+        code, res = OLITestLib.run_OLI()
+        boxes, mails = OLITestLib.count_maildir_mails('')
+        self.assertTrue((boxes, mails)==(0,0), msg="Expected 0 folders and 0 "
+            "mails, but sync led to {} folders and {} mails".format(
+                boxes, mails))
