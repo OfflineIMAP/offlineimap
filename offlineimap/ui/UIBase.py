@@ -301,7 +301,7 @@ class UIBase(object):
     def makefolder(self, repo, foldername):
         """Called when a folder is created"""
         prefix = "[DRYRUN] " if self.dryrun else ""
-        self.info("{}Creating folder {}[{}]".format(
+        self.info("{0}Creating folder {1}[{2}]".format(
                 prefix, foldername, repo))
 
     def syncingfolder(self, srcrepos, srcfolder, destrepos, destfolder):
@@ -346,7 +346,7 @@ class UIBase(object):
     def deletingmessages(self, uidlist, destlist):
         ds = self.folderlist(destlist)
         prefix = "[DRYRUN] " if self.dryrun else ""
-        self.info("{}Deleting {} messages ({}) in {}".format(
+        self.info("{0}Deleting {1} messages ({2}) in {3}".format(
                 prefix, len(uidlist),
                 offlineimap.imaputil.uid_sequence(uidlist), ds))
 
@@ -474,7 +474,7 @@ class UIBase(object):
 
     def callhook(self, msg):
         if self.dryrun:
-            self.info("[DRYRUN] {}".format(msg))
+            self.info("[DRYRUN] {0}".format(msg))
         else:
             self.info(msg)
 

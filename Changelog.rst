@@ -8,6 +8,8 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
+* Fix str.format() calls for Python 2.6 (D. Logie)
+
 OfflineIMAP v6.5.4 (2012-06-02)
 =================================
 

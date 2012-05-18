@@ -67,7 +67,7 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
         self.assertTrue((boxes, mails)==(0,0), msg="Expected 0 folders and 0 "
-            "mails, but sync led to {} folders and {} mails".format(
+            "mails, but sync led to {0} folders and {1} mails".format(
                 boxes, mails))
 
     def test_02_createdir(self):
@@ -82,7 +82,7 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
         self.assertTrue((boxes, mails)==(2,0), msg="Expected 2 folders and 0 "
-            "mails, but sync led to {} folders and {} mails".format(
+            "mails, but sync led to {0} folders and {1} mails".format(
                 boxes, mails))
 
     def test_03_nametransmismatch(self):
@@ -101,7 +101,7 @@ class TestBasicFunctions(unittest.TestCase):
         mismatch = "ERROR: INFINITE FOLDER CREATION DETECTED!" in res
         self.assertEqual(mismatch, True, msg="Mismatching nametrans rules did "
             "NOT trigger an 'infinite folder generation' error. Output was:\n"
-             "{}".format(res))
+             "{0}".format(res))
         # Write out default config file again
         OLITestLib.write_config_file()
 
@@ -121,12 +121,12 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
         self.assertTrue((boxes, mails)==(1,1), msg="Expected 1 folders and 1 "
-            "mails, but sync led to {} folders and {} mails".format(
+            "mails, but sync led to {0} folders and {1} mails".format(
                 boxes, mails))
         # The local Mail should have been assigned a proper UID now, check!
         uids = OLITestLib.get_maildir_uids('INBOX.OLItest')
         self.assertFalse (None in uids, msg = "All mails should have been "+ \
-            "assigned the IMAP's UID number, but {} messages had no valid ID "\
+            "assigned the IMAP's UID number, but {0} messages had no valid ID "\
             .format(len([None for x in uids if x==None])))
 
     def test_05_createfolders(self):

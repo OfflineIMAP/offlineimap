@@ -386,7 +386,7 @@ class BaseFolder(object):
                             self.getmessageuidlist())
         num_to_copy = len(copylist)
         if num_to_copy and self.repository.account.dryrun:
-            self.ui.info("[DRYRUN] Copy {} messages from {}[{}] to {}".format(
+            self.ui.info("[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
                     num_to_copy, self, self.repository, dstfolder.repository))
             return
         for num, uid in enumerate(copylist):
