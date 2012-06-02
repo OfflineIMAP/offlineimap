@@ -8,6 +8,9 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
+OfflineIMAP v6.5.4 (2012-06-02)
+=================================
+
 * bump bundled imaplib2 library 2.29 --> 2.33
 * Actually perform the SSL fingerprint check (reported by J. Cook)
 * Curses UI, don't use colors after we shut down curses already (C.Höger)
