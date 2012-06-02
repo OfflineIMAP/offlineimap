@@ -1,6 +1,6 @@
 # imaplib utilities
 # Copyright (C) 2002-2007 John Goerzen <jgoerzen@complete.org>
-#                    2010 Sebastian Spaeth <Sebastian@SSpaeth.de>
+#               2012-2012 Sebastian Spaeth <Sebastian@SSpaeth.de>
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -143,8 +143,7 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
 
     def open(self, host=None, port=None):
         super(WrappedIMAP4_SSL, self).open(host, port)
-        if (self._fingerprint or not self.ca_certs) and\
-                'ssl' in locals(): # <--disable for python 2.5
+        if (self._fingerprint or not self.ca_certs):
             # compare fingerprints
             fingerprint = sha1(self.sock.getpeercert(True)).hexdigest()
             if fingerprint != self._fingerprint:

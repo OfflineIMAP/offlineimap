@@ -59,6 +59,9 @@ class TestInternalFunctions(unittest.TestCase):
         res = imaputil.imapsplit(b'(\\HasNoChildren) "." "INBOX.Sent"')
         self.assertEqual(res, [b'(\\HasNoChildren)', b'"."', b'"INBOX.Sent"'])
 
+        res = imaputil.imapsplit(b'"mo\\" o" sdfsdf')
+        self.assertEqual(res, [b'"mo\\" o"', b'sdfsdf'])
+
     def test_02_flagsplit(self):
         """Test imaputil.flagsplit()"""
         res = imaputil.flagsplit(b'(\\Draft \\Deleted)')

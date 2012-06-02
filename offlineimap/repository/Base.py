@@ -32,6 +32,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         self.name = reposname
         self.localeval = account.getlocaleval()
         self._accountname = self.account.getname()
+        self._readonly = self.getconfboolean('readonly', False)
         self.uiddir = os.path.join(self.config.getmetadatadir(), 'Repository-' + self.name)
         if not os.path.exists(self.uiddir):
             os.mkdir(self.uiddir, 0o700)
@@ -108,6 +109,11 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
     def getconfig(self):
         return self.config
 
+    @property
+    def readonly(self):
+        """Is the repository readonly?"""
+        return self._readonly
+
     def getlocaleval(self):
         return self.account.getlocaleval()
     
@@ -122,6 +128,13 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
     def getsep(self):
         raise NotImplementedError
+
+    def get_create_folders(self):
+        """Is folder creation enabled on this repository?
+
+        It is disabled by either setting the whole repository
+        'readonly' or by using the 'createfolders' setting."""  
+        return self._readonly or self.getconfboolean('createfolders', True)
 
     def makefolder(self, foldername):
         """Create a new folder"""
@@ -141,6 +154,10 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         that forward and backward nametrans actually match up!
         Configuring nametrans on BOTH repositories therefore could lead
         to infinite folder creation cycles."""
+        if not self.get_create_folders() and not dst_repo.get_create_folders():
+            # quick exit if no folder creation is enabled on either side.
+            return
+
         src_repo = self
         src_folders = src_repo.getfolders()
         dst_folders = dst_repo.getfolders()
@@ -160,7 +177,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         # Find new folders on src_repo.
         for src_name_t, src_folder in src_hash.iteritems():
             # Don't create on dst_repo, if it is readonly
-            if dst_repo.getconfboolean('readonly', False):
+            if not dst_repo.get_create_folders():
                 break
             if src_folder.sync_this and not src_name_t in dst_folders:
                 try:
@@ -175,7 +192,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                                                    status_repo.getsep()))
         # Find new folders on dst_repo.
         for dst_name_t, dst_folder in dst_hash.iteritems():
-            if self.getconfboolean('readonly', False):
+            if not src_repo.get_create_folders():
                 # Don't create missing folder on readonly repo.
                 break
 
