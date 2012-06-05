@@ -7,6 +7,9 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
+=======
+* SIGHUP is now handled as the termination notification rather than
+  the signal to reread the configuration (Dmitrijs Ledkovs)
 * Honor the timezone of emails (Tobias Thierer)
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)

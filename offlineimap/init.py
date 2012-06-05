@@ -331,14 +331,14 @@ class OfflineImap:
                     syncaccounts.append(account)
 
             def sig_handler(sig, frame):
-                if sig == signal.SIGUSR1 or sig == signal.SIGHUP:
+                if sig == signal.SIGUSR1:
                     # tell each account to stop sleeping
                     accounts.Account.set_abort_event(self.config, 1)
                 elif sig == signal.SIGUSR2:
                     # tell each account to stop looping
                     getglobalui().warn("Terminating after this sync...")
                     accounts.Account.set_abort_event(self.config, 2)
-                elif sig == signal.SIGTERM or sig == signal.SIGINT:
+                elif sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
                     # tell each account to ABORT ASAP (ctrl-c)
                     getglobalui().warn("Terminating NOW (this may "\
                                        "take a few seconds)...")
