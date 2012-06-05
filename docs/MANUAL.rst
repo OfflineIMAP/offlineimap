@@ -308,7 +308,8 @@ SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF YOUR IMAP SERVER!
 UNIX Signals
 ============
 
-OfflineImap listens to the unix signals SIGUSR1 and SIGUSR2.
+OfflineImap listens to the unix signals SIGUSR1, SIGUSR2, SIGTERM,
+SIGINT, SIGHUP:
 
 If sent a SIGUSR1 it will abort any current (or next future) sleep of all
 accounts that are configured to "autorefresh". In effect, this will trigger a
@@ -318,6 +319,12 @@ If sent a SIGUSR2, it will stop "autorefresh mode" for all accounts. That is,
 accounts will abort any current sleep and will exit after a currently running
 synchronization has finished. This signal can be used to gracefully exit out of
 a running offlineimap "daemon".
+
+SIGTERM, SIGINT, SIGHUP are all treated to gracefully terminate as
+soon as possible. This means it will finish syncing the current folder
+in each account, close keep alive connections, remove locks on the
+accounts and exit. It may take up to 10 seconds, if autorefresh option
+is used.
 
 Folder filtering and nametrans
 ==============================
