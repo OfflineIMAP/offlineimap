@@ -9,6 +9,8 @@ WIP (add new stuff for the next release)
 ========================================
 
 * Fix str.format() calls for Python 2.6 (D. Logie)
+* Remove APPENDUID hack, previously introduced to fix Gmail, no longer
+  necessary, it might have been breaking things. (J. Wiegley)
 
 OfflineIMAP v6.5.4 (2012-06-02)
 =================================
