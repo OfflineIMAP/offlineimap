@@ -302,7 +302,7 @@ class BaseFolder(object):
 
         You may have to call cachemessagelist() before calling this function!"""
 
-        return self.getmessagelist().keys()
+        return sorted(self.getmessagelist().keys())
 
     def getmessagecount(self):
         """Gets the number of messages."""
