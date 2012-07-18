@@ -79,6 +79,11 @@ class IMAPFolder(BaseFolder):
 
     # Interface from BaseFolder
     def suggeststhreads(self):
+        onethread = self.config.getdefaultboolean(
+            "Repository %s"% self.repository.getname(),
+            "singlethreadperfolder", False)
+        if onethread is True:
+            return False
         return not globals.options.singlethreading
 
     # Interface from BaseFolder
