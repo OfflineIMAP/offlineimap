@@ -1,6 +1,6 @@
 .. -*- coding: utf-8 -*-
-.. _OfflineIMAP: https://github.com/spaetz/offlineimap
-.. _OLI_git_repo: git://github.com/spaetz/offlineimap.git
+.. _OfflineIMAP: https://github.com/OfflineIMAP/offlineimap
+.. _OLI_git_repo: git://github.com/OfflineIMAP/offlineimap.git
 
 ============
 Installation

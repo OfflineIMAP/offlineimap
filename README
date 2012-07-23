@@ -93,7 +93,9 @@ OfflineImap mailing list at
 http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project. You do not
 need to subscribe to send emails.
 
-Bugs, issues and contributions should be reported to the mailing list. Bugs can also be reported in the issue tracker at https://github.com/spaetz/offlineimap/issues.
+Bugs, issues and contributions should be reported to the mailing list. Bugs can
+also be reported in the issue tracker at
+https://github.com/OfflineIMAP/offlineimap/issues.
 
 Configuration Examples
 ======================
