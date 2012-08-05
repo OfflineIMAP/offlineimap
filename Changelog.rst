@@ -8,25 +8,25 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
+* Learn to deal with readonly folders to properly detect this condition and act
+  accordingly.  One example is Gmail's "Chats" folder that is read-only,
+  but contains logs of the quick chats. (E. Ryabinkin)
 * Fix str.format() calls for Python 2.6 (D. Logie)
 * Remove APPENDUID hack, previously introduced to fix Gmail, no longer
   necessary, it might have been breaking things. (J. Wiegley)
 
 OfflineIMAP v6.5.4 (2012-06-02)
-=================================
+===============================
 
 * bump bundled imaplib2 library 2.29 --> 2.33
 * Actually perform the SSL fingerprint check (reported by J. Cook)
 * Curses UI, don't use colors after we shut down curses already (C.Höger)
-* Document that '%' needs encoding as '%%' in *.conf
+* Document that '%' needs encoding as '%%' in configuration files.
 * Fix crash when IMAP.quickchanged() led to an Error (reported by sharat87)
 * Implement the createfolders setting to disable folder propagation (see docs)
 
 OfflineIMAP v6.5.3.1 (2012-04-03)
 =================================
-
-* Don't fail if no dry-run setting exists in offlineimap.conf
-  (introduced in 6.5.3)
 
 * Don't fail if no dry-run setting exists in offlineimap.conf
   (introduced in 6.5.3)
@@ -67,7 +67,7 @@ OfflineIMAP v6.5.3 (2012-04-02)
 * Improve compatability of the curses UI with python 2.6
 
 OfflineIMAP v6.5.2.1 (2012-04-04)
-=====================================
+=================================
 
 * Fix python2.6 compatibility with the TTYUI backend (crash)
 
@@ -123,7 +123,7 @@ Smallish bug fixes that deserve to be put out.
 * Add filter information to the filter list in --info output
 
 OfflineIMAP v6.5.1.1 (2012-01-07) - "Das machine control is nicht fur gerfinger-poken und mittengrabben"
-==================================================================================================================
+========================================================================================================
 
 Blinkenlights UI 6.5.0 regression fixes only.
 
