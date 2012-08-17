@@ -8,6 +8,7 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
+* Don't create folders if readonly is enabled.
 * Learn to deal with readonly folders to properly detect this condition and act
   accordingly.  One example is Gmail's "Chats" folder that is read-only,
   but contains logs of the quick chats. (E. Ryabinkin)

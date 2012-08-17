@@ -134,7 +134,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
         It is disabled by either setting the whole repository
         'readonly' or by using the 'createfolders' setting."""  
-        return self._readonly or self.getconfboolean('createfolders', True)
+        return (not self._readonly) and self.getconfboolean('createfolders', Tr
 
     def makefolder(self, foldername):
         """Create a new folder"""
