@@ -133,8 +133,9 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         """Is folder creation enabled on this repository?
 
         It is disabled by either setting the whole repository
-        'readonly' or by using the 'createfolders' setting."""  
-        return (not self._readonly) and self.getconfboolean('createfolders', Tr
+        'readonly' or by using the 'createfolders' setting."""
+        return (not self._readonly) and \
+            self.getconfboolean('createfolders', True)
 
     def makefolder(self, foldername):
         """Create a new folder"""
