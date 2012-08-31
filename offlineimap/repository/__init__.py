@@ -15,10 +15,17 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+try:
+    from configparser import NoSectionError
+except ImportError: #python2
+    from ConfigParser import NoSectionError
+
 from offlineimap.repository.IMAP import IMAPRepository, MappedIMAPRepository
 from offlineimap.repository.Gmail import GmailRepository
 from offlineimap.repository.Maildir import MaildirRepository
 from offlineimap.repository.LocalStatus import LocalStatusRepository
+from offlineimap.error import OfflineImapError
+
 
 class Repository(object):
     """Abstract class that returns the correct Repository type
@@ -47,17 +54,26 @@ class Repository(object):
             return LocalStatusRepository(name, account)
 
         else:
-            raise ValueError("Request type %s not supported" % reqtype)
+            errstr = "Repository type %s not supported" % reqtype
+            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO)
 
+        # Get repository type
         config = account.getconfig()
-        repostype = config.get('Repository ' + name, 'type').strip()
+        try:
+            repostype = config.get('Repository ' + name, 'type').strip()
+        except NoSectionError as e:
+            errstr = ("Could not find section '%s' in configuration. Required "
+                      "for account '%s'." % ('Repository %s' % name, account))
+            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO)
+
         try:
             repo = typemap[repostype]
         except KeyError:
-            raise ValueError("'%s' repository not supported for %s repositories"
-                             "." % (repostype, reqtype))
-        return repo(name, account)
+            errstr = "'%s' repository not supported for '%s' repositories." \
+                     % (repostype, reqtype)
+            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO)
 
+        return repo(name, account)
 
     def __init__(self, account, reqtype):
         """Load the correct Repository type and return that. The

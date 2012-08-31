@@ -17,6 +17,7 @@ WIP (add new stuff for the next release)
   necessary, it might have been breaking things. (J. Wiegley)
 * Improve regex that could lead to 'NoneType' object has no attribute 'group'
   (D. Franke)
+* Improved error throwing on repository misconfiguration
 
 OfflineIMAP v6.5.4 (2012-06-02)
 ===============================
