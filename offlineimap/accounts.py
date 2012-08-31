@@ -295,7 +295,6 @@ class SyncableAccount(Account):
             # folder delimiter etc)
             remoterepos.getfolders()
             localrepos.getfolders()
-            statusrepos.getfolders()
 
             remoterepos.sync_folder_structure(localrepos, statusrepos)
             # replicate the folderstructure between REMOTE to LOCAL
