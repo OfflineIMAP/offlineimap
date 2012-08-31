@@ -217,13 +217,19 @@ class SyncableAccount(Account):
 
     def syncrunner(self):
         self.ui.registerthread(self)
-        accountmetadata = self.getaccountmeta()
-        if not os.path.exists(accountmetadata):
-            os.mkdir(accountmetadata, 0o700)
+        try:
+            accountmetadata = self.getaccountmeta()
+            if not os.path.exists(accountmetadata):
+                os.mkdir(accountmetadata, 0o700)
 
-        self.remoterepos = Repository(self, 'remote')
-        self.localrepos  = Repository(self, 'local')
-        self.statusrepos = Repository(self, 'status')
+            self.remoterepos = Repository(self, 'remote')
+            self.localrepos  = Repository(self, 'local')
+            self.statusrepos = Repository(self, 'status')
+        except OfflineImapError as e:
+            self.ui.error(e, exc_info()[2])
+            if e.severity >= OfflineImapError.ERROR.CRITICAL:
+                raise
+            return
 
         # Loop account sync if needed (bail out after 3 failures)
         looping = 3
