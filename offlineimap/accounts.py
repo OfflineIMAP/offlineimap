@@ -261,6 +261,12 @@ class SyncableAccount(Account):
                 if looping and self.sleeper() >= 2:
                     looping = 0
 
+    def get_local_folder(self, remotefolder):
+        """Return the corresponding local folder for a given remotefolder"""
+        return self.localrepos.getfolder(
+            remotefolder.getvisiblename().
+            replace(self.remoterepos.getsep(), self.localrepos.getsep()))
+
     def sync(self):
         """Synchronize the account once, then return
 
@@ -305,10 +311,13 @@ class SyncableAccount(Account):
             for remotefolder in remoterepos.getfolders():
                 # check for CTRL-C or SIGTERM
                 if Account.abort_NOW_signal.is_set(): break
-                if not remotefolder.sync_this:
-                    self.ui.debug('', "Not syncing filtered remote folder '%s'"
+
+                localfolder = self.get_local_folder(remotefolder)
+                if not (remotefolder.sync_this
+                        and localfolder.sync_this):
+                    self.ui.debug('', "Not syncing filtered folder '%s'"
                                   "[%s]" % (remotefolder, remoterepos))
-                    continue # Filtered out remote folder
+                    continue # Ignore filtered folder
                 thread = InstanceLimitedThread(\
                     instancename = 'FOLDER_' + self.remoterepos.getname(),
                     target = syncfolder,
@@ -372,17 +381,8 @@ def syncfolder(account, remotefolder, quick):
     ui.registerthread(account)
     try:
         # Load local folder.
-        localfolder = localrepos.\
-                      getfolder(remotefolder.getvisiblename().\
-                                replace(remoterepos.getsep(), localrepos.getsep()))
+        localfolder = account.get_local_folder(remotefolder)
 
-        #Filtered folders on the remote side will not invoke this
-        #function, but we need to NOOP if the local folder is filtered
-        #out too:
-        if not localfolder.sync_this:
-            ui.debug('', "Not syncing filtered local folder '%s'" \
-                         % localfolder)
-            return
         # Write the mailboxes
         mbnames.add(account.name, localfolder.getname())
 
@@ -462,15 +462,8 @@ def syncfolder(account, remotefolder, quick):
         if e.severity > OfflineImapError.ERROR.FOLDER:
             raise
         else:
-            #if the initial localfolder assignement bailed out, the localfolder var will not be available, so we need
             ui.error(e, exc_info()[2], msg = "Aborting sync, folder '%s' "
-                     "[acc: '%s']" % (
-                    remotefolder.getvisiblename().\
-                        replace(remoterepos.getsep(), localrepos.getsep()),
-                    account))
-                    # we reconstruct foldername above rather than using
-                    # localfolder, as the localfolder var is not
-                    # available if assignment fails.
+                     "[acc: '%s']" % (localfolder, account))
     except Exception as e:
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
                 (account, remotefolder.getvisiblename(),
