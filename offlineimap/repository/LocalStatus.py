@@ -79,7 +79,7 @@ class LocalStatusRepository(BaseRepository):
         file.close()
         os.rename(filename + ".tmp", filename)
         # Invalidate the cache.
-        self._folders = None
+        self._folders = {}
 
     def getfolder(self, foldername):
         """Return the Folder() object for a foldername"""
