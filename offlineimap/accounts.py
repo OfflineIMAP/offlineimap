@@ -312,11 +312,14 @@ class SyncableAccount(Account):
                 # check for CTRL-C or SIGTERM
                 if Account.abort_NOW_signal.is_set(): break
 
-                localfolder = self.get_local_folder(remotefolder)
-                if not (remotefolder.sync_this
-                        and localfolder.sync_this):
+                if not remotefolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
                                   "[%s]" % (remotefolder, remoterepos))
+                    continue # Ignore filtered folder
+                localfolder = self.get_local_folder(remotefolder)
+                if not localfolder.sync_this:
+                    self.ui.debug('', "Not syncing filtered folder '%s'"
+                                 "[%s]" % (localfolder, localfolder.repository))
                     continue # Ignore filtered folder
                 thread = InstanceLimitedThread(\
                     instancename = 'FOLDER_' + self.remoterepos.getname(),
