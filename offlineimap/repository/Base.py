@@ -129,6 +129,10 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
     def getsep(self):
         raise NotImplementedError
 
+    def should_sync_folder(self, fname):
+        """Should this folder be synced?"""
+        return fname in self.folderincludes or self.folderfilter(fname)
+
     def get_create_folders(self):
         """Is folder creation enabled on this repository?
 
@@ -202,7 +206,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                 # Does nametrans back&forth lead to identical names?
                 # 1) would src repo filter out the new folder name? In this
                 # case don't create it on it:
-                if not self.folderfilter(dst_name_t):
+                if not self.should_sync_folder(dst_name_t):
                     self.ui.debug('', "Not creating folder '%s' (repository '%s"
                         "') as it would be filtered out on that repository." %
                                   (dst_name_t, self))

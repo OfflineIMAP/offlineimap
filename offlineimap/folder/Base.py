@@ -31,9 +31,12 @@ class BaseFolder(object):
         :para name: Path & name of folder minus root or reference
         :para repository: Repository() in which the folder is.
         """
-        self.sync_this = True
-        """Should this folder be included in syncing?"""
         self.ui = getglobalui()
+        """Should this folder be included in syncing?"""
+        self._sync_this = repository.should_sync_folder(name)
+        if not self._sync_this:
+            self.ui.debug('', "Filtering out '%s'[%s] due to folderfilter" \
+                          % (name, repository))
         # Top level dir name is always ''
         self.name = name if not name == self.getsep() else ''
         self.repository = repository
@@ -56,6 +59,11 @@ class BaseFolder(object):
     def accountname(self):
         """Account name as string"""
         return self.repository.accountname
+
+    @property
+    def sync_this(self):
+        """Should this folder be synced or is it e.g. filtered out?"""
+        return self._sync_this
 
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
