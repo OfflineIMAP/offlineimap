@@ -4,9 +4,16 @@ ChangeLog
 
 :website: http://offlineimap.org
 
-
 WIP (add new stuff for the next release)
 ========================================
+
+OfflineIMAP v6.5.5-rc1 (2012-09-05)
+===================================
+
+* Bump version number
+
+OfflineIMAP v6.5.5-rc1 (2012-09-05)
+===================================
 
 * Don't create folders if readonly is enabled.
 * Learn to deal with readonly folders to properly detect this condition and act
