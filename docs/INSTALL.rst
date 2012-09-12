@@ -1,6 +1,6 @@
 .. -*- coding: utf-8 -*-
-.. _OfflineIMAP: https://github.com/spaetz/offlineimap
-.. _OLI_git_repo: git://github.com/spaetz/offlineimap.git
+.. _OfflineIMAP: https://github.com/OfflineIMAP/offlineimap
+.. _OLI_git_repo: git://github.com/OfflineIMAP/offlineimap.git
 
 ============
 Installation
@@ -37,29 +37,40 @@ In order to use `OfflineIMAP`_, you need to have these conditions satisfied:
 Installation
 ------------
 
-Installing OfflineImap should usually be quite easy, as you can simply unpack and run OfflineImap in place if you wish to do so. There are a number of options though:
+Installing OfflineImap should usually be quite easy, as you can simply unpack
+and run OfflineImap in place if you wish to do so. There are a number of options
+though:
 
 #. system-wide :ref:`installation via your distribution package manager <inst_pkg_man>`
 #. system-wide or single user :ref:`installation from the source package <inst_src_tar>`
 #. system-wide or single user :ref:`installation from a git checkout <inst_git>`
 
-Having installed OfflineImap, you will need to configure it, to be actually useful. Please check the :ref:`Configuration` section in the :doc:`MANUAL` for more information on the configuration step.
+Having installed OfflineImap, you will need to configure it, to be actually
+useful. Please check the :ref:`Configuration` section in the :doc:`MANUAL` for
+more information on the configuration step.
 
 .. _inst_pkg_man:
 
 System-Wide Installation via distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The easiest way to install OfflineIMAP is via your distribution's package manager. OfflineImap is available under the name `offlineimap` in most Linux and BSD distributions.
+The easiest way to install OfflineIMAP is via your distribution's package
+manager. OfflineImap is available under the name `offlineimap` in most Linux and
+BSD distributions.
 
 
 .. _inst_src_tar:
 
 Installation from source package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Download the latest source archive from our `download page <https://github.com/spaetz/offlineimap/downloads>`_. Simply click the "Download as .zip" or "Download as .tar.gz" buttons to get the latest "stable" code from the master branch. If you prefer command line, you will want to use:
-    wget https://github.com/spaetz/offlineimap/tarball/master
 
-Unpack and continue with the :ref:`system-wide installation <system_wide_inst>` or the :ref:`single-user installation <single_user_inst>` section.
+Download the latest source archive from our `download page
+<https://github.com/spaetz/offlineimap/downloads>`_. Simply click the "Download
+as .zip" or "Download as .tar.gz" buttons to get the latest "stable" code from
+the master branch. If you prefer command line, you will want to use: wget
+https://github.com/spaetz/offlineimap/tarball/master
+
+Unpack and continue with the :ref:`system-wide installation <system_wide_inst>`
+or the :ref:`single-user installation <single_user_inst>` section.
 
 
 .. _inst_git:
@@ -78,7 +89,9 @@ checkout a particular release like this::
   cd offlineimap
   git checkout v6.5.2.1
 
-You have now a source tree available and proceed with either the :ref:`system-wide installation <system_wide_inst>` or the :ref:`single-user installation <single_user_inst>`.
+You have now a source tree available and proceed with either the
+:ref:`system-wide installation <system_wide_inst>` or the :ref:`single-user
+installation <single_user_inst>`.
 
 
 .. _system_wide_inst:

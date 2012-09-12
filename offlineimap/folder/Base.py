@@ -31,9 +31,12 @@ class BaseFolder(object):
         :para name: Path & name of folder minus root or reference
         :para repository: Repository() in which the folder is.
         """
-        self.sync_this = True
-        """Should this folder be included in syncing?"""
         self.ui = getglobalui()
+        """Should this folder be included in syncing?"""
+        self._sync_this = repository.should_sync_folder(name)
+        if not self._sync_this:
+            self.ui.debug('', "Filtering out '%s'[%s] due to folderfilter" \
+                          % (name, repository))
         # Top level dir name is always ''
         self.name = name if not name == self.getsep() else ''
         self.repository = repository
@@ -56,6 +59,11 @@ class BaseFolder(object):
     def accountname(self):
         """Account name as string"""
         return self.repository.accountname
+
+    @property
+    def sync_this(self):
+        """Should this folder be synced or is it e.g. filtered out?"""
+        return self._sync_this
 
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
@@ -386,7 +394,7 @@ class BaseFolder(object):
                             self.getmessageuidlist())
         num_to_copy = len(copylist)
         if num_to_copy and self.repository.account.dryrun:
-            self.ui.info("[DRYRUN] Copy {} messages from {}[{}] to {}".format(
+            self.ui.info("[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
                     num_to_copy, self, self.repository, dstfolder.repository))
             return
         for num, uid in enumerate(copylist):

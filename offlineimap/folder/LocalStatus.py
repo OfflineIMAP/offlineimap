@@ -85,8 +85,7 @@ class LocalStatusFolder(BaseFolder):
         file.close()
 
     def save(self):
-        self.savelock.acquire()
-        try:
+        with self.savelock:
             file = open(self.filename + ".tmp", "wt")
             file.write(magicline + "\n")
             for msg in self.messagelist.values():
@@ -103,9 +102,6 @@ class LocalStatusFolder(BaseFolder):
                 fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
                 os.fsync(fd)
                 os.close(fd)
-
-        finally:
-            self.savelock.release()
 
     def getmessagelist(self):
         return self.messagelist

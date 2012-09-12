@@ -127,7 +127,7 @@ class OLITestLib():
         reponame: All on `reponame` or all IMAP-type repositories if None"""
         config = cls.get_default_config()
         if reponame:
-            sections = ['Repository {}'.format(reponame)]
+            sections = ['Repository {0}'.format(reponame)]
         else:
             sections = [r for r in config.sections() \
                             if r.startswith('Repository')]
@@ -162,8 +162,8 @@ class OLITestLib():
             dirs = [d for d in dirs if d.startswith(b'INBOX.OLItest')]
             for folder in dirs:
                 res_t, data = imapobj.delete(b'\"'+folder+b'\"')
-                assert res_t == 'OK', "Folder deletion of {} failed with error"\
-                    ":\n{} {}".format(folder.decode('utf-8'), res_t, data)
+                assert res_t == 'OK', "Folder deletion of {0} failed with error"\
+                    ":\n{1} {2}".format(folder.decode('utf-8'), res_t, data)
             imapobj.logout()
 
     @classmethod
@@ -197,7 +197,7 @@ class OLITestLib():
         Use some default content if not given"""
         assert cls.testdir != None
         while True:  # Loop till we found a unique filename
-            mailfile = '{}:2,'.format(random.randint(0,999999999))
+            mailfile = '{0}:2,'.format(random.randint(0,999999999))
             mailfilepath = os.path.join(cls.testdir, 'mail',
                                         folder, 'new', mailfile)
             if not os.path.isfile(mailfilepath):

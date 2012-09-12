@@ -287,11 +287,6 @@ class IMAPRepository(BaseRepository):
             foldername = imaputil.dequote(name)
             retval.append(self.getfoldertype()(self.imapserver, foldername,
                                                self))
-            # filter out the folder?
-            if not self.folderfilter(foldername):
-                self.ui.debug('imap', "Filtering out '%s'[%s] due to folderfilt"
-                              "er" % (foldername, self))
-                retval[-1].sync_this = False
         # Add all folderincludes
         if len(self.folderincludes):
             imapobj = self.imapserver.acquireconnection()

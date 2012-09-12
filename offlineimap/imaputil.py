@@ -23,7 +23,7 @@ from offlineimap.ui import getglobalui
 
 # find the first quote in a string
 quotere = re.compile(
-    r"""(?P<quote>"(?:\\"|[^"])*") # Quote, possibly containing encoded
+    r"""(?P<quote>"[^\"\\]*(?:\\"|[^"])*") # Quote, possibly containing encoded
                                    # quotation mark
         \s*(?P<rest>.*)$           # Whitespace & remainder of string""",
     re.VERBOSE)

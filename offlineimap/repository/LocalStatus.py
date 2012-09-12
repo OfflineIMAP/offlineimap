@@ -43,8 +43,8 @@ class LocalStatusRepository(BaseRepository):
         if not os.path.exists(self.root):
             os.mkdir(self.root, 0o700)
 
-        # self._folders is a list of LocalStatusFolders()
-        self._folders = None
+        # self._folders is a dict of name:LocalStatusFolders()
+        self._folders = {}
 
     def getsep(self):
         return '.'
@@ -79,23 +79,27 @@ class LocalStatusRepository(BaseRepository):
         file.close()
         os.rename(filename + ".tmp", filename)
         # Invalidate the cache.
-        self._folders = None
+        self._folders = {}
 
     def getfolder(self, foldername):
         """Return the Folder() object for a foldername"""
-        return self.LocalStatusFolderClass(foldername, self)
+        if foldername in self._folders:
+            return self._folders[foldername]
+
+        folder = self.LocalStatusFolderClass(foldername, self)
+        self._folders[foldername] = folder
+        return folder
 
     def getfolders(self):
-        """Returns a list of all cached folders."""
-        if self._folders != None:
-            return self._folders
+        """Returns a list of all cached folders.  
 
-        self._folders = []
-        for folder in os.listdir(self.root):
-            self._folders.append(self.getfolder(folder))
-        return self._folders
+        Does nothing for this backend. We mangle the folder file names
+        (see getfolderfilename) so we can not derive folder names from
+        the file names that we have available. TODO: need to store a
+        list of folder names somehow?"""
+        pass
 
     def forgetfolders(self):
         """Forgets the cached list of folders, if any.  Useful to run
         after a sync run."""
-        self._folders = None
+        self._folders = {}

@@ -10,7 +10,9 @@ messages on each computer, and changes you make one place will be visible on all
 other systems. For instance, you can delete a message on your home computer, and
 it will appear deleted on your work computer as well. OfflineIMAP is also useful
 if you want to use a mail reader that does not have IMAP support, has poor IMAP
-support, or does not provide disconnected operation. It's homepage at http://offlineimap.org contains more information, source code, and online documentation.
+support, or does not provide disconnected operation. It's homepage at
+http://offlineimap.org contains more information, source code, and online
+documentation.
 
 OfflineIMAP does not require additional python dependencies beyond python >=2.6
 (although python-sqlite is strongly recommended).
@@ -87,9 +89,13 @@ Mailing list & bug reporting
 ----------------------------
 
 The user discussion, development and all exciting stuff take place in the
-OfflineImap mailing list at http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project. You do not need to subscribe to send emails.
+OfflineImap mailing list at
+http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project. You do not
+need to subscribe to send emails.
 
-Bugs, issues and contributions should be reported to the mailing list. Bugs can also be reported in the issue tracker at https://github.com/spaetz/offlineimap/issues.
+Bugs, issues and contributions should be reported to the mailing list. Bugs can
+also be reported in the issue tracker at
+https://github.com/OfflineIMAP/offlineimap/issues.
 
 Configuration Examples
 ======================

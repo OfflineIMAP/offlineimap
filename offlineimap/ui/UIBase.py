@@ -88,7 +88,6 @@ class UIBase(object):
     def setlogfile(self, logfile):
         """Create file handler which logs to file"""
         fh = logging.FileHandler(logfile, 'at')
-        #fh.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter("%(asctime)s %(levelname)s: "
                          "%(message)s", '%Y-%m-%d %H:%M:%S')
         fh.setFormatter(file_formatter)
@@ -98,9 +97,7 @@ class UIBase(object):
         msg = "OfflineImap %s starting...\n  Python: %s Platform: %s\n  "\
               "Args: %s" % (offlineimap.__version__, p_ver, sys.platform,
                             " ".join(sys.argv))
-        record = logging.LogRecord('OfflineImap', logging.INFO, __file__,
-                                   None, msg, None, None)
-        fh.emit(record)
+        self.logger.info(msg)
 
     def _msg(self, msg):
         """Display a message."""
@@ -301,7 +298,7 @@ class UIBase(object):
     def makefolder(self, repo, foldername):
         """Called when a folder is created"""
         prefix = "[DRYRUN] " if self.dryrun else ""
-        self.info("{}Creating folder {}[{}]".format(
+        self.info("{0}Creating folder {1}[{2}]".format(
                 prefix, foldername, repo))
 
     def syncingfolder(self, srcrepos, srcfolder, destrepos, destfolder):
@@ -346,7 +343,7 @@ class UIBase(object):
     def deletingmessages(self, uidlist, destlist):
         ds = self.folderlist(destlist)
         prefix = "[DRYRUN] " if self.dryrun else ""
-        self.info("{}Deleting {} messages ({}) in {}".format(
+        self.info("{0}Deleting {1} messages ({2}) in {3}".format(
                 prefix, len(uidlist),
                 offlineimap.imaputil.uid_sequence(uidlist), ds))
 
@@ -474,7 +471,7 @@ class UIBase(object):
 
     def callhook(self, msg):
         if self.dryrun:
-            self.info("[DRYRUN] {}".format(msg))
+            self.info("[DRYRUN] {0}".format(msg))
         else:
             self.info(msg)
 
