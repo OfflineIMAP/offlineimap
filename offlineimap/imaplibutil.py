@@ -149,7 +149,7 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
         if (self._fingerprint or not self.ca_certs):
             # compare fingerprints
             fingerprint = sha1(self.sock.getpeercert(True)).hexdigest()
-            if fingerprint != self._fingerprint:
+            if self._fingerprint == None or not any(fingerprint in s for s in self._fingerprint.split()):
                 raise OfflineImapError("Server SSL fingerprint '%s' for hostnam"
                       "e '%s' does not match configured fingerprint. Please ver"
                       "ify and set 'cert_fingerprint' accordingly if not set ye"
