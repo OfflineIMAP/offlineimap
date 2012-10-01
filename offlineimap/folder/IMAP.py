@@ -433,10 +433,9 @@ class IMAPFolder(BaseFolder):
         if rtime is None:
             message = email.message_from_string(content)
             dateheader = message.get('Date')
-            # parsedate_tz returns a 10-tuple that can be passed directly to
-            # time.mktime(); Will be None if missing or not in a valid
-            # format.  Note that indexes 6, 7, and 8 of the result tuple are
-            # not usable.
+            # parsedate_tz returns a 10-tuple that can be passed to mktime_tz;
+            # Will be None if missing or not in a valid format.  Note that
+            # indexes 6, 7, and 8 of the result tuple are not usable.
             datetuple = email.utils.parsedate_tz(dateheader)
             if datetuple is None:
                 #could not determine the date, use the local time.
