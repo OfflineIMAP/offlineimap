@@ -432,16 +432,16 @@ class IMAPFolder(BaseFolder):
                   (which is fine as value for append)."""
         if rtime is None:
             message = email.message_from_string(content)
-            # parsedate returns a 9-tuple that can be passed directly to
-            # time.mktime(); Will be None if missing or not in a valid
-            # format.  Note that indexes 6, 7, and 8 of the result tuple are
-            # not usable.
-            datetuple = email.utils.parsedate(message.get('Date'))
+            dateheader = message.get('Date')
+            # parsedate_tz returns a 10-tuple that can be passed to mktime_tz;
+            # Will be None if missing or not in a valid format.  Note that
+            # indexes 6, 7, and 8 of the result tuple are not usable.
+            datetuple = email.utils.parsedate_tz(dateheader)
             if datetuple is None:
                 #could not determine the date, use the local time.
                 return None
             #make it a real struct_time, so we have named attributes
-            datetuple = time.struct_time(datetuple)
+            datetuple = time.localtime(email.utils.mktime_tz(datetuple))
         else:
             #rtime is set, use that instead
             datetuple = time.localtime(rtime)
