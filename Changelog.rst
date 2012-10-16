@@ -10,6 +10,8 @@ OfflineIMAP v6.5.6 (YYYY-MM-DD)
 
 * Add knob to invoke folderfilter dynamically on each sync (GitHub#73)
 * Add knob to apply compression to IMAP connections (Abdó Roig-Maranges)
+* Add knob to filter some headers before uploading message
+  to IMAP server (Abdó Roig-Maranges)
 
 
 OfflineIMAP v6.5.5 (2013-10-07)

@@ -26,6 +26,10 @@ from offlineimap import globals
 from offlineimap.imaplib2 import MonthNames
 
 
+# Globals
+CRLF = '\r\n'
+
+
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, repository):
         name = imaputil.dequote(name)
@@ -37,6 +41,10 @@ class IMAPFolder(BaseFolder):
         self.messagelist = None
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
+
+        fh_conf = self.repository.account.getconf('filterheaders', '')
+        self.filterheaders = [h for h in re.split(r'\s*,\s*', fh_conf) if h]
+
 
     def __selectro(self, imapobj, force = False):
         """Select this folder when we do not need write access.
@@ -248,7 +256,7 @@ class IMAPFolder(BaseFolder):
             # data looks now e.g. [('320 (UID 17061 BODY[]
             # {2565}','msgbody....')]  we only asked for one message,
             # and that msg is in data[0]. msbody is in [0][1]
-            data = data[0][1].replace("\r\n", "\n")
+            data = data[0][1].replace(CRLF, "\n")
 
             if len(data)>200:
                 dbg_output = "%s...%s" % (str(data)[:150],
@@ -300,7 +308,7 @@ class IMAPFolder(BaseFolder):
         self.ui.debug('imap',
                  '__savemessage_addheader: called to add %s: %s' % (headername,
                                                                   headervalue))
-        insertionpoint = content.find("\r\n\r\n")
+        insertionpoint = content.find(CRLF + CRLF)
         self.ui.debug('imap', '__savemessage_addheader: insertionpoint = %d' % insertionpoint)
         leader = content[0:insertionpoint]
         self.ui.debug('imap', '__savemessage_addheader: leader = %s' % repr(leader))
@@ -308,12 +316,49 @@ class IMAPFolder(BaseFolder):
             newline = ''
             insertionpoint = 0
         else:
-            newline = "\r\n"
+            newline = CRLF
         newline += "%s: %s" % (headername, headervalue)
         self.ui.debug('imap', '__savemessage_addheader: newline = ' + repr(newline))
         trailer = content[insertionpoint:]
         self.ui.debug('imap', '__savemessage_addheader: trailer = ' + repr(trailer))
         return leader + newline + trailer
+
+
+    def __savemessage_delheaders(self, content, header_list):
+        """
+        Deletes headers in the given list from the message content.
+
+        Arguments:
+        - content: message itself
+        - header_list: list of headers to be deleted or just the header name
+
+        We expect our message to have proper CRLF as line endings.
+
+        """
+        if type(header_list) != type([]):
+            header_list = [header_list]
+        self.ui.debug('imap',
+                 '__savemessage_delheaders: called to delete %s' % (header_list))
+
+        if not len(header_list): return content
+
+        eoh = content.find(CRLF + CRLF)
+        if eoh == -1:
+            eoh = len(content)
+        self.ui.debug('imap', '__savemessage_delheaders: end of headers = %d' % eoh)
+        headers = content[0:eoh]
+        rest = content[eoh:]
+        self.ui.debug('imap', '__savemessage_delheaders: headers = %s' % repr(headers))
+        new_headers = []
+        for h in headers.split(CRLF):
+            keep_it = True
+            for trim_h in self.filterheaders:
+                if len(h) > len(trim_h) and h[0:len(trim_h)+1] == (trim_h + ":"):
+                    keep_it = False
+                    break
+            if keep_it: new_headers.append(h)
+
+        return (CRLF.join(new_headers) + rest)
 
 
     def __savemessage_searchforheader(self, imapobj, headername, headervalue):
@@ -510,10 +555,12 @@ class IMAPFolder(BaseFolder):
             return uid
 
         # Use proper CRLF all over the message
-        content = re.sub("(?<!\r)\n", "\r\n", content)
+        content = re.sub("(?<!\r)\n", CRLF, content)
 
         # get the date of the message, so we can pass it to the server.
         date = self.__getmessageinternaldate(content, rtime)
+
+        content = self.__savemessage_delheaders(content, self.filterheaders)
 
         retry_left = 2 # succeeded in APPENDING?
         imapobj = self.imapserver.acquireconnection()
