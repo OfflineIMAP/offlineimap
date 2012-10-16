@@ -177,10 +177,9 @@ class MaildirRepository(BaseRepository):
                 self.debug("  This is maildir folder '%s'." % foldername)
                 if self.getconfboolean('restoreatime', False):
                     self._append_folder_atimes(foldername)
-                retval.append(folder.Maildir.MaildirFolder(self.root,
-                                                           foldername,
-                                                           self.getsep(),
-                                                           self))
+                fd = self.getfoldertype()(self.root, foldername,
+                                          self.getsep(), self)
+                retval.append(fd)
 
             if self.getsep() == '/' and dirname != '':
                 # Recursively check sub-directories for folders too.
@@ -193,6 +192,9 @@ class MaildirRepository(BaseRepository):
         if self.folders == None:
             self.folders = self._getfolders_scandir(self.root)
         return self.folders
+
+    def getfoldertype(self):
+        return folder.Maildir.MaildirFolder
 
     def forgetfolders(self):
         """Forgets the cached list of folders, if any.  Useful to run

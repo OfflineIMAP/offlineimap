@@ -429,6 +429,41 @@ This is an example of a setup where "TheOtherImap" requires all folders to be un
     remoteuser = XXX
     #Do not use nametrans here.
 
+
+Sync from Gmail to a local Maildir with labels
+----------------------------------------------
+
+This is an example of a setup where GMail gets synced with a local Maildir.
+It also keeps track of GMail labels, that get embedded into the messages
+under the header X-Keywords (or whatever labelsheader is set to), and syncs
+them back and forth the same way as flags.
+
+The first time it runs on a large repository may take some time as the labels
+are read / embedded on every message.  Afterwards local label changes are detected
+using modification times (much faster)::
+
+    [Account Gmail-mine]
+    localrepository = Gmaillocal-mine
+    remoterepository = Gmailserver-mine
+    # Need this to be able to sync labels
+    status_backend = sqlite
+    synclabels = yes
+    # This header is where labels go.  Usually you will be fine
+    # with default value, but in case you want it different,
+    # here we go:
+    labelsheader = X-GMail-Keywords
+
+    [Repository Gmailserver-mine]
+    #This is the remote repository
+    type = Gmail
+    remotepass = XXX
+    remoteuser = XXX
+
+    [Repository Gmaillocal-mine]
+    #This is the 'local' repository
+    type = GmailMaildir
+
+
 Selecting only a few folders to sync
 ------------------------------------
 Add this to the remote gmail repository section to only sync mails which are in a certain folder::

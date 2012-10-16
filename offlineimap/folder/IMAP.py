@@ -142,12 +142,15 @@ class IMAPFolder(BaseFolder):
 
     def _msgs_to_fetch(self, imapobj):
         """
-        Determines UIDS of messages to be fetched
+        Determines sequence numbers of messages to be fetched.
+
+        Message sequence numbers (MSNs) are more easily compacted
+        into ranges which makes transactions slightly faster.
 
         Arguments:
         - imapobj: instance of IMAPlib
 
-        Returns: UID ranges for messages or None if no messages
+        Returns: range(s) for messages or None if no messages
         are to be fetched.
 
         """
@@ -156,7 +159,7 @@ class IMAPFolder(BaseFolder):
             # Empty folder, no need to populate message list
             return None
 
-        # By default examine all UIDs in this folder
+        # By default examine all messages in this folder
         msgsToFetch = '1:*'
 
         maxage = self.config.getdefaultint("Account %s" % self.accountname,
@@ -194,7 +197,7 @@ class IMAPFolder(BaseFolder):
                     self.getrepository(), self, search_cond, res_type, res_data),
                     OfflineImapError.ERROR.FOLDER)
 
-            # Result UIDs are seperated by space, coalesce into ranges
+            # Resulting MSN are separated by space, coalesce into ranges
             msgsToFetch = imaputil.uid_sequence(res_data[0].split())
 
         return msgsToFetch

@@ -12,6 +12,8 @@ OfflineIMAP v6.5.6 (YYYY-MM-DD)
 * Add knob to apply compression to IMAP connections (Abdó Roig-Maranges)
 * Add knob to filter some headers before uploading message
   to IMAP server (Abdó Roig-Maranges)
+* Allow to sync GMail labels and implement GmailMaildir repository that
+  adds mechanics to change message labels (Abdó Roig-Maranges)
 
 
 OfflineIMAP v6.5.5 (2013-10-07)

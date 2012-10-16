@@ -39,6 +39,16 @@ def dequote(string):
         string = string.replace('\\\\', '\\')
     return string
 
+def quote(string):
+    """Takes an unquoted string and quotes it.
+
+    It only adds double quotes. This function does NOT consider
+    parenthised lists to be quoted.
+    """
+    string = string.replace('"', '\\"')
+    string = string.replace('\\', '\\\\')
+    return '"%s"' % string
+
 def flagsplit(string):
     """Converts a string of IMAP flags to a list
 

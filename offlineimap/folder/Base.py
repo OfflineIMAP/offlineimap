@@ -273,6 +273,10 @@ class BaseFolder(object):
         """Return the received time for the specified message."""
         raise NotImplementedError
 
+    def getmessagemtime(self, uid):
+        """Returns the message modification time of the specified message."""
+        raise NotImplementedError
+
     def getmessageflags(self, uid):
         """Returns the flags for the specified message."""
         raise NotImplementedError
@@ -324,24 +328,116 @@ class BaseFolder(object):
             self.deletemessageflags(uid, flags)
 
 
+    def getmessagelabels(self, uid):
+        """Returns the labels for the specified message."""
+        raise NotImplementedError
+
+    def savemessagelabels(self, uid, labels, ignorelabels=set(), mtime=0):
+        """Sets the specified message's labels to the given set.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        raise NotImplementedError
+
+    def addmessagelabels(self, uid, labels):
+        """Adds the specified labels to the message's labels set.  If a given
+        label is already present, it will not be duplicated.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
+
+        :param labels: A set() of labels"""
+        newlabels = self.getmessagelabels(uid) | labels
+        self.savemessagelabels(uid, newlabels)
+
+    def addmessageslabels(self, uidlist, labels):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        for uid in uidlist:
+            self.addmessagelabels(uid, labels)
+
+    def deletemessagelabels(self, uid, labels):
+        """Removes each label given from the message's label set.  If a given
+        label is already removed, no action will be taken for that label.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        newlabels = self.getmessagelabels(uid) - labels
+        self.savemessagelabels(uid, newlabels)
+
+    def deletemessageslabels(self, uidlist, labels):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        for uid in uidlist:
+            self.deletemessagelabels(uid, labels)
+
+
+    """
+    Illustration of all cases for addmessageheader().
+    '+' means the added contents.
+
+Case 1: No '\n\n', leading '\n'
++X-Flying-Pig-Header: i am here\n
+\n
+This is the body\n
+next line\n
+
+Case 2: '\n\n' at position 0
++X-Flying-Pig-Header: i am here\n
+\n
+\n
+This is the body\n
+next line\n
+
+Case 3: No '\n\n', no leading '\n'
++X-Flying-Pig-Header: i am here\n
++\n
+This is the body\n
+next line\n
+
+Case 4: '\n\n' at non-zero position
+Subject: Something wrong with OI\n
+From: some@person.at+\n
+X-Flying-Pig-Header: i am here\n <-- orig '\n'
+\n
+This is the body\n
+next line\n
+
+    """
+
     def addmessageheader(self, content, headername, headervalue):
         self.ui.debug('',
                  'addmessageheader: called to add %s: %s' % (headername,
                                                              headervalue))
+        prefix = '\n'
+        suffix = ''
         insertionpoint = content.find('\n\n')
-        self.ui.debug('', 'addmessageheader: insertionpoint = %d' % insertionpoint)
-        leader = content[0:insertionpoint]
-        self.ui.debug('', 'addmessageheader: leader = %s' % repr(leader))
         if insertionpoint == 0 or insertionpoint == -1:
-            newline = ''
+            prefix = ''
+            suffix = '\n'
+        if insertionpoint == -1:
             insertionpoint = 0
-        else:
-            newline = '\n'
-        newline += "%s: %s" % (headername, headervalue)
-        self.ui.debug('', 'addmessageheader: newline = ' + repr(newline))
-        trailer = content[insertionpoint:]
-        self.ui.debug('', 'addmessageheader: trailer = ' + repr(trailer))
-        return leader + newline + trailer
+            # When body starts immediately, without preceding '\n'
+            # (this shouldn't happen with proper mail messages, but
+            # we seen many broken ones), we should add '\n' to make
+            # new (and the only header, in this case) to be properly
+            # separated from the message body.
+            if content[0] != '\n':
+                suffix = suffix + '\n'
+
+        self.ui.debug('', 'addmessageheader: insertionpoint = %d' % insertionpoint)
+        headers = content[0:insertionpoint]
+        self.ui.debug('', 'addmessageheader: headers = %s' % repr(headers))
+        new_header = prefix + ("%s: %s" % (headername, headervalue)) + suffix
+        self.ui.debug('', 'addmessageheader: new_header = ' + repr(new_header))
+        return headers + new_header + content[insertionpoint:]
 
 
     def __find_eoh(self, content):
@@ -607,9 +703,10 @@ class BaseFolder(object):
                 continue
 
             selfflags = self.getmessageflags(uid)
-            statusflags = statusfolder.getmessageflags(uid)
-            #if we could not get message flags from LocalStatus, assume empty.
-            if statusflags is None:
+
+            if statusfolder.uidexists(uid):
+                statusflags = statusfolder.getmessageflags(uid)
+            else:
                 statusflags = set()
 
             addflags = selfflags - statusflags

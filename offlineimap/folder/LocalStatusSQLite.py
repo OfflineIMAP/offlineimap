@@ -40,7 +40,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     #return connection, cursor
 
     #current version of our db format
-    cur_version = 1
+    cur_version = 2
 
     def __init__(self, name, repository):
         super(LocalStatusSQLiteFolder, self).__init__(name, repository)
@@ -140,21 +140,36 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
                 self.connection.commit()
                 file.close()
                 os.rename(plaintextfilename, plaintextfilename + ".old")
+
+        # Upgrade from database version 1 to version 2
+        # This change adds labels and mtime columns, to be used by Gmail IMAP and Maildir folders.
+        if from_ver <= 1:
+            self.ui._msg('Upgrading LocalStatus cache from version 1 to version 2 for %s:%s' %\
+                           (self.repository, self))
+            self.connection.executescript("""ALTER TABLE status ADD mtime INTEGER DEFAULT 0;
+                                             ALTER TABLE status ADD labels VARCHAR(256) DEFAULT '';
+                                             UPDATE metadata SET value='2' WHERE key='db_version';
+                                          """)
+            self.connection.commit()
+
         # Future version upgrades come here...
-        # if from_ver <= 1: ... #upgrade from 1 to 2
         # if from_ver <= 2: ... #upgrade from 2 to 3
+        # if from_ver <= 3: ... #upgrade from 3 to 4
+
 
     def __create_db(self):
-        """Create a new db file"""
+        """
+        Create a new db file.
+
+        self.connection must point to the opened and valid SQlite
+        database connection.
+        """
         self.ui._msg('Creating new Local Status db for %s:%s' \
                          % (self.repository, self))
-        if hasattr(self, 'connection'):
-            self.connection.close() #close old connections first
-        self.connection = sqlite.connect(self.filename, check_same_thread = False)
         self.connection.executescript("""
         CREATE TABLE metadata (key VARCHAR(50) PRIMARY KEY, value VARCHAR(128));
         INSERT INTO metadata VALUES('db_version', '1');
-        CREATE TABLE status (id INTEGER PRIMARY KEY, flags VARCHAR(50));
+        CREATE TABLE status (id INTEGER PRIMARY KEY, flags VARCHAR(50), mtime INTEGER, labels VARCHAR(256));
         """)
         self.connection.commit()
 
@@ -173,10 +188,11 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     # Interface from BaseFolder
     def cachemessagelist(self):
         self.messagelist = {}
-        cursor = self.connection.execute('SELECT id,flags from status')
+        cursor = self.connection.execute('SELECT id,flags,mtime,labels from status')
         for row in cursor:
-                flags = set(row[1])
-                self.messagelist[row[0]] = {'uid': row[0], 'flags': flags}
+            flags = set(row[1])
+            labels = set([lb.strip() for lb in row[3].split(',') if len(lb.strip()) > 0])
+            self.messagelist[row[0]] = {'uid': row[0], 'flags': flags, 'mtime': row[2], 'labels': labels}
 
     # Interface from LocalStatusFolder
     def save(self):
@@ -220,12 +236,15 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     #        assert False,"getmessageflags() called on non-existing message"
 
     # Interface from BaseFolder
-    def savemessage(self, uid, content, flags, rtime):
-        """Writes a new message, with the specified uid.
+    def savemessage(self, uid, content, flags, rtime, mtime=0, labels=set()):
+        """
+        Writes a new message, with the specified uid.
 
         See folder/Base for detail. Note that savemessage() does not
         check against dryrun settings, so you need to ensure that
-        savemessage is never called in a dryrun mode."""
+        savemessage is never called in a dryrun mode.
+        
+        """
         if uid < 0:
             # We cannot assign a uid.
             return uid
@@ -234,10 +253,11 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
             self.savemessageflags(uid, flags)
             return uid
 
-        self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
+        self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime, 'mtime': mtime, 'labels': labels}
         flags = ''.join(sorted(flags))
-        self.__sql_write('INSERT INTO status (id,flags) VALUES (?,?)',
-                         (uid,flags))
+        labels = ', '.join(sorted(labels))
+        self.__sql_write('INSERT INTO status (id,flags,mtime,labels) VALUES (?,?,?,?)',
+                         (uid,flags,mtime,labels))
         return uid
 
     # Interface from BaseFolder
@@ -245,6 +265,69 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         self.messagelist[uid] = {'uid': uid, 'flags': flags}
         flags = ''.join(sorted(flags))
         self.__sql_write('UPDATE status SET flags=? WHERE id=?',(flags,uid))
+
+
+    def getmessageflags(self, uid):
+        return self.messagelist[uid]['flags']
+
+
+    def savemessagelabels(self, uid, labels, mtime=None):
+        self.messagelist[uid]['labels'] = labels
+        if mtime: self.messagelist[uid]['mtime'] = mtime
+
+        labels = ', '.join(sorted(labels))
+        if mtime:
+            self.__sql_write('UPDATE status SET labels=?, mtime=? WHERE id=?',(labels,mtime,uid))
+        else:
+            self.__sql_write('UPDATE status SET labels=? WHERE id=?',(labels,uid))
+
+
+    def savemessageslabelsbulk(self, labels):
+        """
+        Saves labels from a dictionary in a single database operation.
+        
+        """
+        data = [(', '.join(sorted(l)), uid) for uid, l in labels.items()]
+        self.__sql_write('UPDATE status SET labels=? WHERE id=?', data, executemany=True)
+        for uid, l in labels.items():
+            self.messagelist[uid]['labels'] = l
+
+
+    def addmessageslabels(self, uids, labels):
+        data = []
+        for uid in uids:
+            newlabels = self.messagelist[uid]['labels'] | labels
+            data.append((', '.join(sorted(newlabels)), uid))
+        self.__sql_write('UPDATE status SET labels=? WHERE id=?', data, executemany=True)
+        for uid in uids:
+            self.messagelist[uid]['labels'] = self.messagelist[uid]['labels'] | labels
+
+
+    def deletemessageslabels(self, uids, labels):
+        data = []
+        for uid in uids:
+            newlabels = self.messagelist[uid]['labels'] - labels
+            data.append((', '.join(sorted(newlabels)), uid))
+        self.__sql_write('UPDATE status SET labels=? WHERE id=?', data, executemany=True)
+        for uid in uids:
+            self.messagelist[uid]['labels'] = self.messagelist[uid]['labels'] - labels
+
+
+    def getmessagelabels(self, uid):
+        return self.messagelist[uid]['labels']
+
+
+    def savemessagesmtimebulk(self, mtimes):
+        """Saves mtimes from the mtimes dictionary in a single database operation."""
+        data = [(mt, uid) for uid, mt in mtimes.items()]
+        self.__sql_write('UPDATE status SET mtime=? WHERE id=?', data, executemany=True)
+        for uid, mt in mtimes.items():
+            self.messagelist[uid]['mtime'] = mt
+
+
+    def getmessagemtime(self, uid):
+        return self.messagelist[uid]['mtime']
+
 
     # Interface from BaseFolder
     def deletemessage(self, uid):
