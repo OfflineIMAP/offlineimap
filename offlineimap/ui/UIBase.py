@@ -254,6 +254,15 @@ class UIBase(object):
                   "for that message." % (
                 str(uidlist), self.getnicename(destfolder), destfolder))
 
+    def labelstoreadonly(self, destfolder, uidlist, labels):
+        if self.config.has_option('general', 'ignore-readonly') and \
+                self.config.getboolean('general', 'ignore-readonly'):
+            return
+        self.warn("Attempted to modify labels for messages %s in folder %s[%s], "
+                  "but that folder is read-only.  No labels have been modified "
+                  "for that message." % (
+                str(uidlist), self.getnicename(destfolder), destfolder))
+
     def deletereadonly(self, destfolder, uidlist):
         if self.config.has_option('general', 'ignore-readonly') and \
                 self.config.getboolean('general', 'ignore-readonly'):
@@ -360,6 +369,25 @@ class UIBase(object):
     def deletingflags(self, uidlist, flags, dest):
         self.logger.info("Deleting flag %s from %d messages on %s" % (
                 ", ".join(flags), len(uidlist), dest))
+
+    def addinglabels(self, uidlist, label, dest):
+        self.logger.info("Adding label %s to %d messages on %s" % (
+                label, len(uidlist), dest))
+
+    def deletinglabels(self, uidlist, label, dest):
+        self.logger.info("Deleting label %s from %d messages on %s" % (
+                label, len(uidlist), dest))
+
+    def settinglabels(self, uid, num, num_to_set, labels, dest):
+        self.logger.info("Setting labels to message %d on %s (%d of %d): %s" % (
+                uid, dest, num, num_to_set, ", ".join(labels)))
+
+    def collectingdata(self, uidlist, source):
+      if uidlist:
+        self.logger.info("Collecting data from %d messages on %s" % (
+                len(uidlist), source))
+      else:
+        self.logger.info("Collecting data from messages on %s" % source)
 
     def serverdiagnostics(self, repository, type):
         """Connect to repository and output useful information for debugging"""
