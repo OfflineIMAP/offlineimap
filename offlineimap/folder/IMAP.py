@@ -38,6 +38,10 @@ class IMAPFolder(BaseFolder):
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
 
+        self.filterheaders = [h.strip() for h in self.repository.account.getconf('filterheaders', '').split(',')
+                              if len(h.strip()) > 0]
+
+
     def selectro(self, imapobj, force = False):
         """Select this folder when we do not need write access.
 
@@ -500,6 +504,17 @@ class IMAPFolder(BaseFolder):
         if uid > 0 and self.uidexists(uid):
             self.savemessageflags(uid, flags)
             return uid
+
+        # Remove headers in filterheaders
+        if len(self.filterheaders) > 0:
+            insertionpoint = content.find("\n\n")
+            leader = content[0:insertionpoint]
+            trailer = content[insertionpoint:]
+
+            for header in self.filterheaders:
+                leader = re.sub('^%s:.*$\n?' % header, '', leader, flags = re.MULTILINE)
+
+            content = leader + trailer
 
         retry_left = 2 # succeeded in APPENDING?
         imapobj = self.imapserver.acquireconnection()
