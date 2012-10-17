@@ -66,6 +66,10 @@ class BaseFolder(object):
             self.ui.debug('', "Filtering out '%s'[%s] due to folderfilter" \
                           % (self.ffilter_name, repository))
 
+        # Passes for syncmessagesto
+        self.syncmessagesto_passes = [('copying messages'       , self.__syncmessagesto_copy),
+                                      ('deleting messages'      , self.__syncmessagesto_delete),
+                                      ('syncing flags'          , self.__syncmessagesto_flags)]
 
     def getname(self):
         """Returns name"""
@@ -319,6 +323,103 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessageflags(uid, flags)
 
+
+    def addmessageheader(self, content, headername, headervalue):
+        self.ui.debug('',
+                 'addmessageheader: called to add %s: %s' % (headername,
+                                                             headervalue))
+        insertionpoint = content.find('\n\n')
+        self.ui.debug('', 'addmessageheader: insertionpoint = %d' % insertionpoint)
+        leader = content[0:insertionpoint]
+        self.ui.debug('', 'addmessageheader: leader = %s' % repr(leader))
+        if insertionpoint == 0 or insertionpoint == -1:
+            newline = ''
+            insertionpoint = 0
+        else:
+            newline = '\n'
+        newline += "%s: %s" % (headername, headervalue)
+        self.ui.debug('', 'addmessageheader: newline = ' + repr(newline))
+        trailer = content[insertionpoint:]
+        self.ui.debug('', 'addmessageheader: trailer = ' + repr(trailer))
+        return leader + newline + trailer
+
+
+    def __find_eoh(self, content):
+        """
+        Searches for the point where mail headers end.
+        Either double '\n', or end of string.
+
+        Arguments:
+        - content: contents of the message to search in
+        Returns: position of the first non-header byte.
+
+        """
+        eoh_cr = content.find('\n\n')
+        if eoh_cr == -1:
+            eoh_cr = len(content)
+
+        return eoh_cr
+
+
+    def getmessageheader(self, content, name):
+        """
+        Searches for the given header and returns its value.
+        Arguments:
+        - contents: message itself
+        - name: name of the header to be searched
+
+        Returns: header value or None if no such header was found
+
+        """
+        self.ui.debug('', 'getmessageheader: called to get %s' % name)
+        eoh = self.__find_eoh(content)
+        self.ui.debug('', 'getmessageheader: eoh = %d' % eoh)
+        headers = content[0:eoh]
+        self.ui.debug('', 'getmessageheader: headers = %s' % repr(headers))
+
+        m = re.search('^%s:(.*)$' % name, headers, flags = re.MULTILINE)
+        if m:
+            return m.group(1).strip()
+        else:
+            return None
+
+
+    def deletemessageheaders(self, content, header_list):
+        """
+        Deletes headers in the given list from the message content.
+
+        Arguments:
+        - content: message itself
+        - header_list: list of headers to be deleted or just the header name
+
+        We expect our message to have '\n' as line endings.
+
+        """
+        if type(header_list) != type([]):
+            header_list = [header_list]
+        self.ui.debug('', 'deletemessageheaders: called to delete %s' % (header_list))
+
+        if not len(header_list): return content
+
+        eoh = self.__find_eoh(content)
+        self.ui.debug('', 'deletemessageheaders: end of headers = %d' % eoh)
+        headers = content[0:eoh]
+        rest = content[eoh:]
+        self.ui.debug('', 'deletemessageheaders: headers = %s' % repr(headers))
+        new_headers = []
+        for h in headers.split('\n'):
+            keep_it = True
+            for trim_h in self.filterheaders:
+                if len(h) > len(trim_h) and h[0:len(trim_h)+1] == (trim_h + ":"):
+                    keep_it = False
+                    break
+            if keep_it: new_headers.append(h)
+
+        return ('\n'.join(new_headers) + rest)
+
+
+
+
     def change_message_uid(self, uid, new_uid):
         """Change the message from existing uid to new_uid
 
@@ -564,14 +665,16 @@ class BaseFolder(object):
          deleted there), sync the flag change to both dstfolder and
          statusfolder.
 
+        Pass4: Synchronize label changes (Gmail only)
+         Compares label mismatches in self with those in statusfolder.
+         If msg has a valid UID and exists on dstfolder, syncs the labels
+         to both dstfolder and statusfolder.
+
         :param dstfolder: Folderinstance to sync the msgs to.
         :param statusfolder: LocalStatus instance to sync against.
-        """
-        passes = [('copying messages'       , self.__syncmessagesto_copy),
-                  ('deleting messages'      , self.__syncmessagesto_delete),
-                  ('syncing flags'          , self.__syncmessagesto_flags)]
 
-        for (passdesc, action) in passes:
+        """
+        for (passdesc, action) in self.syncmessagesto_passes:
             # bail out on CTRL-C or SIGTERM
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break
