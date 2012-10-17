@@ -23,6 +23,7 @@ except ImportError: #python2
 from offlineimap.repository.IMAP import IMAPRepository, MappedIMAPRepository
 from offlineimap.repository.Gmail import GmailRepository
 from offlineimap.repository.Maildir import MaildirRepository
+from offlineimap.repository.GmailMaildir import GmailMaildirRepository
 from offlineimap.repository.LocalStatus import LocalStatusRepository
 from offlineimap.error import OfflineImapError
 
@@ -46,7 +47,8 @@ class Repository(object):
         elif reqtype == 'local':
             name = account.getconf('localrepository')
             typemap = {'IMAP': MappedIMAPRepository,
-                       'Maildir': MaildirRepository}
+                       'Maildir': MaildirRepository,
+                       'GmailMaildir': GmailMaildirRepository}
 
         elif reqtype == 'status':
             # create and return a LocalStatusRepository
@@ -84,4 +86,3 @@ class Repository(object):
         :param regtype: 'remote', 'local', or 'status'
         """
         pass
-
