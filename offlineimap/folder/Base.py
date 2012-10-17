@@ -66,6 +66,10 @@ class BaseFolder(object):
             self.ui.debug('', "Filtering out '%s'[%s] due to folderfilter" \
                           % (self.ffilter_name, repository))
 
+        # Passes for syncmessagesto
+        self.syncmessagesto_passes = [('copying messages'       , self.syncmessagesto_copy),
+                                      ('deleting messages'      , self.syncmessagesto_delete),
+                                      ('syncing flags'          , self.syncmessagesto_flags)]
 
     def getname(self):
         """Returns name"""
@@ -253,6 +257,10 @@ class BaseFolder(object):
         """Return the received time for the specified message."""
         raise NotImplementedError
 
+    def getmessagemtime(self, uid):
+        """Returns the message modification time of the specified message."""
+        raise NotImplementedError
+
     def getmessageflags(self, uid):
         """Returns the flags for the specified message."""
         raise NotImplementedError
@@ -303,6 +311,58 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessageflags(uid, flags)
 
+
+    def getmessagelabels(self, uid):
+        """Returns the labels for the specified message."""
+        raise NotImplementedError
+
+    def savemessagelabels(self, uid, labels, ignorelabels=set(), mtime=0):
+        """Sets the specified message's labels to the given set.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        raise NotImplementedError
+
+    def addmessagelabels(self, uid, labels):
+        """Adds the specified labels to the message's labels set.  If a given
+        label is already present, it will not be duplicated.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
+
+        :param labels: A set() of labels"""
+        newlabels = self.getmessagelabels(uid) | labels
+        self.savemessagelabels(uid, newlabels)
+
+    def addmessageslabels(self, uidlist, labels):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        for uid in uidlist:
+            self.addmessagelabels(uid, labels)
+
+    def deletemessagelabels(self, uid, labels):
+        """Removes each label given from the message's label set.  If a given
+        label is already removed, no action will be taken for that label.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        newlabels = self.getmessagelabels(uid) - labels
+        self.savemessagelabels(uid, newlabels)
+
+    def deletemessageslabels(self, uidlist, labels):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        for uid in uidlist:
+            self.deletemessagelabels(uid, labels)
+
+
     def change_message_uid(self, uid, new_uid):
         """Change the message from existing uid to new_uid
 
@@ -327,6 +387,51 @@ class BaseFolder(object):
         dryrun mode."""
         for uid in uidlist:
             self.deletemessage(uid)
+
+    def message_addheader(self, content, headername, headervalue):
+        """Changes the value of headername to headervalue if the header exists,
+        or adds it if it does not exist"""
+
+        self.ui.debug('',
+                 'message_addheader: called to add %s: %s' % (headername,
+                                                                  headervalue))
+        insertionpoint = content.find("\n\n")
+        self.ui.debug('', 'message_addheader: insertionpoint = %d' % insertionpoint)
+        leader = content[0:insertionpoint]
+        self.ui.debug('', 'message_addheader: leader = %s' % repr(leader))
+        if insertionpoint == 0 or insertionpoint == -1:
+            newline = ''
+            insertionpoint = 0
+        else:
+            newline = "\n"
+
+        if re.search('^%s:(.*)$' % headername, leader, flags = re.MULTILINE):
+            leader = re.sub('^%s:(.*)$' % headername, '%s: %s' % (headername, headervalue),
+                            leader, flags = re.MULTILINE)
+        else:
+            leader = leader + newline + "%s: %s" % (headername, headervalue)
+
+        self.ui.debug('', 'message_addheader: newline = ' + repr(newline))
+        trailer = content[insertionpoint:]
+        self.ui.debug('', 'message_addheader: trailer = ' + repr(trailer))
+        return leader + trailer
+
+    def message_getheader(self, content, headername):
+        """Gets the value of the header 'headername' in 'content'. Returns None
+        if can't find the header."""
+
+        self.ui.debug('',
+                 'message_getheader: called to get %s' % headername)
+        insertionpoint = content.find("\n\n")
+        self.ui.debug('', 'message_getheader: insertionpoint = %d' % insertionpoint)
+        leader = content[0:insertionpoint]
+        self.ui.debug('', 'message_getheader: leader = %s' % repr(leader))
+
+        m = re.search('^%s:(.*)$' % headername, leader, flags = re.MULTILINE)
+        if m:
+            return m.group(1).strip()
+        else:
+            return None
 
     def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
         """Copies a message from self to dst if needed, updating the status
@@ -548,14 +653,16 @@ class BaseFolder(object):
          deleted there), sync the flag change to both dstfolder and
          statusfolder.
 
+        Pass4: Synchronize label changes (Gmail only)
+         Compares label mismatches in self with those in statusfolder.
+         If msg has a valid UID and exists on dstfolder, syncs the labels
+         to both dstfolder and statusfolder.
+
         :param dstfolder: Folderinstance to sync the msgs to.
         :param statusfolder: LocalStatus instance to sync against.
         """
-        passes = [('copying messages'       , self.syncmessagesto_copy),
-                  ('deleting messages'      , self.syncmessagesto_delete),
-                  ('syncing flags'          , self.syncmessagesto_flags)]
 
-        for (passdesc, action) in passes:
+        for (passdesc, action) in self.syncmessagesto_passes:
             # bail out on CTRL-C or SIGTERM
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break
