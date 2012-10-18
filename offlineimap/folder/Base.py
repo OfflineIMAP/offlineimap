@@ -99,7 +99,7 @@ class BaseFolder(object):
     def getcopyinstancelimit(self):
         """For threading folders, returns the instancelimitname for
         InstanceLimitedThreads."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def storesmessages(self):
         """Should be true for any backend that actually saves message bodies.
@@ -195,18 +195,18 @@ class BaseFolder(object):
 
         This function needs to be implemented by each Backend
         :returns: UIDVALIDITY as a (long) number"""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def cachemessagelist(self):
         """Reads the message list from disk or network and stores it in
         memory for later use.  This list will not be re-read from disk or
         memory unless this function is called again."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def getmessagelist(self):
         """Gets the current message list.
         You must call cachemessagelist() before calling this function!"""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def uidexists(self, uid):
         """Returns True if uid exists"""
@@ -223,7 +223,7 @@ class BaseFolder(object):
 
     def getmessage(self, uid):
         """Returns the content of the specified message."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
@@ -247,15 +247,15 @@ class BaseFolder(object):
         so you need to ensure that savemessage is never called in a
         dryrun mode.
         """
-        raise NotImplementedException
+        raise NotImplementedError
 
     def getmessagetime(self, uid):
         """Return the received time for the specified message."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def getmessageflags(self, uid):
         """Returns the flags for the specified message."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def savemessageflags(self, uid, flags):
         """Sets the specified message's flags to the given set.
@@ -263,7 +263,7 @@ class BaseFolder(object):
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def addmessageflags(self, uid, flags):
         """Adds the specified flags to the message's flag set.  If a given
@@ -311,14 +311,14 @@ class BaseFolder(object):
         :param new_uid: (optional) If given, the old UID will be changed
             to a new UID. This allows backends efficient renaming of
             messages if the UID has changed."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def deletemessage(self, uid):
         """
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def deletemessages(self, uidlist):
         """
