@@ -356,10 +356,12 @@ class MaildirFolder(BaseFolder):
         oldfilename = self.messagelist[uid]['filename']
         dir_prefix, filename = os.path.split(oldfilename)
         flags = self.getmessageflags(uid)
-        filename = self.__new_message_filename(new_uid, flags)
+        newfilename = os.path.join(dir_prefix,
+          self.__new_message_filename(new_uid, flags))
         os.rename(os.path.join(self.getfullname(), oldfilename),
-                  os.path.join(self.getfullname(), dir_prefix, filename))
+                  os.path.join(self.getfullname(), newfilename))
         self.messagelist[new_uid] = self.messagelist[uid]
+        self.messagelist[new_uid]['filename'] = newfilename
         del self.messagelist[uid]
 
     # Interface from BaseFolder
