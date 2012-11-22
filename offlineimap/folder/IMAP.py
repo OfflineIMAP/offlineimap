@@ -512,7 +512,7 @@ class IMAPFolder(BaseFolder):
             trailer = content[insertionpoint:]
 
             for header in self.filterheaders:
-                leader = re.sub('^%s:.*$\n?' % header, '', leader, flags = re.MULTILINE)
+                leader = re.compile('^%s:.*$\n?' % header, flags = re.MULTILINE).sub('', leader)
 
             content = leader + trailer
 

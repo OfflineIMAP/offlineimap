@@ -405,9 +405,9 @@ class BaseFolder(object):
         else:
             newline = "\n"
 
-        if re.search('^%s:(.*)$' % headername, leader, flags = re.MULTILINE):
-            leader = re.sub('^%s:(.*)$' % headername, '%s: %s' % (headername, headervalue),
-                            leader, flags = re.MULTILINE)
+        reheader = re.compile('^%s:(.*)$' % headername, flags=re.MULTILINE)
+        if reheader.search(leader):
+            leader = reheader.sub('%s: %s' % (headername, headervalue), leader)
         else:
             leader = leader + newline + "%s: %s" % (headername, headervalue)
 
