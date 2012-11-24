@@ -178,7 +178,7 @@ class GmailFolder(IMAPFolder):
             labels = set()
 
         ret = super(GmailFolder, self).savemessage(uid, content, flags, rtime)
-        self.savemessagelabels(uid, labels)
+        self.savemessagelabels(ret, labels)
         return ret
 
     def _messagelabels_aux(self, arg, uidlist, labels):
@@ -221,6 +221,8 @@ class GmailFolder(IMAPFolder):
             result = self._messagelabels_aux('X-GM-LABELS', [uid], newlabels)
             if result:
                 self.messagelist[uid]['labels'] = newlabels
+            else:
+                self.messagelist[uid]['labels'] = oldlabels
 
     def addmessageslabels(self, uidlist, labels):
         """Add `labels` to all messages in uidlist.
