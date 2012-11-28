@@ -21,6 +21,12 @@ import string
 from offlineimap.ui import getglobalui
 
 
+## Globals
+
+# Message headers that use space as the separator (for label storage)
+SPACE_SEPARATED_LABEL_HEADERS = ('X-Label', 'Keywords')
+
+
 def __debug(*args):
     msg = []
     for arg in args:
@@ -260,3 +266,69 @@ def __split_quoted(string):
 		rest = rest[next_q + 1:]
 		if not is_escaped:
 			return (quoted, rest.lstrip())
+
+
+def format_labels_string(header, labels):
+    """
+    Formats labels for embedding into a message,
+    with format according to header name.
+    
+    Headers from SPACE_SEPARATED_LABEL_HEADERS keep space-separated list
+    of labels, the rest uses comma (',') as the separator.
+
+    Also see parse_labels_string() and modify it accordingly
+    if logics here gets changed.
+
+    """
+    if header in SPACE_SEPARATED_LABEL_HEADERS:
+        sep = ' '
+    else:
+        sep = ','
+
+    return sep.join(labels)
+
+
+def parse_labels_string(header, labels_str):
+    """
+    Parses a string into a set of labels, with a format according to
+    the name of the header.
+
+    See __format_labels_string() for explanation on header handling
+    and keep these two functions synced with each other.
+
+    TODO: add test to ensure that
+      format_labels_string * parse_labels_string is unity
+    and
+      parse_labels_string * format_labels_string is unity
+
+    """
+
+    if header in SPACE_SEPARATED_LABEL_HEADERS:
+        sep = ' '
+    else:
+        sep = ','
+
+    labels = labels_str.strip().split(sep)
+
+    return set([l.strip() for l in labels if l.strip()])
+
+
+def labels_from_header(header_name, header_value):
+    """
+    Helper that builds label set from the corresponding header value.
+
+    Arguments:
+    - header_name: name of the header that keeps labels;
+    - header_value: value of the said header, can be None
+
+    Returns: set of labels parsed from the header (or empty set).
+
+    """
+
+    if header_value:
+        labels = parse_labels_string(header_name, header_value)
+    else:
+        labels = set()
+
+    return labels
+
