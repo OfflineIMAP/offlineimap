@@ -312,6 +312,28 @@ class BaseFolder(object):
             self.deletemessageflags(uid, flags)
 
 
+    def format_labels_string(self, header, labels):
+        """
+        Formats labels for embedding into a message, with a format according to header.
+        """
+        if header == 'X-Label':        labels_str = ' '.join(labels)
+        elif header == 'Keywords':     labels_str = ' '.join(labels)
+        elif header == 'X-Keywords':   labels_str = ', '.join(labels)
+
+        return labels_str
+
+    def parse_labels_string(self, header, labels_str):
+        """
+        Parses a string into a set of labels, with a format according to header.
+        """
+        labels_str = labels_str.strip()
+
+        if header == 'X-Label':        labels = labels_str.split(' ')
+        elif header == 'Keywords':     labels = labels_str.split(' ')
+        elif header == 'X-Keywords':   labels = labels_str.split(',')
+
+        return set([lb.strip() for lb in labels if len(lb.strip()) > 0])
+
     def getmessagelabels(self, uid):
         """Returns the labels for the specified message."""
         raise NotImplementedError

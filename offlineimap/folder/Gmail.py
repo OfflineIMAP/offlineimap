@@ -90,8 +90,8 @@ class GmailFolder(IMAPFolder):
             else:
                 labels = set()
             labels = labels - self.ignorelabels
-            labels = ', '.join(sorted(labels))
-            body = self.savemessage_addheader(body, self.labelsheader, labels)
+            labels_str = self.format_labels_string(self.labelsheader, sorted(labels))
+            body = self.savemessage_addheader(body, self.labelsheader, labels_str)
 
         if len(body)>200:
             dbg_output = "%s...%s" % (str(body)[:150], str(body)[-50:])
@@ -171,11 +171,9 @@ class GmailFolder(IMAPFolder):
         if not self.synclabels:
             return super(GmailFolder, self).savemessage(uid, content, flags, rtime)
 
-        labels = self.message_getheader(content, self.labelsheader)
-        if labels:
-            labels = set([lb.strip() for lb in labels.split(',') if len(lb.strip()) > 0])
-        else:
-            labels = set()
+        labels_str = self.message_getheader(content, self.labelsheader)
+        if labels_str: labels = self.parse_labels_string(self.labelsheader, labels_str)
+        else:          labels = set()
 
         ret = super(GmailFolder, self).savemessage(uid, content, flags, rtime)
         self.savemessagelabels(ret, labels)

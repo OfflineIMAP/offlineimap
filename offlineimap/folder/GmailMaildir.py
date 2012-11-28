@@ -78,11 +78,10 @@ class GmailMaildirFolder(MaildirFolder):
             content = file.read()
             file.close()
 
-            labels = self.message_getheader(content, self.labelsheader)
-            if labels:
-                labels = set([lb.strip() for lb in labels.split(',') if len(lb.strip()) > 0])
-            else:
-                labels = set()
+            labels_str = self.message_getheader(content, self.labelsheader)
+            if labels_str: labels = self.parse_labels_string(self.labelsheader, labels_str)
+            else:          labels = set()
+
             self.messagelist[uid]['labels'] = labels
 
         return self.messagelist[uid]['labels']
@@ -103,11 +102,10 @@ class GmailMaildirFolder(MaildirFolder):
         if not self.synclabels:
             return super(GmailMaildirFolder, self).savemessage(uid, content, flags, rtime)
 
-        labels = self.message_getheader(content, self.labelsheader)
-        if labels:
-            labels = set([lb.strip() for lb in labels.split(',') if len(lb.strip()) > 0])
-        else:
-            labels = set()
+        labels_str = self.message_getheader(content, self.labelsheader)
+        if labels_str: labels = self.parse_labels_string(self.labelsheader, labels_str)
+        else:          labels = set()
+
         ret = super(GmailMaildirFolder, self).savemessage(uid, content, flags, rtime)
 
         # Update the mtime and labels
@@ -130,12 +128,9 @@ class GmailMaildirFolder(MaildirFolder):
         content = file.read()
         file.close()
 
-        oldlabels = self.message_getheader(content, self.labelsheader)
-
-        if oldlabels:
-            oldlabels = set([lb.strip() for lb in oldlabels.split(',') if len(lb.strip()) > 0])
-        else:
-            oldlabels = set()
+        oldlabels_str = self.message_getheader(content, self.labelsheader)
+        if oldlabels_str: oldlabels = self.parse_labels_string(self.labelsheader, oldlabels_str)
+        else:             oldlabels = set()
 
         labels = labels - ignorelabels
         ignoredlabels = oldlabels & ignorelabels
@@ -146,7 +141,7 @@ class GmailMaildirFolder(MaildirFolder):
             return
 
         # Change labels into content
-        labels_str = ', '.join(sorted(labels | ignoredlabels))
+        labels_str = self.format_labels_string(self.labelsheader, sorted(labels | ignoredlabels))
         content = self.message_addheader(content, self.labelsheader, labels_str)
         rtime = self.messagelist[uid].get('rtime', None)
 
