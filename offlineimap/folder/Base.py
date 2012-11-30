@@ -419,13 +419,14 @@ class BaseFolder(object):
                                                                   headervalue))
         insertionpoint = content.find("\n\n")
         self.ui.debug('', 'message_addheader: insertionpoint = %d' % insertionpoint)
-        leader = content[0:insertionpoint]
-        self.ui.debug('', 'message_addheader: leader = %s' % repr(leader))
         if insertionpoint == 0 or insertionpoint == -1:
+            leader = ''
             newline = ''
             insertionpoint = 0
         else:
+            leader = content[0:insertionpoint]
             newline = "\n"
+        self.ui.debug('', 'message_addheader: leader = %s' % repr(leader))
 
         reheader = re.compile('^%s:(.*)$' % headername, flags=re.MULTILINE)
         if reheader.search(leader):
