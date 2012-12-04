@@ -163,7 +163,7 @@ class IMAPRepository(BaseRepository):
     def getsslcacertfile(self):
         """Return the absolute path of the CA certfile to use, if any"""
         cacertfile = self.getconf('sslcacertfile', 
-                                  get_system_default_cacertfile())
+                                  get_system_default_cacertfile(self.ui))
         if cacertfile is None:
             return None
         cacertfile = os.path.expanduser(cacertfile)

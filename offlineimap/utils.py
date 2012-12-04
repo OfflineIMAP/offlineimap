@@ -27,11 +27,16 @@ DISTRO_TO_CA_CERTFILE_MAPPING = {
 }
 
 
-def get_system_default_cacertfile():
+def get_system_default_cacertfile(ui):
     if not DISTRO_CODENAME:
         return None
     system_ca_certfile = DISTRO_TO_CA_CERTFILE_MAPPING.get(
         DISTRO_CODENAME.lower(), None)
-    if system_ca_certfile is None or not os.path.exists(system_ca_certfile):
+    if system_ca_certfile is None:
+        ui.info("No ca-cert default location known for '%s'" % DISTRO_CODENAME)
+        return None
+    if not os.path.exists(system_ca_certfile):
+        ui.info("No file found on expected ca-cert location '%s'" % 
+                system_ca_certfile)
         return None
     return system_ca_certfile
