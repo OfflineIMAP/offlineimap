@@ -21,6 +21,7 @@ DISTRO_CODENAME = platform.linux_distribution()[0]
 
 DISTRO_TO_CA_CERTFILE_MAPPING = {
     'ubuntu': '/etc/ssl/certs/ca-certificates.crt',
+    'debian': '/etc/ssl/certs/ca-certificates.crt',
     'fedora': '/etc/pki/tls/certs/ca-bundle.crt',
     'redhat': '/etc/pki/tls/certs/ca-bundle.crt',
     'suse': '/etc/ssl/ca-bundle.pem',
