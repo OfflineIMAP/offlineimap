@@ -57,6 +57,8 @@ def checkdatetuple(datetuple):
     :return the datetuple if it seems correct, `None` otherwise."""
     try:
         # Check for invalid dates
+        if datetuple is None:
+            return None
         if datetuple[0] < 1981:
             raise ValueError
 
