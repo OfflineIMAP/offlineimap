@@ -15,14 +15,13 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import email
 import random
 import binascii
 import re
 import time
 from sys import exc_info
 from .Base import BaseFolder
-from offlineimap import imaputil, imaplibutil, OfflineImapError
+from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
 from offlineimap.imaplib2 import MonthNames
 
 
@@ -430,39 +429,16 @@ class IMAPFolder(BaseFolder):
         :returns: string in the form of "DD-Mmm-YYYY HH:MM:SS +HHMM"
                   (including double quotes) or `None` in case of failure
                   (which is fine as value for append)."""
-        if rtime is None:
-            message = email.message_from_string(content)
-            dateheader = message.get('Date')
-            # parsedate_tz returns a 10-tuple that can be passed to mktime_tz;
-            # Will be None if missing or not in a valid format.  Note that
-            # indexes 6, 7, and 8 of the result tuple are not usable.
-            datetuple = email.utils.parsedate_tz(dateheader)
-            if datetuple is None:
-                #could not determine the date, use the local time.
-                return None
-            #make it a real struct_time, so we have named attributes
-            datetuple = time.localtime(email.utils.mktime_tz(datetuple))
-        else:
-            #rtime is set, use that instead
-            datetuple = time.localtime(rtime)
+        initialtuple = emailutil.getmessagedate(content, 'Date', rtime)
+        datetuple = emailutil.checkdatetuple(initialtuple)
 
-        try:
-            # Check for invalid dates
-            if datetuple[0] < 1981:
-                raise ValueError
-
-            # Check for invalid dates
-            datetuple_check = time.localtime(time.mktime(datetuple))
-            if datetuple[:2] != datetuple_check[:2]:
-                raise ValueError
-
-        except (ValueError, OverflowError):
+        if datetuple is None:
             # Argh, sometimes it's a valid format but year is 0102
             # or something.  Argh.  It seems that Time2Internaldate
             # will rause a ValueError if the year is 0102 but not 1902,
             # but some IMAP servers nonetheless choke on 1902.
             self.ui.debug('imap', "Message with invalid date %s. Server will use local time." \
-                              % datetuple)
+                              % initialtuple)
             return None
 
         #produce a string representation of datetuple that works as
