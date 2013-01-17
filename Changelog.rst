@@ -10,6 +10,8 @@ WIP (add new stuff for the next release)
 * Removed insecure SSLv2 protocol in the SSL handshake. (C. Russo / J. Frederick Eick)
 * Dump stacktrace for all threads on SIGQUIT: ease debugging of threading 
   and other issues
+* Avoid lockups for IMAP synchronizations running with the
+  "-1" command-line switch (X-Ryl669 <boite.pour.spam@gmail.com>)
 * SIGHUP is now handled as the termination notification rather than
   the signal to reread the configuration (Dmitrijs Ledkovs)
 * Honor the timezone of emails (Tobias Thierer)

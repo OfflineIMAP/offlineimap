@@ -321,13 +321,16 @@ class SyncableAccount(Account):
                     self.ui.debug('', "Not syncing filtered folder '%s'"
                                  "[%s]" % (localfolder, localfolder.repository))
                     continue # Ignore filtered folder
-                thread = InstanceLimitedThread(\
-                    instancename = 'FOLDER_' + self.remoterepos.getname(),
-                    target = syncfolder,
-                    name = "Folder %s [acc: %s]" % (remotefolder, self),
-                    args = (self, remotefolder, quick))
-                thread.start()
-                folderthreads.append(thread)
+                if self.config.get('general', 'single-thread') == 'False':
+                    thread = InstanceLimitedThread(\
+                        instancename = 'FOLDER_' + self.remoterepos.getname(),
+                        target = syncfolder,
+                        name = "Folder %s [acc: %s]" % (remotefolder, self),
+                        args = (self, remotefolder, quick))
+                    thread.start()
+                    folderthreads.append(thread)
+                else:
+                    syncfolder(self, remotefolder, quick)
             # wait for all threads to finish
             for thr in folderthreads:
                 thr.join()
@@ -372,8 +375,7 @@ class SyncableAccount(Account):
             self.ui.error(e, exc_info()[2], msg = "Calling hook")
 
 def syncfolder(account, remotefolder, quick):
-    """This function is called as target for the
-    InstanceLimitedThread invokation in SyncableAccount.
+    """Synchronizes given remote folder for the specified account.
 
     Filtered folders on the remote side will not invoke this function."""
     remoterepos = account.remoterepos
