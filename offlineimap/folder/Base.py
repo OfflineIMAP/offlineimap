@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import threadutil
+from offlineimap import threadutil, emailutil
 from offlineimap import globals
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
@@ -48,6 +48,13 @@ class BaseFolder(object):
         if self.visiblename == self.getsep():
             self.visiblename = ''
         self.config = repository.getconfig()
+        utime_from_message_global = \
+          self.config.getdefaultboolean("general",
+          "utime_from_message", False)
+        repo = "Repository " + repository.name
+        self._utime_from_message = \
+          self.config.getdefaultboolean(repo,
+          "utime_from_message", utime_from_message_global)
 
     def getname(self):
         """Returns name"""
@@ -65,6 +72,10 @@ class BaseFolder(object):
     def sync_this(self):
         """Should this folder be synced or is it e.g. filtered out?"""
         return self._sync_this
+
+    @property
+    def utime_from_message(self):
+        return self._utime_from_message
 
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
@@ -327,6 +338,9 @@ class BaseFolder(object):
             message = None
             flags = self.getmessageflags(uid)
             rtime = self.getmessagetime(uid)
+            if dstfolder.utime_from_message:
+                content = self.getmessage(uid)
+                rtime = emailutil.get_message_date(content, 'Date')
 
             if uid > 0 and dstfolder.uidexists(uid):
                 # dst has message with that UID already, only update status

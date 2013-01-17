@@ -21,6 +21,8 @@ WIP (add new stuff for the next release)
   (Steve Purcell)
 * Make the list of authentication mechanisms to be configurable.
   (Andreas Mack)
+* Allow to set message access and modification timestamps based
+  on the "Date" header of the message itself.  (Cyril Russo)
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================
