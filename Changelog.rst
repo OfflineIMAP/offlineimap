@@ -7,6 +7,8 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
+* Avoid lockups for IMAP synchronizations running with the
+  "-1" command-line switch (X-Ryl669 <boite.pour.spam@gmail.com>)
 * Dump stacktrace for all threads on SIGQUIT: ease debugging
   of threading and other issues
 * SIGHUP is now handled as the termination notification rather than

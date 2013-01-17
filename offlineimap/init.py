@@ -251,6 +251,9 @@ class OfflineImap:
                 if type.lower() == 'imap':
                     imaplib.Debug = 5
 
+        # XXX: can we avoid introducing fake configuration item?
+        config.set_if_not_exists('general', 'single-thread', 'True' if options.singlethreading else 'False')
+
         if options.runonce:
             # FIXME: maybe need a better
             for section in accounts.getaccountlist(config):
