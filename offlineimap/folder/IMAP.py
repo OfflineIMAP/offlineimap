@@ -225,7 +225,13 @@ class IMAPFolder(BaseFolder):
                     fails_left -= 1
                     if not fails_left:
                         raise e
-            if data == [None] or res_type != 'OK':
+            # Remove unsolicited FETCH responses caused by flag
+            # changes from concurrent connections.  These appear as
+            # strings in 'data' (the BODY response appears as a
+            # tuple).  This should leave exactly one response.
+            if res_type == 'OK':
+                data = [res for res in data if not isinstance(res, str)]
+            if data == [None] or res_type != 'OK' or len(data) != 1:
                 #IMAP server says bad request or UID does not exist
                 severity = OfflineImapError.ERROR.MESSAGE
                 reason = "IMAP server '%s' failed to fetch message UID '%d'."\
