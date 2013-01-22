@@ -247,6 +247,20 @@ class IMAPRepository(BaseRepository):
         # no strategy yielded a password!
         return None
 
+    def getoauth2(self):
+        return self.getconfboolean('oauth2', False)
+
+    def getoauth2url(self):
+        return self.getconf('oauth2_url')
+
+    def getoauth2clientid(self):
+        return self.getconf('oauth2_client_id')
+
+    def getoauth2clientsecret(self):
+        return self.getconf('oauth2_client_secret')
+
+    def getoauth2refreshtoken(self):
+        return self.getconf('oauth2_refresh_token')
 
     def getfolder(self, foldername):
         return self.getfoldertype()(self.imapserver, foldername, self)

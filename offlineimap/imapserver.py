@@ -24,6 +24,8 @@ import socket
 import base64
 import time
 import errno
+import json
+import urllib
 from sys import exc_info
 from socket import gaierror
 from ssl import SSLError, cert_time_to_seconds
@@ -56,6 +58,11 @@ class IMAPServer:
         self.usessl = repos.getssl()
         self.username = None if self.tunnel else repos.getuser()
         self.password = None
+        self.oauth2 = repos.getoauth2()
+        self.oauth2url = repos.getoauth2url() if self.oauth2 else None
+        self.oauth2clientid = repos.getoauth2clientid() if self.oauth2 else None
+        self.oauth2clientsecret = repos.getoauth2clientsecret() if self.oauth2 else None
+        self.oauth2refreshtoken = repos.getoauth2refreshtoken() if self.oauth2 else None
         self.passworderror = None
         self.goodpassword = None
         self.hostname = None if self.tunnel else repos.gethost()
@@ -125,6 +132,29 @@ class IMAPServer:
         passwd = self.getpassword()
         retval = self.username + ' ' + hmac.new(passwd, challenge).hexdigest()
         self.ui.debug('imap', 'md5handler: returning %s' % retval)
+        return retval
+
+    def oauth2handler(self, response):
+        data = {
+            'client_id': self.oauth2clientid,
+            'client_secret': self.oauth2clientsecret,
+            'refresh_token': self.oauth2refreshtoken,
+            'grant_type': 'refresh_token'
+        }
+        try:
+            http = urllib.urlopen(self.oauth2url, urllib.urlencode(data))
+        except IOError:
+            raise OfflineImapError("Couldn't connect to OAUTH2 server",
+                OfflineImapError.ERROR.REPO)
+
+        try:
+            http = json.load(http)
+            retval = 'user=%s\001auth=Bearer %s\001\001' % (self.username, http['access_token'])
+        except ValueError, KeyError:
+            raise OfflineImapError("Malformed JSON response from OAUTH2 server",
+                OfflineImapError.ERROR.REPO)
+
+        self.ui.debug('imap', 'oauth2handler: returning %s' % retval)
         return retval
 
     def plainauth(self, imapobj):
@@ -248,7 +278,17 @@ class IMAPServer:
                                               'Using STARTTLS connection')
                                 imapobj.starttls()
 
-                            if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+                            if 'AUTH=XOAUTH2' in imapobj.capabilities and self.oauth2:
+                                self.ui.debug('imap',
+                                           'Attempting XOAUTH2 authentication')
+                                try:
+                                    imapobj.authenticate('XOAUTH2',
+                                                         self.oauth2handler)
+                                except imapobj.error as val:
+                                    raise OfflineImapError("Error while XOAUTH2ing:"
+                                        "%s" % (val),
+                                        OfflineImapError.ERROR.REPO)
+                            elif 'AUTH=CRAM-MD5' in imapobj.capabilities:
                                 self.ui.debug('imap',
                                            'Attempting CRAM-MD5 authentication')
                                 try:
