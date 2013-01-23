@@ -421,22 +421,28 @@ class BaseFolder(object):
         self.ui.debug('', 'message_addheader: insertionpoint = %d' % insertionpoint)
         if insertionpoint == 0 or insertionpoint == -1:
             leader = ''
-            newline = ''
+            prenewline = ''
+            if insertionpoint == -1:
+                postnewline = '\n'
             insertionpoint = 0
         else:
             leader = content[0:insertionpoint]
-            newline = "\n"
+            prenewline = '\n'
+            postnewline = ''
+
         self.ui.debug('', 'message_addheader: leader = %s' % repr(leader))
 
         reheader = re.compile('^%s:(.*)$' % headername, flags=re.MULTILINE)
         if reheader.search(leader):
             leader = reheader.sub('%s: %s' % (headername, headervalue), leader)
         else:
-            leader = leader + newline + "%s: %s" % (headername, headervalue)
+            leader = leader + prenewline + "%s: %s" % (headername, headervalue) + postnewline
 
-        self.ui.debug('', 'message_addheader: newline = ' + repr(newline))
         trailer = content[insertionpoint:]
+
+        self.ui.debug('', 'message_addheader: leader = ' + repr(leader))
         self.ui.debug('', 'message_addheader: trailer = ' + repr(trailer))
+
         return leader + trailer
 
     def message_getheader(self, content, headername):
