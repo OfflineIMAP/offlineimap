@@ -28,6 +28,7 @@ from offlineimap import accounts, threadutil, syncmaster
 from offlineimap.error import OfflineImapError
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
+from offlineimap.utils import stacktrace
 
 
 class OfflineImap:
@@ -341,12 +342,16 @@ class OfflineImap:
                     getglobalui().warn("Terminating NOW (this may "\
                                        "take a few seconds)...")
                     accounts.Account.set_abort_event(self.config, 3)
+                elif sig == signal.SIGQUIT:
+                    stacktrace.dump (sys.stderr)
+                    os.abort()
 
             signal.signal(signal.SIGHUP,sig_handler)
             signal.signal(signal.SIGUSR1,sig_handler)
             signal.signal(signal.SIGUSR2,sig_handler)
             signal.signal(signal.SIGTERM, sig_handler)
             signal.signal(signal.SIGINT, sig_handler)
+            signal.signal(signal.SIGQUIT, sig_handler)
 
             #various initializations that need to be performed:
             offlineimap.mbnames.init(self.config, syncaccounts)

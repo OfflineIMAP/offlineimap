@@ -7,7 +7,8 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
-=======
+* Dump stacktrace for all threads on SIGQUIT: ease debugging
+  of threading and other issues
 * SIGHUP is now handled as the termination notification rather than
   the signal to reread the configuration (Dmitrijs Ledkovs)
 * Honor the timezone of emails (Tobias Thierer)
