@@ -22,6 +22,7 @@ import time
 from sys import exc_info
 from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
+from offlineimap import globals
 from datetime import date, datetime, timedelta
 
 class IMAPFolder(BaseFolder):
@@ -51,7 +52,7 @@ class IMAPFolder(BaseFolder):
             imapobj.select(self.getfullname(), readonly = True, force = force)
 
     def suggeststhreads(self):
-        return 1
+        return not globals.options.singlethreading
 
     def waitforthread(self):
         self.imapserver.connectionwait()
