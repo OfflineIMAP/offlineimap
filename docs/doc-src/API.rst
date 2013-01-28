@@ -51,6 +51,22 @@ An :class:`accounts.Account` connects two email repositories that are to be sync
 
       Contains the current :mod:`offlineimap.ui`, and can be used for logging etc.
 
+
+:class:`offlineimap.repository.BaseRepository`
+==============================================
+
+Each repository that will take part of a synchronization implement this interface.
+Depending on the repository type, either Maildir, IMAP or GmailImap provide a common interface for listing and syncing the folders.
+Any mapping (with the `nametrans` option) is done here.
+This class is not in charge of synchronizing the content of the folders.
+
+:class:`offlineimap.folder.BaseFolder`
+======================================
+
+A repository uses folders to synchronize. A repository will use a specialized folder implementation.
+All folders implements this interface, which allow listing the messages, fetching them, and saving them.
+
+
 :exc:`OfflineImapError` -- A Notmuch execution error
 --------------------------------------------------------
 

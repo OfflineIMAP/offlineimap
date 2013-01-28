@@ -467,10 +467,9 @@ One test you could do yourself if your MUA is set up correctly is:
 * Save that patch to a file in UNIX mailbox format.  Call it say
   a.patch.
 
-* Try to apply to the tip of the "master" branch from the
-  git.git public repository::
+* Try to apply to the tip of the "master" branch from the public repository::
 
-    $ git fetch http://kernel.org/pub/scm/git/git.git master:test-apply
+    $ git fetch https://github.com/OfflineIMAP/offlineimap.git master:test-apply
     $ git checkout test-apply
     $ git reset --hard
     $ git am a.patch

@@ -32,7 +32,7 @@ try: # python 2.6 has set() built in
 except NameError:
     from sets import Set as set
 
-from offlineimap import OfflineImapError
+from offlineimap import emailutil, OfflineImapError
 
 # Find the UID in a message filename
 re_uidmatch = re.compile(',U=(\d+)')
@@ -63,6 +63,7 @@ class MaildirFolder(BaseFolder):
         self.sep = sep # needs to be set before super().__init__
         super(MaildirFolder, self).__init__(name, repository)
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
+        self.syncdate = self.config.getdefaultboolean("Repository " + repository.name, "syncdate", self.config.getdefaultboolean("general", "syncdate", False))
         self.root = root
         self.messagelist = None
         # check if we should use a different infosep to support Win file systems
@@ -278,6 +279,12 @@ class MaildirFolder(BaseFolder):
         if self.dofsync:
             os.fsync(fd)
         file.close()
+
+        # Force using the message date if required to
+        if self.syncdate:
+            datetuple = emailutil.getmessagedate(content, 'Date', rtime) # TODO: Use Received header instead
+            datetuple = emailutil.checkdatetuple(datetuple)
+            rtime = None if datetuple is None else time.mktime(datetuple)
 
         if rtime != None:
             os.utime(os.path.join(tmpdir, messagename), (rtime, rtime))
