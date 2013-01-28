@@ -7,7 +7,9 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
-* Removed insecure SSLv2 protocol in the SSL handshake. (Cyril Russo / Jan Frederick Eick)
+* Removed insecure SSLv2 protocol in the SSL handshake. (C. Russo / J. Frederick Eick)
+* Dump stacktrace for all threads on SIGQUIT: ease debugging of threading 
+  and other issues
 * SIGHUP is now handled as the termination notification rather than
   the signal to reread the configuration (Dmitrijs Ledkovs)
 * Honor the timezone of emails (Tobias Thierer)

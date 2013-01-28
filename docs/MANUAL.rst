@@ -310,7 +310,7 @@ UNIX Signals
 ============
 
 OfflineImap listens to the unix signals SIGUSR1, SIGUSR2, SIGTERM,
-SIGINT, SIGHUP:
+SIGINT, SIGHUP, SIGQUIT:
 
 If sent a SIGUSR1 it will abort any current (or next future) sleep of all
 accounts that are configured to "autorefresh". In effect, this will trigger a
@@ -326,6 +326,9 @@ soon as possible. This means it will finish syncing the current folder
 in each account, close keep alive connections, remove locks on the
 accounts and exit. It may take up to 10 seconds, if autorefresh option
 is used.
+
+SIGQUIT dumps stack traces for all threads and tries to dump process
+core.
 
 Folder filtering and nametrans
 ==============================
