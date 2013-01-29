@@ -21,7 +21,7 @@ More information on specific topics can be found on the following pages:
 **Configuration**
   * :doc:`user manual/Configuration <MANUAL>`
   * :doc:`Folder filtering & name transformation guide <nametrans>`
-  * :doc:`maxage <advanced_config>`
+  * :doc:`maxage, maxsize and startdate <advanced_config>`
   * :doc:`command line options <offlineimap>`
   * :doc:`Frequently Asked Questions <FAQ>`
 

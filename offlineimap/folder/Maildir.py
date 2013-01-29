@@ -21,6 +21,7 @@ import re
 import os
 from .Base import BaseFolder
 from threading import Lock
+from datetime import date, datetime, timedelta
 
 try:
     from hashlib import md5
@@ -79,6 +80,7 @@ class MaildirFolder(BaseFolder):
         self._foldermd5 = md5(self.getvisiblename()).hexdigest()
         # Cache the full folder path, as we use getfullname() very often
         self._fullname = os.path.join(self.getroot(), self.getname())
+        self.oldest_time_utc = None
 
     def getfullname(self):
         """Return the absolute file path to the Maildir folder (sans cur|new)"""
@@ -93,24 +95,11 @@ class MaildirFolder(BaseFolder):
 
     #Checks to see if the given message is within the maximum age according
     #to the maildir name which should begin with a timestamp
-    def _iswithinmaxage(self, messagename, maxage):
-        #In order to have the same behaviour as SINCE in an IMAP search
-        #we must convert this to the oldest time and then strip off hrs/mins
-        #from that day
-        oldest_time_utc = time.time() - (60*60*24*maxage)
-        oldest_time_struct = time.gmtime(oldest_time_utc)
-        oldest_time_today_seconds = ((oldest_time_struct[3] * 3600) \
-            + (oldest_time_struct[4] * 60) \
-            + oldest_time_struct[5])
-        oldest_time_utc -= oldest_time_today_seconds
-
+    def _iswithinmaxage(self, messagename):
         timestampmatch = re_timestampmatch.search(messagename)
         timestampstr = timestampmatch.group()
         timestamplong = long(timestampstr)
-        if(timestamplong < oldest_time_utc):
-            return False
-        else:
-            return True
+        return timestamplong >= self.oldest_time_utc
 
     def _parse_filename(self, filename):
         """Returns a messages file name components
@@ -154,6 +143,15 @@ class MaildirFolder(BaseFolder):
         :returns: dict that can be used as self.messagelist"""
         maxage = self.config.getdefaultint("Account " + self.accountname,
                                            "maxage", None)
+        startdate = self.config.getdefault("Account " + self.accountname,
+                                           "startdate", None)
+        if startdate:
+            oldest_date = datetime.strptime(startdate, "%Y-%m-%d").date()
+            self.oldest_time_utc = time.mktime(oldest_date.timetuple())
+        elif maxage:
+            oldest_date = datetime.utcnow().date() - timedelta(days=maxage)
+            self.oldest_time_utc = time.mktime(oldest_date.timetuple())
+
         maxsize = self.config.getdefaultint("Account " + self.accountname,
                                             "maxsize", None)
         retval = {}
@@ -168,7 +166,7 @@ class MaildirFolder(BaseFolder):
             # We store just dirannex and filename, ie 'cur/123...'
             filepath = os.path.join(dirannex, filename)
             # check maxage/maxsize if this message should be considered
-            if maxage and not self._iswithinmaxage(filename, maxage):
+            if (maxage or startdate) and not self._iswithinmaxage(filename):
                 continue
             if maxsize and (os.path.getsize(os.path.join(
                         self.getfullname(), filepath)) > maxsize):

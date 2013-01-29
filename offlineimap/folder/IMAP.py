@@ -22,8 +22,7 @@ import time
 from sys import exc_info
 from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
-from offlineimap.imaplib2 import MonthNames
-
+from datetime import date, datetime, timedelta
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, repository):
@@ -120,6 +119,8 @@ class IMAPFolder(BaseFolder):
     def cachemessagelist(self):
         maxage = self.config.getdefaultint("Account %s" % self.accountname,
                                            "maxage", -1)
+        startdate = self.config.getdefault("Account %s" % self.accountname,
+                                           "startdate", None)
         maxsize = self.config.getdefaultint("Account %s" % self.accountname,
                                             "maxsize", -1)
         self.messagelist = {}
@@ -133,20 +134,20 @@ class IMAPFolder(BaseFolder):
             # By default examine all UIDs in this folder
             msgsToFetch = '1:*'
 
-            if (maxage != -1) | (maxsize != -1):
+            if (maxage != -1) or startdate or (maxsize != -1):
                 search_cond = "(";
 
-                if(maxage != -1):
-                    #find out what the oldest message is that we should look at
-                    oldest_struct = time.gmtime(time.time() - (60*60*24*maxage))
-                    if oldest_struct[0] < 1900:
-                        raise OfflineImapError("maxage setting led to year %d. "
-                                               "Abort syncing." % oldest_struct[0],
+                oldest_date = None
+                if startdate:
+                    oldest_date = datetime.strptime(startdate, "%Y-%m-%d").date()
+                elif(maxage != -1):
+                    oldest_date = datetime.utcnow().date() - timedelta(days=maxage)
+                if oldest_date:
+                    if oldest_date.year < 1900:
+                        raise OfflineImapError("maxage/startdate setting led to year %d. "
+                                               "Abort syncing." % oldest_struct.year,
                                                OfflineImapError.ERROR.REPO)
-                    search_cond += "SINCE %02d-%s-%d" % (
-                        oldest_struct[2],
-                        MonthNames[oldest_struct[1]],
-                        oldest_struct[0])
+                    search_cond += oldest_date.strftime("SINCE %d-%b-%Y")
 
                 if(maxsize != -1):
                     if(maxage != -1): # There are two conditions, add space

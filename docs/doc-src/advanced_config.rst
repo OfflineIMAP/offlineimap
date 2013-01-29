@@ -1,14 +1,19 @@
 Message filtering
 =================
 
-There are two ways to selectively filter messages out of a folder, using `maxsize` and `maxage`. Setting each option will basically ignore all messages that are on the server by pretending they don't exist.
+There are several ways to selectively filter messages out of a folder. Setting one of these options will effectively ignore all messages that are on the server that don't fall into the filter range by pretending they don't exist.
 
 :todo: explain them and give tipps on how to use and not use them. Use cases!
 
 maxage
 ------
+Integer value. Will ignore all messages older than 'maxage' days old
 
-:todo: !
+startdate
+---------
+Date in the form "YYYY-MM-DD". Will ignore all messages older than the specified date
+
+Example: startdate = 2012-10-01
 
 maxsize
 -------
