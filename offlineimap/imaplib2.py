@@ -460,7 +460,7 @@ class IMAP4(object):
                 cert_reqs = ssl.CERT_REQUIRED
             else:
                 cert_reqs = ssl.CERT_NONE
-            self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, ca_certs=self.ca_certs, cert_reqs=cert_reqs)
+            self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, ca_certs=self.ca_certs, cert_reqs=cert_reqs, ssl_version=ssl.PROTOCOL_SSLv3)
             ssl_exc = ssl.SSLError
             self.read_fd = self.sock.fileno()
         except ImportError:

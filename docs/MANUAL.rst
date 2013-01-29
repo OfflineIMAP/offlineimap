@@ -262,11 +262,12 @@ OfflineImap uses a cache to store the last know status of mails (flags etc). His
 Security and SSL
 ================
 
-Some words on OfflineImap and its use of SSL/TLS. By default, we will
+Some words on OfflineImap and its use of SSL/TLS. By default, we will not
 connect using any method that openssl supports, that is SSLv2, SSLv3, or
 TLSv1. Do note that SSLv2 is notoriously insecure and deprecated.
-Unfortunately, python2 does not offer easy ways to disable SSLv2. It is
-recommended you test your setup and make sure that the mail server does
+So, OfflineImap will try SSLv3 first and fallback to SSLv23 then if the former
+is not working.
+It is recommended you test your setup and make sure that the mail server does
 not use an SSLv2 connection. Use e.g. "openssl s_client -host
 mail.server -port 443" to find out the connection that is used by
 default.
