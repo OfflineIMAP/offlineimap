@@ -63,7 +63,7 @@ class MaildirFolder(BaseFolder):
         self.sep = sep # needs to be set before super().__init__
         super(MaildirFolder, self).__init__(name, repository)
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
-        self.syncdate = self.config.getdefaultboolean("Repository " + repository.name, "syncdate", self.config.getdefaultboolean("general", "syncdate", False))
+        self.syncdate = self.config.getdefaultboolean("Repository " + repository.getname(), "syncdate", self.config.getdefaultboolean("general", "syncdate", False))
         self.root = root
         self.messagelist = None
         # check if we should use a different infosep to support Win file systems

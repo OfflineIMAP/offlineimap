@@ -1,5 +1,6 @@
 # Some useful functions to extract data out of emails
 # Copyright (C) 2002-2012 John Goerzen & contributors
+# Copyright (C) 2013 Cyril Russo
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
