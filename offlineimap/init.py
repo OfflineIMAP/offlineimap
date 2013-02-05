@@ -25,6 +25,7 @@ import logging
 from optparse import OptionParser
 import offlineimap
 from offlineimap import accounts, threadutil, syncmaster
+from offlineimap import globals
 from offlineimap.error import OfflineImapError
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
@@ -161,6 +162,7 @@ class OfflineImap:
               ", ".join(UI_LIST.keys()))
 
         (options, args) = parser.parse_args()
+        globals.set_options (options)
 
         #read in configuration file
         configfilename = os.path.expanduser(options.configfile)
@@ -250,9 +252,6 @@ class OfflineImap:
                 self.ui.add_debug(type)
                 if type.lower() == 'imap':
                     imaplib.Debug = 5
-
-        # XXX: can we avoid introducing fake configuration item?
-        config.set_if_not_exists('general', 'single-thread', 'True' if options.singlethreading else 'False')
 
         if options.runonce:
             # FIXME: maybe need a better

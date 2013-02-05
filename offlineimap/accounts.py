@@ -15,6 +15,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import mbnames, CustomConfig, OfflineImapError
+from offlineimap import globals
 from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread
@@ -321,7 +322,7 @@ class SyncableAccount(Account):
                     self.ui.debug('', "Not syncing filtered folder '%s'"
                                  "[%s]" % (localfolder, localfolder.repository))
                     continue # Ignore filtered folder
-                if self.config.get('general', 'single-thread') == 'False':
+                if not globals.options.singlethreading:
                     thread = InstanceLimitedThread(\
                         instancename = 'FOLDER_' + self.remoterepos.getname(),
                         target = syncfolder,

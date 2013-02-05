@@ -16,6 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from offlineimap import threadutil
+from offlineimap import globals
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
 import offlineimap.accounts
@@ -403,7 +404,7 @@ class BaseFolder(object):
                 break
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
             # exceptions are caught in copymessageto()
-            if self.suggeststhreads() and self.config.get('general', 'single-thread') == 'False':
+            if self.suggeststhreads() and not globals.options.singlethreading:
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(\
                     self.getcopyinstancelimit(),
