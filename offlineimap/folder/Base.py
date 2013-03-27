@@ -366,7 +366,7 @@ class BaseFolder(object):
             raise
         except OfflineImapError as e:
             if e.severity > OfflineImapError.ERROR.MESSAGE:
-                raise # buble severe errors up
+                raise # bubble severe errors up
             self.ui.error(e, exc_info()[2])
         except Exception as e:
             self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
