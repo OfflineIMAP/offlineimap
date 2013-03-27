@@ -22,6 +22,9 @@ OfflineIMAP v6.5.5-rc1 (2012-09-05)
 
 * Execute pre/post-sync hooks during synchronizations
   toggled by IMAP IDLE message processing. (maxgerer@gmail.com)
+* Catch unsuccessful local mail uploads when IMAP server
+  responds with "NO" status; that resulted in a loss of such
+  local messages. (Adam Spiers)
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================
