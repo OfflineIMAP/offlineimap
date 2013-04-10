@@ -178,6 +178,7 @@ class IMAPFolder(BaseFolder):
         try:
             msgsToFetch = self._msgs_to_fetch(imapobj)
             if not msgsToFetch:
+                self.messagelist = {}
                 return # No messages to sync
 
             # Get the flags and UIDs for these. single-quotes prevent
