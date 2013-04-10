@@ -255,7 +255,7 @@ class IMAPFolder(BaseFolder):
         """
         imapobj = self.imapserver.acquireconnection()
         try:
-            data = self._fetch_from_imap(imapobj, str(uid), '(X-GM-LABELS BODY.PEEK[])', 2)
+            data = self._fetch_from_imap(imapobj, str(uid), '(BODY.PEEK[])', 2)
         finally:
             self.imapserver.releaseconnection(imapobj)
 
