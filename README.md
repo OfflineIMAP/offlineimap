@@ -1,5 +1,5 @@
-OfflineImap README
-==================
+OfflineImap
+===========
 
 Description
 -----------
@@ -24,9 +24,9 @@ it. In fact, you are encouraged to contribute to OfflineIMAP.
 Documentation
 -------------
 
-The documentation is included (in .rst format) in the `docs` directory. 
-Read it directly or generate nice html docs (python-sphinx needed) and/or 
-the man page (python-docutils needed) while being in the `docs` dir via::
+The documentation is included (in .rst format) in the `docs` directory.
+Read it directly or generate nice html docs (python-sphinx needed) and/or
+the man page (python-docutils needed) while being in the `docs` dir via:
 
     'make doc' (user docs), 'make man' (man page only) or 'make' (both)
 
@@ -40,7 +40,7 @@ Quick Start
 ===========
 
 First, install OfflineIMAP. See docs/INSTALL.rst or read
-http://docs.offlineimap.org/en/latest/INSTALL.html. 
+http://docs.offlineimap.org/en/latest/INSTALL.html.
 (hint: `sudo python setup.py install`)
 
 Second, set up your configuration file and run it! The distribution
@@ -50,23 +50,23 @@ provides you with the bare minimum of setting up OfflineIMAP.  You can
 simply copy this file into your home directory and name it
 ``.offlineimaprc``.  A command such as ``cp offlineimap.conf.minimal
 ~/.offlineimaprc`` will do it.  Or, if you prefer, you can just copy
-this text to ``~/.offlineimaprc``::
+this text to ``~/.offlineimaprc``:
 
-  [general]
-  accounts = Test
+    [general]
+    accounts = Test
 
-  [Account Test]
-  localrepository = Local
-  remoterepository = Remote
+    [Account Test]
+    localrepository = Local
+    remoterepository = Remote
 
-  [Repository Local]
-  type = Maildir
-  localfolders = ~/Test
+    [Repository Local]
+    type = Maildir
+    localfolders = ~/Test
 
-  [Repository Remote]
-  type = IMAP
-  remotehost = examplehost
-  remoteuser = jgoerzen
+    [Repository Remote]
+    type = IMAP
+    remotehost = examplehost
+    remoteuser = jgoerzen
 
 
 Now, edit the ``~/.offlineimaprc`` file with your favorite editor.  All you have
@@ -79,9 +79,9 @@ up, ask you for a login password if necessary, synchronize your folders,
 and exit.  See?
 
 You can just throw away the rest of the finely-crafted, perfectly-honed user
-manual!  Of course, if you want to see how you can make OfflineIMAP 
+manual!  Of course, if you want to see how you can make OfflineIMAP
 FIVE TIMES FASTER FOR JUST $19.95 (err, well, $0), you have to read on our
-full user documentation and peruse the sample offlineimap.conf (which 
+full user documentation and peruse the sample offlineimap.conf (which
 includes all available options) for further tweaks!
 
 
@@ -111,28 +111,28 @@ This example shows you how to set up OfflineIMAP to synchronize multiple
 accounts with the mutt mail reader.
 
 Start by creating a directory to hold your folders by running ``mkdir ~/Mail``.
-Then, in your ``~/.offlineimaprc``, specify::
+Then, in your ``~/.offlineimaprc``, specify:
 
-  accounts = Personal, Work
+    accounts = Personal, Work
 
 
 Make sure that you have both an [Account Personal] and an [Account Work]
 section.  The local repository for each account must have different localfolder
 path names.  Also, make sure to enable [mbnames].
 
-In each local repository section, write something like this::
+In each local repository section, write something like this:
 
-	localfolders = ~/Mail/Personal
+    localfolders = ~/Mail/Personal
 
 
-Finally, add these lines to your ``~/.muttrc``::
+Finally, add these lines to your ``~/.muttrc``:
 
-  source ~/path-to-mbnames-muttrc-mailboxes
-  folder-hook Personal set from="youremail@personal.com"
-  folder-hook Work set from="youremail@work.com"
-  set mbox_type=Maildir
-  set folder=$HOME/Mail
-  spoolfile=+Personal/INBOX
+    source ~/path-to-mbnames-muttrc-mailboxes
+    folder-hook Personal set from="youremail@personal.com"
+    folder-hook Work set from="youremail@work.com"
+    set mbox_type=Maildir
+    set folder=$HOME/Mail
+    spoolfile=+Personal/INBOX
 
 
 That's it!
@@ -146,34 +146,34 @@ to get at their mailboxes, specifying a reference of ``~/Mail`` or ``#mh/``
 depending on the configuration.  The below configuration from (originally from
 docwhat@gerf.org) shows using a reference of Mail, a nametrans that strips the
 leading Mail/ off incoming folder names, and a folderfilter that limits the
-folders synced to just three::
+folders synced to just three:
 
-  [Account Gerf]
-  localrepository = GerfLocal
-  remoterepository = GerfRemote
+    [Account Gerf]
+    localrepository = GerfLocal
+    remoterepository = GerfRemote
 
-  [Repository GerfLocal]
-  type = Maildir
-  localfolders = ~/Mail
+    [Repository GerfLocal]
+    type = Maildir
+    localfolders = ~/Mail
 
-  [Repository GerfRemote]
-  type = IMAP
-  remotehost = gerf.org
-  ssl = yes
-  remoteuser = docwhat
-  reference = Mail
-  # Trims off the preceeding Mail on all the folder names.
-  nametrans = lambda foldername: \
+    [Repository GerfRemote]
+    type = IMAP
+    remotehost = gerf.org
+    ssl = yes
+    remoteuser = docwhat
+    reference = Mail
+    # Trims off the preceeding Mail on all the folder names.
+    nametrans = lambda foldername: \
     re.sub('^Mail/', '', foldername)
-  # Yeah, you have to mention the Mail dir, even though it
-  # would seem intuitive that reference would trim it.
-  folderfilter = lambda foldername: foldername in [
+    # Yeah, you have to mention the Mail dir, even though it
+    # would seem intuitive that reference would trim it.
+    folderfilter = lambda foldername: foldername in [
     'Mail/INBOX',
     'Mail/list/zaurus-general',
     'Mail/list/zaurus-dev',
-  ]
-  maxconnections = 1
-  holdconnectionopen = no
+    ]
+    maxconnections = 1
+    holdconnectionopen = no
 
 
 pythonfile Configuration File Option
@@ -184,34 +184,34 @@ configuration file options that are Python expressions.  This example is based
 on one supplied by Tommi Virtanen for this feature.
 
 
-In ~/.offlineimaprc, he adds these options::
+In ~/.offlineimaprc, he adds these options:
 
-  [general]
-  pythonfile=~/.offlineimap.py
-  [Repository foo]
-  foldersort=mycmp
+    [general]
+    pythonfile=~/.offlineimap.py
+    [Repository foo]
+    foldersort=mycmp
 
-Then, the ~/.offlineimap.py file will contain::
+Then, the ~/.offlineimap.py file will contain:
 
   prioritized = ['INBOX', 'personal', 'announce', 'list']
 
-  def mycmp(x, y):
-    for prefix in prioritized:
-      xsw = x.startswith(prefix)
-      ysw = y.startswith(prefix)
-      if xsw and ysw:
+    def mycmp(x, y):
+        for prefix in prioritized:
+            xsw = x.startswith(prefix)
+            ysw = y.startswith(prefix)
+            if xsw and ysw:
+                return cmp(x, y)
+            elif xsw:
+                return -1
+            elif ysw:
+                return +1
         return cmp(x, y)
-      elif xsw:
-        return -1
-      elif ysw:
-        return +1
-    return cmp(x, y)
 
-  def test_mycmp():
-    import os, os.path
-    folders=os.listdir(os.path.expanduser('~/data/mail/tv@hq.yok.utu.fi'))
-    folders.sort(mycmp)
-    print folders
+    def test_mycmp():
+        import os, os.path
+        folders=os.listdir(os.path.expanduser('~/data/mail/tv@hq.yok.utu.fi'))
+        folders.sort(mycmp)
+        print folders
 
 
 This code snippet illustrates how the foldersort option can be customized with a
