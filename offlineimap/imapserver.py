@@ -52,14 +52,28 @@ class IMAPServer:
         self.ui = getglobalui()
         self.repos = repos
         self.config = repos.getconfig()
-        self.tunnel = repos.getpreauthtunnel()
-        self.usessl = repos.getssl()
-        self.username = None if self.tunnel else repos.getuser()
+
+        self.preauth_tunnel = repos.getpreauthtunnel()
+        self.transport_tunnel = repos.gettransporttunnel()
+        if self.preauth_tunnel and self.transport_tunnel:
+            raise OfflineImapError('%s: ' % repos + \
+              'you must enable precisely one '
+              'type of tunnel (preauth or transport), '
+              'not both', OfflineImapError.ERROR.REPO)
+        self.tunnel = \
+          self.preauth_tunnel if self.preauth_tunnel \
+          else self.transport_tunnel
+
+        self.username = \
+          None if self.preauth_tunnel else repos.getuser()
         self.user_identity = repos.get_remote_identity()
         self.password = None
         self.passworderror = None
         self.goodpassword = None
-        self.hostname = None if self.tunnel else repos.gethost()
+
+        self.usessl = repos.getssl()
+        self.hostname = \
+          None if self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
         if self.port == None:
             self.port = 993 if self.usessl else 143
@@ -69,6 +83,7 @@ class IMAPServer:
         self.sslversion = repos.getsslversion()
         if self.sslcacertfile is None:
             self.verifycert = None # disable cert verification
+
         self.delim = None
         self.root = None
         self.maxconnections = repos.getmaxconnections()
@@ -356,7 +371,7 @@ class IMAPServer:
                     imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
                                                        timeout=socket.getdefaulttimeout())
 
-                if not self.tunnel:
+                if not self.preauth_tunnel:
                     try:
                         self._authn_helper(imapobj)
                         self.goodpassword = self.password

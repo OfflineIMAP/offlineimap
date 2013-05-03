@@ -17,6 +17,8 @@ WIP (add new stuff for the next release)
 * Allow mbnames output to be sorted by a custom sort key by specifying
   a 'sort_keyfunc' function in the [mbnames] section of the config.
 * Support SASL PLAIN authentication method.  (Andreas Mack)
+* Support transport-only tunnels that requre full IMAP authentication.
+  (Steve Purcell)
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================

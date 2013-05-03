@@ -200,6 +200,9 @@ class IMAPRepository(BaseRepository):
     def getpreauthtunnel(self):
         return self.getconf('preauthtunnel', None)
 
+    def gettransporttunnel(self):
+        return self.getconf('transporttunnel', None)
+
     def getreference(self):
         return self.getconf('reference', '')
 
