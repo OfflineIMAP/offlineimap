@@ -7,6 +7,9 @@ ChangeLog
 WIP (add new stuff for the next release)
 ========================================
 
+* Allow mbnames output to be sorted by a custom sort key by specifying a
+  'sortkey' function in the [mbnames] section of the config.
+
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================
 

@@ -58,17 +58,21 @@ def genmbnames():
         if config.has_option("mbnames", "folderfilter"):
             folderfilter = localeval.eval(config.get("mbnames", "folderfilter"),
                                           {'re': re})
+        mb_sort_key = lambda d: (d['accountname'], d['foldername'])
+        if config.has_option("mbnames", "sortkey"):
+            mb_sort_key = localeval.eval(config.get("mbnames", "sortkey"),
+                                         {'re': re})
         itemlist = []
         for accountname in boxes.keys():
             for foldername in boxes[accountname]:
                 if folderfilter(accountname, foldername):
-                    itemlist.append(config.get("mbnames", "peritem", raw=1) % \
-                                    {'accountname': accountname,
+                    itemlist.append({'accountname': accountname,
                                      'foldername': foldername})
+        itemlist.sort(key = mb_sort_key)
+        format_string = config.get("mbnames", "peritem", raw=1)
+        itemlist = [format_string % d for d in itemlist]
         file.write(localeval.eval(config.get("mbnames", "sep")).join(itemlist))
         file.write(localeval.eval(config.get("mbnames", "footer")))
         file.close()
     finally:
         mblock.release()
-    
-    
