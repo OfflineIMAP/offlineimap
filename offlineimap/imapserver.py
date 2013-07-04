@@ -511,6 +511,8 @@ class IdleThread(object):
         remotefolder = remoterepos.getfolder(self.folder)
         offlineimap.accounts.syncfolder(account, remotefolder, quick=False)
         ui = getglobalui()
+        hook = account.getconf('postsynchook', '')
+        account.callhook(hook)
         ui.unregisterthread(currentThread()) #syncfolder registered the thread
 
     def idle(self):
