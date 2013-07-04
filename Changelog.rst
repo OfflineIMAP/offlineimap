@@ -18,7 +18,8 @@ WIP (add new stuff for the next release)
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================
 
-* Bump version number
+* Execute pre/post-sync hooks during synchronizations
+  toggled by IMAP IDLE message processing. (maxgerer@gmail.com)
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================

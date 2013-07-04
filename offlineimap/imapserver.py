@@ -507,7 +507,13 @@ class IdleThread(object):
         remoterepos = account.remoterepos
         statusrepos = account.statusrepos
         remotefolder = remoterepos.getfolder(self.folder)
+
+        hook = account.getconf('presynchook', '')
+        account.callhook(hook)
         offlineimap.accounts.syncfolder(account, remotefolder, quick=False)
+        hook = account.getconf('postsynchook', '')
+        account.callhook(hook)
+
         ui = getglobalui()
         ui.unregisterthread(currentThread()) #syncfolder registered the thread
 
