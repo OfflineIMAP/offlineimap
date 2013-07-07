@@ -172,6 +172,9 @@ class IMAPRepository(BaseRepository):
                                 % (self.name, cacertfile))
         return cacertfile
 
+    def getsslversion(self):
+        return self.getconf('ssl_version', None)
+
     def get_ssl_fingerprint(self):
         return self.getconf('cert_fingerprint', None)
 

@@ -65,6 +65,7 @@ class IMAPServer:
         self.sslclientcert = repos.getsslclientcert()
         self.sslclientkey = repos.getsslclientkey()
         self.sslcacertfile = repos.getsslcacertfile()
+        self.sslversion = repos.getsslversion()
         if self.sslcacertfile is None:
             self.verifycert = None # disable cert verification
         self.delim = None
@@ -211,6 +212,7 @@ class IMAPServer:
                                                            self.sslclientcert,
                                                            self.sslcacertfile,
                                                            self.verifycert,
+                                                           self.sslversion,
                                                            timeout=socket.getdefaulttimeout(),
                                                            fingerprint=fingerprint
                                                            )
