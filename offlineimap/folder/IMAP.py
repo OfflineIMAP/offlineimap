@@ -555,7 +555,7 @@ class IMAPFolder(BaseFolder):
                     imapobj = self.imapserver.acquireconnection()
                     if not retry_left:
                         raise OfflineImapError("Saving msg in folder '%s', "
-                              "repository '%s' failed (abort). Server reponded: %s\n"
+                              "repository '%s' failed (abort). Server responded: %s\n"
                               "Message content was: %s" %
                               (self, self.getrepository(), str(e), dbg_output),
                                                OfflineImapError.ERROR.MESSAGE)
@@ -567,7 +567,7 @@ class IMAPFolder(BaseFolder):
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = None
                     raise OfflineImapError("Saving msg folder '%s', repo '%s'"
-                        "failed (error). Server reponded: %s\nMessage content was: "
+                        "failed (error). Server responded: %s\nMessage content was: "
                         "%s" % (self, self.getrepository(), str(e), dbg_output),
                                            OfflineImapError.ERROR.MESSAGE)
             # Checkpoint. Let it write out stuff, etc. Eg searches for
