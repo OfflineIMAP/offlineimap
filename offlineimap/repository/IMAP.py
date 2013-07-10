@@ -148,12 +148,12 @@ class IMAPRepository(BaseRepository):
 
 
     def getport(self):
-	port = None
+        port = None
 
-	if self.config.has_option(self.getsection(), 'remoteporteval'):
-		port = self.getconf('remoteporteval')
-	if port != None:
-		return self.localeval.eval(port)
+        if self.config.has_option(self.getsection(), 'remoteporteval'):
+            port = self.getconf('remoteporteval')
+        if port != None:
+            return self.localeval.eval(port)
 
         return self.getconfint('remoteport', None)
 
