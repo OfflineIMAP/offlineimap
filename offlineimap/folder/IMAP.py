@@ -547,7 +547,21 @@ class IMAPFolder(BaseFolder):
                     (typ, dat) = imapobj.append(self.getfullname(),
                                        imaputil.flagsmaildir2imap(flags),
                                        date, content)
-                    retry_left = 0                # Mark as success
+                    # This should only catch 'NO' responses since append()
+                    # will raise an exception for 'BAD' responses:
+                    if typ != 'OK':
+                        # For example, Groupwise IMAP server can return something like:
+                        #
+                        #   NO APPEND The 1500 MB storage limit has been exceeded.
+                        #
+                        # In this case, we should immediately abort the repository sync
+                        # and continue with the next account.
+                        msg = \
+                            "Saving msg in folder '%s', repository '%s' failed (abort). " \
+                            "Server responded: %s %s\n" % \
+                            (self, self.getrepository(), typ, dat)
+                        raise OfflineImapError(msg, OfflineImapError.ERROR.REPO)
+                    retry_left = 0 # Mark as success
                 except imapobj.abort as e:
                     # connection has been reset, release connection and retry.
                     retry_left -= 1
