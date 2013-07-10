@@ -403,7 +403,7 @@ class BaseFolder(object):
                 break
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
             # exceptions are caught in copymessageto()
-            if self.suggeststhreads():
+            if self.suggeststhreads() and self.config.get('general', 'single-thread') == 'False':
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(\
                     self.getcopyinstancelimit(),

@@ -39,6 +39,8 @@ def semaphorereset(semaphore, originalstate):
         semaphore.release()
 
 class threadlist:
+    """Store the list of all thread in the software so it can be used to find out 
+    what's running and what's not.""" 
     def __init__(self):
         self.lock = Lock()
         self.list = []
