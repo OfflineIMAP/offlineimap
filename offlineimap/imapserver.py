@@ -297,19 +297,15 @@ class IMAPServer:
                 self.delim = imaputil.dequote(self.delim)
                 self.root = imaputil.dequote(self.root)
 
-            self.connectionlock.acquire()
-            self.assignedconnections.append(imapobj)
-            self.lastowner[imapobj] = curThread.ident
-            self.connectionlock.release()
+            with self.connectionlock:
+                self.assignedconnections.append(imapobj)
+                self.lastowner[imapobj] = curThread.ident
             return imapobj
         except Exception as e:
             """If we are here then we did not succeed in getting a
             connection - we should clean up and then re-raise the
             error..."""
             self.semaphore.release()
-
-            if(self.connectionlock.locked()):
-                self.connectionlock.release()
 
             severity = OfflineImapError.ERROR.REPO
             if type(e) == gaierror:
