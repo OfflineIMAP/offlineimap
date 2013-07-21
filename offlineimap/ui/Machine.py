@@ -79,7 +79,7 @@ class MachineUI(UIBase):
         s._printData('connecting', "%s\n%s" % (hostname, str(port)))
 
     def syncfolders(s, srcrepos, destrepos):
-        s._printData('syncfolders', "%s\n%s" % (s.getnicename(srcrepos), 
+        s._printData('syncfolders', "%s\n%s" % (s.getnicename(srcrepos),
                                                 s.getnicename(destrepos)))
 
     def syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder):

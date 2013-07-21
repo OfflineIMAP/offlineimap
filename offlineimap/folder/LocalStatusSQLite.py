@@ -35,7 +35,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     #though. According to sqlite docs, you need to commit() before
     #the connection is closed or your changes will be lost!"""
     #get db connection which autocommits
-    #connection = sqlite.connect(self.filename, isolation_level=None)        
+    #connection = sqlite.connect(self.filename, isolation_level=None)
     #cursor = connection.cursor()
     #return connection, cursor
 
@@ -43,7 +43,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     cur_version = 1
 
     def __init__(self, name, repository):
-        super(LocalStatusSQLiteFolder, self).__init__(name, repository)       
+        super(LocalStatusSQLiteFolder, self).__init__(name, repository)
         # dblock protects against concurrent writes in same connection
         self._dblock = Lock()
         #Try to establish connection, no need for threadsafety in __init__

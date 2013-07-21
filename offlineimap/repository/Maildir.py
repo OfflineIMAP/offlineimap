@@ -85,7 +85,7 @@ class MaildirRepository(BaseRepository):
         if self.account.dryrun:
             return
         full_path = os.path.abspath(os.path.join(self.root, foldername))
-    
+
         # sanity tests
         if self.getsep() == '/':
             for component in foldername.split('/'):

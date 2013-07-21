@@ -9,7 +9,7 @@
 
 Within :mod:`offlineimap`, the classes :class:`OfflineImap` provides the high-level functionality. The rest of the classes should usually not needed to be touched by the user. Email repositories are represented by a :class:`offlineimap.repository.Base.BaseRepository` or derivatives (see :mod:`offlineimap.repository` for details). A folder within a repository is represented by a :class:`offlineimap.folder.Base.BaseFolder` or any derivative from :mod:`offlineimap.folder`.
 
-This page contains the main API overview of OfflineImap |release|. 
+This page contains the main API overview of OfflineImap |release|.
 
 OfflineImap can be imported as::
 
@@ -22,7 +22,7 @@ be merged into the main documentation.
 
 :mod:`offlineimap` -- The OfflineImap module
 =============================================
- 
+
 .. module:: offlineimap
 
 .. autoclass:: offlineimap.OfflineImap(cmdline_opts = None)

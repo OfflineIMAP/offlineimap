@@ -116,7 +116,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
     def getlocaleval(self):
         return self.account.getlocaleval()
-    
+
     def getfolders(self):
         """Returns a list of ALL folders on this server."""
         return []

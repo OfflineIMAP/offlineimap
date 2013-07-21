@@ -44,7 +44,7 @@ class IMAPFolder(BaseFolder):
 
         Prefer SELECT to EXAMINE if we can, since some servers
         (Courier) do not stabilize UID validity until the folder is
-        selected. 
+        selected.
         .. todo: Still valid? Needs verification
         :param: Enforce new SELECT even if we are on that folder already.
         :returns: raises :exc:`OfflineImapError` severity FOLDER on error"""
@@ -116,7 +116,7 @@ class IMAPFolder(BaseFolder):
             maxmsgid = max(long(msgid), maxmsgid)
         # Different number of messages than last time?
         if maxmsgid != statusfolder.getmessagecount():
-            return True      
+            return True
         return False
 
     def cachemessagelist(self):
@@ -526,7 +526,7 @@ class IMAPFolder(BaseFolder):
                     self.ui.debug('imap', 'savemessage: header is: %s: %s' %\
                                       (headername, headervalue))
                     content = self.savemessage_addheader(content, headername,
-                                                         headervalue)    
+                                                         headervalue)
                 if len(content)>200:
                     dbg_output = "%s...%s" % (content[:150], content[-50:])
                 else:
@@ -710,11 +710,11 @@ class IMAPFolder(BaseFolder):
     def change_message_uid(self, uid, new_uid):
         """Change the message from existing uid to new_uid
 
-        If the backend supports it. IMAP does not and will throw errors.""" 
+        If the backend supports it. IMAP does not and will throw errors."""
         raise OfflineImapError('IMAP backend cannot change a messages UID from '
                                '%d to %d' % (uid, new_uid),
                                OfflineImapError.ERROR.MESSAGE)
-        
+
     def deletemessage(self, uid):
         self.deletemessages_noconvert([uid])
 

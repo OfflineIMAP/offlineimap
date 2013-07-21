@@ -91,7 +91,7 @@ class LocalStatusRepository(BaseRepository):
         return folder
 
     def getfolders(self):
-        """Returns a list of all cached folders.  
+        """Returns a list of all cached folders.
 
         Does nothing for this backend. We mangle the folder file names
         (see getfolderfilename) so we can not derive folder names from

@@ -67,13 +67,13 @@ based in instructions submitted by Chris Walker::
 
     First, you must run OfflineIMAP in the Cygwin environment. The Windows
     filesystem is not powerful enough to accomodate Maildir by itself.
-    
+
     Next, you’ll need to mount your Maildir directory in a special
     way. There is information for doing that at
     http://barnson.org/node/295. That site gives this example::
-    
+
       mount -f -s -b -o managed "d:/tmp/mail" "/home/of/mail"
-    
+
     That URL also has more details on making OfflineIMAP work with Windows.
 
 
@@ -383,9 +383,9 @@ you’ll list this::
   [mbnames]
   enabled = yes
   filename = ~/Mutt/muttrc.mailboxes
-  header = "mailboxes " 
-  peritem = "+%(accountname)s/%(foldername)s" 
-  sep = " " 
+  header = "mailboxes "
+  peritem = "+%(accountname)s/%(foldername)s"
+  sep = " "
   footer = "\n"
 
 Then in your ``.muttrc``::
@@ -448,7 +448,7 @@ written in Korn, so you’ll need ksh, pdksh, or mksh to run it::
   # remove any old instances of this shell script or offlineimap
   for pid in $(pgrep offlineimap)
   do
-    if  $pid -ne $$ 
+    if  $pid -ne $$
     then
       kill $pid
     fi

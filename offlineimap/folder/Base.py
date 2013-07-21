@@ -210,7 +210,7 @@ class BaseFolder(object):
            If the backend CAN assign a new uid, but cannot find out what
            this UID is (as is the case with some IMAP servers), it
            returns 0 but DOES save the message.
-        
+
            IMAP backend should be the only one that can assign a new
            uid.
 
@@ -493,7 +493,7 @@ class BaseFolder(object):
                 continue #don't actually remove in a dryrun
             dstfolder.deletemessagesflags(uids, set(flag))
             statusfolder.deletemessagesflags(uids, set(flag))
-                
+
     def syncmessagesto(self, dstfolder, statusfolder):
         """Syncs messages in this folder to the destination dstfolder.
 
@@ -514,7 +514,7 @@ class BaseFolder(object):
          uids present (except for potential negative uids that couldn't
          be placed anywhere).
 
-        Pass3: Synchronize flag changes 
+        Pass3: Synchronize flag changes
          Compare flag mismatches in self with those in statusfolder. If
          msg has a valid UID and exists on dstfolder (has not e.g. been
          deleted there), sync the flag change to both dstfolder and

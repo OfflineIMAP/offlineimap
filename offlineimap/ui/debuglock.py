@@ -25,7 +25,7 @@ class DebuggingLock:
     def __init__(self, name):
         self.lock = Lock()
         self.name = name
-        
+
     def acquire(self, blocking = 1):
         self.print_tb("Acquire lock")
         self.lock.acquire(blocking)
@@ -45,5 +45,5 @@ class DebuggingLock:
         self.logmsg(".... %s: Thread %s attempting to %s\n" % \
                     (self.name, currentThread().getName(), msg) + \
                     "\n".join(traceback.format_list(traceback.extract_stack())))
-        
+
 

@@ -1330,7 +1330,7 @@ class IMAP4(object):
             self.ouq.put(rqb)
             return rqb
 
-        # Must setup continuation expectancy *before* ouq.put 
+        # Must setup continuation expectancy *before* ouq.put
         crqb = self._request_push(tag='continuation')
 
         self.ouq.put(rqb)
@@ -2442,7 +2442,7 @@ if __name__ == '__main__':
             run('id', ())
             run('id', ('("name", "imaplib2")',))
             run('id', ("version", __version__, "os", os.uname()[0]))
- 
+
         for cmd,args in test_seq2:
             if (cmd,args) != ('uid', ('SEARCH', 'SUBJECT', 'IMAP4 test')):
                 run(cmd, args)

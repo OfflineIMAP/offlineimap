@@ -28,7 +28,7 @@ class GmailRepository(IMAPRepository):
     HOSTNAME = "imap.gmail.com"
     # Gmail IMAP server port
     PORT = 993
-    
+
     def __init__(self, reposname, account):
         """Initialize a GmailRepository object."""
         # Enforce SSL usage

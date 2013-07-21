@@ -42,7 +42,7 @@ class MappedIMAPFolder(IMAPFolder):
     def _getmapfilename(self):
         return os.path.join(self.repository.getmapdir(),
                             self.getfolderbasename())
-        
+
     def _loadmaps(self):
         self.maplock.acquire()
         try:

@@ -277,7 +277,7 @@ class OfflineImap:
 
         if options.logfile:
             sys.stderr = self.ui.logfile
-    
+
         socktimeout = config.getdefaultint("general", "socktimeout", 0)
         if socktimeout > 0:
             socket.setdefaulttimeout(socktimeout)

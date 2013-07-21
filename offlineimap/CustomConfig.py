@@ -29,7 +29,7 @@ class CustomConfigParser(SafeConfigParser):
             return self.get(*(section, option) + args, **kwargs)
         else:
             return default
-    
+
     def getdefaultint(self, section, option, default, *args, **kwargs):
         if self.has_option(section, option):
             return self.getint (*(section, option) + args, **kwargs)
@@ -120,7 +120,7 @@ class ConfigHelperMixin:
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultint,
                                          self.getconfig().getint)
-    
+
     def getconffloat(self, option, default = CustomConfigDefault):
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultfloat,

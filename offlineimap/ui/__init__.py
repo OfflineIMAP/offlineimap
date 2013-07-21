@@ -20,7 +20,7 @@ from offlineimap.ui import TTY, Noninteractive, Machine
 
 UI_LIST = {'ttyui': TTY.TTYUI,
            'basic': Noninteractive.Basic,
-           'quiet': Noninteractive.Quiet, 
+           'quiet': Noninteractive.Quiet,
            'machineui': Machine.MachineUI}
 
 #add Blinkenlights UI if it imports correctly (curses installed)

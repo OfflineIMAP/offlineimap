@@ -440,7 +440,7 @@ Know the status of your patch after submission
   of the branch in which your patch has been merged (i.e. it will not
   tell you if your patch is merged in pu if you rebase on top of
   master).
- 
+
 .. * Read the git mailing list, the maintainer regularly posts messages
   entitled "What's cooking in git.git" and "What's in git.git" giving
   the status of various proposed changes.

@@ -362,7 +362,7 @@ class IMAPRepository(BaseRepository):
                                        OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
-            
+
 class MappedIMAPRepository(IMAPRepository):
     def getfoldertype(self):
         return MappedIMAPFolder

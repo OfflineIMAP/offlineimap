@@ -40,7 +40,7 @@ Most configuration is done via the configuration file.  However, any setting can
 
 OfflineImap is well suited to be frequently invoked by cron jobs, or can run in daemon mode to periodically check your email (however, it will exit in some error situations).
 
-The documentation is included in the git repository and can be created by 
+The documentation is included in the git repository and can be created by
 issueing `make dev-doc` in the `doc` folder (python-sphinx required), or it can
 be viewed online at http://docs.offlineimap.org.
 
@@ -420,7 +420,7 @@ This is an example of a setup where "TheOtherImap" requires all folders to be un
     # The below will put all GMAIL folders as sub-folders of the 'local' INBOX,
     # assuming that your path separator on 'local' is a dot.
     nametrans = lambda x: 'INBOX.' + x
-    
+
     [Repository TheOtherImap]
     #This is the 'local' repository
     type = IMAP
@@ -437,7 +437,7 @@ Add this to the remote gmail repository section to only sync mails which are in 
 
 To only get the All Mail folder from a Gmail account, you would e.g. do::
 
-    folderfilter = lambda folder: folder.startswith('[Gmail]/All Mail') 
+    folderfilter = lambda folder: folder.startswith('[Gmail]/All Mail')
 
 
 Another nametrans transpose example
@@ -464,25 +464,25 @@ offlineimap.conf::
     ui = ttyui
     pythonfile=~/bin/offlineimap-helpers.py
     socktimeout = 90
-    
+
     [Account acc1]
     localrepository = acc1local
     remoterepository = acc1remote
     autorefresh = 2
-    
+
     [Account acc2]
     localrepository = acc2local
     remoterepository = acc2remote
     autorefresh = 4
-    
+
     [Repository acc1local]
     type = Maildir
     localfolders = ~/Mail/acc1
-    
+
     [Repository acc2local]
     type = Maildir
     localfolders = ~/Mail/acc2
-    
+
     [Repository acc1remote]
     type = IMAP
     remotehost = imap.acc1.com
@@ -494,7 +494,7 @@ offlineimap.conf::
     # Folders to get:
     folderfilter = lambda foldername: foldername in [
                  'INBOX', 'Drafts', 'Sent', 'archiv']
-    
+
     [Repository acc2remote]
     type = IMAP
     remotehost = imap.acc2.net
@@ -532,7 +532,7 @@ Offlineimap handles the renaming correctly in both directions::
             retval = "acc1." + foldername
         retval = re.sub("/", ".", retval)
         return retval
-    
+
     def oimaptransfolder_acc2(foldername):
         if(foldername == "INBOX"):
             retval = "acc2"

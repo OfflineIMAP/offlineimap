@@ -122,7 +122,7 @@ OfflineIMAP v6.5.2 (2012-01-17)
 
 * Some sanity checks and improved error messages.
 
-* Revert 6.5.1.1 change to use public imaplib2 function, it was reported to 
+* Revert 6.5.1.1 change to use public imaplib2 function, it was reported to
   not always work.
 
 * Don't fail when ~/netrc is not readable by us.
@@ -280,7 +280,7 @@ Changes
 * Refresh server capabilities after login, so we know that Gmail
   supports UIDPLUS (it only announces that after login, not
   before). This prevents us from adding custom headers to Gmail uploads.
-  
+
 Bug Fixes
 ---------
 
@@ -338,7 +338,7 @@ New Features
 * When a message upload/download fails, we do not abort the whole folder
   synchronization, but only skip that message, informing the user at the
   end of the sync run.
- 
+
 * If you connect via ssl and 'cert_fingerprint' is configured, we check
   that the server certificate is actually known and identical by
   comparing the stored sha1 fingerprint with the current one.
@@ -437,7 +437,7 @@ Notes
 -----
 
 This was a very active rc1 and we could expect a lot of new fixes for the next
-release. 
+release.
 
 The most important fix is about a bug that could lead to data loss. Find more
 information about his bug here:
@@ -588,7 +588,7 @@ I'd like to thank reporters who involved in this cycle:
   - Pan Tsu
   - Vincent Beffara
   - Will Styler
-  
+
 (my apologies if I forget somebody) ...and all active developers, of course!
 
 The imaplib2 migration looks to go the right way to be definetly released but

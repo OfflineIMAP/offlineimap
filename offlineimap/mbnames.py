@@ -70,5 +70,3 @@ def genmbnames():
         file.close()
     finally:
         mblock.release()
-    
-    

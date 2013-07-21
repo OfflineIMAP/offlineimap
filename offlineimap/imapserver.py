@@ -137,7 +137,7 @@ class IMAPServer:
         try:
             if self.gss_step == self.GSS_STATE_STEP:
                 if not self.gss_vc:
-                    rc, self.gss_vc = kerberos.authGSSClientInit('imap@' + 
+                    rc, self.gss_vc = kerberos.authGSSClientInit('imap@' +
                                                                  self.hostname)
                     response = kerberos.authGSSClientResponse(self.gss_vc)
                 rc = kerberos.authGSSClientStep(self.gss_vc, data)
@@ -188,7 +188,7 @@ class IMAPServer:
             self.lastowner[imapobj] = curThread.ident
             self.connectionlock.release()
             return imapobj
-        
+
         self.connectionlock.release()   # Release until need to modify data
 
         """ Must be careful here that if we fail we should bail out gracefully
@@ -433,7 +433,7 @@ class IMAPServer:
         certnames = []
 
         # cert expired?
-        notafter = cert.get('notAfter') 
+        notafter = cert.get('notAfter')
         if notafter:
             if time.time() >= cert_time_to_seconds(notafter):
                 return '%s certificate expired %s' % (errstr, notafter)
