@@ -284,7 +284,7 @@ class GmailFolder(IMAPFolder):
                 labels = dstfolder.getmessagelabels(uid)
                 statusfolder.savemessagelabels(uid, labels, mtime=mtime)
 
-            # either statusfolder is not sqlite or dstfolder is not GmailMaildir.
+            # dstfolder is not GmailMaildir.
             except NotImplementedError:
                 return
 

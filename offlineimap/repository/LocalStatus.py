@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap.folder.LocalStatus import LocalStatusFolder, magicline
+from offlineimap.folder.LocalStatus import LocalStatusFolder
 from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
 from offlineimap.repository.Base import BaseRepository
 import os
@@ -49,19 +49,6 @@ class LocalStatusRepository(BaseRepository):
     def getsep(self):
         return '.'
 
-    def getfolderfilename(self, foldername):
-        """Return the full path of the status file
-
-        This mimics the path that Folder().getfolderbasename() would return"""
-        if not foldername:
-            basename = '.'
-        else: #avoid directory hierarchies and file names such as '/'
-            basename = foldername.replace('/', '.')
-        # replace with literal 'dot' if final path name is '.' as '.' is
-        # an invalid file name.
-        basename = re.sub('(^|\/)\.$','\\1dot', basename)
-        return os.path.join(self.root, basename)
-
     def makefolder(self, foldername):
         """Create a LocalStatus Folder
 
@@ -73,11 +60,10 @@ class LocalStatusRepository(BaseRepository):
         if self.account.dryrun:
             return # bail out in dry-run mode
 
-        filename = self.getfolderfilename(foldername)
-        file = open(filename + ".tmp", "wt")
-        file.write(magicline + '\n')
-        file.close()
-        os.rename(filename + ".tmp", filename)
+        # Create an empty StatusFolder
+        folder = self.LocalStatusFolderClass(foldername, self)
+        folder.save()
+
         # Invalidate the cache.
         self._folders = {}
 

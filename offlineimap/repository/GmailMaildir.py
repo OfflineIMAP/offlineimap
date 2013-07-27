@@ -25,12 +25,6 @@ class GmailMaildirRepository(MaildirRepository):
         """Initialize a MaildirRepository object.  Takes a path name
         to the directory holding all the Maildir directories."""
         super(GmailMaildirRepository, self).__init__(reposname, account)
-        if self.account.getconfboolean('synclabels', 0) and \
-              self.account.getconf('status_backend', 'plain') != 'sqlite':
-            raise OfflineImapError("The GmailMaildir repository needs the sqlite backend to sync labels.\n"
-                                   "To enable it add 'status_backend = sqlite' in the account section",
-                                   OfflineImapError.ERROR.REPO)
-
 
 
     def getfoldertype(self):
