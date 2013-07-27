@@ -36,12 +36,6 @@ class GmailRepository(IMAPRepository):
                                 'ssl', 'yes')
         IMAPRepository.__init__(self, reposname, account)
 
-        if self.account.getconfboolean('synclabels', 0) and \
-              self.account.getconf('status_backend', 'plain') != 'sqlite':
-            raise OfflineImapError("The Gmail repository needs the sqlite backend to sync labels.\n"
-                                   "To enable it add 'status_backend = sqlite' in the account section",
-                                   OfflineImapError.ERROR.REPO)
-
 
     def gethost(self):
         """Return the server name to connect to.
