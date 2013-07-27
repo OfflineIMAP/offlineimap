@@ -124,6 +124,10 @@ class IMAPFolder(BaseFolder):
 
 
     def _msgs_to_fetch(self, imapobj):
+        """Returns a compacted list of message sequence numbers (not UID's!) for the
+           messages to fetch. Sequence numbers are more easily compacted into
+           ranges, and makes transactions slightly faster"""
+
         maxage = self.config.getdefaultint("Account %s" % self.accountname,
                                            "maxage", -1)
         maxsize = self.config.getdefaultint("Account %s" % self.accountname,
@@ -183,6 +187,7 @@ class IMAPFolder(BaseFolder):
 
             # Get the flags and UIDs for these. single-quotes prevent
             # imaplib2 from quoting the sequence.
+            # Note: msgsToFetch are sequential numbers, not UID's
             res_type, response = imapobj.fetch("'%s'" % msgsToFetch,
                                                '(FLAGS UID)')
             if res_type != 'OK':
@@ -218,6 +223,7 @@ class IMAPFolder(BaseFolder):
 
 
     def _fetch_from_imap(self, imapobj, uids, query, retry_num=1):
+        """Fetches a range of uids from IMAP server."""
         fails_left = retry_num # retry on dropped connection
         while fails_left:
             try:

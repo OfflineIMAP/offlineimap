@@ -114,6 +114,7 @@ class GmailFolder(IMAPFolder):
 
         self.ui.collectingdata(None, self)
         self.messagelist = {}
+
         imapobj = self.imapserver.acquireconnection()
         try:
             msgsToFetch = self._msgs_to_fetch(imapobj)
@@ -122,12 +123,20 @@ class GmailFolder(IMAPFolder):
 
             # Get the flags and UIDs for these. single-quotes prevent
             # imaplib2 from quoting the sequence.
-            data = self._fetch_from_imap(imapobj, "'%s'" % msgsToFetch,
-                                             '(FLAGS X-GM-LABELS UID)')
+            # Note: msgsToFetch are sequential numbers, not UID's
+            res_type, response = imapobj.fetch("'%s'" % msgsToFetch,
+                                               '(FLAGS X-GM-LABELS UID)')
+            if res_type != 'OK':
+                raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. "
+                                       "Server responded '[%s] %s'" % (
+                            self.getrepository(), self,
+                            res_type, response),
+                        OfflineImapError.ERROR.FOLDER)
+
         finally:
             self.imapserver.releaseconnection(imapobj)
 
-        for messagestr in data:
+        for messagestr in response:
             # looks like: '1 (FLAGS (\\Seen Old) UID 4807)' or None if no msg
             # Discard initial message number.
             if messagestr == None:
