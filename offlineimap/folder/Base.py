@@ -624,9 +624,10 @@ class BaseFolder(object):
                 continue
 
             selfflags = self.getmessageflags(uid)
-            statusflags = statusfolder.getmessageflags(uid)
-            #if we could not get message flags from LocalStatus, assume empty.
-            if statusflags is None:
+
+            if statusfolder.uidexists(uid):
+                statusflags = statusfolder.getmessageflags(uid)
+            else:
                 statusflags = set()
 
             addflags = selfflags - statusflags

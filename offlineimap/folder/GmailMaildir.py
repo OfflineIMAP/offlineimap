@@ -208,15 +208,32 @@ class GmailMaildirFolder(MaildirFolder):
         # For each label, we store a list of uids to which it should be
         # added.  Then, we can call addmessageslabels() to apply them in
         # bulk, rather than one call per message.
-
         addlabellist = {}
         dellabellist = {}
+        uidlist = []
+
         try:
-            # filter out negative uid's missed by pass 1,
-            # also skip if message deleted mtime has not changed.
-            uidlist = [uid for uid in self.getmessageuidlist()
-                       if uid >= 0 and dstfolder.uidexists(uid) and
-                       self.getmessagemtime(uid) > statusfolder.getmessagemtime(uid)]
+            # filter uids (fast)
+            for uid in self.getmessageuidlist():
+                # bail out on CTRL-C or SIGTERM
+                if offlineimap.accounts.Account.abort_NOW_signal.is_set():
+                    break
+
+                # Ignore messages with negative UIDs missed by pass 1 and
+                # don't do anything if the message has been deleted remotely
+                if uid < 0 or not dstfolder.uidexists(uid):
+                    continue
+
+                selfmtime = self.getmessagemtime(uid)
+
+                if statusfolder.uidexists(uid):
+                    statusmtime = statusfolder.getmessagemtime(uid)
+                else:
+                    statusmtime = 0
+
+                if selfmtime > statusmtime:
+                    uidlist.append(uid)
+
 
             self.ui.collectingdata(uidlist, self)
             # This can be slow if there is a lot of modified files
@@ -226,7 +243,11 @@ class GmailMaildirFolder(MaildirFolder):
                     break
 
                 selflabels = self.getmessagelabels(uid)
-                statuslabels = statusfolder.getmessagelabels(uid)
+
+                if statusfolder.uidexists(uid):
+                    statuslabels = statusfolder.getmessagelabels(uid)
+                else:
+                    statuslabels = set()
 
                 addlabels = selflabels - statuslabels
                 dellabels = statuslabels - selflabels

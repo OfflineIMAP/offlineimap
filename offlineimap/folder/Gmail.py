@@ -314,7 +314,11 @@ class GmailFolder(IMAPFolder):
                     continue
 
                 selflabels = self.getmessagelabels(uid) - self.ignorelabels
-                statuslabels = statusfolder.getmessagelabels(uid) - self.ignorelabels
+
+                if statusfolder.uidexists(uid):
+                    statuslabels = statusfolder.getmessagelabels(uid) - self.ignorelabels
+                else:
+                    statuslabels = set()
 
                 if selflabels != statuslabels:
                     uidlist.append(uid)
@@ -328,7 +332,11 @@ class GmailFolder(IMAPFolder):
                     break
 
                 selflabels = self.getmessagelabels(uid) - self.ignorelabels
-                statuslabels = statusfolder.getmessagelabels(uid) - self.ignorelabels
+
+                if statusfolder.uidexists(uid):
+                    statuslabels = statusfolder.getmessagelabels(uid) - self.ignorelabels
+                else:
+                    statuslabels = set()
 
                 if selflabels != statuslabels:
                     self.ui.settinglabels(uid, i+1, len(uidlist), sorted(selflabels), dstfolder)
