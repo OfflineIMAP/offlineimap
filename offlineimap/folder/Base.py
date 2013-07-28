@@ -36,6 +36,7 @@ class BaseFolder(object):
         # Save original name for folderfilter operations
         self.ffilter_name = name
         # Top level dir name is always ''
+        self.root = None
         self.name = name if not name == self.getsep() else ''
         self.repository = repository
         self.visiblename = repository.nametrans(name)

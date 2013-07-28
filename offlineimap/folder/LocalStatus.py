@@ -29,6 +29,7 @@ class LocalStatusFolder(BaseFolder):
     def __init__(self, name, repository):
         self.sep = '.' #needs to be set before super.__init__()
         super(LocalStatusFolder, self).__init__(name, repository)
+        self.root = repository.root
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
         self.messagelist = {}
         self.savelock = threading.Lock()
@@ -44,12 +45,6 @@ class LocalStatusFolder(BaseFolder):
 
     def getname(self):
         return self.name
-
-    def getroot(self):
-        return self.repository.root
-
-    def getsep(self):
-        return self.sep
 
     def getfullname(self):
         return self.filename
@@ -145,6 +140,11 @@ class LocalStatusFolder(BaseFolder):
         file.close()
 
     def save(self):
+        """Save changed data to disk. For this backend it is the same as saveall"""
+        self.saveall()
+
+    def saveall(self):
+        """Saves the entire messagelist to disk"""
         with self.savelock:
             file = open(self.filename + ".tmp", "wt")
             file.write((self.magicline % self.cur_version) + "\n")
