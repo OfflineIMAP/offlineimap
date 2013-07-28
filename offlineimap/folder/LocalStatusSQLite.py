@@ -17,14 +17,14 @@
 import os.path
 import re
 from threading import Lock
-from .LocalStatus import LocalStatusFolder
+from .Base import BaseFolder
 try:
     import sqlite3 as sqlite
 except:
     pass #fail only if needed later on, not on import
 
 
-class LocalStatusSQLiteFolder(LocalStatusFolder):
+class LocalStatusSQLiteFolder(BaseFolder):
     """LocalStatus backend implemented with an SQLite database
 
     As python-sqlite currently does not allow to access the same sqlite
@@ -43,9 +43,17 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     cur_version = 2
 
     def __init__(self, name, repository):
+        self.sep = '.' #needs to be set before super.__init__()
         super(LocalStatusSQLiteFolder, self).__init__(name, repository)
+        self.root = repository.root
+        self.filename = os.path.join(self.getroot(), self.getfolderbasename())
+        self.messagelist = {}
+
+        self._newfolder = False        # flag if the folder is new
+
         # dblock protects against concurrent writes in same connection
         self._dblock = Lock()
+
         #Try to establish connection, no need for threadsafety in __init__
         try:
             self.connection = sqlite.connect(self.filename, check_same_thread = False)
@@ -62,12 +70,34 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
             cursor = self.connection.execute("SELECT value from metadata WHERE key='db_version'")
         except sqlite.DatabaseError:
             #db file missing or corrupt, recreate it.
-            self.__upgrade_db(0)
+            self.__create_db()
         else:
             # fetch db version and upgrade if needed
             version = int(cursor.fetchone()[0])
             if version < LocalStatusSQLiteFolder.cur_version:
                 self.__upgrade_db(version)
+
+
+    def storesmessages(self):
+        return False
+
+    def getname(self):
+        return self.name
+
+    def getfullname(self):
+        return self.filename
+
+
+    # Interface from LocalStatusFolder
+    def isnewfolder(self):
+        return self._newfolder
+
+
+    # Interface from LocalStatusFolder
+    def deletemessagelist(self):
+        """delete all messages in the db"""
+        self.__sql_write('DELETE FROM status')
+
 
     def __sql_write(self, sql, vars=None, executemany=False):
         """Execute some SQL, retrying if the db was locked.
@@ -123,6 +153,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
                 'LocalStatus',
                 self.getfolderbasename())
             # MIGRATE from plaintext if needed
+            # TODO: adopt for plain-text v2
             if os.path.exists(plaintextfilename):
                 self.ui._msg('Migrating LocalStatus cache from plain text '
                              'to sqlite database for %s:%s' %\
@@ -168,22 +199,12 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
                          % (self.repository, self))
         self.connection.executescript("""
         CREATE TABLE metadata (key VARCHAR(50) PRIMARY KEY, value VARCHAR(128));
-        INSERT INTO metadata VALUES('db_version', '1');
+        INSERT INTO metadata VALUES('db_version', '2');
         CREATE TABLE status (id INTEGER PRIMARY KEY, flags VARCHAR(50), mtime INTEGER, labels VARCHAR(256));
         """)
         self.connection.commit()
+        self._newfolder = True
 
-    # Interface from LocalStatusFolder
-    def isnewfolder(self):
-        # testing the existence of the db file won't work. It is created
-        # as soon as this class instance was intitiated. So say it is a
-        # new folder when there are no messages at all recorded in it.
-        return self.getmessagecount() > 0
-
-    # Interface from LocalStatusFolder
-    def deletemessagelist(self):
-        """delete all messages in the db"""
-        self.__sql_write('DELETE FROM status')
 
     # Interface from BaseFolder
     def cachemessagelist(self):
@@ -196,8 +217,21 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
 
     # Interface from LocalStatusFolder
     def save(self):
-        #Noop in this backend
         pass
+        # Noop. every transaction commits to database!
+
+    def saveall(self):
+        """Saves the entire messagelist to the database."""
+        data = []
+        for uid, msg in self.messagelist.items():
+            mtime = msg['mtime']
+            flags = ''.join(sorted(msg['flags']))
+            labels = ', '.join(sorted(msg['labels']))
+            data.append((uid, flags, mtime, labels))
+
+        self.__sql_write('INSERT OR REPLACE INTO status (id,flags,mtime,labels) VALUES (?,?,?,?)',
+                                    data, executemany=True)
+
 
     # Following some pure SQLite functions, where we chose to use
     # BaseFolder() methods instead. Doing those on the in-memory list is
@@ -234,6 +268,12 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     #            flags = [x for x in row[0]]
     #            return flags
     #        assert False,"getmessageflags() called on non-existing message"
+
+
+    # Interface from BaseFolder
+    def getmessagelist(self):
+        return self.messagelist
+
 
     # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime, mtime=0, labels=set()):
