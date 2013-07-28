@@ -14,6 +14,8 @@ OfflineIMAP v6.5.6 (YYYY-MM-DD)
   to IMAP server (Abdó Roig-Maranges)
 * Allow to sync GMail labels and implement GmailMaildir repository that
   adds mechanics to change message labels (Abdó Roig-Maranges)
+* Allow to migrate status data across differend backends
+  (Abdó Roig-Maranges)
 
 
 OfflineIMAP v6.5.5 (2013-10-07)

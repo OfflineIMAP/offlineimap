@@ -25,20 +25,21 @@ import re
 class LocalStatusRepository(BaseRepository):
     def __init__(self, reposname, account):
         BaseRepository.__init__(self, reposname, account)
-        # Root directory in which the LocalStatus folders reside
-        self.root = os.path.join(account.getaccountmeta(), 'LocalStatus')
-        # statusbackend can be 'plain' or 'sqlite'
-        backend = self.account.getconf('status_backend', 'plain')
-        if backend == 'sqlite':
-            self._backend = 'sqlite'
-            self.LocalStatusFolderClass = LocalStatusSQLiteFolder
-            self.root += '-sqlite'
-        elif backend == 'plain':
-            self._backend = 'plain'
-            self.LocalStatusFolderClass = LocalStatusFolder
-        else:
-            raise SyntaxWarning("Unknown status_backend '%s' for account '%s'" \
-                                % (backend, account.name))
+
+        # class and root for all backends
+        self.backends = {}
+        self.backends['sqlite'] = {
+          'class': LocalStatusSQLiteFolder,
+          'root': os.path.join(account.getaccountmeta(), 'LocalStatus-sqlite')
+        }
+
+        self.backends['plain'] = {
+          'class': LocalStatusFolder,
+          'root': os.path.join(account.getaccountmeta(), 'LocalStatus')
+        }
+
+        # Set class and root for the configured backend
+        self.setup_backend(self.account.getconf('status_backend', 'plain'))
 
         if not os.path.exists(self.root):
             os.mkdir(self.root, 0o700)
@@ -46,16 +47,41 @@ class LocalStatusRepository(BaseRepository):
         # self._folders is a dict of name:LocalStatusFolders()
         self._folders = {}
 
+    def setup_backend(self, backend):
+        if backend in self.backends.keys():
+            self._backend = backend
+            self.root = self.backends[backend]['root']
+            self.LocalStatusFolderClass = self.backends[backend]['class']
+
+        else:
+            raise SyntaxWarning("Unknown status_backend '%s' for account '%s'" \
+                                % (backend, account.name))
+
+    def import_other_backend(self, folder):
+        for bk, dic in self.backends.items():
+            # skip folder's own type
+            if dic['class'] == type(folder):
+                continue
+
+            repobk = LocalStatusRepository(self.name, self.account)
+            repobk.setup_backend(bk)      # fake the backend
+            folderbk = dic['class'](folder.name, repobk)
+
+            # if backend contains data, import it to folder.
+            if not folderbk.isnewfolder():
+                self.ui._msg('Migrating LocalStatus cache from %s to %s ' % (bk, self._backend) + \
+                             'status folder for %s:%s' % (self.name, folder.name))
+
+                folderbk.cachemessagelist()
+                folder.messagelist = folderbk.messagelist
+                folder.saveall()
+                break
+
     def getsep(self):
         return '.'
 
     def makefolder(self, foldername):
-        """Create a LocalStatus Folder
-
-        Empty Folder for plain backend. NoOp for sqlite backend as those
-        are created on demand."""
-        if self._backend == 'sqlite':
-            return # noop for sqlite which creates on-demand
+        """Create a LocalStatus Folder"""
 
         if self.account.dryrun:
             return # bail out in dry-run mode
@@ -65,7 +91,7 @@ class LocalStatusRepository(BaseRepository):
         folder.save()
 
         # Invalidate the cache.
-        self._folders = {}
+        self.forgetfolders()
 
     def getfolder(self, foldername):
         """Return the Folder() object for a foldername"""
@@ -73,6 +99,11 @@ class LocalStatusRepository(BaseRepository):
             return self._folders[foldername]
 
         folder = self.LocalStatusFolderClass(foldername, self)
+
+        # if folder is empty, try to import data from an other backend
+        if folder.isnewfolder():
+            self.import_other_backend(folder)
+
         self._folders[foldername] = folder
         return folder
 

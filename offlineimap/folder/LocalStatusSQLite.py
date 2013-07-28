@@ -144,34 +144,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
         self.connection = sqlite.connect(self.filename,
                                          check_same_thread = False)
 
-        if from_ver == 0:
-            # from_ver==0: no db existent: plain text migration?
-            self.__create_db()
-            # below was derived from repository.getfolderfilename() logic
-            plaintextfilename = os.path.join(
-                self.repository.account.getaccountmeta(),
-                'LocalStatus',
-                self.getfolderbasename())
-            # MIGRATE from plaintext if needed
-            # TODO: adopt for plain-text v2
-            if os.path.exists(plaintextfilename):
-                self.ui._msg('Migrating LocalStatus cache from plain text '
-                             'to sqlite database for %s:%s' %\
-                                 (self.repository, self))
-                file = open(plaintextfilename, "rt")
-                line = file.readline().strip()
-                data = []
-                for line in file.xreadlines():
-                    uid, flags = line.strip().split(':')
-                    uid = long(uid)
-                    flags = ''.join(sorted(flags))
-                    data.append((uid,flags))
-                self.connection.executemany('INSERT INTO status (id,flags) VALUES (?,?)',
-                                       data)
-                self.connection.commit()
-                file.close()
-                os.rename(plaintextfilename, plaintextfilename + ".old")
-
         # Upgrade from database version 1 to version 2
         # This change adds labels and mtime columns, to be used by Gmail IMAP and Maildir folders.
         if from_ver <= 1:
