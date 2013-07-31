@@ -145,14 +145,19 @@ class GmailMaildirFolder(MaildirFolder):
         content = self.message_addheader(content, self.labelsheader, labels_str)
         rtime = self.messagelist[uid].get('rtime', None)
 
-        # Write file to tmp
-        tmppath = os.path.join(self.getfullname(), 'tmp', os.path.basename(self.messagelist[uid]['filename']))
-        file = open(tmppath, 'wt')
-        file.write(content)
-        file.close()
+        # write file with new labels to a unique file in tmp
+        messagename = self.new_message_filename(uid, set())
+        tmpname = self.save_tmp_file(messagename, content)
+        tmppath = os.path.join(self.getfullname(), tmpname)
 
         # move to actual location
-        os.rename(tmppath, filepath)
+        try:
+            os.rename(tmppath, filepath)
+        except OSError as e:
+            raise OfflineImapError("Can't rename file '%s' to '%s': %s" % (
+                                   tmpname, filename, e[1]),
+                                   OfflineImapError.ERROR.FOLDER)
+
         if rtime != None:
             os.utime(filepath, (rtime, rtime))
 
