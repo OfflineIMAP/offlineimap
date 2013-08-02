@@ -54,7 +54,7 @@ class IMAPServer:
         self.config = repos.getconfig()
         self.tunnel = repos.getpreauthtunnel()
         self.usessl = repos.getssl()
-        self.username = None if self.tunnel else repos.getuser()
+        self.username = repos.getuser()
         self.password = None
         self.passworderror = None
         self.goodpassword = None
@@ -219,7 +219,7 @@ class IMAPServer:
                     imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
                                                        timeout=socket.getdefaulttimeout())
 
-                if not self.tunnel:
+                if not self.tunnel or self.username:
                     try:
                         # Try GSSAPI and continue if it fails
                         if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
