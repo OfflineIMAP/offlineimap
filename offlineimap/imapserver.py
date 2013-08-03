@@ -55,6 +55,7 @@ class IMAPServer:
         self.tunnel = repos.getpreauthtunnel()
         self.usessl = repos.getssl()
         self.username = None if self.tunnel else repos.getuser()
+        self.proxyusername = repos.getproxyuser()
         self.password = None
         self.passworderror = None
         self.goodpassword = None
@@ -126,10 +127,23 @@ class IMAPServer:
         retval = self.username + ' ' + hmac.new(passwd, challenge).hexdigest()
         self.ui.debug('imap', 'md5handler: returning %s' % retval)
         return retval
+   
+    def plainhandler(self, response):
+        passwd = self.getpassword()
+        authz = self.username
+        if self.proxyusername != None:
+            authz = self.proxyusername
+        NULL = u'\x00'
+        retval = NULL.join(( authz,
+            self.username,
+            passwd
+        )).encode('utf-8')
+        self.ui.debug('imap', 'plainhandler: returning %s' % retval)
+        return retval
 
     def plainauth(self, imapobj):
-        self.ui.debug('imap', 'Attempting plain authentication')
-        imapobj.login(self.username, self.getpassword())
+        self.ui.debug('imap', 'Attempting sasl plain auth')
+        imapobj.authenticate('PLAIN',self.plainhandler)
 
     def gssauth(self, response):
         data = base64.b64encode(response)
@@ -248,7 +262,8 @@ class IMAPServer:
                                               'Using STARTTLS connection')
                                 imapobj.starttls()
 
-                            if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+                            if 'AUTH=CRAM-MD5' in imapobj.capabilities and\
+                                    self.proxyusername != None:
                                 self.ui.debug('imap',
                                            'Attempting CRAM-MD5 authentication')
                                 try:

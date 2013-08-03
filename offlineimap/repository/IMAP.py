@@ -115,6 +115,11 @@ class IMAPRepository(BaseRepository):
                                    "'%s' specified." % self,
                                OfflineImapError.ERROR.REPO)
 
+    def getproxyuser(self):
+        proxyuser = self.getconf('remoteproxyuser',default=None)
+        return proxyuser
+
+
     def getuser(self):
         user = None
         localeval = self.localeval
