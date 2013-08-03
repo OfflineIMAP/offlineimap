@@ -16,6 +16,7 @@ WIP (add new stuff for the next release)
 * Honor the timezone of emails (Tobias Thierer)
 * Allow mbnames output to be sorted by a custom sort key by specifying
   a 'sort_keyfunc' function in the [mbnames] section of the config.
+* Support SASL PLAIN authentication method.  (Andreas Mack)
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================

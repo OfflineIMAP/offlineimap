@@ -115,6 +115,18 @@ class IMAPRepository(BaseRepository):
                                    "'%s' specified." % self,
                                OfflineImapError.ERROR.REPO)
 
+
+    def get_remote_identity(self):
+        """
+        Remote identity is used for certain SASL mechanisms
+        (currently -- PLAIN) to inform server about the ID
+        we want to authorize as instead of our login name.
+
+        """
+
+        return self.getconf('remote_identity', default=None)
+
+
     def getuser(self):
         user = None
         localeval = self.localeval
