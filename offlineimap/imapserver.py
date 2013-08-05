@@ -128,8 +128,9 @@ class IMAPServer:
         self.ui.debug('imap', 'md5handler: returning %s' % retval)
         return retval
 
-    def plainauth(self, imapobj):
-        self.ui.debug('imap', 'Attempting plain authentication')
+    def loginauth(self, imapobj):
+        """ Basic authentication via LOGIN command """
+        self.ui.debug('imap', 'Attempting IMAP LOGIN authentication')
         imapobj.login(self.username, self.getpassword())
 
     def gssauth(self, response):
@@ -158,6 +159,107 @@ class IMAPServer:
         if not response:
             response = ''
         return base64.b64decode(response)
+
+
+    def _authn_helper(self, imapobj):
+        """
+        Authentication machinery for self.acquireconnection().
+
+        Raises OfflineImapError() of type ERROR.REPO when
+        there are either fatal problems or no authentications
+        succeeded.
+
+        If any authentication method succeeds, routine should exit:
+        warnings for failed methods are to be produced in the
+        respective except blocks.
+        
+        """
+
+        # Stack stores pairs of (method name, exception)
+        exc_stack = []
+        tried_to_authn = False
+
+        # Try GSSAPI and continue if it fails
+        if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
+            self.connectionlock.acquire()
+            self.ui.debug('imap', 'Attempting GSSAPI authentication')
+            tried_to_authn = True
+            try:
+                imapobj.authenticate('GSSAPI', self.gssauth)
+            except imapobj.error as e:
+                self.gssapi = False
+                self.ui.warn('GSSAPI authentication failed: %s' % e)
+                exc_stack.append(('GSSAPI', e))
+            else:
+                self.gssapi = True
+                kerberos.authGSSClientClean(self.gss_vc)
+                self.gss_vc = None
+                self.gss_step = self.GSS_STATE_STEP
+                #if we do self.password = None then the next attempt cannot try...
+                #self.password = None
+                return
+            finally:
+                self.connectionlock.release()
+
+        # Fire up TLS if we can and asked to: gonna to authenticate
+        # via plaintext or hashed schemes, so it is best to have
+        # channel that is protected from eavesdropping.
+        if 'STARTTLS' in imapobj.capabilities and not self.usessl:
+            self.ui.debug('imap', 'Using STARTTLS connection')
+            try:
+                imapobj.starttls()
+            except imapobj.error as e:
+                raise OfflineImapError("Failed to start "
+                  "TLS connection: %s" % str(e),
+                  OfflineImapError.ERROR.REPO)
+
+        if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+            tried_to_authn = True
+            self.ui.debug('imap', 'Attempting '
+              'CRAM-MD5 authentication')
+            try:
+                imapobj.authenticate('CRAM-MD5', self.md5handler)
+                return
+            except imapobj.error as e:
+                self.ui.warn('CRAM-MD5 authentication failed: %s' % e)
+                exc_stack.append(('CRAM-MD5', e))
+
+        # Last resort: use LOGIN command,
+        # unless LOGINDISABLED is advertized (RFC 2595)
+        if 'LOGINDISABLED' in imapobj.capabilities:
+            e = OfflineImapError("IMAP LOGIN is "
+              "disabled by server.  Need to use SSL?",
+               OfflineImapError.ERROR.REPO)
+            exc_stack.append(('IMAP LOGIN', e))
+        else:
+            tried_to_authn = True
+            self.ui.debug('imap', 'Attempting '
+              'IMAP LOGIN authentication')
+            try:
+                self.loginauth(imapobj)
+                return
+            except imapobj.error as e:
+                self.ui.warn('IMAP LOGIN authentication failed: %s' % e)
+                exc_stack.append(('IMAP LOGIN', e))
+
+        if len(exc_stack):
+            msg = "\n\t".join(map(
+              lambda x: ": ".join((x[0], str(x[1]))),
+              exc_stack
+            ))
+            raise OfflineImapError("All authentication types "
+              "failed:\n\t%s" % msg, OfflineImapError.ERROR.REPO)
+
+        if not tried_to_authn:
+            methods = ", ".join(map(
+              lambda x: x[5:], filter(lambda x: x[0:5] == "AUTH=",
+               imapobj.capabilities)
+            ))
+            raise OfflineImapError("No supported "
+              "authentication mechanisms found; "
+              "server advertises %s" % methods,
+              OfflineImapError.ERROR.REPO)
+
 
     def acquireconnection(self):
         """Fetches a connection from the pool, making sure to create a new one
@@ -223,54 +325,11 @@ class IMAPServer:
 
                 if not self.tunnel:
                     try:
-                        # Try GSSAPI and continue if it fails
-                        if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
-                            self.connectionlock.acquire()
-                            self.ui.debug('imap',
-                                'Attempting GSSAPI authentication')
-                            try:
-                                imapobj.authenticate('GSSAPI', self.gssauth)
-                            except imapobj.error as val:
-                                self.gssapi = False
-                                self.ui.debug('imap',
-                                    'GSSAPI Authentication failed')
-                            else:
-                                self.gssapi = True
-                                kerberos.authGSSClientClean(self.gss_vc)
-                                self.gss_vc = None
-                                self.gss_step = self.GSS_STATE_STEP
-                                #if we do self.password = None then the next attempt cannot try...
-                                #self.password = None
-                            self.connectionlock.release()
-
-                        if not self.gssapi:
-                            if 'STARTTLS' in imapobj.capabilities and not\
-                                    self.usessl:
-                                self.ui.debug('imap',
-                                              'Using STARTTLS connection')
-                                imapobj.starttls()
-
-                            if 'AUTH=CRAM-MD5' in imapobj.capabilities:
-                                self.ui.debug('imap',
-                                           'Attempting CRAM-MD5 authentication')
-                                try:
-                                    imapobj.authenticate('CRAM-MD5',
-                                                         self.md5handler)
-                                except imapobj.error as val:
-                                    self.plainauth(imapobj)
-                            else:
-                                # Use plaintext login, unless
-                                # LOGINDISABLED (RFC2595)
-                                if 'LOGINDISABLED' in imapobj.capabilities:
-                                    raise OfflineImapError("Plaintext login "
-                                       "disabled by server. Need to use SSL?",
-                                        OfflineImapError.ERROR.REPO)
-                                self.plainauth(imapobj)
-                        # Would bail by here if there was a failure.
-                        success = 1
+                        self._authn_helper(imapobj)
                         self.goodpassword = self.password
-                    except imapobj.error as val:
-                        self.passworderror = str(val)
+                        success = 1
+                    except OfflineImapError as e:
+                        self.passworderror = str(e)
                         raise
 
             # update capabilities after login, e.g. gmail serves different ones
