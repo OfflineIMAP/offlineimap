@@ -55,6 +55,7 @@ class IMAPServer:
         self.tunnel = repos.getpreauthtunnel()
         self.usessl = repos.getssl()
         self.username = None if self.tunnel else repos.getuser()
+        self.user_identity = repos.get_remote_identity()
         self.password = None
         self.passworderror = None
         self.goodpassword = None
@@ -132,6 +133,24 @@ class IMAPServer:
         """ Basic authentication via LOGIN command """
         self.ui.debug('imap', 'Attempting IMAP LOGIN authentication')
         imapobj.login(self.username, self.getpassword())
+
+
+    def plainhandler(self, response):
+        """
+        Implements SASL PLAIN authentication, RFC 4616,
+          http://tools.ietf.org/html/rfc4616
+
+        """
+        authc = self.username
+        passwd = self.getpassword()
+        authz = ''
+        if self.user_identity != None:
+            authz = self.user_identity
+        NULL = u'\x00'
+        retval = NULL.join((authz, authc, passwd)).encode('utf-8')
+        self.ui.debug('imap', 'plainhandler: returning %s' % retval)
+        return retval
+
 
     def gssauth(self, response):
         data = base64.b64encode(response)
@@ -213,6 +232,8 @@ class IMAPServer:
                   "TLS connection: %s" % str(e),
                   OfflineImapError.ERROR.REPO)
 
+	# Hashed authenticators come first: they don't reveal
+	# passwords.
         if 'AUTH=CRAM-MD5' in imapobj.capabilities:
             tried_to_authn = True
             self.ui.debug('imap', 'Attempting '
@@ -223,6 +244,18 @@ class IMAPServer:
             except imapobj.error as e:
                 self.ui.warn('CRAM-MD5 authentication failed: %s' % e)
                 exc_stack.append(('CRAM-MD5', e))
+
+        # Try plaintext authenticators.
+        if 'AUTH=PLAIN' in imapobj.capabilities:
+            tried_to_authn = True
+            self.ui.debug('imap', 'Attempting '
+              'PLAIN authentication')
+            try:
+                imapobj.authenticate('PLAIN', self.plainhandler)
+                return
+            except imapobj.error as e:
+                self.ui.warn('PLAIN authentication failed: %s' % e)
+                exc_stack.append(('PLAIN', e))
 
         # Last resort: use LOGIN command,
         # unless LOGINDISABLED is advertized (RFC 2595)
