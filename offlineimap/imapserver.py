@@ -56,6 +56,7 @@ class IMAPServer:
         self.usessl = repos.getssl()
         self.username = None if self.tunnel else repos.getuser()
         self.user_identity = repos.get_remote_identity()
+        self.authmechs = repos.get_auth_mechanisms()
         self.password = None
         self.passworderror = None
         self.goodpassword = None
@@ -199,7 +200,7 @@ class IMAPServer:
         tried_to_authn = False
 
         # Try GSSAPI and continue if it fails
-        if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss:
+        if 'AUTH=GSSAPI' in imapobj.capabilities and have_gss and "GSSAPI" in self.authmechs:
             self.connectionlock.acquire()
             self.ui.debug('imap', 'Attempting GSSAPI authentication')
             tried_to_authn = True
@@ -232,9 +233,9 @@ class IMAPServer:
                   "TLS connection: %s" % str(e),
                   OfflineImapError.ERROR.REPO)
 
-	# Hashed authenticators come first: they don't reveal
-	# passwords.
-        if 'AUTH=CRAM-MD5' in imapobj.capabilities:
+    # Hashed authenticators come first: they don't reveal
+    # passwords.
+        if 'AUTH=CRAM-MD5' in imapobj.capabilities and "CRAM-MD5" in self.authmechs:
             tried_to_authn = True
             self.ui.debug('imap', 'Attempting '
               'CRAM-MD5 authentication')
@@ -246,7 +247,7 @@ class IMAPServer:
                 exc_stack.append(('CRAM-MD5', e))
 
         # Try plaintext authenticators.
-        if 'AUTH=PLAIN' in imapobj.capabilities:
+        if 'AUTH=PLAIN' in imapobj.capabilities and "PLAIN" in self.authmechs:
             tried_to_authn = True
             self.ui.debug('imap', 'Attempting '
               'PLAIN authentication')
@@ -259,21 +260,22 @@ class IMAPServer:
 
         # Last resort: use LOGIN command,
         # unless LOGINDISABLED is advertized (RFC 2595)
-        if 'LOGINDISABLED' in imapobj.capabilities:
-            e = OfflineImapError("IMAP LOGIN is "
-              "disabled by server.  Need to use SSL?",
-               OfflineImapError.ERROR.REPO)
-            exc_stack.append(('IMAP LOGIN', e))
-        else:
-            tried_to_authn = True
-            self.ui.debug('imap', 'Attempting '
-              'IMAP LOGIN authentication')
-            try:
-                self.loginauth(imapobj)
-                return
-            except imapobj.error as e:
-                self.ui.warn('IMAP LOGIN authentication failed: %s' % e)
+        if 'LOGIN' in self.authmechs:
+            if 'LOGINDISABLED' in imapobj.capabilities:
+                e = OfflineImapError("IMAP LOGIN is "
+                  "disabled by server.  Need to use SSL?",
+                   OfflineImapError.ERROR.REPO)
                 exc_stack.append(('IMAP LOGIN', e))
+            else:
+                tried_to_authn = True
+                self.ui.debug('imap', 'Attempting '
+                  'IMAP LOGIN authentication')
+                try:
+                    self.loginauth(imapobj)
+                    return
+                except imapobj.error as e:
+                    self.ui.warn('IMAP LOGIN authentication failed: %s' % e)
+                    exc_stack.append(('IMAP LOGIN', e))
 
         if len(exc_stack):
             msg = "\n\t".join(map(
