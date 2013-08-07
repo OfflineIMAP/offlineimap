@@ -126,6 +126,26 @@ class IMAPRepository(BaseRepository):
 
         return self.getconf('remote_identity', default=None)
 
+    def get_auth_mechanisms(self):
+        supported = ["GSSAPI", "CRAM-MD5", "PLAIN", "LOGIN"]
+        # Mechanisms are ranged from the strongest to the
+        # weakest ones.
+        # TODO: we need DIGEST-MD5, it must come before CRAM-MD5
+        # TODO: due to the chosen-plaintext resistance.
+        default = ["GSSAPI", "CRAM-MD5", "PLAIN", "LOGIN"]
+
+        mechs = self.getconflist('auth_mechanisms', r',\s*',
+          default)
+
+        for m in mechs:
+            if m not in supported:
+                raise OfflineImapError("Repository %s: " % self + \
+                  "unknown authentication mechanism '%s'" % m,
+                  OfflineImapError.ERROR.REPO)
+
+        self.ui.debug('imap', "Using authentication mechanisms %s" % mechs)
+        return mechs
+
 
     def getuser(self):
         user = None

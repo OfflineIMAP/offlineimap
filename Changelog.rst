@@ -19,6 +19,8 @@ WIP (add new stuff for the next release)
 * Support SASL PLAIN authentication method.  (Andreas Mack)
 * Support transport-only tunnels that requre full IMAP authentication.
   (Steve Purcell)
+* Make the list of authentication mechanisms to be configurable.
+  (Andreas Mack)
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================
