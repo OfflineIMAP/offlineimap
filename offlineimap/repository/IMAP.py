@@ -115,6 +115,40 @@ class IMAPRepository(BaseRepository):
                                    "'%s' specified." % self,
                                OfflineImapError.ERROR.REPO)
 
+
+    def get_remote_identity(self):
+        """
+        Remote identity is used for certain SASL mechanisms
+        (currently -- PLAIN) to inform server about the ID
+        we want to authorize as instead of our login name.
+
+        """
+
+        return self.getconf('remote_identity', default=None)
+
+    def get_auth_mechanisms(self):
+        line = self.getconf('auth_mechanisms', default=None)
+        prefab = [ 'PLAIN','CRAM-MD5', 'LOGIN','GSSAPI']
+        if line == None or len(line) == 0:
+            self.ui.debug('imap', "Using prefab %s" % prefab)
+            return prefab
+        smechs=line.split(",")
+        mechs=list()
+
+        for mech in smechs:
+            if mech not in prefab:
+                raise OfflineImapError("auth mechanism option for repository "\
+                                       "'%s' unknown or not supported:\n%s" % (self, mech),
+                                       OfflineImapError.ERROR.REPO)
+            mechs.append(mech)
+        if len(mechs) < 1:
+            raise OfflineImapError("no auth mechanism for repository "\
+                                       "'%s' unknown found:\n" % (self),
+                                       OfflineImapError.ERROR.REPO)
+        self.ui.debug('imap', "Using mechs %s" % mechs)    
+        return mechs
+
+
     def getuser(self):
         user = None
         localeval = self.localeval
