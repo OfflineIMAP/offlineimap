@@ -23,6 +23,8 @@ WIP (add new stuff for the next release)
   (Andreas Mack)
 * Allow to set message access and modification timestamps based
   on the "Date" header of the message itself.  (Cyril Russo)
+* [regression] pass folder names to the foldersort function,
+  revert the documented behaviour
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================

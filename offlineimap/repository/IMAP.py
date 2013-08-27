@@ -365,7 +365,7 @@ class IMAPRepository(BaseRepository):
                     def __init__(self, obj, *args):
                         self.obj = obj
                     def __cmp__(self, other):
-                        return mycmp(self.obj, other.obj)
+                        return mycmp(self.obj.getvisiblename(), other.obj.getvisiblename())
                 return K
             retval.sort(key=cmp2key(self.foldersort))
 
