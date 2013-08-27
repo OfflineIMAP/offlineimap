@@ -145,6 +145,10 @@ def imapsplit(imapstring):
         elif workstr[0] == '"':
             # quoted fragments '"...\"..."'
             m = quotere.match(workstr)
+            if not m:
+                raise ValueError ("failed to parse "
+                  "quoted component %s " % str(workstr) + \
+                  "while working with %s" % str(imapstring))
             retval.append(m.group('quote'))
             workstr = m.group('rest')
         else:

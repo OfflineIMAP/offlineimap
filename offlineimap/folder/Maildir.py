@@ -104,6 +104,8 @@ class MaildirFolder(BaseFolder):
         oldest_time_utc -= oldest_time_today_seconds
 
         timestampmatch = re_timestampmatch.search(messagename)
+        if not timestampmatch:
+            return True
         timestampstr = timestampmatch.group()
         timestamplong = long(timestampstr)
         if(timestamplong < oldest_time_utc):
