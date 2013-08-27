@@ -28,6 +28,7 @@ WIP (add new stuff for the next release)
   local repository for the account being processed.
 * [regression] pass folder names to the foldersort function,
   revert the documented behaviour
+* Fix handling of zero-sized IMAP data items (GitHub#15).
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================

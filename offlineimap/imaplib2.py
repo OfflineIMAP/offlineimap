@@ -299,7 +299,8 @@ class IMAP4(object):
         self.idle_rqb = None            # Server IDLE Request - see _IdleCont
         self.idle_timeout = None        # Must prod server occasionally
 
-        self._expecting_data = 0        # Expecting message data
+        self._expecting_data = False    # Expecting message data
+        self._expecting_data_len = 0    # How many characters we expect
         self._accumulated_data = []     # Message data accumulated so far
         self._literal_expected = None   # Message data descriptor
 
@@ -1463,10 +1464,11 @@ class IMAP4(object):
 
     def _put_response(self, resp):
 
-        if self._expecting_data > 0:
+        if self._expecting_data:
             rlen = len(resp)
-            dlen = min(self._expecting_data, rlen)
-            self._expecting_data -= dlen
+            dlen = min(self._expecting_data_len, rlen)
+            self._expecting_data_len -= dlen
+            self._expecting_data = (self._expecting_data_len != 0)
             if rlen <= dlen:
                 self._accumulated_data.append(resp)
                 return
@@ -1490,8 +1492,9 @@ class IMAP4(object):
             dat = resp
             if self._match(self.literal_cre, dat):
                 self._literal_expected[1] = dat
-                self._expecting_data = int(self.mo.group('size'))
-                if __debug__: self._log(4, 'expecting literal size %s' % self._expecting_data)
+                self._expecting_data = True
+                self._expecting_data_len = int(self.mo.group('size'))
+                if __debug__: self._log(4, 'expecting literal size %s' % self._expecting_data_len)
                 return
             typ = self._literal_expected[0]
             self._literal_expected = None
@@ -1537,8 +1540,9 @@ class IMAP4(object):
                 # Is there a literal to come?
 
                 if self._match(self.literal_cre, dat):
-                    self._expecting_data = int(self.mo.group('size'))
-                    if __debug__: self._log(4, 'read literal size %s' % self._expecting_data)
+                    self._expecting_data = True
+                    self._expecting_data_len = int(self.mo.group('size'))
+                    if __debug__: self._log(4, 'read literal size %s' % self._expecting_data_len)
                     self._literal_expected = [typ, dat]
                     return
 
