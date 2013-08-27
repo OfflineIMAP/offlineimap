@@ -21,6 +21,7 @@ import re                               # for folderfilter
 from threading import Lock
 
 boxes = {}
+localroots = {}
 config = None
 accounts = None
 mblock = Lock()
@@ -30,9 +31,10 @@ def init(conf, accts):
     config = conf
     accounts = accts
 
-def add(accountname, foldername):
+def add(accountname, foldername, localfolders):
     if not accountname in boxes:
         boxes[accountname] = []
+        localroots[accountname] = localfolders
     if not foldername in boxes[accountname]:
         boxes[accountname].append(foldername)
 
@@ -64,10 +66,12 @@ def genmbnames():
                                          {'re': re})
         itemlist = []
         for accountname in boxes.keys():
+            localroot = localroots[accountname]
             for foldername in boxes[accountname]:
                 if folderfilter(accountname, foldername):
                     itemlist.append({'accountname': accountname,
-                                     'foldername': foldername})
+                                     'foldername': foldername,
+                                     'localfolders': localroot})
         itemlist.sort(key = mb_sort_keyfunc)
         format_string = config.get("mbnames", "peritem", raw=1)
         itemlist = [format_string % d for d in itemlist]

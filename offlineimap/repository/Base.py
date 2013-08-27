@@ -259,3 +259,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         for the threads to terminate."""
         pass
 
+    def getlocalroot(self):
+    	""" Local root folder for storing messages.
+    	Will not be set for remote repositories."""
+        return None
+

@@ -23,6 +23,9 @@ WIP (add new stuff for the next release)
   (Andreas Mack)
 * Allow to set message access and modification timestamps based
   on the "Date" header of the message itself.  (Cyril Russo)
+* "peritem" format string for [mbnames] got new expansion key
+  "localfolders" that corresponds to the same parameter of the
+  local repository for the account being processed.
 * [regression] pass folder names to the foldersort function,
   revert the documented behaviour
 
