@@ -384,9 +384,9 @@ class BaseFolder(object):
                 raise # bubble severe errors up
             self.ui.error(e, exc_info()[2])
         except Exception as e:
-            self.ui.error(e, "Copying message %s [acc: %s]:\n %s" %\
-                              (uid, self.accountname,
-                               exc_info()[2]))
+            self.ui.error(e, exc_info()[2],
+              msg="Copying message %s [acc: %s]" %\
+                              (uid, self.accountname))
             raise    #raise on unknown errors, so we can fix those
 
     def syncmessagesto_copy(self, dstfolder, statusfolder):
