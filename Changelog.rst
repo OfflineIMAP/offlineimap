@@ -29,6 +29,10 @@ WIP (add new stuff for the next release)
 * [regression] pass folder names to the foldersort function,
   revert the documented behaviour
 * Fix handling of zero-sized IMAP data items (GitHub#15).
+* Updated bundled imaplib2 to 2.35:
+  - fix for Gmail sending a BYE response after reading >100 messages
+    in a session;
+  - includes fix for GitHub#15: patch was accepted upstream.
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================
