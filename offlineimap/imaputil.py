@@ -21,13 +21,6 @@ import string
 from offlineimap.ui import getglobalui
 
 
-# find the first quote in a string
-quotere = re.compile(
-    r"""(?P<quote>"[^\"\\]*(?:\\"|[^"])*") # Quote, possibly containing encoded
-                                   # quotation mark
-        \s*(?P<rest>.*)$           # Whitespace & remainder of string""",
-    re.VERBOSE)
-
 def debug(*args):
     msg = []
     for arg in args:
@@ -144,13 +137,9 @@ def imapsplit(imapstring):
             retval.append(parenlist)
         elif workstr[0] == '"':
             # quoted fragments '"...\"..."'
-            m = quotere.match(workstr)
-            if not m:
-                raise ValueError ("failed to parse "
-                  "quoted component %s " % str(workstr) + \
-                  "while working with %s" % str(imapstring))
-            retval.append(m.group('quote'))
-            workstr = m.group('rest')
+            (quoted, rest) = _split_quoted(workstr)
+            retval.append(quoted)
+            workstr = rest
         else:
             splits = string.split(workstr, maxsplit = 1)
             splitslen = len(splits)
@@ -222,3 +211,42 @@ def uid_sequence(uidlist):
 
     retval.append(getrange(start, end)) # Add final range/item
     return ",".join(retval)
+
+
+def _split_quoted(string):
+	"""
+	Looks for the ending quote character in the string that starts
+	with quote character, splitting out quoted component and the
+	rest of the string (without possible space between these two
+	parts.
+
+	First character of the string is taken to be quote character.
+
+	Examples:
+	 - "this is \" a test" (\\None) => ("this is \" a test", (\\None))
+	 - "\\" => ("\\", )
+
+	"""
+
+	if len(string) == 0:
+		return ('', '')
+
+	q = quoted = string[0]
+	rest = string[1:]
+	while True:
+		next_q = rest.find(q)
+		if next_q == -1:
+			raise ValueError("can't find ending quote '%s' in '%s'" % (q, string))
+		# If quote is preceeded by even number of backslashes,
+		# then it is the ending quote, otherwise the quote
+		# character is escaped by backslash, so we should
+		# continue our search.
+		is_escaped = False
+		i = next_q - 1
+		while i >= 0 and rest[i] == '\\':
+			i -= 1
+			is_escaped = not is_escaped
+		quoted += rest[0:next_q + 1]
+		rest = rest[next_q + 1:]
+		if not is_escaped:
+			return (quoted, rest.lstrip())

@@ -36,6 +36,9 @@ WIP (add new stuff for the next release)
 * Updated bundled imaplib2 to 2.36: it includes support for SSL
   version override that was integrated into our code before,
   no other changes.
+* Fixed parsing of quoted strings in IMAP responses: strings like "\\"
+  were treated as having \" as the escaped quote, rather than treating
+  it as the quoted escaped backslash (GitHub#53).
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================
