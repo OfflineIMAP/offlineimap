@@ -33,6 +33,9 @@ WIP (add new stuff for the next release)
   - fix for Gmail sending a BYE response after reading >100 messages
     in a session;
   - includes fix for GitHub#15: patch was accepted upstream.
+* Updated bundled imaplib2 to 2.36: it includes support for SSL
+  version override that was integrated into our code before,
+  no other changes.
 
 OfflineIMAP v6.5.5-rc1 (2012-09-05)
 ===================================

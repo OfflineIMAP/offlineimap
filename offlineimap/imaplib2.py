@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.35"
+__version__ = "2.36"
 __release__ = "2"
-__revision__ = "35"
+__revision__ = "36"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -474,8 +474,7 @@ class IMAP4(object):
             elif self.ssl_version == "ssl23" or self.ssl_version is None:
                 ssl_version = ssl.PROTOCOL_SSLv23
             else:
-                raise socket.sslerror("Invalid SSL version requested: %s",
-                        self.ssl_version)
+                raise socket.sslerror("Invalid SSL version requested: %s", self.ssl_version)
 
             self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, ca_certs=self.ca_certs, cert_reqs=cert_reqs, ssl_version=ssl_version)
             ssl_exc = ssl.SSLError
@@ -1994,7 +1993,7 @@ class IMAP4_SSL(IMAP4):
     """IMAP4 client class over SSL connection
 
     Instantiate with:
-        IMAP4_SSL(host=None, port=None, keyfile=None, certfile=None, ssl_version="ssl23", debug=None, debug_file=None, identifier=None, timeout=None)
+        IMAP4_SSL(host=None, port=None, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23", debug=None, debug_file=None, identifier=None, timeout=None)
 
         host           - host's name (default: localhost);
         port           - port number (default: standard IMAP4 SSL port);
