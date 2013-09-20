@@ -4,8 +4,8 @@ ChangeLog
 
 :website: http://offlineimap.org
 
-WIP (add new stuff for the next release)
-========================================
+OfflineIMAP v6.5.5-rc3 (2013-09-20)
+===================================
 
 * Avoid lockups for IMAP synchronizations running with the
   "-1" command-line switch (X-Ryl669 <boite.pour.spam@gmail.com>)
@@ -40,7 +40,7 @@ WIP (add new stuff for the next release)
   were treated as having \" as the escaped quote, rather than treating
   it as the quoted escaped backslash (GitHub#53).
 
-OfflineIMAP v6.5.5-rc1 (2012-09-05)
+OfflineIMAP v6.5.5-rc2 (2012-09-05)
 ===================================
 
 * Execute pre/post-sync hooks during synchronizations
