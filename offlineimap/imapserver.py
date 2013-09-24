@@ -73,6 +73,7 @@ class IMAPServer:
         self.goodpassword = None
 
         self.usessl = repos.getssl()
+	self.usetls = repos.gettls()
         self.hostname = \
           None if self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
@@ -197,7 +198,7 @@ class IMAPServer:
 
 
     def _start_tls(self, imapobj):
-        if 'STARTTLS' in imapobj.capabilities and not self.usessl:
+        if 'STARTTLS' in imapobj.capabilities and not self.usessl and self.usetls:
             self.ui.debug('imap', 'Using STARTTLS connection')
             try:
                 imapobj.starttls()
