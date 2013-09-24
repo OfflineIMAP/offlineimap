@@ -73,7 +73,7 @@ class IMAPServer:
         self.goodpassword = None
 
         self.usessl = repos.getssl()
-	self.usetls = repos.gettls()
+        self.usetls = repos.gettls()
         self.hostname = \
           None if self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
