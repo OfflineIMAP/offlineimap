@@ -193,7 +193,7 @@ class IMAPRepository(BaseRepository):
         return self.getconfboolean('ssl', 0)
 
     def gettls(self):
-        return self.getconfboolean('tls', 0)
+        return self.getconfboolean('tls', True)
 
     def getsslclientcert(self):
         return self.getconf('sslclientcert', None)
