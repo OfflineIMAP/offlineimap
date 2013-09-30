@@ -274,7 +274,7 @@ class IMAPServer:
         If any authentication method succeeds, routine should exit:
         warnings for failed methods are to be produced in the
         respective except blocks.
-        
+
         """
 
         # Authentication routines, hash keyed by method name
@@ -691,7 +691,11 @@ class IdleThread(object):
                         # Connection closed, release connection and retry
                         self.ui.error(e, exc_info()[2])
                         self.parent.releaseconnection(imapobj, True)
+                    elif e.severity == OfflineImapError.ERROR.FOLDER:
+                        self.ui.error(e, exc_info()[2])
                     else:
+                        # raising unhandled errors here makes the failed
+                        # account to stop syncing in future attempts.
                         raise e
                 else:
                     success = True
