@@ -1,7 +1,7 @@
 __all__ = ['OfflineImap']
 
 __productname__ = 'OfflineIMAP'
-__version__     = "6.5.5-rc3"
+__version__     = "6.5.5"
 __copyright__   = "Copyright 2002-2013 John Goerzen & contributors"
 __author__      = "John Goerzen"
 __author_email__= "john@complete.org"

@@ -4,8 +4,8 @@ ChangeLog
 
 :website: http://offlineimap.org
 
-OfflineIMAP v6.5.5-rc3 (2013-09-20)
-===================================
+OfflineIMAP v6.5.5 (2013-10-07)
+===============================
 
 * Avoid lockups for IMAP synchronizations running with the
   "-1" command-line switch (X-Ryl669 <boite.pour.spam@gmail.com>)
@@ -39,28 +39,21 @@ OfflineIMAP v6.5.5-rc3 (2013-09-20)
 * Fixed parsing of quoted strings in IMAP responses: strings like "\\"
   were treated as having \" as the escaped quote, rather than treating
   it as the quoted escaped backslash (GitHub#53).
-
-OfflineIMAP v6.5.5-rc2 (2012-09-05)
-===================================
-
 * Execute pre/post-sync hooks during synchronizations
   toggled by IMAP IDLE message processing. (maxgerer@gmail.com)
 * Catch unsuccessful local mail uploads when IMAP server
   responds with "NO" status; that resulted in a loss of such
   local messages. (Adam Spiers)
-
-OfflineIMAP v6.5.5-rc1 (2012-09-05)
-===================================
-
 * Don't create folders if readonly is enabled.
-* Learn to deal with readonly folders to properly detect this condition and act
-  accordingly.  One example is Gmail's "Chats" folder that is read-only,
-  but contains logs of the quick chats. (E. Ryabinkin)
+* Learn to deal with readonly folders to properly detect this
+  condition and act accordingly.  One example is Gmail's "Chats"
+  folder that is read-only, but contains logs of the quick chats. (E.
+  Ryabinkin)
 * Fix str.format() calls for Python 2.6 (D. Logie)
 * Remove APPENDUID hack, previously introduced to fix Gmail, no longer
   necessary, it might have been breaking things. (J. Wiegley)
-* Improve regex that could lead to 'NoneType' object has no attribute 'group'
-  (D. Franke)
+* Improve regex that could lead to 'NoneType' object has no attribute
+  'group' (D. Franke)
 * Improved error throwing on repository misconfiguration
 
 OfflineIMAP v6.5.4 (2012-06-02)
