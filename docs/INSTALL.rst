@@ -9,6 +9,22 @@ Installation
 .. contents::
 .. .. sectnum::
 
+-----------------
+Development state
+-----------------
+
+Since several months, the official maintainers Nicolas Sebrecht and Sebatian
+Spaeth are too much busy to actively contribute to this project.
+
+In order to preserve contributions, a team of official maintainers have been
+promoted to have write access to the official repository at `OfflineIMAP`_.
+OfflineIMAP is now maintained by occasional contributors and the official
+maintainers. All the documentation links might not be up-to-date to reflect
+this change.
+
+The best place to get the latest news about the development state is at the
+mailing list.
+
 -------------
 Prerequisites
 -------------
@@ -80,7 +96,7 @@ Installation from git checkout
 
 Get your own copy of the `official git repository <OLI_git_repo>`_ at `OfflineIMAP`_::
 
-  git clone git://github.com/spaetz/offlineimap.git
+  git clone https://github.com/OfflineIMAP/offlineimap.git
 
 This will download the source with history. By default, git sets up the
 `master` branch up, which is most likely what you want. If not, you can
@@ -108,7 +124,7 @@ Finally, install the program (as root)::
 
   python setup.py install
 
-Next, proceed to below.  You tofflineimap to invoke the program.
+Next, proceed to below.  Type `offlineimap` to invoke the program.
 
 
 .. _single_user_inst:
