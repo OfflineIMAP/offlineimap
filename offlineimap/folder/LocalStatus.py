@@ -84,6 +84,9 @@ class LocalStatusFolder(BaseFolder):
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
         file.close()
 
+    def dropmessagelistcache(self):
+        self.messagelist = None
+
     def save(self):
         with self.savelock:
             file = open(self.filename + ".tmp", "wt")

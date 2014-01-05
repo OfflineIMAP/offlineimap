@@ -175,6 +175,9 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
                 flags = set(row[1])
                 self.messagelist[row[0]] = {'uid': row[0], 'flags': flags}
 
+    def dropmessagelistcache(self):
+        self.messagelist = None
+
     def save(self):
         #Noop in this backend
         pass
