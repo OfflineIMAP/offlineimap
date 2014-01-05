@@ -475,3 +475,7 @@ def syncfolder(account, remotefolder, quick):
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
                 (account, remotefolder.getvisiblename(),
                  traceback.format_exc()))
+    finally:
+        for folder in ["statusfolder", "localfolder", "remotefolder"]:
+            if folder in locals():
+                locals()[folder].dropmessagelistcache()
