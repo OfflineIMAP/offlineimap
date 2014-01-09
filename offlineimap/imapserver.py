@@ -22,6 +22,10 @@ import offlineimap.accounts
 import hmac
 import socket
 import base64
+
+import json
+import urllib
+
 import time
 import errno
 from sys import exc_info
@@ -84,6 +88,12 @@ class IMAPServer:
         self.sslversion = repos.getsslversion()
         if self.sslcacertfile is None:
             self.verifycert = None # disable cert verification
+
+        self.oauth2_refresh_token = repos.getoauth2_refresh_token()
+        self.oauth2_client_id = repos.getoauth2_client_id()
+        self.oauth2_client_secret = repos.getoauth2_client_secret()
+        self.oauth2_request_url = repos.getoauth2_request_url()
+        self.oauth2_access_token = None
 
         self.delim = None
         self.root = None
@@ -168,6 +178,33 @@ class IMAPServer:
         return retval
 
 
+    def xoauth2handler(self, response):
+        if self.oauth2_refresh_token is None:
+            return None
+
+        if self.oauth2_access_token is None:
+            # need to move these to config
+            # generate new access token
+            params = {}
+            params['client_id'] = self.oauth2_client_id
+            params['client_secret'] = self.oauth2_client_secret
+            params['refresh_token'] = self.oauth2_refresh_token
+            params['grant_type'] = 'refresh_token'
+
+            self.ui.debug('imap', 'xoauth2handler: url "%s"' % self.oauth2_request_url)
+            self.ui.debug('imap', 'xoauth2handler: params "%s"' % params)
+
+            response = urllib.urlopen(self.oauth2_request_url, urllib.urlencode(params)).read()
+            resp = json.loads(response)
+            self.ui.debug('imap', 'xoauth2handler: response "%s"' % resp)
+            self.oauth2_access_token = resp['access_token']
+
+        self.ui.debug('imap', 'xoauth2handler: access_token "%s"' % self.oauth2_access_token)
+        auth_string = 'user=%s\1auth=Bearer %s\1\1' % (self.username, self.oauth2_access_token)
+        #auth_string = base64.b64encode(auth_string)
+        self.ui.debug('imap', 'xoauth2handler: returning "%s"' % auth_string)
+        return auth_string
+
     def gssauth(self, response):
         data = base64.b64encode(response)
         try:
@@ -251,6 +288,10 @@ class IMAPServer:
         imapobj.authenticate('PLAIN', self.plainhandler)
         return True
 
+    def _authn_xoauth2(self, imapobj):
+        imapobj.authenticate('XOAUTH2', self.xoauth2handler)
+        return True
+
     def _authn_login(self, imapobj):
         # Use LOGIN command, unless LOGINDISABLED is advertized
         # (per RFC 2595)
@@ -274,7 +315,7 @@ class IMAPServer:
         If any authentication method succeeds, routine should exit:
         warnings for failed methods are to be produced in the
         respective except blocks.
-        
+
         """
 
         # Authentication routines, hash keyed by method name
@@ -285,6 +326,7 @@ class IMAPServer:
         auth_methods = {
           "GSSAPI": (self._authn_gssapi, False, True),
           "CRAM-MD5": (self._authn_cram_md5, True, True),
+          "XOAUTH2": (self._authn_xoauth2, True, True),
           "PLAIN": (self._authn_plain, True, True),
           "LOGIN": (self._authn_login, True, False),
         }

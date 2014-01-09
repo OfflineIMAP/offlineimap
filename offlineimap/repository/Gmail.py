@@ -29,6 +29,8 @@ class GmailRepository(IMAPRepository):
     # Gmail IMAP server port
     PORT = 993
 
+    OAUTH2_URL = 'https://accounts.google.com/o/oauth2/token'
+
     def __init__(self, reposname, account):
         """Initialize a GmailRepository object."""
         # Enforce SSL usage
@@ -47,6 +49,18 @@ class GmailRepository(IMAPRepository):
             # nothing was configured, cache and return hardcoded one
             self._host = GmailRepository.HOSTNAME
             return self._host
+
+    def getoauth2_request_url(self):
+        """Return the server name to connect to.
+
+        Gmail implementation first checks for the usual IMAP settings
+        and falls back to imap.gmail.com if not specified."""
+        try:
+            return super(GmailRepository, self).getoauth2_request_url()
+        except OfflineImapError:
+            # nothing was configured, cache and return hardcoded one
+            self._oauth2_request_url = GmailRepository.OAUTH2_URL
+            return self._oauth2_request_url
 
     def getport(self):
         return GmailRepository.PORT
