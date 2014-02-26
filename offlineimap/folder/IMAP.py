@@ -500,6 +500,11 @@ class IMAPFolder(BaseFolder):
 
         retry_left = 2 # succeeded in APPENDING?
         imapobj = self.imapserver.acquireconnection()
+        # NB: in the finally clause for this try we will release
+        # NB: the acquired imapobj, so don't do that twice unless
+        # NB: you will put another connection to imapobj.  If you
+        # NB: really do need to release connection manually, set
+        # NB: imapobj to None.
         try:
             while retry_left:
                 # UIDPLUS extension provides us with an APPENDUID response.
@@ -612,7 +617,7 @@ class IMAPFolder(BaseFolder):
                     self.ui.warn('imap', "savemessage: Searching mails for new "
                         "Message-ID failed. Could not determine new UID.")
         finally:
-            self.imapserver.releaseconnection(imapobj)
+            if imapobj: self.imapserver.releaseconnection(imapobj)
 
         if uid: # avoid UID FETCH 0 crash happening later on
             self.messagelist[uid] = {'uid': uid, 'flags': flags}
