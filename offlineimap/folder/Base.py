@@ -85,7 +85,7 @@ class BaseFolder(object):
         if not self._dynamic_folderfilter:
             return self._sync_this
         else:
-            return this.repository.should_sync_folder(self.ffilter_name)
+            return self.repository.should_sync_folder(self.ffilter_name)
 
     @property
     def utime_from_message(self):
