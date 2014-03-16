@@ -134,7 +134,7 @@ class Account(CustomConfig.ConfigHelperMixin):
         return skipsleep or Account.abort_soon_signal.is_set() or \
             Account.abort_NOW_signal.is_set()
 
-    def sleeper(self):
+    def _sleeper(self):
         """Sleep if the account is set to autorefresh
 
         :returns: 0:timeout expired, 1: canceled the timer,
@@ -192,7 +192,7 @@ class SyncableAccount(Account):
         self._lockfilepath = os.path.join(self.config.getmetadatadir(),
                                           "%s.lock" % self)
 
-    def lock(self):
+    def __lock(self):
         """Lock the account, throwing an exception if it is locked already"""
         self._lockfd = open(self._lockfilepath, 'w')
         try:
@@ -206,7 +206,7 @@ class SyncableAccount(Account):
                                    "instance using this account?" % self,
                                    OfflineImapError.ERROR.REPO)
 
-    def unlock(self):
+    def _unlock(self):
         """Unlock the account, deleting the lock file"""
         #If we own the lock file, delete it
         if self._lockfd and not self._lockfd.closed:
@@ -237,8 +237,8 @@ class SyncableAccount(Account):
         while looping:
             self.ui.acct(self)
             try:
-                self.lock()
-                self.sync()
+                self.__lock()
+                self.__sync()
             except (KeyboardInterrupt, SystemExit):
                 raise
             except OfflineImapError as e:
@@ -258,8 +258,8 @@ class SyncableAccount(Account):
                     looping = 3
             finally:
                 self.ui.acctdone(self)
-                self.unlock()
-                if looping and self.sleeper() >= 2:
+                self._unlock()
+                if looping and self._sleeper() >= 2:
                     looping = 0
 
     def get_local_folder(self, remotefolder):
@@ -268,7 +268,7 @@ class SyncableAccount(Account):
             remotefolder.getvisiblename().
             replace(self.remoterepos.getsep(), self.localrepos.getsep()))
 
-    def sync(self):
+    def __sync(self):
         """Synchronize the account once, then return
 
         Assumes that `self.remoterepos`, `self.localrepos`, and

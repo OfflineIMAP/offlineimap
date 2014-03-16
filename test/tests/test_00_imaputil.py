@@ -70,11 +70,6 @@ class TestInternalFunctions(unittest.TestCase):
         res = imaputil.flagsplit(b'(FLAGS (\\Seen Old) UID 4807)')
         self.assertEqual(res, [b'FLAGS', b'(\\Seen Old)', b'UID', b'4807'])
 
-    def test_03_options2hash(self):
-        """Test imaputil.options2hash()"""
-        res = imaputil.options2hash([1,2,3,4,5,6])
-        self.assertEqual(res, {1:2, 3:4, 5:6})
-
     def test_04_flags2hash(self):
         """Test imaputil.flags2hash()"""
         res = imaputil.flags2hash(b'(FLAGS (\\Seen Old) UID 4807)')

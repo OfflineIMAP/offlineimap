@@ -83,7 +83,7 @@ class IMAPServer:
         self.sslcacertfile = repos.getsslcacertfile()
         self.sslversion = repos.getsslversion()
         if self.sslcacertfile is None:
-            self.verifycert = None # disable cert verification
+            self.__verifycert = None # disable cert verification
 
         self.delim = None
         self.root = None
@@ -99,7 +99,7 @@ class IMAPServer:
         self.gss_vc = None
         self.gssapi = False
 
-    def getpassword(self):
+    def __getpassword(self):
         """Returns the server password or None"""
         if self.goodpassword != None: # use cached good one first
             return self.goodpassword
@@ -114,6 +114,7 @@ class IMAPServer:
         self.passworderror = None
         return self.password
 
+    # XXX: is this function used anywhere?
     def getroot(self):
         """Returns this server's folder root.  Can only be called after one
         or more calls to acquireconnection."""
@@ -136,39 +137,40 @@ class IMAPServer:
         self.connectionlock.release()
         self.semaphore.release()
 
-    def md5handler(self, response):
+    def __md5handler(self, response):
         challenge = response.strip()
-        self.ui.debug('imap', 'md5handler: got challenge %s' % challenge)
+        self.ui.debug('imap', '__md5handler: got challenge %s' % challenge)
 
-        passwd = self.getpassword()
+        passwd = self.__getpassword()
         retval = self.username + ' ' + hmac.new(passwd, challenge).hexdigest()
-        self.ui.debug('imap', 'md5handler: returning %s' % retval)
+        self.ui.debug('imap', '__md5handler: returning %s' % retval)
         return retval
 
-    def loginauth(self, imapobj):
+    def __loginauth(self, imapobj):
         """ Basic authentication via LOGIN command """
         self.ui.debug('imap', 'Attempting IMAP LOGIN authentication')
-        imapobj.login(self.username, self.getpassword())
+        imapobj.login(self.username, self.__getpassword())
 
 
-    def plainhandler(self, response):
+    def __plainhandler(self, response):
         """
         Implements SASL PLAIN authentication, RFC 4616,
           http://tools.ietf.org/html/rfc4616
 
         """
         authc = self.username
-        passwd = self.getpassword()
+        passwd = self.__getpassword()
         authz = ''
         if self.user_identity != None:
             authz = self.user_identity
         NULL = u'\x00'
         retval = NULL.join((authz, authc, passwd)).encode('utf-8')
-        self.ui.debug('imap', 'plainhandler: returning %s' % retval)
+        self.ui.debug('imap', '__plainhandler: returning %s' % retval)
         return retval
 
 
-    def gssauth(self, response):
+    # XXX: describe function
+    def __gssauth(self, response):
         data = base64.b64encode(response)
         try:
             if self.gss_step == self.GSS_STATE_STEP:
@@ -196,7 +198,7 @@ class IMAPServer:
         return base64.b64decode(response)
 
 
-    def _start_tls(self, imapobj):
+    def __start_tls(self, imapobj):
         if 'STARTTLS' in imapobj.capabilities and not self.usessl:
             self.ui.debug('imap', 'Using STARTTLS connection')
             try:
@@ -207,7 +209,7 @@ class IMAPServer:
                   OfflineImapError.ERROR.REPO)
 
 
-    ## All _authn_* procedures are helpers that do authentication.
+    ## All __authn_* procedures are helpers that do authentication.
     ## They are class methods that take one parameter, IMAP object.
     ##
     ## Each function should return True if authentication was
@@ -224,13 +226,13 @@ class IMAPServer:
     ## - OfflineImapError means that function detected some
     ##   problem by itself.
 
-    def _authn_gssapi(self, imapobj):
+    def __authn_gssapi(self, imapobj):
         if not have_gss:
             return False
 
         self.connectionlock.acquire()
         try:
-            imapobj.authenticate('GSSAPI', self.gssauth)
+            imapobj.authenticate('GSSAPI', self.__gssauth)
             return True
         except imapobj.error as e:
             self.gssapi = False
@@ -243,15 +245,15 @@ class IMAPServer:
         finally:
             self.connectionlock.release()
 
-    def _authn_cram_md5(self, imapobj):
-        imapobj.authenticate('CRAM-MD5', self.md5handler)
+    def __authn_cram_md5(self, imapobj):
+        imapobj.authenticate('CRAM-MD5', self.__md5handler)
         return True
 
-    def _authn_plain(self, imapobj):
-        imapobj.authenticate('PLAIN', self.plainhandler)
+    def __authn_plain(self, imapobj):
+        imapobj.authenticate('PLAIN', self.__plainhandler)
         return True
 
-    def _authn_login(self, imapobj):
+    def __authn_login(self, imapobj):
         # Use LOGIN command, unless LOGINDISABLED is advertized
         # (per RFC 2595)
         if 'LOGINDISABLED' in imapobj.capabilities:
@@ -259,11 +261,11 @@ class IMAPServer:
               "disabled by server.  Need to use SSL?",
                OfflineImapError.ERROR.REPO)
         else:
-            self.loginauth(imapobj)
+            self.__loginauth(imapobj)
             return True
 
 
-    def _authn_helper(self, imapobj):
+    def __authn_helper(self, imapobj):
         """
         Authentication machinery for self.acquireconnection().
 
@@ -283,10 +285,10 @@ class IMAPServer:
         # - tryTLS flag,
         # - check IMAP capability flag.
         auth_methods = {
-          "GSSAPI": (self._authn_gssapi, False, True),
-          "CRAM-MD5": (self._authn_cram_md5, True, True),
-          "PLAIN": (self._authn_plain, True, True),
-          "LOGIN": (self._authn_login, True, False),
+          "GSSAPI": (self.__authn_gssapi, False, True),
+          "CRAM-MD5": (self.__authn_cram_md5, True, True),
+          "PLAIN": (self.__authn_plain, True, True),
+          "LOGIN": (self.__authn_login, True, False),
         }
         # Stack stores pairs of (method name, exception)
         exc_stack = []
@@ -311,7 +313,7 @@ class IMAPServer:
             # they could have been changed after STARTTLS.
             if tryTLS and not tried_tls:
                 tried_tls = True
-                self._start_tls(imapobj)
+                self.__start_tls(imapobj)
 
             if check_cap:
                 cap = "AUTH=" + m
@@ -348,6 +350,7 @@ class IMAPServer:
               OfflineImapError.ERROR.REPO)
 
 
+    # XXX: move above, closer to releaseconnection()
     def acquireconnection(self):
         """Fetches a connection from the pool, making sure to create a new one
         if needed, to obey the maximum connection limits, etc.
@@ -400,7 +403,7 @@ class IMAPServer:
                                                            self.sslclientkey,
                                                            self.sslclientcert,
                                                            self.sslcacertfile,
-                                                           self.verifycert,
+                                                           self.__verifycert,
                                                            self.sslversion,
                                                            timeout=socket.getdefaulttimeout(),
                                                            fingerprint=fingerprint
@@ -412,7 +415,7 @@ class IMAPServer:
 
                 if not self.preauth_tunnel:
                     try:
-                        self._authn_helper(imapobj)
+                        self.__authn_helper(imapobj)
                         self.goodpassword = self.password
                         success = 1
                     except OfflineImapError as e:
@@ -562,7 +565,7 @@ class IMAPServer:
         self.ui.debug('imap', 'keepalive: event is set; exiting')
         return
 
-    def verifycert(self, cert, hostname):
+    def __verifycert(self, cert, hostname):
         '''Verify that cert (in socket.getpeercert() format) matches hostname.
         CRLs are not handled.
 
@@ -646,7 +649,7 @@ class IdleThread(object):
                 self.parent.releaseconnection(imapobj)
                 self.stop_sig.wait() # wait until we are supposed to quit
 
-    def dosync(self):
+    def __dosync(self):
         remoterepos = self.parent.repos
         account = remoterepos.account
         localrepos = account.localrepos
@@ -663,7 +666,7 @@ class IdleThread(object):
         ui = getglobalui()
         ui.unregisterthread(currentThread()) #syncfolder registered the thread
 
-    def idle(self):
+    def __idle(self):
         """Invoke IDLE mode until timeout or self.stop() is invoked"""
         def callback(args):
             """IDLE callback function invoked by imaplib2
@@ -696,7 +699,7 @@ class IdleThread(object):
                 else:
                     success = True
             if "IDLE" in imapobj.capabilities:
-                imapobj.idle(callback=callback)
+                imapobj.__idle(callback=callback)
             else:
                 self.ui.warn("IMAP IDLE not supported on server '%s'."
                     "Sleep until next refresh cycle." % imapobj.identifier)
@@ -716,4 +719,4 @@ class IdleThread(object):
                 # here not via self.stop, but because IDLE responded. Do
                 # another round and invoke actual syncing.
                 self.stop_sig.clear()
-                self.dosync()
+                self.__dosync()

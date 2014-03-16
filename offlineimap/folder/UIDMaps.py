@@ -91,6 +91,7 @@ class MappedIMAPFolder(IMAPFolder):
                 "iling list.".format(e.args[0], self),
                                    OfflineImapError.ERROR.MESSAGE)
 
+    # Interface from BaseFolder
     def cachemessagelist(self):
         self._mb.cachemessagelist()
         reallist = self._mb.getmessagelist()
@@ -122,12 +123,14 @@ class MappedIMAPFolder(IMAPFolder):
         finally:
             self.maplock.release()
 
+    # Interface from BaseFolder
     def uidexists(self, ruid):
         """Checks if the (remote) UID exists in this Folder"""
         # This implementation overrides the one in BaseFolder, as it is
         # much more efficient for the mapped case.
         return ruid in self.r2l
 
+    # Interface from BaseFolder
     def getmessageuidlist(self):
         """Gets a list of (remote) UIDs.
         You may have to call cachemessagelist() before calling this function!"""
@@ -135,6 +138,7 @@ class MappedIMAPFolder(IMAPFolder):
         # much more efficient for the mapped case.
         return self.r2l.keys()
 
+    # Interface from BaseFolder
     def getmessagecount(self):
         """Gets the number of messages in this folder.
         You may have to call cachemessagelist() before calling this function!"""
@@ -142,6 +146,7 @@ class MappedIMAPFolder(IMAPFolder):
         # much more efficient for the mapped case.
         return len(self.r2l)
 
+    # Interface from BaseFolder
     def getmessagelist(self):
         """Gets the current message list. This function's implementation
         is quite expensive for the mapped UID case.  You must call
@@ -167,10 +172,12 @@ class MappedIMAPFolder(IMAPFolder):
         finally:
             self.maplock.release()
 
+    # Interface from BaseFolder
     def getmessage(self, uid):
         """Returns the content of the specified message."""
         return self._mb.getmessage(self.r2l[uid])
 
+    # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
 
@@ -216,12 +223,15 @@ class MappedIMAPFolder(IMAPFolder):
             self.maplock.release()
         return uid
 
+    # Interface from BaseFolder
     def getmessageflags(self, uid):
         return self._mb.getmessageflags(self.r2l[uid])
 
+    # Interface from BaseFolder
     def getmessagetime(self, uid):
         return None
 
+    # Interface from BaseFolder
     def savemessageflags(self, uid, flags):
         """
 
@@ -230,13 +240,16 @@ class MappedIMAPFolder(IMAPFolder):
         dryrun mode."""
         self._mb.savemessageflags(self.r2l[uid], flags)
 
+    # Interface from BaseFolder
     def addmessageflags(self, uid, flags):
         self._mb.addmessageflags(self.r2l[uid], flags)
 
+    # Interface from BaseFolder
     def addmessagesflags(self, uidlist, flags):
         self._mb.addmessagesflags(self._uidlist(self.r2l, uidlist),
                                   flags)
 
+    # Interface from BaseFolder
     def change_message_uid(self, ruid, new_ruid):
         """Change the message from existing ruid to new_ruid
 
@@ -279,17 +292,21 @@ class MappedIMAPFolder(IMAPFolder):
         finally:
             self.maplock.release()
 
+    # Interface from BaseFolder
     def deletemessageflags(self, uid, flags):
         self._mb.deletemessageflags(self.r2l[uid], flags)
 
+    # Interface from BaseFolder
     def deletemessagesflags(self, uidlist, flags):
         self._mb.deletemessagesflags(self._uidlist(self.r2l, uidlist),
                                      flags)
 
+    # Interface from BaseFolder
     def deletemessage(self, uid):
         self._mb.deletemessage(self.r2l[uid])
         self._mapped_delete([uid])
 
+    # Interface from BaseFolder
     def deletemessages(self, uidlist):
         self._mb.deletemessages(self._uidlist(self.r2l, uidlist))
         self._mapped_delete(uidlist)

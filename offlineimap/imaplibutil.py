@@ -31,7 +31,7 @@ from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, IMAP4_PORT, InternalDat
 
 
 class UsefulIMAPMixIn(object):
-    def getselectedfolder(self):
+    def __getselectedfolder(self):
         if self.state == 'SELECTED':
             return self.mailbox
         return None
@@ -41,7 +41,7 @@ class UsefulIMAPMixIn(object):
 
         :returns: 'OK' on success, nothing if the folder was already
         selected or raises an :exc:`OfflineImapError`"""
-        if self.getselectedfolder() == mailbox and self.is_readonly == readonly \
+        if self.__getselectedfolder() == mailbox and self.is_readonly == readonly \
                 and not force:
             # No change; return.
             return
@@ -66,6 +66,7 @@ class UsefulIMAPMixIn(object):
             raise OfflineImapError(errstr, severity)
         return result
 
+    # Overrides private function from IMAP4 (@imaplib2)
     def _mesg(self, s, tn=None, secs=None):
         new_mesg(self, s, tn, secs)
 

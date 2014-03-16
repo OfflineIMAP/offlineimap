@@ -96,6 +96,22 @@ class BaseFolder(object):
         false otherwise.  Probably only IMAP will return true."""
         return 0
 
+    def waitforthread(self):
+        """Implements method that waits for thread to be usable.
+        Should be implemented only for folders that suggest threads."""
+        raise NotImplementedException
+
+    # XXX: we may need someting like supports_quickstatus() to check
+    # XXX: if user specifies 'quick' flag for folder that doesn't
+    # XXX: support quick status queries, so one believes that quick
+    # XXX: status checks will be done, but it won't really be so.
+    def quickchanged(self, statusfolder):
+        """ Runs quick check for folder changes and returns changed
+        status: True -- changed, False -- not changed.
+        :param statusfolder: keeps track of the last known folder state.
+        """
+        return True
+
     def getcopyinstancelimit(self):
         """For threading folders, returns the instancelimitname for
         InstanceLimitedThreads."""
@@ -328,7 +344,7 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessage(uid)
 
-    def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
+    def __copymessageto(self, uid, dstfolder, statusfolder, register = 1):
         """Copies a message from self to dst if needed, updating the status
 
         Note that this function does not check against dryrun settings,
@@ -403,14 +419,14 @@ class BaseFolder(object):
                               (uid, self.accountname))
             raise    #raise on unknown errors, so we can fix those
 
-    def syncmessagesto_copy(self, dstfolder, statusfolder):
+    def __syncmessagesto_copy(self, dstfolder, statusfolder):
         """Pass1: Copy locally existing messages not on the other side
 
         This will copy messages to dstfolder that exist locally but are
         not in the statusfolder yet. The strategy is:
 
         1) Look for messages present in self but not in statusfolder.
-        2) invoke copymessageto() on those which:
+        2) invoke __copymessageto() on those which:
            - If dstfolder doesn't have it yet, add them to dstfolder.
            - Update statusfolder
 
@@ -431,23 +447,23 @@ class BaseFolder(object):
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
-            # exceptions are caught in copymessageto()
+            # exceptions are caught in __copymessageto()
             if self.suggeststhreads() and not globals.options.singlethreading:
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(\
                     self.getcopyinstancelimit(),
-                    target = self.copymessageto,
+                    target = self.__copymessageto,
                     name = "Copy message from %s:%s" % (self.repository, self),
                     args = (uid, dstfolder, statusfolder))
                 thread.start()
                 threads.append(thread)
             else:
-                self.copymessageto(uid, dstfolder, statusfolder,
+                self.__copymessageto(uid, dstfolder, statusfolder,
                                    register = 0)
         for thread in threads:
             thread.join()
 
-    def syncmessagesto_delete(self, dstfolder, statusfolder):
+    def __syncmessagesto_delete(self, dstfolder, statusfolder):
         """Pass 2: Remove locally deleted messages on dst
 
         Get all UIDS in statusfolder but not self. These are messages
@@ -468,7 +484,7 @@ class BaseFolder(object):
             for folder in [statusfolder, dstfolder]:
                 folder.deletemessages(deletelist)
 
-    def syncmessagesto_flags(self, dstfolder, statusfolder):
+    def __syncmessagesto_flags(self, dstfolder, statusfolder):
         """Pass 3: Flag synchronization
 
         Compare flag mismatches in self with those in statusfolder. If
@@ -551,9 +567,9 @@ class BaseFolder(object):
         :param dstfolder: Folderinstance to sync the msgs to.
         :param statusfolder: LocalStatus instance to sync against.
         """
-        passes = [('copying messages'       , self.syncmessagesto_copy),
-                  ('deleting messages'      , self.syncmessagesto_delete),
-                  ('syncing flags'          , self.syncmessagesto_flags)]
+        passes = [('copying messages'       , self.__syncmessagesto_copy),
+                  ('deleting messages'      , self.__syncmessagesto_delete),
+                  ('syncing flags'          , self.__syncmessagesto_flags)]
 
         for (passdesc, action) in passes:
             # bail out on CTRL-C or SIGTERM

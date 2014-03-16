@@ -43,7 +43,7 @@ timeseq = 0
 lasttime = 0
 timelock = Lock()
 
-def gettimeseq():
+def _gettimeseq():
     global lasttime, timeseq, timelock
     timelock.acquire()
     try:
@@ -79,10 +79,12 @@ class MaildirFolder(BaseFolder):
         # Cache the full folder path, as we use getfullname() very often
         self._fullname = os.path.join(self.getroot(), self.getname())
 
+    # Interface from BaseFolder
     def getfullname(self):
         """Return the absolute file path to the Maildir folder (sans cur|new)"""
         return self._fullname
 
+    # Interface from BaseFolder
     def get_uidvalidity(self):
         """Retrieve the current connections UIDVALIDITY value
 
@@ -191,6 +193,7 @@ class MaildirFolder(BaseFolder):
             retval[uid] = {'flags': flags, 'filename': filepath}
         return retval
 
+    # Interface from BaseFolder
     def quickchanged(self, statusfolder):
         """Returns True if the Maildir has changed"""
         self.cachemessagelist()
@@ -204,13 +207,16 @@ class MaildirFolder(BaseFolder):
                 return True
         return False  #Nope, nothing changed
 
+    # Interface from BaseFolder
     def cachemessagelist(self):
         if self.messagelist is None:
             self.messagelist = self._scanfolder()
 
+    # Interface from BaseFolder
     def getmessagelist(self):
         return self.messagelist
 
+    # Interface from BaseFolder
     def getmessage(self, uid):
         """Return the content of the message"""
         filename = self.messagelist[uid]['filename']
@@ -222,22 +228,24 @@ class MaildirFolder(BaseFolder):
         #      read it as text?
         return retval.replace("\r\n", "\n")
 
+    # Interface from BaseFolder
     def getmessagetime(self, uid):
         filename = self.messagelist[uid]['filename']
         filepath = os.path.join(self.getfullname(), filename)
         return os.path.getmtime(filepath)
 
-    def new_message_filename(self, uid, flags=set()):
+    def __new_message_filename(self, uid, flags=set()):
         """Creates a new unique Maildir filename
 
         :param uid: The UID`None`, or a set of maildir flags
         :param flags: A set of maildir flags
         :returns: String containing unique message filename"""
-        timeval, timeseq = gettimeseq()
+        timeval, timeseq = _gettimeseq()
         return '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s' % \
             (timeval, timeseq, os.getpid(), socket.gethostname(),
              uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
 
+    # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
 
@@ -259,7 +267,7 @@ class MaildirFolder(BaseFolder):
         # Otherwise, save the message in tmp/ and then call savemessageflags()
         # to give it a permanent home.
         tmpdir = os.path.join(self.getfullname(), 'tmp')
-        messagename = self.new_message_filename(uid, flags)
+        messagename = self.__new_message_filename(uid, flags)
         # open file and write it out
         try:
             fd = os.open(os.path.join(tmpdir, messagename),
@@ -291,9 +299,11 @@ class MaildirFolder(BaseFolder):
         self.ui.debug('maildir', 'savemessage: returning uid %d' % uid)
         return uid
 
+    # Interface from BaseFolder
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
 
+    # Interface from BaseFolder
     def savemessageflags(self, uid, flags):
         """Sets the specified message's flags to the given set.
 
@@ -331,6 +341,7 @@ class MaildirFolder(BaseFolder):
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename
 
+    # Interface from BaseFolder
     def change_message_uid(self, uid, new_uid):
         """Change the message from existing uid to new_uid
 
@@ -345,12 +356,13 @@ class MaildirFolder(BaseFolder):
         oldfilename = self.messagelist[uid]['filename']
         dir_prefix, filename = os.path.split(oldfilename)
         flags = self.getmessageflags(uid)
-        filename = self.new_message_filename(new_uid, flags)
+        filename = self.__new_message_filename(new_uid, flags)
         os.rename(os.path.join(self.getfullname(), oldfilename),
                   os.path.join(self.getfullname(), dir_prefix, filename))
         self.messagelist[new_uid] = self.messagelist[uid]
         del self.messagelist[uid]
 
+    # Interface from BaseFolder
     def deletemessage(self, uid):
         """Unlinks a message file from the Maildir.
 
@@ -375,4 +387,3 @@ class MaildirFolder(BaseFolder):
                 os.unlink(filepath)
             # Yep -- return.
         del(self.messagelist[uid])
-

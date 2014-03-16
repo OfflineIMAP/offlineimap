@@ -62,14 +62,14 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
             cursor = self.connection.execute("SELECT value from metadata WHERE key='db_version'")
         except sqlite.DatabaseError:
             #db file missing or corrupt, recreate it.
-            self.upgrade_db(0)
+            self.__upgrade_db(0)
         else:
             # fetch db version and upgrade if needed
             version = int(cursor.fetchone()[0])
             if version < LocalStatusSQLiteFolder.cur_version:
-                self.upgrade_db(version)
+                self.__upgrade_db(version)
 
-    def sql_write(self, sql, vars=None, executemany=False):
+    def __sql_write(self, sql, vars=None, executemany=False):
         """Execute some SQL, retrying if the db was locked.
 
         :param sql: the SQL string passed to execute()
@@ -106,7 +106,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
                 self._dblock.release()
         return cursor
 
-    def upgrade_db(self, from_ver):
+    def __upgrade_db(self, from_ver):
         """Upgrade the sqlite format from version 'from_ver' to current"""
 
         if hasattr(self, 'connection'):
@@ -116,7 +116,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
 
         if from_ver == 0:
             # from_ver==0: no db existent: plain text migration?
-            self.create_db()
+            self.__create_db()
             # below was derived from repository.getfolderfilename() logic
             plaintextfilename = os.path.join(
                 self.repository.account.getaccountmeta(),
@@ -144,7 +144,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         # if from_ver <= 1: ... #upgrade from 1 to 2
         # if from_ver <= 2: ... #upgrade from 2 to 3
 
-    def create_db(self):
+    def __create_db(self):
         """Create a new db file"""
         self.ui._msg('Creating new Local Status db for %s:%s' \
                          % (self.repository, self))
@@ -158,16 +158,19 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         """)
         self.connection.commit()
 
+    # Interface from LocalStatusFolder
     def isnewfolder(self):
         # testing the existence of the db file won't work. It is created
         # as soon as this class instance was intitiated. So say it is a
         # new folder when there are no messages at all recorded in it.
         return self.getmessagecount() > 0
 
+    # Interface from LocalStatusFolder
     def deletemessagelist(self):
         """delete all messages in the db"""
-        self.sql_write('DELETE FROM status')
+        self.__sql_write('DELETE FROM status')
 
+    # Interface from BaseFolder
     def cachemessagelist(self):
         self.messagelist = {}
         cursor = self.connection.execute('SELECT id,flags from status')
@@ -175,6 +178,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
                 flags = set(row[1])
                 self.messagelist[row[0]] = {'uid': row[0], 'flags': flags}
 
+    # Interface from LocalStatusFolder
     def save(self):
         #Noop in this backend
         pass
@@ -215,6 +219,7 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
     #            return flags
     #        assert False,"getmessageflags() called on non-existing message"
 
+    # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
 
@@ -231,21 +236,24 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
 
         self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
         flags = ''.join(sorted(flags))
-        self.sql_write('INSERT INTO status (id,flags) VALUES (?,?)',
+        self.__sql_write('INSERT INTO status (id,flags) VALUES (?,?)',
                          (uid,flags))
         return uid
 
+    # Interface from BaseFolder
     def savemessageflags(self, uid, flags):
         self.messagelist[uid] = {'uid': uid, 'flags': flags}
         flags = ''.join(sorted(flags))
-        self.sql_write('UPDATE status SET flags=? WHERE id=?',(flags,uid))
+        self.__sql_write('UPDATE status SET flags=? WHERE id=?',(flags,uid))
 
+    # Interface from BaseFolder
     def deletemessage(self, uid):
         if not uid in self.messagelist:
             return
-        self.sql_write('DELETE FROM status WHERE id=?', (uid, ))
+        self.__sql_write('DELETE FROM status WHERE id=?', (uid, ))
         del(self.messagelist[uid])
 
+    # Interface from BaseFolder
     def deletemessages(self, uidlist):
         """Delete list of UIDs from status cache
 
@@ -257,6 +265,6 @@ class LocalStatusSQLiteFolder(LocalStatusFolder):
         if not len(uidlist):
             return
         # arg2 needs to be an iterable of 1-tuples [(1,),(2,),...]
-        self.sql_write('DELETE FROM status WHERE id=?', zip(uidlist, ), True)
+        self.__sql_write('DELETE FROM status WHERE id=?', zip(uidlist, ), True)
         for uid in uidlist:
             del(self.messagelist[uid])

@@ -44,9 +44,9 @@ def write():
         if account not in boxes:
             return
 
-    genmbnames()
+    __genmbnames()
 
-def genmbnames():
+def __genmbnames():
     """Takes a configparser object and a boxlist, which is a list of hashes
     containing 'accountname' and 'foldername' keys."""
     mblock.acquire()

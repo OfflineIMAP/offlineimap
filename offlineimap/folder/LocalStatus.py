@@ -33,21 +33,26 @@ class LocalStatusFolder(BaseFolder):
                                                         False)
         """Should we perform fsyncs as often as possible?"""
 
+    # Interface from BaseFolder
     def storesmessages(self):
         return 0
 
     def isnewfolder(self):
         return not os.path.exists(self.filename)
 
+    # Interface from BaseFolder
     def getname(self):
         return self.name
 
+    # Interface from BaseFolder
     def getroot(self):
         return self.repository.root
 
+    # Interface from BaseFolder
     def getsep(self):
         return self.sep
 
+    # Interface from BaseFolder
     def getfullname(self):
         return self.filename
 
@@ -55,6 +60,7 @@ class LocalStatusFolder(BaseFolder):
         if not self.isnewfolder():
             os.unlink(self.filename)
 
+    # Interface from BaseFolder
     def cachemessagelist(self):
         if self.isnewfolder():
             self.messagelist = {}
@@ -103,9 +109,11 @@ class LocalStatusFolder(BaseFolder):
                 os.fsync(fd)
                 os.close(fd)
 
+    # Interface from BaseFolder
     def getmessagelist(self):
         return self.messagelist
 
+    # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
 
@@ -124,19 +132,24 @@ class LocalStatusFolder(BaseFolder):
         self.save()
         return uid
 
+    # Interface from BaseFolder
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
 
+    # Interface from BaseFolder
     def getmessagetime(self, uid):
         return self.messagelist[uid]['time']
 
+    # Interface from BaseFolder
     def savemessageflags(self, uid, flags):
         self.messagelist[uid]['flags'] = flags
         self.save()
 
+    # Interface from BaseFolder
     def deletemessage(self, uid):
         self.deletemessages([uid])
 
+    # Interface from BaseFolder
     def deletemessages(self, uidlist):
         # Weed out ones not in self.messagelist
         uidlist = [uid for uid in uidlist if uid in self.messagelist]

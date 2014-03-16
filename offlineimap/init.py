@@ -43,13 +43,13 @@ class OfflineImap:
     def run(self):
         """Parse the commandline and invoke everything"""
         # next line also sets self.config and self.ui
-        options, args = self.parse_cmd_options()
+        options, args = self.__parse_cmd_options()
         if options.diagnostics:
-            self.serverdiagnostics(options)
+            self.__serverdiagnostics(options)
         else:
-            self.sync(options)
+            self.__sync(options)
 
-    def parse_cmd_options(self):
+    def __parse_cmd_options(self):
         parser = OptionParser(version=offlineimap.__version__,
                               description="%s.\n\n%s" %
                               (offlineimap.__copyright__,
@@ -297,7 +297,7 @@ class OfflineImap:
         self.config = config
         return (options, args)
 
-    def sync(self, options):
+    def __sync(self, options):
         """Invoke the correct single/multithread syncing
 
         self.config is supposed to have been correctly initialized
@@ -360,7 +360,7 @@ class OfflineImap:
 
             if options.singlethreading:
                 #singlethreaded
-                self.sync_singlethreaded(syncaccounts)
+                self.__sync_singlethreaded(syncaccounts)
             else:
                 # multithreaded
                 t = threadutil.ExitNotifyThread(target=syncmaster.syncitall,
@@ -376,7 +376,7 @@ class OfflineImap:
             self.ui.error(e)
             self.ui.terminate()
 
-    def sync_singlethreaded(self, accs):
+    def __sync_singlethreaded(self, accs):
         """Executed if we do not want a separate syncmaster thread
 
         :param accs: A list of accounts that should be synced
@@ -387,7 +387,7 @@ class OfflineImap:
             threading.currentThread().name = "Account sync %s" % accountname
             account.syncrunner()
 
-    def serverdiagnostics(self, options):
+    def __serverdiagnostics(self, options):
         activeaccounts = self.config.get("general", "accounts")
         if options.accounts:
             activeaccounts = options.accounts

@@ -30,7 +30,7 @@ be merged into the main documentation.
 
    .. automethod:: run
 
-   .. automethod:: parse_cmd_options
+   .. automethod:: __parse_cmd_options
 
 ..  .. autoattribute:: ui
 
