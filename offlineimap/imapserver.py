@@ -419,6 +419,10 @@ class IMAPServer:
                         self.passworderror = str(e)
                         raise
 
+            # Enable compression
+            if self.repos.getconfboolean('usecompression', 0):
+                imapobj.enable_compression()
+
             # update capabilities after login, e.g. gmail serves different ones
             typ, dat = imapobj.capability()
             if dat != [None]:

@@ -36,6 +36,7 @@ class GmailRepository(IMAPRepository):
                                 'ssl', 'yes')
         IMAPRepository.__init__(self, reposname, account)
 
+
     def gethost(self):
         """Return the server name to connect to.
 
@@ -71,4 +72,3 @@ class GmailRepository(IMAPRepository):
     def getspamfolder(self):
         #: Gmail also deletes messages upon EXPUNGE in the Spam folder
         return  self.getconf('spamfolder','[Gmail]/Spam')
-

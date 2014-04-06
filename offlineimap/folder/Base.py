@@ -36,6 +36,7 @@ class BaseFolder(object):
         # Save original name for folderfilter operations
         self.ffilter_name = name
         # Top level dir name is always ''
+        self.root = None
         self.name = name if not name == self.getsep() else ''
         self.repository = repository
         self.visiblename = repository.nametrans(name)
@@ -66,6 +67,10 @@ class BaseFolder(object):
             self.ui.debug('', "Filtering out '%s'[%s] due to folderfilter" \
                           % (self.ffilter_name, repository))
 
+        # Passes for syncmessagesto
+        self.syncmessagesto_passes = [('copying messages'       , self.syncmessagesto_copy),
+                                      ('deleting messages'      , self.syncmessagesto_delete),
+                                      ('syncing flags'          , self.syncmessagesto_flags)]
 
     def getname(self):
         """Returns name"""
@@ -99,7 +104,7 @@ class BaseFolder(object):
     def getcopyinstancelimit(self):
         """For threading folders, returns the instancelimitname for
         InstanceLimitedThreads."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def storesmessages(self):
         """Should be true for any backend that actually saves message bodies.
@@ -195,18 +200,18 @@ class BaseFolder(object):
 
         This function needs to be implemented by each Backend
         :returns: UIDVALIDITY as a (long) number"""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def cachemessagelist(self):
         """Reads the message list from disk or network and stores it in
         memory for later use.  This list will not be re-read from disk or
         memory unless this function is called again."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def getmessagelist(self):
         """Gets the current message list.
         You must call cachemessagelist() before calling this function!"""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def uidexists(self, uid):
         """Returns True if uid exists"""
@@ -223,7 +228,7 @@ class BaseFolder(object):
 
     def getmessage(self, uid):
         """Returns the content of the specified message."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
@@ -247,15 +252,19 @@ class BaseFolder(object):
         so you need to ensure that savemessage is never called in a
         dryrun mode.
         """
-        raise NotImplementedException
+        raise NotImplementedError
 
     def getmessagetime(self, uid):
         """Return the received time for the specified message."""
-        raise NotImplementedException
+        raise NotImplementedError
+
+    def getmessagemtime(self, uid):
+        """Returns the message modification time of the specified message."""
+        raise NotImplementedError
 
     def getmessageflags(self, uid):
         """Returns the flags for the specified message."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def savemessageflags(self, uid, flags):
         """Sets the specified message's flags to the given set.
@@ -263,7 +272,7 @@ class BaseFolder(object):
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def addmessageflags(self, uid, flags):
         """Adds the specified flags to the message's flag set.  If a given
@@ -303,6 +312,80 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessageflags(uid, flags)
 
+
+    def format_labels_string(self, header, labels):
+        """
+        Formats labels for embedding into a message, with a format according to header.
+        """
+        if header == 'X-Label':        labels_str = ' '.join(labels)
+        elif header == 'Keywords':     labels_str = ' '.join(labels)
+        elif header == 'X-Keywords':   labels_str = ', '.join(labels)
+
+        return labels_str
+
+    def parse_labels_string(self, header, labels_str):
+        """
+        Parses a string into a set of labels, with a format according to header.
+        """
+        labels_str = labels_str.strip()
+
+        if header == 'X-Label':        labels = labels_str.split(' ')
+        elif header == 'Keywords':     labels = labels_str.split(' ')
+        elif header == 'X-Keywords':   labels = labels_str.split(',')
+
+        return set([lb.strip() for lb in labels if len(lb.strip()) > 0])
+
+    def getmessagelabels(self, uid):
+        """Returns the labels for the specified message."""
+        raise NotImplementedError
+
+    def savemessagelabels(self, uid, labels, ignorelabels=set(), mtime=0):
+        """Sets the specified message's labels to the given set.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        raise NotImplementedError
+
+    def addmessagelabels(self, uid, labels):
+        """Adds the specified labels to the message's labels set.  If a given
+        label is already present, it will not be duplicated.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
+
+        :param labels: A set() of labels"""
+        newlabels = self.getmessagelabels(uid) | labels
+        self.savemessagelabels(uid, newlabels)
+
+    def addmessageslabels(self, uidlist, labels):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        for uid in uidlist:
+            self.addmessagelabels(uid, labels)
+
+    def deletemessagelabels(self, uid, labels):
+        """Removes each label given from the message's label set.  If a given
+        label is already removed, no action will be taken for that label.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        newlabels = self.getmessagelabels(uid) - labels
+        self.savemessagelabels(uid, newlabels)
+
+    def deletemessageslabels(self, uidlist, labels):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+        for uid in uidlist:
+            self.deletemessagelabels(uid, labels)
+
+
     def change_message_uid(self, uid, new_uid):
         """Change the message from existing uid to new_uid
 
@@ -311,14 +394,14 @@ class BaseFolder(object):
         :param new_uid: (optional) If given, the old UID will be changed
             to a new UID. This allows backends efficient renaming of
             messages if the UID has changed."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def deletemessage(self, uid):
         """
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     def deletemessages(self, uidlist):
         """
@@ -327,6 +410,58 @@ class BaseFolder(object):
         dryrun mode."""
         for uid in uidlist:
             self.deletemessage(uid)
+
+    def message_addheader(self, content, headername, headervalue):
+        """Changes the value of headername to headervalue if the header exists,
+        or adds it if it does not exist"""
+
+        self.ui.debug('',
+                 'message_addheader: called to add %s: %s' % (headername,
+                                                                  headervalue))
+        insertionpoint = content.find("\n\n")
+        self.ui.debug('', 'message_addheader: insertionpoint = %d' % insertionpoint)
+        if insertionpoint == 0 or insertionpoint == -1:
+            leader = ''
+            prenewline = ''
+            if insertionpoint == -1:
+                postnewline = '\n'
+            insertionpoint = 0
+        else:
+            leader = content[0:insertionpoint]
+            prenewline = '\n'
+            postnewline = ''
+
+        self.ui.debug('', 'message_addheader: leader = %s' % repr(leader))
+
+        reheader = re.compile('^%s:(.*)$' % headername, flags=re.MULTILINE)
+        if reheader.search(leader):
+            leader = reheader.sub('%s: %s' % (headername, headervalue), leader)
+        else:
+            leader = leader + prenewline + "%s: %s" % (headername, headervalue) + postnewline
+
+        trailer = content[insertionpoint:]
+
+        self.ui.debug('', 'message_addheader: leader = ' + repr(leader))
+        self.ui.debug('', 'message_addheader: trailer = ' + repr(trailer))
+
+        return leader + trailer
+
+    def message_getheader(self, content, headername):
+        """Gets the value of the header 'headername' in 'content'. Returns None
+        if can't find the header."""
+
+        self.ui.debug('',
+                 'message_getheader: called to get %s' % headername)
+        insertionpoint = content.find("\n\n")
+        self.ui.debug('', 'message_getheader: insertionpoint = %d' % insertionpoint)
+        leader = content[0:insertionpoint]
+        self.ui.debug('', 'message_getheader: leader = %s' % repr(leader))
+
+        m = re.search('^%s:(.*)$' % headername, leader, flags = re.MULTILINE)
+        if m:
+            return m.group(1).strip()
+        else:
+            return None
 
     def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
         """Copies a message from self to dst if needed, updating the status
@@ -490,9 +625,10 @@ class BaseFolder(object):
                 continue
 
             selfflags = self.getmessageflags(uid)
-            statusflags = statusfolder.getmessageflags(uid)
-            #if we could not get message flags from LocalStatus, assume empty.
-            if statusflags is None:
+
+            if statusfolder.uidexists(uid):
+                statusflags = statusfolder.getmessageflags(uid)
+            else:
                 statusflags = set()
 
             addflags = selfflags - statusflags
@@ -548,14 +684,16 @@ class BaseFolder(object):
          deleted there), sync the flag change to both dstfolder and
          statusfolder.
 
+        Pass4: Synchronize label changes (Gmail only)
+         Compares label mismatches in self with those in statusfolder.
+         If msg has a valid UID and exists on dstfolder, syncs the labels
+         to both dstfolder and statusfolder.
+
         :param dstfolder: Folderinstance to sync the msgs to.
         :param statusfolder: LocalStatus instance to sync against.
         """
-        passes = [('copying messages'       , self.syncmessagesto_copy),
-                  ('deleting messages'      , self.syncmessagesto_delete),
-                  ('syncing flags'          , self.syncmessagesto_flags)]
 
-        for (passdesc, action) in passes:
+        for (passdesc, action) in self.syncmessagesto_passes:
             # bail out on CTRL-C or SIGTERM
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break

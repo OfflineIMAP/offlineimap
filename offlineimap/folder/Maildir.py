@@ -238,6 +238,30 @@ class MaildirFolder(BaseFolder):
             (timeval, timeseq, os.getpid(), socket.gethostname(),
              uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
 
+    def save_tmp_file(self, filename, content):
+        tmpname = os.path.join('tmp', filename)
+        # open file and write it out
+        try:
+            fd = os.open(os.path.join(self.getfullname(), tmpname),
+                         os.O_EXCL|os.O_CREAT|os.O_WRONLY, 0o666)
+        except OSError as e:
+            if e.errno == 17:
+                #FILE EXISTS ALREADY
+                severity = OfflineImapError.ERROR.MESSAGE
+                raise OfflineImapError("Unique filename %s already existing." %\
+                                           filename, severity)
+            else:
+                raise
+
+        file = os.fdopen(fd, 'wt')
+        file.write(content)
+        # Make sure the data hits the disk
+        file.flush()
+        if self.dofsync:
+            os.fsync(fd)
+        file.close()
+        return tmpname
+
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
 
@@ -258,34 +282,14 @@ class MaildirFolder(BaseFolder):
 
         # Otherwise, save the message in tmp/ and then call savemessageflags()
         # to give it a permanent home.
-        tmpdir = os.path.join(self.getfullname(), 'tmp')
         messagename = self.new_message_filename(uid, flags)
-        # open file and write it out
-        try:
-            fd = os.open(os.path.join(tmpdir, messagename),
-                           os.O_EXCL|os.O_CREAT|os.O_WRONLY, 0o666)
-        except OSError as e:
-            if e.errno == 17:
-                #FILE EXISTS ALREADY
-                severity = OfflineImapError.ERROR.MESSAGE
-                raise OfflineImapError("Unique filename %s already existing." %\
-                                           messagename, severity)
-            else:
-                raise
-
-        file = os.fdopen(fd, 'wt')
-        file.write(content)
-        # Make sure the data hits the disk
-        file.flush()
-        if self.dofsync:
-            os.fsync(fd)
-        file.close()
+        tmpname = self.save_tmp_file(messagename, content)
 
         if rtime != None:
-            os.utime(os.path.join(tmpdir, messagename), (rtime, rtime))
+            os.utime(os.path.join(self.getfullname(), tmpname), (rtime, rtime))
 
         self.messagelist[uid] = {'flags': flags,
-                                 'filename': os.path.join('tmp', messagename)}
+                                 'filename': tmpname}
         # savemessageflags moves msg to 'cur' or 'new' as appropriate
         self.savemessageflags(uid, flags)
         self.ui.debug('maildir', 'savemessage: returning uid %d' % uid)
@@ -346,9 +350,11 @@ class MaildirFolder(BaseFolder):
         dir_prefix, filename = os.path.split(oldfilename)
         flags = self.getmessageflags(uid)
         filename = self.new_message_filename(new_uid, flags)
+        newfilename = os.path.join(dir_prefix, filename)
         os.rename(os.path.join(self.getfullname(), oldfilename),
-                  os.path.join(self.getfullname(), dir_prefix, filename))
+                  os.path.join(self.getfullname(), newfilename))
         self.messagelist[new_uid] = self.messagelist[uid]
+        self.messagelist[new_uid]['filename'] = newfilename
         del self.messagelist[uid]
 
     def deletemessage(self, uid):
@@ -375,4 +381,3 @@ class MaildirFolder(BaseFolder):
                 os.unlink(filepath)
             # Yep -- return.
         del(self.messagelist[uid])
-
