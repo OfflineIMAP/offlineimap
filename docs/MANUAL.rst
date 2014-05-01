@@ -219,7 +219,7 @@ achieve this.
     order to use this. This will save you plenty of disk activity. Do
     note that the sqlite backend is still considered experimental as it
     has only been included recently (although a loss of your status
-    cache should not be a tragedy as that file can be rebuild
+    cache should not be a tragedy as that file can be rebuilt
     automatically)
 
  4) Use quick sync. A regular sync will request all flags and all UIDs
