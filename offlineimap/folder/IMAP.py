@@ -509,6 +509,12 @@ class IMAPFolder(BaseFolder):
             self.savemessageflags(uid, flags)
             return uid
 
+        # Use proper CRLF all over the message
+        content = re.sub("(?<!\r)\n", "\r\n", content)
+
+        # get the date of the message, so we can pass it to the server.
+        date = self.__getmessageinternaldate(content, rtime)
+
         retry_left = 2 # succeeded in APPENDING?
         imapobj = self.imapserver.acquireconnection()
         # NB: in the finally clause for this try we will release
@@ -520,10 +526,6 @@ class IMAPFolder(BaseFolder):
             while retry_left:
                 # UIDPLUS extension provides us with an APPENDUID response.
                 use_uidplus = 'UIDPLUS' in imapobj.capabilities
-
-                # get the date of the message, so we can pass it to the server.
-                date = self.__getmessageinternaldate(content, rtime)
-                content = re.sub("(?<!\r)\n", "\r\n", content)
 
                 if not use_uidplus:
                     # insert a random unique header that we can fetch later
