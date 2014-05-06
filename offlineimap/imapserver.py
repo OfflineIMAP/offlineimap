@@ -478,8 +478,8 @@ class IMAPServer:
                         "tandard ssl port %d configured. Make sure you connect"\
                         " to the correct port." % (self.hostname, self.port)
                 else:
-                    reason = "Unknown SSL protocol connecting to host '%s' for"\
-                         " repository '%s'. OpenSSL responded:\n%s"\
+                    reason = "Unknown SSL protocol connecting to host '%s' for "\
+                         "repository '%s'. OpenSSL responded:\n%s"\
                          % (self.hostname, self.repos, e)
                 raise OfflineImapError(reason, severity)
 
