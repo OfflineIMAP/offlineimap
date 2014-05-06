@@ -55,7 +55,7 @@ class LocalStatusRepository(BaseRepository):
 
         else:
             raise SyntaxWarning("Unknown status_backend '%s' for account '%s'" \
-                                % (backend, account.name))
+                                % (backend, self.account.name))
 
     def import_other_backend(self, folder):
         for bk, dic in self.backends.items():
