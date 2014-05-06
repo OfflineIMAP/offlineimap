@@ -56,23 +56,6 @@ class LocalStatusFolder(BaseFolder):
         if not self.isnewfolder():
             os.unlink(self.filename)
 
-    # Interface from BaseFolder
-    def cachemessagelist(self):
-        if self.isnewfolder():
-            self.messagelist = {}
-            return
-        file = open(self.filename, "rt")
-        self.messagelist = {}
-        line = file.readline().strip()
-        if not line:
-            # The status file is empty - should not have happened,
-            # but somehow did.
-            errstr = "Cache file '%s' is empty. Closing..." % self.filename
-            self.ui.warn(errstr)
-            file.close()
-            return
-        assert(line == magicline)
-
 
     def readstatus_v1(self, fp):
         """
@@ -102,7 +85,7 @@ class LocalStatusFolder(BaseFolder):
 
         Arguments:
         - fp: I/O object that points to the opened database file.
-        
+
         """
         for line in fp.xreadlines():
             line = line.strip()
@@ -120,6 +103,7 @@ class LocalStatusFolder(BaseFolder):
             self.messagelist[uid] = {'uid': uid, 'flags': flags, 'mtime': mtime, 'labels': labels}
 
 
+    # Interface from BaseFolder
     def cachemessagelist(self):
         if self.isnewfolder():
             self.messagelist = {}
