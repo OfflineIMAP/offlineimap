@@ -18,7 +18,7 @@
 
 import re
 
-from offlineimap import imaputil
+from offlineimap import imaputil, OfflineImapError
 from offlineimap import imaplibutil
 import offlineimap.accounts
 
