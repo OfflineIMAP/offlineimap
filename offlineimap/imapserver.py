@@ -276,7 +276,7 @@ class IMAPServer:
         If any authentication method succeeds, routine should exit:
         warnings for failed methods are to be produced in the
         respective except blocks.
-        
+
         """
 
         # Authentication routines, hash keyed by method name
@@ -489,7 +489,7 @@ class IMAPServer:
                 reason = "Connection to host '%s:%d' for repository '%s' was "\
                     "refused. Make sure you have the right host and port "\
                     "configured and that you are actually able to access the "\
-                    "network." % (self.hostname, self.port, self.reposname)
+                    "network." % (self.hostname, self.port, self.repos)
                 raise OfflineImapError(reason, severity)
             # Could not acquire connection to the remote;
             # socket.error(last_error) raised

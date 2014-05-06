@@ -104,7 +104,7 @@ class BaseFolder(object):
     def waitforthread(self):
         """Implements method that waits for thread to be usable.
         Should be implemented only for folders that suggest threads."""
-        raise NotImplementedException
+        raise NotImplementedError
 
     # XXX: we may need someting like supports_quickstatus() to check
     # XXX: if user specifies 'quick' flag for folder that doesn't
