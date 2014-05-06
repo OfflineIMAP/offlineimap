@@ -506,7 +506,7 @@ next line\n
         new_headers = []
         for h in headers.split('\n'):
             keep_it = True
-            for trim_h in self.filterheaders:
+            for trim_h in header_list:
                 if len(h) > len(trim_h) and h[0:len(trim_h)+1] == (trim_h + ":"):
                     keep_it = False
                     break
