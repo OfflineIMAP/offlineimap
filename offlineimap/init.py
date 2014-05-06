@@ -101,9 +101,8 @@ class OfflineImap:
               "or to sync some accounts that you normally prefer not to.")
 
         parser.add_option("-c", dest="configfile", metavar="FILE",
-                  default="~/.offlineimaprc",
-                  help="Specifies a configuration file to use in lieu of "
-                       "%default.")
+                  default=None,
+                  help="Specifies a configuration file to use")
 
         parser.add_option("-d", dest="debugtype", metavar="type1,[type2...]",
                   help="Enables debugging for OfflineIMAP. This is useful "
@@ -165,7 +164,19 @@ class OfflineImap:
         globals.set_options (options)
 
         #read in configuration file
-        configfilename = os.path.expanduser(options.configfile)
+        if not options.configfile:
+            # Try XDG location, then fall back to ~/.offlineimaprc
+            xdg_var = 'XDG_CONFIG_HOME'
+            if not xdg_var in os.environ or not os.environ[xdg_var]:
+                xdg_home = os.path.expanduser('~/.config')
+            else:
+                xdg_home = os.environ[xdg_var]
+            options.configfile = os.path.join(xdg_home, "offlineimap", "config")
+            if not os.path.exists(options.configfile):
+                options.configfile = os.path.expanduser('~/.offlineimaprc')
+            configfilename = options.configfile
+        else:
+            configfilename = os.path.expanduser(options.configfile)
 
         config = CustomConfigParser()
         if not os.path.exists(configfilename):

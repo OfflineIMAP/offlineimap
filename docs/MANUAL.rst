@@ -63,6 +63,9 @@ set, and you can read about other features later with `offlineimap.conf`.
 
 Check out the `Use Cases`_ section for some example configurations.
 
+If you want to be XDG-compatible, you can put your configuration file into
+`$XDG_CONFIG_HOME/offlineimap/config`.
+
 
 OPTIONS
 =======

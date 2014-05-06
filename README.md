@@ -74,6 +74,13 @@ to do is specify a directory for your folders to be in (on the localfolders
 line), the host name of your IMAP server (on the remotehost line), and your
 login name on the remote (on the remoteuser line).  That's it!
 
+If you prefer to be XDG-compatible,
+  http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+then substitute the above ``~/.offlineimaprc'' with
+``$XDG\_CONFIG\_HOME/offlineimap/config'' and don't forget to set
+XDG\_CONFIG\_HOME properly if you want it to be different from
+the default ``$HOME/.config'' for any reason.
+
 To run OfflineIMAP, you just have to say `offlineimap` ― it will fire
 up, ask you for a login password if necessary, synchronize your folders,
 and exit.  See?

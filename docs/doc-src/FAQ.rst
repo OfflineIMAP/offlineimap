@@ -77,6 +77,15 @@ based in instructions submitted by Chris Walker::
     That URL also has more details on making OfflineIMAP work with Windows.
 
 
+Does OfflineIMAP supports XDG Base Directory specification?
+-----------------------------------------------------------
+
+Yes.  We are trying to use `$XDG_CONFIG_HOME/offlineimap/config`
+as the primary configuration file, falling back to `~/.offlineimaprc`
+if configuration file location was not explicitely specified at the
+command line.
+
+
 Does OfflineIMAP support mbox, mh, or anything else other than Maildir?
 -----------------------------------------------------------------------
 
