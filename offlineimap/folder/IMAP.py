@@ -715,7 +715,7 @@ class IMAPFolder(BaseFolder):
             result = self._store_to_imap(imapobj, str(uid), 'FLAGS', imaputil.flagsmaildir2imap(flags))
 
         except imapobj.readonly:
-            self.ui.flagstoreadonly(self, [uid], data)
+            self.ui.flagstoreadonly(self, [uid], flags)
             return
 
         finally:
