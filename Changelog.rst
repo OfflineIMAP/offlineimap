@@ -20,6 +20,8 @@ OfflineIMAP v6.5.6 (YYYY-MM-DD)
   (if $XDG_CONFIG_HOME/offlineimap/config exists, use it as the
   default configuration path; ~/.offlineimaprc is still tried after
   XDG location) (GitHub#32)
+* Allow multiple certificate fingerprints to be specified inside
+  'cert_fingerprint'
 
 
 OfflineIMAP v6.5.5 (2013-10-07)

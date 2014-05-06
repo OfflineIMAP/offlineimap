@@ -215,7 +215,16 @@ class IMAPRepository(BaseRepository):
         return self.getconf('ssl_version', None)
 
     def get_ssl_fingerprint(self):
-        return self.getconf('cert_fingerprint', None)
+        """
+        Return array of possible certificate fingerprints.
+
+        Configuration item cert_fingerprint can contain multiple
+        comma-separated fingerprints in hex form.
+
+        """
+
+        value = self.getconf('cert_fingerprint', "")
+        return [f.strip().lower() for f in value.split(',') if f]
 
     def getpreauthtunnel(self):
         return self.getconf('preauthtunnel', None)
