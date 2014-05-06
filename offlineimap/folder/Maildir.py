@@ -273,7 +273,7 @@ class MaildirFolder(BaseFolder):
             except OSError as e:
                 if e.errno == e.EEXIST:
                     if tries:
-                        time.slep(0.23)
+                        time.sleep(0.23)
                         continue
                     severity = OfflineImapError.ERROR.MESSAGE
                     raise OfflineImapError("Unique filename %s already exists." % \
