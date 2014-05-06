@@ -621,7 +621,7 @@ class IdleThread(object):
         if folder is None:
             self.thread = Thread(target=self.noop)
         else:
-            self.thread = Thread(target=self.idle)
+            self.thread = Thread(target=self.__idle)
         self.thread.setDaemon(1)
 
     def start(self):
