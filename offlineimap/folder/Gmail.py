@@ -203,7 +203,7 @@ class GmailFolder(IMAPFolder):
                 result = self._store_to_imap(imapobj, uid_str, arg, labels_str)
 
             except imapobj.readonly:
-                self.ui.labelstoreadonly(self, uidlist, data)
+                self.ui.labelstoreadonly(self, uidlist, labels)
                 return None
 
             finally:
