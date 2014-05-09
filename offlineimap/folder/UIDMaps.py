@@ -122,6 +122,9 @@ class MappedIMAPFolder(IMAPFolder):
         finally:
             self.maplock.release()
 
+    def dropmessagelistcache(self):
+        self._mb.dropmessagelistcache()
+
     def uidexists(self, ruid):
         """Checks if the (remote) UID exists in this Folder"""
         # This implementation overrides the one in BaseFolder, as it is

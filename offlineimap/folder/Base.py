@@ -203,6 +203,9 @@ class BaseFolder(object):
         memory unless this function is called again."""
         raise NotImplementedException
 
+    def dropmessagelistcache(self):
+        raise NotImplementedException
+
     def getmessagelist(self):
         """Gets the current message list.
         You must call cachemessagelist() before calling this function!"""

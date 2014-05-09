@@ -199,6 +199,9 @@ class IMAPFolder(BaseFolder):
                 rtime = imaplibutil.Internaldate2epoch(messagestr)
                 self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
 
+    def dropmessagelistcache(self):
+        self.messagelist = None
+
     def getmessagelist(self):
         return self.messagelist
 
