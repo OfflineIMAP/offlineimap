@@ -436,20 +436,21 @@ This is an example of a setup where "TheOtherImap" requires all folders to be un
 Sync from Gmail to a local Maildir with labels
 ----------------------------------------------
 
-This is an example of a setup where GMail gets synced with a local Maildir.
-It also keeps track of GMail labels, that get embedded into the messages
-under the header X-Keywords (or whatever labelsheader is set to), and syncs
-them back and forth the same way as flags.
+This is an example of a setup where GMail gets synced with a local Maildir.  It
+also keeps track of GMail labels, that get embedded into the messages under the
+header configured in labelsheader, and syncs them back and forth the same way as
+flags. The header used for the labels may need to be set according to the email
+client used. Some choices that may be recognized by email clients are
+`X-Keywords` or `X-Labels`.
 
-The first time it runs on a large repository may take some time as the labels
-are read / embedded on every message.  Afterwards local label changes are detected
-using modification times (much faster)::
+The first time offlineimap runs with synclabels enabled on a large repository it
+may take some time as the labels are read / embedded on every message.
+Afterwards local label changes are detected using modification times, which is
+much faster::
 
     [Account Gmail-mine]
     localrepository = Gmaillocal-mine
     remoterepository = Gmailserver-mine
-    # Need this to be able to sync labels
-    status_backend = sqlite
     synclabels = yes
     # This header is where labels go.  Usually you will be fine
     # with default value, but in case you want it different,
