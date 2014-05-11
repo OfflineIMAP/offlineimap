@@ -57,7 +57,7 @@ class GmailFolder(IMAPFolder):
         # if synclabels is enabled, add a 4th pass to sync labels
         if self.synclabels:
             self.imap_query.insert(0, 'X-GM-LABELS')
-            self.syncmessagesto_passes.append(('syncing labels', self.syncmessagesto_labels))
+            self.syncmessagesto_passes.append(('syncing labels', self.__syncmessagesto_labels))
 
         # Labels to be left alone
         ignorelabels =  self.repository.account.getconf('ignorelabels', '')
@@ -288,7 +288,7 @@ class GmailFolder(IMAPFolder):
             except NotImplementedError:
                 return
 
-    def syncmessagesto_labels(self, dstfolder, statusfolder):
+    def __syncmessagesto_labels(self, dstfolder, statusfolder):
         """Pass 4: Label Synchronization (Gmail only)
 
         Compare label mismatches in self with those in statusfolder. If

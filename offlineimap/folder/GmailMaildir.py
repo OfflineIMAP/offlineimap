@@ -36,7 +36,7 @@ class GmailMaildirFolder(MaildirFolder):
 
         # if synclabels is enabled, add a 4th pass to sync labels
         if self.synclabels:
-            self.syncmessagesto_passes.append(('syncing labels', self.syncmessagesto_labels))
+            self.syncmessagesto_passes.append(('syncing labels', self.__syncmessagesto_labels))
 
     def quickchanged(self, statusfolder):
         """Returns True if the Maildir has changed. Checks uids, flags and mtimes"""
@@ -195,7 +195,7 @@ class GmailMaildirFolder(MaildirFolder):
             except NotImplementedError:
                 return
 
-    def syncmessagesto_labels(self, dstfolder, statusfolder):
+    def __syncmessagesto_labels(self, dstfolder, statusfolder):
         """Pass 4: Label Synchronization (Gmail only)
 
         Compare label mismatches in self with those in statusfolder. If
