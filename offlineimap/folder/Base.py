@@ -542,7 +542,7 @@ next line\n
         for uid in uidlist:
             self.deletemessage(uid)
 
-    def __copymessageto(self, uid, dstfolder, statusfolder, register = 1):
+    def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
         """Copies a message from self to dst if needed, updating the status
 
         Note that this function does not check against dryrun settings,
@@ -624,7 +624,7 @@ next line\n
         not in the statusfolder yet. The strategy is:
 
         1) Look for messages present in self but not in statusfolder.
-        2) invoke __copymessageto() on those which:
+        2) invoke copymessageto() on those which:
            - If dstfolder doesn't have it yet, add them to dstfolder.
            - Update statusfolder
 
@@ -645,18 +645,18 @@ next line\n
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
-            # exceptions are caught in __copymessageto()
+            # exceptions are caught in copymessageto()
             if self.suggeststhreads() and not globals.options.singlethreading:
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(\
                     self.getcopyinstancelimit(),
-                    target = self.__copymessageto,
+                    target = self.copymessageto,
                     name = "Copy message from %s:%s" % (self.repository, self),
                     args = (uid, dstfolder, statusfolder))
                 thread.start()
                 threads.append(thread)
             else:
-                self.__copymessageto(uid, dstfolder, statusfolder,
+                self.copymessageto(uid, dstfolder, statusfolder,
                                    register = 0)
         for thread in threads:
             thread.join()
