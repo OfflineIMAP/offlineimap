@@ -120,6 +120,15 @@ A typical release cycle works like this:
 
 5. When we think a release is stable enough, we restart from step 1.
 
+Tagging release or RC
+---------------------
+
+It is done via Git's ``tag`` command, but you must do ``git tag -a``
+to create annotated tag.
+
+Release tags are named ``vX.Y.Z`` and release candidate tags are named
+``vX.Y.Z-rcN``.
+
 
 .. _contribution checklist:
 
