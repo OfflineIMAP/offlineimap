@@ -24,17 +24,12 @@ OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 * Fix unbounded recursion during flag update (Josh Berry).
 
 
-OfflineIMAP v6.5.6 (2014-05-14)
-===============================
+OfflineIMAP v6.5.6-RC1 (2014-05-14)
+===================================
 
 * Fix IDLE mode regression (it didn't worked) introduced
   after v6.5.5 (pointy hat goes to Eygene Ryabinkin, kudos --
   to Tomasz Żok)
-
-
-OfflineIMAP v6.5.6-RC1 (2014-05-14)
-===================================
-
 * Add knob to invoke folderfilter dynamically on each sync (GitHub#73)
 * Add knob to apply compression to IMAP connections (Abdó Roig-Maranges)
 * Add knob to filter some headers before uploading message
