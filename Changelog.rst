@@ -5,8 +5,8 @@ ChangeLog
 :website: http://offlineimap.org
 
 
-OfflineIMAP v6.5.6 (YYYY-MM-DD)
-===============================
+OfflineIMAP v6.5.6-RC1 (2014-05-14)
+===================================
 
 * Add knob to invoke folderfilter dynamically on each sync (GitHub#73)
 * Add knob to apply compression to IMAP connections (Abdó Roig-Maranges)
