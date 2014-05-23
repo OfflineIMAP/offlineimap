@@ -703,7 +703,7 @@ class IdleThread(object):
                 else:
                     success = True
             if "IDLE" in imapobj.capabilities:
-                imapobj.__idle(callback=callback)
+                imapobj.idle(callback=callback)
             else:
                 self.ui.warn("IMAP IDLE not supported on server '%s'."
                     "Sleep until next refresh cycle." % imapobj.identifier)

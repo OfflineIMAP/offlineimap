@@ -5,6 +5,14 @@ ChangeLog
 :website: http://offlineimap.org
 
 
+OfflineIMAP v6.5.6 (2014-05-14)
+===============================
+
+* Fix IDLE mode regression (it didn't worked) introduced
+  after v6.5.5 (pointy hat goes to Eygene Ryabinkin, kudos --
+  to Tomasz Żok)
+
+
 OfflineIMAP v6.5.6-RC1 (2014-05-14)
 ===================================
 
