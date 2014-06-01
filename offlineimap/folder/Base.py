@@ -413,16 +413,26 @@ next line\n
 
     """
 
-    def addmessageheader(self, content, headername, headervalue):
+    def addmessageheader(self, content, crlf, headername, headervalue):
+        """
+        Adds new header to the provided message.
+
+        Arguments:
+        - content: message content, headers and body as a single string
+        - crlf: string that carries line ending
+        - headername: name of the header to add
+        - headervalue: value of the header to add
+
+        """
         self.ui.debug('',
                  'addmessageheader: called to add %s: %s' % (headername,
                                                              headervalue))
-        prefix = '\n'
+        prefix = crlf
         suffix = ''
-        insertionpoint = content.find('\n\n')
+        insertionpoint = content.find(crlf + crlf)
         if insertionpoint == 0 or insertionpoint == -1:
             prefix = ''
-            suffix = '\n'
+            suffix = crlf
         if insertionpoint == -1:
             insertionpoint = 0
             # When body starts immediately, without preceding '\n'
@@ -430,8 +440,8 @@ next line\n
             # we seen many broken ones), we should add '\n' to make
             # new (and the only header, in this case) to be properly
             # separated from the message body.
-            if content[0] != '\n':
-                suffix = suffix + '\n'
+            if content[0:len(crlf)] != crlf:
+                suffix = suffix + crlf
 
         self.ui.debug('', 'addmessageheader: insertionpoint = %d' % insertionpoint)
         headers = content[0:insertionpoint]

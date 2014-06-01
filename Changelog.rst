@@ -5,7 +5,15 @@ ChangeLog
 :website: http://offlineimap.org
 
 
-OfflineIMAP v6.5.6 (YYYY-MM-DD)
+OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
+=================================
+
+* Fix mangled message headers for servers without UIDPLUS:
+  X-OfflineIMAP was added with preceeding '\n' instead of
+  '\r\n' just before message was uploaded to the IMAP server.
+
+
+OfflineIMAP v6.5.6 (2014-05-14)
 ===============================
 
 * Fix IDLE mode regression (it didn't worked) introduced

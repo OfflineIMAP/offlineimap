@@ -93,7 +93,7 @@ class GmailFolder(IMAPFolder):
                 labels = set()
             labels = labels - self.ignorelabels
             labels_str = imaputil.format_labels_string(self.labelsheader, sorted(labels))
-            body = self.addmessageheader(body, self.labelsheader, labels_str)
+            body = self.addmessageheader(body, '\n', self.labelsheader, labels_str)
 
         if len(body)>200:
             dbg_output = "%s...%s" % (str(body)[:150], str(body)[-50:])
