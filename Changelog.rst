@@ -12,6 +12,9 @@ OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
   X-OfflineIMAP was added with preceeding '\n' instead of
   '\r\n' just before message was uploaded to the IMAP server.
 
+* Add missing version bump for 6.5.6 (it was released with
+  6.5.5 in setup.py and other places).
+
 
 OfflineIMAP v6.5.6 (2014-05-14)
 ===============================
