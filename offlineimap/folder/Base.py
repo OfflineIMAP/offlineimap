@@ -386,60 +386,75 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessagelabels(uid, labels)
 
-
-    """
-    Illustration of all cases for addmessageheader().
-    '+' means the added contents.
-
-Case 1: No '\n\n', leading '\n'
-+X-Flying-Pig-Header: i am here\n
-\n
-This is the body\n
-next line\n
-
-Case 2: '\n\n' at position 0
-+X-Flying-Pig-Header: i am here\n
-\n
-\n
-This is the body\n
-next line\n
-
-Case 3: No '\n\n', no leading '\n'
-+X-Flying-Pig-Header: i am here\n
-+\n
-This is the body\n
-next line\n
-
-Case 4: '\n\n' at non-zero position
-Subject: Something wrong with OI\n
-From: some@person.at+\n
-X-Flying-Pig-Header: i am here\n <-- orig '\n'
-\n
-This is the body\n
-next line\n
-
-    """
-
-    def addmessageheader(self, content, crlf, headername, headervalue):
+    def addmessageheader(self, content, linebreak, headername, headervalue):
         """
         Adds new header to the provided message.
 
         Arguments:
         - content: message content, headers and body as a single string
-        - crlf: string that carries line ending
+        - linebreak: string that carries line ending
         - headername: name of the header to add
         - headervalue: value of the header to add
 
+        This has to deal with strange corner cases where the header is
+        missing or empty.  Here are illustrations for all the cases,
+        showing where the header gets inserted and what the end result
+        is.  In each illustration, '+' means the added contents.  Note
+        that these examples assume LF for linebreak, not CRLF, so '\n'
+        denotes a linebreak and '\n\n' corresponds to the transition
+        between header and body.  However if the linebreak parameter
+        is set to '\r\n' then you would have to substitute '\r\n' for
+        '\n' in the below examples.
+
+          * Case 1: No '\n\n', leading '\n'
+
+            +X-Flying-Pig-Header: i am here\n
+            \n
+            This is the body\n
+            next line\n
+
+          * Case 2: '\n\n' at position 0
+
+            +X-Flying-Pig-Header: i am here\n
+            \n
+            \n
+            This is the body\n
+            next line\n
+
+          * Case 3: No '\n\n', no leading '\n'
+
+            +X-Flying-Pig-Header: i am here\n
+            +\n
+            This is the body\n
+            next line\n
+
+          * Case 4: '\n\n' at non-zero position
+
+            Subject: Something wrong with OI\n
+            From: some@person.at
+            +\nX-Flying-Pig-Header: i am here
+            \n
+            \n
+            This is the body\n
+            next line\n
         """
         self.ui.debug('',
                  'addmessageheader: called to add %s: %s' % (headername,
                                                              headervalue))
-        prefix = crlf
+        prefix = linebreak
         suffix = ''
-        insertionpoint = content.find(crlf + crlf)
+        insertionpoint = content.find(linebreak * 2)
+        if insertionpoint == -1:
+            self.ui.debug('', 'addmessageheader: header was missing')
+        else:
+            self.ui.debug('', 'addmessageheader: header ends at %d' % insertionpoint)
+            contextstart = max(0,            insertionpoint - 100)
+            contextend   = min(len(content), insertionpoint + 100)
+            self.ui.debug('', 'addmessageheader: header/body transition context: %s' %
+                          repr(content[contextstart:contextend]))
         if insertionpoint == 0 or insertionpoint == -1:
             prefix = ''
-            suffix = crlf
+            suffix = linebreak
         if insertionpoint == -1:
             insertionpoint = 0
             # When body starts immediately, without preceding '\n'
@@ -447,8 +462,8 @@ next line\n
             # we seen many broken ones), we should add '\n' to make
             # new (and the only header, in this case) to be properly
             # separated from the message body.
-            if content[0:len(crlf)] != crlf:
-                suffix = suffix + crlf
+            if content[0:len(linebreak)] != linebreak:
+                suffix = suffix + linebreak
 
         self.ui.debug('', 'addmessageheader: insertionpoint = %d' % insertionpoint)
         headers = content[0:insertionpoint]
