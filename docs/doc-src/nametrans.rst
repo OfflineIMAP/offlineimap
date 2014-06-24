@@ -13,7 +13,7 @@ safely skip this section.
 folderfilter
 ------------
 
-If you do not want to synchronize all your filters, you can specify a `folderfilter`_ function that determines which folders to include in a sync and which to exclude. Typically, you would set a folderfilter option on the remote repository only, and it would be a lambda or any other python function.
+If you do not want to synchronize all your folders, you can specify a `folderfilter`_ function that determines which folders to include in a sync and which to exclude. Typically, you would set a folderfilter option on the remote repository only, and it would be a lambda or any other python function.
 
 The only parameter to that function is the folder name. If the filter
 function returns True, the folder will be synced, if it returns False,
@@ -114,7 +114,7 @@ Reverse nametrans
 
 Since 6.4.0, OfflineImap supports the creation of folders on the remote repository and that complicates things. Previously, only one nametrans setting on the remote repository was needed and that transformed a remote to a local name. However, nametrans transformations are one-way, and OfflineImap has no way using those rules on the remote repository to back local names to remote names.
 
-Take a remote nametrans rule `lambda f: re.sub('^INBOX/','',f)` which cuts of any existing INBOX prefix. Now, if we parse a list of local folders, finding e.g. a folder "Sent", is it supposed to map to "INBOX/Sent" or to "Sent"? We have no way of knowing. This is why **every nametrans setting on a remote repository requires an equivalent nametrans rule on the local repository that reverses the transformation**.
+Take a remote nametrans rule `lambda f: re.sub('^INBOX/','',f)` which cuts off any existing INBOX prefix. Now, if we parse a list of local folders, finding e.g. a folder "Sent", is it supposed to map to "INBOX/Sent" or to "Sent"? We have no way of knowing. This is why **every nametrans setting on a remote repository requires an equivalent nametrans rule on the local repository that reverses the transformation**.
 
 Take the above examples. If your remote nametrans setting was::
 
@@ -122,7 +122,7 @@ Take the above examples. If your remote nametrans setting was::
 
 then you will want to have this in your local repository, prepending "INBOX" to any local folder name::
 
-   nametrans = lambda folder: 'INBOX' + folder
+   nametrans = lambda folder: 'INBOX.' + folder
 
 Failure to set the local nametrans rule will lead to weird-looking error messages of -for instance- this type::
 
