@@ -379,47 +379,66 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessagelabels(uid, labels)
 
+    def addmessageheader(self, content, headername, headervalue, linebreak='\n'):
+        """Adds a message header (e.g. X-OfflineIMAP) to an existing mail.
 
-    """
-    Illustration of all cases for addmessageheader().
-    '+' means the added contents.
+        This has to deal with strange corner cases where the header is
+        missing or empty.  Here are illustrations for all the cases,
+        showing where the header gets inserted and what the end result
+        is.  In each illustration, '+' means the added contents.  Note
+        that these examples assume LF for linebreak, not CRLF, so '\n'
+        denotes a linebreak and '\n\n' corresponds to the transition
+        between header and body.  However if the linebreak parameter
+        is set to '\r\n' then you would have to substitute '\r\n' for
+        '\n' in the below examples.
 
-Case 1: No '\n\n', leading '\n'
-+X-Flying-Pig-Header: i am here\n
-\n
-This is the body\n
-next line\n
+          * Case 1: No '\n\n', leading '\n'
 
-Case 2: '\n\n' at position 0
-+X-Flying-Pig-Header: i am here\n
-\n
-\n
-This is the body\n
-next line\n
+            +X-Flying-Pig-Header: i am here\n
+            \n
+            This is the body\n
+            next line\n
 
-Case 3: No '\n\n', no leading '\n'
-+X-Flying-Pig-Header: i am here\n
-+\n
-This is the body\n
-next line\n
+          * Case 2: '\n\n' at position 0
 
-Case 4: '\n\n' at non-zero position
-Subject: Something wrong with OI\n
-From: some@person.at+\n
-X-Flying-Pig-Header: i am here\n <-- orig '\n'
-\n
-This is the body\n
-next line\n
+            +X-Flying-Pig-Header: i am here\n
+            \n
+            \n
+            This is the body\n
+            next line\n
 
-    """
+          * Case 3: No '\n\n', no leading '\n'
 
-    def addmessageheader(self, content, headername, headervalue):
+            +X-Flying-Pig-Header: i am here\n
+            +\n
+            This is the body\n
+            next line\n
+
+          * Case 4: '\n\n' at non-zero position
+
+            Subject: Something wrong with OI\n
+            From: some@person.at
+            +\nX-Flying-Pig-Header: i am here
+            \n
+            \n
+            This is the body\n
+            next line\n
+        """
+
         self.ui.debug('',
                  'addmessageheader: called to add %s: %s' % (headername,
                                                              headervalue))
         prefix = '\n'
         suffix = ''
-        insertionpoint = content.find('\n\n')
+        insertionpoint = content.find(linebreak * 2)
+        if insertionpoint == -1:
+            self.ui.debug('', 'addmessageheader: header was missing')
+        else:
+            self.ui.debug('', 'addmessageheader: header ends at %d' % insertionpoint)
+            contextstart = max(0,            insertionpoint - 100)
+            contextend   = min(len(content), insertionpoint + 100)
+            self.ui.debug('', 'addmessageheader: header/body transition context: %s' %
+                          repr(content[contextstart:contextend]))
         if insertionpoint == 0 or insertionpoint == -1:
             prefix = ''
             suffix = '\n'

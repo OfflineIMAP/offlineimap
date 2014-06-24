@@ -535,7 +535,8 @@ class IMAPFolder(BaseFolder):
                                                     content)
                     self.ui.debug('imap', 'savemessage: header is: %s: %s' %\
                                       (headername, headervalue))
-                    content = self.addmessageheader(content, headername, headervalue)
+                    content = self.addmessageheader(content, headername, headervalue,
+                                                    linebreak=CRLF)
 
                 if len(content)>200:
                     dbg_output = "%s...%s" % (content[:150], content[-50:])
