@@ -326,7 +326,7 @@ class SyncableAccount(Account):
                     thread = InstanceLimitedThread(\
                         instancename = 'FOLDER_' + self.remoterepos.getname(),
                         target = syncfolder,
-                        name = "Folder %s [acc: %s]" % (remotefolder, self),
+                        name = "Folder %s [acc: %s]" % (remotefolder.getexplainedname(), self),
                         args = (self, remotefolder, quick))
                     thread.start()
                     folderthreads.append(thread)

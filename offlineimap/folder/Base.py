@@ -132,6 +132,13 @@ class BaseFolder(object):
         """The nametrans-transposed name of the folder's name"""
         return self.visiblename
 
+    def getexplainedname(self):
+        """ Name that shows both real and nametrans-mangled values"""
+        if self.name == self.visiblename:
+            return self.name
+        else:
+            return "%s [remote name %s]" % (self.visiblename, self.name)
+
     def getrepository(self):
         """Returns the repository object that this folder is within."""
         return self.repository
