@@ -444,6 +444,14 @@ class BaseFolder(object):
         prefix = linebreak
         suffix = ''
         insertionpoint = content.find(linebreak * 2)
+        if insertionpoint == -1:
+            self.ui.debug('', 'addmessageheader: header was missing')
+        else:
+            self.ui.debug('', 'addmessageheader: header ends at %d' % insertionpoint)
+            contextstart = max(0,            insertionpoint - 100)
+            contextend   = min(len(content), insertionpoint + 100)
+            self.ui.debug('', 'addmessageheader: header/body transition context: %s' %
+                          repr(content[contextstart:contextend]))
         if insertionpoint == 0 or insertionpoint == -1:
             prefix = ''
             suffix = linebreak
