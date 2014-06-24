@@ -441,10 +441,22 @@ class BaseFolder(object):
         self.ui.debug('',
                  'addmessageheader: called to add %s: %s' % (headername,
                                                              headervalue))
+
+        insertionpoint = content.find(linebreak * 2)
+        if insertionpoint == -1:
+            self.ui.debug('', 'addmessageheader: headers were missing')
+        else:
+            self.ui.debug('', 'addmessageheader: headers end at position %d' % insertionpoint)
+            mark = '==>EOH<=='
+            contextstart = max(0,            insertionpoint - 100)
+            contextend   = min(len(content), insertionpoint + 100)
+            self.ui.debug('', 'addmessageheader: header/body transition context (marked by %s): %s' %
+                          (mark, repr(content[contextstart:insertionpoint]) + \
+                          mark + repr(content[insertionpoint:contextend])))
+
         # Hoping for case #4
         prefix = linebreak
         suffix = ''
-        insertionpoint = content.find(linebreak * 2)
         # Case #2
         if insertionpoint == 0:
             prefix = ''
