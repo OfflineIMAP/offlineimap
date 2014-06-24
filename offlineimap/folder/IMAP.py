@@ -526,6 +526,7 @@ class IMAPFolder(BaseFolder):
         # NB: imapobj to None.
         try:
             while retry_left:
+                # XXX: we can mangle message only once, out of the loop
                 # UIDPLUS extension provides us with an APPENDUID response.
                 use_uidplus = 'UIDPLUS' in imapobj.capabilities
 
@@ -535,7 +536,7 @@ class IMAPFolder(BaseFolder):
                                                     content)
                     self.ui.debug('imap', 'savemessage: header is: %s: %s' %\
                                       (headername, headervalue))
-                    content = self.addmessageheader(content, headername, headervalue)
+                    content = self.addmessageheader(content, CRLF, headername, headervalue)
 
                 if len(content)>200:
                     dbg_output = "%s...%s" % (content[:150], content[-50:])

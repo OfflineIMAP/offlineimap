@@ -576,7 +576,7 @@ class Blinkenlights(UIBase, CursesUtil):
         self.bannerwin.clear() # Delete old content (eg before resizes)
         self.bannerwin.bkgd(' ', color) # Fill background with that color
         string = "%s %s" % (offlineimap.__productname__,
-                            offlineimap.__version__)
+                            offlineimap.__bigversion__)
         self.bannerwin.addstr(0, 0, string, color)
         self.bannerwin.addstr(0, self.width -len(offlineimap.__copyright__) -1,
                               offlineimap.__copyright__, color)
