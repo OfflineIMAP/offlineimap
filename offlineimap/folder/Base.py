@@ -502,6 +502,8 @@ class BaseFolder(object):
     def getmessageheader(self, content, name):
         """
         Searches for the given header and returns its value.
+        Header name is case-insensitive.
+
         Arguments:
         - contents: message itself
         - name: name of the header to be searched
@@ -515,7 +517,7 @@ class BaseFolder(object):
         headers = content[0:eoh]
         self.ui.debug('', 'getmessageheader: headers = %s' % repr(headers))
 
-        m = re.search('^%s:(.*)$' % name, headers, flags = re.MULTILINE)
+        m = re.search('^%s:(.*)$' % name, headers, flags = re.MULTILINE | re.IGNORECASE)
         if m:
             return m.group(1).strip()
         else:
