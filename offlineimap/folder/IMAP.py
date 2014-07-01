@@ -517,6 +517,11 @@ class IMAPFolder(BaseFolder):
         # get the date of the message, so we can pass it to the server.
         date = self.__getmessageinternaldate(content, rtime)
 
+        # Message-ID is handy for debugging messages
+        msg_id = self.getmessageheader(content, "message-id")
+        if not msg_id:
+            msg_id = '[unknown message-id]'
+
         retry_left = 2 # succeeded in APPENDING?
         imapobj = self.imapserver.acquireconnection()
         # NB: in the finally clause for this try we will release
@@ -569,9 +574,9 @@ class IMAPFolder(BaseFolder):
                         # In this case, we should immediately abort the repository sync
                         # and continue with the next account.
                         msg = \
-                            "Saving msg in folder '%s', repository '%s' failed (abort). " \
+                            "Saving msg (%s) in folder '%s', repository '%s' failed (abort). " \
                             "Server responded: %s %s\n" % \
-                            (self, self.getrepository(), typ, dat)
+                            (msg_id, self, self.getrepository(), typ, dat)
                         raise OfflineImapError(msg, OfflineImapError.ERROR.REPO)
                     retry_left = 0 # Mark as success
                 except imapobj.abort as e:
@@ -580,10 +585,10 @@ class IMAPFolder(BaseFolder):
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
                     if not retry_left:
-                        raise OfflineImapError("Saving msg in folder '%s', "
+                        raise OfflineImapError("Saving msg (%s) in folder '%s', "
                               "repository '%s' failed (abort). Server responded: %s\n"
                               "Message content was: %s" %
-                              (self, self.getrepository(), str(e), dbg_output),
+                              (msg_id, self, self.getrepository(), str(e), dbg_output),
                                                OfflineImapError.ERROR.MESSAGE)
                     self.ui.error(e, exc_info()[2])
                 except imapobj.error as e: # APPEND failed
@@ -592,9 +597,9 @@ class IMAPFolder(BaseFolder):
                     # drop conn, it might be bad.
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = None
-                    raise OfflineImapError("Saving msg folder '%s', repo '%s'"
+                    raise OfflineImapError("Saving msg (%s) folder '%s', repo '%s'"
                         "failed (error). Server responded: %s\nMessage content was: "
-                        "%s" % (self, self.getrepository(), str(e), dbg_output),
+                        "%s" % (msg_id, self, self.getrepository(), str(e), dbg_output),
                                            OfflineImapError.ERROR.MESSAGE)
             # Checkpoint. Let it write out stuff, etc. Eg searches for
             # just uploaded messages won't work if we don't do this.
