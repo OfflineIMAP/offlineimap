@@ -755,14 +755,7 @@ class IMAPFolder(BaseFolder):
     def deletemessagesflags(self, uidlist, flags):
         self.__processmessagesflags('-', uidlist, flags)
 
-    def __processmessagesflags(self, operation, uidlist, flags):
-        # XXX: should really iterate over batches of 100 UIDs
-        if len(uidlist) > 101:
-            # Hack for those IMAP servers with a limited line length
-            self.__processmessagesflags(operation, uidlist[:100], flags)
-            self.__processmessagesflags(operation, uidlist[100:], flags)
-            return
-
+    def __processmessagesflags_real(self, operation, uidlist, flags):
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
@@ -803,6 +796,16 @@ class IMAPFolder(BaseFolder):
                 self.messagelist[uid]['flags'] |= flags
             elif operation == '-':
                 self.messagelist[uid]['flags'] -= flags
+
+
+    def __processmessagesflags(self, operation, uidlist, flags):
+        # Hack for those IMAP servers with a limited line length
+        batch_size = 100
+        while len(uidlist):
+            self.__processmessagesflags_real(operation, uidlist[:batch_size], flags)
+            uidlist = uidlist[batch_size:]
+        return
+
 
     # Interface from BaseFolder
     def change_message_uid(self, uid, new_uid):
