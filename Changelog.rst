@@ -15,6 +15,8 @@ OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 * Add missing version bump for 6.5.6 (it was released with
   6.5.5 in setup.py and other places).
 
+* Various fixes in documentation.
+
 
 OfflineIMAP v6.5.6 (2014-05-14)
 ===============================
