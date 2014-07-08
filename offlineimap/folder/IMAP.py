@@ -756,12 +756,12 @@ class IMAPFolder(BaseFolder):
         self.__processmessagesflags('-', uidlist, flags)
 
     def __processmessagesflags(self, operation, uidlist, flags):
-        # XXX: should really iterate over batches of 100 UIDs
-        if len(uidlist) > 101:
-            # Hack for those IMAP servers with a limited line length
+        # Hack for those IMAP servers with a limited line length
+        while len(uidlist) > 100:
             self.__processmessagesflags(operation, uidlist[:100], flags)
-            self.__processmessagesflags(operation, uidlist[100:], flags)
-            return
+            uidlist = uidlist[100:]
+
+        assert len(uidlist) <= 100
 
         imapobj = self.imapserver.acquireconnection()
         try:
