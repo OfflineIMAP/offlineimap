@@ -801,9 +801,9 @@ class IMAPFolder(BaseFolder):
     def __processmessagesflags(self, operation, uidlist, flags):
         # Hack for those IMAP servers with a limited line length
         batch_size = 100
-        while len(uidlist):
-            self.__processmessagesflags_real(operation, uidlist[:batch_size], flags)
-            uidlist = uidlist[batch_size:]
+        for i in xrange(0, len(uidlist), batch_size):
+            self.__processmessagesflags_real(operation,
+              uidlist[i:i + batch_size], flags)
         return
 
 

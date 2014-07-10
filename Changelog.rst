@@ -17,6 +17,8 @@ OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 
 * Various fixes in documentation.
 
+* Fix unbounded recursion during flag update (Josh Berry).
+
 
 OfflineIMAP v6.5.6 (2014-05-14)
 ===============================
