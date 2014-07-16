@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+import os
 import os.path
 import re
 from threading import Lock
@@ -54,6 +55,9 @@ class LocalStatusSQLiteFolder(BaseFolder):
         # dblock protects against concurrent writes in same connection
         self._dblock = Lock()
 
+        dirname = os.path.split(self.filename)[0]
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
         #Try to establish connection, no need for threadsafety in __init__
         try:
             self.connection = sqlite.connect(self.filename, check_same_thread = False)
@@ -255,7 +259,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
         See folder/Base for detail. Note that savemessage() does not
         check against dryrun settings, so you need to ensure that
         savemessage is never called in a dryrun mode.
-        
+
         """
         if uid < 0:
             # We cannot assign a uid.
@@ -297,7 +301,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
     def savemessageslabelsbulk(self, labels):
         """
         Saves labels from a dictionary in a single database operation.
-        
+
         """
         data = [(', '.join(sorted(l)), uid) for uid, l in labels.items()]
         self.__sql_write('UPDATE status SET labels=? WHERE id=?', data, executemany=True)
