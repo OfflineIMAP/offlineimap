@@ -8,6 +8,10 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Create SQLite database directory if it doesn't exist
+  yet; warn if path is not a directory (Nick Farrell,
+  GutHub pull #102)
+
 * Fix mangled message headers for servers without UIDPLUS:
   X-OfflineIMAP was added with preceeding '\n' instead of
   '\r\n' just before message was uploaded to the IMAP server.

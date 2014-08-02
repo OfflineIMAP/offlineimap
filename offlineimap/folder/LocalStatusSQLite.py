@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-import os.path
+import os
 import re
 from threading import Lock
 from .Base import BaseFolder
@@ -50,6 +50,12 @@ class LocalStatusSQLiteFolder(BaseFolder):
         self.messagelist = {}
 
         self._newfolder = False        # flag if the folder is new
+
+        dirname = os.path.dirname(self.filename)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        if not os.path.isdir(dirname):
+            raise UserWarning("SQLite database path '%s' is not a directory." % dirname)
 
         # dblock protects against concurrent writes in same connection
         self._dblock = Lock()
