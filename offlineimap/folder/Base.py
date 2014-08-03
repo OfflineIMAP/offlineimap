@@ -236,6 +236,17 @@ class BaseFolder(object):
         You must call cachemessagelist() before calling this function!"""
         raise NotImplementedError
 
+    def msglist_item_initializer(self, uid):
+        """
+        Returns value for empty messagelist element with given UID.
+
+        This function must initialize all fields of messagelist item
+        and must be called every time when one creates new messagelist
+        entry to ensure that all fields that must be present are present.
+
+        """
+        raise NotImplementedError
+
     def uidexists(self, uid):
         """Returns True if uid exists"""
         return uid in self.getmessagelist()

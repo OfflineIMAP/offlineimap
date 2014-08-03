@@ -185,13 +185,22 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
 
     # Interface from BaseFolder
+    def msglist_item_initializer(self, uid):
+        return {'uid': uid, 'flags': set(), 'labels': set(), 'time': 0, 'mtime': 0}
+
+
+    # Interface from BaseFolder
     def cachemessagelist(self):
         self.messagelist = {}
         cursor = self.connection.execute('SELECT id,flags,mtime,labels from status')
         for row in cursor:
+            uid = row[0]
+            self.messagelist[uid] = self.msglist_item_initializer(uid)
             flags = set(row[1])
             labels = set([lb.strip() for lb in row[3].split(',') if len(lb.strip()) > 0])
-            self.messagelist[row[0]] = {'uid': row[0], 'flags': flags, 'mtime': row[2], 'labels': labels}
+            self.messagelist[uid]['flags'] = flags
+            self.messagelist[uid]['labels'] = labels
+            self.messagelist[uid]['mtime'] = row[2]
 
     # Interface from LocalStatusFolder
     def save(self):
@@ -271,6 +280,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
             self.savemessageflags(uid, flags)
             return uid
 
+        self.messagelist[uid] = self.msglist_item_initializer(uid)
         self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime, 'mtime': mtime, 'labels': labels}
         flags = ''.join(sorted(flags))
         labels = ', '.join(sorted(labels))
@@ -278,9 +288,11 @@ class LocalStatusSQLiteFolder(BaseFolder):
                          (uid,flags,mtime,labels))
         return uid
 
+
     # Interface from BaseFolder
     def savemessageflags(self, uid, flags):
-        self.messagelist[uid] = {'uid': uid, 'flags': flags}
+        assert self.uidexists(uid)
+        self.messagelist[uid]['flags'] = flags
         flags = ''.join(sorted(flags))
         self.__sql_write('UPDATE status SET flags=? WHERE id=?',(flags,uid))
 

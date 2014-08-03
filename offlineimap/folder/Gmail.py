@@ -110,6 +110,11 @@ class GmailFolder(IMAPFolder):
         else:
             return set()
 
+    # Interface from BaseFolder
+    def msglist_item_initializer(self, uid):
+        return {'uid': uid, 'flags': set(), 'labels': set(), 'time': 0}
+
+
     # TODO: merge this code with the parent's cachemessagelist:
     # TODO: they have too much common logics.
     def cachemessagelist(self):
@@ -152,6 +157,7 @@ class GmailFolder(IMAPFolder):
                                           minor = 1)
             else:
                 uid = long(options['UID'])
+                self.messagelist[uid] = self.msglist_item_initializer(uid)
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
                 m = re.search('\(([^\)]*)\)', options['X-GM-LABELS'])
                 if m:

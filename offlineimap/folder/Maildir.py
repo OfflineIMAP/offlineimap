@@ -191,7 +191,9 @@ class MaildirFolder(BaseFolder):
                 else:
                     uid = long(uidmatch.group(1))
             # 'filename' is 'dirannex/filename', e.g. cur/123,U=1,FMD5=1:2,S
-            retval[uid] = {'flags': flags, 'filename': filepath}
+            retval[uid] = self.msglist_item_initializer(uid)
+            retval[uid]['flags'] = flags
+            retval[uid]['filename'] = filepath
         return retval
 
     # Interface from BaseFolder
@@ -207,6 +209,12 @@ class MaildirFolder(BaseFolder):
             if message['flags'] != statusfolder.getmessageflags(uid):
                 return True
         return False  #Nope, nothing changed
+
+
+    # Interface from BaseFolder
+    def msglist_item_initializer(self, uid):
+        return {'flags': set(), 'filename': '/no-dir/no-such-file/'}
+
 
     # Interface from BaseFolder
     def cachemessagelist(self):
@@ -319,7 +327,9 @@ class MaildirFolder(BaseFolder):
         if rtime != None:
             os.utime(os.path.join(self.getfullname(), tmpname), (rtime, rtime))
 
-        self.messagelist[uid] = {'flags': flags, 'filename': tmpname}
+        self.messagelist[uid] = self.msglist_item_initializer(uid)
+        self.messagelist[uid]['flags'] = flags
+        self.messagelist[uid]['filename'] = tmpname
         # savemessageflags moves msg to 'cur' or 'new' as appropriate
         self.savemessageflags(uid, flags)
         self.ui.debug('maildir', 'savemessage: returning uid %d' % uid)
@@ -339,6 +349,9 @@ class MaildirFolder(BaseFolder):
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
+
+        assert uid in self.messagelist
+
         oldfilename = self.messagelist[uid]['filename']
         dir_prefix, filename = os.path.split(oldfilename)
         # If a message has been seen, it goes into 'cur'

@@ -202,6 +202,10 @@ class IMAPFolder(BaseFolder):
 
         return msgsToFetch
 
+    # Interface from BaseFolder
+    def msglist_item_initializer(self, uid):
+        return {'uid': uid, 'flags': set(), 'time': 0}
+
 
     # Interface from BaseFolder
     def cachemessagelist(self):
@@ -239,6 +243,7 @@ class IMAPFolder(BaseFolder):
                                           minor = 1)
             else:
                 uid = long(options['UID'])
+                self.messagelist[uid] = self.msglist_item_initializer(uid)
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
                 rtime = imaplibutil.Internaldate2epoch(messagestr)
                 self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
@@ -641,7 +646,8 @@ class IMAPFolder(BaseFolder):
             if imapobj: self.imapserver.releaseconnection(imapobj)
 
         if uid: # avoid UID FETCH 0 crash happening later on
-            self.messagelist[uid] = {'uid': uid, 'flags': flags}
+            self.messagelist[uid] = self.msglist_item_initializer(uid)
+            self.messagelist[uid]['flags'] = flags
 
         self.ui.debug('imap', 'savemessage: returning new UID %d' % uid)
         return uid

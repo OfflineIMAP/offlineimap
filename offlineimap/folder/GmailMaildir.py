@@ -56,6 +56,12 @@ class GmailMaildirFolder(MaildirFolder):
                 return True
         return False  #Nope, nothing changed
 
+
+    # Interface from BaseFolder
+    def msglist_item_initializer(self, uid):
+        return {'flags': set(), 'labels': set(), 'filename': '/no-dir/no-such-file/', 'mtime': 0}
+
+
     def cachemessagelist(self):
         if self.messagelist is None:
             self.messagelist = self._scanfolder()
