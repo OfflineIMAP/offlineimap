@@ -33,7 +33,6 @@ class GmailMaildirFolder(MaildirFolder):
 
         # enables / disables label sync
         self.synclabels = self.repository.account.getconfboolean('synclabels', 0)
-
         # if synclabels is enabled, add a 4th pass to sync labels
         if self.synclabels:
             self.syncmessagesto_passes.append(('syncing labels', self.syncmessagesto_labels))
@@ -74,20 +73,21 @@ class GmailMaildirFolder(MaildirFolder):
 
     def getmessagelabels(self, uid):
         # Labels are not cached in cachemessagelist because it is too slow.
-        if not 'labels' in self.messagelist[uid]:
-            filename = self.messagelist[uid]['filename']
-            filepath = os.path.join(self.getfullname(), filename)
+        # For some reason some messages are being seeded with an empty set
+        # if not 'labels' in self.messagelist[uid]:
+        filename = self.messagelist[uid]['filename']
+        filepath = os.path.join(self.getfullname(), filename)
 
-            if not os.path.exists(filepath):
-                return set()
+        if not os.path.exists(filepath):
+            return set()
 
-            file = open(filepath, 'rt')
-            content = file.read()
-            file.close()
+        file = open(filepath, 'rt')
+        content = file.read()
+        file.close()
 
-            self.messagelist[uid]['labels'] = \
-              imaputil.labels_from_header(self.labelsheader,
-              self.getmessageheader(content, self.labelsheader))
+        self.messagelist[uid]['labels'] = \
+          imaputil.labels_from_header(self.labelsheader,
+          self.getmessageheader(content, self.labelsheader))
 
 
         return self.messagelist[uid]['labels']
@@ -251,13 +251,13 @@ class GmailMaildirFolder(MaildirFolder):
                 if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                     break
 
+                import pudb; pudb.set_trace()
                 selflabels = self.getmessagelabels(uid)
 
                 if statusfolder.uidexists(uid):
                     statuslabels = statusfolder.getmessagelabels(uid)
                 else:
                     statuslabels = set()
-
                 addlabels = selflabels - statuslabels
                 dellabels = statuslabels - selflabels
 
