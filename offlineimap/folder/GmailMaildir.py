@@ -251,7 +251,6 @@ class GmailMaildirFolder(MaildirFolder):
                 if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                     break
 
-                import pudb; pudb.set_trace()
                 selflabels = self.getmessagelabels(uid)
 
                 if statusfolder.uidexists(uid):
