@@ -59,7 +59,8 @@ class GmailMaildirFolder(MaildirFolder):
 
     # Interface from BaseFolder
     def msglist_item_initializer(self, uid):
-        return {'flags': set(), 'labels': set(), 'filename': '/no-dir/no-such-file/', 'mtime': 0}
+        return {'flags': set(), 'labels': set(), 'labels_cached': False,
+                'filename': '/no-dir/no-such-file/', 'mtime': 0}
 
 
     def cachemessagelist(self):
@@ -72,9 +73,10 @@ class GmailMaildirFolder(MaildirFolder):
                 filepath = os.path.join(self.getfullname(), msg['filename'])
                 msg['mtime'] = long(os.stat(filepath).st_mtime)
 
+
     def getmessagelabels(self, uid):
         # Labels are not cached in cachemessagelist because it is too slow.
-        if not 'labels' in self.messagelist[uid]:
+        if not self.messagelist[uid]['labels_cached']:
             filename = self.messagelist[uid]['filename']
             filepath = os.path.join(self.getfullname(), filename)
 
@@ -88,9 +90,10 @@ class GmailMaildirFolder(MaildirFolder):
             self.messagelist[uid]['labels'] = \
               imaputil.labels_from_header(self.labelsheader,
               self.getmessageheader(content, self.labelsheader))
-
+            self.messagelist[uid]['labels_cached'] = True
 
         return self.messagelist[uid]['labels']
+
 
     def getmessagemtime(self, uid):
         if not 'mtime' in self.messagelist[uid]:
