@@ -202,6 +202,10 @@ class IMAPFolder(BaseFolder):
 
         return msgsToFetch
 
+    # Interface from BaseFolder
+    def msglist_item_initializer(self, uid):
+        return {'uid': uid, 'flags': set(), 'time': 0}
+
 
     # Interface from BaseFolder
     def cachemessagelist(self):
@@ -239,6 +243,7 @@ class IMAPFolder(BaseFolder):
                                           minor = 1)
             else:
                 uid = long(options['UID'])
+                self.messagelist[uid] = self.msglist_item_initializer(uid)
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
                 rtime = imaplibutil.Internaldate2epoch(messagestr)
                 self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
@@ -641,7 +646,8 @@ class IMAPFolder(BaseFolder):
             if imapobj: self.imapserver.releaseconnection(imapobj)
 
         if uid: # avoid UID FETCH 0 crash happening later on
-            self.messagelist[uid] = {'uid': uid, 'flags': flags}
+            self.messagelist[uid] = self.msglist_item_initializer(uid)
+            self.messagelist[uid]['flags'] = flags
 
         self.ui.debug('imap', 'savemessage: returning new UID %d' % uid)
         return uid
@@ -755,14 +761,7 @@ class IMAPFolder(BaseFolder):
     def deletemessagesflags(self, uidlist, flags):
         self.__processmessagesflags('-', uidlist, flags)
 
-    def __processmessagesflags(self, operation, uidlist, flags):
-        # XXX: should really iterate over batches of 100 UIDs
-        if len(uidlist) > 101:
-            # Hack for those IMAP servers with a limited line length
-            self.__processmessagesflags(operation, uidlist[:100], flags)
-            self.__processmessagesflags(operation, uidlist[100:], flags)
-            return
-
+    def __processmessagesflags_real(self, operation, uidlist, flags):
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
@@ -803,6 +802,16 @@ class IMAPFolder(BaseFolder):
                 self.messagelist[uid]['flags'] |= flags
             elif operation == '-':
                 self.messagelist[uid]['flags'] -= flags
+
+
+    def __processmessagesflags(self, operation, uidlist, flags):
+        # Hack for those IMAP servers with a limited line length
+        batch_size = 100
+        for i in xrange(0, len(uidlist), batch_size):
+            self.__processmessagesflags_real(operation,
+              uidlist[i:i + batch_size], flags)
+        return
+
 
     # Interface from BaseFolder
     def change_message_uid(self, uid, new_uid):

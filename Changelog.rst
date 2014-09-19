@@ -8,6 +8,10 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Create SQLite database directory if it doesn't exist
+  yet; warn if path is not a directory (Nick Farrell,
+  GutHub pull #102)
+
 * Fix mangled message headers for servers without UIDPLUS:
   X-OfflineIMAP was added with preceeding '\n' instead of
   '\r\n' just before message was uploaded to the IMAP server.
@@ -16,6 +20,8 @@ OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
   6.5.5 in setup.py and other places).
 
 * Various fixes in documentation.
+
+* Fix unbounded recursion during flag update (Josh Berry).
 
 
 OfflineIMAP v6.5.6 (2014-05-14)

@@ -57,6 +57,11 @@ class LocalStatusFolder(BaseFolder):
             os.unlink(self.filename)
 
 
+    # Interface from BaseFolder
+    def msglist_item_initializer(self, uid):
+        return {'uid': uid, 'flags': set(), 'labels': set(), 'time': 0, 'mtime': 0}
+
+
     def readstatus_v1(self, fp):
         """
         Read status folder in format version 1.
@@ -76,7 +81,8 @@ class LocalStatusFolder(BaseFolder):
                     (line, self.filename)
                 self.ui.warn(errstr)
                 raise ValueError(errstr)
-            self.messagelist[uid] = {'uid': uid, 'flags': flags, 'mtime': 0, 'labels': set()}
+            self.messagelist[uid] = self.msglist_item_initializer(uid)
+            self.messagelist[uid]['flags'] = flags
 
 
     def readstatus(self, fp):
@@ -100,7 +106,10 @@ class LocalStatusFolder(BaseFolder):
                     (line, self.filename)
                 self.ui.warn(errstr)
                 raise ValueError(errstr)
-            self.messagelist[uid] = {'uid': uid, 'flags': flags, 'mtime': mtime, 'labels': labels}
+            self.messagelist[uid] = self.msglist_item_initializer(uid)
+            self.messagelist[uid]['flags'] = flags
+            self.messagelist[uid]['mtime'] = mtime
+            self.messagelist[uid]['labels'] = labels
 
 
     # Interface from BaseFolder
@@ -197,7 +206,11 @@ class LocalStatusFolder(BaseFolder):
             self.savemessageflags(uid, flags)
             return uid
 
-        self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime, 'mtime': mtime, 'labels': labels}
+        self.messagelist[uid] = self.msglist_item_initializer(uid)
+        self.messagelist[uid]['flags'] = flags
+        self.messagelist[uid]['time'] = rtime
+        self.messagelist[uid]['mtime'] = mtime
+        self.messagelist[uid]['labels'] = labels
         self.save()
         return uid
 
