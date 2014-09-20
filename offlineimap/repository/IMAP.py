@@ -19,6 +19,7 @@ from offlineimap.repository.Base import BaseRepository
 from offlineimap import folder, imaputil, imapserver, OfflineImapError
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
+from offlineimap.utils import get_system_default_cacertfile
 from threading import Event
 import os
 from sys import exc_info
@@ -200,7 +201,8 @@ class IMAPRepository(BaseRepository):
 
     def getsslcacertfile(self):
         """Return the absolute path of the CA certfile to use, if any"""
-        cacertfile = self.getconf('sslcacertfile', None)
+        cacertfile = self.getconf('sslcacertfile', 
+                                  get_system_default_cacertfile(self.ui))
         if cacertfile is None:
             return None
         cacertfile = os.path.expanduser(cacertfile)
