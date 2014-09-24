@@ -24,6 +24,10 @@ except ImportError: #python3
 from offlineimap.localeval import LocalEval
 
 class CustomConfigParser(SafeConfigParser):
+    def __init__(self):
+        SafeConfigParser.__init__(self)
+        self.localeval = None
+
     def getdefault(self, section, option, default, *args, **kwargs):
         """Same as config.get, but returns the value of `default`
         if there is no such option specified."""
@@ -91,13 +95,19 @@ class CustomConfigParser(SafeConfigParser):
         return metadatadir
 
     def getlocaleval(self):
+        # We already loaded pythonfile, so return this copy.
+        if self.localeval is not None:
+            return self.localeval
+
         xforms = [os.path.expanduser, os.path.expandvars]
         if self.has_option("general", "pythonfile"):
             path = self.get("general", "pythonfile")
             path = self.apply_xforms(path, xforms)
         else:
             path = None
-        return LocalEval(path)
+
+        self.localeval = LocalEval(path)
+        return self.localeval
 
     def getsectionlist(self, key):
         """Returns a list of sections that start with (str) key + " ".
