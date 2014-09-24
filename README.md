@@ -17,9 +17,10 @@ documentation.
 OfflineIMAP does not require additional python dependencies beyond python >=2.6
 (although python-sqlite is strongly recommended).
 
-OfflineIMAP is a Free Software project licensed under the GNU General Public
-License version 2 (or later). You can download it for free, and you can modify
-it. In fact, you are encouraged to contribute to OfflineIMAP.
+OfflineIMAP is a Free Software project licensed under the GNU General
+Public License version 2 (or later) with a special exception that allows
+the OpenSSL library to be used. You can download it for free, and you
+can modify it. In fact, you are encouraged to contribute to OfflineIMAP.
 
 Documentation
 -------------
