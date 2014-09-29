@@ -29,9 +29,9 @@ protocol = '7.0.0'
 class MachineLogFormatter(logging.Formatter):
     """urlencodes any outputted line, to avoid multi-line output"""
     def format(self, record):
-        # urlencode the "mesg" attribute and append to regular line...
+        # urlencode the "msg" attribute and append to regular line...
         line = super(MachineLogFormatter, self).format(record)
-        return line + urlencode([('', record.mesg)])[1:]
+        return line + urlencode([('', record.msg)])[1:]
 
 class MachineUI(UIBase):
     def __init__(self, config, loglevel = logging.INFO):
