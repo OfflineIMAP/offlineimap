@@ -8,6 +8,9 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Fix warning-level message processing by MachineUI
+  (GitHub pull #64, GitHub pull #118).
+
 * Support default CA bundle locations for a couple of
   known Unix systems (Michael Vogt, GutHub pull #19)
 
