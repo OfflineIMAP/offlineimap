@@ -103,9 +103,11 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
     def getmapdir(self):
         return self.mapdir
 
+    # Interface from CustomConfig.ConfigHelperMixin
     def getsection(self):
         return 'Repository ' + self.name
 
+    # Interface from CustomConfig.ConfigHelperMixin
     def getconfig(self):
         return self.config
 
