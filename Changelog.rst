@@ -8,6 +8,9 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Support default CA bundle locations for a couple of
+  known Unix systems (Michael Vogt, GutHub pull #19)
+
 * Create SQLite database directory if it doesn't exist
   yet; warn if path is not a directory (Nick Farrell,
   GutHub pull #102)
