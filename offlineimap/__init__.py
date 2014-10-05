@@ -8,7 +8,7 @@ __copyright__   = "Copyright 2002-2013 John Goerzen & contributors"
 __author__      = "John Goerzen"
 __author_email__= "john@complete.org"
 __description__ = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
-__license__  = "Licensed under the GNU GPL v2 or any later version (with an openssl exception)"
+__license__  = "Licensed under the GNU GPL v2 or any later version (with an OpenSSL exception)"
 __bigcopyright__ = """%(__productname__)s %(__bigversion__)s
   %(__license__)s""" % locals()
 __homepage__ = "http://offlineimap.org"
