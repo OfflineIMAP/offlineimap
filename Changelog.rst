@@ -8,6 +8,12 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Added OpenSSL exception clause to our main GPL to allow
+  people to link with OpenSSL in run-time.  It is needed
+  at least for Debian, see
+    https://lists.debian.org/debian-legal/2002/10/msg00113.html
+  for details.
+
 * Fix warning-level message processing by MachineUI
   (GitHub pull #64, GitHub pull #118).
 
