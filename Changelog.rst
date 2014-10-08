@@ -8,6 +8,9 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Added default CA bundle location for OpenBSD
+  (GitHub pull #120).
+
 * Added OpenSSL exception clause to our main GPL to allow
   people to link with OpenSSL in run-time.  It is needed
   at least for Debian, see
