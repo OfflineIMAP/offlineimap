@@ -15,7 +15,7 @@ __DEF_OS_LOCATIONS = {
     'freebsd': '/usr/local/share/certs/ca-root-nss.crt',
     'openbsd': '/etc/ssl/cert.pem',
     'netbsd': None,
-    'dragonfly': None,
+    'dragonfly': '/etc/ssl/cert.pem',
     'darwin': [
       # MacPorts, port curl-ca-bundle
       '/opt/local/share/curl/curl-ca-bundle.crt',
