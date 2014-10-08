@@ -28,82 +28,107 @@ protocol = '7.0.0'
 
 class MachineLogFormatter(logging.Formatter):
     """urlencodes any outputted line, to avoid multi-line output"""
-    def format(self, record):
-        # urlencode the "mesg" attribute and append to regular line...
-        line = super(MachineLogFormatter, self).format(record)
-        return line + urlencode([('', record.mesg)])[1:]
+    def format(s, record):
+        # Mapping of log levels to historic tag names
+        severity_map = {
+         'info': 'msg',
+         'warning': 'warn',
+        }
+        line = super(MachineLogFormatter, s).format(record)
+        severity = record.levelname.lower()
+        if severity in severity_map:
+            severity = severity_map[severity]
+        if hasattr(record, "machineui"):
+            command = record.machineui["command"]
+            whoami = record.machineui["id"]
+        else:
+            command = ""
+            whoami = currentThread().getName()
+
+        prefix = "%s:%s" % (command, urlencode([('', whoami)])[1:])
+        return "%s:%s:%s" % (severity, prefix, urlencode([('', line)])[1:])
+
 
 class MachineUI(UIBase):
-    def __init__(self, config, loglevel = logging.INFO):
-        super(MachineUI, self).__init__(config, loglevel)
-        self._log_con_handler.createLock()
+    def __init__(s, config, loglevel = logging.INFO):
+        super(MachineUI, s).__init__(config, loglevel)
+        s._log_con_handler.createLock()
         """lock needed to block on password input"""
         # Set up the formatter that urlencodes the strings...
-        self._log_con_handler.setFormatter(MachineLogFormatter())
+        s._log_con_handler.setFormatter(MachineLogFormatter())
 
-    def _printData(self, command, msg):
-        self.logger.info("%s:%s:%s" % (
-                'msg', command, currentThread().getName()), extra={'mesg': msg})
+    # Arguments:
+    # - handler: must be method from s.logger that reflects
+    #   the severity of the passed message
+    # - command: command that produced this message
+    # - msg: the message itself
+    def _printData(s, handler, command, msg):
+        handler(msg,
+                extra = {
+                  'machineui': {
+                   'command': command,
+                   'id': currentThread().getName(),
+                  }
+                })
 
     def _msg(s, msg):
-        s._printData('_display', msg)
+        s._printData(s.logger.info, '_display', msg)
 
-    def warn(self, msg, minor = 0):
+    def warn(s, msg, minor = 0):
         # TODO, remove and cleanup the unused minor stuff
-        self.logger.warning("%s:%s:%s:%s" % (
-                'warn', '', currentThread().getName(), msg))
+        s._printData(s.logger.warning, '', msg)
 
-    def registerthread(self, account):
-        super(MachineUI, self).registerthread(account)
-        self._printData('registerthread', account)
+    def registerthread(s, account):
+        super(MachineUI, s).registerthread(account)
+        s._printData(s.logger.info, 'registerthread', account)
 
     def unregisterthread(s, thread):
         UIBase.unregisterthread(s, thread)
-        s._printData('unregisterthread', thread.getName())
+        s._printData(s.logger.info, 'unregisterthread', thread.getName())
 
     def debugging(s, debugtype):
-        s._printData('debugging', debugtype)
+        s._printData(s.logger.debug, 'debugging', debugtype)
 
     def acct(s, accountname):
-        s._printData('acct', accountname)
+        s._printData(s.logger.info, 'acct', accountname)
 
     def acctdone(s, accountname):
-        s._printData('acctdone', accountname)
+        s._printData(s.logger.info, 'acctdone', accountname)
 
     def validityproblem(s, folder):
-        s._printData('validityproblem', "%s\n%s\n%s\n%s" % \
+        s._printData(s.logger.warning, 'validityproblem', "%s\n%s\n%s\n%s" % \
                 (folder.getname(), folder.getrepository().getname(),
                  folder.get_saveduidvalidity(), folder.get_uidvalidity()))
 
     def connecting(s, hostname, port):
-        s._printData('connecting', "%s\n%s" % (hostname, str(port)))
+        s._printData(s.logger.info, 'connecting', "%s\n%s" % (hostname, str(port)))
 
     def syncfolders(s, srcrepos, destrepos):
-        s._printData('syncfolders', "%s\n%s" % (s.getnicename(srcrepos),
+        s._printData(s.logger.info, 'syncfolders', "%s\n%s" % (s.getnicename(srcrepos),
                                                 s.getnicename(destrepos)))
 
     def syncingfolder(s, srcrepos, srcfolder, destrepos, destfolder):
-        s._printData('syncingfolder', "%s\n%s\n%s\n%s\n" % \
+        s._printData(s.logger.info, 'syncingfolder', "%s\n%s\n%s\n%s\n" % \
                 (s.getnicename(srcrepos), srcfolder.getname(),
                  s.getnicename(destrepos), destfolder.getname()))
 
     def loadmessagelist(s, repos, folder):
-        s._printData('loadmessagelist', "%s\n%s" % (s.getnicename(repos),
+        s._printData(s.logger.info, 'loadmessagelist', "%s\n%s" % (s.getnicename(repos),
                                                     folder.getvisiblename()))
 
     def messagelistloaded(s, repos, folder, count):
-        s._printData('messagelistloaded', "%s\n%s\n%d" % \
+        s._printData(s.logger.info, 'messagelistloaded', "%s\n%s\n%d" % \
                 (s.getnicename(repos), folder.getname(), count))
 
     def syncingmessages(s, sr, sf, dr, df):
-        s._printData('syncingmessages', "%s\n%s\n%s\n%s\n" % \
+        s._printData(s.logger.info, 'syncingmessages', "%s\n%s\n%s\n%s\n" % \
                 (s.getnicename(sr), sf.getname(), s.getnicename(dr),
                  df.getname()))
 
-    def copyingmessage(self, uid, num, num_to_copy, srcfolder, destfolder):
-        self._printData('copyingmessage', "%d\n%s\n%s\n%s[%s]" % \
-                (uid, self.getnicename(srcfolder), srcfolder.getname(),
-                 self.getnicename(destfolder), destfolder))
+    def copyingmessage(s, uid, num, num_to_copy, srcfolder, destfolder):
+        s._printData(s.logger.info, 'copyingmessage', "%d\n%s\n%s\n%s[%s]" % \
+                (uid, s.getnicename(srcfolder), srcfolder.getname(),
+                 s.getnicename(destfolder), destfolder))
 
     def folderlist(s, list):
         return ("\f".join(["%s\t%s" % (s.getnicename(x), x.getname()) for x in list]))
@@ -113,57 +138,58 @@ class MachineUI(UIBase):
 
     def deletingmessages(s, uidlist, destlist):
         ds = s.folderlist(destlist)
-        s._printData('deletingmessages', "%s\n%s" % (s.uidlist(uidlist), ds))
+        s._printData(s.logger.info, 'deletingmessages', "%s\n%s" % (s.uidlist(uidlist), ds))
 
     def addingflags(s, uidlist, flags, dest):
-        s._printData("addingflags", "%s\n%s\n%s" % (s.uidlist(uidlist),
+        s._printData(s.logger.info, "addingflags", "%s\n%s\n%s" % (s.uidlist(uidlist),
                                                     "\f".join(flags),
                                                     dest))
 
     def deletingflags(s, uidlist, flags, dest):
-        s._printData('deletingflags', "%s\n%s\n%s" % (s.uidlist(uidlist),
+        s._printData(s.logger.info, 'deletingflags', "%s\n%s\n%s" % (s.uidlist(uidlist),
                                                       "\f".join(flags),
                                                       dest))
 
-    def threadException(self, thread):
-        self._printData('threadException', "%s\n%s" % \
-                     (thread.getName(), self.getThreadExceptionString(thread)))
-        self.delThreadDebugLog(thread)
-        self.terminate(100)
+    def threadException(s, thread):
+        s._printData(s.logger.warning, 'threadException', "%s\n%s" % \
+                     (thread.getName(), s.getThreadExceptionString(thread)))
+        s.delThreadDebugLog(thread)
+        s.terminate(100)
 
     def terminate(s, exitstatus = 0, errortitle = '', errormsg = ''):
-        s._printData('terminate', "%d\n%s\n%s" % (exitstatus, errortitle, errormsg))
+        s._printData(s.logger.info, 'terminate', "%d\n%s\n%s" % (exitstatus, errortitle, errormsg))
         sys.exit(exitstatus)
 
     def mainException(s):
-        s._printData('mainException', s.getMainExceptionString())
+        s._printData(s.logger.warning, 'mainException', s.getMainExceptionString())
 
     def threadExited(s, thread):
-        s._printData('threadExited', thread.getName())
+        s._printData(s.logger.info, 'threadExited', thread.getName())
         UIBase.threadExited(s, thread)
 
     def sleeping(s, sleepsecs, remainingsecs):
-        s._printData('sleeping', "%d\n%d" % (sleepsecs, remainingsecs))
+        s._printData(s.logger.info, 'sleeping', "%d\n%d" % (sleepsecs, remainingsecs))
         if sleepsecs > 0:
             time.sleep(sleepsecs)
         return 0
 
 
-    def getpass(self, accountname, config, errmsg = None):
+    def getpass(s, accountname, config, errmsg = None):
         if errmsg:
-            self._printData('getpasserror', "%s\n%s" % (accountname, errmsg),
-                         False)
+            s._printData(s.logger.warning,
+              'getpasserror', "%s\n%s" % (accountname, errmsg),
+              False)
 
-        self._log_con_handler.acquire() # lock the console output
+        s._log_con_handler.acquire() # lock the console output
         try:
-            self._printData('getpass', accountname, False)
+            s._printData(s.logger.info, 'getpass', accountname, False)
             return (sys.stdin.readline()[:-1])
         finally:
-            self._log_con_handler.release()
+            s._log_con_handler.release()
 
-    def init_banner(self):
-        self._printData('protocol', protocol)
-        self._printData('initbanner', offlineimap.banner)
+    def init_banner(s):
+        s._printData(s.logger.info, 'protocol', protocol)
+        s._printData(s.logger.info, 'initbanner', offlineimap.banner)
 
-    def callhook(self, msg):
-        self._printData('callhook', msg)
+    def callhook(s, msg):
+        s._printData(s.logger.info, 'callhook', msg)
