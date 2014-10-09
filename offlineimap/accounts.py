@@ -78,6 +78,7 @@ class Account(CustomConfig.ConfigHelperMixin):
     def getlocaleval(self):
         return self.localeval
 
+    # Interface from CustomConfig.ConfigHelperMixin
     def getconfig(self):
         return self.config
 
@@ -90,6 +91,7 @@ class Account(CustomConfig.ConfigHelperMixin):
     def getaccountmeta(self):
         return os.path.join(self.metadatadir, 'Account-' + self.name)
 
+    # Interface from CustomConfig.ConfigHelperMixin
     def getsection(self):
         return 'Account ' + self.getname()
 
