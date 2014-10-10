@@ -378,7 +378,7 @@ class IMAP4(object):
             elif self._get_untagged_response('OK'):
                 if __debug__: self._log(1, 'state => NONAUTH')
             else:
-                raise self.error('unrecognised server welcome message: %s' % `self.welcome`)
+                raise self.error('unrecognised server welcome message: %s' % repr(self.welcome))
 
             typ, dat = self.capability()
             if dat == [None]:
@@ -1603,7 +1603,7 @@ class IMAP4(object):
             tag = rqb.tag
         self.tagged_commands[tag] = rqb
         self.commands_lock.release()
-        if __debug__: self._log(4, '_request_push(%s, %s, %s) = %s' % (tag, name, `kw`, rqb.tag))
+        if __debug__: self._log(4, '_request_push(%s, %s, %s) = %s' % (tag, name, repr(kw), rqb.tag))
         return rqb
 
 
@@ -1707,7 +1707,7 @@ class IMAP4(object):
 
         self.Terminate = True
 
-        if __debug__: self._log(1, 'terminating: %s' % `val`)
+        if __debug__: self._log(1, 'terminating: %s' % repr(val))
 
         while not self.ouq.empty():
             try:
@@ -1760,7 +1760,7 @@ class IMAP4(object):
                 timeout = read_poll_timeout
             try:
                 r = poll.poll(timeout)
-                if __debug__: self._log(5, 'poll => %s' % `r`)
+                if __debug__: self._log(5, 'poll => %s' % repr(r))
                 if not r:
                     continue                                    # Timeout
 
@@ -2480,11 +2480,11 @@ if __name__ == '__main__':
             run('append', (None, None, None, test_mesg), cb=False)
             num = run('search', (None, 'ALL'), cb=False)[0].split()[0]
             dat = run('fetch', (num, '(FLAGS INTERNALDATE RFC822)'), cb=False)
-            M._mesg('fetch %s => %s' % (num, `dat`))
+            M._mesg('fetch %s => %s' % (num, repr(dat)))
             run('idle', (2,))
             run('store', (num, '-FLAGS', '(\Seen)'), cb=False),
             dat = run('fetch', (num, '(FLAGS INTERNALDATE RFC822)'), cb=False)
-            M._mesg('fetch %s => %s' % (num, `dat`))
+            M._mesg('fetch %s => %s' % (num, repr(dat)))
             run('uid', ('STORE', num, 'FLAGS', '(\Deleted)'))
             run('expunge', ())
             if idle_intr:
