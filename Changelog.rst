@@ -8,6 +8,9 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Updated bundled imaplib2 to 2.37:
+  - add missing idle_lock in _handler()
+
 * Added default CA bundle location for OpenBSD
   (GitHub pull #120) and DragonFlyBSD.
 
