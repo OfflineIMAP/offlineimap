@@ -23,7 +23,7 @@ from sys import exc_info
 from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
 from offlineimap import globals
-from offlineimap.imaplib2 import MonthNames
+from imaplib2.imaplib2 import MonthNames
 
 
 # Globals
