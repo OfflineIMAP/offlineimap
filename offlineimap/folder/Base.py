@@ -29,8 +29,8 @@ import offlineimap.accounts
 class BaseFolder(object):
     def __init__(self, name, repository):
         """
-        :para name: Path & name of folder minus root or reference
-        :para repository: Repository() in which the folder is.
+        :param name: Path & name of folder minus root or reference
+        :param repository: Repository() in which the folder is.
         """
 
         self.ui = getglobalui()
