@@ -411,43 +411,43 @@ class BaseFolder(object):
         missing or empty.  Here are illustrations for all the cases,
         showing where the header gets inserted and what the end result
         is.  In each illustration, '+' means the added contents.  Note
-        that these examples assume LF for linebreak, not CRLF, so '\n'
-        denotes a linebreak and '\n\n' corresponds to the transition
+        that these examples assume LF for linebreak, not CRLF, so '\\\\n'
+        denotes a linebreak and '\\\\n\\\\n' corresponds to the transition
         between header and body.  However if the linebreak parameter
-        is set to '\r\n' then you would have to substitute '\r\n' for
-        '\n' in the below examples.
+        is set to '\\\\r\\\\n' then you would have to substitute '\\\\r\\\\n' for
+        '\\\\n' in the below examples.
 
-          * Case 1: No '\n\n', leading '\n'
+          * Case 1: No '\\\\n\\\\n', leading '\\\\n'
 
-            +X-Flying-Pig-Header: i am here\n
-            \n
-            This is the body\n
-            next line\n
+            +X-Flying-Pig-Header: i am here\\\\n
+            \\\\n
+            This is the body\\\\n
+            next line\\\\n
 
-          * Case 2: '\n\n' at position 0
+          * Case 2: '\\\\n\\\\n' at position 0
 
             +X-Flying-Pig-Header: i am here
-            \n
-            \n
-            This is the body\n
-            next line\n
+            \\\\n
+            \\\\n
+            This is the body\\\\n
+            next line\\\\n
 
-          * Case 3: No '\n\n', no leading '\n'
+          * Case 3: No '\\\\n\\\\n', no leading '\\\\n'
 
-            +X-Flying-Pig-Header: i am here\n
-            +\n
-            This is the body\n
-            next line\n
+            +X-Flying-Pig-Header: i am here\\\\n
+            +\\\\n
+            This is the body\\\\n
+            next line\\\\n
 
-          * Case 4: '\n\n' at non-zero position
+          * Case 4: '\\\\n\\\\n' at non-zero position
 
-            Subject: Something wrong with OI\n
+            Subject: Something wrong with OI\\\\n
             From: some@person.at
-            +\nX-Flying-Pig-Header: i am here
-            \n
-            \n
-            This is the body\n
-            next line\n
+            +\\\\nX-Flying-Pig-Header: i am here
+            \\\\n
+            \\\\n
+            This is the body\\\\n
+            next line\\\\n
         """
         self.ui.debug('',
                  'addmessageheader: called to add %s: %s' % (headername,
@@ -543,7 +543,7 @@ class BaseFolder(object):
         - content: message itself
         - header_list: list of headers to be deleted or just the header name
 
-        We expect our message to have '\n' as line endings.
+        We expect our message to have '\\\\n' as line endings.
 
         """
         if type(header_list) != type([]):
