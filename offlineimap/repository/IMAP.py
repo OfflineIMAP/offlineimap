@@ -201,11 +201,11 @@ class IMAPRepository(BaseRepository):
 
     def getsslcacertfile(self):
         """Return the absolute path of the CA certfile to use, if any"""
-        cacertfile = self.getconf('sslcacertfile', get_os_sslcertfile())
+        xforms = [os.path.expanduser, os.path.abspath]
+        cacertfile = self.getconf_xform('sslcacertfile', xforms,
+          get_os_sslcertfile())
         if cacertfile is None:
             return None
-        cacertfile = os.path.expanduser(cacertfile)
-        cacertfile = os.path.abspath(cacertfile)
         if not os.path.isfile(cacertfile):
             raise SyntaxWarning("CA certfile for repository '%s' could "
                                 "not be found. No such file: '%s'" \
