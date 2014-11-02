@@ -94,7 +94,7 @@ class CustomConfigParser(SafeConfigParser):
             return default
 
     def getmetadatadir(self):
-        xforms = [os.path.expanduser]
+        xforms = [os.path.expanduser, os.path.expandvars]
         d = self.getdefault("general", "metadata", "~/.offlineimap")
         metadatadir = self.apply_xforms(d, xforms)
         if not os.path.exists(metadatadir):
@@ -102,7 +102,7 @@ class CustomConfigParser(SafeConfigParser):
         return metadatadir
 
     def getlocaleval(self):
-        xforms = [os.path.expanduser]
+        xforms = [os.path.expanduser, os.path.expandvars]
         if self.has_option("general", "pythonfile"):
             path = self.apply_xforms(self.get("general", "pythonfile"), xforms)
         else:
