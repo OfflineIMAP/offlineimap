@@ -8,6 +8,18 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Expand environment variables in the following
+  configuration items:
+  - general.pythonfile;
+  - general.metadata;
+  - mbnames.filename;
+  - Repository.localfolders.
+  - Repository.sslcacertfile.
+  Make tilde and environment variable expansion in the following
+  configuration items:
+  - Repository.sslclientcert;
+  - Repository.sslclientkey.
+
 * Updated bundled imaplib2 to 2.37:
   - add missing idle_lock in _handler()
 

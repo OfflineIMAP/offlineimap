@@ -49,12 +49,14 @@ def write():
 def __genmbnames():
     """Takes a configparser object and a boxlist, which is a list of hashes
     containing 'accountname' and 'foldername' keys."""
+    xforms = [os.path.expanduser, os.path.expandvars]
     mblock.acquire()
     try:
         localeval = config.getlocaleval()
         if not config.getdefaultboolean("mbnames", "enabled", 0):
             return
-        file = open(os.path.expanduser(config.get("mbnames", "filename")), "wt")
+        path = config.apply_xform(config.get("mbnames", "filename"), xforms)
+        file = open(path, "wt")
         file.write(localeval.eval(config.get("mbnames", "header")))
         folderfilter = lambda accountname, foldername: 1
         if config.has_option("mbnames", "folderfilter"):
