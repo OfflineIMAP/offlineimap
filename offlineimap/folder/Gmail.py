@@ -189,8 +189,9 @@ class GmailFolder(IMAPFolder):
         if not self.synclabels:
             return super(GmailFolder, self).savemessage(uid, content, flags, rtime)
 
-        labels = imaputil.labels_from_header(self.labelsheader,
-          self.getmessageheader(content, self.labelsheader))
+        labels = set()
+        for hstr in self.getmessageheaderlist(content, self.labelsheader):
+            labels.update(imaputil.labels_from_header(self.labelsheader, hstr))
 
         ret = super(GmailFolder, self).savemessage(uid, content, flags, rtime)
         self.savemessagelabels(ret, labels)
