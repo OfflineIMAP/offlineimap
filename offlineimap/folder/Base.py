@@ -401,6 +401,9 @@ class BaseFolder(object):
         """
         Adds new header to the provided message.
 
+        WARNING: This function is a bit tricky, and modifying it in the wrong way,
+        may easily lead to data-loss.
+
         Arguments:
         - content: message content, headers and body as a single string
         - linebreak: string that carries line ending
