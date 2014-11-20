@@ -93,6 +93,10 @@ class GmailFolder(IMAPFolder):
                 labels = set()
             labels = labels - self.ignorelabels
             labels_str = imaputil.format_labels_string(self.labelsheader, sorted(labels))
+
+            # First remove old label headers that may be in the message content retrieved
+            # from gmail Then add a labels header with current gmail labels.
+            body = self.deletemessageheaders(body, self.labelsheader)
             body = self.addmessageheader(body, '\n', self.labelsheader, labels_str)
 
         if len(body)>200:

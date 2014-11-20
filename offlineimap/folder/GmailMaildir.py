@@ -153,7 +153,11 @@ class GmailMaildirFolder(MaildirFolder):
         # Change labels into content
         labels_str = imaputil.format_labels_string(self.labelsheader,
           sorted(labels | ignoredlabels))
+
+        # First remove old labels header, and then add the new one
+        content = self.deletemessageheaders(content, self.labelsheader)
         content = self.addmessageheader(content, '\n', self.labelsheader, labels_str)
+
         rtime = self.messagelist[uid].get('rtime', None)
 
         # write file with new labels to a unique file in tmp
