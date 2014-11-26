@@ -94,14 +94,17 @@ class CustomConfigParser(SafeConfigParser):
             return default
 
     def getmetadatadir(self):
-        metadatadir = os.path.expanduser(self.getdefault("general", "metadata", "~/.offlineimap"))
+        xforms = [os.path.expanduser, os.path.expandvars]
+        d = self.getdefault("general", "metadata", "~/.offlineimap")
+        metadatadir = self.apply_xforms(d, xforms)
         if not os.path.exists(metadatadir):
             os.mkdir(metadatadir, 0o700)
         return metadatadir
 
     def getlocaleval(self):
+        xforms = [os.path.expanduser, os.path.expandvars]
         if self.has_option("general", "pythonfile"):
-            path = os.path.expanduser(self.get("general", "pythonfile"))
+            path = self.apply_xforms(self.get("general", "pythonfile"), xforms)
         else:
             path = None
         return LocalEval(path)
@@ -130,6 +133,26 @@ class CustomConfigParser(SafeConfigParser):
         """
         if not self.has_option(section, option):
             self.set(section, option, value)
+
+
+    def apply_xforms(self, string, transforms):
+        """
+        Applies set of transformations to a string.
+
+        Arguments:
+         - string: source string; if None, then no processing will
+           take place.
+         - transforms: iterable that returns transformation function
+           on each turn.
+
+        Returns transformed string.
+
+        """
+        if string == None:
+            return None
+        for f in transforms:
+            string = f(string)
+        return string
 
 
 
@@ -161,9 +184,10 @@ class ConfigHelperMixin:
     
     """
 
+
     def _confighelper_runner(self, option, default, defaultfunc, mainfunc, *args):
         """
-        Return configuration or default value for option
+        Returns configuration or default value for option
         that contains in section identified by getsection().
 
         Arguments:
@@ -213,27 +237,96 @@ class ConfigHelperMixin:
 
 
     def getconf(self, option, default = CustomConfigDefault):
+        """
+        Retrieves string from the configuration.
+
+        Arguments:
+         - option: option name whose value is to be retrieved;
+         - default: default return value if no such option
+           exists.
+
+        """
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefault,
                                          self.getconfig().get)
 
+
+    def getconf_xform(self, option, xforms, default = CustomConfigDefault):
+        """
+        Retrieves string from the configuration transforming the result.
+
+        Arguments:
+         - option: option name whose value is to be retrieved;
+         - xforms: iterable that returns transform functions
+           to be applied to the value of the option,
+           both retrieved and default one;
+         - default: default value for string if no such option
+           exists.
+
+        """
+        value = self.getconf(option, default)
+        return self.getconfig().apply_xforms(value, xforms)
+
+
     def getconfboolean(self, option, default = CustomConfigDefault):
+        """
+        Retrieves boolean value from the configuration.
+
+        Arguments:
+         - option: option name whose value is to be retrieved;
+         - default: default return value if no such option
+           exists.
+
+        """
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultboolean,
                                          self.getconfig().getboolean)
 
+
     def getconfint(self, option, default = CustomConfigDefault):
+        """
+        Retrieves integer value from the configuration.
+
+        Arguments:
+         - option: option name whose value is to be retrieved;
+         - default: default return value if no such option
+           exists.
+
+        """
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultint,
                                          self.getconfig().getint)
 
+
     def getconffloat(self, option, default = CustomConfigDefault):
+        """
+        Retrieves floating-point value from the configuration.
+
+        Arguments:
+         - option: option name whose value is to be retrieved;
+         - default: default return value if no such option
+           exists.
+
+        """
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultfloat,
                                          self.getconfig().getfloat)
 
+
     def getconflist(self, option, separator_re,
                     default = CustomConfigDefault):
+        """
+        Retrieves strings from the configuration and splits it
+        into the list of strings.
+
+        Arguments:
+         - option: option name whose value is to be retrieved;
+         - separator_re: regular expression for separator
+           to be used for split operation;
+         - default: default return value if no such option
+           exists.
+
+        """
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultlist,
                                          self.getconfig().getlist, separator_re)
