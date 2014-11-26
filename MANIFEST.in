@@ -1,0 +1,14 @@
+global-exclude .gitignore .git *.bak *.orig *.rej
+include setup.py
+include COPYING
+include Changelog*
+include MAINTAINERS
+include MANIFEST.in
+include Makefile
+include README.md
+include offlineimap.conf*
+include offlineimap.py
+recursive-include offlineimap *.py
+recursive-include bin *
+recursive-include docs *
+recursive-include test *

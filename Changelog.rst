@@ -8,6 +8,8 @@ ChangeLog
 OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
 =================================
 
+* Properly generate tarball from "sdist" command (GitHub #137)
+
 * Expand environment variables in the following
   configuration items:
   - general.pythonfile;
