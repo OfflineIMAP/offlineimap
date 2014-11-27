@@ -55,7 +55,7 @@ def __genmbnames():
         localeval = config.getlocaleval()
         if not config.getdefaultboolean("mbnames", "enabled", 0):
             return
-        path = config.apply_xform(config.get("mbnames", "filename"), xforms)
+        path = config.apply_xforms(config.get("mbnames", "filename"), xforms)
         file = open(path, "wt")
         file.write(localeval.eval(config.get("mbnames", "header")))
         folderfilter = lambda accountname, foldername: 1
