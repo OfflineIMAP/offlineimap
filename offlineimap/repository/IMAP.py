@@ -128,12 +128,12 @@ class IMAPRepository(BaseRepository):
         return self.getconf('remote_identity', default=None)
 
     def get_auth_mechanisms(self):
-        supported = ["GSSAPI", "CRAM-MD5", "PLAIN", "LOGIN"]
+        supported = ["GSSAPI", "XOAUTH2", "CRAM-MD5", "PLAIN", "LOGIN"]
         # Mechanisms are ranged from the strongest to the
         # weakest ones.
         # TODO: we need DIGEST-MD5, it must come before CRAM-MD5
         # TODO: due to the chosen-plaintext resistance.
-        default = ["GSSAPI", "CRAM-MD5", "PLAIN", "LOGIN"]
+        default = ["GSSAPI", "XOAUTH2", "CRAM-MD5", "PLAIN", "LOGIN"]
 
         mechs = self.getconflist('auth_mechanisms', r',\s*',
           default)
@@ -315,6 +315,21 @@ class IMAPRepository(BaseRepository):
 
     def forgetfolders(self):
         self.folders = None
+
+    def getoauth2(self):
+        return self.getconfboolean('oauth2', False)
+
+    def getoauth2url(self):
+        return self.getconf('oauth2_url')
+
+    def getoauth2clientid(self):
+        return self.getconf('oauth2_client_id')
+
+    def getoauth2clientsecret(self):
+        return self.getconf('oauth2_client_secret')
+
+    def getoauth2refreshtoken(self):
+        return self.getconf('oauth2_refresh_token')
 
     def getfolders(self):
         if self.folders != None:

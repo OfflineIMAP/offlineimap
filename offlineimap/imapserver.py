@@ -24,6 +24,8 @@ import socket
 import base64
 import time
 import errno
+import json
+import urllib
 from sys import exc_info
 from socket import gaierror
 from ssl import SSLError, cert_time_to_seconds
@@ -69,6 +71,11 @@ class IMAPServer:
         self.user_identity = repos.get_remote_identity()
         self.authmechs = repos.get_auth_mechanisms()
         self.password = None
+        self.oauth2 = repos.getoauth2()
+        self.oauth2url = repos.getoauth2url() if self.oauth2 else None
+        self.oauth2clientid = repos.getoauth2clientid() if self.oauth2 else None
+        self.oauth2clientsecret = repos.getoauth2clientsecret() if self.oauth2 else None
+        self.oauth2refreshtoken = repos.getoauth2refreshtoken() if self.oauth2 else None
         self.passworderror = None
         self.goodpassword = None
 
@@ -145,6 +152,30 @@ class IMAPServer:
         retval = self.username + ' ' + hmac.new(passwd, challenge).hexdigest()
         self.ui.debug('imap', '__md5handler: returning %s' % retval)
         return retval
+
+
+    def __oauth2handler(self, response):
+        data = {
+            'client_id': self.oauth2clientid,
+            'client_secret': self.oauth2clientsecret,
+            'refresh_token': self.oauth2refreshtoken,
+            'grant_type': 'refresh_token'
+        }
+
+        try:
+            http = urllib.urlopen(self.oauth2url, urllib.urlencode(data))
+        except IOError:
+            raise OfflineImapError("Couldn't connect to OAUTH2 server", OfflineImapError.ERROR.REPO)
+        
+        try:
+            http = json.load(http)
+            retval = 'user=%s\001auth=Bearer %s\001\001' % (self.username, http['access_token'])
+        except ValueError, KeyError:
+            raise OfflineImapError("Malformed JSON response from OAUTH2 server", OfflineImapError.ERROR.REPO)
+        
+        self.ui.debug('imap', 'oauth2handler: returning %s' % retval)
+        return retval
+
 
     def __loginauth(self, imapobj):
         """ Basic authentication via LOGIN command """
@@ -245,6 +276,10 @@ class IMAPServer:
         finally:
             self.connectionlock.release()
 
+    def __authn_xoauth2(self, imapobj):
+        imapobj.authenticate('XOAUTH2', self.__oauth2handler)
+        return True
+
     def __authn_cram_md5(self, imapobj):
         imapobj.authenticate('CRAM-MD5', self.__md5handler)
         return True
@@ -286,6 +321,7 @@ class IMAPServer:
         # - check IMAP capability flag.
         auth_methods = {
           "GSSAPI": (self.__authn_gssapi, False, True),
+          "XOAUTH2": (self.__authn_xoauth2, True, True),
           "CRAM-MD5": (self.__authn_cram_md5, True, True),
           "PLAIN": (self.__authn_plain, True, True),
           "LOGIN": (self.__authn_login, True, False),

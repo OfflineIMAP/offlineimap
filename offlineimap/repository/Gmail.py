@@ -17,6 +17,7 @@
 
 from offlineimap.repository.IMAP import IMAPRepository
 from offlineimap import folder, OfflineImapError
+import ConfigParser
 
 class GmailRepository(IMAPRepository):
     """Gmail IMAP repository.
@@ -28,6 +29,8 @@ class GmailRepository(IMAPRepository):
     HOSTNAME = "imap.gmail.com"
     # Gmail IMAP server port
     PORT = 993
+    # Google Account OAUTH2 URL
+    OAUTH2_URL = "https://accounts.google.com/o/oauth2/token"
 
     def __init__(self, reposname, account):
         """Initialize a GmailRepository object."""
@@ -57,6 +60,13 @@ class GmailRepository(IMAPRepository):
 
     def getpreauthtunnel(self):
         return None
+
+    def getoauth2url(self):
+        try:
+            return super(GmailRepository, self).getoauth2url()
+        except ConfigParser.NoOptionError:
+            # nothing was configured, return hardcoded one
+            return GmailRepository.OAUTH2_URL
 
     def getfolder(self, foldername):
         return self.getfoldertype()(self.imapserver, foldername,
