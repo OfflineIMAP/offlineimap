@@ -194,18 +194,20 @@ class IMAPRepository(BaseRepository):
         return self.getconfboolean('ssl', 0)
 
     def getsslclientcert(self):
-        return self.getconf('sslclientcert', None)
+        xforms = [os.path.expanduser, os.path.expandvars, os.path.abspath]
+        return self.getconf_xform('sslclientcert', xforms, None)
 
     def getsslclientkey(self):
-        return self.getconf('sslclientkey', None)
+        xforms = [os.path.expanduser, os.path.expandvars, os.path.abspath]
+        return self.getconf_xform('sslclientkey', xforms, None)
 
     def getsslcacertfile(self):
         """Return the absolute path of the CA certfile to use, if any"""
-        cacertfile = self.getconf('sslcacertfile', get_os_sslcertfile())
+        xforms = [os.path.expanduser, os.path.expandvars, os.path.abspath]
+        cacertfile = self.getconf_xform('sslcacertfile', xforms,
+          get_os_sslcertfile())
         if cacertfile is None:
             return None
-        cacertfile = os.path.expanduser(cacertfile)
-        cacertfile = os.path.abspath(cacertfile)
         if not os.path.isfile(cacertfile):
             raise SyntaxWarning("CA certfile for repository '%s' could "
                                 "not be found. No such file: '%s'" \
