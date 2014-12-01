@@ -277,6 +277,9 @@ class IMAPServer:
             self.connectionlock.release()
 
     def __authn_xoauth2(self, imapobj):
+        if not self.oauth2:
+            return False
+
         imapobj.authenticate('XOAUTH2', self.__oauth2handler)
         return True
 
