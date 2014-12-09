@@ -80,7 +80,7 @@ class LocalStatusRepository(BaseRepository):
     def getsep(self):
         return '.'
 
-    def makefolder(self, foldername):
+    def makefolder(self, foldername, flags=[]):
         """Create a LocalStatus Folder"""
 
         if self.account.dryrun:

@@ -38,10 +38,10 @@ CRLF = '\r\n'
 
 
 class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name, repository):
+    def __init__(self, imapserver, name, repository, flags=[]):
         name = imaputil.dequote(name)
         self.sep = imapserver.delim
-        super(IMAPFolder, self).__init__(name, repository)
+        super(IMAPFolder, self).__init__(name, repository, flags)
         self.expunge = repository.getexpunge()
         self.root = None # imapserver.root
         self.imapserver = imapserver

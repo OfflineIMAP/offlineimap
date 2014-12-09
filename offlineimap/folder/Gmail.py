@@ -42,8 +42,8 @@ class GmailFolder(IMAPFolder):
       https://developers.google.com/google-apps/gmail/imap_extensions
     """
 
-    def __init__(self, imapserver, name, repository):
-        super(GmailFolder, self).__init__(imapserver, name, repository)
+    def __init__(self, imapserver, name, repository, flags=[]):
+        super(GmailFolder, self).__init__(imapserver, name, repository, flags)
         self.trash_folder = repository.gettrashfolder(name)
         # Gmail will really delete messages upon EXPUNGE in these folders
         self.real_delete_folders =  [ self.trash_folder, repository.getspamfolder() ]

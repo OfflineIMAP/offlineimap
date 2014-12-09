@@ -358,7 +358,7 @@ class IMAPRepository(BaseRepository):
                 continue
             foldername = imaputil.dequote(name)
             retval.append(self.getfoldertype()(self.imapserver, foldername,
-                                               self))
+                                               self, flaglist))
         # Add all folderincludes
         if len(self.folderincludes):
             imapobj = self.imapserver.acquireconnection()
@@ -399,7 +399,7 @@ class IMAPRepository(BaseRepository):
         self.folders = retval
         return self.folders
 
-    def makefolder(self, foldername):
+    def makefolder(self, foldername, flags=[]):
         """Create a folder on the IMAP server
 
         This will not update the list cached in :meth:`getfolders`. You
@@ -422,6 +422,16 @@ class IMAPRepository(BaseRepository):
                                        "Server responded: %s" % \
                                            (foldername, self, str(result)),
                                        OfflineImapError.ERROR.FOLDER)
+            
+            for flag in flags:
+
+                result = imapobj.setmetadata(foldername, "/private/specialuse", flag )
+                if result[0] != 'OK':
+                    raise OfflineImapError("Folder Metadata '%s'[%s] could not be setted. "
+                                           "Server responded: %s" % \
+                                               (foldername, self, str(result)),
+                                           OfflineImapError.ERROR.FOLDER)
+
         finally:
             self.imapserver.releaseconnection(imapobj)
 
