@@ -120,7 +120,7 @@ Take the above examples. If your remote nametrans setting was::
 
    nametrans = lambda folder: re.sub('^INBOX\.', '', folder)
 
-then you will want to have this in your local repository, prepending "INBOX" to any local folder name::
+then you will want to have this in your local repository, prepending "INBOX." to any local folder name::
 
    nametrans = lambda folder: 'INBOX.' + folder
 
