@@ -22,6 +22,7 @@ from offlineimap.threadutil import ExitNotifyThread
 from offlineimap.utils.distro import get_os_sslcertfile
 from threading import Event
 import os
+import sys
 from sys import exc_info
 import netrc
 import errno
@@ -431,6 +432,10 @@ class IMAPRepository(BaseRepository):
                                            "Server responded: %s" % \
                                                (foldername, self, str(result)),
                                            OfflineImapError.ERROR.FOLDER)
+
+            pathQuoted = imaputil.quote( foldername )
+            print 'EVENT { "name" : "makeFolder", "path" : %s }' % ( imaputil.quote( "%s" % foldername ) )
+            sys.stdout.flush()
 
         finally:
             self.imapserver.releaseconnection(imapobj)

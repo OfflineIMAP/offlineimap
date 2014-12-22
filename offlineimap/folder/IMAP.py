@@ -19,12 +19,17 @@ import random
 import binascii
 import re
 import time
+import sys
 from sys import exc_info
 from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
 from offlineimap import globals
 from offlineimap.imaplib2 import MonthNames
 
+# This is for debug purposes
+import email
+from email.Parser import Parser as MailParser
+import time
 
 # Globals
 CRLF = '\r\n'
@@ -649,6 +654,28 @@ class IMAPFolder(BaseFolder):
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
 
+            # This is for debug purposes
+            if type( emailutil.get_message_date( content ) ) is int:
+
+                print 'EVENT { "name" : "saveMessage", "path" : %s, "uid" : %d, "time" : %d, "flags" : %s }' % (
+                    imaputil.quote( "%s" % self ),
+                    uid,
+                    emailutil.get_message_date( content ) * 1000,
+                    imaputil.quote( "%s" % imaputil.flagsmaildir2imap( flags ) ) )
+                sys.stdout.flush()
+
+            else:
+
+                tmpmessage = MailParser().parsestr(content, True)
+                tmpdateheader = tmpmessage.get('Date')
+
+                print 'EVENT { "name" : "saveMessageTimeError", "path" : %s, "uid" : %d, "time" : %s, "flags" : %s }' % (
+                    imaputil.quote( "%s" % self ),
+                    uid,
+                    imaputil.quote( "%s" % tmpdateheader ),
+                    imaputil.quote( "%s" % imaputil.flagsmaildir2imap( flags ) ) )
+                sys.stdout.flush()
+
         self.ui.debug('imap', 'savemessage: returning new UID %d' % uid)
         return uid
 
@@ -794,7 +821,21 @@ class IMAPFolder(BaseFolder):
             uid = long(attributehash['UID'])
             self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flagstr)
             try:
+                if operation == '+':
+                    print 'EVENT { "name" : "addFlag", "path" : %s, "uid" : %d, "flags" : %s }' % (
+                        imaputil.quote( "%s" % self ),
+                        uid,
+                        imaputil.quote( "%s" % imaputil.flagsmaildir2imap( flags ) ) )
+                    sys.stdout.flush()
+                elif operation == '-':
+                    print 'EVENT { "name" : "removeFlag", "path" : %s, "uid" : %d, "flags" : %s }' % (
+                        imaputil.quote( "%s" % self ),
+                        uid,
+                        imaputil.quote( "%s" % imaputil.flagsmaildir2imap( flags ) ) )
+                    sys.stdout.flush()
+
                 needupdate.remove(uid)
+
             except ValueError:          # Let it slide if it's not in the list
                 pass
         for uid in needupdate:
@@ -849,4 +890,9 @@ class IMAPFolder(BaseFolder):
         finally:
             self.imapserver.releaseconnection(imapobj)
         for uid in uidlist:
+            print 'EVENT { "name" : "deleteMessage", "path" : %s, "uid" : %d, "flags" : %s }' % (
+                imaputil.quote( "%s" % self ),
+                uid,
+                imaputil.quote( "%s" % imaputil.flagsmaildir2imap( flags ) ) )
+            sys.stdout.flush()
             del self.messagelist[uid]

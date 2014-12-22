@@ -35,6 +35,12 @@ class BaseFolder(object):
         :para name: Path & name of folder minus root or reference
         :para repository: Repository() in which the folder is.
         """
+
+        if name.upper() == 'INBOX':
+            name = 'INBOX'
+        else:
+            name = name
+
         self.ui = getglobalui()
         # Save original name for folderfilter operations
         self.ffilter_name = name
