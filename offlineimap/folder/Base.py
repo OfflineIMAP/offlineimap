@@ -401,6 +401,9 @@ class BaseFolder(object):
         """
         Adds new header to the provided message.
 
+        WARNING: This function is a bit tricky, and modifying it in the wrong way,
+        may easily lead to data-loss.
+
         Arguments:
         - content: message content, headers and body as a single string
         - linebreak: string that carries line ending
@@ -512,8 +515,8 @@ class BaseFolder(object):
 
     def getmessageheader(self, content, name):
         """
-        Searches for the given header and returns its value.
-        Header name is case-insensitive.
+        Searches for the first occurence of the given header and returns
+        its value. Header name is case-insensitive.
 
         Arguments:
         - contents: message itself
@@ -533,6 +536,27 @@ class BaseFolder(object):
             return m.group(1).strip()
         else:
             return None
+
+
+    def getmessageheaderlist(self, content, name):
+        """
+        Searches for the given header and returns a list of values for
+        that header.
+
+        Arguments:
+        - contents: message itself
+        - name: name of the header to be searched
+
+        Returns: list of header values or emptylist if no such header was found
+
+        """
+        self.ui.debug('', 'getmessageheaderlist: called to get %s' % name)
+        eoh = self.__find_eoh(content)
+        self.ui.debug('', 'getmessageheaderlist: eoh = %d' % eoh)
+        headers = content[0:eoh]
+        self.ui.debug('', 'getmessageheaderlist: headers = %s' % repr(headers))
+
+        return re.findall('^%s:(.*)$' % name, headers, flags = re.MULTILINE | re.IGNORECASE)
 
 
     def deletemessageheaders(self, content, header_list):

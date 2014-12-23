@@ -87,9 +87,10 @@ class GmailMaildirFolder(MaildirFolder):
             content = file.read()
             file.close()
 
-            self.messagelist[uid]['labels'] = \
-              imaputil.labels_from_header(self.labelsheader,
-              self.getmessageheader(content, self.labelsheader))
+            self.messagelist[uid]['labels'] = set()
+            for hstr in self.getmessageheaderlist(content, self.labelsheader):
+                self.messagelist[uid]['labels'].update(
+                    imaputil.labels_from_header(self.labelsheader, hstr))
             self.messagelist[uid]['labels_cached'] = True
 
         return self.messagelist[uid]['labels']
@@ -111,8 +112,10 @@ class GmailMaildirFolder(MaildirFolder):
         if not self.synclabels:
             return super(GmailMaildirFolder, self).savemessage(uid, content, flags, rtime)
 
-        labels = imaputil.labels_from_header(self.labelsheader,
-          self.getmessageheader(content, self.labelsheader))
+        labels = set()
+        for hstr in self.getmessageheaderlist(content, self.labelsheader):
+            labels.update(imaputil.labels_from_header(self.labelsheader, hstr))
+
         ret = super(GmailMaildirFolder, self).savemessage(uid, content, flags, rtime)
 
         # Update the mtime and labels
@@ -135,9 +138,9 @@ class GmailMaildirFolder(MaildirFolder):
         content = file.read()
         file.close()
 
-        oldlabels = imaputil.labels_from_header(self.labelsheader,
-          self.getmessageheader(content, self.labelsheader))
-
+        oldlabels = set()
+        for hstr in self.getmessageheaderlist(content, self.labelsheader):
+            oldlabels.update(imaputil.labels_from_header(self.labelsheader, hstr))
 
         labels = labels - ignorelabels
         ignoredlabels = oldlabels & ignorelabels
@@ -150,7 +153,11 @@ class GmailMaildirFolder(MaildirFolder):
         # Change labels into content
         labels_str = imaputil.format_labels_string(self.labelsheader,
           sorted(labels | ignoredlabels))
+
+        # First remove old labels header, and then add the new one
+        content = self.deletemessageheaders(content, self.labelsheader)
         content = self.addmessageheader(content, '\n', self.labelsheader, labels_str)
+
         rtime = self.messagelist[uid].get('rtime', None)
 
         # write file with new labels to a unique file in tmp
