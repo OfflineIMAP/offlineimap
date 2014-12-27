@@ -136,9 +136,9 @@ class UIBase(object):
                                                 "repo %s")
         """
         if msg:
-            self._msg("ERROR: %s\n  %s" % (msg, exc))
+            self.logger.error("ERROR: %s\n  %s" % (msg, exc))
         else:
-            self._msg("ERROR: %s" % (exc))
+            self.logger.error("ERROR: %s" % (exc))
 
         instant_traceback = exc_traceback
         if not self.debuglist:
@@ -147,7 +147,7 @@ class UIBase(object):
         # push exc on the queue for later output
         self.exc_queue.put((msg, exc, exc_traceback))
         if instant_traceback:
-            self._msg(traceback.format_tb(instant_traceback))
+            self.logger.error(traceback.format_tb(instant_traceback))
 
     def registerthread(self, account):
         """Register current thread as being associated with an account name"""
