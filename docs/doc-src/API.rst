@@ -15,10 +15,9 @@ OfflineImap can be imported as::
 
  from offlineimap import OfflineImap
 
-The file ``SubmittingPatches.rst`` in the source distribution documents a
-number of resources and conventions you may find useful.  It will eventually
-be merged into the main documentation.
-.. TODO: merge SubmittingPatches.rst to the main documentation
+The file ``HACKING.rst`` in the source distribution documents a
+number of resources and conventions you may find useful.
+
 
 :mod:`offlineimap` -- The OfflineImap module
 =============================================
