@@ -18,7 +18,6 @@
 
 from offlineimap.repository.Maildir import MaildirRepository
 from offlineimap.folder.GmailMaildir import GmailMaildirFolder
-from offlineimap.error import OfflineImapError
 
 class GmailMaildirRepository(MaildirRepository):
     def __init__(self, reposname, account):
