@@ -15,9 +15,9 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 try:
-    from ConfigParser import SafeConfigParser, Error, NoOptionError
+    from ConfigParser import SafeConfigParser, Error
 except ImportError: #python3
-    from configparser import SafeConfigParser, Error, NoOptionError
+    from configparser import SafeConfigParser, Error
 from offlineimap.localeval import LocalEval
 import os
 import re
