@@ -1,5 +1,5 @@
 # Base folder support
-# Copyright (C) 2002-2012 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -59,8 +59,8 @@ class MappedIMAPFolder(IMAPFolder):
                 try:
                     line = line.strip()
                 except ValueError:
-                    raise Exception("Corrupt line '%s' in UID mapping file '%s'" \
-                                        %(line, mapfilename))
+                    raise Exception("Corrupt line '%s' in UID mapping file '%s'"%
+                        (line, mapfilename))
                 (str1, str2) = line.split(':')
                 loc = long(str1)
                 rem = long(str2)
@@ -89,7 +89,7 @@ class MappedIMAPFolder(IMAPFolder):
             raise OfflineImapError("Could not find UID for msg '{0}' (f:'{1}'."
                 " This is usually a bad thing and should be reported on the ma"
                 "iling list.".format(e.args[0], self),
-                                   OfflineImapError.ERROR.MESSAGE)
+                    OfflineImapError.ERROR.MESSAGE)
 
     # Interface from BaseFolder
     def cachemessagelist(self):

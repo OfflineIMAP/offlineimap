@@ -1,6 +1,5 @@
 # IMAP utility module
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -37,8 +36,8 @@ def dequote(string):
     """Takes string which may or may not be quoted and unquotes it.
 
     It only considers double quotes. This function does NOT consider
-    parenthised lists to be quoted.
-    """
+    parenthised lists to be quoted."""
+
     if string and string.startswith('"') and string.endswith('"'):
         string = string[1:-1]  # Strip off the surrounding quotes.
         string = string.replace('\\"', '"')
@@ -49,8 +48,8 @@ def quote(string):
     """Takes an unquoted string and quotes it.
 
     It only adds double quotes. This function does NOT consider
-    parenthised lists to be quoted.
-    """
+    parenthised lists to be quoted."""
+
     string = string.replace('"', '\\"')
     string = string.replace('\\', '\\\\')
     return '"%s"' % string
@@ -62,12 +61,14 @@ def flagsplit(string):
         (FLAGS (\\Seen Old) UID 4807) returns
         ['FLAGS,'(\\Seen Old)','UID', '4807']
     """
+
     if string[0] != '(' or string[-1] != ')':
         raise ValueError("Passed string '%s' is not a flag list" % string)
     return imapsplit(string[1:-1])
 
 def __options2hash(list):
     """convert list [1,2,3,4,5,6] to {1:2, 3:4, 5:6}"""
+
     # effectively this does dict(zip(l[::2],l[1::2])), however
     # measurements seemed to have indicated that the manual variant is
     # faster for mosly small lists.
@@ -84,6 +85,7 @@ def flags2hash(flags):
 
     E.g. '(FLAGS (\\Seen Old) UID 4807)' leads to
     {'FLAGS': '(\\Seen Old)', 'UID': '4807'}"""
+
     return __options2hash(flagsplit(flags))
 
 def imapsplit(imapstring):
@@ -182,7 +184,8 @@ flagmap = [('\\Seen', 'S'),
            ('\\Draft', 'D')]
 
 def flagsimap2maildir(flagstring):
-    """Convert string '(\\Draft \\Deleted)' into a flags set(DR)"""
+    """Convert string '(\\Draft \\Deleted)' into a flags set(DR)."""
+
     retval = set()
     imapflaglist = flagstring[1:-1].split()
     for imapflag, maildirflag in flagmap:
@@ -191,7 +194,8 @@ def flagsimap2maildir(flagstring):
     return retval
 
 def flagsmaildir2imap(maildirflaglist):
-    """Convert set of flags ([DR]) into a string '(\\Deleted \\Draft)'"""
+    """Convert set of flags ([DR]) into a string '(\\Deleted \\Draft)'."""
+
     retval = []
     for imapflag, maildirflag in flagmap:
         if maildirflag in maildirflaglist:
@@ -203,7 +207,8 @@ def uid_sequence(uidlist):
 
     [1,2,3,4,5,10,12,13] will return "1:5,10,12:13".  This function sorts
     the list, and only collapses if subsequent entries form a range.
-    :returns: The collapsed UID list as string"""
+    :returns: The collapsed UID list as string."""
+
     def getrange(start, end):
         if start == end:
             return(str(start))
@@ -230,8 +235,7 @@ def uid_sequence(uidlist):
 
 
 def __split_quoted(string):
-	"""
-	Looks for the ending quote character in the string that starts
+	"""Looks for the ending quote character in the string that starts
 	with quote character, splitting out quoted component and the
 	rest of the string (without possible space between these two
 	parts.
@@ -241,7 +245,6 @@ def __split_quoted(string):
 	Examples:
 	 - "this is \" a test" (\\None) => ("this is \" a test", (\\None))
 	 - "\\" => ("\\", )
-
 	"""
 
 	if len(string) == 0:
@@ -269,17 +272,15 @@ def __split_quoted(string):
 
 
 def format_labels_string(header, labels):
-    """
-    Formats labels for embedding into a message,
+    """Formats labels for embedding into a message,
     with format according to header name.
     
     Headers from SPACE_SEPARATED_LABEL_HEADERS keep space-separated list
     of labels, the rest uses comma (',') as the separator.
 
     Also see parse_labels_string() and modify it accordingly
-    if logics here gets changed.
+    if logics here gets changed."""
 
-    """
     if header in SPACE_SEPARATED_LABEL_HEADERS:
         sep = ' '
     else:
@@ -289,18 +290,16 @@ def format_labels_string(header, labels):
 
 
 def parse_labels_string(header, labels_str):
-    """
-    Parses a string into a set of labels, with a format according to
+    """Parses a string into a set of labels, with a format according to
     the name of the header.
 
     See __format_labels_string() for explanation on header handling
     and keep these two functions synced with each other.
 
     TODO: add test to ensure that
-      format_labels_string * parse_labels_string is unity
+    - format_labels_string * parse_labels_string is unity
     and
-      parse_labels_string * format_labels_string is unity
-
+    - parse_labels_string * format_labels_string is unity
     """
 
     if header in SPACE_SEPARATED_LABEL_HEADERS:
@@ -314,15 +313,13 @@ def parse_labels_string(header, labels_str):
 
 
 def labels_from_header(header_name, header_value):
-    """
-    Helper that builds label set from the corresponding header value.
+    """Helper that builds label set from the corresponding header value.
 
     Arguments:
     - header_name: name of the header that keeps labels;
     - header_value: value of the said header, can be None
 
     Returns: set of labels parsed from the header (or empty set).
-
     """
 
     if header_value:

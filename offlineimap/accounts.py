@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2011 John Goerzen & contributors
+# Copyright (C) 2003-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -14,29 +14,33 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import mbnames, CustomConfig, OfflineImapError
-from offlineimap import globals
-from offlineimap.repository import Repository
-from offlineimap.ui import getglobalui
-from offlineimap.threadutil import InstanceLimitedThread
 from subprocess import Popen, PIPE
 from threading import Event
 import os
 from sys import exc_info
 import traceback
 
+from offlineimap import mbnames, CustomConfig, OfflineImapError
+from offlineimap import globals
+from offlineimap.repository import Repository
+from offlineimap.ui import getglobalui
+from offlineimap.threadutil import InstanceLimitedThread
+
 try:
     import fcntl
 except:
     pass # ok if this fails, we can do without
 
+# FIXME: spaghetti code alert!
 def getaccountlist(customconfig):
     return customconfig.getsectionlist('Account')
 
+# FIXME: spaghetti code alert!
 def AccountListGenerator(customconfig):
     return [Account(customconfig, accountname)
             for accountname in getaccountlist(customconfig)]
 
+# FIXME: spaghetti code alert!
 def AccountHashGenerator(customconfig):
     retval = {}
     for item in AccountListGenerator(customconfig):

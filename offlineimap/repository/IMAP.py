@@ -1,5 +1,5 @@
 # IMAP repository support
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,16 +15,18 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap.repository.Base import BaseRepository
-from offlineimap import folder, imaputil, imapserver, OfflineImapError
-from offlineimap.folder.UIDMaps import MappedIMAPFolder
-from offlineimap.threadutil import ExitNotifyThread
-from offlineimap.utils.distro import get_os_sslcertfile
 from threading import Event
 import os
 from sys import exc_info
 import netrc
 import errno
+
+from offlineimap.repository.Base import BaseRepository
+from offlineimap import folder, imaputil, imapserver, OfflineImapError
+from offlineimap.folder.UIDMaps import MappedIMAPFolder
+from offlineimap.threadutil import ExitNotifyThread
+from offlineimap.utils.distro import get_os_sslcertfile
+
 
 class IMAPRepository(BaseRepository):
     def __init__(self, reposname, account):
@@ -116,14 +118,10 @@ class IMAPRepository(BaseRepository):
                                    "'%s' specified." % self,
                                OfflineImapError.ERROR.REPO)
 
-
     def get_remote_identity(self):
-        """
-        Remote identity is used for certain SASL mechanisms
+        """Remote identity is used for certain SASL mechanisms
         (currently -- PLAIN) to inform server about the ID
-        we want to authorize as instead of our login name.
-
-        """
+        we want to authorize as instead of our login name."""
 
         return self.getconf('remote_identity', default=None)
 
@@ -218,13 +216,10 @@ class IMAPRepository(BaseRepository):
         return self.getconf('ssl_version', None)
 
     def get_ssl_fingerprint(self):
-        """
-        Return array of possible certificate fingerprints.
+        """Return array of possible certificate fingerprints.
 
         Configuration item cert_fingerprint can contain multiple
-        comma-separated fingerprints in hex form.
-
-        """
+        comma-separated fingerprints in hex form."""
 
         value = self.getconf('cert_fingerprint', "")
         return [f.strip().lower() for f in value.split(',') if f]
@@ -262,8 +257,8 @@ class IMAPRepository(BaseRepository):
         5. read password from /etc/netrc
 
         On success we return the password.
-        If all strategies fail we return None.
-        """
+        If all strategies fail we return None."""
+
         # 1. evaluate Repository 'remotepasseval'
         passwd = self.getconf('remotepasseval', None)
         if passwd != None:
@@ -303,7 +298,6 @@ class IMAPRepository(BaseRepository):
                     return netrcentry[2]
         # no strategy yielded a password!
         return None
-
 
     def getfolder(self, foldername):
         return self.getfoldertype()(self.imapserver, foldername, self)
@@ -392,6 +386,7 @@ class IMAPRepository(BaseRepository):
         when you are done creating folders yourself.
 
         :param foldername: Full path of the folder to be created."""
+
         if self.getreference():
             foldername = self.getreference() + self.getsep() + foldername
         if not foldername: # Create top level folder as folder separator

@@ -1,6 +1,5 @@
 # Local status cache repository support
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -81,7 +80,7 @@ class LocalStatusRepository(BaseRepository):
         return '.'
 
     def makefolder(self, foldername):
-        """Create a LocalStatus Folder"""
+        """Create a LocalStatus Folder."""
 
         if self.account.dryrun:
             return # bail out in dry-run mode
@@ -114,9 +113,11 @@ class LocalStatusRepository(BaseRepository):
         (see getfolderfilename) so we can not derive folder names from
         the file names that we have available. TODO: need to store a
         list of folder names somehow?"""
+
         pass
 
     def forgetfolders(self):
         """Forgets the cached list of folders, if any.  Useful to run
         after a sync run."""
+
         self._folders = {}

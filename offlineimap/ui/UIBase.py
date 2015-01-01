@@ -1,5 +1,5 @@
 # UI base class
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -45,22 +45,22 @@ def getglobalui():
     return globalui
 
 class UIBase(object):
-    def __init__(self, config, loglevel = logging.INFO):
+    def __init__(self, config, loglevel=logging.INFO):
         self.config = config
         # Is this a 'dryrun'?
         self.dryrun = config.getdefaultboolean('general', 'dry-run', False)
         self.debuglist = []
-        """list of debugtypes we are supposed to log"""
+        # list of debugtypes we are supposed to log
         self.debugmessages = {}
-        """debugmessages in a deque(v) per thread(k)"""
+        # debugmessages in a deque(v) per thread(k)
         self.debugmsglen = 15
         self.threadaccounts = {}
-        """dict linking active threads (k) to account names (v)"""
+        # dict linking active threads (k) to account names (v)
         self.acct_startimes = {}
-        """linking active accounts with the time.time() when sync started"""
+        # linking active accounts with the time.time() when sync started
         self.logfile = None
         self.exc_queue = Queue()
-        """saves all occuring exceptions, so we can output them at the end"""
+        # saves all occuring exceptions, so we can output them at the end
         # create logger with 'OfflineImap' app
         self.logger = logging.getLogger('OfflineImap')
         self.logger.setLevel(loglevel)
@@ -73,6 +73,7 @@ class UIBase(object):
 
         Sets up things and adds them to self.logger.
         :returns: The logging.Handler() for console output"""
+
         # create console handler with a higher log level
         ch = logging.StreamHandler(sys.stdout)
         #ch.setLevel(logging.DEBUG)
@@ -94,12 +95,13 @@ class UIBase(object):
         # write out more verbose initial info blurb on the log file
         p_ver = ".".join([str(x) for x in sys.version_info[0:3]])
         msg = "OfflineImap %s starting...\n  Python: %s Platform: %s\n  "\
-              "Args: %s" % (offlineimap.__bigversion__, p_ver, sys.platform,
+              "Args: %s"% (offlineimap.__bigversion__, p_ver, sys.platform,
                             " ".join(sys.argv))
         self.logger.info(msg)
 
     def _msg(self, msg):
         """Display a message."""
+
         # TODO: legacy function, rip out.
         self.info(msg)
 
@@ -149,7 +151,8 @@ class UIBase(object):
             self._msg(traceback.format_tb(instant_traceback))
 
     def registerthread(self, account):
-        """Register current thread as being associated with an account name"""
+        """Register current thread as being associated with an account name."""
+
         cur_thread = threading.currentThread()
         if cur_thread in self.threadaccounts:
             # was already associated with an old account, update info
@@ -162,15 +165,17 @@ class UIBase(object):
         self.threadaccounts[cur_thread] = account
 
     def unregisterthread(self, thr):
-        """Unregister a thread as being associated with an account name"""
+        """Unregister a thread as being associated with an account name."""
+
         if thr in self.threadaccounts:
             del self.threadaccounts[thr]
         self.debug('thread', "Unregister thread '%s'" % thr.getName())
 
-    def getthreadaccount(self, thr = None):
+    def getthreadaccount(self, thr=None):
         """Get Account() for a thread (current if None)
 
-        If no account has been registered with this thread, return 'None'"""
+        If no account has been registered with this thread, return 'None'."""
+
         if thr == None:
             thr = threading.currentThread()
         if thr in self.threadaccounts:
@@ -214,6 +219,7 @@ class UIBase(object):
         """Return the type of a repository or Folder as string
 
         (IMAP, Gmail, Maildir, etc...)"""
+
         prelimname = object.__class__.__name__.split('.')[-1]
         # Strip off extra stuff.
         return re.sub('(Folder|Repository)', '', prelimname)
@@ -222,6 +228,7 @@ class UIBase(object):
         """Returns true if this UI object is usable in the current
         environment.  For instance, an X GUI would return true if it's
         being run in X with a valid DISPLAY setting, and false otherwise."""
+
         return True
 
     ################################################## INPUT
@@ -281,7 +288,8 @@ class UIBase(object):
         pass
 
     def connecting(self, hostname, port):
-        """Log 'Establishing connection to'"""
+        """Log 'Establishing connection to'."""
+
         if not self.logger.isEnabledFor(logging.INFO): return
         displaystr = ''
         hostname = hostname if hostname else ''
@@ -291,19 +299,22 @@ class UIBase(object):
         self.logger.info("Establishing connection%s" % displaystr)
 
     def acct(self, account):
-        """Output that we start syncing an account (and start counting)"""
+        """Output that we start syncing an account (and start counting)."""
+
         self.acct_startimes[account] = time.time()
         self.logger.info("*** Processing account %s" % account)
 
     def acctdone(self, account):
-        """Output that we finished syncing an account (in which time)"""
+        """Output that we finished syncing an account (in which time)."""
+
         sec = time.time() - self.acct_startimes[account]
         del self.acct_startimes[account]
         self.logger.info("*** Finished account '%s' in %d:%02d" %
                (account, sec // 60, sec % 60))
 
     def syncfolders(self, src_repo, dst_repo):
-        """Log 'Copying folder structure...'"""
+        """Log 'Copying folder structure...'."""
+
         if self.logger.isEnabledFor(logging.DEBUG):
             self.debug('', "Copying folder structure from %s to %s" %\
                            (src_repo, dst_repo))
@@ -328,12 +339,12 @@ class UIBase(object):
     def validityproblem(self, folder):
         self.logger.warning("UID validity problem for folder %s (repo %s) "
                             "(saved %d; got %d); skipping it. Please see FAQ "
-                            "and manual on how to handle this." % \
+                            "and manual on how to handle this."% \
                (folder, folder.getrepository(),
                 folder.get_saveduidvalidity(), folder.get_uidvalidity()))
 
     def loadmessagelist(self, repos, folder):
-        self.logger.debug("Loading message list for %s[%s]" % (
+        self.logger.debug(u"Loading message list for %s[%s]"% (
                 self.getnicename(repos),
                 folder))
 
@@ -389,7 +400,8 @@ class UIBase(object):
         self.logger.info("Collecting data from messages on %s" % source)
 
     def serverdiagnostics(self, repository, type):
-        """Connect to repository and output useful information for debugging"""
+        """Connect to repository and output useful information for debugging."""
+
         conn = None
         self._msg("%s repository '%s': type '%s'" % (type, repository.name,
                   self.getnicename(repository)))
@@ -440,8 +452,9 @@ class UIBase(object):
                 repository.imapserver.close()
 
     def savemessage(self, debugtype, uid, flags, folder):
-        """Output a log line stating that we save a msg"""
-        self.debug(debugtype, "Write mail '%s:%d' with flags %s" %
+        """Output a log line stating that we save a msg."""
+
+        self.debug(debugtype, u"Write mail '%s:%d' with flags %s"%
                    (folder, uid, repr(flags)))
 
     ################################################## Threads
@@ -461,42 +474,46 @@ class UIBase(object):
             del self.debugmessages[thread]
 
     def getThreadExceptionString(self, thread):
-        message = "Thread '%s' terminated with exception:\n%s" % \
+        message = u"Thread '%s' terminated with exception:\n%s"% \
                   (thread.getName(), thread.exit_stacktrace)
-        message += "\n" + self.getThreadDebugLog(thread)
+        message += u"\n" + self.getThreadDebugLog(thread)
         return message
 
     def threadException(self, thread):
         """Called when a thread has terminated with an exception.
         The argument is the ExitNotifyThread that has so terminated."""
+
         self.warn(self.getThreadExceptionString(thread))
         self.delThreadDebugLog(thread)
         self.terminate(100)
 
     def terminate(self, exitstatus = 0, errortitle = None, errormsg = None):
         """Called to terminate the application."""
+
         #print any exceptions that have occurred over the run
         if not self.exc_queue.empty():
-           self.warn("ERROR: Exceptions occurred during the run!")
+           self.warn(u"ERROR: Exceptions occurred during the run!")
         while not self.exc_queue.empty():
             msg, exc, exc_traceback = self.exc_queue.get()
             if msg:
-                self.warn("ERROR: %s\n  %s" % (msg, exc))
+                self.warn(u"ERROR: %s\n  %s"% (msg, exc))
             else:
-                self.warn("ERROR: %s" % (exc))
+                self.warn(u"ERROR: %s"% (exc))
             if exc_traceback:
-                self.warn("\nTraceback:\n%s" %"".join(
+                self.warn(u"\nTraceback:\n%s"% "".join(
                         traceback.format_tb(exc_traceback)))
 
         if errormsg and errortitle:
-            self.warn('ERROR: %s\n\n%s\n'%(errortitle, errormsg))
+            self.warn(u'ERROR: %s\n\n%s\n'% (errortitle, errormsg))
         elif errormsg:
-                self.warn('%s\n' % errormsg)
+                self.warn(u'%s\n' % errormsg)
         sys.exit(exitstatus)
 
     def threadExited(self, thread):
-        """Called when a thread has exited normally.  Many UIs will
-        just ignore this."""
+        """Called when a thread has exited normally.
+
+        Many UIs will just ignore this."""
+
         self.delThreadDebugLog(thread)
         self.unregisterthread(thread)
 
@@ -518,6 +535,7 @@ class UIBase(object):
         :returns: 0/False if timeout expired, 1/2/True if there is a
                   request to cancel the timer.
         """
+
         abortsleep = False
         while sleepsecs > 0 and not abortsleep:
             if account.get_abort_event():
@@ -538,6 +556,7 @@ class UIBase(object):
         implementations return 0 for successful sleep and 1 for an
         'abort', ie a request to sync immediately.
         """
+
         if sleepsecs > 0:
             if remainingsecs//60 != (remainingsecs-sleepsecs)//60:
                 self.logger.debug("Next refresh in %.1f minutes" % (

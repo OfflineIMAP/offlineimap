@@ -1,5 +1,5 @@
 # TTY UI
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ from offlineimap.ui.UIBase import UIBase
 
 class TTYFormatter(logging.Formatter):
     """Specific Formatter that adds thread information to the log output"""
+
     def __init__(self, *args, **kwargs):
         #super() doesn't work in py2.6 as 'logging' uses old-style class
         logging.Formatter.__init__(self, *args, **kwargs)
@@ -46,12 +47,14 @@ class TTYFormatter(logging.Formatter):
             log_str = " %s" % log_str
         return log_str
 
+
 class TTYUI(UIBase):
     def setup_consolehandler(self):
         """Backend specific console handler
 
         Sets up things and adds them to self.logger.
         :returns: The logging.Handler() for console output"""
+
         # create console handler with a higher log level
         ch = logging.StreamHandler()
         #ch.setLevel(logging.DEBUG)
@@ -67,10 +70,12 @@ class TTYUI(UIBase):
 
     def isusable(self):
         """TTYUI is reported as usable when invoked on a terminal"""
+
         return sys.stdout.isatty() and sys.stdin.isatty()
 
-    def getpass(self, accountname, config, errmsg = None):
+    def getpass(self, accountname, config, errmsg=None):
         """TTYUI backend is capable of querying the password"""
+
         if errmsg:
             self.warn("%s: %s" % (accountname, errmsg))
         self._log_con_handler.acquire() # lock the console output
@@ -97,6 +102,7 @@ class TTYUI(UIBase):
         implementations return 0 for successful sleep and 1 for an
         'abort', ie a request to sync immediately.
         """
+
         if sleepsecs > 0:
             if remainingsecs//60 != (remainingsecs-sleepsecs)//60:
                 self.logger.info("Next refresh in %.1f minutes" % (

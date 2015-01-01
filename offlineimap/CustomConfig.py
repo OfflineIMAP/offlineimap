@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2012 John Goerzen & contributors
+# Copyright (C) 2003-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -14,21 +14,20 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import os
+import re
+
 try:
     from ConfigParser import SafeConfigParser, Error
 except ImportError: #python3
     from configparser import SafeConfigParser, Error
 from offlineimap.localeval import LocalEval
-import os
-import re
 
 class CustomConfigParser(SafeConfigParser):
     def getdefault(self, section, option, default, *args, **kwargs):
-        """
-        Same as config.get, but returns the value of `default`
-        if there is no such option specified.
-        
-        """
+        """Same as config.get, but returns the value of `default`
+        if there is no such option specified."""
+
         if self.has_option(section, option):
             return self.get(*(section, option) + args, **kwargs)
         else:
@@ -36,45 +35,37 @@ class CustomConfigParser(SafeConfigParser):
 
 
     def getdefaultint(self, section, option, default, *args, **kwargs):
-        """
-        Same as config.getint, but returns the value of `default`
-        if there is no such option specified.
-        
-        """
+        """Same as config.getint, but returns the value of `default`
+        if there is no such option specified."""
+
         if self.has_option(section, option):
-            return self.getint (*(section, option) + args, **kwargs)
+            return self.getint(*(section, option) + args, **kwargs)
         else:
             return default
 
 
     def getdefaultfloat(self, section, option, default, *args, **kwargs):
-        """
-        Same as config.getfloat, but returns the value of `default`
-        if there is no such option specified.
-        
-        """
+        """Same as config.getfloat, but returns the value of `default`
+        if there is no such option specified."""
+
         if self.has_option(section, option):
             return self.getfloat(*(section, option) + args, **kwargs)
         else:
             return default
 
     def getdefaultboolean(self, section, option, default, *args, **kwargs):
-        """
-        Same as config.getboolean, but returns the value of `default`
-        if there is no such option specified.
-        
-        """
+        """Same as config.getboolean, but returns the value of `default`
+        if there is no such option specified."""
+
         if self.has_option(section, option):
             return self.getboolean(*(section, option) + args, **kwargs)
         else:
             return default
 
     def getlist(self, section, option, separator_re):
-    	"""
-    	Parses option as the list of values separated
-    	by the given regexp.
+        """Parses option as the list of values separated
+        by the given regexp."""
 
-    	"""
         try:
             val = self.get(section, option).strip()
             return re.split(separator_re, val)
@@ -83,11 +74,9 @@ class CustomConfigParser(SafeConfigParser):
               (separator_re, e))
 
     def getdefaultlist(self, section, option, default, separator_re):
-        """
-        Same as getlist, but returns the value of `default`
-        if there is no such option specified.
-        
-        """
+        """Same as getlist, but returns the value of `default`
+        if there is no such option specified."""
+
         if self.has_option(section, option):
             return self.getlist(*(section, option, separator_re))
         else:
@@ -104,40 +93,48 @@ class CustomConfigParser(SafeConfigParser):
     def getlocaleval(self):
         xforms = [os.path.expanduser, os.path.expandvars]
         if self.has_option("general", "pythonfile"):
-            path = self.apply_xforms(self.get("general", "pythonfile"), xforms)
+            if globals.options.use_unicode:
+                path = uni.fsEncode(self.get("general", "pythonfile"),
+                    exception_msg="cannot convert character for pythonfile")
+            else:
+                path = self.get("general", "pythonfile")
+            path = self.apply_xforms(path, xforms)
         else:
             path = None
         return LocalEval(path)
 
     def getsectionlist(self, key):
-        """
-        Returns a list of sections that start with key + " ".
+        """Returns a list of sections that start with (str) key + " ".
         
         That is, if key is "Account", returns all section names that
         start with "Account ", but strips off the "Account ".
         
-        For instance, for "Account Test", returns "Test".
+        For instance, for "Account Test", returns "Test"."""
 
-        """
         key = key + ' '
-        return [x[len(key):] for x in self.sections() \
+        if globals.options.use_unicode:
+            sections = []
+            for section in self.sections():
+                sections.append(uni.uni2str(section, exception_msg=
+                    "non ASCII character in section %s"% section))
+            return [x[len(key):] for x in sections \
+                if x.startswith(key)]
+        else:
+            return [x[len(key):] for x in self.sections() \
                 if x.startswith(key)]
 
     def set_if_not_exists(self, section, option, value):
-        """
-        Set a value if it does not exist yet
+        """Set a value if it does not exist yet.
 
         This allows to set default if the user has not explicitly
-        configured anything.
-        
-        """
+        configured anything."""
+
         if not self.has_option(section, option):
             self.set(section, option, value)
 
 
     def apply_xforms(self, string, transforms):
-        """
-        Applies set of transformations to a string.
+        """Applies set of transformations to a string.
 
         Arguments:
          - string: source string; if None, then no processing will
@@ -145,9 +142,8 @@ class CustomConfigParser(SafeConfigParser):
          - transforms: iterable that returns transformation function
            on each turn.
 
-        Returns transformed string.
+        Returns transformed string."""
 
-        """
         if string == None:
             return None
         for f in transforms:
@@ -157,21 +153,18 @@ class CustomConfigParser(SafeConfigParser):
 
 
 def CustomConfigDefault():
-    """
-    Just a constant that won't occur anywhere else.
+    """Just a constant that won't occur anywhere else.
 
     This allows us to differentiate if the user has passed in any
     default value to the getconf* functions in ConfigHelperMixin
-    derived classes.
+    derived classes."""
 
-    """
     pass
 
 
 
 class ConfigHelperMixin:
-    """
-    Allow comfortable retrieving of config values pertaining
+    """Allow comfortable retrieving of config values pertaining
     to a section.
 
     If a class inherits from cls:`ConfigHelperMixin`, it needs
@@ -181,13 +174,10 @@ class ConfigHelperMixin:
       the section to look up).
     All calls to getconf* will then return the configuration values
     for the CustomConfigParser object in the specific section.
-    
     """
 
-
     def _confighelper_runner(self, option, default, defaultfunc, mainfunc, *args):
-        """
-        Returns configuration or default value for option
+        """Returns configuration or default value for option
         that contains in section identified by getsection().
 
         Arguments:
@@ -201,8 +191,8 @@ class ConfigHelperMixin:
         - defaultfunc and mainfunc: processing helpers.
         - args: additional trailing arguments that will be passed
           to all processing helpers.
-        
         """
+
         lst = [self.getsection(), option]
         if default == CustomConfigDefault:
             return mainfunc(*(lst + list(args)))
@@ -210,50 +200,43 @@ class ConfigHelperMixin:
             lst.append(default)
             return defaultfunc(*(lst + list(args)))
 
-
     def getconfig(self):
-        """
-        Returns CustomConfigParser object that we will use
+        """Returns CustomConfigParser object that we will use
         for all our actions.
 
-        Must be overriden in all classes that use this mix-in.
+        Must be overriden in all classes that use this mix-in."""
 
-        """
         raise NotImplementedError("ConfigHelperMixin.getconfig() "
           "is to be overriden")
 
 
 
     def getsection(self):
-        """
-        Returns name of configuration section in which our
+        """Returns name of configuration section in which our
         class keeps its configuration.
 
-        Must be overriden in all classes that use this mix-in.
+        Must be overriden in all classes that use this mix-in."""
 
-        """
         raise NotImplementedError("ConfigHelperMixin.getsection() "
           "is to be overriden")
 
 
     def getconf(self, option, default = CustomConfigDefault):
-        """
-        Retrieves string from the configuration.
+        """Retrieves string from the configuration.
 
         Arguments:
          - option: option name whose value is to be retrieved;
          - default: default return value if no such option
            exists.
-
         """
+
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefault,
                                          self.getconfig().get)
 
 
     def getconf_xform(self, option, xforms, default = CustomConfigDefault):
-        """
-        Retrieves string from the configuration transforming the result.
+        """Retrieves string from the configuration transforming the result.
 
         Arguments:
          - option: option name whose value is to be retrieved;
@@ -262,22 +245,21 @@ class ConfigHelperMixin:
            both retrieved and default one;
          - default: default value for string if no such option
            exists.
-
         """
+
         value = self.getconf(option, default)
         return self.getconfig().apply_xforms(value, xforms)
 
 
     def getconfboolean(self, option, default = CustomConfigDefault):
-        """
-        Retrieves boolean value from the configuration.
+        """Retrieves boolean value from the configuration.
 
         Arguments:
          - option: option name whose value is to be retrieved;
          - default: default return value if no such option
            exists.
-
         """
+
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultboolean,
                                          self.getconfig().getboolean)
@@ -293,21 +275,21 @@ class ConfigHelperMixin:
            exists.
 
         """
+
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultint,
                                          self.getconfig().getint)
 
 
     def getconffloat(self, option, default = CustomConfigDefault):
-        """
-        Retrieves floating-point value from the configuration.
+        """Retrieves floating-point value from the configuration.
 
         Arguments:
          - option: option name whose value is to be retrieved;
          - default: default return value if no such option
            exists.
-
         """
+
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultfloat,
                                          self.getconfig().getfloat)
@@ -315,8 +297,7 @@ class ConfigHelperMixin:
 
     def getconflist(self, option, separator_re,
                     default = CustomConfigDefault):
-        """
-        Retrieves strings from the configuration and splits it
+        """Retrieves strings from the configuration and splits it
         into the list of strings.
 
         Arguments:
@@ -325,8 +306,8 @@ class ConfigHelperMixin:
            to be used for split operation;
          - default: default return value if no such option
            exists.
-
         """
+
         return self._confighelper_runner(option, default,
                                          self.getconfig().getdefaultlist,
                                          self.getconfig().getlist, separator_re)

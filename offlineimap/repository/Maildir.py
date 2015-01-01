@@ -1,6 +1,5 @@
 # Maildir repository support
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -27,6 +26,7 @@ class MaildirRepository(BaseRepository):
     def __init__(self, reposname, account):
         """Initialize a MaildirRepository object.  Takes a path name
         to the directory holding all the Maildir directories."""
+
         BaseRepository.__init__(self, reposname, account)
 
         self.root = self.getlocalroot()
@@ -41,6 +41,7 @@ class MaildirRepository(BaseRepository):
 
     def _append_folder_atimes(self, foldername):
         """Store the atimes of a folder's new|cur in self.folder_atimes"""
+
         p = os.path.join(self.root, foldername)
         new = os.path.join(p, 'new')
         cur = os.path.join(p, 'cur')
@@ -51,6 +52,7 @@ class MaildirRepository(BaseRepository):
         """Sets folders' atime back to their values after a sync
 
         Controlled by the 'restoreatime' config parameter."""
+
         if not self.getconfboolean('restoreatime', False):
             return # not configured to restore
 
@@ -82,6 +84,7 @@ class MaildirRepository(BaseRepository):
             levels will be created if they do not exist yet. 'cur',
             'tmp', and 'new' subfolders will be created in the maildir.
         """
+
         self.ui.makefolder(self, foldername)
         if self.account.dryrun:
             return
@@ -134,7 +137,7 @@ class MaildirRepository(BaseRepository):
                                "folder '%s'." % foldername,
                                OfflineImapError.ERROR.FOLDER)
 
-    def _getfolders_scandir(self, root, extension = None):
+    def _getfolders_scandir(self, root, extension=None):
         """Recursively scan folder 'root'; return a list of MailDirFolder
 
         :param root: (absolute) path to Maildir root
@@ -200,4 +203,5 @@ class MaildirRepository(BaseRepository):
     def forgetfolders(self):
         """Forgets the cached list of folders, if any.  Useful to run
         after a sync run."""
+
         self.folders = None

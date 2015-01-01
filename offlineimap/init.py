@@ -1,5 +1,5 @@
 # OfflineIMAP initialization code
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -214,7 +214,7 @@ class OfflineImap:
                 config.set(section, key, value)
 
         #which ui to use? cmd line option overrides config file
-        ui_type = config.getdefault('general','ui', 'ttyui')
+        ui_type = config.getdefault('general', 'ui', 'ttyui')
         if options.interface != None:
             ui_type = options.interface
         if '.' in ui_type:
@@ -222,13 +222,13 @@ class OfflineImap:
             ui_type = ui_type.split('.')[-1]
             # TODO, make use of chosen ui for logging
             logging.warning('Using old interface name, consider using one '
-                            'of %s' % ', '.join(UI_LIST.keys()))
+                            'of %s'% ', '.join(UI_LIST.keys()))
         if options.diagnostics: ui_type = 'basic' # enforce basic UI for --info
 
         #dry-run? Set [general]dry-run=True
         if options.dryrun:
-            dryrun = config.set('general','dry-run', "True")
-        config.set_if_not_exists('general','dry-run','False')
+            dryrun = config.set('general', 'dry-run', 'True')
+        config.set_if_not_exists('general', 'dry-run', 'False')
 
         try:
             # create the ui class
@@ -264,7 +264,7 @@ class OfflineImap:
                     imaplib.Debug = 5
 
         if options.runonce:
-            # FIXME: maybe need a better
+            # FIXME: spaghetti code alert!
             for section in accounts.getaccountlist(config):
                 config.remove_option('Account ' + section, "autorefresh")
 
@@ -275,7 +275,7 @@ class OfflineImap:
         #custom folder list specified?
         if options.folders:
             foldernames = options.folders.split(",")
-            folderfilter = "lambda f: f in %s" % foldernames
+            folderfilter = "lambda f: f in %s"% foldernames
             folderincludes = "[]"
             for accountname in accounts.getaccountlist(config):
                 account_section = 'Account ' + accountname
@@ -355,12 +355,12 @@ class OfflineImap:
                                        "take a few seconds)...")
                     accounts.Account.set_abort_event(self.config, 3)
                 elif sig == signal.SIGQUIT:
-                    stacktrace.dump (sys.stderr)
+                    stacktrace.dump(sys.stderr)
                     os.abort()
 
-            signal.signal(signal.SIGHUP,sig_handler)
-            signal.signal(signal.SIGUSR1,sig_handler)
-            signal.signal(signal.SIGUSR2,sig_handler)
+            signal.signal(signal.SIGHUP, sig_handler)
+            signal.signal(signal.SIGUSR1, sig_handler)
+            signal.signal(signal.SIGUSR2, sig_handler)
             signal.signal(signal.SIGTERM, sig_handler)
             signal.signal(signal.SIGINT, sig_handler)
             signal.signal(signal.SIGQUIT, sig_handler)
@@ -394,7 +394,7 @@ class OfflineImap:
         for accountname in accs:
             account = offlineimap.accounts.SyncableAccount(self.config,
                                                            accountname)
-            threading.currentThread().name = "Account sync %s" % accountname
+            threading.currentThread().name = "Account sync %s"% accountname
             account.syncrunner()
 
     def __serverdiagnostics(self, options):

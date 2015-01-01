@@ -1,5 +1,5 @@
 # Maildir folder support
-# Copyright (C) 2002 - 2011 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,15 +19,12 @@ import socket
 import time
 import re
 import os
-import tempfile
 from .Base import BaseFolder
 from threading import Lock
-
 try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
-
 try: # python 2.6 has set() built in
     set
 except NameError:
@@ -131,6 +128,7 @@ class MaildirFolder(BaseFolder):
 
         :returns: (prefix, UID, FMD5, flags). UID is a numeric "long"
             type. flags is a set() of Maildir flags"""
+
         prefix, uid, fmd5, flags = None, None, None, set()
         prefixmatch = self.re_prefixmatch.match(filename)
         if prefixmatch:
@@ -227,7 +225,8 @@ class MaildirFolder(BaseFolder):
 
     # Interface from BaseFolder
     def getmessage(self, uid):
-        """Return the content of the message"""
+        """Return the content of the message."""
+
         filename = self.messagelist[uid]['filename']
         filepath = os.path.join(self.getfullname(), filename)
         file = open(filepath, 'rt')
@@ -249,6 +248,7 @@ class MaildirFolder(BaseFolder):
         :param uid: The UID`None`, or a set of maildir flags
         :param flags: A set of maildir flags
         :returns: String containing unique message filename"""
+
         timeval, timeseq = _gettimeseq()
         return '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s' % \
             (timeval, timeseq, os.getpid(), socket.gethostname(),
@@ -256,8 +256,7 @@ class MaildirFolder(BaseFolder):
 
 
     def save_to_tmp_file(self, filename, content):
-        """
-        Saves given content to the named temporary file in the
+        """Saves given content to the named temporary file in the
         'tmp' subdirectory of $CWD.
 
         Arguments:
@@ -265,9 +264,7 @@ class MaildirFolder(BaseFolder):
         - content: data to be saved.
 
         Returns: relative path to the temporary file
-        that was created.
-
-        """
+        that was created."""
 
         tmpname = os.path.join('tmp', filename)
         # open file and write it out
@@ -364,7 +361,7 @@ class MaildirFolder(BaseFolder):
             infomatch = self.re_flagmatch.search(filename)
             if infomatch:
                 filename = filename[:-len(infomatch.group())] #strip off
-            infostr = '%s2,%s' % (self.infosep, ''.join(sorted(flags)))
+            infostr = '%s2,%s'% (self.infosep, ''.join(sorted(flags)))
             filename += infostr
 
         newfilename = os.path.join(dir_prefix, filename)
@@ -386,8 +383,10 @@ class MaildirFolder(BaseFolder):
 
         This will not update the statusfolder UID, you need to do that yourself.
         :param new_uid: (optional) If given, the old UID will be changed
-            to a new UID. The Maildir backend can implement this as an efficient
-            rename."""
+                        to a new UID. The Maildir backend can implement this as
+                        an efficient rename.
+        """
+
         if not uid in self.messagelist:
             raise OfflineImapError("Cannot change unknown Maildir UID %s" % uid)
         if uid == new_uid: return

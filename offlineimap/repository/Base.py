@@ -1,5 +1,5 @@
 # Base repository support
-# Copyright (C) 2002-2012 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 import re
 import os.path
 from sys import exc_info
+
 from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
@@ -113,6 +114,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
     @property
     def readonly(self):
         """Is the repository readonly?"""
+
         return self._readonly
 
     def getlocaleval(self):
@@ -120,11 +122,13 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
     def getfolders(self):
         """Returns a list of ALL folders on this server."""
+
         return []
 
     def forgetfolders(self):
         """Forgets the cached list of folders, if any.  Useful to run
         after a sync run."""
+
         pass
 
     def getsep(self):
@@ -132,6 +136,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
     def should_sync_folder(self, fname):
         """Should this folder be synced?"""
+
         return fname in self.folderincludes or self.folderfilter(fname)
 
     def get_create_folders(self):
@@ -139,11 +144,13 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
         It is disabled by either setting the whole repository
         'readonly' or by using the 'createfolders' setting."""
+
         return (not self._readonly) and \
             self.getconfboolean('createfolders', True)
 
     def makefolder(self, foldername):
         """Create a new folder"""
+
         raise NotImplementedError
 
     def deletefolder(self, foldername):

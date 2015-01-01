@@ -1,6 +1,6 @@
 # Mailbox name generator
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+#
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ def write():
 def __genmbnames():
     """Takes a configparser object and a boxlist, which is a list of hashes
     containing 'accountname' and 'foldername' keys."""
+
     xforms = [os.path.expanduser, os.path.expandvars]
     mblock.acquire()
     try:
