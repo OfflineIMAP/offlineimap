@@ -230,9 +230,9 @@ class UIBase(object):
         raise NotImplementedError("Prompting for a password is not supported"\
                                   " in this UI backend.")
 
-    def folderlist(self, list):
-        return ', '.join(["%s[%s]" % \
-                          (self.getnicename(x), x.getname()) for x in list])
+    def folderlist(self, folder_list):
+        return ', '.join(["%s[%s]"% \
+                          (self.getnicename(x), x.getname()) for x in folder_list])
 
     ################################################## WARNINGS
     def msgtoreadonly(self, destfolder, uid, content, flags):
