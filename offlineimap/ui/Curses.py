@@ -20,7 +20,6 @@ from collections import deque
 import time
 import sys
 import os
-import signal
 import curses
 import logging
 from offlineimap.ui.UIBase import UIBase
