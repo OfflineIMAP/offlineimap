@@ -17,7 +17,6 @@
 
 import re
 import os.path
-import traceback
 from sys import exc_info
 from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
