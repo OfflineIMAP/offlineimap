@@ -16,11 +16,11 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import os
+
 from offlineimap.folder.LocalStatus import LocalStatusFolder
 from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
 from offlineimap.repository.Base import BaseRepository
-import os
-import re
 
 class LocalStatusRepository(BaseRepository):
     def __init__(self, reposname, account):
