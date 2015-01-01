@@ -19,7 +19,6 @@ import logging
 import re
 import time
 import sys
-import os
 import traceback
 import threading
 try:
