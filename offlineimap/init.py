@@ -26,7 +26,6 @@ from optparse import OptionParser
 import offlineimap
 from offlineimap import accounts, threadutil, syncmaster
 from offlineimap import globals
-from offlineimap.error import OfflineImapError
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
