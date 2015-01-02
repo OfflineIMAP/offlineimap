@@ -30,8 +30,6 @@ from sys import exc_info
 from socket import gaierror
 from ssl import SSLError, cert_time_to_seconds
 
-import sys
-
 try:
     # do we have a recent pykerberos?
     have_gss = False
@@ -169,17 +167,10 @@ class IMAPServer:
         except IOError:
             raise OfflineImapError("Couldn't connect to OAUTH2 server", OfflineImapError.ERROR.REPO)
         
-        sys.stderr.write( "%s" % http.read() )
-
         try:
             http = json.load(http)
-            sys.stderr.write( "%s" % http );
-            sys.stderr.flush();
             retval = 'user=%s\001auth=Bearer %s\001\001' % (self.username, http['access_token'])
         except ValueError, KeyError:
-            respuesta = "%s %s" % ( ValueError, KeyError )
-            sys.stderr.write( respuesta )
-            sys.stderr.flush();
             raise OfflineImapError("Malformed JSON response from OAUTH2 server", OfflineImapError.ERROR.REPO)
         
         self.ui.debug('imap', 'oauth2handler: returning %s' % retval)
