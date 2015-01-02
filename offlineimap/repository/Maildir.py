@@ -70,7 +70,7 @@ class MaildirRepository(BaseRepository):
     def getsep(self):
         return self.getconf('sep', '.').strip()
 
-    def makefolder(self, foldername):
+    def makefolder(self, foldername, flags=[]):
         """Create new Maildir folder if necessary
 
         This will not update the list cached in getfolders(). You will

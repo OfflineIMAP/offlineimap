@@ -42,9 +42,9 @@ class LocalStatusSQLiteFolder(BaseFolder):
     #current version of our db format
     cur_version = 2
 
-    def __init__(self, name, repository):
+    def __init__(self, name, repository, flags=[]):
         self.sep = '.' #needs to be set before super.__init__()
-        super(LocalStatusSQLiteFolder, self).__init__(name, repository)
+        super(LocalStatusSQLiteFolder, self).__init__(name, repository, flags)
         self.root = repository.root
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
         self.messagelist = {}

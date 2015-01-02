@@ -60,9 +60,9 @@ def _gettimeseq():
         timelock.release()
 
 class MaildirFolder(BaseFolder):
-    def __init__(self, root, name, sep, repository):
+    def __init__(self, root, name, sep, repository, flags=[]):
         self.sep = sep # needs to be set before super().__init__
-        super(MaildirFolder, self).__init__(name, repository)
+        super(MaildirFolder, self).__init__(name, repository, flags)
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.root = root
         self.messagelist = None

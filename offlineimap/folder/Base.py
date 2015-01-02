@@ -27,11 +27,20 @@ import traceback
 
 
 class BaseFolder(object):
-    def __init__(self, name, repository):
+    def __init__(self, name, repository, flags=[]):
+
+        valid_flags = set([ '\\all', '\\archive', '\\drafts', '\\flagged', '\\junk', '\\sent', '\\trash', '\\important', '\\All', '\\Archive', '\\Drafts', '\\Flagged', '\\Junk', '\\Sent', '\\Trash', '\\Important' ])
+
         """
         :para name: Path & name of folder minus root or reference
         :para repository: Repository() in which the folder is.
         """
+
+        if name.upper() == 'INBOX':
+            name = 'INBOX'
+        else:
+            name = name
+
         self.ui = getglobalui()
         # Save original name for folderfilter operations
         self.ffilter_name = name
@@ -40,6 +49,16 @@ class BaseFolder(object):
         self.name = name if not name == self.getsep() else ''
         self.repository = repository
         self.visiblename = repository.nametrans(name)
+        self.flags = [ flag for flag in flags if flag in valid_flags ]
+        self.flags = [ '\\All' if x == '\\all' else x for x in self.flags ]
+        self.flags = [ '\\Archive' if x == '\\archive' else x for x in self.flags ]
+        self.flags = [ '\\Drafts' if x == '\\drafts' else x for x in self.flags ]
+        self.flags = [ '\\Flagged' if x == '\\flagged' else x for x in self.flags ]
+        self.flags = [ '\\Junk' if x == '\\junk' else x for x in self.flags ]
+        self.flags = [ '\\Sent' if x == '\\sent' else x for x in self.flags ]
+        self.flags = [ '\\Trash' if x == '\\trash' else x for x in self.flags ]
+        self.flags = [ '\\Important' if x == '\\important' else x for x in self.flags ]
+
         # In case the visiblename becomes '.' or '/' (top-level) we use
         # '' as that is the name that e.g. the Maildir scanning will
         # return for the top-level dir.

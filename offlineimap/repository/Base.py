@@ -143,7 +143,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         return (not self._readonly) and \
             self.getconfboolean('createfolders', True)
 
-    def makefolder(self, foldername):
+    def makefolder(self, foldername, flags=[]):
         """Create a new folder"""
         raise NotImplementedError
 
@@ -183,12 +183,13 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
         # Find new folders on src_repo.
         for src_name_t, src_folder in src_hash.iteritems():
+
             # Don't create on dst_repo, if it is readonly
             if not dst_repo.get_create_folders():
                 break
             if src_folder.sync_this and not src_name_t in dst_folders:
                 try:
-                    dst_repo.makefolder(src_name_t)
+                    dst_repo.makefolder(src_name_t, src_folder.flags)
                     dst_haschanged = True # Need to refresh list
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2],
@@ -196,7 +197,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                                       (src_name_t, dst_repo))
                     raise
                 status_repo.makefolder(src_name_t.replace(dst_repo.getsep(),
-                                                   status_repo.getsep()))
+                                                   status_repo.getsep()), src_folder.flags)
         # Find new folders on dst_repo.
         for dst_name_t, dst_folder in dst_hash.iteritems():
             if not src_repo.get_create_folders():
@@ -235,14 +236,14 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                                            OfflineImapError.ERROR.REPO)
                 # end sanity check, actually create the folder
                 try:
-                    src_repo.makefolder(dst_name_t)
+                    src_repo.makefolder(dst_name_t, dst_folder.flags)
                     src_haschanged = True # Need to refresh list
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
                                   "repository %s" % (dst_name_t, src_repo))
                     raise
                 status_repo.makefolder(dst_name_t.replace(
-                                src_repo.getsep(), status_repo.getsep()))
+                                src_repo.getsep(), status_repo.getsep()), dst_folder.flags)
         # Find deleted folders.
         # TODO: We don't delete folders right now.
 

@@ -25,8 +25,8 @@ from offlineimap import imaputil
 class GmailMaildirFolder(MaildirFolder):
     """Folder implementation to support adding labels to messages in a Maildir.
     """
-    def __init__(self, root, name, sep, repository):
-        super(GmailMaildirFolder, self).__init__(root, name, sep, repository)
+    def __init__(self, root, name, sep, repository, flags=[]):
+        super(GmailMaildirFolder, self).__init__(root, name, sep, repository, flags)
 
         # The header under which labels are stored
         self.labelsheader = self.repository.account.getconf('labelsheader', 'X-Keywords')

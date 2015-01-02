@@ -16,12 +16,14 @@
 
 from offlineimap import mbnames, CustomConfig, OfflineImapError
 from offlineimap import globals
+from offlineimap import imaputil
 from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread
 from subprocess import Popen, PIPE
 from threading import Event
 import os
+import sys
 from sys import exc_info
 import traceback
 
@@ -430,10 +432,14 @@ def syncfolder(account, remotefolder, quick):
             if not localfolder.check_uidvalidity():
                 ui.validityproblem(localfolder)
                 localrepos.restore_atime()
+                print 'ACTION { "name" : "validityProblemLocal", "path" : %s }' % imaputil.quote( "%s" % self )
+                sys.stdout.flush()
                 return
             if not remotefolder.check_uidvalidity():
                 ui.validityproblem(remotefolder)
                 localrepos.restore_atime()
+                print 'ACTION { "name" : "validityProblemRemote", "path" : %s }' % imaputil.quote( "%s" % self )
+                sys.stdout.flush()
                 return
         else:
             # Both folders empty, just save new UIDVALIDITY

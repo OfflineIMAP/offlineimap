@@ -26,9 +26,9 @@ class LocalStatusFolder(BaseFolder):
     cur_version = 2
     magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT %d"
 
-    def __init__(self, name, repository):
+    def __init__(self, name, repository, flags=[]):
         self.sep = '.' #needs to be set before super.__init__()
-        super(LocalStatusFolder, self).__init__(name, repository)
+        super(LocalStatusFolder, self).__init__(name, repository, flags)
         self.root = repository.root
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
         self.messagelist = {}

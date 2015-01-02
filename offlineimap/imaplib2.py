@@ -109,6 +109,8 @@ Commands = {
         'SELECT':       ((AUTH, SELECTED),            False),
         'SETACL':       ((AUTH, SELECTED),            False),
         'SETANNOTATION':((AUTH, SELECTED),            True),
+        'SETMETADATA':  ((AUTH, SELECTED),            True),
+        'GETMETADATA':  ((AUTH, SELECTED),            True),
         'SETQUOTA':     ((AUTH, SELECTED),            False),
         'SORT':         ((SELECTED,),                 True),
         'STARTTLS':     ((NONAUTH,),                  False),
@@ -1035,6 +1037,18 @@ class IMAP4(object):
         return self._simple_command('SETANNOTATION', *args, **kw)
 
 
+    def setmetadata(self, mailbox, entry, value, **kw):
+        """(typ, [data]) = setmetadata(mailbox, entry, value)
+        Set a mailbox metadata."""
+
+        return self._simple_command('SETMETADATA', mailbox, entry, value, **kw)
+
+    def getmetadata(self, mailbox, entry, **kw):
+        """(typ, [data]) = getmetadata(mailbox, entry)
+        Get a mailbox metadata."""
+        
+        return self._simple_command('GETMETADATA', mailbox, entry, **kw)
+
     def setquota(self, root, limits, **kw):
         """(typ, [data]) = setquota(root, limits)
         Set the quota root's resource limits."""
@@ -1312,9 +1326,15 @@ class IMAP4(object):
         rqb = self._request_push(name=name, **kw)
 
         data = '%s %s' % (rqb.tag, name)
-        for arg in args:
-            if arg is None: continue
-            data = '%s %s' % (data, self._checkquote(arg))
+
+        if( name == 'SETMETADATA' ):
+            data = '%s %s' % (data, self._checkquote(args[ 0 ]))
+            data = '%s ( %s' % (data, self._checkquote(args[ 1 ]))
+            data = '%s %s )' % (data, self._checkquote(args[ 2 ]))
+        else:        
+            for arg in args:
+                if arg is None: continue
+                data = '%s %s' % (data, self._checkquote(arg))
 
         literal = self.literal
         if literal is not None:
