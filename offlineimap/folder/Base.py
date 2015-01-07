@@ -1,5 +1,5 @@
 # Base folder support
-# Copyright (C) 2002-2011 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import offlineimap.accounts
 import os.path
 import re
 from sys import exc_info
-import traceback
 
 
 class BaseFolder(object):
@@ -113,6 +112,7 @@ class BaseFolder(object):
     def quickchanged(self, statusfolder):
         """ Runs quick check for folder changes and returns changed
         status: True -- changed, False -- not changed.
+
         :param statusfolder: keeps track of the last known folder state.
         """
         return True
@@ -129,11 +129,13 @@ class BaseFolder(object):
         return 1
 
     def getvisiblename(self):
-        """The nametrans-transposed name of the folder's name"""
+        """The nametrans-transposed name of the folder's name."""
+
         return self.visiblename
 
     def getexplainedname(self):
-        """ Name that shows both real and nametrans-mangled values"""
+        """Name that shows both real and nametrans-mangled values."""
+
         if self.name == self.visiblename:
             return self.name
         else:
@@ -401,6 +403,9 @@ class BaseFolder(object):
         """
         Adds new header to the provided message.
 
+        WARNING: This function is a bit tricky, and modifying it in the wrong way,
+        may easily lead to data-loss.
+
         Arguments:
         - content: message content, headers and body as a single string
         - linebreak: string that carries line ending
@@ -512,8 +517,8 @@ class BaseFolder(object):
 
     def getmessageheader(self, content, name):
         """
-        Searches for the given header and returns its value.
-        Header name is case-insensitive.
+        Searches for the first occurence of the given header and returns
+        its value. Header name is case-insensitive.
 
         Arguments:
         - contents: message itself
@@ -533,6 +538,27 @@ class BaseFolder(object):
             return m.group(1).strip()
         else:
             return None
+
+
+    def getmessageheaderlist(self, content, name):
+        """
+        Searches for the given header and returns a list of values for
+        that header.
+
+        Arguments:
+        - contents: message itself
+        - name: name of the header to be searched
+
+        Returns: list of header values or emptylist if no such header was found
+
+        """
+        self.ui.debug('', 'getmessageheaderlist: called to get %s' % name)
+        eoh = self.__find_eoh(content)
+        self.ui.debug('', 'getmessageheaderlist: eoh = %d' % eoh)
+        headers = content[0:eoh]
+        self.ui.debug('', 'getmessageheaderlist: headers = %s' % repr(headers))
+
+        return re.findall('^%s:(.*)$' % name, headers, flags = re.MULTILINE | re.IGNORECASE)
 
 
     def deletemessageheaders(self, content, header_list):
@@ -579,6 +605,7 @@ class BaseFolder(object):
         :param new_uid: (optional) If given, the old UID will be changed
             to a new UID. This allows backends efficient renaming of
             messages if the UID has changed."""
+
         raise NotImplementedError
 
     def deletemessage(self, uid):
@@ -586,6 +613,7 @@ class BaseFolder(object):
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
+
         raise NotImplementedError
 
     def deletemessages(self, uidlist):
@@ -593,6 +621,7 @@ class BaseFolder(object):
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
+
         for uid in uidlist:
             self.deletemessage(uid)
 
@@ -608,6 +637,7 @@ class BaseFolder(object):
         :param statusfolder: A LocalStatusFolder instance
         :param register: whether we should register a new thread."
         :returns: Nothing on success, or raises an Exception."""
+
         # Sometimes, it could be the case that if a sync takes awhile,
         # a message might be deleted from the maildir before it can be
         # synced to the status cache.  This is only a problem with

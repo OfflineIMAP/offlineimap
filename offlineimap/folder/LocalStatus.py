@@ -1,5 +1,5 @@
 # Local status cache virtual folder
-# Copyright (C) 2002 - 2011 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,10 +15,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from .Base import BaseFolder
 import os
 import threading
 
+from .Base import BaseFolder
 
 class LocalStatusFolder(BaseFolder):
     """LocalStatus backend implemented as a plain text file"""
@@ -33,9 +33,9 @@ class LocalStatusFolder(BaseFolder):
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
         self.messagelist = {}
         self.savelock = threading.Lock()
-        self.doautosave = self.config.getdefaultboolean("general", "fsync",
-                                                        False)
-        """Should we perform fsyncs as often as possible?"""
+        # Should we perform fsyncs as often as possible?
+        self.doautosave = self.config.getdefaultboolean(
+            "general", "fsync", False)
 
     # Interface from BaseFolder
     def storesmessages(self):
@@ -63,13 +63,12 @@ class LocalStatusFolder(BaseFolder):
 
 
     def readstatus_v1(self, fp):
-        """
-        Read status folder in format version 1.
+        """Read status folder in format version 1.
 
         Arguments:
         - fp: I/O object that points to the opened database file.
-
         """
+
         for line in fp.xreadlines():
             line = line.strip()
             try:
@@ -86,13 +85,12 @@ class LocalStatusFolder(BaseFolder):
 
 
     def readstatus(self, fp):
-        """
-        Read status file in the current format.
+        """Read status file in the current format.
 
         Arguments:
         - fp: I/O object that points to the opened database file.
-
         """
+
         for line in fp.xreadlines():
             line = line.strip()
             try:
@@ -164,11 +162,13 @@ class LocalStatusFolder(BaseFolder):
 
 
     def save(self):
-        """Save changed data to disk. For this backend it is the same as saveall"""
+        """Save changed data to disk. For this backend it is the same as saveall."""
+
         self.saveall()
 
     def saveall(self):
-        """Saves the entire messagelist to disk"""
+        """Saves the entire messagelist to disk."""
+
         with self.savelock:
             file = open(self.filename + ".tmp", "wt")
             file.write((self.magicline % self.cur_version) + "\n")
@@ -198,6 +198,7 @@ class LocalStatusFolder(BaseFolder):
         See folder/Base for detail. Note that savemessage() does not
         check against dryrun settings, so you need to ensure that
         savemessage is never called in a dryrun mode."""
+
         if uid < 0:
             # We cannot assign a uid.
             return uid
@@ -235,6 +236,7 @@ class LocalStatusFolder(BaseFolder):
 
     def savemessageslabelsbulk(self, labels):
         """Saves labels from a dictionary in a single database operation."""
+
         for uid, lb in labels.items():
             self.messagelist[uid]['labels'] = lb
         self.save()
@@ -254,6 +256,7 @@ class LocalStatusFolder(BaseFolder):
 
     def savemessagesmtimebulk(self, mtimes):
         """Saves mtimes from the mtimes dictionary in a single database operation."""
+
         for uid, mt in mtimes.items():
             self.messagelist[uid]['mtime'] = mt
         self.save()

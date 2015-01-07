@@ -1,5 +1,5 @@
 # Curses-based interfaces
-# Copyright (C) 2003-2011 John Goerzen & contributors
+# Copyright (C) 2003-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,15 +20,15 @@ from collections import deque
 import time
 import sys
 import os
-import signal
 import curses
 import logging
+
 from offlineimap.ui.UIBase import UIBase
 from offlineimap.threadutil import ExitNotifyThread
 import offlineimap
 
-class CursesUtil:
 
+class CursesUtil:
     def __init__(self, *args, **kwargs):
         # iolock protects access to the
         self.iolock = RLock()
@@ -323,6 +323,7 @@ class Blinkenlights(UIBase, CursesUtil):
 
         Sets up things and adds them to self.logger.
         :returns: The logging.Handler() for console output"""
+
         # create console handler with a higher log level
         ch = CursesLogHandler()
         #ch.setLevel(logging.DEBUG)
@@ -337,6 +338,7 @@ class Blinkenlights(UIBase, CursesUtil):
 
     def isusable(s):
         """Returns true if the backend is usable ie Curses works"""
+
         # Not a terminal?  Can't use curses.
         if not sys.stdout.isatty() and sys.stdin.isatty():
             return False
@@ -392,6 +394,7 @@ class Blinkenlights(UIBase, CursesUtil):
 
     def acct(self, *args):
         """Output that we start syncing an account (and start counting)"""
+
         self.gettf().setcolor('purple')
         super(Blinkenlights, self).acct(*args)
 

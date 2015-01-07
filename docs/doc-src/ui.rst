@@ -3,7 +3,10 @@
 
 .. currentmodule:: offlineimap.ui
 
-OfflineImap has various ui systems, that can be selected. They offer various functionalities. They must implement all functions that the :class:`offlineimap.ui.UIBase` offers. Early on, the ui must be set using :meth:`getglobalui`
+OfflineImap has various ui systems, that can be selected. They offer various
+functionalities. They must implement all functions that the
+:class:`offlineimap.ui.UIBase` offers. Early on, the ui must be set using
+:meth:`getglobalui`
 
 .. automethod:: offlineimap.ui.setglobalui
 .. automethod:: offlineimap.ui.getglobalui

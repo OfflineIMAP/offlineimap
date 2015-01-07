@@ -1,6 +1,6 @@
 # Mailbox name generator
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+#
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -49,13 +49,14 @@ def write():
 def __genmbnames():
     """Takes a configparser object and a boxlist, which is a list of hashes
     containing 'accountname' and 'foldername' keys."""
+
     xforms = [os.path.expanduser, os.path.expandvars]
     mblock.acquire()
     try:
         localeval = config.getlocaleval()
         if not config.getdefaultboolean("mbnames", "enabled", 0):
             return
-        path = config.apply_xform(config.get("mbnames", "filename"), xforms)
+        path = config.apply_xforms(config.get("mbnames", "filename"), xforms)
         file = open(path, "wt")
         file.write(localeval.eval(config.get("mbnames", "header")))
         folderfilter = lambda accountname, foldername: 1

@@ -1,6 +1,5 @@
 # Locking debugging code -- temporary
-# Copyright (C) 2003 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2003-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

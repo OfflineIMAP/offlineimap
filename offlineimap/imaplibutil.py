@@ -1,6 +1,5 @@
 # imaplib utilities
-# Copyright (C) 2002-2007 John Goerzen <jgoerzen@complete.org>
-#               2012-2012 Sebastian Spaeth <Sebastian@SSpaeth.de>
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -17,9 +16,6 @@
 
 import os
 import fcntl
-import re
-import socket
-import ssl
 import time
 import subprocess
 import threading
@@ -27,7 +23,7 @@ from hashlib import sha1
 
 from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
-from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, IMAP4_PORT, InternalDate, Mon2num
+from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, InternalDate, Mon2num
 
 
 class UsefulIMAPMixIn(object):
@@ -36,11 +32,12 @@ class UsefulIMAPMixIn(object):
             return self.mailbox
         return None
 
-    def select(self, mailbox='INBOX', readonly=False, force = False):
+    def select(self, mailbox='INBOX', readonly=False, force=False):
         """Selects a mailbox on the IMAP server
 
         :returns: 'OK' on success, nothing if the folder was already
-        selected or raises an :exc:`OfflineImapError`"""
+        selected or raises an :exc:`OfflineImapError`."""
+
         if self.__getselectedfolder() == mailbox and self.is_readonly == readonly \
                 and not force:
             # No change; return.
@@ -70,6 +67,7 @@ class UsefulIMAPMixIn(object):
     def _mesg(self, s, tn=None, secs=None):
         new_mesg(self, s, tn, secs)
 
+
 class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
     """IMAP4 client class over a tunnel
 
@@ -83,6 +81,7 @@ class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
 
     def open(self, host, port):
         """The tunnelcmd comes in on host!"""
+
         self.host = host
         self.process = subprocess.Popen(host, shell=True, close_fds=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -93,7 +92,8 @@ class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
         self.set_nonblocking(self.read_fd)
 
     def set_nonblocking(self, fd):
-        "Mark fd as nonblocking"
+        """Mark fd as nonblocking"""
+
         # get the file's current flag settings
         fl = fcntl.fcntl(fd, fcntl.F_GETFL)
         # clear non-blocking mode from flags
@@ -118,9 +118,7 @@ class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
         if self.compressor is not None:
             data = self.compressor.compress(data)
             data += self.compressor.flush(zlib.Z_SYNC_FLUSH)
-
         self.outfd.write(data)
-
 
     def shutdown(self):
         self.infd.close()
@@ -138,7 +136,8 @@ def new_mesg(self, s, tn=None, secs=None):
 
 
 class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
-    """Improved version of imaplib.IMAP4_SSL overriding select()"""
+    """Improved version of imaplib.IMAP4_SSL overriding select()."""
+
     def __init__(self, *args, **kwargs):
         self._fingerprint = kwargs.get('fingerprint', None)
         if type(self._fingerprint) != type([]):
@@ -149,32 +148,34 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
 
     def open(self, host=None, port=None):
         if not self.ca_certs and not self._fingerprint:
-            raise OfflineImapError("No CA certificates " + \
-              "and no server fingerprints configured.  " + \
-              "You must configure at least something, otherwise " + \
+            raise OfflineImapError("No CA certificates "
+              "and no server fingerprints configured.  "
+              "You must configure at least something, otherwise "
               "having SSL helps nothing.", OfflineImapError.ERROR.REPO)
         super(WrappedIMAP4_SSL, self).open(host, port)
         if self._fingerprint:
             # compare fingerprints
             fingerprint = sha1(self.sock.getpeercert(True)).hexdigest()
             if fingerprint not in self._fingerprint:
-                raise OfflineImapError("Server SSL fingerprint '%s' " % fingerprint + \
-                      "for hostname '%s' " % host + \
-                      "does not match configured fingerprint(s) %s.  " % self._fingerprint + \
-                      "Please verify and set 'cert_fingerprint' accordingly " + \
-                      "if not set yet.", OfflineImapError.ERROR.REPO)
+                raise OfflineImapError("Server SSL fingerprint '%s' "
+                      "for hostname '%s' "
+                      "does not match configured fingerprint(s) %s.  "
+                      "Please verify and set 'cert_fingerprint' accordingly "
+                      "if not set yet."%
+                      (fingerprint, host, self._fingerprint),
+                      OfflineImapError.ERROR.REPO)
 
 
 class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
-    """Improved version of imaplib.IMAP4 overriding select()"""
+    """Improved version of imaplib.IMAP4 overriding select()."""
+
     pass
 
 
 def Internaldate2epoch(resp):
     """Convert IMAP4 INTERNALDATE to UT.
 
-    Returns seconds since the epoch.
-    """
+    Returns seconds since the epoch."""
 
     mo = InternalDate.match(resp)
     if not mo:

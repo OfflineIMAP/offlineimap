@@ -10,6 +10,7 @@ class OfflineImapError(Exception):
         * **REPO**:     Abort repository sync, continue with next account
         * **CRITICAL**: Immediately exit offlineimap
         """
+
         MESSAGE, FOLDER_RETRY, FOLDER, REPO, CRITICAL = 0, 10, 15, 20, 30
 
     def __init__(self, reason, severity, errcode=None):
@@ -26,6 +27,7 @@ class OfflineImapError(Exception):
                value). So far, no errcodes have been defined yet.
 
         :type severity: OfflineImapError.ERROR value"""
+
         self.errcode  = errcode
         self.severity = severity
 
