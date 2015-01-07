@@ -5,10 +5,26 @@ ChangeLog
 :website: http://offlineimap.org
 
 
-OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
-=================================
+OfflineIMAP v6.5.7-rc1 (2015-01-07)
+===================================
 
-* Properly generate tarball from "sdist" command (GitHub #137)
+Notes
+-----
+
+I think it's time for a new release candidate. Our release cycle are long
+enough and users are asked to use the current TIP of the next branch to test
+our recent patches.
+
+The current version makes better support for environment variable expansion and
+improves OS portability. Gmail should be better supported: we are still
+expecting feedbacks. Embedded library imaplib2 is updated to v2.37.
+Debugging messages are added and polished.
+
+There's some code cleanups and refactoring, also.
+
+
+Features
+--------
 
 * Expand environment variables in the following
   configuration items:
@@ -21,39 +37,73 @@ OfflineIMAP v6.5.6.1 (YYYY-MM-DD)
   configuration items:
   - Repository.sslclientcert;
   - Repository.sslclientkey.
-
-* Updated bundled imaplib2 to 2.37:
-  - add missing idle_lock in _handler()
-
+* Support default CA bundle locations for a couple of
+  known Unix systems (Michael Vogt, GutHub pull #19)
 * Added default CA bundle location for OpenBSD
   (GitHub pull #120) and DragonFlyBSD.
 
+Fixes
+-----
+
+* Fix unbounded recursion during flag update (Josh Berry).
+* Do not ignore gmail labels if header appears multiple times
+* Delete gmail labels header before adding a new one
+* Fix improper header separator for X-OfflineIMAP header
+* Match header names case-insensitively
+* Create SQLite database directory if it doesn't exist
+  yet; warn if path is not a directory (Nick Farrell,
+  GutHub pull #102)
+* Properly manipulate contents of messagelist for folder
+* Fix label processing in GmailMaildir
+* Properly capitalize OpenSSL
+* Fix warning-level message processing by MachineUI
+  (GitHub pull #64, GitHub pull #118).
+* Properly generate tarball from "sdist" command (GitHub #137)
+* Fix Markdown formatting
+* Fix typo in apply_xforms invocation
+* Merge pull request #136 from aroig/gh/label-fix
+* Fix mangled message headers for servers without UIDPLUS:
+  X-OfflineIMAP was added with preceeding '\n' instead of
+  '\r\n' just before message was uploaded to the IMAP server.
+* Add missing version bump for 6.5.6 (it was released with
+  6.5.5 in setup.py and other places).
+
+Changes
+-------
+
+* Warn about a tricky piece of code in addmessageheader
+* Rename addmessageheader()'s crlf parameter to linebreak
+* addmessageheader: fix case #2 and flesh out docstring
+* addmessageheader(): add debug for header insertion
+* Add version qualifier to differentiate releases and development ones
+* More clearly show results of folder name translation
+* IMAP: provide message-id in error messages
+* Trade recursion by plain old cycle
+* Avoid copying array every time, just slice it
 * Added OpenSSL exception clause to our main GPL to allow
   people to link with OpenSSL in run-time.  It is needed
   at least for Debian, see
     https://lists.debian.org/debian-legal/2002/10/msg00113.html
   for details.
+* Brought CustomConfig.py into more proper shape
+* Updated bundled imaplib2 to 2.37:
+  - add missing idle_lock in _handler()
+* Imaplib2: trade backticks to repr()
+* Introduce CustomConfig method that applies set of transforms
+* imaplibutil.py: remove unused imports
+* CustomConfig.py: remove unused imports
+* init.py: remove unused import
+* repository/Base.py: remove unused import
+* repository/GmailMaildir.py: remove unused import
+* repository/LocalStatus.py: remove unused import
+* ui/Curses.py: remove unused import
+* ui/UIBase.py: remove unused import
+* localeval: comment on security issues
+* docs: remove obsolete comment about SubmittingPatches.rst
+* utils/const.py: fix ident
+* ui/UIBase: folderlist(): avoid built-in list() redefinition
+* more consistent style
 
-* Fix warning-level message processing by MachineUI
-  (GitHub pull #64, GitHub pull #118).
-
-* Support default CA bundle locations for a couple of
-  known Unix systems (Michael Vogt, GutHub pull #19)
-
-* Create SQLite database directory if it doesn't exist
-  yet; warn if path is not a directory (Nick Farrell,
-  GutHub pull #102)
-
-* Fix mangled message headers for servers without UIDPLUS:
-  X-OfflineIMAP was added with preceeding '\n' instead of
-  '\r\n' just before message was uploaded to the IMAP server.
-
-* Add missing version bump for 6.5.6 (it was released with
-  6.5.5 in setup.py and other places).
-
-* Various fixes in documentation.
-
-* Fix unbounded recursion during flag update (Josh Berry).
 
 
 OfflineIMAP v6.5.6 (2014-05-14)
@@ -272,7 +322,9 @@ OfflineIMAP v6.5.1 (2012-01-07) - "Quest for stability"
 OfflineIMAP v6.5.0 (2012-01-06)
 ===============================
 
-This is a CRITICAL bug fix release for everyone who is on the 6.4.x series. Please upgrade to avoid potential data loss! The version has been bumped to 6.5.0, please let everyone know that the 6.4.x series is problematic.
+This is a CRITICAL bug fix release for everyone who is on the 6.4.x series.
+Please upgrade to avoid potential data loss! The version has been bumped to
+6.5.0, please let everyone know that the 6.4.x series is problematic.
 
 * Uploading multiple emails to an IMAP server would lead to wrong UIDs
   being returned (ie the same for all), which confused offlineimap and
@@ -368,7 +420,8 @@ Bug Fixes
 OfflineIMAP v6.4.0 (2011-09-29)
 ===============================
 
-This is the first stable release to support the forward-compatible per-account locks and remote folder creation that has been introduced in the 6.3.5 series.
+This is the first stable release to support the forward-compatible per-account
+locks and remote folder creation that has been introduced in the 6.3.5 series.
 
 * Various regression and bug fixes from the last couple of RCs
 

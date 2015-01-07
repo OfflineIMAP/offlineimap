@@ -1,10 +1,10 @@
 __all__ = ['OfflineImap']
 
 __productname__ = 'OfflineIMAP'
-__version__     = "6.5.6.1"
-__revision__    = "-devel"
+__version__     = "6.5.7"
+__revision__    = "-rc1"
 __bigversion__	= __version__ + __revision__
-__copyright__   = "Copyright 2002-2013 John Goerzen & contributors"
+__copyright__   = "Copyright 2002-2015 John Goerzen & contributors"
 __author__      = "John Goerzen"
 __author_email__= "john@complete.org"
 __description__ = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
