@@ -53,8 +53,8 @@ class LocalStatusRepository(BaseRepository):
             self.LocalStatusFolderClass = self.backends[backend]['class']
 
         else:
-            raise SyntaxWarning("Unknown status_backend '%s' for account '%s'" \
-                                % (backend, self.account.name))
+            raise SyntaxWarning("Unknown status_backend '%s' for account '%s'"%
+                                (backend, self.account.name))
 
     def import_other_backend(self, folder):
         for bk, dic in self.backends.items():
@@ -68,8 +68,9 @@ class LocalStatusRepository(BaseRepository):
 
             # if backend contains data, import it to folder.
             if not folderbk.isnewfolder():
-                self.ui._msg('Migrating LocalStatus cache from %s to %s ' % (bk, self._backend) + \
-                             'status folder for %s:%s' % (self.name, folder.name))
+                self.ui._msg('Migrating LocalStatus cache from %s to %s " \
+                    "status folder for %s:%s'%
+                    (bk, self._backend, self.name, folder.name))
 
                 folderbk.cachemessagelist()
                 folder.messagelist = folderbk.messagelist

@@ -167,6 +167,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         that forward and backward nametrans actually match up!
         Configuring nametrans on BOTH repositories therefore could lead
         to infinite folder creation cycles."""
+
         if not self.get_create_folders() and not dst_repo.get_create_folders():
             # quick exit if no folder creation is enabled on either side.
             return

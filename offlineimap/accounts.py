@@ -321,18 +321,18 @@ class SyncableAccount(Account):
 
                 if not remotefolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
-                                  "[%s]" % (remotefolder, remoterepos))
+                                  "[%s]"% (remotefolder, remoterepos))
                     continue # Ignore filtered folder
                 localfolder = self.get_local_folder(remotefolder)
                 if not localfolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
-                                 "[%s]" % (localfolder, localfolder.repository))
+                                 "[%s]"% (localfolder, localfolder.repository))
                     continue # Ignore filtered folder
                 if not globals.options.singlethreading:
                     thread = InstanceLimitedThread(\
                         instancename = 'FOLDER_' + self.remoterepos.getname(),
                         target = syncfolder,
-                        name = "Folder %s [acc: %s]" % (remotefolder.getexplainedname(), self),
+                        name = "Folder %s [acc: %s]"% (remotefolder.getexplainedname(), self),
                         args = (self, remotefolder, quick))
                     thread.start()
                     folderthreads.append(thread)
@@ -385,6 +385,7 @@ def syncfolder(account, remotefolder, quick):
     """Synchronizes given remote folder for the specified account.
 
     Filtered folders on the remote side will not invoke this function."""
+
     remoterepos = account.remoterepos
     localrepos = account.localrepos
     statusrepos = account.statusrepos

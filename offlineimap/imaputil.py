@@ -121,8 +121,7 @@ def imapsplit(imapstring):
                 arg = arg.replace('\\', '\\\\')
                 arg = arg.replace('"', '\\"')
                 arg = '"%s"' % arg
-                __debug("imapsplit() non-string [%d]: Appending %s" %\
-                      (i, arg))
+                __debug("imapsplit() non-string [%d]: Appending %s"% (i, arg))
                 retval.append(arg)
             else:
                 # Even -- we have a string that ends with a literal
@@ -131,8 +130,8 @@ def imapsplit(imapstring):
                 # Recursion to the rescue.
                 arg = imapstring[i]
                 arg = re.sub('\{\d+\}$', '', arg)
-                __debug("imapsplit() non-string [%d]: Feeding %s to recursion" %\
-                      (i, arg))
+                __debug("imapsplit() non-string [%d]: Feeding %s to recursion"%\
+                    (i, arg))
                 retval.extend(imapsplit(arg))
         __debug("imapsplit() non-string: returning %s" % str(retval))
         return retval
@@ -274,7 +273,7 @@ def __split_quoted(s):
 def format_labels_string(header, labels):
     """Formats labels for embedding into a message,
     with format according to header name.
-    
+
     Headers from SPACE_SEPARATED_LABEL_HEADERS keep space-separated list
     of labels, the rest uses comma (',') as the separator.
 

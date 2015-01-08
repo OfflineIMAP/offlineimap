@@ -393,11 +393,11 @@ class UIBase(object):
                 uid, dest, num, num_to_set, ", ".join(labels)))
 
     def collectingdata(self, uidlist, source):
-      if uidlist:
-        self.logger.info("Collecting data from %d messages on %s" % (
+        if uidlist:
+            self.logger.info("Collecting data from %d messages on %s"% (
                 len(uidlist), source))
-      else:
-        self.logger.info("Collecting data from messages on %s" % source)
+        else:
+            self.logger.info("Collecting data from messages on %s"% source)
 
     def serverdiagnostics(self, repository, type):
         """Connect to repository and output useful information for debugging."""

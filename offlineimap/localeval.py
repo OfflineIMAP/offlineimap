@@ -23,9 +23,7 @@ except:
     pass
 
 class LocalEval:
-    """Here is a powerfull but very dangerous option, of course.
-
-    Assume source file to be ASCII encoded."""
+    """Here is a powerfull but very dangerous option, of course."""
 
     def __init__(self, path=None):
         self.namespace = {}

@@ -23,6 +23,7 @@ import signal
 import socket
 import logging
 from optparse import OptionParser
+
 import offlineimap
 from offlineimap import accounts, threadutil, syncmaster
 from offlineimap import globals
@@ -180,7 +181,7 @@ class OfflineImap:
         config = CustomConfigParser()
         if not os.path.exists(configfilename):
             # TODO, initialize and make use of chosen ui for logging
-            logging.error(" *** Config file '%s' does not exist; aborting!" %
+            logging.error(" *** Config file '%s' does not exist; aborting!"%
                           configfilename)
             sys.exit(1)
         config.read(configfilename)
@@ -193,14 +194,14 @@ class OfflineImap:
                 options.singlethreading = True
             if os.path.exists(options.profiledir):
                 # TODO, make use of chosen ui for logging
-                logging.warn("Profile mode: Directory '%s' already exists!" %
+                logging.warn("Profile mode: Directory '%s' already exists!"%
                              options.profiledir)
             else:
                 os.mkdir(options.profiledir)
             threadutil.ExitNotifyThread.set_profiledir(options.profiledir)
             # TODO, make use of chosen ui for logging
             logging.warn("Profile mode: Potentially large data will be "
-                         "created in '%s'" % options.profiledir)
+                         "created in '%s'"% options.profiledir)
 
         #override a config value
         if options.configoverride:
@@ -234,8 +235,8 @@ class OfflineImap:
             # create the ui class
             self.ui = UI_LIST[ui_type.lower()](config)
         except KeyError:
-            logging.error("UI '%s' does not exist, choose one of: %s" % \
-                              (ui_type,', '.join(UI_LIST.keys())))
+            logging.error("UI '%s' does not exist, choose one of: %s"% \
+                              (ui_type, ', '.join(UI_LIST.keys())))
             sys.exit(1)
         setglobalui(self.ui)
 
@@ -331,13 +332,13 @@ class OfflineImap:
             for account in activeaccounts:
                 if account not in allaccounts:
                     if len(allaccounts) == 0:
-                        errormsg = "The account '%s' does not exist because no"\
-                        " accounts are defined!" % account
+                        errormsg = "The account '%s' does not exist because no" \
+                            " accounts are defined!"% account
                     else:
-                        errormsg = "The account '%s' does not exist.  Valid ac"\
-                        "counts are: " % account
-                        errormsg += ", ".join(allaccounts.keys())
-                    self.ui.terminate(1, errormsg = errormsg)
+                        errormsg = "The account '%s' does not exist.  Valid ac" \
+                            "counts are: %s"% \
+                            (account, ", ".join(allaccounts.keys()))
+                    self.ui.terminate(1, errormsg=errormsg)
                 if account not in syncaccounts:
                     syncaccounts.append(account)
 

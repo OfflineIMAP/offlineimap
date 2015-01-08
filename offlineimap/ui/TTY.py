@@ -23,7 +23,7 @@ from offlineimap import banner
 from offlineimap.ui.UIBase import UIBase
 
 class TTYFormatter(logging.Formatter):
-    """Specific Formatter that adds thread information to the log output"""
+    """Specific Formatter that adds thread information to the log output."""
 
     def __init__(self, *args, **kwargs):
         #super() doesn't work in py2.6 as 'logging' uses old-style class
@@ -31,7 +31,8 @@ class TTYFormatter(logging.Formatter):
         self._last_log_thread = None
 
     def format(self, record):
-        """Override format to add thread information"""
+        """Override format to add thread information."""
+
         #super() doesn't work in py2.6 as 'logging' uses old-style class
         log_str = logging.Formatter.format(self, record)
         # If msg comes from a different thread than our last, prepend
@@ -44,7 +45,7 @@ class TTYFormatter(logging.Formatter):
             self._last_log_thread = t_name
             log_str = "%s:\n %s" % (t_name, log_str)
         else:
-            log_str = " %s" % log_str
+            log_str = " %s"% log_str
         return log_str
 
 
@@ -69,15 +70,15 @@ class TTYUI(UIBase):
         return ch
 
     def isusable(self):
-        """TTYUI is reported as usable when invoked on a terminal"""
+        """TTYUI is reported as usable when invoked on a terminal."""
 
         return sys.stdout.isatty() and sys.stdin.isatty()
 
     def getpass(self, accountname, config, errmsg=None):
-        """TTYUI backend is capable of querying the password"""
+        """TTYUI backend is capable of querying the password."""
 
         if errmsg:
-            self.warn("%s: %s" % (accountname, errmsg))
+            self.warn("%s: %s"% (accountname, errmsg))
         self._log_con_handler.acquire() # lock the console output
         try:
             return getpass("Enter password for account '%s': " % accountname)
@@ -87,7 +88,7 @@ class TTYUI(UIBase):
     def mainException(self):
         if isinstance(sys.exc_info()[1], KeyboardInterrupt):
             self.logger.warn("Timer interrupted at user request; program "
-                             "terminating.\n")
+                "terminating.\n")
             self.terminate()
         else:
             UIBase.mainException(self)
@@ -100,12 +101,11 @@ class TTYUI(UIBase):
 
         This implementation in UIBase does not support this, but some
         implementations return 0 for successful sleep and 1 for an
-        'abort', ie a request to sync immediately.
-        """
+        'abort', ie a request to sync immediately."""
 
         if sleepsecs > 0:
             if remainingsecs//60 != (remainingsecs-sleepsecs)//60:
                 self.logger.info("Next refresh in %.1f minutes" % (
-                        remainingsecs/60.0))
+                    remainingsecs/60.0))
             time.sleep(sleepsecs)
         return 0

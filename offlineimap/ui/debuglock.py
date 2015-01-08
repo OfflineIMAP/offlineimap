@@ -28,7 +28,8 @@ class DebuggingLock:
     def acquire(self, blocking = 1):
         self.print_tb("Acquire lock")
         self.lock.acquire(blocking)
-        self.logmsg("===== %s: Thread %s acquired lock\n" % (self.name, currentThread().getName()))
+        self.logmsg("===== %s: Thread %s acquired lock\n"%
+            (self.name, currentThread().getName()))
 
     def release(self):
         self.print_tb("Release lock")
@@ -41,7 +42,7 @@ class DebuggingLock:
         loglock.release()
 
     def print_tb(self, msg):
-        self.logmsg(".... %s: Thread %s attempting to %s\n" % \
+        self.logmsg(".... %s: Thread %s attempting to %s\n"% \
                     (self.name, currentThread().getName(), msg) + \
                     "\n".join(traceback.format_list(traceback.extract_stack())))
 

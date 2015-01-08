@@ -32,7 +32,7 @@ class MaildirRepository(BaseRepository):
         self.root = self.getlocalroot()
         self.folders = None
         self.ui = getglobalui()
-        self.debug("MaildirRepository initialized, sep is " + repr(self.getsep()))
+        self.debug("MaildirRepository initialized, sep is %s"% repr(self.getsep()))
         self.folder_atimes = []
 
         # Create the top-level folder if it doesn't exist
@@ -101,12 +101,12 @@ class MaildirRepository(BaseRepository):
 
         # If we're using hierarchical folders, it's possible that
         # sub-folders may be created before higher-up ones.
-        self.debug("makefolder: calling makedirs '%s'" % full_path)
+        self.debug("makefolder: calling makedirs '%s'"% full_path)
         try:
             os.makedirs(full_path, 0o700)
         except OSError as e:
             if e.errno == 17 and os.path.isdir(full_path):
-                self.debug("makefolder: '%s' already a directory" % foldername)
+                self.debug("makefolder: '%s' already a directory"% foldername)
             else:
                 raise
         for subdir in ['cur', 'new', 'tmp']:
@@ -114,13 +114,13 @@ class MaildirRepository(BaseRepository):
                 os.mkdir(os.path.join(full_path, subdir), 0o700)
             except OSError as e:
                 if e.errno == 17 and os.path.isdir(full_path):
-                    self.debug("makefolder: '%s' already has subdir %s" %
+                    self.debug("makefolder: '%s' already has subdir %s"%
                                (foldername, subdir))
                 else:
                     raise
 
     def deletefolder(self, foldername):
-        self.ui.warn("NOT YET IMPLEMENTED: DELETE FOLDER %s" % foldername)
+        self.ui.warn("NOT YET IMPLEMENTED: DELETE FOLDER %s"% foldername)
 
     def getfolder(self, foldername):
         """Return a Folder instance of this Maildir
@@ -128,6 +128,7 @@ class MaildirRepository(BaseRepository):
         If necessary, scan and cache all foldernames to make sure that
         we only return existing folders and that 2 calls with the same
         name will return the same object."""
+
         # getfolders() will scan and cache the values *if* necessary
         folders = self.getfolders()
         for f in folders:
@@ -142,8 +143,9 @@ class MaildirRepository(BaseRepository):
 
         :param root: (absolute) path to Maildir root
         :param extension: (relative) subfolder to examine within root"""
-        self.debug("_GETFOLDERS_SCANDIR STARTING. root = %s, extension = %s" \
-                   % (root, extension))
+
+        self.debug("_GETFOLDERS_SCANDIR STARTING. root = %s, extension = %s"%
+                   (root, extension))
         retval = []
 
         # Configure the full path to this repository -- "toppath"
@@ -151,11 +153,11 @@ class MaildirRepository(BaseRepository):
             toppath = os.path.join(root, extension)
         else:
             toppath = root
-        self.debug("  toppath = %s" % toppath)
+        self.debug("  toppath = %s"% toppath)
 
         # Iterate over directories in top & top itself.
         for dirname in os.listdir(toppath) + ['']:
-            self.debug("  dirname = %s" % dirname)
+            self.debug("  dirname = %s"% dirname)
             if dirname == '' and extension is not None:
                 self.debug('  skip this entry (already scanned)')
                 continue
@@ -178,7 +180,7 @@ class MaildirRepository(BaseRepository):
                 os.path.isdir(os.path.join(fullname, 'new')) and
                 os.path.isdir(os.path.join(fullname, 'tmp'))):
                 # This directory has maildir stuff -- process
-                self.debug("  This is maildir folder '%s'." % foldername)
+                self.debug("  This is maildir folder '%s'."% foldername)
                 if self.getconfboolean('restoreatime', False):
                     self._append_folder_atimes(foldername)
                 fd = self.getfoldertype()(self.root, foldername,
@@ -188,7 +190,7 @@ class MaildirRepository(BaseRepository):
             if self.getsep() == '/' and dirname != '':
                 # Recursively check sub-directories for folders too.
                 retval.extend(self._getfolders_scandir(root, foldername))
-        self.debug("_GETFOLDERS_SCANDIR RETURNING %s" % \
+        self.debug("_GETFOLDERS_SCANDIR RETURNING %s"% \
                    repr([x.getname() for x in retval]))
         return retval
 
