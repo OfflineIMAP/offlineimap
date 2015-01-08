@@ -1,5 +1,5 @@
 # Some useful functions to extract data out of emails
-# Copyright (C) 2002-2012 John Goerzen & contributors
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 import email
 from email.Parser import Parser as MailParser
-import time
 
 def get_message_date(content, header='Date'):
     """
