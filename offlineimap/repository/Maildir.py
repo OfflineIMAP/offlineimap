@@ -130,11 +130,11 @@ class MaildirRepository(BaseRepository):
         name will return the same object."""
         # getfolders() will scan and cache the values *if* necessary
         folders = self.getfolders()
-        for folder in folders:
-            if foldername == folder.name:
-                return folder
+        for f in folders:
+            if foldername == f.name:
+                return f
         raise OfflineImapError("getfolder() asked for a nonexisting "
-                               "folder '%s'." % foldername,
+                               "folder '%s'."% foldername,
                                OfflineImapError.ERROR.FOLDER)
 
     def _getfolders_scandir(self, root, extension=None):
