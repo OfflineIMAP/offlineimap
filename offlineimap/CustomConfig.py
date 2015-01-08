@@ -93,11 +93,7 @@ class CustomConfigParser(SafeConfigParser):
     def getlocaleval(self):
         xforms = [os.path.expanduser, os.path.expandvars]
         if self.has_option("general", "pythonfile"):
-            if globals.options.use_unicode:
-                path = uni.fsEncode(self.get("general", "pythonfile"),
-                    exception_msg="cannot convert character for pythonfile")
-            else:
-                path = self.get("general", "pythonfile")
+            path = self.get("general", "pythonfile")
             path = self.apply_xforms(path, xforms)
         else:
             path = None
@@ -112,16 +108,8 @@ class CustomConfigParser(SafeConfigParser):
         For instance, for "Account Test", returns "Test"."""
 
         key = key + ' '
-        if globals.options.use_unicode:
-            sections = []
-            for section in self.sections():
-                sections.append(uni.uni2str(section, exception_msg=
-                    "non ASCII character in section %s"% section))
-            return [x[len(key):] for x in sections \
-                if x.startswith(key)]
-        else:
-            return [x[len(key):] for x in self.sections() \
-                if x.startswith(key)]
+        return [x[len(key):] for x in self.sections() \
+             if x.startswith(key)]
 
     def set_if_not_exists(self, section, option, value):
         """Set a value if it does not exist yet.
