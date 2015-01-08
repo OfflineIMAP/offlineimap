@@ -32,29 +32,29 @@ def __debug(*args):
         msg.append(str(arg))
     getglobalui().debug('imap', " ".join(msg))
 
-def dequote(string):
+def dequote(s):
     """Takes string which may or may not be quoted and unquotes it.
 
     It only considers double quotes. This function does NOT consider
     parenthised lists to be quoted."""
 
-    if string and string.startswith('"') and string.endswith('"'):
-        string = string[1:-1]  # Strip off the surrounding quotes.
-        string = string.replace('\\"', '"')
-        string = string.replace('\\\\', '\\')
-    return string
+    if s and s.startswith('"') and s.endswith('"'):
+        s = s[1:-1]  # Strip off the surrounding quotes.
+        s = s.replace('\\"', '"')
+        s = s.replace('\\\\', '\\')
+    return s
 
-def quote(string):
+def quote(s):
     """Takes an unquoted string and quotes it.
 
     It only adds double quotes. This function does NOT consider
     parenthised lists to be quoted."""
 
-    string = string.replace('"', '\\"')
-    string = string.replace('\\', '\\\\')
-    return '"%s"' % string
+    s = s.replace('"', '\\"')
+    s = s.replace('\\', '\\\\')
+    return '"%s"'% s
 
-def flagsplit(string):
+def flagsplit(s):
     """Converts a string of IMAP flags to a list
 
     :returns: E.g. '(\\Draft \\Deleted)' returns  ['\\Draft','\\Deleted'].
@@ -62,9 +62,9 @@ def flagsplit(string):
         ['FLAGS,'(\\Seen Old)','UID', '4807']
     """
 
-    if string[0] != '(' or string[-1] != ')':
-        raise ValueError("Passed string '%s' is not a flag list" % string)
-    return imapsplit(string[1:-1])
+    if s[0] != '(' or s[-1] != ')':
+        raise ValueError("Passed s '%s' is not a flag list"% s)
+    return imapsplit(s[1:-1])
 
 def __options2hash(list):
     """convert list [1,2,3,4,5,6] to {1:2, 3:4, 5:6}"""
@@ -234,41 +234,41 @@ def uid_sequence(uidlist):
     return ",".join(retval)
 
 
-def __split_quoted(string):
-	"""Looks for the ending quote character in the string that starts
-	with quote character, splitting out quoted component and the
-	rest of the string (without possible space between these two
-	parts.
+def __split_quoted(s):
+    """Looks for the ending quote character in the string that starts
+    with quote character, splitting out quoted component and the
+    rest of the string (without possible space between these two
+    parts.
 
-	First character of the string is taken to be quote character.
+    First character of the string is taken to be quote character.
 
-	Examples:
-	 - "this is \" a test" (\\None) => ("this is \" a test", (\\None))
-	 - "\\" => ("\\", )
-	"""
+    Examples:
+     - "this is \" a test" (\\None) => ("this is \" a test", (\\None))
+     - "\\" => ("\\", )
+    """
 
-	if len(string) == 0:
-		return ('', '')
+    if len(s) == 0:
+        return ('', '')
 
-	q = quoted = string[0]
-	rest = string[1:]
-	while True:
-		next_q = rest.find(q)
-		if next_q == -1:
-			raise ValueError("can't find ending quote '%s' in '%s'" % (q, string))
-		# If quote is preceeded by even number of backslashes,
-		# then it is the ending quote, otherwise the quote
-		# character is escaped by backslash, so we should
-		# continue our search.
-		is_escaped = False
-		i = next_q - 1
-		while i >= 0 and rest[i] == '\\':
-			i -= 1
-			is_escaped = not is_escaped
-		quoted += rest[0:next_q + 1]
-		rest = rest[next_q + 1:]
-		if not is_escaped:
-			return (quoted, rest.lstrip())
+    q = quoted = s[0]
+    rest = s[1:]
+    while True:
+        next_q = rest.find(q)
+        if next_q == -1:
+            raise ValueError("can't find ending quote '%s' in '%s'"% (q, s))
+        # If quote is preceeded by even number of backslashes,
+        # then it is the ending quote, otherwise the quote
+        # character is escaped by backslash, so we should
+        # continue our search.
+        is_escaped = False
+        i = next_q - 1
+        while i >= 0 and rest[i] == '\\':
+            i -= 1
+            is_escaped = not is_escaped
+        quoted += rest[0:next_q + 1]
+        rest = rest[next_q + 1:]
+        if not is_escaped:
+            return (quoted, rest.lstrip())
 
 
 def format_labels_string(header, labels):
