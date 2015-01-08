@@ -5,13 +5,62 @@ ChangeLog
 :website: http://offlineimap.org
 
 
+OfflineIMAP v6.5.7-rc2 (2015-01-18)
+===================================
+
+Notes
+-----
+
+This release candidate should be minor for most users.
+
+The best points are about SSL not falling back on other authentication methods
+when failing, better RAM footprint and reduced I/O access.
+
+Documentation had our attention, too.
+
+There's some code cleanups and code refactoring, as usual.
+
+Features
+--------
+
+* Do not keep reloading pyhtonfile, make it stateful.
+* HACKING: how to create tags.
+* MANUAL: add minor sample on how to retrieve a password with a helper python file.
+
+Fixes
+-----
+
+* Make OS-default CA certificate file to be requested explicitely.
+* SSL: do not fallback on other authentication mode if it fails.
+* Fix regression introduced while style patching.
+* API documentation: properly auto-document main class, fixes.
+* ui: Machine: remove offending param for a _printData() call.
+* Drop caches after having processed folders.
+
+Changes
+-------
+
+* Fix unexpected garbage code.
+* Properly re-raise exception to save original tracebacks.
+* Refactoring: avoid redefining various Python keywords.
+* Code: improvements of comments and more style consistency.
+* Configuration file: better design and other small improvements.
+* nametrans documentation: fix minor error.
+* Unused import removal.
+* Add a note about the incorrect rendering of the docstring with Sphinx.
+* Errors handling: log the messages with level ERROR.
+* MAINTAINERS: add mailing list maintainers.
+* Fixed copyright statement.
+* COPYING: fix unexpected characters.
+
+
 OfflineIMAP v6.5.7-rc1 (2015-01-07)
 ===================================
 
 Notes
 -----
 
-I think it's time for a new release candidate. Our release cycle are long
+I think it's time for a new release candidate. Our release cycles are long
 enough and users are asked to use the current TIP of the next branch to test
 our recent patches.
 
