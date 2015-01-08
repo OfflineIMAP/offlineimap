@@ -257,10 +257,10 @@ class OfflineImap:
                 options.singlethreading = True
 
             debugtypes = options.debugtype.split(',') + ['']
-            for type in debugtypes:
-                type = type.strip()
-                self.ui.add_debug(type)
-                if type.lower() == 'imap':
+            for dtype in debugtypes:
+                dtype = dtype.strip()
+                self.ui.add_debug(dtype)
+                if dtype.lower() == u'imap':
                     imaplib.Debug = 5
 
         if options.runonce:
