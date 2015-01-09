@@ -31,6 +31,7 @@ except NameError:
     from sets import Set as set
 
 from offlineimap import OfflineImapError
+from offlineimap.index import message_index_for_backend
 
 # Find the UID in a message filename
 re_uidmatch = re.compile(',U=(\d+)')
@@ -63,6 +64,10 @@ class MaildirFolder(BaseFolder):
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.root = root
         self.messagelist = None
+
+        index_backend = repository.getconf('index_backend', 'dummy')
+        self.index = message_index_for_backend(index_backend, self)
+
         # check if we should use a different infosep to support Win file systems
         self.wincompatible = self.config.getdefaultboolean(
             "Account "+self.accountname, "maildir-windows-compatible", False)
@@ -376,6 +381,7 @@ class MaildirFolder(BaseFolder):
 
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename
+            self.index.add(os.path.join(self.getfullname(), newfilename))
 
     # Interface from BaseFolder
     def change_message_uid(self, uid, new_uid):
@@ -426,4 +432,5 @@ class MaildirFolder(BaseFolder):
                 filepath = os.path.join(self.getfullname(), filename)
                 os.unlink(filepath)
             # Yep -- return.
+        self.index.remove(filepath)
         del(self.messagelist[uid])
