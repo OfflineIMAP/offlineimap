@@ -562,6 +562,16 @@ pythonfile with::
 
     pythonfile=~/bin/offlineimap-helpers.py
 
+Here is a basic content sample::
+
+    import commands
+
+    def get_password(account_name):
+      cmd = "security find-internet-password -w -a '%s'"% account_name
+      (status, output) = commands.getstatusoutput(cmd)
+      return output
+
+From this sample, replace the cmd line with whatever can retrieve your password.
 Your pythonfile needs to contain implementations for the functions
 that you want to use in offflineimaprc.  The example uses it for two
 purposes: Fetching passwords from the gnome-keyring and translating
