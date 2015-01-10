@@ -182,7 +182,7 @@ class MachineUI(UIBase):
 
         s._log_con_handler.acquire() # lock the console output
         try:
-            s._printData(s.logger.info, 'getpass', accountname, False)
+            s._printData(s.logger.info, 'getpass', accountname)
             return (sys.stdin.readline()[:-1])
         finally:
             s._log_con_handler.release()
