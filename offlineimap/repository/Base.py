@@ -39,6 +39,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         self.mapdir = os.path.join(self.uiddir, 'UIDMapping')
         if not os.path.exists(self.mapdir):
             os.mkdir(self.mapdir, 0o700)
+        # FIXME: self.uiddir variable name is lying about itself.
         self.uiddir = os.path.join(self.uiddir, 'FolderValidity')
         if not os.path.exists(self.uiddir):
             os.mkdir(self.uiddir, 0o700)
