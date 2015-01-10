@@ -19,6 +19,7 @@ from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 from offlineimap.ui import getglobalui
 from threading import Lock, BoundedSemaphore, Thread, Event, currentThread
 import offlineimap.accounts
+from hashlib import sha1
 import hmac
 import socket
 import base64
@@ -202,11 +203,26 @@ class IMAPServer:
         if 'STARTTLS' in imapobj.capabilities and not self.usessl:
             self.ui.debug('imap', 'Using STARTTLS connection')
             try:
-                imapobj.starttls()
+                imapobj.starttls(self.sslclientkey,
+                                 self.sslclientcert,
+                                 self.sslcacertfile,
+                                 self.verifycert,
+                                 self.sslversion,
+                                 )
             except imapobj.error as e:
                 raise OfflineImapError("Failed to start "
                   "TLS connection: %s" % str(e),
                   OfflineImapError.ERROR.REPO)
+            expected_fingerprint = self.repos.get_ssl_fingerprint()
+            if (expected_fingerprint or not self.sslcacertfile):
+                # compare fingerprints
+                fingerprint = sha1(imapobj.sock.getpeercert(True)).hexdigest()
+                if fingerprint != expected_fingerprint:
+                    raise OfflineImapError("Server SSL fingerprint '%s' for hos"
+                          "tname '%s' does not match configured fingerprint. Pl"
+                          "ease verify and set 'cert_fingerprint' accordingly i"
+                          "f not set yet." % (fingerprint, imapobj.host),
+                                           OfflineImapError.ERROR.REPO)
 
 
     ## All __authn_* procedures are helpers that do authentication.
