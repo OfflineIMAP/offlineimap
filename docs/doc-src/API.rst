@@ -25,15 +25,11 @@ number of resources and conventions you may find useful.
 .. module:: offlineimap
 
 .. autoclass:: offlineimap.OfflineImap(cmdline_opts = None)
+   :members:
+   :inherited-members:
+   :undoc-members:
+   :private-members:
 
-
-   .. automethod:: run
-
-   .. automethod:: __parse_cmd_options
-
-..  .. autoattribute:: ui
-
-      :todo: Document
 
 :class:`offlineimap.account`
 ============================
