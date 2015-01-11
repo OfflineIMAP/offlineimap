@@ -28,8 +28,8 @@ from sys import exc_info
 class BaseFolder(object):
     def __init__(self, name, repository):
         """
-        :para name: Path & name of folder minus root or reference
-        :para repository: Repository() in which the folder is.
+        :param name: Path & name of folder minus root or reference
+        :param repository: Repository() in which the folder is.
         """
         self.ui = getglobalui()
         # Save original name for folderfilter operations
@@ -411,6 +411,11 @@ class BaseFolder(object):
         - linebreak: string that carries line ending
         - headername: name of the header to add
         - headervalue: value of the header to add
+
+        .. note::
+
+           The following documentation will not get displayed correctly after being
+           processed by Sphinx. View the source of this method to read it.
 
         This has to deal with strange corner cases where the header is
         missing or empty.  Here are illustrations for all the cases,
