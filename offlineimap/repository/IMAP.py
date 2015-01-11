@@ -326,13 +326,13 @@ class IMAPRepository(BaseRepository):
             listresult = listfunction(directory = self.imapserver.reference)[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
-        for string in listresult:
-            if string == None or \
-                   (isinstance(string, basestring) and string == ''):
+        for s in listresult:
+            if s == None or \
+                   (isinstance(s, basestring) and s == ''):
                 # Bug in imaplib: empty strings in results from
                 # literals. TODO: still relevant?
                 continue
-            flags, delim, name = imaputil.imapsplit(string)
+            flags, delim, name = imaputil.imapsplit(s)
             flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
             if '\\noselect' in flaglist:
                 continue
