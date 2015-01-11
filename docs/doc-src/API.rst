@@ -52,7 +52,7 @@ An :class:`accounts.Account` connects two email repositories that are to be sync
 .. autoexception:: offlineimap.error.OfflineImapError
    :members:
 
-   This execption inherits directly from :exc:`Exception` and is raised
+   This exception inherits directly from :exc:`Exception` and is raised
    on errors during the offlineimap execution. It has an attribute
    `severity` that denotes the severity level of the error.
 
