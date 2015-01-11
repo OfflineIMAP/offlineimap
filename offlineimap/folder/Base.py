@@ -441,6 +441,11 @@ class BaseFolder(object):
         - headername: name of the header to add
         - headervalue: value of the header to add
 
+        .. note::
+
+           The following documentation will not get displayed correctly after being
+           processed by Sphinx. View the source of this method to read it.
+
         This has to deal with strange corner cases where the header is
         missing or empty.  Here are illustrations for all the cases,
         showing where the header gets inserted and what the end result
