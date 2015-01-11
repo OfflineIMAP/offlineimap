@@ -40,6 +40,8 @@ CRLF = '\r\n'
 
 class IMAPFolder(BaseFolder):
     def __init__(self, imapserver, name, repository):
+        # FIXME: decide if unquoted name is from the responsability of the
+        # caller or not, but not both.
         name = imaputil.dequote(name)
         self.sep = imapserver.delim
         super(IMAPFolder, self).__init__(name, repository)

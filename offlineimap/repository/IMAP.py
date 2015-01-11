@@ -301,6 +301,8 @@ class IMAPRepository(BaseRepository):
         return None
 
     def getfolder(self, foldername):
+        """Return instance of OfflineIMAP representative folder."""
+
         return self.getfoldertype()(self.imapserver, foldername, self)
 
     def getfoldertype(self):
@@ -314,6 +316,8 @@ class IMAPRepository(BaseRepository):
         self.folders = None
 
     def getfolders(self):
+        """Return a list of instances of OfflineIMAP representative folder."""
+
         if self.folders != None:
             return self.folders
         retval = []

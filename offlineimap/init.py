@@ -321,6 +321,8 @@ class OfflineImap:
             pass
 
         try:
+            # Honor CLI --account option, only.
+            # Accounts to sync are put into syncaccounts variable.
             activeaccounts = self.config.get("general", "accounts")
             if options.accounts:
                 activeaccounts = options.accounts
