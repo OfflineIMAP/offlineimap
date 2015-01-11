@@ -64,9 +64,7 @@ An :class:`accounts.Account` connects two email repositories that are to be sync
 :mod:`offlineimap.globals` -- module with global variables
 ==========================================================
 
-.. module:: offlineimap.globals
-
-Module :mod:`offlineimap.globals` provides the read-only storage
+Module `offlineimap.globals` provides the read-only storage
 for the global variables.
 
 All exported module attributes can be set manually, but this practice
