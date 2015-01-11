@@ -103,7 +103,8 @@ class IMAPRepository(BaseRepository):
             except Exception as e:
                 raise OfflineImapError("remotehosteval option for repository "\
                                        "'%s' failed:\n%s" % (self, e),
-                                       OfflineImapError.ERROR.REPO)
+                                       OfflineImapError.ERROR.REPO), \
+                      None, exc_info()[2]
             if host:
                 self._host = host
                 return self._host

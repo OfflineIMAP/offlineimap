@@ -19,6 +19,7 @@ import socket
 import time
 import re
 import os
+from sys import exc_info
 from .Base import BaseFolder
 from threading import Lock
 try:
@@ -282,7 +283,7 @@ class MaildirFolder(BaseFolder):
                         continue
                     severity = OfflineImapError.ERROR.MESSAGE
                     raise OfflineImapError("Unique filename %s already exists." % \
-                      filename, severity)
+                      filename, severity), None, exc_info()[2]
                 else:
                     raise
 
@@ -372,7 +373,8 @@ class MaildirFolder(BaseFolder):
             except OSError as e:
                 raise OfflineImapError("Can't rename file '%s' to '%s': %s" % (
                                        oldfilename, newfilename, e[1]),
-                                       OfflineImapError.ERROR.FOLDER)
+                                       OfflineImapError.ERROR.FOLDER), \
+                      None, exc_info()[2]
 
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename

@@ -16,6 +16,7 @@
 
 import os
 import re
+from sys import exc_info
 
 try:
     from ConfigParser import SafeConfigParser, Error
@@ -75,7 +76,7 @@ class CustomConfigParser(SafeConfigParser):
             return re.split(separator_re, val)
         except re.error as e:
             raise Error("Bad split regexp '%s': %s" % \
-              (separator_re, e))
+              (separator_re, e)), None, exc_info()[2]
 
     def getdefaultlist(self, section, option, default, separator_re):
         """Same as getlist, but returns the value of `default`

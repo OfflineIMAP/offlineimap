@@ -17,6 +17,7 @@
 
 
 import os
+from sys import exc_info
 from .Maildir import MaildirFolder
 from offlineimap import OfflineImapError
 import offlineimap.accounts
@@ -170,7 +171,8 @@ class GmailMaildirFolder(MaildirFolder):
             os.rename(tmppath, filepath)
         except OSError as e:
             raise OfflineImapError("Can't rename file '%s' to '%s': %s" % \
-              (tmppath, filepath, e[1]), OfflineImapError.ERROR.FOLDER)
+              (tmppath, filepath, e[1]), OfflineImapError.ERROR.FOLDER), \
+              None, exc_info()[2]
 
         if rtime != None:
             os.utime(filepath, (rtime, rtime))

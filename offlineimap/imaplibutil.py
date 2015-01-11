@@ -18,6 +18,7 @@ import os
 import fcntl
 import time
 import subprocess
+from sys import exc_info
 import threading
 from hashlib import sha1
 
@@ -54,7 +55,7 @@ class UsefulIMAPMixIn(object):
             errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
                 "ver said: %s" % (self.host, mailbox, e.args[0])
             severity = OfflineImapError.ERROR.FOLDER_RETRY
-            raise OfflineImapError(errstr, severity)
+            raise OfflineImapError(errstr, severity), None, exc_info()[2]
         if result[0] != 'OK':
             #in case of error, bail out with OfflineImapError
             errstr = "Error SELECTing mailbox '%s', server reply:\n%s" %\

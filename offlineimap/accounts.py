@@ -210,7 +210,8 @@ class SyncableAccount(Account):
             self._lockfd.close()
             raise OfflineImapError("Could not lock account %s. Is another "
                                    "instance using this account?" % self,
-                                   OfflineImapError.ERROR.REPO)
+                                   OfflineImapError.ERROR.REPO), \
+                  None, exc_info()[2]
 
     def _unlock(self):
         """Unlock the account, deleting the lock file"""

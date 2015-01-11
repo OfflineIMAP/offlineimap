@@ -17,6 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import re
+from sys import exc_info
 
 from offlineimap import imaputil, OfflineImapError
 from offlineimap import imaplibutil
@@ -144,7 +145,8 @@ class GmailFolder(IMAPFolder):
                 raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. " % \
                   (self.getrepository(), self) + \
                   "Server responded '[%s] %s'" % \
-                  (res_type, response), OfflineImapError.ERROR.FOLDER)
+                  (res_type, response), OfflineImapError.ERROR.FOLDER), \
+                  None, exc_info()[2]
         finally:
             self.imapserver.releaseconnection(imapobj)
 

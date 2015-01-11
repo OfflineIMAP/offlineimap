@@ -16,6 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 import os
 import re
+from sys import exc_info
 from threading import Lock
 from .Base import BaseFolder
 try:
@@ -66,7 +67,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
         except NameError:
             # sqlite import had failed
             raise UserWarning('SQLite backend chosen, but no sqlite python '
-                              'bindings available. Please install.')
+                              'bindings available. Please install.'), None, exc_info()[2]
 
         #Make sure sqlite is in multithreading SERIALIZE mode
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'

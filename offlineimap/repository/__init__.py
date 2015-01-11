@@ -15,6 +15,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+from sys import exc_info
+
 try:
     from configparser import NoSectionError
 except ImportError: #python2
@@ -66,14 +68,16 @@ class Repository(object):
         except NoSectionError as e:
             errstr = ("Could not find section '%s' in configuration. Required "
                       "for account '%s'." % ('Repository %s' % name, account))
-            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO)
+            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO), \
+                  None, exc_info()[2]
 
         try:
             repo = typemap[repostype]
         except KeyError:
             errstr = "'%s' repository not supported for '%s' repositories." \
                      % (repostype, reqtype)
-            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO)
+            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO), \
+                  None, exc_info()[2]
 
         return repo(name, account)
 

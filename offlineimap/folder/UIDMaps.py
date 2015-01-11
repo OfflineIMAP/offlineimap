@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+from sys import exc_info
 from threading import Lock
 from offlineimap import OfflineImapError
 from .IMAP import IMAPFolder
@@ -60,7 +62,7 @@ class MappedIMAPFolder(IMAPFolder):
                     line = line.strip()
                 except ValueError:
                     raise Exception("Corrupt line '%s' in UID mapping file '%s'"%
-                        (line, mapfilename))
+                        (line, mapfilename)), None, exc_info()[2]
                 (str1, str2) = line.split(':')
                 loc = long(str1)
                 rem = long(str2)
@@ -89,7 +91,7 @@ class MappedIMAPFolder(IMAPFolder):
             raise OfflineImapError("Could not find UID for msg '{0}' (f:'{1}'."
                 " This is usually a bad thing and should be reported on the ma"
                 "iling list.".format(e.args[0], self),
-                    OfflineImapError.ERROR.MESSAGE)
+                    OfflineImapError.ERROR.MESSAGE), None, exc_info()[2]
 
     # Interface from BaseFolder
     def cachemessagelist(self):

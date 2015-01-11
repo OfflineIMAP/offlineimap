@@ -594,7 +594,9 @@ class IMAPFolder(BaseFolder):
                               "repository '%s' failed (abort). Server responded: %s\n"
                               "Message content was: %s"%
                               (msg_id, self, self.getrepository(), str(e), dbg_output),
-                                               OfflineImapError.ERROR.MESSAGE)
+                                               OfflineImapError.ERROR.MESSAGE), \
+                              None, exc_info()[2]
+                    # XXX: is this still needed?
                     self.ui.error(e, exc_info()[2])
                 except imapobj.error as e: # APPEND failed
                     # If the server responds with 'BAD', append()
@@ -604,8 +606,8 @@ class IMAPFolder(BaseFolder):
                     imapobj = None
                     raise OfflineImapError("Saving msg (%s) folder '%s', repo '%s'"
                         "failed (error). Server responded: %s\nMessage content was: "
-                        "%s"% (msg_id, self, self.getrepository(), str(e), dbg_output),
-                            OfflineImapError.ERROR.MESSAGE)
+                        "%s" % (msg_id, self, self.getrepository(), str(e), dbg_output),
+                            OfflineImapError.ERROR.MESSAGE), None, exc_info()[2]
             # Checkpoint. Let it write out stuff, etc. Eg searches for
             # just uploaded messages won't work if we don't do this.
             (typ,dat) = imapobj.check()
@@ -676,6 +678,7 @@ class IMAPFolder(BaseFolder):
                 imapobj = self.imapserver.acquireconnection()
                 self.ui.error(e, exc_info()[2])
                 fails_left -= 1
+                # self.ui.error() will show the original traceback
                 if not fails_left:
                     raise e
         if data == [None] or res_type != 'OK':

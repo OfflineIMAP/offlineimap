@@ -15,6 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+from sys import exc_info
 import os
 import threading
 
@@ -79,7 +80,7 @@ class LocalStatusFolder(BaseFolder):
                 errstr = "Corrupt line '%s' in cache file '%s'" % \
                     (line, self.filename)
                 self.ui.warn(errstr)
-                raise ValueError(errstr)
+                raise ValueError(errstr), None, exc_info()[2]
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
 
@@ -103,7 +104,7 @@ class LocalStatusFolder(BaseFolder):
                 errstr = "Corrupt line '%s' in cache file '%s'" % \
                     (line, self.filename)
                 self.ui.warn(errstr)
-                raise ValueError(errstr)
+                raise ValueError(errstr), None, exc_info()[2]
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['mtime'] = mtime
