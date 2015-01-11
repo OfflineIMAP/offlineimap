@@ -23,8 +23,8 @@ class GmailMaildirRepository(MaildirRepository):
     def __init__(self, reposname, account):
         """Initialize a MaildirRepository object.  Takes a path name
         to the directory holding all the Maildir directories."""
-        super(GmailMaildirRepository, self).__init__(reposname, account)
 
+        super(GmailMaildirRepository, self).__init__(reposname, account)
 
     def getfoldertype(self):
         return GmailMaildirFolder

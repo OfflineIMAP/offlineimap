@@ -60,9 +60,10 @@ class Account(CustomConfig.ConfigHelperMixin):
     Most of the time you will actually want to use the derived
     :class:`accounts.SyncableAccount` which contains all functions used
     for syncing an account."""
-    #signal gets set when we should stop looping
+
+    # Signal gets set when we should stop looping.
     abort_soon_signal = Event()
-    #signal gets set on CTRL-C/SIGTERM
+    # Signal gets set on CTRL-C/SIGTERM.
     abort_NOW_signal = Event()
 
     def __init__(self, config, name):
@@ -72,6 +73,7 @@ class Account(CustomConfig.ConfigHelperMixin):
 
         :param name: A string denoting the name of the Account
                      as configured"""
+
         self.config = config
         self.name = name
         self.metadatadir = config.getmetadatadir()
