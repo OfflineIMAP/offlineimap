@@ -265,8 +265,8 @@ class SyncableAccount(Account):
                         raise
                 self.ui.error(e, exc_info()[2])
             except Exception as e:
-                self.ui.error(e, exc_info()[2], msg = "While attempting to sync"
-                    " account '%s'" % self)
+                self.ui.error(e, exc_info()[2], msg="While attempting to sync"
+                    " account '%s'"% self)
             else:
                 # after success sync, reset the looping counter to 3
                 if self.refreshperiod:

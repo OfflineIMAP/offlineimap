@@ -40,6 +40,7 @@ class OfflineImap:
       oi = OfflineImap()
       oi.run()
     """
+
     def run(self):
         """Parse the commandline and invoke everything"""
         # next line also sets self.config and self.ui

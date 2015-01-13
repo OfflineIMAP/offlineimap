@@ -170,8 +170,8 @@ class MaildirRepository(BaseRepository):
                 self.debug("  skip this entry (not a directory)")
                 # Not a directory -- not a folder.
                 continue
+            # extension can be None.
             if extension:
-                # extension can be None which fails.
                 foldername = os.path.join(extension, dirname)
             else:
                 foldername = dirname

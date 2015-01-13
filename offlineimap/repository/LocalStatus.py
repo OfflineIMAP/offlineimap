@@ -94,7 +94,8 @@ class LocalStatusRepository(BaseRepository):
         self.forgetfolders()
 
     def getfolder(self, foldername):
-        """Return the Folder() object for a foldername"""
+        """Return the Folder() object for a foldername."""
+
         if foldername in self._folders:
             return self._folders[foldername]
 

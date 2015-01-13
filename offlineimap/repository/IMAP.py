@@ -357,9 +357,8 @@ class IMAPRepository(BaseRepository):
                         self.ui.error(e, exc_info()[2],
                                       'Invalid folderinclude:')
                         continue
-                    retval.append(self.getfoldertype()(self.imapserver,
-                                                       foldername,
-                                                       self))
+                    retval.append(self.getfoldertype()(
+                        self.imapserver, foldername, self))
             finally:
                 self.imapserver.releaseconnection(imapobj)
 
