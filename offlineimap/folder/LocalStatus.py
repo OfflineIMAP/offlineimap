@@ -21,8 +21,9 @@ import threading
 
 from .Base import BaseFolder
 
+
 class LocalStatusFolder(BaseFolder):
-    """LocalStatus backend implemented as a plain text file"""
+    """LocalStatus backend implemented as a plain text file."""
 
     cur_version = 2
     magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT %d"
@@ -53,11 +54,9 @@ class LocalStatusFolder(BaseFolder):
         if not self.isnewfolder():
             os.unlink(self.filename)
 
-
     # Interface from BaseFolder
     def msglist_item_initializer(self, uid):
         return {'uid': uid, 'flags': set(), 'labels': set(), 'time': 0, 'mtime': 0}
-
 
     def readstatus_v1(self, fp):
         """Read status folder in format version 1.
@@ -80,7 +79,6 @@ class LocalStatusFolder(BaseFolder):
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
 
-
     def readstatus(self, fp):
         """Read status file in the current format.
 
@@ -97,7 +95,7 @@ class LocalStatusFolder(BaseFolder):
                 mtime = long(mtime)
                 labels = set([lb.strip() for lb in labels.split(',') if len(lb.strip()) > 0])
             except ValueError as e:
-                errstr = "Corrupt line '%s' in cache file '%s'" % \
+                errstr = "Corrupt line '%s' in cache file '%s'"% \
                     (line, self.filename)
                 self.ui.warn(errstr)
                 raise ValueError(errstr), None, exc_info()[2]
@@ -227,7 +225,6 @@ class LocalStatusFolder(BaseFolder):
         self.messagelist[uid]['flags'] = flags
         self.save()
 
-
     def savemessagelabels(self, uid, labels, mtime=None):
         self.messagelist[uid]['labels'] = labels
         if mtime: self.messagelist[uid]['mtime'] = mtime
@@ -262,7 +259,6 @@ class LocalStatusFolder(BaseFolder):
 
     def getmessagemtime(self, uid):
         return self.messagelist[uid]['mtime']
-
 
     # Interface from BaseFolder
     def deletemessage(self, uid):

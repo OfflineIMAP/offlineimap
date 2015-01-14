@@ -115,7 +115,7 @@ class MaildirRepository(BaseRepository):
             except OSError as e:
                 if e.errno == 17 and os.path.isdir(full_path):
                     self.debug("makefolder: '%s' already has subdir %s"%
-                               (foldername, subdir))
+                        (foldername, subdir))
                 else:
                     raise
 

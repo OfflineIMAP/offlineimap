@@ -45,7 +45,8 @@ class IMAPServer:
 
     Public instance variables are: self.:
      delim The server's folder delimiter. Only valid after acquireconnection()
-     """
+    """
+
     GSS_STATE_STEP = 0
     GSS_STATE_WRAP = 1
     def __init__(self, repos):
@@ -56,16 +57,16 @@ class IMAPServer:
         self.preauth_tunnel = repos.getpreauthtunnel()
         self.transport_tunnel = repos.gettransporttunnel()
         if self.preauth_tunnel and self.transport_tunnel:
-            raise OfflineImapError('%s: '% repos + \
-              'you must enable precisely one '
-              'type of tunnel (preauth or transport), '
-              'not both', OfflineImapError.ERROR.REPO)
+            raise OfflineImapError('%s: '% repos +
+                'you must enable precisely one '
+                'type of tunnel (preauth or transport), '
+                'not both', OfflineImapError.ERROR.REPO)
         self.tunnel = \
-          self.preauth_tunnel if self.preauth_tunnel \
-          else self.transport_tunnel
+            self.preauth_tunnel if self.preauth_tunnel \
+            else self.transport_tunnel
 
         self.username = \
-          None if self.preauth_tunnel else repos.getuser()
+            None if self.preauth_tunnel else repos.getuser()
         self.user_identity = repos.get_remote_identity()
         self.authmechs = repos.get_auth_mechanisms()
         self.password = None
@@ -74,7 +75,7 @@ class IMAPServer:
 
         self.usessl = repos.getssl()
         self.hostname = \
-          None if self.preauth_tunnel else repos.gethost()
+            None if self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
         if self.port == None:
             self.port = 993 if self.usessl else 143
@@ -110,8 +111,8 @@ class IMAPServer:
 
         # get 1) configured password first 2) fall back to asking via UI
         self.password = self.repos.getpassword() or \
-                        self.ui.getpass(self.repos.getname(), self.config,
-                                        self.passworderror)
+            self.ui.getpass(self.repos.getname(), self.config,
+                self.passworderror)
         self.passworderror = None
         return self.password
 
@@ -182,7 +183,7 @@ class IMAPServer:
                     response = kerberos.authGSSClientResponse(self.gss_vc)
                 rc = kerberos.authGSSClientStep(self.gss_vc, data)
                 if rc != kerberos.AUTH_GSS_CONTINUE:
-                   self.gss_step = self.GSS_STATE_WRAP
+                    self.gss_step = self.GSS_STATE_WRAP
             elif self.gss_step == self.GSS_STATE_WRAP:
                 rc = kerberos.authGSSClientUnwrap(self.gss_vc, data)
                 response = kerberos.authGSSClientResponse(self.gss_vc)
@@ -207,8 +208,8 @@ class IMAPServer:
                 imapobj.starttls()
             except imapobj.error as e:
                 raise OfflineImapError("Failed to start "
-                  "TLS connection: %s" % str(e),
-                  OfflineImapError.ERROR.REPO, None, exc_info()[2])
+                    "TLS connection: %s"% str(e),
+                    OfflineImapError.ERROR.REPO, None, exc_info()[2])
 
 
     ## All __authn_* procedures are helpers that do authentication.
@@ -260,8 +261,8 @@ class IMAPServer:
         # (per RFC 2595)
         if 'LOGINDISABLED' in imapobj.capabilities:
             raise OfflineImapError("IMAP LOGIN is "
-              "disabled by server.  Need to use SSL?",
-               OfflineImapError.ERROR.REPO)
+                "disabled by server.  Need to use SSL?",
+                OfflineImapError.ERROR.REPO)
         else:
             self.__loginauth(imapobj)
             return True
@@ -335,7 +336,7 @@ class IMAPServer:
               exc_stack
             ))
             raise OfflineImapError("All authentication types "
-              "failed:\n\t%s" % msg, OfflineImapError.ERROR.REPO)
+              "failed:\n\t%s"% msg, OfflineImapError.ERROR.REPO)
 
         if not tried_to_authn:
             methods = ", ".join(map(
@@ -443,7 +444,7 @@ class IMAPServer:
                     self.ui.warn(err)
                     raise Exception(err)
                 self.delim, self.root = \
-                            imaputil.imapsplit(listres[0])[1:]
+                     imaputil.imapsplit(listres[0])[1:]
                 self.delim = imaputil.dequote(self.delim)
                 self.root = imaputil.dequote(self.root)
 
@@ -474,7 +475,7 @@ class IMAPServer:
                 if self.port != 993:
                     reason = "Could not connect via SSL to host '%s' and non-s"\
                         "tandard ssl port %d configured. Make sure you connect"\
-                        " to the correct port." % (self.hostname, self.port)
+                        " to the correct port."% (self.hostname, self.port)
                 else:
                     reason = "Unknown SSL protocol connecting to host '%s' for "\
                          "repository '%s'. OpenSSL responded:\n%s"\
@@ -487,7 +488,7 @@ class IMAPServer:
                 reason = "Connection to host '%s:%d' for repository '%s' was "\
                     "refused. Make sure you have the right host and port "\
                     "configured and that you are actually able to access the "\
-                    "network." % (self.hostname, self.port, self.repos)
+                    "network."% (self.hostname, self.port, self.repos)
                 raise OfflineImapError(reason, severity), None, exc_info()[2]
             # Could not acquire connection to the remote;
             # socket.error(last_error) raised
@@ -709,15 +710,15 @@ class IdleThread(object):
                 imapobj.idle(callback=callback)
             else:
                 self.ui.warn("IMAP IDLE not supported on server '%s'."
-                    "Sleep until next refresh cycle." % imapobj.identifier)
+                    "Sleep until next refresh cycle."% imapobj.identifier)
                 imapobj.noop()
             self.stop_sig.wait() # self.stop() or IDLE callback are invoked
             try:
                 # End IDLE mode with noop, imapobj can point to a dropped conn.
                 imapobj.noop()
             except imapobj.abort:
-                self.ui.warn('Attempting NOOP on dropped connection %s' % \
-                                 imapobj.identifier)
+                self.ui.warn('Attempting NOOP on dropped connection %s'%
+                    imapobj.identifier)
                 self.parent.releaseconnection(imapobj, True)
             else:
                 self.parent.releaseconnection(imapobj)

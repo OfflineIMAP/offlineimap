@@ -64,7 +64,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
         #Try to establish connection, no need for threadsafety in __init__
         try:
-            self.connection = sqlite.connect(self.filename, check_same_thread = False)
+            self.connection = sqlite.connect(self.filename, check_same_thread=False)
         except NameError:
             # sqlite import had failed
             raise UserWarning('SQLite backend chosen, but no sqlite python '
@@ -93,7 +93,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
     def getfullname(self):
         return self.filename
 
-
     # Interface from LocalStatusFolder
     def isnewfolder(self):
         return self._newfolder
@@ -101,7 +100,8 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
     # Interface from LocalStatusFolder
     def deletemessagelist(self):
-        """delete all messages in the db"""
+        """Delete all messages in the db."""
+
         self.__sql_write('DELETE FROM status')
 
 
@@ -114,6 +114,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
         :param executemany: bool indicating whether we want to
             perform conn.executemany() or conn.execute().
         :returns: the Cursor() or raises an Exception"""
+
         success = False
         while not success:
             self._dblock.acquire()
@@ -153,8 +154,8 @@ class LocalStatusSQLiteFolder(BaseFolder):
         # Upgrade from database version 1 to version 2
         # This change adds labels and mtime columns, to be used by Gmail IMAP and Maildir folders.
         if from_ver <= 1:
-            self.ui._msg('Upgrading LocalStatus cache from version 1 to version 2 for %s:%s' %\
-                           (self.repository, self))
+            self.ui._msg('Upgrading LocalStatus cache from version 1 to version 2 for %s:%s'%
+                (self.repository, self))
             self.connection.executescript("""ALTER TABLE status ADD mtime INTEGER DEFAULT 0;
                                              ALTER TABLE status ADD labels VARCHAR(256) DEFAULT '';
                                              UPDATE metadata SET value='2' WHERE key='db_version';
@@ -167,12 +168,10 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
 
     def __create_db(self):
-        """
-        Create a new db file.
+        """Create a new db file.
 
         self.connection must point to the opened and valid SQlite
-        database connection.
-        """
+        database connection."""
         self.ui._msg('Creating new Local Status db for %s:%s' \
                          % (self.repository, self))
         self.connection.executescript("""
@@ -212,6 +211,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
     def saveall(self):
         """Saves the entire messagelist to the database."""
+
         data = []
         for uid, msg in self.messagelist.items():
             mtime = msg['mtime']
@@ -219,8 +219,9 @@ class LocalStatusSQLiteFolder(BaseFolder):
             labels = ', '.join(sorted(msg['labels']))
             data.append((uid, flags, mtime, labels))
 
-        self.__sql_write('INSERT OR REPLACE INTO status (id,flags,mtime,labels) VALUES (?,?,?,?)',
-                                    data, executemany=True)
+        self.__sql_write('INSERT OR REPLACE INTO status '
+            '(id,flags,mtime,labels) VALUES (?,?,?,?)',
+            data, executemany=True)
 
 
     # Following some pure SQLite functions, where we chose to use
@@ -267,14 +268,12 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
     # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime, mtime=0, labels=set()):
-        """
-        Writes a new message, with the specified uid.
+        """Writes a new message, with the specified uid.
 
         See folder/Base for detail. Note that savemessage() does not
         check against dryrun settings, so you need to ensure that
-        savemessage is never called in a dryrun mode.
-        
-        """
+        savemessage is never called in a dryrun mode."""
+
         if uid < 0:
             # We cannot assign a uid.
             return uid
@@ -352,6 +351,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
     def savemessagesmtimebulk(self, mtimes):
         """Saves mtimes from the mtimes dictionary in a single database operation."""
+
         data = [(mt, uid) for uid, mt in mtimes.items()]
         self.__sql_write('UPDATE status SET mtime=? WHERE id=?', data, executemany=True)
         for uid, mt in mtimes.items():
@@ -376,6 +376,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
         This function uses sqlites executemany() function which is
         much faster than iterating through deletemessage() when we have
         many messages to delete."""
+
         # Weed out ones not in self.messagelist
         uidlist = [uid for uid in uidlist if uid in self.messagelist]
         if not len(uidlist):

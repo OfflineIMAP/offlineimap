@@ -48,13 +48,11 @@ class BaseFolder(object):
             self.visiblename = ''
 
         self.config = repository.getconfig()
-        utime_from_message_global = \
-          self.config.getdefaultboolean("general",
-          "utime_from_message", False)
+        utime_from_message_global = self.config.getdefaultboolean(
+            "general", "utime_from_message", False)
         repo = "Repository " + repository.name
-        self._utime_from_message = \
-          self.config.getdefaultboolean(repo,
-          "utime_from_message", utime_from_message_global)
+        self._utime_from_message = self.config.getdefaultboolean(repo,
+            "utime_from_message", utime_from_message_global)
 
         # Determine if we're running static or dynamic folder filtering
         # and check filtering status
@@ -78,16 +76,19 @@ class BaseFolder(object):
         return self.name
 
     def __str__(self):
+        # FIMXE: remove calls of this. We have getname().
         return self.name
 
     @property
     def accountname(self):
         """Account name as string"""
+
         return self.repository.accountname
 
     @property
     def sync_this(self):
         """Should this folder be synced or is it e.g. filtered out?"""
+
         if not self._dynamic_folderfilter:
             return self._sync_this
         else:
@@ -144,7 +145,7 @@ class BaseFolder(object):
         if self.name == self.visiblename:
             return self.name
         else:
-            return "%s [remote name %s]" % (self.visiblename, self.name)
+            return "%s [remote name %s]"% (self.visiblename, self.name)
 
     def getrepository(self):
         """Returns the repository object that this folder is within."""
@@ -172,9 +173,9 @@ class BaseFolder(object):
 
         if not self.name:
             basename = '.'
-        else: #avoid directory hierarchies and file names such as '/'
+        else: # Avoid directory hierarchies and file names such as '/'.
             basename = self.name.replace('/', '.')
-        # replace with literal 'dot' if final path name is '.' as '.' is
+        # Replace with literal 'dot' if final path name is '.' as '.' is
         # an invalid file name.
         basename = re.sub('(^|\/)\.$','\\1dot', basename)
         return basename
@@ -196,7 +197,7 @@ class BaseFolder(object):
             return True
 
     def _getuidfilename(self):
-        """provides UIDVALIDITY cache filename for class internal purposes"""
+        """provides UIDVALIDITY cache filename for class internal purposes.
 
         return os.path.join(self.repository.getuiddir(),
                             self.getfolderbasename())
@@ -228,7 +229,7 @@ class BaseFolder(object):
         uidfilename = self._getuidfilename()
 
         with open(uidfilename + ".tmp", "wt") as file:
-            file.write("%d\n" % newval)
+            file.write("%d\n"% newval)
         os.rename(uidfilename + ".tmp", uidfilename)
         self._base_saved_uidvalidity = newval
 
@@ -252,6 +253,7 @@ class BaseFolder(object):
 
     def getmessagelist(self):
         """Gets the current message list.
+
         You must call cachemessagelist() before calling this function!"""
 
         raise NotImplementedError
@@ -272,6 +274,7 @@ class BaseFolder(object):
 
     def getmessageuidlist(self):
         """Gets a list of UIDs.
+
         You may have to call cachemessagelist() before calling this function!"""
 
         return self.getmessagelist().keys()
@@ -377,6 +380,7 @@ class BaseFolder(object):
 
     def getmessagelabels(self, uid):
         """Returns the labels for the specified message."""
+
         raise NotImplementedError
 
     def savemessagelabels(self, uid, labels, ignorelabels=set(), mtime=0):
@@ -691,10 +695,10 @@ class BaseFolder(object):
             # load it up.
             if dstfolder.storesmessages():
                 message = self.getmessage(uid)
-            #Succeeded? -> IMAP actually assigned a UID. If newid
-            #remained negative, no server was willing to assign us an
-            #UID. If newid is 0, saving succeeded, but we could not
-            #retrieve the new UID. Ignore message in this case.
+            # Succeeded? -> IMAP actually assigned a UID. If newid
+            # remained negative, no server was willing to assign us an
+            # UID. If newid is 0, saving succeeded, but we could not
+            # retrieve the new UID. Ignore message in this case.
             new_uid = dstfolder.savemessage(uid, message, flags, rtime)
             if new_uid > 0:
                 if new_uid != uid:
@@ -728,7 +732,7 @@ class BaseFolder(object):
             raise    #raise on unknown errors, so we can fix those
 
     def __syncmessagesto_copy(self, dstfolder, statusfolder):
-        """Pass1: Copy locally existing messages not on the other side
+        """Pass1: Copy locally existing messages not on the other side.
 
         This will copy messages to dstfolder that exist locally but are
         not in the statusfolder yet. The strategy is:
@@ -738,18 +742,16 @@ class BaseFolder(object):
            - If dstfolder doesn't have it yet, add them to dstfolder.
            - Update statusfolder
 
-        This function checks and protects us from action in ryrun mode.
-        """
+        This function checks and protects us from action in dryrun mode."""
 
         threads = []
 
-        copylist = filter(lambda uid: not \
-                              statusfolder.uidexists(uid),
-                            self.getmessageuidlist())
+        copylist = filter(lambda uid: not statusfolder.uidexists(uid),
+            self.getmessageuidlist())
         num_to_copy = len(copylist)
         if num_to_copy and self.repository.account.dryrun:
             self.ui.info("[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
-                    num_to_copy, self, self.repository, dstfolder.repository))
+                num_to_copy, self, self.repository, dstfolder.repository))
             return
         for num, uid in enumerate(copylist):
             # bail out on CTRL-C or SIGTERM
@@ -773,7 +775,7 @@ class BaseFolder(object):
             thread.join()
 
     def __syncmessagesto_delete(self, dstfolder, statusfolder):
-        """Pass 2: Remove locally deleted messages on dst
+        """Pass 2: Remove locally deleted messages on dst.
 
         Get all UIDS in statusfolder but not self. These are messages
         that were deleted in 'self'. Delete those from dstfolder and
@@ -782,9 +784,8 @@ class BaseFolder(object):
         This function checks and protects us from action in ryrun mode.
         """
 
-        deletelist = filter(lambda uid: uid>=0 \
-                                and not self.uidexists(uid),
-                            statusfolder.getmessageuidlist())
+        deletelist = filter(lambda uid: uid >= 0 and not
+            self.uidexists(uid), statusfolder.getmessageuidlist())
         if len(deletelist):
             self.ui.deletingmessages(deletelist, [dstfolder])
             if self.repository.account.dryrun:
@@ -795,7 +796,7 @@ class BaseFolder(object):
                 folder.deletemessages(deletelist)
 
     def __syncmessagesto_flags(self, dstfolder, statusfolder):
-        """Pass 3: Flag synchronization
+        """Pass 3: Flag synchronization.
 
         Compare flag mismatches in self with those in statusfolder. If
         msg has a valid UID and exists on dstfolder (has not e.g. been
@@ -904,7 +905,7 @@ class BaseFolder(object):
 
     def __eq__(self, other):
         """Comparisons work either on string comparing folder names or
-        on the same instance
+        on the same instance.
 
         MailDirFolder('foo') == 'foo' --> True
         a = MailDirFolder('foo'); a == b --> True

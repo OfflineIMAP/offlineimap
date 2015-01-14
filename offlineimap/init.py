@@ -227,7 +227,7 @@ class OfflineImap:
                             'of %s'% ', '.join(UI_LIST.keys()))
         if options.diagnostics: ui_type = 'basic' # enforce basic UI for --info
 
-        #dry-run? Set [general]dry-run=True
+        # dry-run? Set [general]dry-run=True
         if options.dryrun:
             dryrun = config.set('general', 'dry-run', 'True')
         config.set_if_not_exists('general', 'dry-run', 'False')

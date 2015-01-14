@@ -39,8 +39,9 @@ class UsefulIMAPMixIn(object):
         :returns: 'OK' on success, nothing if the folder was already
         selected or raises an :exc:`OfflineImapError`."""
 
-        if self.__getselectedfolder() == mailbox and self.is_readonly == readonly \
-                and not force:
+        if self.__getselectedfolder() == mailbox and \
+            self.is_readonly == readonly and \
+            not force:
             # No change; return.
             return
         # Wipe out all old responses, to maintain semantics with old imaplib2

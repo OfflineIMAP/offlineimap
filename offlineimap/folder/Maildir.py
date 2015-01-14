@@ -69,7 +69,7 @@ class MaildirFolder(BaseFolder):
             "Account "+self.accountname, "maildir-windows-compatible", False)
         self.infosep = '!' if self.wincompatible else ':'
         """infosep is the separator between maildir name and flag appendix"""
-        self.re_flagmatch = re.compile('%s2,(\w*)' % self.infosep)
+        self.re_flagmatch = re.compile('%s2,(\w*)'% self.infosep)
         #self.ui is set in BaseFolder.init()
         # Everything up to the first comma or colon (or ! if Windows):
         self.re_prefixmatch = re.compile('([^'+ self.infosep + ',]*)')
@@ -128,13 +128,14 @@ class MaildirFolder(BaseFolder):
         detected, we return an empty flags list.
 
         :returns: (prefix, UID, FMD5, flags). UID is a numeric "long"
-            type. flags is a set() of Maildir flags"""
+            type. flags is a set() of Maildir flags.
+        """
 
         prefix, uid, fmd5, flags = None, None, None, set()
         prefixmatch = self.re_prefixmatch.match(filename)
         if prefixmatch:
             prefix = prefixmatch.group(1)
-        folderstr = ',FMD5=%s' % self._foldermd5
+        folderstr = ',FMD5=%s'% self._foldermd5
         foldermatch = folderstr in filename
         # If there was no folder MD5 specified, or if it mismatches,
         # assume it is a foreign (new) message and ret: uid, fmd5 = None, None
@@ -154,7 +155,9 @@ class MaildirFolder(BaseFolder):
 
         Maildir flags are: R (replied) S (seen) T (trashed) D (draft) F
         (flagged).
-        :returns: dict that can be used as self.messagelist"""
+        :returns: dict that can be used as self.messagelist.
+        """
+
         maxage = self.config.getdefaultint("Account " + self.accountname,
                                            "maxage", None)
         maxsize = self.config.getdefaultint("Account " + self.accountname,
@@ -254,9 +257,9 @@ class MaildirFolder(BaseFolder):
         :returns: String containing unique message filename"""
 
         timeval, timeseq = _gettimeseq()
-        return '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s' % \
+        return '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s'% \
             (timeval, timeseq, os.getpid(), socket.gethostname(),
-             uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
+            uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
 
 
     def save_to_tmp_file(self, filename, content):
@@ -393,7 +396,7 @@ class MaildirFolder(BaseFolder):
         """
 
         if not uid in self.messagelist:
-            raise OfflineImapError("Cannot change unknown Maildir UID %s" % uid)
+            raise OfflineImapError("Cannot change unknown Maildir UID %s"% uid)
         if uid == new_uid: return
 
         oldfilename = self.messagelist[uid]['filename']

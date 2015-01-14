@@ -115,7 +115,6 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
     @property
     def readonly(self):
         """Is the repository readonly?"""
-
         return self._readonly
 
     def getlocaleval(self):
@@ -123,13 +122,11 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
     def getfolders(self):
         """Returns a list of ALL folders on this server."""
-
         return []
 
     def forgetfolders(self):
         """Forgets the cached list of folders, if any.  Useful to run
         after a sync run."""
-
         pass
 
     def getsep(self):
@@ -150,8 +147,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
             self.getconfboolean('createfolders', True)
 
     def makefolder(self, foldername):
-        """Create a new folder"""
-
+        """Create a new folder."""
         raise NotImplementedError
 
     def deletefolder(self, foldername):
@@ -200,8 +196,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                     dst_haschanged = True # Need to refresh list
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2],
-                                  "Creating folder %s on repository %s" %\
-                                      (src_name_t, dst_repo))
+                         "Creating folder %s on repository %s"%
+                         (src_name_t, dst_repo))
                     raise
                 status_repo.makefolder(src_name_t.replace(dst_repo.getsep(),
                                                    status_repo.getsep()))
@@ -218,8 +214,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                 # case don't create it on it:
                 if not self.should_sync_folder(dst_name_t):
                     self.ui.debug('', "Not creating folder '%s' (repository '%s"
-                        "') as it would be filtered out on that repository." %
-                                  (dst_name_t, self))
+                        "') as it would be filtered out on that repository."%
+                        (dst_name_t, self))
                     continue
                 # get IMAPFolder and see if the reverse nametrans
                 # works fine TODO: getfolder() works only because we

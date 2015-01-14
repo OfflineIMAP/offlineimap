@@ -211,7 +211,7 @@ def uid_sequence(uidlist):
     def getrange(start, end):
         if start == end:
             return(str(start))
-        return "%s:%s" % (start, end)
+        return "%s:%s"% (start, end)
 
     if not len(uidlist): return '' # Empty list, return
     start, end = None, None

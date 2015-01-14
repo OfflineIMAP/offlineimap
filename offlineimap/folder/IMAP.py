@@ -164,10 +164,10 @@ class IMAPFolder(BaseFolder):
         # By default examine all messages in this folder
         msgsToFetch = '1:*'
 
-        maxage = self.config.getdefaultint("Account %s"% self.accountname,
-                                           "maxage", -1)
-        maxsize = self.config.getdefaultint("Account %s"% self.accountname,
-                                            "maxsize", -1)
+        maxage = self.config.getdefaultint(
+            "Account %s"% self.accountname, "maxage", -1)
+        maxsize = self.config.getdefaultint(
+            "Account %s"% self.accountname, "maxsize", -1)
 
         # Build search condition
         if (maxage != -1) | (maxsize != -1):
@@ -178,9 +178,9 @@ class IMAPFolder(BaseFolder):
                 oldest_struct = time.gmtime(time.time() - (60*60*24*maxage))
                 if oldest_struct[0] < 1900:
                     raise OfflineImapError("maxage setting led to year %d. "
-                                           "Abort syncing." % oldest_struct[0],
-                                           OfflineImapError.ERROR.REPO)
-                search_cond += "SINCE %02d-%s-%d" % (
+                        "Abort syncing."% oldest_struct[0],
+                        OfflineImapError.ERROR.REPO)
+                search_cond += "SINCE %02d-%s-%d"% (
                     oldest_struct[2],
                     MonthNames[oldest_struct[1]],
                     oldest_struct[0])
@@ -188,7 +188,7 @@ class IMAPFolder(BaseFolder):
             if(maxsize != -1):
                 if(maxage != -1): # There are two conditions, add space
                     search_cond += " "
-                search_cond += "SMALLER %d" % maxsize
+                search_cond += "SMALLER %d"% maxsize
 
             search_cond += ")"
 
@@ -225,10 +225,8 @@ class IMAPFolder(BaseFolder):
                 msgsToFetch, '(FLAGS UID)')
             if res_type != 'OK':
                 raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. "
-                                       "Server responded '[%s] %s'"% (
-                            self.getrepository(), self,
-                            res_type, response),
-                        OfflineImapError.ERROR.FOLDER)
+                    "Server responded '[%s] %s'"% (self.getrepository(), self,
+                    res_type, response), OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
 
@@ -259,7 +257,7 @@ class IMAPFolder(BaseFolder):
 
     # Interface from BaseFolder
     def getmessage(self, uid):
-        """Retrieve message with UID from the IMAP server (incl body)
+        """Retrieve message with UID from the IMAP server (incl body).
 
 	After this function all CRLFs will be transformed to '\n'.
 
@@ -280,7 +278,7 @@ class IMAPFolder(BaseFolder):
         data = data[0][1].replace(CRLF, "\n")
 
         if len(data)>200:
-            dbg_output = "%s...%s" % (str(data)[:150], str(data)[-50:])
+            dbg_output = "%s...%s"% (str(data)[:150], str(data)[-50:])
         else:
             dbg_output = data
 
@@ -331,7 +329,8 @@ class IMAPFolder(BaseFolder):
         # Now find the UID it got.
         headervalue = imapobj._quote(headervalue)
         try:
-            matchinguids = imapobj.uid('search', 'HEADER', headername, headervalue)[1][0]
+            matchinguids = imapobj.uid('search', 'HEADER',
+                headername, headervalue)[1][0]
         except imapobj.error as err:
             # IMAP server doesn't implement search or had a problem.
             self.ui.debug('imap', "__savemessage_searchforheader: got IMAP error '%s' while attempting to UID SEARCH for message with header %s"% (err, headername))
@@ -396,8 +395,8 @@ class IMAPFolder(BaseFolder):
 
         result = imapobj.uid('FETCH', bytearray('%d:*'% start), 'rfc822.header')
         if result[0] != 'OK':
-            raise OfflineImapError('Error fetching mail headers: ' + '. '.join(result[1]),
-                     OfflineImapError.ERROR.MESSAGE)
+            raise OfflineImapError('Error fetching mail headers: %s'%
+                '. '.join(result[1]), OfflineImapError.ERROR.MESSAGE)
 
         result = result[1]
 
@@ -423,7 +422,8 @@ class IMAPFolder(BaseFolder):
     def __getmessageinternaldate(self, content, rtime=None):
         """Parses mail and returns an INTERNALDATE string
 
-        It will use information in the following order, falling back as an attempt fails:
+        It will use information in the following order, falling back as an
+        attempt fails:
           - rtime parameter
           - Date header of email
 
@@ -475,21 +475,22 @@ class IMAPFolder(BaseFolder):
                 "Server will use local time."% datetuple)
             return None
 
-        #produce a string representation of datetuple that works as
-        #INTERNALDATE
+        # Produce a string representation of datetuple that works as
+        # INTERNALDATE.
         num2mon = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun',
                    7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
 
-        #tm_isdst coming from email.parsedate is not usable, we still use it here, mhh
+        # tm_isdst coming from email.parsedate is not usable, we still use it
+        # here, mhh.
         if datetuple.tm_isdst == '1':
             zone = -time.altzone
         else:
             zone = -time.timezone
         offset_h, offset_m = divmod(zone//60, 60)
 
-        internaldate = '"%02d-%s-%04d %02d:%02d:%02d %+03d%02d"' \
-            % (datetuple.tm_mday, num2mon[datetuple.tm_mon], datetuple.tm_year, \
-               datetuple.tm_hour, datetuple.tm_min, datetuple.tm_sec, offset_h, offset_m)
+        internaldate = '"%02d-%s-%04d %02d:%02d:%02d %+03d%02d"'% \
+            (datetuple.tm_mday, num2mon[datetuple.tm_mon], datetuple.tm_year, \
+             datetuple.tm_hour, datetuple.tm_min, datetuple.tm_sec, offset_h, offset_m)
 
         return internaldate
 
@@ -554,7 +555,7 @@ class IMAPFolder(BaseFolder):
                     content = self.addmessageheader(content, CRLF, headername, headervalue)
 
                 if len(content)>200:
-                    dbg_output = "%s...%s" % (content[:150], content[-50:])
+                    dbg_output = "%s...%s"% (content[:150], content[-50:])
                 else:
                     dbg_output = content
                 self.ui.debug('imap', "savemessage: date: %s, content: '%s'"%
@@ -726,6 +727,7 @@ class IMAPFolder(BaseFolder):
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
+
         imapobj = self.imapserver.acquireconnection()
         try:
             result = self._store_to_imap(imapobj, str(uid), 'FLAGS',
