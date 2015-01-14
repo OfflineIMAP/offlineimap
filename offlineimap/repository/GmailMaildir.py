@@ -1,5 +1,5 @@
 # Maildir repository support
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002-2015 John Goerzen & contributors
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
