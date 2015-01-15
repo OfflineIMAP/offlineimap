@@ -56,7 +56,8 @@ class LocalStatusSQLiteFolder(BaseFolder):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         if not os.path.isdir(dirname):
-            raise UserWarning("SQLite database path '%s' is not a directory." % dirname)
+            raise UserWarning("SQLite database path '%s' is not a directory."%
+                dirname)
 
         # dblock protects against concurrent writes in same connection
         self._dblock = Lock()
@@ -67,14 +68,15 @@ class LocalStatusSQLiteFolder(BaseFolder):
         except NameError:
             # sqlite import had failed
             raise UserWarning('SQLite backend chosen, but no sqlite python '
-                              'bindings available. Please install.'), None, exc_info()[2]
+                'bindings available. Please install.'), None, exc_info()[2]
 
         #Make sure sqlite is in multithreading SERIALIZE mode
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'
 
         #Test if db version is current enough and if db is readable.
         try:
-            cursor = self.connection.execute("SELECT value from metadata WHERE key='db_version'")
+            cursor = self.connection.execute(
+                "SELECT value from metadata WHERE key='db_version'")
         except sqlite.DatabaseError:
             #db file missing or corrupt, recreate it.
             self.__create_db()

@@ -539,7 +539,7 @@ class UIBase(object):
         abortsleep = False
         while sleepsecs > 0 and not abortsleep:
             if account.get_abort_event():
-               abortsleep = True
+                abortsleep = True
             else:
                 abortsleep = self.sleeping(10, sleepsecs)
                 sleepsecs -= 10
