@@ -15,14 +15,14 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 import os
-import re
 from sys import exc_info
 from threading import Lock
-from .Base import BaseFolder
 try:
     import sqlite3 as sqlite
 except:
     pass #fail only if needed later on, not on import
+
+from .Base import BaseFolder
 
 
 class LocalStatusSQLiteFolder(BaseFolder):
