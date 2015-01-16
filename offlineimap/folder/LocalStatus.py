@@ -46,10 +46,6 @@ class LocalStatusFolder(BaseFolder):
         return not os.path.exists(self.filename)
 
     # Interface from BaseFolder
-    def getname(self):
-        return self.name
-
-    # Interface from BaseFolder
     def getfullname(self):
         return self.filename
 

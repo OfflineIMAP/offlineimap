@@ -88,9 +88,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
     def storesmessages(self):
         return False
 
-    def getname(self):
-        return self.name
-
     def getfullname(self):
         return self.filename
 
