@@ -114,8 +114,8 @@ class LocalStatusFolder(BaseFolder):
         # Loop as many times as version, and update format.
         for i in range(1, self.cur_version + 1):
             self.messagelist = {}
-            cache = open(self.filename, "rt")
-            line = cache.readline().strip()
+            cachefd = open(self.filename, "rt")
+            line = cachefd.readline().strip()
 
             # Format is up to date. break.
             if line == (self.magicline % self.cur_version):
@@ -125,8 +125,8 @@ class LocalStatusFolder(BaseFolder):
             elif line == (self.magicline % 1):
                 self.ui._msg('Upgrading LocalStatus cache from version 1'
                     'to version 2 for %s:%s'% (self.repository, self))
-                self.readstatus_v1(cache)
-                cache.close()
+                self.readstatus_v1(cachefd)
+                cachefd.close()
                 self.save()
 
             # NOTE: Add other format transitions here in the future.
@@ -148,12 +148,12 @@ class LocalStatusFolder(BaseFolder):
             # but somehow did.
             errstr = "Cache file '%s' is empty."% self.filename
             self.ui.warn(errstr)
-            cache.close()
+            cachefd.close()
             return
 
         assert(line == (self.magicline % self.cur_version))
-        self.readstatus(cache)
-        cache.close()
+        self.readstatus(cachefd)
+        cachefd.close()
 
     def dropmessagelistcache(self):
         self.messagelist = None
@@ -167,16 +167,16 @@ class LocalStatusFolder(BaseFolder):
         """Saves the entire messagelist to disk."""
 
         with self.savelock:
-            file = open(self.filename + ".tmp", "wt")
-            file.write((self.magicline % self.cur_version) + "\n")
+            cachefd = open(self.filename + ".tmp", "wt")
+            cachefd.write((self.magicline % self.cur_version) + "\n")
             for msg in self.messagelist.values():
                 flags = ''.join(sorted(msg['flags']))
                 labels = ', '.join(sorted(msg['labels']))
-                file.write("%s|%s|%d|%s\n" % (msg['uid'], flags, msg['mtime'], labels))
-            file.flush()
+                cachefd.write("%s|%s|%d|%s\n" % (msg['uid'], flags, msg['mtime'], labels))
+            cachefd.flush()
             if self.doautosave:
-                os.fsync(file.fileno())
-            file.close()
+                os.fsync(cachefd.fileno())
+            cachefd.close()
             os.rename(self.filename + ".tmp", self.filename)
 
             if self.doautosave:
