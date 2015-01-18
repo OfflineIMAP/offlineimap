@@ -25,7 +25,7 @@ from offlineimap.repository.Base import BaseRepository
 from offlineimap import folder, imaputil, imapserver, OfflineImapError
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
-from offlineimap.utils.distro import get_os_sslcertfile
+from offlineimap.utils.distro import get_os_sslcertfile, get_os_sslcertfile_searchpath
 
 
 class IMAPRepository(BaseRepository):
@@ -201,16 +201,44 @@ class IMAPRepository(BaseRepository):
         return self.getconf_xform('sslclientkey', xforms, None)
 
     def getsslcacertfile(self):
-        """Return the absolute path of the CA certfile to use, if any"""
+        """Determines CA bundle.
+        
+        Returns path to the CA bundle.  It is either explicitely specified
+        or requested via "OS-DEFAULT" value (and we will search known
+        locations for the current OS and distribution).
+
+        If search via "OS-DEFAULT" route yields nothing, we will throw an
+        exception to make our callers distinguish between not specified
+        value and non-existent default CA bundle.
+
+        It is also an error to specify non-existent file via configuration:
+        it will error out later, but, perhaps, with less verbose explanation,
+        so we will also throw an exception.  It is consistent with
+        the above behaviour, so any explicitely-requested configuration
+        that doesn't result in an existing file will give an exception.
+        """
+
         xforms = [os.path.expanduser, os.path.expandvars, os.path.abspath]
-        cacertfile = self.getconf_xform('sslcacertfile', xforms,
-          get_os_sslcertfile())
+        cacertfile = self.getconf_xform('sslcacertfile', xforms, None)
+        if self.getconf('sslcacertfile', None) == "OS-DEFAULT":
+            cacertfile = get_os_sslcertfile()
+            if cacertfile == None:
+                searchpath = get_os_sslcertfile_searchpath()
+                if searchpath:
+                    reason = "Default CA bundle was requested, "\
+                             "but no existing locations available.  "\
+                             "Tried %s." % (", ".join(searchpath))
+                else:
+                    reason = "Default CA bundle was requested, "\
+                             "but OfflineIMAP doesn't know any for your "\
+                             "current operating system."
+                raise OfflineImapError(reason, OfflineImapError.ERROR.REPO)
         if cacertfile is None:
             return None
         if not os.path.isfile(cacertfile):
-            raise SyntaxWarning("CA certfile for repository '%s' could "
-                                "not be found. No such file: '%s'" \
-                                % (self.name, cacertfile))
+            reason = "CA certfile for repository '%s' couldn't be found.  "\
+                     "No such file: '%s'" % (self.name, cacertfile)
+            raise OfflineImapError(reason, OfflineImapError.ERROR.REPO)
         return cacertfile
 
     def getsslversion(self):

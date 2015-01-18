@@ -81,9 +81,10 @@ class IMAPServer:
         self.sslclientcert = repos.getsslclientcert()
         self.sslclientkey = repos.getsslclientkey()
         self.sslcacertfile = repos.getsslcacertfile()
-        self.sslversion = repos.getsslversion()
         if self.sslcacertfile is None:
             self.__verifycert = None # disable cert verification
+        self.fingerprint = repos.get_ssl_fingerprint()
+        self.sslversion = repos.getsslversion()
 
         self.delim = None
         self.root = None
@@ -394,7 +395,6 @@ class IMAPServer:
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
-                    fingerprint = self.repos.get_ssl_fingerprint()
                     imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname,
                                                            self.port,
                                                            self.sslclientkey,
@@ -403,7 +403,7 @@ class IMAPServer:
                                                            self.__verifycert,
                                                            self.sslversion,
                                                            timeout=socket.getdefaulttimeout(),
-                                                           fingerprint=fingerprint
+                                                           fingerprint=self.fingerprint
                                                            )
                 else:
                     self.ui.connecting(self.hostname, self.port)
@@ -468,7 +468,7 @@ class IMAPServer:
                          (self.hostname, self.repos)
                 raise OfflineImapError(reason, severity), None, exc_info()[2]
 
-            elif isinstance(e, SSLError) and e.errno == 1:
+            elif isinstance(e, SSLError) and e.errno == errno.EPERM:
                 # SSL unknown protocol error
                 # happens e.g. when connecting via SSL to a non-SSL service
                 if self.port != 993:

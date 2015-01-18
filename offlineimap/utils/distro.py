@@ -14,7 +14,6 @@ import os
 __DEF_OS_LOCATIONS = {
     'freebsd': '/usr/local/share/certs/ca-root-nss.crt',
     'openbsd': '/etc/ssl/cert.pem',
-    'netbsd': None,
     'dragonfly': '/etc/ssl/cert.pem',
     'darwin': [
       # MacPorts, port curl-ca-bundle
@@ -48,6 +47,26 @@ def get_os_name():
 
     return OS
 
+def get_os_sslcertfile_searchpath():
+    """Returns search path for CA bundle for the current OS.
+    
+    We will return an iterable even if configuration has just
+    a single value: it is easier for our callers to be sure
+    that they can iterate over result.
+
+    Returned value of None means that there is no search path
+    at all.
+    """
+
+    OS = get_os_name()
+
+    l = None
+    if OS in __DEF_OS_LOCATIONS:
+        l = __DEF_OS_LOCATIONS[OS]
+        if not hasattr(l, '__iter__'):
+            l = (l, )
+    return l
+
 
 def get_os_sslcertfile():
     """
@@ -57,18 +76,16 @@ def get_os_sslcertfile():
     Returns the location of the file or None if there is
     no known CA certificate file or all known locations
     correspond to non-existing filesystem objects.
-
     """
-    OS = get_os_name()
 
-    if OS in __DEF_OS_LOCATIONS:
-        l = __DEF_OS_LOCATIONS[OS]
-        if not hasattr(l, '__iter__'):
-          l = (l, )
-        for f in l:
-          assert (type(f) == type(""))
-          if os.path.exists(f) and \
-            (os.path.isfile(f) or os.path.islink(f)):
-              return f
+    l = get_os_sslcertfile_searchpath()
+    if l == None:
+        return None
+
+    for f in l:
+      assert (type(f) == type(""))
+      if os.path.exists(f) and \
+        (os.path.isfile(f) or os.path.islink(f)):
+          return f
 
     return None
