@@ -117,33 +117,33 @@ class LocalStatusFolder(BaseFolder):
             self.messagelist = {}
             return
 
-        # loop as many times as version, and update format
-        for i in range(1, self.cur_version+1):
-            file = open(self.filename, "rt")
+        # Loop as many times as version, and update format.
+        for i in range(1, self.cur_version + 1):
             self.messagelist = {}
-            line = file.readline().strip()
+            cache = open(self.filename, "rt")
+            line = cache.readline().strip()
 
-            # convert from format v1
-            if line == (self.magicline % 1):
-                self.ui._msg('Upgrading LocalStatus cache from version 1 to version 2 for %s:%s' %\
-                             (self.repository, self))
-                self.readstatus_v1(file)
-                file.close()
+            # Format is up to date. break.
+            if line == (self.magicline % self.cur_version):
+                break
+
+            # Convert from format v1.
+            elif line == (self.magicline % 1):
+                self.ui._msg('Upgrading LocalStatus cache from version 1'
+                    'to version 2 for %s:%s'% (self.repository, self))
+                self.readstatus_v1(cache)
+                cache.close()
                 self.save()
 
             # NOTE: Add other format transitions here in the future.
             # elif line == (self.magicline % 2):
-            #  self.ui._msg('Upgrading LocalStatus cache from version 2 to version 3 for %s:%s' %\
-            #                 (self.repository, self))
-            #     self.readstatus_v2(file)
-            #     file.close()
-            #     file.save()
+            #     self.ui._msg(u'Upgrading LocalStatus cache from version 2'
+            #         'to version 3 for %s:%s'% (self.repository, self))
+            #     self.readstatus_v2(cache)
+            #     cache.close()
+            #     cache.save()
 
-            # format is up to date. break
-            elif line == (self.magicline % self.cur_version):
-                break
-
-            # something is wrong
+            # Something is wrong.
             else:
                 errstr = "Unrecognized cache magicline in '%s'" % self.filename
                 self.ui.warn(errstr)
@@ -152,14 +152,14 @@ class LocalStatusFolder(BaseFolder):
         if not line:
             # The status file is empty - should not have happened,
             # but somehow did.
-            errstr = "Cache file '%s' is empty. Closing..." % self.filename
+            errstr = "Cache file '%s' is empty."% self.filename
             self.ui.warn(errstr)
-            file.close()
+            cache.close()
             return
 
         assert(line == (self.magicline % self.cur_version))
-        self.readstatus(file)
-        file.close()
+        self.readstatus(cache)
+        cache.close()
 
     def dropmessagelistcache(self):
         self.messagelist = None
