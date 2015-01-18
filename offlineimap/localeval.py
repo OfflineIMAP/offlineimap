@@ -31,10 +31,10 @@ class LocalEval:
         if path is not None:
             # FIXME: limit opening files owned by current user with rights set
             # to fixed mode 644.
-            file = open(path, 'r')
+            foo = open(path, 'r')
             module = imp.load_module(
                 '<none>',
-                file,
+                foo,
                 path,
                 ('', 'r', imp.PY_SOURCE))
             for attr in dir(module):

@@ -220,6 +220,9 @@ class MaildirFolder(BaseFolder):
         if self.messagelist is None:
             self.messagelist = self._scanfolder()
 
+    def dropmessagelistcache(self):
+        self.messagelist = None
+
     # Interface from BaseFolder
     def getmessagelist(self):
         return self.messagelist

@@ -301,6 +301,8 @@ class IMAPRepository(BaseRepository):
         return None
 
     def getfolder(self, foldername):
+        """Return instance of OfflineIMAP representative folder."""
+
         return self.getfoldertype()(self.imapserver, foldername, self)
 
     def getfoldertype(self):
@@ -314,6 +316,8 @@ class IMAPRepository(BaseRepository):
         self.folders = None
 
     def getfolders(self):
+        """Return a list of instances of OfflineIMAP representative folder."""
+
         if self.folders != None:
             return self.folders
         retval = []
@@ -326,13 +330,13 @@ class IMAPRepository(BaseRepository):
             listresult = listfunction(directory = self.imapserver.reference)[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
-        for string in listresult:
-            if string == None or \
-                   (isinstance(string, basestring) and string == ''):
+        for s in listresult:
+            if s == None or \
+                   (isinstance(s, basestring) and s == ''):
                 # Bug in imaplib: empty strings in results from
                 # literals. TODO: still relevant?
                 continue
-            flags, delim, name = imaputil.imapsplit(string)
+            flags, delim, name = imaputil.imapsplit(s)
             flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
             if '\\noselect' in flaglist:
                 continue
@@ -353,9 +357,8 @@ class IMAPRepository(BaseRepository):
                         self.ui.error(e, exc_info()[2],
                                       'Invalid folderinclude:')
                         continue
-                    retval.append(self.getfoldertype()(self.imapserver,
-                                                       foldername,
-                                                       self))
+                    retval.append(self.getfoldertype()(
+                        self.imapserver, foldername, self))
             finally:
                 self.imapserver.releaseconnection(imapobj)
 

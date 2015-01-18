@@ -247,6 +247,9 @@ class BaseFolder(object):
 
         raise NotImplementedError
 
+    def dropmessagelistcache(self):
+        raise NotImplementedException
+
     def getmessagelist(self):
         """Gets the current message list.
         You must call cachemessagelist() before calling this function!"""
@@ -437,6 +440,11 @@ class BaseFolder(object):
         - linebreak: string that carries line ending
         - headername: name of the header to add
         - headervalue: value of the header to add
+
+        .. note::
+
+           The following documentation will not get displayed correctly after being
+           processed by Sphinx. View the source of this method to read it.
 
         This has to deal with strange corner cases where the header is
         missing or empty.  Here are illustrations for all the cases,

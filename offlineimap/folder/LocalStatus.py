@@ -161,6 +161,8 @@ class LocalStatusFolder(BaseFolder):
         self.readstatus(file)
         file.close()
 
+    def dropmessagelistcache(self):
+        self.messagelist = None
 
     def save(self):
         """Save changed data to disk. For this backend it is the same as saveall."""

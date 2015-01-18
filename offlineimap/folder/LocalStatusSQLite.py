@@ -203,6 +203,9 @@ class LocalStatusSQLiteFolder(BaseFolder):
             self.messagelist[uid]['labels'] = labels
             self.messagelist[uid]['mtime'] = row[2]
 
+    def dropmessagelistcache(self):
+        self.messagelist = None
+
     # Interface from LocalStatusFolder
     def save(self):
         pass

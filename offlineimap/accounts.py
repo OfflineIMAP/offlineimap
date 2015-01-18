@@ -33,15 +33,21 @@ except:
 
 # FIXME: spaghetti code alert!
 def getaccountlist(customconfig):
+    # Account names in a list.
     return customconfig.getsectionlist('Account')
 
 # FIXME: spaghetti code alert!
 def AccountListGenerator(customconfig):
+    """Returns a list of instanciated Account class, one per account name."""
+
     return [Account(customconfig, accountname)
             for accountname in getaccountlist(customconfig)]
 
 # FIXME: spaghetti code alert!
 def AccountHashGenerator(customconfig):
+    """Returns a dict of instanciated Account class with the account name as
+    key."""
+
     retval = {}
     for item in AccountListGenerator(customconfig):
         retval[item.getname()] = item
@@ -54,9 +60,10 @@ class Account(CustomConfig.ConfigHelperMixin):
     Most of the time you will actually want to use the derived
     :class:`accounts.SyncableAccount` which contains all functions used
     for syncing an account."""
-    #signal gets set when we should stop looping
+
+    # Signal gets set when we should stop looping.
     abort_soon_signal = Event()
-    #signal gets set on CTRL-C/SIGTERM
+    # Signal gets set on CTRL-C/SIGTERM.
     abort_NOW_signal = Event()
 
     def __init__(self, config, name):
@@ -66,6 +73,7 @@ class Account(CustomConfig.ConfigHelperMixin):
 
         :param name: A string denoting the name of the Account
                      as configured"""
+
         self.config = config
         self.name = name
         self.metadatadir = config.getmetadatadir()
@@ -257,8 +265,8 @@ class SyncableAccount(Account):
                         raise
                 self.ui.error(e, exc_info()[2])
             except Exception as e:
-                self.ui.error(e, exc_info()[2], msg = "While attempting to sync"
-                    " account '%s'" % self)
+                self.ui.error(e, exc_info()[2], msg="While attempting to sync"
+                    " account '%s'"% self)
             else:
                 # after success sync, reset the looping counter to 3
                 if self.refreshperiod:
@@ -483,3 +491,7 @@ def syncfolder(account, remotefolder, quick):
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s" % \
                 (account, remotefolder.getvisiblename(),
                  traceback.format_exc()))
+    finally:
+        for folder in ["statusfolder", "localfolder", "remotefolder"]:
+            if folder in locals():
+                locals()[folder].dropmessagelistcache()

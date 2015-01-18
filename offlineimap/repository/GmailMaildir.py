@@ -1,5 +1,5 @@
 # Maildir repository support
-# Copyright (C) 2002 John Goerzen
+# Copyright (C) 2002-2015 John Goerzen & contributors
 # <jgoerzen@complete.org>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,8 @@ class GmailMaildirRepository(MaildirRepository):
     def __init__(self, reposname, account):
         """Initialize a MaildirRepository object.  Takes a path name
         to the directory holding all the Maildir directories."""
-        super(GmailMaildirRepository, self).__init__(reposname, account)
 
+        super(GmailMaildirRepository, self).__init__(reposname, account)
 
     def getfoldertype(self):
         return GmailMaildirFolder
