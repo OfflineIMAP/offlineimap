@@ -5,6 +5,11 @@ ChangeLog
 :website: http://offlineimap.org
 
 
+OfflineIMAP v6.5.7-rc3 (2015-  -  )
+===================================
+
+
+
 OfflineIMAP v6.5.7-rc2 (2015-01-18)
 ===================================
 
@@ -163,7 +168,7 @@ OfflineIMAP v6.5.6 (2014-05-14)
   to Tomasz Żok)
 
 
-OfflineIMAP v6.5.6-RC1 (2014-05-14)
+OfflineIMAP v6.5.6-rc1 (2014-05-14)
 ===================================
 
 * Add knob to invoke folderfilter dynamically on each sync (GitHub#73)
