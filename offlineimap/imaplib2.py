@@ -48,7 +48,7 @@ __author__ = "Piers Lauder <piers@janeelix.com>"
 __URL__ = "http://imaplib2.sourceforge.net"
 __license__ = "Python License"
 
-import binascii, errno, os, Queue, random, re, select, socket, sys, time, threading, zlib
+import binascii, errno, os, Queue, random, re, select, socket, sys, time, threading, traceback, zlib
 
 select_module = select
 
@@ -160,9 +160,13 @@ class Request(object):
         self.data = None
 
 
-    def abort(self, typ, val):
-        self.aborted = (typ, val)
+    def abort_tb(self, typ, val, tb):
+        self.aborted = (typ, val, tb)
         self.deliver(None)
+
+
+    def abort(self, typ, val):
+        self.abort_tb(typ, val, traceback.extract_stack())
 
 
     def get_response(self, exc_fmt=None):
@@ -171,10 +175,10 @@ class Request(object):
         self.ready.wait()
 
         if self.aborted is not None:
-            typ, val = self.aborted
+            typ, val, tb = self.aborted
             if exc_fmt is None:
                 exc_fmt = '%s - %%s' % typ
-            raise typ(exc_fmt % str(val))
+            raise typ, typ(exc_fmt % str(val)), tb
 
         return self.response
 
@@ -1661,7 +1665,7 @@ class IMAP4(object):
 
         if __debug__: self._log(1, 'starting')
 
-        typ, val = self.abort, 'connection terminated'
+        typ, val, tb = self.abort, 'connection terminated', None
 
         while not self.Terminate:
 
@@ -1684,6 +1688,7 @@ class IMAP4(object):
                     if resp_timeout is not None and self.tagged_commands:
                         if __debug__: self._log(1, 'response timeout')
                         typ, val = self.abort, 'no response after %s secs' % resp_timeout
+                        tb = traceback.extract_stack()
                         break
                     continue
                 if self.idle_timeout > time.time():
@@ -1695,23 +1700,33 @@ class IMAP4(object):
                 if __debug__: self._log(1, 'inq None - terminating')
                 break
 
+            # self.inq can contain tuple, it means we got an exception.
+            # For example of code that produces tuple see IMAP4._reader()
+            # and IMAP4._writer().
+            #
+            # XXX: may be it will be more explicit to create own exception
+            # XXX: class and pass it instead of tuple.
             if not isinstance(line, basestring):
-                typ, val = line
+                typ, val, tb = line
                 break
 
             try:
                 self._put_response(line)
             except:
                 typ, val = self.error, 'program error: %s - %s' % sys.exc_info()[:2]
+                tb = sys.exc_info()[2]
                 break
 
         self.Terminate = True
+
+        if not tb:
+            tb = traceback.extract_stack()
 
         if __debug__: self._log(1, 'terminating: %s' % repr(val))
 
         while not self.ouq.empty():
             try:
-                self.ouq.get_nowait().abort(typ, val)
+                self.ouq.get_nowait().abort_tb(typ, val, tb)
             except Queue.Empty:
                 break
         self.ouq.put(None)
@@ -1719,7 +1734,7 @@ class IMAP4(object):
         self.commands_lock.acquire()
         for name in self.tagged_commands.keys():
             rqb = self.tagged_commands.pop(name)
-            rqb.abort(typ, val)
+            rqb.abort_tb(typ, val, tb)
         self.state_change_free.set()
         self.commands_lock.release()
         if __debug__: self._log(3, 'state_change_free.set')
@@ -1801,7 +1816,7 @@ class IMAP4(object):
                         self._print_log()
                         if self.debug: self.debug += 4          # Output all
                         self._log(1, reason)
-                self.inq.put((self.abort, reason))
+                self.inq.put((self.abort, reason, sys.exc_info()[2]))
                 break
 
         poll.unregister(self.read_fd)
@@ -1865,7 +1880,7 @@ class IMAP4(object):
                         self._print_log()
                         if self.debug: self.debug += 4          # Output all
                         self._log(1, reason)
-                self.inq.put((self.abort, reason))
+                self.inq.put((self.abort, reason, sys.exc_info()[2]))
                 break
 
         if __debug__: self._log(1, 'finished')
@@ -1878,6 +1893,7 @@ class IMAP4(object):
         if __debug__: self._log(1, 'starting')
 
         reason = 'Terminated'
+        tb = None
 
         while not self.Terminate:
             rqb = self.ouq.get()
@@ -1889,15 +1905,19 @@ class IMAP4(object):
                 if __debug__: self._log(4, '> %s' % rqb.data)
             except:
                 reason = 'socket error: %s - %s' % sys.exc_info()[:2]
+                tb = sys.exc_info()[2]
                 if __debug__:
                     if not self.Terminate:
                         self._print_log()
                         if self.debug: self.debug += 4          # Output all
                         self._log(1, reason)
-                rqb.abort(self.abort, reason)
+                rqb.abort_tb(self.abort, reason, tb)
                 break
 
-        self.inq.put((self.abort, reason))
+        if not tb:
+            tb = traceback.extract_stack()
+
+        self.inq.put((self.abort, reason, tb))
 
         if __debug__: self._log(1, 'finished')
 
