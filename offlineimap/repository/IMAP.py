@@ -156,7 +156,8 @@ class IMAPRepository(BaseRepository):
         if user != None:
             return localeval.eval(user)
 
-        user = self.getconf('remoteuser')
+        if self.config.has_option(self.getsection(), 'remoteuser'):
+            user = self.getconf('remoteuser')
         if user != None:
             return user
 
@@ -311,7 +312,7 @@ class IMAPRepository(BaseRepository):
                 raise
         else:
             if netrcentry:
-                user = self.getconf('remoteuser')
+                user = self.getuser()
                 if user == None or user == netrcentry[0]:
                     return netrcentry[2]
         # 5. read password from /etc/netrc
@@ -322,7 +323,7 @@ class IMAPRepository(BaseRepository):
                 raise
         else:
             if netrcentry:
-                user = self.getconf('remoteuser')
+                user = self.getuser()
                 if user == None or user == netrcentry[0]:
                     return netrcentry[2]
         # no strategy yielded a password!
