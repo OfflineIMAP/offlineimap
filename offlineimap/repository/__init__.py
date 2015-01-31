@@ -44,13 +44,13 @@ class Repository(object):
             name = account.getconf('remoterepository')
             # We don't support Maildirs on the remote side.
             typemap = {'IMAP': IMAPRepository,
-                       'Gmail': GmailRepository}
+                'Gmail': GmailRepository}
 
         elif reqtype == 'local':
             name = account.getconf('localrepository')
             typemap = {'IMAP': MappedIMAPRepository,
-                       'Maildir': MaildirRepository,
-                       'GmailMaildir': GmailMaildirRepository}
+                'Maildir': MaildirRepository,
+                'GmailMaildir': GmailMaildirRepository}
 
         elif reqtype == 'status':
             # create and return a LocalStatusRepository
@@ -69,7 +69,7 @@ class Repository(object):
             errstr = ("Could not find section '%s' in configuration. Required "
                       "for account '%s'." % ('Repository %s' % name, account))
             raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO), \
-                  None, exc_info()[2]
+                None, exc_info()[2]
 
         try:
             repo = typemap[repostype]
@@ -77,7 +77,7 @@ class Repository(object):
             errstr = "'%s' repository not supported for '%s' repositories." \
                      % (repostype, reqtype)
             raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO), \
-                  None, exc_info()[2]
+                None, exc_info()[2]
 
         return repo(name, account)
 

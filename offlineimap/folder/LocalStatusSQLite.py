@@ -15,14 +15,14 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 import os
-import re
 from sys import exc_info
 from threading import Lock
-from .Base import BaseFolder
 try:
     import sqlite3 as sqlite
 except:
     pass #fail only if needed later on, not on import
+
+from .Base import BaseFolder
 
 
 class LocalStatusSQLiteFolder(BaseFolder):
@@ -56,7 +56,8 @@ class LocalStatusSQLiteFolder(BaseFolder):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         if not os.path.isdir(dirname):
-            raise UserWarning("SQLite database path '%s' is not a directory." % dirname)
+            raise UserWarning("SQLite database path '%s' is not a directory."%
+                dirname)
 
         # dblock protects against concurrent writes in same connection
         self._dblock = Lock()
@@ -67,14 +68,15 @@ class LocalStatusSQLiteFolder(BaseFolder):
         except NameError:
             # sqlite import had failed
             raise UserWarning('SQLite backend chosen, but no sqlite python '
-                              'bindings available. Please install.'), None, exc_info()[2]
+                'bindings available. Please install.'), None, exc_info()[2]
 
         #Make sure sqlite is in multithreading SERIALIZE mode
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'
 
         #Test if db version is current enough and if db is readable.
         try:
-            cursor = self.connection.execute("SELECT value from metadata WHERE key='db_version'")
+            cursor = self.connection.execute(
+                "SELECT value from metadata WHERE key='db_version'")
         except sqlite.DatabaseError:
             #db file missing or corrupt, recreate it.
             self.__create_db()
@@ -87,9 +89,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
     def storesmessages(self):
         return False
-
-    def getname(self):
-        return self.name
 
     def getfullname(self):
         return self.filename
