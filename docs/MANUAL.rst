@@ -450,11 +450,17 @@ Sync from Gmail to a local Maildir with labels
 
 This is an example of a setup where GMail gets synced with a local Maildir.
 It also keeps track of GMail labels, that get embedded into the messages
-under the header configured in labelsheader, and syncs them back and forth
-the same way as flags.
-The header used for the labels may need to be set according to the email
-client used.
-Some choices that may be recognized by email clients are `X-Keywords` or `X-Labels`.
+under the header configured in the labelsheader setting, and syncs them back
+and forth the same way as flags. This is particularly useful with an email
+client that indexes your email and recognizes the labels header, so that you
+can sync a single "All Mail" folder, and navigate your email via searches.
+
+The header used to store the labels depends on the email client you plan to use.
+Some choices that may be recognized by email clients are X-Keywords
+(the default) or X-Labels. Note that if you need to change the label header
+after the labels have already been synced, you will have to change the header
+manually on all messages, otherwise offlineimap will not pick up the labels under
+the old header.
 
 The first time OfflineIMAP runs with synclabels enabled on a large repository it
 may take some time as the labels are read / embedded on every message.
@@ -466,9 +472,9 @@ much faster::
     remoterepository = Gmailserver-mine
     synclabels = yes
     # This header is where labels go.  Usually you will be fine
-    # with default value, but in case you want it different,
-    # here we go:
-    labelsheader = X-GMail-Keywords
+    # with default value (X-Keywords), but in case you want it
+    # different, here we go:
+    labelsheader = X-Keywords
 
     [Repository Gmailserver-mine]
     #This is the remote repository
@@ -480,6 +486,14 @@ much faster::
     #This is the 'local' repository
     type = GmailMaildir
 
+There are some labels, that gmail treats in a special way. All internal gmail
+labels start with "\\". Those labels include: \\Drafts, \\Important, \\Inbox,
+\\Sent, \\Junk, \\Flagged, \\Trash. You can add and remove those labels
+locally, and when synced, will have special actions on the gmail side. For instance,
+adding the label \Trash to an email will move it to the trash, and be permanantly
+deleted after some time. This is relevant, since gmail's IMAP prevents from removing
+messages from the "All Mail" folder the usual way.
+    
 
 Selecting only a few folders to sync
 ------------------------------------
