@@ -248,8 +248,17 @@ class BaseFolder(object):
 
         raise NotImplementedError
 
+    def ismessagelistempty(self):
+        """Empty everythings we know about messages."""
+
+        if len(self.messagelist.keys()) < 1:
+            return True
+        return False
+
     def dropmessagelistcache(self):
-        raise NotImplementedException
+        """Empty everythings we know about messages."""
+
+        self.messagelist = {}
 
     def getmessagelist(self):
         """Gets the current message list.

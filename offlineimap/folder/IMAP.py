@@ -48,7 +48,7 @@ class IMAPFolder(BaseFolder):
         self.expunge = repository.getexpunge()
         self.root = None # imapserver.root
         self.imapserver = imapserver
-        self.messagelist = None
+        self.messagelist = {}
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
         self.imap_query = ['BODY.PEEK[]']
@@ -249,7 +249,7 @@ class IMAPFolder(BaseFolder):
                 self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
 
     def dropmessagelistcache(self):
-        self.messagelist = None
+        self.messagelist = {}
 
     # Interface from BaseFolder
     def getmessagelist(self):

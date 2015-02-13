@@ -63,7 +63,7 @@ class MaildirFolder(BaseFolder):
         super(MaildirFolder, self).__init__(name, repository)
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.root = root
-        self.messagelist = None
+        self.messagelist = {}
         # check if we should use a different infosep to support Win file systems
         self.wincompatible = self.config.getdefaultboolean(
             "Account "+self.accountname, "maildir-windows-compatible", False)
@@ -220,11 +220,8 @@ class MaildirFolder(BaseFolder):
 
     # Interface from BaseFolder
     def cachemessagelist(self):
-        if self.messagelist is None:
+        if self.ismessagelistempty():
             self.messagelist = self._scanfolder()
-
-    def dropmessagelistcache(self):
-        self.messagelist = None
 
     # Interface from BaseFolder
     def getmessagelist(self):

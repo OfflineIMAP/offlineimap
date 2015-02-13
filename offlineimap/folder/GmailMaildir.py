@@ -65,7 +65,7 @@ class GmailMaildirFolder(MaildirFolder):
 
 
     def cachemessagelist(self):
-        if self.messagelist is None:
+        if self.ismessagelistempty():
             self.messagelist = self._scanfolder()
 
         # Get mtimes
