@@ -101,6 +101,18 @@ class IMAPServer:
         self.gss_vc = None
         self.gssapi = False
 
+        _account_section = 'Account ' + self.repos.account.name
+        if self.config.has_option(_account_section, 'proxy'):
+            proxy = self.config.get(_account_section, 'proxy')
+            proxy_type, host, port = proxy.split(":")
+            # powered by PySocks
+            import socks
+            socks.setdefaultproxy(getattr(socks, proxy_type), host, int(port))
+            self.proxied_socket = socks.socksocket
+        else:
+            import socket
+            self.proxied_socket = socket.socket
+
     def __getpassword(self):
         """Returns the server password or None"""
         if self.goodpassword != None: # use cached good one first
@@ -392,7 +404,9 @@ class IMAPServer:
                 if self.tunnel:
                     self.ui.connecting('tunnel', self.tunnel)
                     imapobj = imaplibutil.IMAP4_Tunnel(self.tunnel,
-                                                       timeout=socket.getdefaulttimeout())
+                                                       timeout=socket.getdefaulttimeout(),
+                                                       use_socket=self.proxied_socket,
+                                                       )
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
@@ -404,12 +418,15 @@ class IMAPServer:
                                                            self.__verifycert,
                                                            self.sslversion,
                                                            timeout=socket.getdefaulttimeout(),
-                                                           fingerprint=self.fingerprint
+                                                           fingerprint=self.fingerprint,
+                                                           use_socket=self.proxied_socket,
                                                            )
                 else:
                     self.ui.connecting(self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
-                                                       timeout=socket.getdefaulttimeout())
+                                                       timeout=socket.getdefaulttimeout(),
+                                                       use_socket=self.proxied_socket,
+                                                       )
 
                 if not self.preauth_tunnel:
                     try:

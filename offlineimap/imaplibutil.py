@@ -21,6 +21,7 @@ import subprocess
 from sys import exc_info
 import threading
 from hashlib import sha1
+import socket
 
 from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
@@ -69,6 +70,38 @@ class UsefulIMAPMixIn(object):
     def _mesg(self, s, tn=None, secs=None):
         new_mesg(self, s, tn, secs)
 
+    # Overrides private function from IMAP4 (@imaplib2)
+    def open_socket(self):
+        """open_socket()
+        Open socket choosing first address family available."""
+        msg = (-1, 'could not open socket')
+        for res in socket.getaddrinfo(self.host, self.port, socket.AF_UNSPEC, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            try:
+                # use socket of our own, possiblly socksified socket.
+                s = self.socket(af, socktype, proto)
+            except socket.error, msg:
+                continue
+            try:
+                for i in (0, 1):
+                    try:
+                        s.connect(sa)
+                        break
+                    except socket.error, msg:
+                        if len(msg.args) < 2 or msg.args[0] != errno.EINTR:
+                            raise
+                else:
+                    raise socket.error(msg)
+            except socket.error, msg:
+                s.close()
+                continue
+            break
+        else:
+            raise socket.error(msg)
+
+        return s
+
+
 
 class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
     """IMAP4 client class over a tunnel
@@ -79,6 +112,9 @@ class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
     The result will be in PREAUTH stage."""
 
     def __init__(self, tunnelcmd, **kwargs):
+        if "use_socket" in kwargs:
+            self.socket = kwargs['use_socket']
+            del kwargs['use_socket']
         IMAP4.__init__(self, tunnelcmd, **kwargs)
 
     def open(self, host, port):
@@ -141,6 +177,9 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
     """Improved version of imaplib.IMAP4_SSL overriding select()."""
 
     def __init__(self, *args, **kwargs):
+        if "use_socket" in kwargs:
+            self.socket = kwargs['use_socket']
+            del kwargs['use_socket']
         self._fingerprint = kwargs.get('fingerprint', None)
         if type(self._fingerprint) != type([]):
             self._fingerprint = [self._fingerprint]
@@ -171,7 +210,11 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
 class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
     """Improved version of imaplib.IMAP4 overriding select()."""
 
-    pass
+    def __init__(self, *args, **kwargs):
+        if "use_socket" in kwargs:
+            self.socket = kwargs['use_socket']
+            del kwargs['use_socket']
+        IMAP4.__init__(sekf, *args, **kwargs)
 
 
 def Internaldate2epoch(resp):
