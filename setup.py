@@ -60,6 +60,7 @@ setup(name = "offlineimap",
                   'offlineimap.repository', 'offlineimap.ui',
                   'offlineimap.utils'],
       scripts = ['bin/offlineimap'],
+      install_requires = "imaplib2",
       license = offlineimap.__copyright__ + \
                 ", Licensed under the GPL version 2",
       cmdclass = { 'test': TestCommand}

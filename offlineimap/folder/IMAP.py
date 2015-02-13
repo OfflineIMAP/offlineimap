@@ -24,7 +24,6 @@ from sys import exc_info
 from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
 from offlineimap import globals
-from offlineimap.imaplib2 import MonthNames
 
 
 # Globals
@@ -182,7 +181,7 @@ class IMAPFolder(BaseFolder):
                         OfflineImapError.ERROR.REPO)
                 search_cond += "SINCE %02d-%s-%d"% (
                     oldest_struct[2],
-                    MonthNames[oldest_struct[1]],
+                    imaplibutil.MonthNames[oldest_struct[1]],
                     oldest_struct[0])
 
             if(maxsize != -1):

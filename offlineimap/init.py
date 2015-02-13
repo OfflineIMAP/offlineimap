@@ -18,7 +18,7 @@
 import os
 import sys
 import threading
-import offlineimap.imaplib2 as imaplib
+import imaplib2
 import signal
 import socket
 import logging
@@ -263,7 +263,7 @@ class OfflineImap:
                 dtype = dtype.strip()
                 self.ui.add_debug(dtype)
                 if dtype.lower() == u'imap':
-                    imaplib.Debug = 5
+                    imaplib2.Debug = 5
 
         if options.runonce:
             # FIXME: spaghetti code alert!
