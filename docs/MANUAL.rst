@@ -393,6 +393,11 @@ KNOWN ISSUES
    * Use cygwin managed mount (not tested)
       - not available anymore since cygwin 1.7
 
+* OfflineIMAP confused after system suspend.
+    When resuming a suspended session, OfflineIMAP does not cleanly handles the
+    broken socket(s) if socktimeout option is not set.
+    You should enable this option with a value like 10.
+
 .. _pitfalls:
 
 PITFALLS & ISSUES
