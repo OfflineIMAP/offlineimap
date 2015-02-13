@@ -214,7 +214,7 @@ class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
         if "use_socket" in kwargs:
             self.socket = kwargs['use_socket']
             del kwargs['use_socket']
-        IMAP4.__init__(sekf, *args, **kwargs)
+        IMAP4.__init__(self, *args, **kwargs)
 
 
 def Internaldate2epoch(resp):
