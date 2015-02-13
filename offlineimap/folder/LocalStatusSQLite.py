@@ -33,24 +33,24 @@ class LocalStatusSQLiteFolder(BaseFolder):
     connection and cursor for all operations. This is a big disadvantage
     and we might want to investigate if we cannot hold an object open
     for a thread somehow."""
-    #though. According to sqlite docs, you need to commit() before
-    #the connection is closed or your changes will be lost!"""
-    #get db connection which autocommits
-    #connection = sqlite.connect(self.filename, isolation_level=None)
-    #cursor = connection.cursor()
-    #return connection, cursor
+    # Though. According to sqlite docs, you need to commit() before
+    # the connection is closed or your changes will be lost!
+    # get db connection which autocommits
+    # connection = sqlite.connect(self.filename, isolation_level=None)
+    # cursor = connection.cursor()
+    # return connection, cursor
 
-    #current version of our db format
+    # Current version of our db format.
     cur_version = 2
 
     def __init__(self, name, repository):
-        self.sep = '.' #needs to be set before super.__init__()
+        self.sep = '.' # Needs to be set before super.__init__()
         super(LocalStatusSQLiteFolder, self).__init__(name, repository)
         self.root = repository.root
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
         self.messagelist = {}
 
-        self._newfolder = False        # flag if the folder is new
+        self._newfolder = False        # Flag if the folder is new.
 
         dirname = os.path.dirname(self.filename)
         if not os.path.exists(dirname):
@@ -59,10 +59,10 @@ class LocalStatusSQLiteFolder(BaseFolder):
             raise UserWarning("SQLite database path '%s' is not a directory."%
                 dirname)
 
-        # dblock protects against concurrent writes in same connection
+        # dblock protects against concurrent writes in same connection.
         self._dblock = Lock()
 
-        #Try to establish connection, no need for threadsafety in __init__
+        # Try to establish connection, no need for threadsafety in __init__.
         try:
             self.connection = sqlite.connect(self.filename, check_same_thread=False)
         except NameError:
@@ -71,10 +71,10 @@ class LocalStatusSQLiteFolder(BaseFolder):
                 "with available bindings to '%s'. Is the sqlite3 package "
                 "installed?."% self.filename), None, exc_info()[2]
 
-        #Make sure sqlite is in multithreading SERIALIZE mode
+        # Make sure sqlite is in multithreading SERIALIZE mode.
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'
 
-        #Test if db version is current enough and if db is readable.
+        # Test if db version is current enough and if db is readable.
         try:
             cursor = self.connection.execute(
                 "SELECT value from metadata WHERE key='db_version'")
