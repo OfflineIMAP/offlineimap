@@ -15,10 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
-from offlineimap.ui import getglobalui
 from threading import Lock, BoundedSemaphore, Thread, Event, currentThread
-import offlineimap.accounts
 import hmac
 import socket
 import base64
@@ -27,6 +24,11 @@ import errno
 from sys import exc_info
 from socket import gaierror
 from ssl import SSLError, cert_time_to_seconds
+
+from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
+import offlineimap.accounts
+from offlineimap.ui import getglobalui
+
 
 try:
     # do we have a recent pykerberos?
@@ -100,6 +102,31 @@ class IMAPServer:
         self.gss_step = self.GSS_STATE_STEP
         self.gss_vc = None
         self.gssapi = False
+
+        # In order to support proxy connection, we have to override the
+        # default socket instance with our own socksified socket instance.
+        # We add this option to bypass the GFW in China.
+        _account_section = 'Account ' + self.repos.account.name
+        if not self.config.has_option(_account_section, 'proxy'):
+            self.proxied_socket = socket.socket
+        else:
+            proxy = self.config.get(_account_section, 'proxy')
+            # Powered by PySocks.
+            try:
+                import socks
+                proxy_type, host, port = proxy.split(":")
+                port = int(port)
+                socks.setdefaultproxy(getattr(socks, proxy_type), host, port)
+                self.proxied_socket = socks.socksocket
+            except ImportError:
+                self.ui.warn("PySocks not installed, ignoring proxy option.")
+                self.proxied_socket = socket.socket
+            except (AttributeError, ValueError) as e:
+                self.ui.warn("Bad proxy option %s for account %s: %s "
+                    "Ignoring proxy option."%
+                    (proxy, self.repos.account.name, e))
+                self.proxied_socket = socket.socket
+
 
     def __getpassword(self):
         """Returns the server password or None"""
@@ -391,25 +418,33 @@ class IMAPServer:
                 # Generate a new connection.
                 if self.tunnel:
                     self.ui.connecting('tunnel', self.tunnel)
-                    imapobj = imaplibutil.IMAP4_Tunnel(self.tunnel,
-                                                       timeout=socket.getdefaulttimeout())
+                    imapobj = imaplibutil.IMAP4_Tunnel(
+                        self.tunnel,
+                        timeout=socket.getdefaulttimeout(),
+                        use_socket=self.proxied_socket,
+                        )
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
-                    imapobj = imaplibutil.WrappedIMAP4_SSL(self.hostname,
-                                                           self.port,
-                                                           self.sslclientkey,
-                                                           self.sslclientcert,
-                                                           self.sslcacertfile,
-                                                           self.__verifycert,
-                                                           self.sslversion,
-                                                           timeout=socket.getdefaulttimeout(),
-                                                           fingerprint=self.fingerprint
-                                                           )
+                    imapobj = imaplibutil.WrappedIMAP4_SSL(
+                        self.hostname,
+                        self.port,
+                        self.sslclientkey,
+                        self.sslclientcert,
+                        self.sslcacertfile,
+                        self.__verifycert,
+                        self.sslversion,
+                        timeout=socket.getdefaulttimeout(),
+                        fingerprint=self.fingerprint,
+                        use_socket=self.proxied_socket,
+                        )
                 else:
                     self.ui.connecting(self.hostname, self.port)
-                    imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
-                                                       timeout=socket.getdefaulttimeout())
+                    imapobj = imaplibutil.WrappedIMAP4(
+                        self.hostname, self.port,
+                        timeout=socket.getdefaulttimeout(),
+                        use_socket=self.proxied_socket,
+                        )
 
                 if not self.preauth_tunnel:
                     try:
