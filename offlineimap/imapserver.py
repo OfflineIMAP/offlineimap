@@ -100,6 +100,34 @@ class IMAPServer:
         self.gss_vc = None
         self.gssapi = False
 
+        # In order to support proxy connection, we have to override the
+        # default socket instance with our own socksified socket instance.
+        # We add this option to bypass the GFW in China.
+        _account_section = 'Account ' + self.repos.account.name
+        if not self.config.has_option(_account_section, 'proxy'):
+            import socket
+            self.proxied_socket = socket.socket
+        else:
+            proxy = self.config.get(_account_section, 'proxy')
+            # powered by PySocks
+            try:
+                import socks
+                proxy_type, host, port = proxy.split(":")
+                port = int(port)
+                socks.setdefaultproxy(getattr(socks, proxy_type), host, port)
+                self.proxied_socket = socks.socksocket
+            except ImportError:
+                import warnings
+                warnings.warn("PySocks not installed. Ignore proxy option and continue.\n")
+                import socket
+                self.proxied_socket = socket.socket
+            except (AttributeError, ValueError):
+                import warnings
+                warnings.warn("Bad proxy option in %s: %s. Ignore proxy option and continue.\n" % (self.repos.account.name, proxy))
+                import socket
+                self.proxied_socket = socket.socket
+
+
     def __getpassword(self):
         """Returns the server password or None"""
         if self.goodpassword != None: # use cached good one first
@@ -391,7 +419,9 @@ class IMAPServer:
                 if self.tunnel:
                     self.ui.connecting('tunnel', self.tunnel)
                     imapobj = imaplibutil.IMAP4_Tunnel(self.tunnel,
-                                                       timeout=socket.getdefaulttimeout())
+                                                       timeout=socket.getdefaulttimeout(),
+                                                       use_socket=self.proxied_socket,
+                                                       )
                     success = 1
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
@@ -403,12 +433,15 @@ class IMAPServer:
                                                            self.__verifycert,
                                                            self.sslversion,
                                                            timeout=socket.getdefaulttimeout(),
-                                                           fingerprint=self.fingerprint
+                                                           fingerprint=self.fingerprint,
+                                                           use_socket=self.proxied_socket,
                                                            )
                 else:
                     self.ui.connecting(self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4(self.hostname, self.port,
-                                                       timeout=socket.getdefaulttimeout())
+                                                       timeout=socket.getdefaulttimeout(),
+                                                       use_socket=self.proxied_socket,
+                                                       )
 
                 if not self.preauth_tunnel:
                     try:
