@@ -66,10 +66,16 @@ class LocalStatusSQLiteFolder(BaseFolder):
         try:
             self.connection = sqlite.connect(self.filename, check_same_thread=False)
         except NameError:
-            # sqlite import had failed
+            # sqlite import had failed.
             raise UserWarning("SQLite backend chosen, but cannot connect "
                 "with available bindings to '%s'. Is the sqlite3 package "
                 "installed?."% self.filename), None, exc_info()[2]
+        except sqlite.OperationalError as e:
+            # Operation had failed.
+            raise UserWarning("cannot open database file '%s': %s.\nYou might "
+                "want to check the rights to that file and if it cleanly opens "
+                "with the 'sqlite<3>' command."%
+                (self.filename, e)), None, exc_info()[2]
 
         # Make sure sqlite is in multithreading SERIALIZE mode.
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'
