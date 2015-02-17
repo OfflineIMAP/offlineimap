@@ -21,10 +21,12 @@ import subprocess
 from sys import exc_info
 import threading
 from hashlib import sha1
+import re
+import zlib
 
 from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
-from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, InternalDate, Mon2num
+from imaplib2 import IMAP4, IMAP4_SSL
 
 
 class UsefulIMAPMixIn(object):
@@ -68,7 +70,6 @@ class UsefulIMAPMixIn(object):
     # Overrides private function from IMAP4 (@imaplib2)
     def _mesg(self, s, tn=None, secs=None):
         new_mesg(self, s, tn, secs)
-
 
 class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
     """IMAP4 client class over a tunnel
@@ -174,10 +175,21 @@ class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
     pass
 
 
+MonthNames = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+
 def Internaldate2epoch(resp):
     """Convert IMAP4 INTERNALDATE to UT.
 
     Returns seconds since the epoch."""
+
+    InternalDate = re.compile(r'.*INTERNALDATE "'
+        r'(?P<day>[ 0123][0-9])-(?P<mon>[A-Z][a-z][a-z])-(?P<year>[0-9][0-9][0-9][0-9])'
+        r' (?P<hour>[0-9][0-9]):(?P<min>[0-9][0-9]):(?P<sec>[0-9][0-9])'
+        r' (?P<zonen>[-+])(?P<zoneh>[0-9][0-9])(?P<zonem>[0-9][0-9])'
+        r'"')
+    Mon2num = dict(zip((x.encode() for x in MonthNames[1:]), range(1, 13)))
 
     mo = InternalDate.match(resp)
     if not mo:
