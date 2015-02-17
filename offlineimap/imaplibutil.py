@@ -22,6 +22,7 @@ from sys import exc_info
 import threading
 from hashlib import sha1
 import socket
+import errno
 
 from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
