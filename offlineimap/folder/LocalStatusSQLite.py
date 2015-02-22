@@ -203,7 +203,21 @@ class LocalStatusSQLiteFolder(BaseFolder):
             uid = row[0]
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             flags = set(row[1])
-            labels = set([lb.strip() for lb in row[3].split(',') if len(lb.strip()) > 0])
+            try:
+                labels = set([lb.strip() for lb in
+                    row[3].split(',') if len(lb.strip()) > 0])
+            except AttributeError:
+                # FIXME: This except clause was introduced because row[3] from
+                # database can be found of unexpected type NoneType. See
+                # https://github.com/OfflineIMAP/offlineimap/issues/103
+                #
+                # We are fixing the type here but this would require more
+                # researches to find the true root cause. row[3] is expected to
+                # be a (empty) string, not None.
+                #
+                # Also, since database might return None, we have to fix the
+                # database, too.
+                labels = set()
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['labels'] = labels
             self.messagelist[uid]['mtime'] = row[2]

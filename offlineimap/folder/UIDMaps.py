@@ -208,7 +208,7 @@ class MappedIMAPFolder(IMAPFolder):
         if uid < 0:
             return uid
 
-        #if msg uid already exists, just modify the flags
+        # If msg uid already exists, just modify the flags.
         if uid in self.r2l:
             self.savemessageflags(uid, flags)
             return uid
@@ -238,11 +238,10 @@ class MappedIMAPFolder(IMAPFolder):
 
     # Interface from BaseFolder
     def savemessageflags(self, uid, flags):
-        """
-
-        Note that this function does not check against dryrun settings,
+        """Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
+
         self._mb.savemessageflags(self.r2l[uid], flags)
 
     # Interface from BaseFolder
@@ -304,7 +303,7 @@ class MappedIMAPFolder(IMAPFolder):
     # Interface from BaseFolder
     def deletemessagesflags(self, uidlist, flags):
         self._mb.deletemessagesflags(self._uidlist(self.r2l, uidlist),
-                                     flags)
+            flags)
 
     # Interface from BaseFolder
     def deletemessage(self, uid):
