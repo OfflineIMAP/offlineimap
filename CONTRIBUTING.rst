@@ -1,4 +1,6 @@
 .. -*- coding: utf-8 -*-
+.. vim: spelllang=en ts=2 expandtab:
+
 .. _OfflineIMAP: https://github.com/OfflineIMAP/offlineimap
 .. _Github: https://github.com/OfflineIMAP/offlineimap
 .. _repository: git://github.com/OfflineIMAP/offlineimap.git

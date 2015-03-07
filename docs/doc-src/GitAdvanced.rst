@@ -1,4 +1,6 @@
 .. -*- coding: utf-8 -*-
+.. vim: spelllang=en ts=2 expandtab:
+
 .. _OfflineIMAP: http://offlineimap.org
 .. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
 .. _Developers's Certificate of Origin: https://github.com/OfflineIMAP/offlineimap/blob/next/docs/doc-src/dco.rst
@@ -104,7 +106,10 @@ Create commits
 Make a pull request
 -------------------
 
-TODO.
+* Push your changes to a topic branch in your public fork of OfflineIMAP.
+* Submit a pull request to the OfflineIMAP_ maintainers.
+* If a ticket is open in the issues, add a comment with the link to your pull
+  request.
 
 
 Export commits as patches
