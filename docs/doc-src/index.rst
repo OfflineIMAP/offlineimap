@@ -5,12 +5,22 @@
 Welcome to :mod:`offlineimaps`'s documentation
 ==============================================
 
-`OfflineImap`_ synchronizes email between an IMAP server and a MailDir or between two IMAP servers. It offers very powerful and flexible configuration options, that allow things such as the filtering of folders, transposing of names via static configuration or python scripting. It plays well with mutt and other MailDir consuming email clients.
+`OfflineImap`_ synchronizes email between an IMAP server and a MailDir or
+between two IMAP servers. It offers very powerful and flexible configuration
+options, that allow things such as the filtering of folders, transposing of
+names via static configuration or python scripting. It plays well with mutt and
+other MailDir consuming email clients.
 
-The documentation contains the end user documentation in a first part. It also contains use cases and example configurations.  It is followed by the internal :doc:`API documentation <API>` for those interested in modifying the source code or otherwise peek into the OfflineImap internals in a second part.
+The documentation contains the end user documentation in a first part. It also
+contains use cases and example configurations.  It is followed by the internal
+:doc:`API documentation <API>` for those interested in modifying the source code
+or otherwise peek into the OfflineImap internals in a second part.
 
 
-If you just want to get started with minimal fuzz, have a look at our `online quick start guide <http://offlineimap.org/#ref-quick-start>`_. Do note though, that our configuration options are many and powerful. Perusing our precious documentation does often pay off!
+If you just want to get started with minimal fuzz, have a look at our `online
+quick start guide <http://offlineimap.org/#ref-quick-start>`_. Do note though,
+that our configuration options are many and powerful. Perusing our precious
+documentation does often pay off!
 
 More information on specific topics can be found on the following pages:
 
@@ -26,7 +36,8 @@ More information on specific topics can be found on the following pages:
   * :doc:`Frequently Asked Questions <FAQ>`
 
 **Developer documentation**
-  * :doc:`HACKING HowTo & git workflows <HACKING>`
+  * :doc:`Contributing <CONTRIBUTING>`
+  * :doc:`Advanced Git <GitAdvanced>`
   * :doc:`API documentation <API>` for internal details on the
     :mod:`offlineimap` module
 
@@ -41,7 +52,8 @@ More information on specific topics can be found on the following pages:
    offlineimap
    FAQ
 
-   HACKING
+   CONTRIBUTING
+   GitAdvanced
    API
    repository
    ui

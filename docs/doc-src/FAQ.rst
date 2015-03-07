@@ -3,6 +3,15 @@
 .. NOTE TO MAINTAINERS: Please add new questions to the end of their
    sections, so section/question numbers remain stable.
 
+.. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
+.. _OfflineIMAP: https://github.com/OfflineIMAP/offlineimap
+.. _ssl.wrap_socket: http://docs.python.org/library/ssl.html#ssl.wrap_socket
+.. _Advanced Git: https://github.com/OfflineIMAP/offlineimap/blob/next/docs/doc-src/GitAdvanced.rst
+.. _FAQ: https://github.com/OfflineIMAP/offlineimap/blob/next/docs/doc-src/FAQ.rst
+.. _Contributing: https://github.com/OfflineIMAP/offlineimap/blob/next/CONTRIBUTING.rst
+
+
+
 
 =============================================
  OfflineIMAP FAQ (Frequently Asked Questions)
@@ -15,14 +24,10 @@
 .. sectnum::
 
 
-This is a work in progress.
-
 Please feel free to ask questions and/or provide answers; send email to the
 `mailing list`_.
 
-.. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
-.. _OfflineIMAP: https://github.com/nicolas33/offlineimap
-.. _ssl.wrap_socket: http://docs.python.org/library/ssl.html#ssl.wrap_socket
+Most recent `FAQ`_.
 
 
 OfflineIMAP
@@ -206,8 +211,8 @@ How is OfflineIMAP conformance?
 * Internet Message Access Protocol version 4rev1 (IMAP 4rev1) as specified in
   `2060`:RFC: and `3501`:RFC:
 * CRAM-MD5 as specified in `2195`:RFC:
-* Maildir as specified in the Maildir manpage and the qmail website
-* Standard Python 2.6 as implemented on POSIX-compliant systems
+* Maildir as specified in the Maildir manpage and the qmail website.
+* Standard Python 2.7 as implemented on POSIX-compliant systems.
 
 Can I force OfflineIMAP to sync a folder right now?
 ---------------------------------------------------
@@ -226,12 +231,13 @@ accounts as follows::
    resync that account immediately.  This will be ignored if a resync is
    already in progress for that account.
 
-2) while in sleep mode, you can also send a SIGUSR1. See the :ref:`UNIX
+2) While in sleep mode, you can also send a SIGUSR1. See the :ref:`UNIX
    signals` section in the MANUAL for details.
 
 
 I get a "Mailbox already exists" error
 --------------------------------------
+
 **Q:** When synchronizing, I receive errors such as::
 
      Folder 'sent'[main-remote] could not be created. Server responded:
@@ -241,7 +247,7 @@ I get a "Mailbox already exists" error
   to treat "special" folders as case insensitive (e.g. the initial
   INBOX. part, or folders such as "Sent" or "Trash"). If you happen to
   have a folder "sent" on one side of things and a folder called "Sent"
-  on the other side, offlineimap will try to create those folders on
+  on the other side, OfflineIMAP will try to create those folders on
   both sides. If you server happens to treat those folders as
   case-insensitive you can then see this warning.
 
@@ -426,20 +432,24 @@ To be brief:
   (security and bugfixes) for users who don't want or can't upgrade to the
   latest release.
 
-For more information about the branching model and workflow, see the HACKING page.
+For more information about the branching model and workflow, see `Advanced
+Git`_.
 
 
 Why are your Maildir message filenames so long?
 -----------------------------------------------
 
-OfflineIMAP has two relevant principles: 1) never modifying your messages in
-any way and 2) ensuring 100% reliable synchronizations. In order to do a
-reliable sync, OfflineIMAP must have a way to uniquely identify each e-mail.
-Three pieces of information are required to do this: your account name, the
-folder name, and the message UID. The account name can be calculated from the
-path in which your messages are. The folder name can usually be as well, BUT
-some mail clients move messages between folders by simply moving the file,
-leaving the name intact.
+OfflineIMAP has two relevant principles:
+
+1. Never modifying your messages in any way.
+2. Ensure 100% reliable synchronizations.
+
+In order to do a reliable sync, OfflineIMAP must have a way to uniquely identify
+each e-mail.  Three pieces of information are required to do this: your account
+name, the folder name, and the message UID. The account name can be calculated
+from the path in which your messages are. The folder name can usually be as
+well, BUT some mail clients move messages between folders by simply moving the
+file, leaving the name intact.
 
 So, OfflineIMAP must store both a message UID and a folder ID. The
 folder ID is necessary so OfflineIMAP can detect a message being moved
@@ -481,55 +491,26 @@ How to test OfflineIMAP?
 We don't have a testing tool, for now. As a IMAP client, we need an available
 IMAP server for that purpose. But it doesn't mean you can do anything.
 
-Recent patches are merged in the next branch before beeing in the mainline. Once
+Recent patches are merged in the next branch before being in the mainline. Once
 you have your own copy of the official repository, track this next branch::
 
-  git checkout -t origin/next
+  $ git checkout -t origin/next
 
 Update this branch in a regular basis with::
 
-  git checkout next
-  git pull
+  $ git checkout next
+  $ git pull
 
 Notice you're not supposed to install OfflineIMAP each time. You may simply
 run it like this::
 
-  ./offlineimap.py
+  $ ./offlineimap.py
 
 The choice is up to you. :-)
+
 
 How to submit a patch?
 ----------------------
 
-If you want to send regular patches, you should first subscribe to the `mailing
-list`_. This is not a pre-requisite, though.
-
-Next, you'll find documentation in the docs/ directory, especially the HACKING
-page.
-
-You'll need to get a clone from the official `OfflineIMAP`_ repository and
-configure Git. Then, read the SubmittingPatches.rst page in your local
-repository or at
-https://github.com/nicolas33/offlineimap/blob/master/SubmittingPatches.rst#readme
-.
-
-To send a patch, we recommend using 'git send-email'.
-
-
-Where from should my patches be based on?
------------------------------------------
-
-Depends. If you're not sure, it should start off of the master
-branch. master is the branch where new patches should be based on by
-default.
-
-Obvious materials for next release (e.g. new features) start off of
-current next.  Also, next is the natural branch to write patches on top
-of commits not already in master.
-
-A fix for a very old bug or security issue may start off of maint. This isn't
-needed since such fix are backported by the maintainer, though.
-
-Finally, a work on very active or current development can start from a topic
-next. This clearly means you **need** this topic as a base for what is intended.
+Read `Contributing`_.
 
