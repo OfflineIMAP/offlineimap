@@ -7,16 +7,21 @@
 .. _maintainers: https://github.com/OfflineIMAP/offlineimap/blob/next/MAINTAINERS.rst
 .. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
 .. _Developer's Certificate of Origin: https://github.com/OfflineIMAP/offlineimap/blob/next/docs/doc-src/dco.rst
+.. _Community's website: https://offlineimap.github.io
 
 
 =================
 HOW TO CONTRIBUTE
 =================
 
-You'll find here the basics to contribute to OfflineIMAP_, addressed to users
-and both experienced/learning developers to quickly provide contributions.
+You'll find here the **basics** to contribute to OfflineIMAP_, addressed to
+users as well as learning or experienced developers to quickly provide
+contributions.
+
+**For more detailed documentation, see the `Community's website`_.**
 
 .. contents:: :depth: 3
+
 
 Submit issues
 =============

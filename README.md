@@ -36,8 +36,7 @@ Downloads releases as [tarball or zipball](https://github.com/OfflineIMAP/offlin
 
 **The user discussions, development, announces and all the exciting stuff take
 place in the mailing list.** While not mandatory to send emails, you can
-[subscribe
-here](http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project).
+[subscribe here](http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project).
 
 Bugs, issues and contributions can be requested to both the mailing list or the
 [official Github project][offlineimap].
