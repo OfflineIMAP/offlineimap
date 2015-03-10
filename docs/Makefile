@@ -32,7 +32,9 @@ websitedoc:
 
 clean:
 	$(RM) -f $(HTML_TARGETS)
-	$(RM) -f offlineimap.1 ../offlineimap.1
+	$(RM) -f offlineimap.1
+	$(RM) -f offlineimap.7
 	$(RM) -rf html/*
+	-find ./docs -name '*.html' -exec rm -f {} \;
 
 .PHONY: clean doc

@@ -35,18 +35,15 @@ clean:
 	-find . -name '*.pygc' -exec rm -f {} \;
 	-find . -name '*.class' -exec rm -f {} \;
 	-find . -name '.cache*' -exec rm -f {} \;
-	# Care with that. We have html in subdirs we want to keep.
-	-find ./docs -name '*.html' -exec rm -f {} \;
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
-	@$(MAKE) -C docs clean
+	@$(MAKE) -C clean
 
 man:
-	@$(MAKE) -C docs man
+	@$(MAKE) -C man
 
 doc:
 	@$(MAKE) -C docs
-	$(RST2HTML) Changelog.rst Changelog.html
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
