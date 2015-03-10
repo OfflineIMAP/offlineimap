@@ -3,8 +3,9 @@
 .*.swo
 *.html
 *~
-# website.
+# websites.
 /website/
+/wiki/
 # Generated files.
 /docs/dev-doc/
 /build/
