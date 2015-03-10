@@ -1,10 +1,12 @@
-# Generated files
-/docs/dev-doc/
-/build/
-*.pyc
-offlineimap.1
-# backups
+# Backups.
 .*.swp
 .*.swo
 *.html
 *~
+# website.
+/website/
+# Generated files.
+/docs/dev-doc/
+/build/
+*.pyc
+offlineimap.1
