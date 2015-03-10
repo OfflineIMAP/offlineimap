@@ -25,6 +25,9 @@ offlineimap.1: MANUAL.rst
 doc:
 	$(SPHINXBUILD) -b html -d html/doctrees doc-src html
 
+websitedoc:
+	./website-doc.sh
+
 clean:
 	$(RM) -f $(HTML_TARGETS)
 	$(RM) -f offlineimap.1 ../offlineimap.1

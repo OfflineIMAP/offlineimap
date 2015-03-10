@@ -35,7 +35,8 @@ clean:
 	-find . -name '*.pygc' -exec rm -f {} \;
 	-find . -name '*.class' -exec rm -f {} \;
 	-find . -name '.cache*' -exec rm -f {} \;
-	-find . -name '*.html' -exec rm -f {} \;
+	# Care with that. We have html in subdirs we want to keep.
+	-find ./docs -name '*.html' -exec rm -f {} \;
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 	@$(MAKE) -C docs clean
