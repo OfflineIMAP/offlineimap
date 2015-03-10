@@ -25,7 +25,7 @@ $SPHINXBUILD -b html -d "$TMPDIR" doc-src "$dest"
 # Dynamically build JSON definitions for Jekyll.
 #
 echo "Building Jekyll data: $VERSIONS_YML"
-for version in $(ls "$DESTBASE")
+for version in $(ls "$DESTBASE" -1 | sort -nr)
 do
   echo "- $version"
 done > "$VERSIONS_YML"
