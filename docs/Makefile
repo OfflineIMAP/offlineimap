@@ -16,11 +16,13 @@ html: $(HTML_TARGETS)
 $(HTML_TARGETS): %.html : %.rst
 	$(RST2HTML) $? $@
 
-man: offlineimap.1
+man: offlineimap.1 offlineimapui.7
 
-offlineimap.1: MANUAL.rst
-	$(RST2MAN) MANUAL.rst offlineimap.1
-	cp -f offlineimap.1 ..
+offlineimap.1: offlineimap.txt
+	a2x -v -f manpage $?
+
+offlineimapui.7: offlineimapui.txt
+	a2x -v -f manpage $?
 
 doc:
 	$(SPHINXBUILD) -b html -d html/doctrees doc-src html

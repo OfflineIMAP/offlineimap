@@ -2,20 +2,13 @@
 .. _OfflineIMAP: http://offlineimap.github.io
 
 
-Welcome to OfflineIMAP's documentation
-======================================
-
-**Configuration**
-  * :doc:`user manual/Configuration <MANUAL>`
-  * :doc:`Folder filtering & name transformation guide <nametrans>`
-  * :doc:`command line options <offlineimap>`
+Welcome to OfflineIMAP's developer documentation
+================================================
 
 **Developer documentation**
   * :doc:`Advanced Git <GitAdvanced>`
-  * :doc:`API documentation <API>` for internal details on the
-    :mod:`offlineimap` module
 
-**OfflineIMAP APIs**
+**Documented APIs**
 
 .. toctree::
    API

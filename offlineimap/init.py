@@ -58,108 +58,54 @@ class OfflineImap:
         parser.add_option("--dry-run",
                   action="store_true", dest="dryrun",
                   default=False,
-                  help="Do not actually modify any store but check and print "
-              "what synchronization actions would be taken if a sync would be"
-              " performed. It will not precisely give the exact information w"
-              "hat will happen. If e.g. we need to create a folder, it merely"
-              " outputs 'Would create folder X', but not how many and which m"
-              "ails it would transfer.")
+                  help="dry run mode")
 
         parser.add_option("--info",
                   action="store_true", dest="diagnostics",
                   default=False,
-                  help="Output information on the configured email repositories"
-              ". Useful for debugging and bug reporting. Use in conjunction wit"
-              "h the -a option to limit the output to a single account. This mo"
-              "de will prevent any actual sync to occur and exits after it outp"
-              "ut the debug information.")
+                  help="output information on the configured email repositories")
 
         parser.add_option("-1",
                   action="store_true", dest="singlethreading",
                   default=False,
-                  help="Disable all multithreading operations and use "
-              "solely a single-thread sync. This effectively sets the "
-              "maxsyncaccounts and all maxconnections configuration file "
-              "variables to 1.")
+                  help="disable all multithreading operations")
 
         parser.add_option("-P", dest="profiledir", metavar="DIR",
-                  help="Sets OfflineIMAP into profile mode. The program "
-              "will create DIR (it must not already exist). "
-              "As it runs, Python profiling information about each "
-              "thread is logged into profiledir. Please note: "
-              "This option is present for debugging and optimization "
-              "only, and should NOT be used unless you have a "
-              "specific reason to do so. It will significantly "
-              "decrease program performance, may reduce reliability, "
-              "and can generate huge amounts of data. This option "
-              "implies the -1 option.")
+                  help="sets OfflineIMAP into profile mode.")
 
         parser.add_option("-a", dest="accounts", metavar="ACCOUNTS",
-                  help="Overrides the accounts section in the config file. "
-              "Lets you specify a particular account or set of "
-              "accounts to sync without having to edit the config "
-              "file. You might use this to exclude certain accounts, "
-              "or to sync some accounts that you normally prefer not to.")
+                  help="overrides the accounts section in the config file")
 
         parser.add_option("-c", dest="configfile", metavar="FILE",
                   default=None,
-                  help="Specifies a configuration file to use")
+                  help="specifies a configuration file to use")
 
         parser.add_option("-d", dest="debugtype", metavar="type1,[type2...]",
-                  help="Enables debugging for OfflineIMAP. This is useful "
-              "if you are to track down a malfunction or figure out what is "
-              "going on under the hood. This option requires one or more "
-              "debugtypes, separated by commas. These define what exactly "
-              "will be debugged, and so far include two options: imap, thread, "
-              "maildir or ALL. The imap option will enable IMAP protocol "
-              "stream and parsing debugging. Note that the output may contain "
-              "passwords, so take care to remove that from the debugging "
-              "output before sending it to anyone else. The maildir option "
-              "will enable debugging for certain Maildir operations. "
-              "The use of any debug option (unless 'thread' is included), "
-              "implies the single-thread option -1.")
+                  help="enables debugging for OfflineIMAP.")
 
         parser.add_option("-l", dest="logfile", metavar="FILE",
-                  help="Log to FILE")
+                  help="log to FILE")
 
         parser.add_option("-f", dest="folders", metavar="folder1,[folder2...]",
-                  help="Only sync the specified folders. The folder names "
-              "are the *untranslated* foldernames of the remote repository. "
-              "This command-line option overrides any 'folderfilter' "
-              "and 'folderincludes' options in the configuration file.")
+                  help="only sync the specified folders")
 
         parser.add_option("-k", dest="configoverride",
                   action="append",
                   metavar="[section:]option=value",
-                  help=
-              """Override configuration file option. If"section" is
-              omitted, it defaults to "general". Any underscores
-              in the section name are replaced with spaces:
-              for instance, to override option "autorefresh" in
-              the "[Account Personal]" section in the config file
-              one would use "-k Account_Personal:autorefresh=30".""")
+                  help="override configuration file option")
 
         parser.add_option("-o",
                   action="store_true", dest="runonce",
                   default=False,
-                  help="Run only once, ignoring any autorefresh setting "
-                       "in the configuration file.")
+                  help="run only once")
 
         parser.add_option("-q",
                   action="store_true", dest="quick",
                   default=False,
-                  help="Run only quick synchronizations. Ignore any "
-              "flag updates on IMAP servers (if a flag on the remote IMAP "
-              "changes, and we have the message locally, it will be left "
-              "untouched in a quick run.")
+                  help="run only quick synchronizations")
 
         parser.add_option("-u", dest="interface",
-                  help="Specifies an alternative user interface to "
-              "use. This overrides the default specified in the "
-              "configuration file. The UI specified with -u will "
-              "be forced to be used, even if checks determine that it is "
-              "not usable. Possible interface choices are: %s " %
-              ", ".join(UI_LIST.keys()))
+                  help="specifies an alternative user interface")
 
         (options, args) = parser.parse_args()
         globals.set_options (options)
