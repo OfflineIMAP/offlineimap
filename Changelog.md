@@ -1,20 +1,16 @@
-=========
-ChangeLog
-=========
+---
+layout: page
+title: Changelog of mainline
+---
 
-:website: http://offlineimap.org
 
-
-OfflineIMAP v6.5.7-rc3 (2015-  -  )
-===================================
+### OfflineIMAP v6.5.7-rc3 (2015-  -  )
 
 
 
-OfflineIMAP v6.5.7-rc2 (2015-01-18)
-===================================
+### OfflineIMAP v6.5.7-rc2 (2015-01-18)
 
-Notes
------
+#### Notes
 
 This release candidate should be minor for most users.
 
@@ -25,15 +21,13 @@ Documentation had our attention, too.
 
 There's some code cleanups and code refactoring, as usual.
 
-Features
---------
+#### Features
 
 * Do not keep reloading pyhtonfile, make it stateful.
 * HACKING: how to create tags.
 * MANUAL: add minor sample on how to retrieve a password with a helper python file.
 
-Fixes
------
+#### Fixes
 
 * Make OS-default CA certificate file to be requested explicitely.
 * SSL: do not fallback on other authentication mode if it fails.
@@ -42,8 +36,7 @@ Fixes
 * ui: Machine: remove offending param for a _printData() call.
 * Drop caches after having processed folders.
 
-Changes
--------
+#### Changes
 
 * Fix unexpected garbage code.
 * Properly re-raise exception to save original tracebacks.
@@ -59,11 +52,9 @@ Changes
 * COPYING: fix unexpected characters.
 
 
-OfflineIMAP v6.5.7-rc1 (2015-01-07)
-===================================
+### OfflineIMAP v6.5.7-rc1 (2015-01-07)
 
-Notes
------
+#### Notes
 
 I think it's time for a new release candidate. Our release cycles are long
 enough and users are asked to use the current TIP of the next branch to test
@@ -77,8 +68,7 @@ Debugging messages are added and polished.
 There's some code cleanups and refactoring, also.
 
 
-Features
---------
+#### Features
 
 * Expand environment variables in the following
   configuration items:
@@ -96,8 +86,7 @@ Features
 * Added default CA bundle location for OpenBSD
   (GitHub pull #120) and DragonFlyBSD.
 
-Fixes
------
+#### Fixes
 
 * Fix unbounded recursion during flag update (Josh Berry).
 * Do not ignore gmail labels if header appears multiple times
@@ -122,8 +111,7 @@ Fixes
 * Add missing version bump for 6.5.6 (it was released with
   6.5.5 in setup.py and other places).
 
-Changes
--------
+#### Changes
 
 * Warn about a tricky piece of code in addmessageheader
 * Rename addmessageheader()'s crlf parameter to linebreak
@@ -160,16 +148,14 @@ Changes
 
 
 
-OfflineIMAP v6.5.6 (2014-05-14)
-===============================
+### OfflineIMAP v6.5.6 (2014-05-14)
 
 * Fix IDLE mode regression (it didn't worked) introduced
   after v6.5.5 (pointy hat goes to Eygene Ryabinkin, kudos --
   to Tomasz Żok)
 
 
-OfflineIMAP v6.5.6-rc1 (2014-05-14)
-===================================
+### OfflineIMAP v6.5.6-rc1 (2014-05-14)
 
 * Add knob to invoke folderfilter dynamically on each sync (GitHub#73)
 * Add knob to apply compression to IMAP connections (Abdó Roig-Maranges)
@@ -187,8 +173,7 @@ OfflineIMAP v6.5.6-rc1 (2014-05-14)
   'cert_fingerprint'
 
 
-OfflineIMAP v6.5.5 (2013-10-07)
-===============================
+### OfflineIMAP v6.5.5 (2013-10-07)
 
 * Avoid lockups for IMAP synchronizations running with the
   "-1" command-line switch (X-Ryl669 <boite.pour.spam@gmail.com>)
@@ -239,8 +224,7 @@ OfflineIMAP v6.5.5 (2013-10-07)
   'group' (D. Franke)
 * Improved error throwing on repository misconfiguration
 
-OfflineIMAP v6.5.4 (2012-06-02)
-===============================
+### OfflineIMAP v6.5.4 (2012-06-02)
 
 * bump bundled imaplib2 library 2.29 --> 2.33
 * Actually perform the SSL fingerprint check (reported by J. Cook)
@@ -249,15 +233,13 @@ OfflineIMAP v6.5.4 (2012-06-02)
 * Fix crash when IMAP.quickchanged() led to an Error (reported by sharat87)
 * Implement the createfolders setting to disable folder propagation (see docs)
 
-OfflineIMAP v6.5.3.1 (2012-04-03)
-=================================
+### OfflineIMAP v6.5.3.1 (2012-04-03)
 
 * Don't fail if no dry-run setting exists in offlineimap.conf
   (introduced in 6.5.3)
 
 
-OfflineIMAP v6.5.3 (2012-04-02)
-===============================
+### OfflineIMAP v6.5.3 (2012-04-02)
 
 * --dry-run mode protects us from performing any actual action.  It will
   not precisely give the exact information what will happen. If e.g. it
@@ -290,8 +272,7 @@ OfflineIMAP v6.5.3 (2012-04-02)
 
 * Improve compatability of the curses UI with python 2.6
 
-OfflineIMAP v6.5.2.1 (2012-04-04)
-=================================
+### OfflineIMAP v6.5.2.1 (2012-04-04)
 
 * Fix python2.6 compatibility with the TTYUI backend (crash)
 
@@ -312,8 +293,7 @@ OfflineIMAP v6.5.2.1 (2012-04-04)
 * Remove the Gmail "realdelete" option, as it could lead to potential
   data loss.
 
-OfflineIMAP v6.5.2 (2012-01-17)
-===============================
+### OfflineIMAP v6.5.2 (2012-01-17)
 
 * Gmail "realdelete" option is considered harmful and has the potential
   for data loss. Analysis at
@@ -334,8 +314,7 @@ OfflineIMAP v6.5.2 (2012-01-17)
 
 * Don't emit noisy regular sleeping announcements in Basic UI.
 
-OfflineIMAP v6.5.1.2 (2012-01-07) - "Baby steps"
-================================================
+### OfflineIMAP v6.5.1.2 (2012-01-07) - "Baby steps"
 
 Smallish bug fixes that deserve to be put out.
 
@@ -346,8 +325,7 @@ Smallish bug fixes that deserve to be put out.
   support them (yet) (this prevents many scary bogus sync messages)
 * Add filter information to the filter list in --info output
 
-OfflineIMAP v6.5.1.1 (2012-01-07) - "Das machine control is nicht fur gerfinger-poken und mittengrabben"
-========================================================================================================
+### OfflineIMAP v6.5.1.1 (2012-01-07) - "Das machine control is nicht fur gerfinger-poken und mittengrabben"
 
 Blinkenlights UI 6.5.0 regression fixes only.
 
@@ -355,8 +333,7 @@ Blinkenlights UI 6.5.0 regression fixes only.
 
 * Make exit via 'q' key work again cleanly
 
-OfflineIMAP v6.5.1 (2012-01-07) - "Quest for stability"
-=======================================================
+### OfflineIMAP v6.5.1 (2012-01-07) - "Quest for stability"
 
 * Fixed Maildir regression "flagmatchre" not found. (regressed in 6.5.0)
 
@@ -373,8 +350,7 @@ OfflineIMAP v6.5.1 (2012-01-07) - "Quest for stability"
   all releases >= 6.4.0, so don't run older releases simultanous to this
   one.
 
-OfflineIMAP v6.5.0 (2012-01-06)
-===============================
+### OfflineIMAP v6.5.0 (2012-01-06)
 
 This is a CRITICAL bug fix release for everyone who is on the 6.4.x series.
 Please upgrade to avoid potential data loss! The version has been bumped to
@@ -391,8 +367,7 @@ Please upgrade to avoid potential data loss! The version has been bumped to
 
 * Fix regression that broke MachineUI
 
-OfflineIMAP v6.4.4 (2012-01-06)
-===============================
+### OfflineIMAP v6.4.4 (2012-01-06)
 
 This is a bugfix release, fixing regressions occurring in or since 6.4.0.
 
@@ -408,17 +383,14 @@ This is a bugfix release, fixing regressions occurring in or since 6.4.0.
   (such as 'a'), note that they will still be deleted as they are not
   supported in the sync to an IMAP server.
 
-OfflineIMAP v6.4.3 (2012-01-04)
-===============================
+### OfflineIMAP v6.4.3 (2012-01-04)
 
-New Features
-------------
+#### New Features
 
 * add a --info command line switch that outputs useful information about
   the server and the configuration for all enabled accounts.
 
-Changes
--------
+#### Changes
 
 * Reworked logging which was reported to e.g. not flush output to files
   often enough. User-visible changes:
@@ -435,8 +407,7 @@ Changes
   SIGTERM and CTRL-C can take a little longer, but will be clean.
 
 
-OfflineIMAP v6.4.2 (2011-12-01)
-===============================
+### OfflineIMAP v6.4.2 (2011-12-01)
 
 * IMAP<->IMAP sync with a readonly local IMAP repository failed with a
   rather mysterious "TypeError: expected a character buffer object"
@@ -447,18 +418,15 @@ OfflineIMAP v6.4.2 (2011-12-01)
   folder separator, all folder names would get a trailing slash
   appended, which is plain wrong.
 
-OfflineIMAP v6.4.1 (2011-11-17)
-===============================
+### OfflineIMAP v6.4.1 (2011-11-17)
 
-Changes
--------
+#### Changes
 
 * Indicate progress when copying many messages (slightly change log format)
 
 * Output how long an account sync took (min:sec).
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Syncing multiple accounts in single-threaded mode would fail as we try
   to "register" a thread as belonging to two accounts which was
@@ -471,35 +439,29 @@ Bug Fixes
   which could result in some folders being opened read-only when we
   really needed read-write.
 
-OfflineIMAP v6.4.0 (2011-09-29)
-===============================
+### OfflineIMAP v6.4.0 (2011-09-29)
 
 This is the first stable release to support the forward-compatible per-account
 locks and remote folder creation that has been introduced in the 6.3.5 series.
 
 * Various regression and bug fixes from the last couple of RCs
 
-OfflineIMAP v6.3.5-rc3 (2011-09-21)
-===================================
+### OfflineIMAP v6.3.5-rc3 (2011-09-21)
 
-Changes
--------
+#### Changes
 
 * Refresh server capabilities after login, so we know that Gmail
   supports UIDPLUS (it only announces that after login, not
   before). This prevents us from adding custom headers to Gmail uploads.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix the creation of folders on remote repositories, which was still
   botched on rc2.
 
-OfflineIMAP v6.3.5-rc2 (2011-09-19)
-===================================
+### OfflineIMAP v6.3.5-rc2 (2011-09-19)
 
-New Features
-------------
+#### New Features
 
 * Implement per-account locking, so that it will possible to sync
   different accounts at the same time. The old global lock is still in
@@ -519,29 +481,24 @@ New Features
   repository, you might need a nametrans setting on the local repository
   that leads to the original name (reverse nametrans).
 
-Changes
--------
+#### Changes
 
 * Documentation improvements concerning 'restoreatime' and some code cleanup
 
 * Maildir repositories now also respond to folderfilter= configurations.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * New emails are not created with "-rwxr-xr-x" but as "-rw-r--r--"
   anymore, fixing a regression in 6.3.4.
 
-OfflineIMAP v6.3.5-rc1 (2011-09-12)
-===================================
+### OfflineIMAP v6.3.5-rc1 (2011-09-12)
 
-Notes
------
+#### Notes
 
 Idle feature and SQLite backend leave the experimental stage! ,-)
 
-New Features
-------------
+#### New Features
 
 * When a message upload/download fails, we do not abort the whole folder
   synchronization, but only skip that message, informing the user at the
@@ -551,8 +508,7 @@ New Features
   that the server certificate is actually known and identical by
   comparing the stored sha1 fingerprint with the current one.
 
-Changes
--------
+#### Changes
 
 * Refactor our IMAPServer class. Background work without user-visible
   changes.
@@ -560,8 +516,7 @@ Changes
   cluttered the main configuration file for little gain.
 * Updated bundled imaplib2 to version 2.28.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * We protect more robustly against asking for inexistent messages from the
   IMAP server, when someone else deletes or moves messages while we sync.
@@ -571,46 +526,37 @@ Bug Fixes
 
 
 
-OfflineIMAP v6.3.4 (2011-08-10)
-===============================
+### OfflineIMAP v6.3.4 (2011-08-10)
 
-Notes
------
+#### Notes
 
 Here we are. A nice release since v6.3.3, I think.
 
-Changes
--------
+#### Changes
 
 * Handle when UID can't be found on saved messages.
 
 
 
-OfflineIMAP v6.3.4-rc4 (2011-07-27)
-===================================
+### OfflineIMAP v6.3.4-rc4 (2011-07-27)
 
-Notes
------
+#### Notes
 
 There is nothing exciting in this release. This is somewhat expected due to the
 late merge on -rc3.
 
-New Features
-------------
+#### New Features
 
 * Support maildir for Windows.
 
-Changes
--------
+#### Changes
 
 * Manual improved.
 
 
-OfflineIMAP v6.3.4-rc3 (2011-07-07)
-===================================
+### OfflineIMAP v6.3.4-rc3 (2011-07-07)
 
-Notes
------
+#### Notes
 
 Here is a surprising release. :-)
 
@@ -625,24 +571,20 @@ We usually don't do much changes so late in a cycle. Now, things are highly
 calming down and I hope a lot of people will test this release. Next one could
 be the stable!
 
-New Features
-------------
+#### New Features
 
 * Added StartTLS support, it will automatically be used if the server
   supports it.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * We protect more robustly against asking for inexistent messages from the
   IMAP server, when someone else deletes or moves messages while we sync.
 
 
-OfflineIMAP v6.3.4-rc2 (2011-06-15)
-===================================
+### OfflineIMAP v6.3.4-rc2 (2011-06-15)
 
-Notes
------
+#### Notes
 
 This was a very active rc1 and we could expect a lot of new fixes for the next
 release.
@@ -654,18 +596,15 @@ information about his bug here:
 
 The IDLE support is merged as experimental feature.
 
-New Features
-------------
+#### New Features
 
 * Implement experimental IDLE feature.
 
-Changes
--------
+#### Changes
 
 * Maildirs use less memory while syncing.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Saving to Maildirs now checks for file existence without race conditions.
 * A bug in the underlying imap library has been fixed that could
@@ -675,11 +614,9 @@ Bug Fixes
   release is strongly recommended.
 
 
-OfflineIMAP v6.3.4-rc1 (2011-05-16)
-===================================
+### OfflineIMAP v6.3.4-rc1 (2011-05-16)
 
-Notes
------
+#### Notes
 
 Welcome to the v6.3.4 pre-release cycle. Your favorite IMAP tool wins 2 new
 features which were asked for a long time:
@@ -696,8 +633,7 @@ releases.
 As usual, we ask our users to test this release as much as possible, especially
 the SQL backend. Have fun!
 
-New Features
-------------
+#### New Features
 
 * Begin sphinx-based documentation for the code.
 * Enable 1-way synchronization by settting a [Repository ...] to
@@ -707,8 +643,7 @@ New Features
 * Optional: experimental SQLite-based backend for the LocalStatus
   cache. Plain text remains the default.
 
-Changes
--------
+#### Changes
 
 * Start a enhanced error handling background system. This is designed to not
   stop a whole sync process on all errors (not much used, yet).
@@ -722,8 +657,7 @@ Changes
   the -f option.
 * Give more detailed error when encountering a corrupt UID mapping file.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Drop connection if synchronization failed. This is needed if resuming the
   system from suspend mode gives a wrong connection.
@@ -731,11 +665,9 @@ Bug Fixes
 * Make 'thread' command line option work.
 
 
-OfflineIMAP v6.3.3 (2011-04-24)
-===============================
+### OfflineIMAP v6.3.3 (2011-04-24)
 
-Notes
------
+#### Notes
 
 Make this last candidate cycle short. It looks like we don't need more tests as
 most issues were raised and solved in the second round. Also, we have huge work
@@ -744,24 +676,20 @@ to merge big and expected features into OfflineIMAP.
 Thanks to all contributors, again. With such a contribution rate, we can release
 stable faster. I hope it will be confirmed in the longer run!
 
-Changes
--------
+#### Changes
 
 * Improved documentation for querying password.
 
 
-OfflineIMAP v6.3.3-rc3 (2011-04-19)
-===================================
+### OfflineIMAP v6.3.3-rc3 (2011-04-19)
 
-Notes
------
+#### Notes
 
 It's more than a week since the previous release. Most of the issues raised were
 discussed and fixed since last release. I think we can be glad and confident for
 the future while the project live his merry life.
 
-Changes
--------
+#### Changes
 
 * The -f option did not work with Folder names with spaces. It works
   now, use with quoting e.g. -f "INBOX, Deleted Mails".
@@ -769,17 +697,14 @@ Changes
 * Bump from imaplib2 v2.20 to v2.22.
 * Code refactoring.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix IMAP4 tunnel with imaplib2.
 
 
-OfflineIMAP v6.3.3-rc2 (2011-04-07)
-===================================
+### OfflineIMAP v6.3.3-rc2 (2011-04-07)
 
-Notes
------
+#### Notes
 
 We are now at the third week of the -rc1 cycle. I think it's welcome to begin
 the -rc2 cycle.  Things are highly calming down in the code even if we had
@@ -802,23 +727,19 @@ I'd like to thank reporters who involved in this cycle:
 The imaplib2 migration looks to go the right way to be definetly released but
 still needs more tests.  So, here we go...
 
-Changes
--------
+#### Changes
 
 * Increase compatability with Gmail servers which claim to not support
   the UIDPLUS extension but in reality do.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix hang when using Ctrl+C in some cases.
 
 
-OfflineIMAP v6.3.3-rc1 (2011-03-16)
-===================================
+### OfflineIMAP v6.3.3-rc1 (2011-03-16)
 
-Notes
------
+#### Notes
 
 Here is time to begin the tests cycle. If feature topics are sent, I may merge
 or delay them until the next stable release.
@@ -833,16 +754,14 @@ hang and consuming a lot of CPU are asked to update.
 That beeing said, this is still an early release candidate you should use for
 non-critical data only!
 
-New Features
-------------
+#### New Features
 
 * Implement UIDPLUS extension support. OfflineIMAP will now not insert
   an X-OfflineIMAP header if the mail server supports the UIDPLUS
   extension.
 * SSL: support subjectAltName.
 
-Changes
--------
+#### Changes
 
 * Use imaplib2 instead of imaplib.
 * Makefile use magic to find the version number.
@@ -857,8 +776,7 @@ Changes
 * TTYUI ouput improved.
 * Code cleanups.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix ignoring output while determining the rst2xxx command name to build
   documentation.
@@ -870,11 +788,9 @@ Bug Fixes
   either ignore or refuse them.
 
 
-OfflineIMAP v6.3.2 (2010-02-21)
-===============================
+### OfflineIMAP v6.3.2 (2010-02-21)
 
-Notes
------
+#### Notes
 
 First of all I'm really happy to announce our new official `website
 <http://offlineimap.org>`_. Most of the work started from the impulse
@@ -892,19 +808,16 @@ This release will also be the root of our long maintenance support.
 
 Other bugs were fixed.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix craches for getglobalui().
 * Fix documentation build.
 * Restore compatibiliy with python 2.5.
 
 
-OfflineIMAP v6.3.2-rc3 (2010-02-06)
-===================================
+### OfflineIMAP v6.3.2-rc3 (2010-02-06)
 
-Notes
------
+#### Notes
 
 We are still touched by the "SSL3 write pending" bug it would be really nice to
 fix before releasing the coming stable. In the worse case, we'll have to add the
@@ -919,40 +832,34 @@ In this release I won't merge any patch not fixing a bug or a security issue.
 
 More feedbacks on the main issue would be appreciated.
 
-Changes
--------
+#### Changes
 
 * Sample offlineimap.conf states it expects a PEM formatted certificat.
 * Give better trace information if an error occurs.
 * Have --version ONLY print the version number.
 * Code cleanups.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix Curses UI (simplified by moving from MultiLock to Rlock implementation).
 * Makefile: docutils build work whether python extension command is stripped or not.
 * Makefile: clean now removes HTML documentation files.
 
 
-OfflineIMAP v6.3.2-rc2 (2010-12-21)
-===================================
+### OfflineIMAP v6.3.2-rc2 (2010-12-21)
 
-Notes
------
+#### Notes
 
 We are beginning a new tests cycle. At this stage, I expect most people will try
 to intensively stuck OfflineIMAP. :-)
 
-New Features
-------------
+#### New Features
 
 * Makefile learn to build the package and make it the default.
 * Introduce a Changelog to involve community in the releasing process.
 * Migrate documentation to restructuredtext.
 
-Changes
--------
+#### Changes
 
 * Improve CustomConfig documentation.
 * Imply single threading mode in debug mode exept for "-d thread".
@@ -962,8 +869,7 @@ Changes
 * Improve version managment and make it easier.
 * Introduce a true single threading mode.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Understand multiple EXISTS replies from servers like Zimbra.
 * Only verify hostname if we actually use CA cert.
@@ -975,37 +881,30 @@ Bug Fixes
 * Remove uneeded files.
 
 
-OfflineIMAP v6.3.2-rc1 (2010-12-19)
-===================================
+### OfflineIMAP v6.3.2-rc1 (2010-12-19)
 
-Notes
------
+#### Notes
 
 We are beginning a tests cycle. If feature topics are sent, I may merge or
 delay them until the next stable release.
 
-New Features
-------------
+#### New Features
 
 * Primitive implementation of SSL certificates check.
 
-Changes
--------
+#### Changes
 
 * Use OptionParser instead of getopts.
 * Code cleanups.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix reading password from UI.
 
 
-OfflineIMAP v6.3.1 (2010-12-11)
-===============================
+### OfflineIMAP v6.3.1 (2010-12-11)
 
-Notes
------
+#### Notes
 
 Yes, I know I've just annouced the v6.3.0 in the same week. As said, it
 was not really a true release for the software. This last release
@@ -1014,26 +913,22 @@ includes fixes and improvements it might be nice to update to.
 Thanks to every body who helped to make this release with patches and
 tips through the mailing list. This is clearly a release they own.
 
-Changes
--------
+#### Changes
 
 * cProfile becomes the default profiler. Sebastian Spaeth did refactoring to
   prepare to the coming unit test suites.
 * UI output formating enhanced.
 * Some code cleanups.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix possible overflow while working with Exchange.
 * Fix time sleep while exiting threads.
 
 
-OfflineIMAP v6.3.0 (2010-12-09)
-===============================
+### OfflineIMAP v6.3.0 (2010-12-09)
 
-Notes
------
+#### Notes
 
 This release is more "administrative" than anything else and mainly marks the
 change of the maintainer. New workflow and policy for developers come in.  BTW,
@@ -1041,8 +936,7 @@ I don't think I'll maintain debian/changelog. At least, not in the debian way.
 
 Most users and maintainers may rather want to skip this release.
 
-Bug Fixes
----------
+#### Bug Fixes
 
 * Fix terminal display on exit.
 * netrc password authentication.

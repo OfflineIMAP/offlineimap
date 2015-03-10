@@ -5,7 +5,8 @@
 SPHINXBUILD=sphinx-build
 TMPDIR='/tmp/offlineimap-sphinx-doctrees'
 WEBSITE='../website'
-DESTBASE="${WEBSITE}/_doc/versions"
+DOCBASE="${WEBSITE}/_doc"
+DESTBASE="${DOCBASE}/versions"
 VERSIONS_YML="${WEBSITE}/_data/versions.yml"
 
 version="v$(../offlineimap.py --version)"
@@ -33,5 +34,8 @@ done > "$VERSIONS_YML"
 # Copy usefull sources of documentation.
 #
 
-# User doc
-for foo in ../Changelog.rst ../Changelog.maint.rst
+# Changelogs.
+for foo in ../Changelog.md ../Changelog.maint.md
+do
+  cp -afv "$foo" "$DOCBASE"
+done
