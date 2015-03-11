@@ -7,10 +7,17 @@ then
 else
 	git clone https://github.com/OfflineIMAP/offlineimap.wiki.git wiki
 	cat <<EOF
-Now, you can fork the wiki at https://github.com/OfflineIMAP/offlineimap-wiki
-and add a reference to it:
 
-  $ cd wiki
+The wiki stands in the './wiki' directory.
+
+If you want to to pull requests, fork the wiki at Github from https://github.com/OfflineIMAP/offlineimap-wiki
+Next, learn your local copy of the wiki that you have a fork:
+
+  $ cd ./wiki
   $ git remote add myfork https://github.com/<username>/offlineimap-wiki.git
+
+You can now push your WIPs with:
+
+  $ git push myfork <ref>:<ref>
 EOF
 fi
