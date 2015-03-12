@@ -49,40 +49,6 @@ function setup () {
 	fi
 }
 
-function write_renderer () {
-	cat <<EOF
-#!/bin/bash
-#
-# Licence: this file is in the public deomain.
-#
-# Render the website at $1 OfflineIMAP fork.
-
-username=$1
-remote=git@github.com:\${username}/offlineimap.git
-
-function clean() {
-	echo "Cleaning gh-pages from public fork $username at ${remote}..."
-	git push "\$remote" :gh-pages && {
-		echo "\nSuccessfully terminated!"
-		exit 0
-	}
-	exit 1
-}
-
-if test "n\$username" = 'n'
-then
-	echo "Github username is not configured"
-	exit 2
-fi
-
-git push \$remote HEAD:gh-pages && {
-	echo "\nCurrent HEAD pushed to Github fork of offlineimap.git."
-	echo "Visit http://${username}.github.io/offlineimap to see how it is rendered"
-	echo "Press Ctrl+C once done"
-}
-EOF
-}
-
 function configure_website () {
 	renderer='./render.sh'
 
@@ -92,11 +58,10 @@ function configure_website () {
 	cd ./website
 	if test $? -eq 0
 	then
-		write_renderer "$1" > "$renderer"
-		chmod u+x "$renderer"
+		sed -r -i -e "s,{{USERNAME}},$1," "$renderer"
 		cd ..
 	else
-		echo "ERROR: could not write renderer."
+		echo "ERROR: could not enter ./website. (?)"
 	fi
 }
 
