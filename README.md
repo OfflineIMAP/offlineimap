@@ -6,11 +6,17 @@
 
 ## Description
 
-OfflineIMAP is a software to dispose your e-mail mailbox(es) as a local Maildir.
+OfflineIMAP is a software to dispose your e-mail mailbox(es) as a **local
+Maildir**. OfflineIMAP will synchronize both sides via *IMAP*.
 
-For example, this allows reading the mails while offline without the need for your mail reader (MUA) to support disconnected operations.
+The main downside about IMAP is that you have to **trust** your MAIL provider to
+not loose your mails. This is not something impossible while not very common.
+With OfflineIMAP, you can download your Mailboxes and make you own backups of
+the Maildir.
 
-OfflineIMAP will synchronize both sides via *IMAP*.
+This allows reading your mails while offline without the need for the mail
+reader (MUA) to support IMAP disconnected operations. Need an attachement from a
+message without internet? It's fine, the message is still there.
 
 
 ## License
