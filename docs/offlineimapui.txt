@@ -137,4 +137,4 @@ for other programs that will interface to OfflineIMAP.
 See Also
 --------
 
-  offlineima(1)
+  offlineimap(1)
