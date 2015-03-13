@@ -1,3 +1,4 @@
+.. _dco
 
 Developer's Certificate of Origin
 =================================

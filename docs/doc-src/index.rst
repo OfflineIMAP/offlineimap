@@ -5,6 +5,9 @@
 Welcome to OfflineIMAP's developer documentation
 ================================================
 
+**License**
+   :doc:`dco` (dco)
+
 **Documented APIs**
 
 .. toctree::
