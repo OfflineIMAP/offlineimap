@@ -39,10 +39,7 @@ clean:
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 	@$(MAKE) -C clean
 
-man:
-	@$(MAKE) -C man
-
-doc:
+docs:
 	@$(MAKE) -C docs
 
 targz: ../$(TARGZ)

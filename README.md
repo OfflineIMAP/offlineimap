@@ -63,14 +63,16 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 
 ## Documentation
 
-The documentation is included (in .rst format) in the `docs` directory.
-Read it directly or generate nice html docs (python-sphinx needed) and/or
-the man page (python-docutils needed) while being in the `docs` dir via:
+All the current and updated documentation is at the [community's website][website].
 
-    'make doc' (user docs), 'make man' (man page only) or 'make' (both)
+### Dispose locally
 
-    (`make html` will simply create html versions of all *.rst files in /docs)
-
-The resulting user documentation will be in `docs/html`. The full user
-docs are also at: http://docs.offlineimap.org. Please see there for
-detailed information on how to install and configure OfflineImap.
+You might want to dispose the documentation locally. Get the sources of the website.
+For the other documentations, run the approppriate make target:
+```
+$ ./scripts/get-repository.sh website
+$ cd docs
+$ make html  # Require rst2html
+$ make man   # Require a2x
+$ make api   # Require sphinx
+```

@@ -9,7 +9,7 @@ RST2HTML=`type rst2html >/dev/null 2>&1 && echo rst2html || echo rst2html.py`
 RST2MAN=`type rst2man >/dev/null 2>&1 && echo rst2man || echo rst2man.py`
 SPHINXBUILD = sphinx-build
 
-all: man doc
+docs: man api
 
 html: $(HTML_TARGETS)
 
@@ -24,7 +24,7 @@ offlineimap.1: offlineimap.txt
 offlineimapui.7: offlineimapui.txt
 	a2x -v -f manpage $?
 
-doc:
+api:
 	$(SPHINXBUILD) -b html -d html/doctrees doc-src html
 
 websitedoc:

@@ -5,9 +5,6 @@
 Welcome to OfflineIMAP's developer documentation
 ================================================
 
-**Developer documentation**
-  * :doc:`Advanced Git <GitAdvanced>`
-
 **Documented APIs**
 
 .. toctree::
