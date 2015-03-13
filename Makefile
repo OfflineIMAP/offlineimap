@@ -51,7 +51,7 @@ targz: ../$(TARGZ)
 	  echo "Containing directory must be called offlineimap-$(VERSION)"; 	\
 	  exit 1; 								\
 	fi; 									\
-	pwd && cd .. && pwd && tar -zhcv --exclude '.git' -f $(TARGZ) offlineimap-$(VERSION)
+	pwd && cd .. && pwd && tar -zhcv --exclude '.git' --exclude 'website' --exclude 'wiki' -f $(TARGZ) offlineimap-$(VERSION)
 
 rpm: targz
 	cd .. && sudo rpmbuild -ta $(TARGZ)
