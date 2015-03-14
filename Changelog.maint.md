@@ -3,6 +3,9 @@ layout: page
 title: Changelog of the stable branch
 ---
 
+* The following excerpt is only usefull when rendered in the website.
+{:toc}
+
 This is the Changelog of the maintenance branch.
 
 **NOTE FROM THE MAINTAINER:**
