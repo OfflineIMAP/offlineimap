@@ -8,6 +8,8 @@
 .. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
 .. _Developer's Certificate of Origin: https://github.com/OfflineIMAP/offlineimap/blob/next/docs/doc-src/dco.rst
 .. _Community's website: https://offlineimap.github.io
+.. _APIs in OfflineIMAP: http://offlineimap.github.io/documentation.html#available-apis
+.. _documentation: https://offlineimap.github.io/documentation.html
 
 
 =================
@@ -18,9 +20,17 @@ You'll find here the **basics** to contribute to OfflineIMAP_, addressed to
 users as well as learning or experienced developers to quickly provide
 contributions.
 
-**For more detailed documentation, see the `Community's website`_.**
+**For more detailed documentation, see the** `Community's website`_.
 
 .. contents:: :depth: 3
+
+
+For the imaptients
+==================
+
+- `Coding Guidelines`_
+- `APIs in OfflineIMAP_`
+- All the `documentation`_
 
 
 Submit issues
