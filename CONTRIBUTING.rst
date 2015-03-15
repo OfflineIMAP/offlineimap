@@ -11,6 +11,7 @@
 .. _APIs in OfflineIMAP: http://offlineimap.github.io/documentation.html#available-apis
 .. _documentation: https://offlineimap.github.io/documentation.html
 .. _Coding Guidelines: http://offlineimap.github.io/doc/CodingGuidelines.html
+.. _Know the status of your patches: http://localhost:4000/doc/GitAdvanced.html#know-the-status-of-your-patch-after-submission
 
 
 =================
@@ -31,6 +32,7 @@ For the imaptients
 
 - `Coding Guidelines`_
 - `APIs in OfflineIMAP`_
+- `Know the status of your patches`_ after submission
 - All the `documentation`_
 
 
