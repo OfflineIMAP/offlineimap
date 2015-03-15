@@ -10,6 +10,7 @@
 .. _Community's website: https://offlineimap.github.io
 .. _APIs in OfflineIMAP: http://offlineimap.github.io/documentation.html#available-apis
 .. _documentation: https://offlineimap.github.io/documentation.html
+.. _Coding Guidelines: http://offlineimap.github.io/doc/CodingGuidelines.html
 
 
 =================
@@ -29,7 +30,7 @@ For the imaptients
 ==================
 
 - `Coding Guidelines`_
-- `APIs in OfflineIMAP_`
+- `APIs in OfflineIMAP`_
 - All the `documentation`_
 
 
