@@ -28,7 +28,8 @@ api:
 	$(SPHINXBUILD) -b html -d html/doctrees doc-src html
 
 websitedoc:
-	./website-doc.sh
+	./website-doc.sh releases
+	./website-doc.sh api
 
 clean:
 	$(RM) -f $(HTML_TARGETS)

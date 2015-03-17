@@ -3,11 +3,19 @@ layout: page
 title: Changelog of mainline
 ---
 
+<!--
+Note to mainainers:
+* You should not edit this file manually; prefer the ./contrib/release.sh script.
+* If you really want to do manual edition, keep in mind that it's exported as-is
+  to the website which expect the current structure (title levels, title syntax,
+  sub-sections, front matter, etc).
+-->
+
+
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
 ### OfflineIMAP v6.5.7-rc3 (2015-  -  )
-
 
 
 ### OfflineIMAP v6.5.7-rc2 (2015-01-18)
