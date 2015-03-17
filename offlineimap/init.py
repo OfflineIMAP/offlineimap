@@ -68,25 +68,29 @@ class OfflineImap:
         parser.add_option("-1",
                   action="store_true", dest="singlethreading",
                   default=False,
-                  help="disable all multithreading operations")
+                  help="(the number one) disable all multithreading operations")
 
         parser.add_option("-P", dest="profiledir", metavar="DIR",
                   help="sets OfflineIMAP into profile mode.")
 
-        parser.add_option("-a", dest="accounts", metavar="ACCOUNTS",
-                  help="overrides the accounts section in the config file")
+        parser.add_option("-a", dest="accounts",
+                  metavar="account1[,account2[,...]]",
+                  help="list of accounts to sync")
 
         parser.add_option("-c", dest="configfile", metavar="FILE",
                   default=None,
                   help="specifies a configuration file to use")
 
-        parser.add_option("-d", dest="debugtype", metavar="type1,[type2...]",
-                  help="enables debugging for OfflineIMAP.")
+        parser.add_option("-d", dest="debugtype",
+                  metavar="type1[,type2[,...]]",
+                  help="enables debugging for OfflineIMAP "
+                  " (types: imap, maildir, thread)")
 
         parser.add_option("-l", dest="logfile", metavar="FILE",
                   help="log to FILE")
 
-        parser.add_option("-f", dest="folders", metavar="folder1,[folder2...]",
+        parser.add_option("-f", dest="folders",
+                  metavar="folder1[,folder2[,...]]",
                   help="only sync the specified folders")
 
         parser.add_option("-k", dest="configoverride",
@@ -97,15 +101,16 @@ class OfflineImap:
         parser.add_option("-o",
                   action="store_true", dest="runonce",
                   default=False,
-                  help="run only once")
+                  help="run only once (ignore autorefresh)")
 
         parser.add_option("-q",
                   action="store_true", dest="quick",
                   default=False,
-                  help="run only quick synchronizations")
+                  help="run only quick synchronizations (don't update flags)")
 
         parser.add_option("-u", dest="interface",
-                  help="specifies an alternative user interface")
+                  help="specifies an alternative user interface"
+                  " (quiet, basic, ttyui, blinkenlights, machineui)")
 
         (options, args) = parser.parse_args()
         globals.set_options (options)
