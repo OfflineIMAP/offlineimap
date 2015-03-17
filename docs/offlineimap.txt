@@ -410,4 +410,4 @@ See Also
 --------
 
   offlineimapui(7), openssl(1), signal(7), sqlite3(1).
-  http://offlineimap.github.io
+  http://offlineimap.org

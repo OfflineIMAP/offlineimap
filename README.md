@@ -1,5 +1,5 @@
 [offlineimap]: https://github.com/OfflineIMAP/offlineimap
-[website]: http://offlineimap.github.io
+[website]: http://offlineimap.org
 [wiki]: http://github.com/OfflineIMAP/offlineimap/wiki
 
 # OfflineImap
