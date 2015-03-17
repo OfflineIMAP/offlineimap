@@ -331,15 +331,15 @@ full log.
 
 * IDLE support is incomplete and experimental. Bugs may be encountered.
 
-  * No hook exists for "run after an IDLE response".
+  - No hook exists for "run after an IDLE response".
 +
 Email will show up, but may not be processed until the next refresh cycle.
 
-  * nametrans may not be supported correctly.
+  - nametrans may not be supported correctly.
 
-  * IMAP IDLE <-> IMAP IDLE doesn't work yet.
+  - IMAP IDLE <-> IMAP IDLE doesn't work yet.
 
-  * IDLE may only work "once" per refresh.
+  - IDLE may only work "once" per refresh.
 +
 If you encounter this bug, please send a report to the list!
 
@@ -349,24 +349,23 @@ Maildir uses colon caracter (:) in message file names. Colon is however
 forbidden character in windows drives. There are several workarounds for that
 situation:
 
-   * Use "maildir-windows-compatible = yes" account OfflineIMAP configuration.
+    . Enable file name character translation in windows registry (not tested).
+      - <http://support.microsoft.com/kb/289627>
 
+    . Use cygwin managed mount (not tested).
+      - not available anymore since cygwin 1.7
+
+    . Use "maildir-windows-compatible = yes" account OfflineIMAP configuration.
       - That makes OfflineIMAP to use exclamation mark (!) instead of colon for
         storing messages. Such files can be written to windows partitions. But
         you will probably loose compatibility with other programs trying to
         read the same Maildir.
-
++
       - Exclamation mark was chosen because of the note in
         http://docs.python.org/library/mailbox.html
-
++
       - If you have some messages already stored without this option, you will
         have to re-sync them again
-
-   * Enable file name character translation in windows registry (not tested).
-      - http://support.microsoft.com/kb/289627
-
-   * Use cygwin managed mount (not tested).
-      - not available anymore since cygwin 1.7
 
 * OfflineIMAP confused after system suspend.
 +
