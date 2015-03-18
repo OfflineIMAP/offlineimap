@@ -710,9 +710,10 @@ class IdleThread(object):
         ui.unregisterthread(currentThread()) #syncfolder registered the thread
 
     def __idle(self):
-        """Invoke IDLE mode until timeout or self.stop() is invoked"""
+        """Invoke IDLE mode until timeout or self.stop() is invoked."""
+
         def callback(args):
-            """IDLE callback function invoked by imaplib2
+            """IDLE callback function invoked by imaplib2.
 
             This is invoked when a) The IMAP server tells us something
             while in IDLE mode, b) we get an Exception (e.g. on dropped
@@ -722,22 +723,26 @@ class IdleThread(object):
             if exc_data is None and not self.stop_sig.isSet():
                 # No Exception, and we are not supposed to stop:
                 self.needsync = True
-            self.stop_sig.set() # continue to sync
+            self.stop_sig.set() # Continue to sync.
 
         while not self.stop_sig.isSet():
             self.needsync = False
 
-            success = False # successfully selected FOLDER?
+            success = False # Successfully selected FOLDER?
             while not success:
                 imapobj = self.parent.acquireconnection()
                 try:
                     imapobj.select(self.folder)
                 except OfflineImapError as e:
                     if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
-                        # Connection closed, release connection and retry
+                        # Connection closed, release connection and retry.
                         self.ui.error(e, exc_info()[2])
                         self.parent.releaseconnection(imapobj, True)
+                    elif e.severity == OfflineImapError.ERROR.FOLDER:
+                        # Just continue the process on such error for now.
+                        self.ui.error(e, exc_info()[2])
                     else:
+                        # Stops future attempts to sync this account.
                         raise
                 else:
                     success = True
@@ -747,7 +752,7 @@ class IdleThread(object):
                 self.ui.warn("IMAP IDLE not supported on server '%s'."
                     "Sleep until next refresh cycle."% imapobj.identifier)
                 imapobj.noop()
-            self.stop_sig.wait() # self.stop() or IDLE callback are invoked
+            self.stop_sig.wait() # self.stop() or IDLE callback are invoked.
             try:
                 # End IDLE mode with noop, imapobj can point to a dropped conn.
                 imapobj.noop()
@@ -759,7 +764,7 @@ class IdleThread(object):
                 self.parent.releaseconnection(imapobj)
 
             if self.needsync:
-                # here not via self.stop, but because IDLE responded. Do
+                # Here not via self.stop, but because IDLE responded. Do
                 # another round and invoke actual syncing.
                 self.stop_sig.clear()
                 self.__dosync()
