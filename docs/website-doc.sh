@@ -19,7 +19,7 @@ test -d "$DESTBASE" || exit 1
 #
 # Build the sphinx documentation.
 #
-function sphinx_doc () {
+function api () {
   # Build the doc with sphinx.
   dest="${DESTBASE}/${version}"
   echo "Cleaning target directory: $dest"
