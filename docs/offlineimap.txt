@@ -373,6 +373,12 @@ When resuming a suspended session, OfflineIMAP does not cleanly handles the
 broken socket(s) if socktimeout option is not set.
 You should enable this option with a value like 10.
 
+* OfflineIMAP confused when mails change while in a sync.
++
+When OfflineIMAP is syncing, some events happening since the invokation on
+remote or local side are badly handled. OfflineIMAP won't track for changes
+during the sync.
+
 
 * Sharing a maildir with multiple IMAP servers.
 +
