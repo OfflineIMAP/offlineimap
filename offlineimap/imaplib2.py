@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.41"
+__version__ = "2.42"
 __release__ = "2"
-__revision__ = "41"
+__revision__ = "42"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -45,7 +45,7 @@ Fix for gmail "read 0" error provided by Jim Greenleaf <james.a.greenleaf@gmail.
 Fix for offlineimap "indexerror: string index out of range" bug provided by Eygene Ryabinkin <rea@codelabs.ru> August 2013.
 Fix for missing idle_lock in _handler() provided by Franklin Brook <franklin@brook.se> August 2014.
 Conversion to Python3 provided by F. Malina <fmalina@gmail.com> February 2015.
-Fix for READ-ONLY error from multiple EXAMINE/SELECT calls for same mailbox by <piloub@users.sf.net> March 2015."""
+Fix for READ-ONLY error from multiple EXAMINE/SELECT calls by <piloub@users.sf.net> March 2015."""
 __author__ = "Piers Lauder <piers@janeelix.com>"
 __URL__ = "http://imaplib2.sourceforge.net"
 __license__ = "Python License"
@@ -1307,7 +1307,9 @@ class IMAP4(object):
         self._check_bye()
 
         if name in ('EXAMINE', 'SELECT'):
+            self.commands_lock.acquire()
             self.untagged_responses = []      # Flush all untagged responses
+            self.commands_lock.release()
         else:
             for typ in ('OK', 'NO', 'BAD'):
                 while self._get_untagged_response(typ):
@@ -1496,6 +1498,7 @@ class IMAP4(object):
 
         # Protocol mandates all lines terminated by CRLF
         resp = resp[:-2]
+        if __debug__: self._log(5, '_put_response(%s)' % resp)
 
         if 'continuation' in self.tagged_commands:
             continuation_expected = True
@@ -1520,6 +1523,8 @@ class IMAP4(object):
                 tag = self.mo.group('tag')
                 typ = self.mo.group('type')
                 dat = self.mo.group('data')
+                if typ in ('OK', 'NO', 'BAD') and self._match(self.response_code_cre, dat):
+                    self._append_untagged(self.mo.group('type'), self.mo.group('data'))
                 if not tag in self.tagged_commands:
                     if __debug__: self._log(1, 'unexpected tagged response: %s' % resp)
                 else:
@@ -1561,14 +1566,11 @@ class IMAP4(object):
                     return
 
                 self._append_untagged(typ, dat)
+                if typ in ('OK', 'NO', 'BAD') and self._match(self.response_code_cre, dat):
+                    self._append_untagged(self.mo.group('type'), self.mo.group('data'))
 
                 if typ != 'OK':                 # NO, BYE, IDLE
                     self._end_idle()
-
-        # Bracketed response information?
-
-        if typ in ('OK', 'NO', 'BAD') and self._match(self.response_code_cre, dat):
-            self._append_untagged(self.mo.group('type'), self.mo.group('data'))
 
         # Command waiting for aborted continuation response?
 
@@ -2435,6 +2437,7 @@ if __name__ == '__main__':
     ('recent', ()),
     ('examine', ()),
     ('select', ()),
+    ('fetch', ("'1:*'", '(FLAGS UID)')),
     ('examine', ()),
     ('select', ()),
     )
