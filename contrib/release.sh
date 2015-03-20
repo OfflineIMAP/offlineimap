@@ -18,7 +18,6 @@
 
 __VERSION__='v0.1'
 
-SEND_BY_MAIL='git send-email'
 SPHINXBUILD=sphinx-build
 
 MAILING_LIST='offlineimap-project@lists.alioth.debian.org'
@@ -293,13 +292,12 @@ function update_website () {
       cd "../$DOCSDIR"
       make websitedoc && {
         cd ../website && {
-        branch_name="import-$1"
-        git checkout -b "$branch_name"
-        git add '_doc/versions'
-        git commit -s -m"doc: import of developer documentation for offlineimap $1"
-        git checkout master
-        git merge "$branch_name"
-        echo "website: master branch ready for a push!"
+          branch_name="import-$1"
+          git checkout -b "$branch_name"
+          git add '_doc/versions'
+          git commit -a -s -m"update for offlineimap $1"
+          git checkout master
+          echo "website: branch '$branch_name' ready for a merge in master!"
         }
       }
     } || {
@@ -372,12 +370,6 @@ function edit_announce () {
 }
 
 
-function send_announce () {
-   ask 'Press Enter to to send announce'
-   test $? -eq $Yes && $SEND_BY_MAIL "$TMP_ANNOUNCE"
-}
-
-
 function clear_env () {
   rm -f "$TMP_CHANGELOG_EXCERPT"
 }
@@ -417,7 +409,6 @@ function run () {
   git_release $new_version
 
   update_website $new_version
-  send_announce
   clear_env
 }
 
@@ -426,6 +417,7 @@ cat <<EOF
 
 Release is ready!
 Make your checks and push the changes for both offlineimap and the website.
+Announce template stands in '$TMP_ANNOUNCE'.
 Have fun! ,-)
 EOF
 
