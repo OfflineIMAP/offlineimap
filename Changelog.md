@@ -15,7 +15,69 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
-### OfflineIMAP v6.5.7-rc3 (2015-  -  )
+
+### OfflineIMAP v6.5.7-rc3 (2015-03-19)
+
+#### Notes
+
+Here comes a much bigger release than expected! With this release, the new
+website is made official.
+
+Distribution maintainers, be aware that we now have a new man page
+offlineimapui(7)!
+
+Also, the man page offlineimap(1) is sightly revised to explain the command line
+options. Since `offlineimap --help` won't detail the options anymore, it becomes
+critical.
+
+The maxage feature was broken by design and could delete mails on one side. It
+is still under heavy work to fix issues when timezones are not synced. Gmail is
+known to use different timezones accross mailboxes.
+
+The IMAP library imaplib2 was updated for the upcoming course to Python 3.
+
+The most other important changes are:
+
+- Possibility to use a proxy.
+- All the documentation are SIGHTLY revisited and updated from all the available
+  places (sources files in the repository, wiki, website). A lot was moved from
+  the wiki and the sources to the website.
+- the RFCs are available in the repository.
+
+#### Features
+
+- Add proxy support powered by PySocks.
+- New man page offlineimapui to explain the available UIs.
+- Add a CONTRIBUTING.rst file.
+- Add a `TODO.rst` list for the contributors.
+- Add a script for maintainers to roll out new releases.
+- Add the `scripts/get-repository.sh` script to work on the website and the wiki.
+- Doc: add IMAP RFCs.
+
+#### Fixes
+
+- Don't loose local mails because of maxage.
+- Properly handle the cached messagelist.
+- Do not error if `remoteuser` is not configured.
+- imaplibutil: add missing errno import.
+- LocalStatusSQLite: labels: don't fail if database returns unexpected None value.
+- IDLE: continue trying selecting the folder on `OfflineImapError.Error`.
+
+#### Changes
+
+- imaplib2: bump to v2.42
+- `--help` becomes concise.
+- Changelogs: move format back to markdown/kramdown to be more compatible with Jekyll.
+- README: deep cleanups.
+- code cleanups.
+- code: more style consistency.
+- sqlite: provide offending filename when open fails.
+- MANUAL: full refactoring, change format to asciidoc.
+- MANUAL: rename "KNOWN BUGS" TO "KNOWN ISSUES".
+- MANUAL: add known issues entry about socktimeout for suspended sessions.
+- offlineimap.conf: say what is the default value for the sep option.
+- sqlite: provide information on what is failing for `OperationalError`.
+- remove obsolete documentation.
 
 
 ### OfflineIMAP v6.5.7-rc2 (2015-01-18)

@@ -2,7 +2,7 @@ __all__ = ['OfflineImap']
 
 __productname__ = 'OfflineIMAP'
 __version__     = "6.5.7"
-__revision__    = "-rc2"
+__revision__    = "-rc3"
 __bigversion__  = __version__ + __revision__
 __copyright__   = "Copyright 2002-2015 John Goerzen & contributors"
 __author__      = "John Goerzen"
