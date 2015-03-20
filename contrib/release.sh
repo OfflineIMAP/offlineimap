@@ -373,11 +373,6 @@ function edit_announce () {
 }
 
 
-function clear_env () {
-  rm -f "$TMP_CHANGELOG_EXCERPT"
-}
-
-
 
 function run () {
   debug 'in run'
@@ -412,7 +407,6 @@ function run () {
   git_release $new_version
 
   update_website $new_version
-  clear_env
 }
 
 run
