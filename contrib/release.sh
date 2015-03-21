@@ -156,10 +156,11 @@ function update_offlineimap_version () {
 #
 # $1: previous version
 #
-function get_shortlog () {
-  debug 'in get_shortlog'
-  git shortlog "${1}.." | grep -v '^[^ ]' | sed -r -e 's,^[ ]*,\- ,'
+function get_git_history () {
+  debug 'in get_git_history'
+  git log --oneline "${1}.." | sed -r -e 's,^(.),\- \1,'
 }
+
 
 
 #
@@ -215,7 +216,7 @@ function update_changelog () {
   if test ! -f "$TMP_CHANGELOG_EXCERPT"
   then
     changelog_template "$1" > "$TMP_CHANGELOG_EXCERPT"
-    get_shortlog "$2" >> "$TMP_CHANGELOG_EXCERPT"
+    get_git_history "$2" >> "$TMP_CHANGELOG_EXCERPT"
     edit_file "the Changelog excerpt" $TMP_CHANGELOG_EXCERPT
 
     # Remove comments.
