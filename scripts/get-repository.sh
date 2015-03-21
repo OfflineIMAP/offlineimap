@@ -79,7 +79,7 @@ username=$(echo $offlineimap_url | sed -r -e 's,.*github.com.([^/]+)/.*,\1,')
 
 case n$repository in
 	nwebsite)
-		upstream=https://github.com/OfflineIMAP/offlineimap.github.io 
+		upstream=https://github.com/OfflineIMAP/offlineimap.github.io
 		setup website "$upstream"
 		configure_website "$username"
 		final_note website "$upstream"

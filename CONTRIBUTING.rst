@@ -7,11 +7,11 @@
 .. _maintainers: https://github.com/OfflineIMAP/offlineimap/blob/next/MAINTAINERS.rst
 .. _mailing list: http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project
 .. _Developer's Certificate of Origin: https://github.com/OfflineIMAP/offlineimap/blob/next/docs/doc-src/dco.rst
-.. _Community's website: https://offlineimap.github.io
-.. _APIs in OfflineIMAP: http://offlineimap.github.io/documentation.html#available-apis
-.. _documentation: https://offlineimap.github.io/documentation.html
-.. _Coding Guidelines: http://offlineimap.github.io/doc/CodingGuidelines.html
-.. _Know the status of your patches: http://localhost:4000/doc/GitAdvanced.html#know-the-status-of-your-patch-after-submission
+.. _Community's website: https://offlineimap.org
+.. _APIs in OfflineIMAP: http://offlineimap.org/documentation.html#available-apis
+.. _documentation: https://offlineimap.org/documentation.html
+.. _Coding Guidelines: http://offlineimap.org/doc/CodingGuidelines.html
+.. _Know the status of your patches: http://offlineimap.org/doc/GitAdvanced.html#know-the-status-of-your-patch-after-submission
 
 
 =================
