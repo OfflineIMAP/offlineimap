@@ -439,9 +439,6 @@ class MaildirFolder(BaseFolder):
         :return: Nothing, or an Exception if UID but no corresponding file
                  found.
         """
-        if not self.uidexists(uid):
-            return
-
         filename = self.messagelist[uid]['filename']
         filepath = os.path.join(self.getfullname(), filename)
         try:

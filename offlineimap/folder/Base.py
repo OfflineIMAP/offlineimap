@@ -365,7 +365,8 @@ class BaseFolder(object):
         dryrun mode."""
 
         for uid in uidlist:
-            self.addmessageflags(uid, flags)
+            if self.uidexists(uid):
+                self.addmessageflags(uid, flags)
 
     def deletemessageflags(self, uid, flags):
         """Removes each flag given from the message's flag set.  If a given
@@ -695,11 +696,6 @@ class BaseFolder(object):
                 content = self.getmessage(uid)
                 rtime = emailutil.get_message_date(content, 'Date')
 
-            if uid > 0 and dstfolder.uidexists(uid):
-                # dst has message with that UID already, only update status
-                statusfolder.savemessage(uid, None, flags, rtime)
-                return
-
             # If any of the destinations actually stores the message body,
             # load it up.
             if dstfolder.storesmessages():
@@ -766,6 +762,16 @@ class BaseFolder(object):
             # bail out on CTRL-C or SIGTERM
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break
+            if uid > 0 and dstfolder.uidexists(uid):
+                # dst has message with that UID already, only update status
+                flags = self.getmessageflags(uid)
+                rtime = self.getmessagetime(uid)
+                if dstfolder.utime_from_message:
+                    content = self.getmessage(uid)
+                    rtime = emailutil.get_message_date(content, 'Date')
+                statusfolder.savemessage(uid, None, flags, rtime)
+                copylist.remove(uid)
+
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
             # exceptions are caught in copymessageto()
             if self.suggeststhreads() and not globals.options.singlethreading:
@@ -790,19 +796,24 @@ class BaseFolder(object):
         that were deleted in 'self'. Delete those from dstfolder and
         statusfolder.
 
-        This function checks and protects us from action in ryrun mode.
+        This function checks and protects us from action in dryrun mode.
         """
 
         deletelist = filter(lambda uid: uid >= 0 and not
             self.uidexists(uid), statusfolder.getmessageuidlist())
         if len(deletelist):
-            self.ui.deletingmessages(deletelist, [dstfolder])
-            if self.repository.account.dryrun:
-                return #don't delete messages in dry-run mode
-            # delete in statusfolder first to play safe. In case of abort, we
-            # won't lose message, we will just retransmit some unneccessary.
-            for folder in [statusfolder, dstfolder]:
-                folder.deletemessages(deletelist)
+            # Delete in statusfolder first to play safe. In case of abort, we
+            # won't lose message, we will just unneccessarily retransmit some.
+            # Delete messages from statusfolder that were either deleted by the
+            # user, or not being tracked (e.g. because of maxage).
+            statusfolder.deletemessages(deletelist)
+            # Filter out untracked messages
+            deletelist = filter(lambda uid: dstfolder.uidexists(uid), deletelist)
+            if len(deletelist):
+                self.ui.deletingmessages(deletelist, [dstfolder])
+                if self.repository.account.dryrun:
+                    return #don't delete messages in dry-run mode
+                dstfolder.deletemessages(deletelist)
 
     def __syncmessagesto_flags(self, dstfolder, statusfolder):
         """Pass 3: Flag synchronization.

@@ -222,6 +222,8 @@ def Internaldate2epoch(resp):
 
     Returns seconds since the epoch."""
 
+    from calendar import timegm
+
     mo = InternalDate.match(resp)
     if not mo:
         return None
@@ -245,4 +247,4 @@ def Internaldate2epoch(resp):
 
     tt = (year, mon, day, hour, min, sec, -1, -1, -1)
 
-    return time.mktime(tt)
+    return timegm(tt) - zone
