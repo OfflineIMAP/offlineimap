@@ -359,7 +359,7 @@ class SyncableAccount(Account):
                 thr.join()
             # Write out mailbox names if required and not in dry-run mode
             if not self.dryrun:
-                mbnames.write()
+                mbnames.write(False)
             localrepos.forgetfolders()
             remoterepos.forgetfolders()
         except:
