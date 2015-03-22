@@ -770,7 +770,7 @@ class BaseFolder(object):
                     content = self.getmessage(uid)
                     rtime = emailutil.get_message_date(content, 'Date')
                 statusfolder.savemessage(uid, None, flags, rtime)
-                copylist.remove(uid)
+                continue
 
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
             # exceptions are caught in copymessageto()
