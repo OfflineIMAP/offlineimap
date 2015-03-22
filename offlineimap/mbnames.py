@@ -38,7 +38,17 @@ def add(accountname, foldername, localfolders):
     if not foldername in boxes[accountname]:
         boxes[accountname].append(foldername)
 
-def write():
+def write(allcomplete):
+    incremental = config.getdefaultboolean("mbnames", "incremental", 0)
+
+    # Skip writing if we don't want incremental writing and we're not done.
+    if not incremental and not allcomplete:
+        return
+
+    # Skip writing if we want incremental writing and we're done.
+    if incremental and allcomplete:
+        return
+
     # See if we're ready to write it out.
     for account in accounts:
         if account not in boxes:
