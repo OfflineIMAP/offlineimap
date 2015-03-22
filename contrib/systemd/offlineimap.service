@@ -1,0 +1,11 @@
+[Unit]
+Description=Offlineimap Service
+After=xdg-env.service
+Requires=xdg-env.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/offlineimap -o -c ${XDG_CONFIG_HOME}/offlineimap/offlineimaprc
+
+[Install]
+WantedBy=mail.target
