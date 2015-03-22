@@ -334,6 +334,10 @@ class OfflineImap:
                                            'config': self.config})
                 t.start()
                 threadutil.exitnotifymonitorloop(threadutil.threadexited)
+
+            if not options.dryrun:
+                offlineimap.mbnames.write(True)
+
             self.ui.terminate()
         except (SystemExit):
             raise
