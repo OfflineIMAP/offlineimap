@@ -50,7 +50,7 @@ class TestBasicFunctions(unittest.TestCase):
     def test_01_olistartup(self):
         """Tests if OLI can be invoked without exceptions
 
-        Cleans existing remote tet folders. Then syncs all "OLItest*
+        Cleans existing remote test folders. Then syncs all "OLItest*
         (specified in the default config) to our local Maildir. The
         result should be 0 folders and 0 mails."""
         code, res = OLITestLib.run_OLI()
