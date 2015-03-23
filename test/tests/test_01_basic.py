@@ -61,20 +61,33 @@ class TestBasicFunctions(unittest.TestCase):
                 boxes, mails))
 
     def test_02_createdir(self):
-        """Create local OLItest 1 & OLItest "1" maildir, sync
-
-        Folder names with quotes used to fail and have been fixed, so
-        one is included here as a small challenge."""
+        """Create local 'OLItest 1', sync"""
+        OLITestLib.delete_maildir('') #Delete all local maildir folders
         OLITestLib.create_maildir('INBOX.OLItest 1')
-        OLITestLib.create_maildir('INBOX.OLItest "1"')
         code, res = OLITestLib.run_OLI()
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
-        self.assertTrue((boxes, mails)==(2,0), msg="Expected 2 folders and 0 "
+        self.assertTrue((boxes, mails)==(1,0), msg="Expected 1 folders and 0 "
             "mails, but sync led to {0} folders and {1} mails".format(
                 boxes, mails))
 
-    def test_03_nametransmismatch(self):
+    def test_03_createdir_quote(self):
+        """Create local 'OLItest "1"' maildir, sync
+
+        Folder names with quotes used to fail and have been fixed, so
+        one is included here as a small challenge."""
+        OLITestLib.delete_maildir('') #Delete all local maildir folders
+        OLITestLib.create_maildir('INBOX.OLItest "1"')
+        code, res = OLITestLib.run_OLI()
+        if 'unallowed folder' in res:
+            raise unittest.SkipTest("remote server doesn't handle quote")
+        self.assertEqual(res, "")
+        boxes, mails = OLITestLib.count_maildir_mails('')
+        self.assertTrue((boxes, mails)==(1,0), msg="Expected 1 folders and 0 "
+            "mails, but sync led to {0} folders and {1} mails".format(
+                boxes, mails))
+
+    def test_04_nametransmismatch(self):
         """Create mismatching remote and local nametrans rules
 
         This should raise an error."""
@@ -95,7 +108,7 @@ class TestBasicFunctions(unittest.TestCase):
         OLITestLib.write_config_file()
 
 
-    def test_04_createmail(self):
+    def test_05_createmail(self):
         """Create mail in OLItest 1, sync, wipe folder sync
 
         Currently, this will mean the folder will be recreated
@@ -118,7 +131,7 @@ class TestBasicFunctions(unittest.TestCase):
             "assigned the IMAP's UID number, but {0} messages had no valid ID "\
             .format(len([None for x in uids if x==None])))
 
-    def test_05_createfolders(self):
+    def test_06_createfolders(self):
         """Test if createfolders works as expected
 
         Create a local Maildir, then sync with remote "createfolders"
