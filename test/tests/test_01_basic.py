@@ -41,7 +41,11 @@ def tearDownModule():
 #self.assertFalse(element in self.seq)
 
 class TestBasicFunctions(unittest.TestCase):
+    def setUp(self):
+        OLITestLib.delete_remote_testfolders()
 
+    def tearDown(self):
+        OLITestLib.delete_remote_testfolders()
 
     def test_01_olistartup(self):
         """Tests if OLI can be invoked without exceptions
@@ -49,7 +53,6 @@ class TestBasicFunctions(unittest.TestCase):
         Cleans existing remote tet folders. Then syncs all "OLItest*
         (specified in the default config) to our local Maildir. The
         result should be 0 folders and 0 mails."""
-        OLITestLib.delete_remote_testfolders()
         code, res = OLITestLib.run_OLI()
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
