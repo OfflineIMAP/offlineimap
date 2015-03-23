@@ -31,7 +31,6 @@ def setUpModule():
 
 def tearDownModule():
     logging.info("Tear Down test module")
-    # comment out next line to keep testdir after test runs. TODO: make nicer
     OLITestLib.delete_test_dir()
 
 #Stuff that can be used
@@ -42,19 +41,7 @@ def tearDownModule():
 #self.assertFalse(element in self.seq)
 
 class TestBasicFunctions(unittest.TestCase):
-    #@classmethod
-    #def setUpClass(cls):
-    #This is run before all tests in this class
-    #    cls._connection = createExpensiveConnectionObject()
 
-    #@classmethod
-    #This is run after all tests in this class
-    #def tearDownClass(cls):
-    #    cls._connection.destroy()
-
-    # This will be run before each test
-    #def setUp(self):
-    #    self.seq = range(10)
 
     def test_01_olistartup(self):
         """Tests if OLI can be invoked without exceptions
@@ -78,7 +65,6 @@ class TestBasicFunctions(unittest.TestCase):
         OLITestLib.create_maildir('INBOX.OLItest 1')
         OLITestLib.create_maildir('INBOX.OLItest "1"')
         code, res = OLITestLib.run_OLI()
-        #logging.warn("%s %s "% (code, res))
         self.assertEqual(res, "")
         boxes, mails = OLITestLib.count_maildir_mails('')
         self.assertTrue((boxes, mails)==(2,0), msg="Expected 2 folders and 0 "
