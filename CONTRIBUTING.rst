@@ -114,7 +114,7 @@ There is already a lot of documentation. Here's where you might want to look
 first:
 
 - The directory ``offlineimap/docs`` has all kind of additional documentation
-  (advanced Git, RFCs, APIs, coding guidelines, etc).
+  (man pages, RFCs).
 
 - The file ``offlineimap.conf`` allows to know all the supported features.
 
