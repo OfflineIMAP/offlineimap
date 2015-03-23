@@ -148,20 +148,18 @@ class OLITestLib():
             assert res_t == 'OK'
             dirs = []
             for d in data:
-                m = re.search(br'''        # Find last quote
-                    "((?:                 # Non-tripple quoted can contain...
-                    [^"]                | # a non-quote
-                    \\"                   # a backslashded quote
-                    )*)"                   # closing quote
-                    [^"]*$                # followed by no more quotes
+                m = re.search(br'''
+                    ("                      # starting quote
+                    ([^"]|\\")*             # a non-quote or a backslashded quote
+                    ")$                     # ending quote
                     ''', d, flags=re.VERBOSE)
                 folder = bytearray(m.group(1))
                 #folder = folder.replace(br'\"', b'"') # remove quoting
                 dirs.append(folder)
             # 2) filter out those not starting with INBOX.OLItest and del...
-            dirs = [d for d in dirs if d.startswith(b'INBOX.OLItest') or d.startswith(b'INBOX/OLItest')]
+            dirs = [d for d in dirs if d.startswith(b'"INBOX.OLItest') or d.startswith(b'"INBOX/OLItest')]
             for folder in dirs:
-                res_t, data = imapobj.delete(b'\"'+folder+b'\"')
+                res_t, data = imapobj.delete(folder)
                 assert res_t == 'OK', "Folder deletion of {0} failed with error"\
                     ":\n{1} {2}".format(folder.decode('utf-8'), res_t, data)
             imapobj.logout()
