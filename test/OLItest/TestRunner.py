@@ -148,12 +148,16 @@ class OLITestLib():
             assert res_t == 'OK'
             dirs = []
             for d in data:
-                m = re.search(br'''
-                    ("                      # starting quote
-                    ([^"]|\\")*             # a non-quote or a backslashded quote
-                    ")$                     # ending quote
-                    ''', d, flags=re.VERBOSE)
-                folder = bytearray(m.group(1))
+                if isinstance(d, tuple):
+                    # literal (unquoted)
+                    folder = b'"%s"' % d[1].replace('"', '\\"')
+                else:
+                    m = re.search(br'''
+                        ("                      # starting quote
+                        ([^"]|\\")*             # a non-quote or a backslashded quote
+                        ")$                     # ending quote
+                        ''', d, flags=re.VERBOSE)
+                    folder = bytearray(m.group(1))
                 #folder = folder.replace(br'\"', b'"') # remove quoting
                 dirs.append(folder)
             # 2) filter out those not starting with INBOX.OLItest and del...
