@@ -148,6 +148,8 @@ class OLITestLib():
             assert res_t == 'OK'
             dirs = []
             for d in data:
+                if d == '':
+                    continue
                 if isinstance(d, tuple):
                     # literal (unquoted)
                     folder = b'"%s"' % d[1].replace('"', '\\"')
