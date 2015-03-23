@@ -159,7 +159,7 @@ class OLITestLib():
                 #folder = folder.replace(br'\"', b'"') # remove quoting
                 dirs.append(folder)
             # 2) filter out those not starting with INBOX.OLItest and del...
-            dirs = [d for d in dirs if d.startswith(b'INBOX.OLItest')]
+            dirs = [d for d in dirs if d.startswith(b'INBOX.OLItest') or d.startswith(b'INBOX/OLItest')]
             for folder in dirs:
                 res_t, data = imapobj.delete(b'\"'+folder+b'\"')
                 assert res_t == 'OK', "Folder deletion of {0} failed with error"\
