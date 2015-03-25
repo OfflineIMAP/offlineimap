@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.42"
+__version__ = "2.43"
 __release__ = "2"
-__revision__ = "42"
+__revision__ = "43"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -45,7 +45,8 @@ Fix for gmail "read 0" error provided by Jim Greenleaf <james.a.greenleaf@gmail.
 Fix for offlineimap "indexerror: string index out of range" bug provided by Eygene Ryabinkin <rea@codelabs.ru> August 2013.
 Fix for missing idle_lock in _handler() provided by Franklin Brook <franklin@brook.se> August 2014.
 Conversion to Python3 provided by F. Malina <fmalina@gmail.com> February 2015.
-Fix for READ-ONLY error from multiple EXAMINE/SELECT calls by <piloub@users.sf.net> March 2015."""
+Fix for READ-ONLY error from multiple EXAMINE/SELECT calls by Pierre-Louis Bonicoli <pierre-louis.bonicoli@gmx.fr> March 2015.
+Fix for null strings appended to untagged responses by Pierre-Louis Bonicoli <pierre-louis.bonicoli@gmx.fr> March 2015."""
 __author__ = "Piers Lauder <piers@janeelix.com>"
 __URL__ = "http://imaplib2.sourceforge.net"
 __license__ = "Python License"
@@ -1483,6 +1484,7 @@ class IMAP4(object):
         if self._expecting_data:
             rlen = len(resp)
             dlen = min(self._expecting_data_len, rlen)
+            if __debug__: self._log(5, '_put_response expecting data len %s, got %s' % (self._expecting_data_len, rlen))
             self._expecting_data_len -= dlen
             self._expecting_data = (self._expecting_data_len != 0)
             if rlen <= dlen:
@@ -1515,7 +1517,8 @@ class IMAP4(object):
                 return
             typ = self._literal_expected[0]
             self._literal_expected = None
-            self._append_untagged(typ, dat)  # Tail
+            if dat:
+                self._append_untagged(typ, dat)  # Tail
             if __debug__: self._log(4, 'literal completed')
         else:
             # Command completion response?
@@ -2431,15 +2434,15 @@ if __name__ == '__main__':
     ('response', ('UIDVALIDITY',)),
     ('response', ('EXISTS',)),
     ('append', (None, None, None, test_mesg)),
-    ('uid', ('SEARCH', 'SUBJECT', 'IMAP4 test')),
-    ('uid', ('SEARCH', 'ALL')),
-    ('uid', ('THREAD', 'references', 'UTF-8', '(SEEN)')),
-    ('recent', ()),
     ('examine', ()),
     ('select', ()),
     ('fetch', ("'1:*'", '(FLAGS UID)')),
     ('examine', ()),
     ('select', ()),
+    ('uid', ('SEARCH', 'SUBJECT', 'IMAP4 test')),
+    ('uid', ('SEARCH', 'ALL')),
+    ('uid', ('THREAD', 'references', 'UTF-8', '(SEEN)')),
+    ('recent', ()),
     )
 
 
@@ -2460,7 +2463,7 @@ if __name__ == '__main__':
 
     def run(cmd, args, cb=True):
         if AsyncError:
-            M._log(1, 'AsyncError')
+            M._log(1, 'AsyncError %s' % repr(AsyncError))
             M.logout()
             typ, val = AsyncError
             raise typ(val)
