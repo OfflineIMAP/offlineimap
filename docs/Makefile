@@ -30,6 +30,7 @@ api:
 websitedoc:
 	./website-doc.sh releases
 	./website-doc.sh api
+	./website-doc.sh contrib
 
 clean:
 	$(RM) -f $(HTML_TARGETS)

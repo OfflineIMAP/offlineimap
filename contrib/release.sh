@@ -93,12 +93,8 @@ function edit_file () {
 
 function fix_pwd () {
   debug 'in fix_pwd'
-  if test ! -d .git -a ! -f offlineimap.py
-  then
-    test "$PWD" = '/' && die 2 "You're not in the offlineimap repository..."
-    cd ..
-    fix_pwd
-  fi
+  cd "$(git rev-parse --show-toplevel)" || \
+    die 2 "cannot determine the root of the repository"
 }
 
 
