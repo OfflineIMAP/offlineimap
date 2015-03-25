@@ -3,6 +3,8 @@ layout: page
 title: Integrating OfflineIMAP into systemd
 author: Ben Boeckel
 date: 2015-03-22
+contributors: Abdo Roig-Maranges
+updated: 2015-03-25
 ---
 
 <!-- This file is copied to the website by script. -->
