@@ -42,6 +42,9 @@ clean:
 docs:
 	@$(MAKE) -C docs
 
+websitedoc:
+	@$(MAKE) -C websitedoc
+
 targz: ../$(TARGZ)
 ../$(TARGZ):
 	if ! pwd | grep -q "/offlineimap-$(VERSION)$$"; then 			\
