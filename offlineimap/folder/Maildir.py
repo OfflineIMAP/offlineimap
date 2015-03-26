@@ -31,7 +31,7 @@ try: # python 2.6 has set() built in
 except NameError:
     from sets import Set as set
 
-from offlineimap import OfflineImapError, emailutil
+from offlineimap import OfflineImapError
 
 # Find the UID in a message filename
 re_uidmatch = re.compile(',U=(\d+)')
@@ -245,35 +245,16 @@ class MaildirFolder(BaseFolder):
         filepath = os.path.join(self.getfullname(), filename)
         return os.path.getmtime(filepath)
 
-    def new_message_filename(self, uid, flags=set(), rtime=None):
+    def new_message_filename(self, uid, flags=set()):
         """Creates a new unique Maildir filename
 
         :param uid: The UID`None`, or a set of maildir flags
         :param flags: A set of maildir flags
         :returns: String containing unique message filename"""
 
-        # Prefer internal time (rtime) over retrieval time (_gettimeseq()) for
-        # consistency in the maxage check, which compares times of local mail
-        # (gotten from the filename) to the internal time of the remote mail.
-        if rtime is None:
-            timeval, timeseq = _gettimeseq()
-        else:
-            timeval, timeseq = rtime, 0
-
-        def build_filename(timeval, timeseq, pid, hostname, uid, folder_id,
-            infosep, flags):
-            """Compute a new filename with 'time sequence' uniqueness in mind."""
-            filename = '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s'% (
-                timeval, timeseq, pid, hostname, uid, folder_id, infosep, flags)
-            for imap_dir in ['cur', 'new', 'tmp']:
-                if os.path.exists(os.path.join(self.getfullname(), imap_dir,
-                        filename)):
-                    # Increase timeseq.
-                    return build_filename(timeval, timeseq + 1, pid, hostname,
-                            uid, folder_id, infosep, flags)
-            return filename
-
-        return build_filename(timeval, timeseq, os.getpid(), socket.gethostname(),
+        timeval, timeseq = _gettimeseq()
+        return '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s'% \
+            (timeval, timeseq, os.getpid(), socket.gethostname(),
             uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
 
 
@@ -341,10 +322,7 @@ class MaildirFolder(BaseFolder):
         # Otherwise, save the message in tmp/ and then call savemessageflags()
         # to give it a permanent home.
         tmpdir = os.path.join(self.getfullname(), 'tmp')
-        # Make sure rtime is the internal date, so it can be put in the filename
-        if rtime is None:
-            rtime = emailutil.get_message_date(content)
-        messagename = self.new_message_filename(uid, flags, rtime=rtime)
+        messagename = self.new_message_filename(uid, flags)
         tmpname = self.save_to_tmp_file(messagename, content)
         if rtime != None:
             os.utime(os.path.join(self.getfullname(), tmpname), (rtime, rtime))
@@ -420,10 +398,8 @@ class MaildirFolder(BaseFolder):
         oldfilename = self.messagelist[uid]['filename']
         dir_prefix, filename = os.path.split(oldfilename)
         flags = self.getmessageflags(uid)
-        content = self.getmessage(uid)
-        rtime = emailutil.get_message_date(content)
         newfilename = os.path.join(dir_prefix,
-          self.new_message_filename(new_uid, flags, rtime=rtime))
+          self.new_message_filename(new_uid, flags))
         os.rename(os.path.join(self.getfullname(), oldfilename),
                   os.path.join(self.getfullname(), newfilename))
         self.messagelist[new_uid] = self.messagelist[uid]
