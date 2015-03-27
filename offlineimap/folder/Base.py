@@ -48,11 +48,11 @@ class BaseFolder(object):
             self.visiblename = ''
 
         self.config = repository.getconfig()
-        utime_from_message_global = self.config.getdefaultboolean(
-            "general", "utime_from_message", False)
+        utime_from_header_global = self.config.getdefaultboolean(
+            "general", "utime_from_header", False)
         repo = "Repository " + repository.name
-        self._utime_from_message = self.config.getdefaultboolean(repo,
-            "utime_from_message", utime_from_message_global)
+        self._utime_from_header = self.config.getdefaultboolean(repo,
+            "utime_from_header", utime_from_header_global)
 
         # Determine if we're running static or dynamic folder filtering
         # and check filtering status
@@ -95,8 +95,8 @@ class BaseFolder(object):
             return self.repository.should_sync_folder(self.ffilter_name)
 
     @property
-    def utime_from_message(self):
-        return self._utime_from_message
+    def utime_from_header(self):
+        return self._utime_from_header
 
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
@@ -692,7 +692,7 @@ class BaseFolder(object):
             message = None
             flags = self.getmessageflags(uid)
             rtime = self.getmessagetime(uid)
-            if dstfolder.utime_from_message:
+            if dstfolder.utime_from_header:
                 content = self.getmessage(uid)
                 rtime = emailutil.get_message_date(content, 'Date')
 
@@ -766,7 +766,7 @@ class BaseFolder(object):
                 # dst has message with that UID already, only update status
                 flags = self.getmessageflags(uid)
                 rtime = self.getmessagetime(uid)
-                if dstfolder.utime_from_message:
+                if dstfolder.utime_from_header:
                     content = self.getmessage(uid)
                     rtime = emailutil.get_message_date(content, 'Date')
                 statusfolder.savemessage(uid, None, flags, rtime)
