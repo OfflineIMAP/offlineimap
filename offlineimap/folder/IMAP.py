@@ -273,7 +273,7 @@ class IMAPFolder(BaseFolder):
     def getmessage(self, uid):
         """Retrieve message with UID from the IMAP server (incl body).
 
-	After this function all CRLFs will be transformed to '\n'.
+        After this function all CRLFs will be transformed to '\n'.
 
         :returns: the message body or throws and OfflineImapError
                   (probably severity MESSAGE) if e.g. no message with
