@@ -324,8 +324,11 @@ class MaildirFolder(BaseFolder):
         tmpdir = os.path.join(self.getfullname(), 'tmp')
         messagename = self.new_message_filename(uid, flags)
         tmpname = self.save_to_tmp_file(messagename, content)
-        if rtime != None:
-            os.utime(os.path.join(self.getfullname(), tmpname), (rtime, rtime))
+
+        if self.utime_from_header:
+            date = emailutil.get_message_date(content, 'Date')
+            if date != None:
+                os.utime(os.path.join(self.getfullname(), tmpname), (date, date))
 
         self.messagelist[uid] = self.msglist_item_initializer(uid)
         self.messagelist[uid]['flags'] = flags
