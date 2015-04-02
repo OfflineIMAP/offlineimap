@@ -46,8 +46,6 @@ class UsefulIMAPMixIn(object):
             not force:
             # No change; return.
             return
-        # Wipe out all old responses, to maintain semantics with old imaplib2
-        del self.untagged_responses[:]
         try:
             result = super(UsefulIMAPMixIn, self).select(mailbox, readonly)
         except self.readonly as e:

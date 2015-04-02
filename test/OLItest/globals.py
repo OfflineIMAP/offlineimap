@@ -38,5 +38,5 @@ localfolders =
 type=IMAP
 # Don't hammer the server with too many connection attempts:
 maxconnections=1
-folderfilter= lambda f: f.startswith('INBOX.OLItest')
+folderfilter= lambda f: f.startswith('INBOX.OLItest') or f.startswith('INBOX/OLItest')
 """)
