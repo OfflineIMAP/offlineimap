@@ -3,10 +3,6 @@
 Official maintainers
 ====================
 
-Dmitrijs Ledkovs
-  email: xnox at debian.org
-  github: xnox
-
 Eygene Ryabinkin
   email: rea at freebsd.org
   github: konvpalto
