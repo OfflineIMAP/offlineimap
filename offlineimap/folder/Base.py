@@ -692,9 +692,6 @@ class BaseFolder(object):
             message = None
             flags = self.getmessageflags(uid)
             rtime = self.getmessagetime(uid)
-            if dstfolder.utime_from_header:
-                content = self.getmessage(uid)
-                rtime = emailutil.get_message_date(content, 'Date')
 
             # If any of the destinations actually stores the message body,
             # load it up.
@@ -766,9 +763,6 @@ class BaseFolder(object):
                 # dst has message with that UID already, only update status
                 flags = self.getmessageflags(uid)
                 rtime = self.getmessagetime(uid)
-                if dstfolder.utime_from_header:
-                    content = self.getmessage(uid)
-                    rtime = emailutil.get_message_date(content, 'Date')
                 statusfolder.savemessage(uid, None, flags, rtime)
                 continue
 
