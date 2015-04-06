@@ -19,6 +19,7 @@ import socket
 import time
 import re
 import os
+import emailutil
 from sys import exc_info
 from .Base import BaseFolder
 from threading import Lock

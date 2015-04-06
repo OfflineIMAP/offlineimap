@@ -19,7 +19,7 @@ import os.path
 import re
 from sys import exc_info
 
-from offlineimap import threadutil, emailutil
+from offlineimap import threadutil
 from offlineimap import globals
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
