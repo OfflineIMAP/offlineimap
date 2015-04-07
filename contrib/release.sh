@@ -271,6 +271,7 @@ rc: $(get_last_rc)
 EOF
 }
 
+
 #
 # $1: new version
 #
@@ -280,35 +281,50 @@ function update_website () {
   ask "update API of the website? (require $SPHINXBUILD)"
   if test $? -eq $Yes
   then
-    $SPHINXBUILD --version > /dev/null 2>&1 && {
-      cd website || echo "ERROR: cannot go to website"
-      git diff --quiet 2>/dev/null && git diff --quiet --cached 2>/dev/null || {
-        echo "There is WIP in the website repository, stashing"
-        echo "git stash create 'WIP during offlineimap API import'"
-        git stash create 'WIP during offlineimap API import'
-      }
-
-      update_website_releases_info
-      cd "../$DOCSDIR"
-      make websitedoc && {
-        cd ../website && {
-          branch_name="import-$1"
-          git checkout -b "$branch_name"
-          git add '_doc/versions'
-          git commit -a -s -m"update for offlineimap $1"
-          git checkout master
-          echo "website: branch '$branch_name' ready for a merge in master!"
-        }
-      }
-    } || {
+    # Check sphinx is available.
+    $SPHINXBUILD --version > /dev/null 2>&1
+    if test ! $? -eq 0
+    then
       echo "Oops! you don't have $SPHINXBUILD installed?"
       echo "Cannot update the webite documentation..."
       echo "You should install it and run:"
       echo "  $ cd docs"
       echo "  $ make websitedoc"
       echo "Then, commit and push changes of the website."
+      ask 'continue'
+      return
+    fi
+
+    # Check website sources are available.
+    cd website
+    if test ! $? -eq 0
+    then
+      echo "ERROR: cannot go to the website sources"
+      ask 'continue'
+      return
+    fi
+    # Stash any WIP in the website sources.
+    git diff --quiet 2>/dev/null && git diff --quiet --cached 2>/dev/null || {
+      echo "There is WIP in the website repository, stashing"
+      echo "git stash create 'WIP during offlineimap API import'"
+      git stash create 'WIP during offlineimap API import'
+      ask 'continue'
     }
-    ask 'continue'
+
+    cd .. # Back to offlineimap.git.
+    update_website_releases_info
+    cd "./$DOCSDIR" # Enter the docs directory in offlineimap.git.
+    # Build the docs!
+    make websitedoc && {
+      # Commit changes in a branch.
+      cd ../website # Enter the website sources.
+      branch_name="import-$1"
+      git checkout -b "$branch_name"
+      git add '_doc/versions'
+      git commit -a -s -m"update for offlineimap $1"
+      echo "website: branch '$branch_name' ready for a merge in master!"
+    }
+    ask 'website updated locally; continue'
   fi
 }
 
