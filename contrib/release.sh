@@ -16,7 +16,7 @@
 # TODO: move configuration out and source it.
 # TODO: implement rollback.
 
-__VERSION__='v0.1'
+__VERSION__='v0.2'
 
 SPHINXBUILD=sphinx-build
 
@@ -352,14 +352,10 @@ OfflineIMAP $1 is out.
 Downloads:
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.tar.gz
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.zip
-
 EOF
 }
 
 
-#
-# $1: previous version
-#
 function announce_footer () {
   cat <<EOF
 
@@ -375,9 +371,11 @@ EOF
 #
 function build_announce () {
   announce_header "$1" > "$TMP_ANNOUNCE"
-  cat "$TMP_CHANGELOG_EXCERPT" >> "$TMP_ANNOUNCE"
+  grep -v '^### OfflineIMAP' "$TMP_CHANGELOG_EXCERPT" | \
+    grep -v '^#### Notes' >> "$TMP_ANNOUNCE"
   sed -i -r -e "s,^$ANNOUNCE_MAGIC,," "$TMP_ANNOUNCE"
-  announce_footer "$2" >> "$TMP_ANNOUNCE"
+  sed -i -r -e "s,^#### ,# ," "$TMP_ANNOUNCE"
+  announce_footer >> "$TMP_ANNOUNCE"
 }
 
 
@@ -387,6 +385,9 @@ function edit_announce () {
 
 
 
+#
+# run
+#
 function run () {
   debug 'in run'
   fix_pwd

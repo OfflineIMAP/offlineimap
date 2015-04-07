@@ -53,7 +53,6 @@ Sebastian Spaeth let us know he will be almost inactive. We wish you well, too!
 - release.sh: script for maintainers improved.
 
 
-
 ### OfflineIMAP v6.5.7-rc3 (2015-03-19)
 
 #### Notes
