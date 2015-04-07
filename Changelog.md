@@ -15,6 +15,44 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v6.5.7-rc4 (2015-04-07)
+
+#### Notes
+
+Contrary to what the detailed following changes look like, here is a much bigger
+release than expected.
+
+Most important change is about maxage being sightly revisited. The whole
+internal logic was found broken. Janna Martl did the hard work of raising the
+issues and get them fixed.
+
+New configuration options are added.
+
+Maintainer Dmitrijs Ledkovs has left the organization. We wish you well! ,-)
+Sebastian Spaeth let us know he will be almost inactive. We wish you well, too!
+
+#### Features
+
+- Add configuration option "utime_from_header" (TESTING).
+- Add systemd integration files.
+- mbnames: add new option "incremental" to write the file once per account.
+
+#### Fixes
+
+- maxage: fix timezone issues, remove IMAP-IMAP support, add startdate option.
+- Test suites fixed and improved.
+- Fix inaccurate UI messages when some messages are internally excluded from the
+  cached lists.
+
+#### Changes
+
+- imaplib2: bump to v2.43.
+- More documentations moves to the website.
+- Maintainer Dmitrijs has left the organization.
+- Remove unnecessary imaplib2 workaround.
+- release.sh: script for maintainers improved.
+
+
 
 ### OfflineIMAP v6.5.7-rc3 (2015-03-19)
 
