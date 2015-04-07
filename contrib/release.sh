@@ -226,7 +226,7 @@ function update_changelog () {
   sed -i -e "/${CHANGELOG_MAGIC}/ r ${TMP_CHANGELOG_EXCERPT}" "$TMP_CHANGELOG"
   debug 'remove trailing whitespaces'
   sed -i -r -e 's, +$,,' "$TMP_CHANGELOG"   # Remove trailing whitespaces.
-  debug "copy to $TMP_ANNOUNCE -> $CHANGELOG"
+  debug "copy to $TMP_CHANGELOG -> $CHANGELOG"
   cp -f "$TMP_CHANGELOG" "$CHANGELOG"
 
   # Check and edit Changelog.
