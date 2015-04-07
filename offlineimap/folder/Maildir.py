@@ -19,7 +19,6 @@ import socket
 import time
 import re
 import os
-import emailutil
 from sys import exc_info
 from .Base import BaseFolder
 from threading import Lock
@@ -32,7 +31,7 @@ try: # python 2.6 has set() built in
 except NameError:
     from sets import Set as set
 
-from offlineimap import OfflineImapError
+from offlineimap import OfflineImapError, emailutil
 
 # Find the UID in a message filename
 re_uidmatch = re.compile(',U=(\d+)')
