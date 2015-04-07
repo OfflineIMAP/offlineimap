@@ -121,16 +121,18 @@ class GmailFolder(IMAPFolder):
 
     # TODO: merge this code with the parent's cachemessagelist:
     # TODO: they have too much common logics.
-    def cachemessagelist(self):
+    def cachemessagelist(self, min_date=None, min_uid=None):
         if not self.synclabels:
-            return super(GmailFolder, self).cachemessagelist()
+            return super(GmailFolder, self).cachemessagelist(
+                min_date=min_date, min_uid=min_uid)
 
         self.messagelist = {}
 
         self.ui.collectingdata(None, self)
         imapobj = self.imapserver.acquireconnection()
         try:
-            msgsToFetch = self._msgs_to_fetch(imapobj)
+            msgsToFetch = self._msgs_to_fetch(
+                imapobj, min_date=min_date, min_uid=min_uid)
             if not msgsToFetch:
                 return # No messages to sync
 

@@ -94,9 +94,10 @@ class MappedIMAPFolder(IMAPFolder):
                 OfflineImapError.ERROR.MESSAGE), None, exc_info()[2]
 
     # Interface from BaseFolder
-    def cachemessagelist(self):
-        self._mb.cachemessagelist()
+    def cachemessagelist(self, min_date=None, min_uid=None):
+        self._mb.cachemessagelist(min_date=min_date, min_uid=min_uid)
         reallist = self._mb.getmessagelist()
+        self.messagelist = self._mb.messagelist
 
         self.maplock.acquire()
         try:

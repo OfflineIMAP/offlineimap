@@ -17,6 +17,7 @@
 
 import os.path
 import re
+import time
 from sys import exc_info
 
 from offlineimap import threadutil
@@ -297,6 +298,76 @@ class BaseFolder(object):
         """Returns the content of the specified message."""
 
         raise NotImplementedError
+
+    def getmaxage(self):
+        """ maxage is allowed to be either an integer or a date of the
+        form YYYY-mm-dd. This returns a time_struct. """
+
+        maxagestr = self.config.getdefault("Account %s"%
+            self.accountname, "maxage", None)
+        if maxagestr == None:
+            return None
+        # is it a number?
+        try:
+            maxage = int(maxagestr)
+            if maxage < 1:
+                raise OfflineImapError("invalid maxage value %d"% maxage,
+                    OfflineImapError.ERROR.MESSAGE)
+            return time.gmtime(time.time() - 60*60*24*maxage)
+        except ValueError:
+            pass # maybe it was a date
+        # is it a date string?
+        try:
+            date = time.strptime(maxagestr, "%Y-%m-%d")
+            if date[0] < 1900:
+                raise OfflineImapError("maxage led to year %d. "
+                    "Abort syncing."% date[0],
+                    OfflineImapError.ERROR.MESSAGE)
+            return date
+        except ValueError:
+            raise OfflineImapError("invalid maxage value %s"% maxagestr,
+                OfflineImapError.ERROR.MESSAGE)
+
+    def getmaxsize(self):
+        return self.config.getdefaultint("Account %s"%
+            self.accountname, "maxsize", None)
+
+    def getstartdate(self):
+        """ Retrieve the value of the configuration option startdate """
+        datestr = self.config.getdefault("Repository " + self.repository.name,
+            'startdate', None)
+        try:
+            if not datestr:
+                return None
+            date = time.strptime(datestr, "%Y-%m-%d")
+            if date[0] < 1900:
+                raise OfflineImapError("startdate led to year %d. "
+                    "Abort syncing."% date[0],
+                    OfflineImapError.ERROR.MESSAGE)
+            return date
+        except ValueError:
+            raise OfflineImapError("invalid startdate value %s",
+                OfflineImapError.ERROR.MESSAGE)
+
+    def get_min_uid_file(self):
+        startuiddir = os.path.join(self.config.getmetadatadir(),
+            'Repository-' + self.repository.name, 'StartUID')
+        if not os.path.exists(startuiddir):
+            os.mkdir(startuiddir, 0o700)
+        return os.path.join(startuiddir, self.getfolderbasename())
+
+    def retrieve_min_uid(self):
+        uidfile = self.get_min_uid_file()
+        if not os.path.exists(uidfile):
+            return None
+        try:
+            fd = open(uidfile, 'rt')
+            min_uid = long(fd.readline().strip())
+            fd.close()
+            return min_uid
+        except:
+            raise IOError("Can't read %s"% uidfile)
+
 
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.

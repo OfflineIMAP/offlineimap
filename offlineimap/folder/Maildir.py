@@ -92,25 +92,17 @@ class MaildirFolder(BaseFolder):
         token."""
         return 42
 
-    # Checks to see if the given message is within the maximum age according
-    # to the maildir name which should begin with a timestamp
-    def _iswithinmaxage(self, messagename, maxage):
-        # In order to have the same behaviour as SINCE in an IMAP search
-        # we must convert this to the oldest time and then strip off hrs/mins
-        # from that day.
-        oldest_time_utc = time.time() - (60*60*24*maxage)
-        oldest_time_struct = time.gmtime(oldest_time_utc)
-        oldest_time_today_seconds = ((oldest_time_struct[3] * 3600) \
-            + (oldest_time_struct[4] * 60) \
-            + oldest_time_struct[5])
-        oldest_time_utc -= oldest_time_today_seconds
+    def _iswithintime(self, messagename, date):
+        """Check to see if the given message is newer than date (a
+        time_struct) according to the maildir name which should begin
+        with a timestamp."""
 
         timestampmatch = re_timestampmatch.search(messagename)
         if not timestampmatch:
             return True
         timestampstr = timestampmatch.group()
         timestamplong = long(timestampstr)
-        if(timestamplong < oldest_time_utc):
+        if(timestamplong < time.mktime(date)):
             return False
         else:
             return True
@@ -151,18 +143,21 @@ class MaildirFolder(BaseFolder):
             flags = set((c for c in flagmatch.group(1) if not c.islower()))
         return prefix, uid, fmd5, flags
 
-    def _scanfolder(self):
+    def _scanfolder(self, min_date=None, min_uid=None):
         """Cache the message list from a Maildir.
+
+        If min_date is set, this finds the min UID of all messages newer than
+        min_date and uses it as the real cutoff for considering messages.
+        This handles the edge cases where the date is much earlier than messages
+        with similar UID's (e.g. the UID was reassigned much later).
 
         Maildir flags are: R (replied) S (seen) T (trashed) D (draft) F
         (flagged).
         :returns: dict that can be used as self.messagelist.
         """
 
-        maxage = self.config.getdefaultint("Account " + self.accountname,
-                                           "maxage", None)
-        maxsize = self.config.getdefaultint("Account " + self.accountname,
-                                            "maxsize", None)
+        maxsize = self.getmaxsize()
+
         retval = {}
         files = []
         nouidcounter = -1          # Messages without UIDs get negative UIDs.
@@ -171,12 +166,11 @@ class MaildirFolder(BaseFolder):
             files.extend((dirannex, filename) for
                          filename in os.listdir(fulldirname))
 
+        date_excludees = {}
         for dirannex, filename in files:
             # We store just dirannex and filename, ie 'cur/123...'
             filepath = os.path.join(dirannex, filename)
-            # Check maxage/maxsize if this message should be considered.
-            if maxage and not self._iswithinmaxage(filename, maxage):
-                continue
+            # Check maxsize if this message should be considered.
             if maxsize and (os.path.getsize(os.path.join(
                         self.getfullname(), filepath)) > maxsize):
                 continue
@@ -193,16 +187,43 @@ class MaildirFolder(BaseFolder):
                     nouidcounter -= 1
                 else:
                     uid = long(uidmatch.group(1))
-            # 'filename' is 'dirannex/filename', e.g. cur/123,U=1,FMD5=1:2,S
-            retval[uid] = self.msglist_item_initializer(uid)
-            retval[uid]['flags'] = flags
-            retval[uid]['filename'] = filepath
+            if min_uid != None and uid > 0 and uid < min_uid:
+                continue
+            if min_date != None and not self._iswithintime(filename, min_date):
+                # Keep track of messages outside of the time limit, because they
+                # still might have UID > min(UIDs of within-min_date). We hit
+                # this case for maxage if any message had a known/valid datetime
+                # and was re-uploaded because the UID in the filename got lost
+                # (e.g. local copy/move). On next sync, it was assigned a new
+                # UID from the server and will be included in the SEARCH
+                # condition. So, we must re-include them later in this method
+                # in order to avoid inconsistent lists of messages.
+                date_excludees[uid] = self.msglist_item_initializer(uid)
+                date_excludees[uid]['flags'] = flags
+                date_excludees[uid]['filename'] = filepath
+            else:
+                # 'filename' is 'dirannex/filename', e.g. cur/123,U=1,FMD5=1:2,S
+                retval[uid] = self.msglist_item_initializer(uid)
+                retval[uid]['flags'] = flags
+                retval[uid]['filename'] = filepath
+        if min_date != None:
+            # Re-include messages with high enough uid's.
+            positive_uids = filter(lambda uid: uid > 0, retval)
+            if positive_uids:
+                min_uid = min(positive_uids)
+                for uid in date_excludees.keys():
+                    if uid > min_uid:
+                        # This message was originally excluded because of
+                        # its date. It is re-included now because we want all
+                        # messages with UID > min_uid.
+                        retval[uid] = date_excludees[uid]
         return retval
 
     # Interface from BaseFolder
     def quickchanged(self, statusfolder):
-        """Returns True if the Maildir has changed"""
-        self.cachemessagelist()
+        """Returns True if the Maildir has changed
+
+        Assumes cachemessagelist() has already been called """
         # Folder has different uids than statusfolder => TRUE.
         if sorted(self.getmessageuidlist()) != \
                 sorted(statusfolder.getmessageuidlist()):
@@ -219,9 +240,12 @@ class MaildirFolder(BaseFolder):
         return {'flags': set(), 'filename': '/no-dir/no-such-file/'}
 
     # Interface from BaseFolder
-    def cachemessagelist(self):
+    def cachemessagelist(self, min_date=None, min_uid=None):
         if self.ismessagelistempty():
-            self.messagelist = self._scanfolder()
+            self.ui.loadmessagelist(self.repository, self)
+            self.messagelist = self._scanfolder(min_date=min_date,
+                min_uid=min_uid)
+            self.ui.messagelistloaded(self.repository, self, self.getmessagecount())
 
     # Interface from BaseFolder
     def getmessagelist(self):

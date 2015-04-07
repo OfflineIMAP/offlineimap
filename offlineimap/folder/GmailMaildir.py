@@ -64,9 +64,9 @@ class GmailMaildirFolder(MaildirFolder):
                 'filename': '/no-dir/no-such-file/', 'mtime': 0}
 
 
-    def cachemessagelist(self):
+    def cachemessagelist(self, min_date=None, min_uid=None):
         if self.ismessagelistempty():
-            self.messagelist = self._scanfolder()
+            self.messagelist = self._scanfolder(min_date=min_date, min_uid=min_uid)
 
         # Get mtimes
         if self.synclabels:

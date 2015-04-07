@@ -135,7 +135,8 @@ Ignore any autorefresh setting in the configuration file.
   Run only quick synchronizations.
 +
 Ignore any flag updates on IMAP servers. If a flag on the remote IMAP changes,
-and we have the message locally, it will be left untouched in a quick run.
+and we have the message locally, it will be left untouched in a quick run. This
+option is ignored if maxage is set.
 
 
 -u <UI>::
@@ -400,8 +401,19 @@ If you then point your local mutt, or whatever MUA you use to `~/mail/`
 as root, it should still recognize all folders.
 
 
-Authors
--------
+* Edge cases with maxage causing too many messages to be synced.
++
+All messages from at most maxage days ago (+/- a few hours, depending on
+timezones) are synced, but there are cases in which older messages can also be
+synced. This happens when a message's UID is significantly higher than those of
+other messages with similar dates, e.g. when messages are added to the local
+folder behind offlineimap's back, causing them to get assigned a new UID, or
+when offlineimap first syncs a pre-existing Maildir. In the latter case, it
+could appear as if a noticeable and random subset of old messages are synced.
+
+
+Main authors
+------------
 
   John Goerzen, Sebastian Spaetz, Eygene Ryabinkin, Nicolas Sebrecht.
 

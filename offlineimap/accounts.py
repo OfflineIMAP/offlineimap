@@ -17,10 +17,11 @@
 from subprocess import Popen, PIPE
 from threading import Event
 import os
+import time
 from sys import exc_info
 import traceback
 
-from offlineimap import mbnames, CustomConfig, OfflineImapError
+from offlineimap import mbnames, CustomConfig, OfflineImapError, imaplibutil
 from offlineimap import globals
 from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
@@ -402,6 +403,96 @@ def syncfolder(account, remotefolder, quick):
 
     Filtered folders on the remote side will not invoke this function."""
 
+    def check_uid_validity(localfolder, remotefolder, statusfolder):
+        # If either the local or the status folder has messages and
+        # there is a UID validity problem, warn and abort.  If there are
+        # no messages, UW IMAPd loses UIDVALIDITY.  But we don't really
+        # need it if both local folders are empty.  So, in that case,
+        # just save it off.
+        if localfolder.getmessagecount() > 0 or statusfolder.getmessagecount() > 0:
+            if not localfolder.check_uidvalidity():
+                ui.validityproblem(localfolder)
+                localfolder.repository.restore_atime()
+                return
+            if not remotefolder.check_uidvalidity():
+                ui.validityproblem(remotefolder)
+                localrepos.restore_atime()
+                return
+        else:
+            # Both folders empty, just save new UIDVALIDITY
+            localfolder.save_uidvalidity()
+            remotefolder.save_uidvalidity()
+
+    def save_min_uid(folder, min_uid):
+        uidfile = folder.get_min_uid_file()
+        fd = open(uidfile, 'wt')
+        fd.write(str(min_uid) + "\n")
+        fd.close()
+
+    def cachemessagelists_upto_date(localfolder, remotefolder, date):
+        """ Returns messages with uid > min(uids of messages newer than date)."""
+
+        localfolder.cachemessagelist(min_date=date)
+        check_uid_validity(localfolder, remotefolder, statusfolder)
+        # local messagelist had date restriction applied already. Restrict
+        # sync to messages with UIDs >= min_uid from this list.
+        #
+        # local messagelist might contain new messages (with uid's < 0).
+        positive_uids = filter(
+            lambda uid: uid > 0, localfolder.getmessageuidlist())
+        if len(positive_uids) > 0:
+            remotefolder.cachemessagelist(min_uid=min(positive_uids))
+        else:
+            # No messages with UID > 0 in range in localfolder.
+            # date restriction was applied with respect to local dates but
+            # remote folder timezone might be different from local, so be
+            # safe and make sure the range isn't bigger than in local.
+            remotefolder.cachemessagelist(
+                min_date=time.gmtime(time.mktime(date) + 24*60*60))
+
+    def cachemessagelists_startdate(new, partial, date):
+        """ Retrieve messagelists when startdate has been set for
+        the folder 'partial'.
+
+        Idea: suppose you want to clone the messages after date in one
+        account (partial) to a new one (new). If new is empty, then copy
+        messages in partial newer than date to new, and keep track of the
+        min uid. On subsequent syncs, sync all the messages in new against
+        those after that min uid in partial. This is a partial replacement
+        for maxage in the IMAP-IMAP sync case, where maxage doesn't work:
+        the UIDs of the messages in localfolder might not be in the same
+        order as those of corresponding messages in remotefolder, so if L in
+        local corresponds to R in remote, the ranges [L, ...] and [R, ...]
+        might not correspond. But, if we're cloning a folder into a new one,
+        [min_uid, ...] does correspond to [1, ...].
+
+        This is just for IMAP-IMAP. For Maildir-IMAP, use maxage instead.
+        """
+
+        new.cachemessagelist()
+        min_uid = partial.retrieve_min_uid()
+        if min_uid == None: # min_uid file didn't exist
+            if len(new.getmessageuidlist()) > 0:
+                raise OfflineImapError("To use startdate on Repository %s, "
+                    "Repository %s must be empty"%
+                    (partial.repository.name, new.repository.name),
+                    OfflineImapError.ERROR.MESSAGE)
+            else:
+                partial.cachemessagelist(min_date=date)
+                # messagelist.keys() instead of getuidmessagelist() because in
+                # the UID mapped case we want the actual local UIDs, not their
+                # remote counterparts
+                positive_uids = filter(
+                    lambda uid: uid > 0, partial.messagelist.keys())
+                if len(positive_uids) > 0:
+                    min_uid = min(positive_uids)
+                else:
+                    min_uid = 1
+                save_min_uid(partial, min_uid)
+        else:
+            partial.cachemessagelist(min_uid=min_uid)
+
+
     remoterepos = account.remoterepos
     localrepos = account.localrepos
     statusrepos = account.statusrepos
@@ -429,43 +520,46 @@ def syncfolder(account, remotefolder, quick):
 
         statusfolder.cachemessagelist()
 
-        if quick:
-            if (not localfolder.quickchanged(statusfolder) and
-                not remotefolder.quickchanged(statusfolder)):
-                ui.skippingfolder(remotefolder)
-                localrepos.restore_atime()
-                return
 
         # Load local folder.
         ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
-        ui.loadmessagelist(localrepos, localfolder)
-        localfolder.cachemessagelist()
-        ui.messagelistloaded(localrepos, localfolder, localfolder.getmessagecount())
 
-        # If either the local or the status folder has messages and
-        # there is a UID validity problem, warn and abort.  If there are
-        # no messages, UW IMAPd loses UIDVALIDITY.  But we don't really
-        # need it if both local folders are empty.  So, in that case,
-        # just save it off.
-        if localfolder.getmessagecount() or statusfolder.getmessagecount():
-            if not localfolder.check_uidvalidity():
-                ui.validityproblem(localfolder)
-                localrepos.restore_atime()
-                return
-            if not remotefolder.check_uidvalidity():
-                ui.validityproblem(remotefolder)
-                localrepos.restore_atime()
-                return
+        # Retrieve messagelists, taking into account age-restriction
+        # options
+        maxage = localfolder.getmaxage()
+        localstart = localfolder.getstartdate()
+        remotestart = remotefolder.getstartdate()
+        if (maxage != None) + (localstart != None) + (remotestart != None) > 1:
+            raise OfflineImapError("You can set at most one of the "
+                "following: maxage, startdate (for the local folder), "
+                "startdate (for the remote folder)",
+                OfflineImapError.ERROR.REPO), None, exc_info()[2]
+        if (maxage != None or localstart or remotestart) and quick:
+            # IMAP quickchanged isn't compatible with options that
+            # involve restricting the messagelist, since the "quick"
+            # check can only retrieve a full list of UIDs in the folder.
+            ui.warn("Quick syncs (-q) not supported in conjunction "
+                "with maxage or startdate; ignoring -q.")
+        if maxage != None:
+            cachemessagelists_upto_date(localfolder, remotefolder, maxage)
+        elif localstart != None:
+            cachemessagelists_startdate(remotefolder, localfolder,
+                localstart)
+            check_uid_validity(localfolder, remotefolder, statusfolder)
+        elif remotestart != None:
+            cachemessagelists_startdate(localfolder, remotefolder,
+                remotestart)
+            check_uid_validity(localfolder, remotefolder, statusfolder)
         else:
-            # Both folders empty, just save new UIDVALIDITY
-            localfolder.save_uidvalidity()
-            remotefolder.save_uidvalidity()
-
-        # Load remote folder.
-        ui.loadmessagelist(remoterepos, remotefolder)
-        remotefolder.cachemessagelist()
-        ui.messagelistloaded(remoterepos, remotefolder,
-                             remotefolder.getmessagecount())
+            localfolder.cachemessagelist()
+            if quick:
+                if (not localfolder.quickchanged(statusfolder) and
+                    not remotefolder.quickchanged(statusfolder)):
+                    ui.skippingfolder(remotefolder)
+                    localrepos.restore_atime()
+                    return
+            check_uid_validity(localfolder, remotefolder, statusfolder)
+            remotefolder.cachemessagelist()
 
         # Synchronize remote changes.
         if not localrepos.getconfboolean('readonly', False):
