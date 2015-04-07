@@ -21,7 +21,7 @@ import time
 from sys import exc_info
 import traceback
 
-from offlineimap import mbnames, CustomConfig, OfflineImapError, imaplibutil
+from offlineimap import mbnames, CustomConfig, OfflineImapError
 from offlineimap import globals
 from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
