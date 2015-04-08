@@ -489,7 +489,7 @@ class IMAPFolder(BaseFolder):
 
         # tm_isdst coming from email.parsedate is not usable, we still use it
         # here, mhh.
-        if datetuple.tm_isdst == '1':
+        if datetuple.tm_isdst == 1:
             zone = -time.altzone
         else:
             zone = -time.timezone
