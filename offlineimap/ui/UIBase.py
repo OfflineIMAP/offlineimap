@@ -500,6 +500,8 @@ class UIBase(object):
         #print any exceptions that have occurred over the run
         if not self.exc_queue.empty():
            self.warn("ERROR: Exceptions occurred during the run!")
+           if exitstatus == 0:
+               exitstatus = 1
         while not self.exc_queue.empty():
             msg, exc, exc_traceback = self.exc_queue.get()
             if msg:
