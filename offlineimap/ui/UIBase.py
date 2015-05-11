@@ -65,6 +65,8 @@ class UIBase(object):
         self.logfile = None
         self.exc_queue = Queue()
         # saves all occuring exceptions, so we can output them at the end
+        self.uidval_problem = False
+        # at least one folder skipped due to UID validity problem
         # create logger with 'OfflineImap' app
         self.logger = logging.getLogger('OfflineImap')
         self.logger.setLevel(loglevel)
@@ -345,6 +347,7 @@ class UIBase(object):
         self.logger.info("Skipping %s (not changed)" % folder)
 
     def validityproblem(self, folder):
+        self.uidval_problem = True
         self.logger.warning("UID validity problem for folder %s (repo %s) "
                             "(saved %d; got %d); skipping it. Please see FAQ "
                             "and manual on how to handle this."% \
@@ -514,6 +517,10 @@ class UIBase(object):
             self.warn('ERROR: %s\n\n%s\n'% (errortitle, errormsg))
         elif errormsg:
                 self.warn('%s\n'% errormsg)
+        if self.uidval_problem:
+            self.warn('At least one folder skipped due to UID validity problem')
+            if exitstatus == 0:
+                exitstatus = 2
         sys.exit(exitstatus)
 
     def threadExited(self, thread):
