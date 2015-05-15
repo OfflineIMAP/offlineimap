@@ -15,6 +15,49 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+
+### OfflineIMAP v6.5.7 (2015-05-15)
+
+#### Notes
+
+Almost no change since last release candidate. This is a sign that this release
+is stable. ,-)
+
+There was big changes since previous stable and users - especially distribution
+maintainers - should really read the intermediate changelogs.
+
+At the beginning of this year, I've tried to implement Unicode support. As you
+know, I was not satisfied with the result. Then, I've published my code analysis
+where I talk about doing a lot of refactoring for more proper OOP practices.
+What's new is that I've actually done it and stopped this work as soon as I
+realized that it means entirely rewriting the software.
+
+On top of this, I'm not fully satisfied with other current limitations:
+- old legacy support;
+- migration to Python 3;
+- complex multithreading design;
+- some restrictions of the GPLv2 license;
+- etc.
+
+That's why I've started a new product. I'll publish it in the coming weeks under
+the MIT license.
+
+#### Features
+
+- Better documentation for Windows users.
+- contrib/release.sh (v0.2): fixes and improvements.
+
+#### Fixes
+
+- Report exceptions via exit code.
+- Proxy feature leaks DNS support: offlineimap.conf talks about this.
+- Email parsing for date coudn't work: fix datetuple dst check.
+
+#### Changes
+
+- Little code refactoring.
+
+
 ### OfflineIMAP v6.5.7-rc4 (2015-04-07)
 
 #### Notes
