@@ -10,7 +10,7 @@ OfflineIMAP is a software to dispose your e-mail mailbox(es) as a **local
 Maildir**. OfflineIMAP will synchronize both sides via *IMAP*.
 
 The main downside about IMAP is that you have to **trust** your MAIL provider to
-not loose your mails. This is not something impossible while not very common.
+not lose your mails. This is not something impossible while not very common.
 With OfflineIMAP, you can download your Mailboxes and make you own backups of
 the Maildir.
 
