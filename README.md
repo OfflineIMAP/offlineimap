@@ -13,7 +13,7 @@ The main downside to IMAP is that you must **trust** your MAIL provider to not
 lose your mail. This is not common but certainly not impossible.
 
 With OfflineIMAP you can download your mail boxes and create your own backup
-[Maildir](https://en.wikipedia.org/wiki/Maildir) format.
+[Maildir](https://en.wikipedia.org/wiki/Maildir).
 
 This allows reading your mail while offline without the need for the mail
 reader (MUA) to support IMAP disconnected operations. Need an attachement from a
