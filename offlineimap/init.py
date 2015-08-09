@@ -217,6 +217,9 @@ class OfflineImap:
                     imaplib.Debug = 5
 
         if options.runonce:
+            # Must kill the possible default option
+            if config.has_option('DEFAULT', 'autorefresh'):
+                config.remove_option('DEFAULT', 'autorefresh')
             # FIXME: spaghetti code alert!
             for section in accounts.getaccountlist(config):
                 config.remove_option('Account ' + section, "autorefresh")
