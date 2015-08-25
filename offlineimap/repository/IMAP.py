@@ -246,6 +246,9 @@ class IMAPRepository(BaseRepository):
             raise OfflineImapError(reason, OfflineImapError.ERROR.REPO)
         return cacertfile
 
+    def gettlslevel(self):
+        return self.getconf('tls_level', 'tls_compat')
+
     def getsslversion(self):
         return self.getconf('ssl_version', None)
 

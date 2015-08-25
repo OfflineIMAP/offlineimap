@@ -92,6 +92,7 @@ class IMAPServer:
             self.__verifycert = None # disable cert verification
         self.fingerprint = repos.get_ssl_fingerprint()
         self.sslversion = repos.getsslversion()
+        self.tlslevel = repos.gettlslevel()
 
         self.oauth2_refresh_token = repos.getoauth2_refresh_token()
         self.oauth2_client_id = repos.getoauth2_client_id()
@@ -478,6 +479,7 @@ class IMAPServer:
                         timeout=socket.getdefaulttimeout(),
                         fingerprint=self.fingerprint,
                         use_socket=self.proxied_socket,
+                        tls_level=self.tlslevel,
                         )
                 else:
                     self.ui.connecting(self.hostname, self.port)
