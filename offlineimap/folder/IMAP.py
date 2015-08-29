@@ -259,6 +259,13 @@ class IMAPFolder(BaseFolder):
         self.messagelist = {}
 
     # Interface from BaseFolder
+    def getvisiblename(self):
+        vname = super(IMAPFolder, self).getvisiblename()
+        if self.repository.getdecodefoldernames():
+            return imaputil.decode_mailbox_name(vname)
+        return vname
+
+    # Interface from BaseFolder
     def getmessagelist(self):
         return self.messagelist
 

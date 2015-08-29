@@ -25,6 +25,9 @@ from offlineimap.ui import getglobalui
 # Message headers that use space as the separator (for label storage)
 SPACE_SEPARATED_LABEL_HEADERS = ('X-Label', 'Keywords')
 
+# Find the modified UTF-7 shifts of an international mailbox name.
+MUTF7_SHIFT_RE = re.compile(r'&[^-]*-|\+')
+
 
 def __debug(*args):
     msg = []
@@ -328,3 +331,28 @@ def labels_from_header(header_name, header_value):
 
     return labels
 
+
+def decode_mailbox_name(name):
+    """Decodes a modified UTF-7 mailbox name.
+
+    If the string cannot be decoded, it is returned unmodified.
+
+    See RFC 3501, sec. 5.1.3.
+
+    Arguments:
+    - name: string, possibly encoded with modified UTF-7
+
+    Returns: decoded UTF-8 string.
+    """
+    def demodify(m):
+        s = m.group()
+        if s == '+':
+            return '+-'
+        return '+' + s[1:-1].replace(',', '/') + '-'
+
+    ret = MUTF7_SHIFT_RE.sub(demodify, name)
+
+    try:
+        return ret.decode('utf-7').encode('utf-8')
+    except UnicodeEncodeError:
+        return name
