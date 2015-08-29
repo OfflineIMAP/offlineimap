@@ -261,6 +261,9 @@ class IMAPRepository(BaseRepository):
     def getreference(self):
         return self.getconf('reference', '')
 
+    def getdecodefoldernames(self):
+        return self.getconfboolean('decodefoldernames', 0)
+
     def getidlefolders(self):
         localeval = self.localeval
         return localeval.eval(self.getconf('idlefolders', '[]'))
