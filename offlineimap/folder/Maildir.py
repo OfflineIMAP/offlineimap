@@ -350,9 +350,19 @@ class MaildirFolder(BaseFolder):
         tmpname = self.save_to_tmp_file(messagename, content)
 
         if self.utime_from_header:
-            date = emailutil.get_message_date(content, 'Date')
-            if date != None:
-                os.utime(os.path.join(self.getfullname(), tmpname), (date, date))
+            try:
+                date = emailutil.get_message_date(content, 'Date')
+                if date is not None:
+                    os.utime(os.path.join(self.getfullname(), tmpname),
+                        (date, date))
+            # In case date is wrongly so far into the future as to be > max int32
+            except Exception as e:
+                from email.Parser import Parser
+                from offlineimap.ui import getglobalui
+                datestr = Parser().parsestr(content, True).get("Date")
+                ui = getglobalui()
+                ui.warn("UID %d has invalid date %s: %s\n"
+                    "Not changing file modification time" % (uid, datestr, e))
 
         self.messagelist[uid] = self.msglist_item_initializer(uid)
         self.messagelist[uid]['flags'] = flags
