@@ -18,6 +18,7 @@
 import random
 import binascii
 import re
+import os
 import time
 from sys import exc_info
 
@@ -48,7 +49,7 @@ class IMAPFolder(BaseFolder):
         self.expunge = repository.getexpunge()
         self.root = None # imapserver.root
         self.imapserver = imapserver
-        self.messagelist = None
+        self.messagelist = {}
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
         self.imap_query = ['BODY.PEEK[]']
@@ -78,6 +79,12 @@ class IMAPFolder(BaseFolder):
     # Interface from BaseFolder
     def waitforthread(self):
         self.imapserver.connectionwait()
+
+    def getmaxage(self):
+        if self.config.getdefault("Account %s"%
+                self.accountname, "maxage", None):
+            raise OfflineImapError("maxage is not supported on IMAP-IMAP sync",
+                OfflineImapError.ERROR.REPO), None, exc_info()[2]
 
     # Interface from BaseFolder
     def getcopyinstancelimit(self):
@@ -143,8 +150,7 @@ class IMAPFolder(BaseFolder):
             return True
         return False
 
-
-    def _msgs_to_fetch(self, imapobj):
+    def _msgs_to_fetch(self, imapobj, min_date=None, min_uid=None):
         """Determines sequence numbers of messages to be fetched.
 
         Message sequence numbers (MSNs) are more easily compacted
@@ -152,57 +158,55 @@ class IMAPFolder(BaseFolder):
 
         Arguments:
         - imapobj: instance of IMAPlib
+        - min_date (optional): a time_struct; only fetch messages newer than this
+        - min_uid (optional): only fetch messages with UID >= min_uid
+
+        This function should be called with at MOST one of min_date OR
+        min_uid set but not BOTH.
 
         Returns: range(s) for messages or None if no messages
         are to be fetched."""
 
-        res_type, imapdata = imapobj.select(self.getfullname(), True, True)
-        if imapdata == [None] or imapdata[0] == '0':
-            # Empty folder, no need to populate message list
-            return None
+        def search(search_conditions):
+            """Actually request the server with the specified conditions.
 
-        # By default examine all messages in this folder
-        msgsToFetch = '1:*'
-
-        maxage = self.config.getdefaultint("Account %s"% self.accountname,
-                                           "maxage", -1)
-        maxsize = self.config.getdefaultint("Account %s"% self.accountname,
-                                            "maxsize", -1)
-
-        # Build search condition
-        if (maxage != -1) | (maxsize != -1):
-            search_cond = "(";
-
-            if(maxage != -1):
-                #find out what the oldest message is that we should look at
-                oldest_struct = time.gmtime(time.time() - (60*60*24*maxage))
-                if oldest_struct[0] < 1900:
-                    raise OfflineImapError("maxage setting led to year %d. "
-                                           "Abort syncing." % oldest_struct[0],
-                                           OfflineImapError.ERROR.REPO)
-                search_cond += "SINCE %02d-%s-%d" % (
-                    oldest_struct[2],
-                    MonthNames[oldest_struct[1]],
-                    oldest_struct[0])
-
-            if(maxsize != -1):
-                if(maxage != -1): # There are two conditions, add space
-                    search_cond += " "
-                search_cond += "SMALLER %d" % maxsize
-
-            search_cond += ")"
-
-            res_type, res_data = imapobj.search(None, search_cond)
+            Returns: range(s) for messages or None if no messages
+            are to be fetched."""
+            res_type, res_data = imapobj.search(None, search_conditions)
             if res_type != 'OK':
                 raise OfflineImapError("SEARCH in folder [%s]%s failed. "
                     "Search string was '%s'. Server responded '[%s] %s'"% (
                     self.getrepository(), self, search_cond, res_type, res_data),
                     OfflineImapError.ERROR.FOLDER)
+            return res_data[0].split()
 
-            # Resulting MSN are separated by space, coalesce into ranges
-            msgsToFetch = imaputil.uid_sequence(res_data[0].split())
+        res_type, imapdata = imapobj.select(self.getfullname(), True, True)
+        if imapdata == [None] or imapdata[0] == '0':
+            # Empty folder, no need to populate message list.
+            return None
 
-        return msgsToFetch
+        conditions = []
+        # 1. min_uid condition.
+        if min_uid != None:
+            conditions.append("UID %d:*"% min_uid)
+        # 2. date condition.
+        elif min_date != None:
+            # Find out what the oldest message is that we should look at.
+            conditions.append("SINCE %02d-%s-%d"% (
+                min_date[2], MonthNames[min_date[1]], min_date[0]))
+        # 3. maxsize condition.
+        maxsize = self.getmaxsize()
+        if maxsize != None:
+            conditions.append("SMALLER %d"% maxsize)
+
+        if len(conditions) >= 1:
+            # Build SEARCH command.
+            search_cond = "(%s)"% ' '.join(conditions)
+            search_result = search(search_cond)
+            return imaputil.uid_sequence(search_result)
+
+        # By default consider all messages in this folder.
+        return '1:*'
 
     # Interface from BaseFolder
     def msglist_item_initializer(self, uid):
@@ -210,25 +214,25 @@ class IMAPFolder(BaseFolder):
 
 
     # Interface from BaseFolder
-    def cachemessagelist(self):
+    def cachemessagelist(self, min_date=None, min_uid=None):
+        self.ui.loadmessagelist(self.repository, self)
         self.messagelist = {}
 
         imapobj = self.imapserver.acquireconnection()
         try:
-            msgsToFetch = self._msgs_to_fetch(imapobj)
+            msgsToFetch = self._msgs_to_fetch(
+                imapobj, min_date=min_date, min_uid=min_uid)
             if not msgsToFetch:
                 return # No messages to sync
 
             # Get the flags and UIDs for these. single-quotes prevent
             # imaplib2 from quoting the sequence.
             res_type, response = imapobj.fetch("'%s'"%
-                msgsToFetch, '(FLAGS UID)')
+                msgsToFetch, '(FLAGS UID INTERNALDATE)')
             if res_type != 'OK':
                 raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. "
-                                       "Server responded '[%s] %s'"% (
-                            self.getrepository(), self,
-                            res_type, response),
-                        OfflineImapError.ERROR.FOLDER)
+                    "Server responded '[%s] %s'"% (self.getrepository(), self,
+                    res_type, response), OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
 
@@ -249,9 +253,10 @@ class IMAPFolder(BaseFolder):
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
                 rtime = imaplibutil.Internaldate2epoch(messagestr)
                 self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
+        self.ui.messagelistloaded(self.repository, self, self.getmessagecount())
 
     def dropmessagelistcache(self):
-        self.messagelist = None
+        self.messagelist = {}
 
     # Interface from BaseFolder
     def getmessagelist(self):
@@ -259,7 +264,7 @@ class IMAPFolder(BaseFolder):
 
     # Interface from BaseFolder
     def getmessage(self, uid):
-        """Retrieve message with UID from the IMAP server (incl body)
+        """Retrieve message with UID from the IMAP server (incl body).
 
 	After this function all CRLFs will be transformed to '\n'.
 
@@ -280,7 +285,7 @@ class IMAPFolder(BaseFolder):
         data = data[0][1].replace(CRLF, "\n")
 
         if len(data)>200:
-            dbg_output = "%s...%s" % (str(data)[:150], str(data)[-50:])
+            dbg_output = "%s...%s"% (str(data)[:150], str(data)[-50:])
         else:
             dbg_output = data
 
@@ -331,7 +336,8 @@ class IMAPFolder(BaseFolder):
         # Now find the UID it got.
         headervalue = imapobj._quote(headervalue)
         try:
-            matchinguids = imapobj.uid('search', 'HEADER', headername, headervalue)[1][0]
+            matchinguids = imapobj.uid('search', 'HEADER',
+                headername, headervalue)[1][0]
         except imapobj.error as err:
             # IMAP server doesn't implement search or had a problem.
             self.ui.debug('imap', "__savemessage_searchforheader: got IMAP error '%s' while attempting to UID SEARCH for message with header %s"% (err, headername))
@@ -396,8 +402,8 @@ class IMAPFolder(BaseFolder):
 
         result = imapobj.uid('FETCH', bytearray('%d:*'% start), 'rfc822.header')
         if result[0] != 'OK':
-            raise OfflineImapError('Error fetching mail headers: ' + '. '.join(result[1]),
-                     OfflineImapError.ERROR.MESSAGE)
+            raise OfflineImapError('Error fetching mail headers: %s'%
+                '. '.join(result[1]), OfflineImapError.ERROR.MESSAGE)
 
         result = result[1]
 
@@ -423,7 +429,8 @@ class IMAPFolder(BaseFolder):
     def __getmessageinternaldate(self, content, rtime=None):
         """Parses mail and returns an INTERNALDATE string
 
-        It will use information in the following order, falling back as an attempt fails:
+        It will use information in the following order, falling back as an
+        attempt fails:
           - rtime parameter
           - Date header of email
 
@@ -475,21 +482,22 @@ class IMAPFolder(BaseFolder):
                 "Server will use local time."% datetuple)
             return None
 
-        #produce a string representation of datetuple that works as
-        #INTERNALDATE
+        # Produce a string representation of datetuple that works as
+        # INTERNALDATE.
         num2mon = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun',
                    7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
 
-        #tm_isdst coming from email.parsedate is not usable, we still use it here, mhh
-        if datetuple.tm_isdst == '1':
+        # tm_isdst coming from email.parsedate is not usable, we still use it
+        # here, mhh.
+        if datetuple.tm_isdst == 1:
             zone = -time.altzone
         else:
             zone = -time.timezone
         offset_h, offset_m = divmod(zone//60, 60)
 
-        internaldate = '"%02d-%s-%04d %02d:%02d:%02d %+03d%02d"' \
-            % (datetuple.tm_mday, num2mon[datetuple.tm_mon], datetuple.tm_year, \
-               datetuple.tm_hour, datetuple.tm_min, datetuple.tm_sec, offset_h, offset_m)
+        internaldate = '"%02d-%s-%04d %02d:%02d:%02d %+03d%02d"'% \
+            (datetuple.tm_mday, num2mon[datetuple.tm_mon], datetuple.tm_year, \
+             datetuple.tm_hour, datetuple.tm_min, datetuple.tm_sec, offset_h, offset_m)
 
         return internaldate
 
@@ -554,7 +562,7 @@ class IMAPFolder(BaseFolder):
                     content = self.addmessageheader(content, CRLF, headername, headervalue)
 
                 if len(content)>200:
-                    dbg_output = "%s...%s" % (content[:150], content[-50:])
+                    dbg_output = "%s...%s"% (content[:150], content[-50:])
                 else:
                     dbg_output = content
                 self.ui.debug('imap', "savemessage: date: %s, content: '%s'"%
@@ -726,6 +734,7 @@ class IMAPFolder(BaseFolder):
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
         dryrun mode."""
+
         imapobj = self.imapserver.acquireconnection()
         try:
             result = self._store_to_imap(imapobj, str(uid), 'FLAGS',
@@ -834,8 +843,6 @@ class IMAPFolder(BaseFolder):
         self.__deletemessages_noconvert(uidlist)
 
     def __deletemessages_noconvert(self, uidlist):
-        # Weed out ones not in self.messagelist
-        uidlist = [uid for uid in uidlist if self.uidexists(uid)]
         if not len(uidlist):
             return
 

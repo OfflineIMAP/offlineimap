@@ -32,6 +32,7 @@ from offlineimap.ui import getglobalui
 def semaphorereset(semaphore, originalstate):
     """Block until `semaphore` gets back to its original state, ie all acquired
     resources have been released."""
+
     for i in range(originalstate):
         semaphore.acquire()
     # Now release these.
@@ -41,6 +42,7 @@ def semaphorereset(semaphore, originalstate):
 class threadlist:
     """Store the list of all threads in the software so it can be used to find out
     what's running and what's not."""
+
     def __init__(self):
         self.lock = Lock()
         self.list = []
@@ -98,6 +100,7 @@ def exitnotifymonitorloop(callback):
                      while the other thread is waiting.
     :type callback:  a callable function
     """
+
     global exitthreads
     do_loop = True
     while do_loop:
@@ -116,6 +119,7 @@ def threadexited(thread):
     """Called when a thread exits.
 
     Main thread is aborted when this returns True."""
+
     ui = getglobalui()
     if thread.exit_exception:
         if isinstance(thread.exit_exception, SystemExit):
@@ -139,8 +143,9 @@ class ExitNotifyThread(Thread):
 
     The thread can set instance variables self.exit_message for a human
     readable reason of the thread exit."""
+
     profiledir = None
-    """class variable that is set to the profile directory if required"""
+    """Class variable that is set to the profile directory if required."""
 
     def __init__(self, *args, **kwargs):
         super(ExitNotifyThread, self).__init__(*args, **kwargs)
@@ -167,7 +172,7 @@ class ExitNotifyThread(Thread):
                 except SystemExit:
                     pass
                 prof.dump_stats(os.path.join(ExitNotifyThread.profiledir,
-                                "%s_%s.prof" % (self.ident, self.getName())))
+                                "%s_%s.prof"% (self.ident, self.getName())))
         except Exception as e:
             # Thread exited with Exception, store it
             tb = traceback.format_exc()
@@ -179,6 +184,7 @@ class ExitNotifyThread(Thread):
     def set_exit_exception(self, exc, st=None):
         """Sets Exception and stacktrace of a thread, so that other
         threads can query its exit status"""
+
         self._exit_exc = exc
         self._exit_stacktrace = st
 
@@ -187,16 +193,19 @@ class ExitNotifyThread(Thread):
         """Returns the cause of the exit, one of:
         Exception() -- the thread aborted with this exception
         None -- normal termination."""
+
         return self._exit_exc
 
     @property
     def exit_stacktrace(self):
         """Returns a string representing the stack trace if set"""
+
         return self._exit_stacktrace
 
     @classmethod
     def set_profiledir(cls, directory):
         """If set, will output profile information to 'directory'"""
+
         cls.profiledir = directory
 
 
@@ -210,6 +219,7 @@ instancelimitedlock = Lock()
 def initInstanceLimit(instancename, instancemax):
     """Initialize the instance-limited thread implementation to permit
     up to intancemax threads with the given instancename."""
+
     instancelimitedlock.acquire()
     if not instancename in instancelimitedsems:
         instancelimitedsems[instancename] = BoundedSemaphore(instancemax)

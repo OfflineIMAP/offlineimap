@@ -64,9 +64,9 @@ class GmailMaildirFolder(MaildirFolder):
                 'filename': '/no-dir/no-such-file/', 'mtime': 0}
 
 
-    def cachemessagelist(self):
-        if self.messagelist is None:
-            self.messagelist = self._scanfolder()
+    def cachemessagelist(self, min_date=None, min_uid=None):
+        if self.ismessagelistempty():
+            self.messagelist = self._scanfolder(min_date=min_date, min_uid=min_uid)
 
         # Get mtimes
         if self.synclabels:
@@ -159,7 +159,7 @@ class GmailMaildirFolder(MaildirFolder):
         content = self.deletemessageheaders(content, self.labelsheader)
         content = self.addmessageheader(content, '\n', self.labelsheader, labels_str)
 
-        rtime = self.messagelist[uid].get('rtime', None)
+        mtime = long(os.stat(filepath).st_mtime)
 
         # write file with new labels to a unique file in tmp
         messagename = self.new_message_filename(uid, set())
@@ -174,8 +174,9 @@ class GmailMaildirFolder(MaildirFolder):
               (tmppath, filepath, e[1]), OfflineImapError.ERROR.FOLDER), \
               None, exc_info()[2]
 
-        if rtime != None:
-            os.utime(filepath, (rtime, rtime))
+        # if utime_from_header=true, we don't want to change the mtime.
+        if self.utime_from_header and mtime:
+            os.utime(filepath, (mtime, mtime))
 
         # save the new mtime and labels
         self.messagelist[uid]['mtime'] = long(os.stat(filepath).st_mtime)

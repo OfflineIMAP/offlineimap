@@ -21,8 +21,9 @@ import threading
 
 from .Base import BaseFolder
 
+
 class LocalStatusFolder(BaseFolder):
-    """LocalStatus backend implemented as a plain text file"""
+    """LocalStatus backend implemented as a plain text file."""
 
     cur_version = 2
     magicline = "OFFLINEIMAP LocalStatus CACHE DATA - DO NOT MODIFY - FORMAT %d"
@@ -46,10 +47,6 @@ class LocalStatusFolder(BaseFolder):
         return not os.path.exists(self.filename)
 
     # Interface from BaseFolder
-    def getname(self):
-        return self.name
-
-    # Interface from BaseFolder
     def getfullname(self):
         return self.filename
 
@@ -57,11 +54,9 @@ class LocalStatusFolder(BaseFolder):
         if not self.isnewfolder():
             os.unlink(self.filename)
 
-
     # Interface from BaseFolder
     def msglist_item_initializer(self, uid):
         return {'uid': uid, 'flags': set(), 'labels': set(), 'time': 0, 'mtime': 0}
-
 
     def readstatus_v1(self, fp):
         """Read status folder in format version 1.
@@ -84,7 +79,6 @@ class LocalStatusFolder(BaseFolder):
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
 
-
     def readstatus(self, fp):
         """Read status file in the current format.
 
@@ -101,7 +95,7 @@ class LocalStatusFolder(BaseFolder):
                 mtime = long(mtime)
                 labels = set([lb.strip() for lb in labels.split(',') if len(lb.strip()) > 0])
             except ValueError as e:
-                errstr = "Corrupt line '%s' in cache file '%s'" % \
+                errstr = "Corrupt line '%s' in cache file '%s'"% \
                     (line, self.filename)
                 self.ui.warn(errstr)
                 raise ValueError(errstr), None, exc_info()[2]
@@ -117,33 +111,33 @@ class LocalStatusFolder(BaseFolder):
             self.messagelist = {}
             return
 
-        # loop as many times as version, and update format
-        for i in range(1, self.cur_version+1):
-            file = open(self.filename, "rt")
+        # Loop as many times as version, and update format.
+        for i in range(1, self.cur_version + 1):
             self.messagelist = {}
-            line = file.readline().strip()
+            cachefd = open(self.filename, "rt")
+            line = cachefd.readline().strip()
 
-            # convert from format v1
-            if line == (self.magicline % 1):
-                self.ui._msg('Upgrading LocalStatus cache from version 1 to version 2 for %s:%s' %\
-                             (self.repository, self))
-                self.readstatus_v1(file)
-                file.close()
+            # Format is up to date. break.
+            if line == (self.magicline % self.cur_version):
+                break
+
+            # Convert from format v1.
+            elif line == (self.magicline % 1):
+                self.ui._msg('Upgrading LocalStatus cache from version 1'
+                    'to version 2 for %s:%s'% (self.repository, self))
+                self.readstatus_v1(cachefd)
+                cachefd.close()
                 self.save()
 
             # NOTE: Add other format transitions here in the future.
             # elif line == (self.magicline % 2):
-            #  self.ui._msg('Upgrading LocalStatus cache from version 2 to version 3 for %s:%s' %\
-            #                 (self.repository, self))
-            #     self.readstatus_v2(file)
-            #     file.close()
-            #     file.save()
+            #     self.ui._msg(u'Upgrading LocalStatus cache from version 2'
+            #         'to version 3 for %s:%s'% (self.repository, self))
+            #     self.readstatus_v2(cache)
+            #     cache.close()
+            #     cache.save()
 
-            # format is up to date. break
-            elif line == (self.magicline % self.cur_version):
-                break
-
-            # something is wrong
+            # Something is wrong.
             else:
                 errstr = "Unrecognized cache magicline in '%s'" % self.filename
                 self.ui.warn(errstr)
@@ -152,17 +146,14 @@ class LocalStatusFolder(BaseFolder):
         if not line:
             # The status file is empty - should not have happened,
             # but somehow did.
-            errstr = "Cache file '%s' is empty. Closing..." % self.filename
+            errstr = "Cache file '%s' is empty."% self.filename
             self.ui.warn(errstr)
-            file.close()
+            cachefd.close()
             return
 
         assert(line == (self.magicline % self.cur_version))
-        self.readstatus(file)
-        file.close()
-
-    def dropmessagelistcache(self):
-        self.messagelist = None
+        self.readstatus(cachefd)
+        cachefd.close()
 
     def save(self):
         """Save changed data to disk. For this backend it is the same as saveall."""
@@ -173,16 +164,16 @@ class LocalStatusFolder(BaseFolder):
         """Saves the entire messagelist to disk."""
 
         with self.savelock:
-            file = open(self.filename + ".tmp", "wt")
-            file.write((self.magicline % self.cur_version) + "\n")
+            cachefd = open(self.filename + ".tmp", "wt")
+            cachefd.write((self.magicline % self.cur_version) + "\n")
             for msg in self.messagelist.values():
                 flags = ''.join(sorted(msg['flags']))
                 labels = ', '.join(sorted(msg['labels']))
-                file.write("%s|%s|%d|%s\n" % (msg['uid'], flags, msg['mtime'], labels))
-            file.flush()
+                cachefd.write("%s|%s|%d|%s\n" % (msg['uid'], flags, msg['mtime'], labels))
+            cachefd.flush()
             if self.doautosave:
-                os.fsync(file.fileno())
-            file.close()
+                os.fsync(cachefd.fileno())
+            cachefd.close()
             os.rename(self.filename + ".tmp", self.filename)
 
             if self.doautosave:
@@ -231,7 +222,6 @@ class LocalStatusFolder(BaseFolder):
         self.messagelist[uid]['flags'] = flags
         self.save()
 
-
     def savemessagelabels(self, uid, labels, mtime=None):
         self.messagelist[uid]['labels'] = labels
         if mtime: self.messagelist[uid]['mtime'] = mtime
@@ -266,7 +256,6 @@ class LocalStatusFolder(BaseFolder):
 
     def getmessagemtime(self, uid):
         return self.messagelist[uid]['mtime']
-
 
     # Interface from BaseFolder
     def deletemessage(self, uid):

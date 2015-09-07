@@ -33,17 +33,19 @@ class CursesUtil:
         # iolock protects access to the
         self.iolock = RLock()
         self.tframe_lock = RLock()
-        """tframe_lock protects the self.threadframes manipulation to
-        only happen from 1 thread"""
+        # tframe_lock protects the self.threadframes manipulation to
+        # only happen from 1 thread.
         self.colormap = {}
         """dict, translating color string to curses color pair number"""
 
     def curses_colorpair(self, col_name):
-        """Return the curses color pair, that corresponds to the color"""
+        """Return the curses color pair, that corresponds to the color."""
+
         return curses.color_pair(self.colormap[col_name])
 
     def init_colorpairs(self):
-        """initialize the curses color pairs available"""
+        """Initialize the curses color pairs available."""
+
         # set special colors 'gray' and 'banner'
         self.colormap['white'] = 0 #hardcoded by curses
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
@@ -66,24 +68,27 @@ class CursesUtil:
             curses.init_pair(i, fcol, bcol)
 
     def lock(self, block=True):
-        """Locks the Curses ui thread
+        """Locks the Curses ui thread.
 
         Can be invoked multiple times from the owning thread. Invoking
         from a non-owning thread blocks and waits until it has been
         unlocked by the owning thread."""
+
         return self.iolock.acquire(block)
 
     def unlock(self):
-        """Unlocks the Curses ui thread
+        """Unlocks the Curses ui thread.
 
         Decrease the lock counter by one and unlock the ui thread if the
         counter reaches 0.  Only call this method when the calling
         thread owns the lock. A RuntimeError is raised if this method is
         called when the lock is unlocked."""
+
         self.iolock.release()
 
     def exec_locked(self, target, *args, **kwargs):
         """Perform an operation with full locking."""
+
         self.lock()
         try:
             target(*args, **kwargs)
@@ -113,31 +118,34 @@ class CursesAccountFrame:
     def __init__(self, ui, account):
         """
         :param account: An Account() or None (for eg SyncrunnerThread)"""
+
         self.children = []
         self.account = account if account else '*Control'
         self.ui = ui
         self.window = None
-        """Curses window associated with this acc"""
+        # Curses window associated with this acc.
         self.acc_num = None
-        """Account number (& hotkey) associated with this acc"""
+        # Account number (& hotkey) associated with this acc.
         self.location = 0
-        """length of the account prefix string"""
+        # length of the account prefix string
 
     def drawleadstr(self, secs = 0):
-        """Draw the account status string
+        """Draw the account status string.
 
         secs tells us how long we are going to sleep."""
-        sleepstr = '%3d:%02d' % (secs // 60, secs % 60) if secs else 'active'
-        accstr = '%s: [%s] %12.12s: ' % (self.acc_num, sleepstr, self.account)
+
+        sleepstr = '%3d:%02d'% (secs // 60, secs % 60) if secs else 'active'
+        accstr = '%s: [%s] %12.12s: '% (self.acc_num, sleepstr, self.account)
 
         self.ui.exec_locked(self.window.addstr, 0, 0, accstr)
         self.location = len(accstr)
 
     def setwindow(self, curses_win, acc_num):
-        """Register an curses win and a hotkey as Account window
+        """Register an curses win and a hotkey as Account window.
 
         :param curses_win: the curses window associated with an account
         :param acc_num: int denoting the hotkey associated with this account."""
+
         self.window = curses_win
         self.acc_num = acc_num
         self.drawleadstr()
@@ -147,39 +155,43 @@ class CursesAccountFrame:
             self.location += 1
 
     def get_new_tframe(self):
-        """Create a new ThreadFrame and append it to self.children
+        """Create a new ThreadFrame and append it to self.children.
 
         :returns: The new ThreadFrame"""
+
         tf = CursesThreadFrame(self.ui, self.window, self.location, 0)
         self.location += 1
         self.children.append(tf)
         return tf
 
     def sleeping(self, sleepsecs, remainingsecs):
-        """show how long we are going to sleep and sleep
+        """Show how long we are going to sleep and sleep.
 
         :returns: Boolean, whether we want to abort the sleep"""
+
         self.drawleadstr(remainingsecs)
         self.ui.exec_locked(self.window.refresh)
         time.sleep(sleepsecs)
         return self.account.get_abort_event()
 
     def syncnow(self):
-        """Request that we stop sleeping asap and continue to sync"""
+        """Request that we stop sleeping asap and continue to sync."""
+
         # if this belongs to an Account (and not *Control), set the
         # skipsleep pref
         if isinstance(self.account, offlineimap.accounts.Account):
-            self.ui.info("Requested synchronization for acc: %s" % self.account)
-            self.account.config.set('Account %s' % self.account.name,
-                                        'skipsleep', '1')
+            self.ui.info("Requested synchronization for acc: %s"% self.account)
+            self.account.config.set('Account %s'% self.account.name,
+                'skipsleep', '1')
 
 class CursesThreadFrame:
-    """
-     curses_color: current color pair for logging"""
+    """curses_color: current color pair for logging."""
+
     def __init__(self, ui, acc_win, x, y):
         """
         :param ui: is a Blinkenlights() instance
         :param acc_win: curses Account window"""
+
         self.ui = ui
         self.window = acc_win
         self.x = x
@@ -188,7 +200,10 @@ class CursesThreadFrame:
 
     def setcolor(self, color, modifier=0):
         """Draw the thread symbol '@' in the specified color
-        :param modifier: Curses modified, such as curses.A_BOLD"""
+
+        :param modifier: Curses modified, such as curses.A_BOLD
+        """
+
         self.curses_color = modifier | self.ui.curses_colorpair(color)
         self.colorname = color
         self.display()
@@ -201,7 +216,8 @@ class CursesThreadFrame:
         self.ui.exec_locked(locked_display)
 
     def update(self, acc_win, x, y):
-        """Update the xy position of the '.' (and possibly the aframe)"""
+        """Update the xy position of the '.' (and possibly the aframe)."""
+
         self.window = acc_win
         self.y = y
         self.x = x
@@ -213,6 +229,7 @@ class CursesThreadFrame:
 
 class InputHandler(ExitNotifyThread):
     """Listens for input via the curses interfaces"""
+
     #TODO, we need to use the ugly exitnotifythread (rather than simply
     #threading.Thread here, so exiting this thread via the callback
     #handler, kills off all parents too. Otherwise, they would simply
@@ -222,17 +239,18 @@ class InputHandler(ExitNotifyThread):
         self.char_handler = None
         self.ui = ui
         self.enabled = Event()
-        """We will only parse input if we are enabled"""
+        # We will only parse input if we are enabled.
         self.inputlock = RLock()
-        """denotes whether we should be handling the next char."""
+        # denotes whether we should be handling the next char.
         self.start() #automatically start the thread
 
     def get_next_char(self):
-        """return the key pressed or -1
+        """Return the key pressed or -1.
 
         Wait until `enabled` and loop internally every stdscr.timeout()
         msecs, releasing the inputlock.
         :returns: char or None if disabled while in here"""
+
         self.enabled.wait()
         while self.enabled.is_set():
             with self.inputlock:
@@ -247,13 +265,14 @@ class InputHandler(ExitNotifyThread):
                 #curses.ungetch(char)
 
     def set_char_hdlr(self, callback):
-        """Sets a character callback handler
+        """Sets a character callback handler.
 
         If a key is pressed it will be passed to this handler. Keys
         include the curses.KEY_RESIZE key.
 
         callback is a function taking a single arg -- the char pressed.
         If callback is None, input will be ignored."""
+
         with self.inputlock:
             self.char_handler = callback
             # start or stop the parsing of things
@@ -266,13 +285,14 @@ class InputHandler(ExitNotifyThread):
         """Call this method when you want exclusive input control.
 
         Make sure to call input_release afterwards! While this lockis
-        held, input can go to e.g. the getpass input.
-        """
+        held, input can go to e.g. the getpass input."""
+
         self.enabled.clear()
         self.inputlock.acquire()
 
     def input_release(self):
         """Call this method when you are done getting input."""
+
         self.inputlock.release()
         self.enabled.set()
 
@@ -301,7 +321,7 @@ class CursesLogHandler(logging.StreamHandler):
         self.ui.stdscr.refresh()
 
 class Blinkenlights(UIBase, CursesUtil):
-    """Curses-cased fancy UI
+    """Curses-cased fancy UI.
 
     Notable instance variables self. ....:
 
@@ -319,7 +339,7 @@ class Blinkenlights(UIBase, CursesUtil):
 
     ################################################## UTILS
     def setup_consolehandler(self):
-        """Backend specific console handler
+        """Backend specific console handler.
 
         Sets up things and adds them to self.logger.
         :returns: The logging.Handler() for console output"""
@@ -337,7 +357,7 @@ class Blinkenlights(UIBase, CursesUtil):
         return ch
 
     def isusable(s):
-        """Returns true if the backend is usable ie Curses works"""
+        """Returns true if the backend is usable ie Curses works."""
 
         # Not a terminal?  Can't use curses.
         if not sys.stdout.isatty() and sys.stdin.isatty():
@@ -393,7 +413,7 @@ class Blinkenlights(UIBase, CursesUtil):
         self.info(offlineimap.banner)
 
     def acct(self, *args):
-        """Output that we start syncing an account (and start counting)"""
+        """Output that we start syncing an account (and start counting)."""
 
         self.gettf().setcolor('purple')
         super(Blinkenlights, self).acct(*args)
@@ -458,7 +478,8 @@ class Blinkenlights(UIBase, CursesUtil):
         super(Blinkenlights, self).threadExited(thread)
 
     def gettf(self):
-        """Return the ThreadFrame() of the current thread"""
+        """Return the ThreadFrame() of the current thread."""
+
         cur_thread = currentThread()
         acc = self.getthreadaccount() #Account() or None
 
@@ -504,7 +525,7 @@ class Blinkenlights(UIBase, CursesUtil):
 
     def sleep(self, sleepsecs, account):
         self.gettf().setcolor('red')
-        self.info("Next sync in %d:%02d" % (sleepsecs / 60, sleepsecs % 60))
+        self.info("Next sync in %d:%02d"% (sleepsecs / 60, sleepsecs % 60))
         return super(Blinkenlights, self).sleep(sleepsecs, account)
 
     def sleeping(self, sleepsecs, remainingsecs):
@@ -515,13 +536,14 @@ class Blinkenlights(UIBase, CursesUtil):
         return accframe.sleeping(sleepsecs, remainingsecs)
 
     def resizeterm(self):
-        """Resize the current windows"""
+        """Resize the current windows."""
+
         self.exec_locked(self.setupwindows, True)
 
     def mainException(self):
         UIBase.mainException(self)
 
-    def getpass(self, accountname, config, errmsg = None):
+    def getpass(self, accountname, config, errmsg=None):
         # disable the hotkeys inputhandler
         self.inputhandler.input_acquire()
 
@@ -540,10 +562,11 @@ class Blinkenlights(UIBase, CursesUtil):
         return password
 
     def setupwindows(self, resize=False):
-        """Setup and draw bannerwin and logwin
+        """Setup and draw bannerwin and logwin.
 
         If `resize`, don't create new windows, just adapt size. This
         function should be invoked with CursesUtils.locked()."""
+
         self.height, self.width = self.stdscr.getmaxyx()
         self.logheight = self.height - len(self.accframes) - 1
         if resize:
@@ -571,22 +594,24 @@ class Blinkenlights(UIBase, CursesUtil):
         curses.doupdate()
 
     def draw_bannerwin(self):
-        """Draw the top-line banner line"""
+        """Draw the top-line banner line."""
+
         if curses.has_colors():
             color = curses.A_BOLD | self.curses_colorpair('banner')
         else:
             color = curses.A_REVERSE
         self.bannerwin.clear() # Delete old content (eg before resizes)
         self.bannerwin.bkgd(' ', color) # Fill background with that color
-        string = "%s %s" % (offlineimap.__productname__,
-                            offlineimap.__bigversion__)
+        string = "%s %s"% (offlineimap.__productname__,
+            offlineimap.__bigversion__)
         self.bannerwin.addstr(0, 0, string, color)
         self.bannerwin.addstr(0, self.width -len(offlineimap.__copyright__) -1,
                               offlineimap.__copyright__, color)
         self.bannerwin.noutrefresh()
 
     def draw_logwin(self):
-        """(Re)draw the current logwindow"""
+        """(Re)draw the current logwindow."""
+
         if curses.has_colors():
             color = curses.color_pair(0) #default colors
         else:
@@ -596,9 +621,10 @@ class Blinkenlights(UIBase, CursesUtil):
         self.logwin.bkgd(' ', color)
 
     def getaccountframe(self, acc_name):
-        """Return an AccountFrame() corresponding to acc_name
+        """Return an AccountFrame() corresponding to acc_name.
 
         Note that the *control thread uses acc_name `None`."""
+
         with self.aflock:
             # 1) Return existing or 2) create a new CursesAccountFrame.
             if acc_name in self.accframes: return self.accframes[acc_name]

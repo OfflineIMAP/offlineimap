@@ -43,7 +43,7 @@ class IMAPRepository(BaseRepository):
 
         if self.getconf('sep', None):
             self.ui.info("The 'sep' setting is being ignored for IMAP "
-                         "repository '%s' (it's autodetected)" % self)
+                         "repository '%s' (it's autodetected)"% self)
 
     def startkeepalive(self):
         keepalivetime = self.getkeepalive()
@@ -90,7 +90,7 @@ class IMAPRepository(BaseRepository):
         acquireconnection() or it will still be `None`"""
         assert self.imapserver.delim != None, "'%s' " \
             "repository called getsep() before the folder separator was " \
-            "queried from the server" % self
+            "queried from the server"% self
         return self.imapserver.delim
 
     def gethost(self):
@@ -106,10 +106,9 @@ class IMAPRepository(BaseRepository):
             try:
                 host = self.localeval.eval(host)
             except Exception as e:
-                raise OfflineImapError("remotehosteval option for repository "\
-                                       "'%s' failed:\n%s" % (self, e),
-                                       OfflineImapError.ERROR.REPO), \
-                      None, exc_info()[2]
+                raise OfflineImapError("remotehosteval option for repository "
+                    "'%s' failed:\n%s"% (self, e), OfflineImapError.ERROR.REPO), \
+                    None, exc_info()[2]
             if host:
                 self._host = host
                 return self._host
@@ -120,9 +119,8 @@ class IMAPRepository(BaseRepository):
             return self._host
 
         # no success
-        raise OfflineImapError("No remote host for repository "\
-                                   "'%s' specified." % self,
-                               OfflineImapError.ERROR.REPO)
+        raise OfflineImapError("No remote host for repository "
+            "'%s' specified."% self, OfflineImapError.ERROR.REPO)
 
     def get_remote_identity(self):
         """Remote identity is used for certain SASL mechanisms
@@ -144,8 +142,8 @@ class IMAPRepository(BaseRepository):
 
         for m in mechs:
             if m not in supported:
-                raise OfflineImapError("Repository %s: " % self + \
-                  "unknown authentication mechanism '%s'" % m,
+                raise OfflineImapError("Repository %s: "% self + \
+                  "unknown authentication mechanism '%s'"% m,
                   OfflineImapError.ERROR.REPO)
 
         self.ui.debug('imap', "Using authentication mechanisms %s" % mechs)
@@ -161,7 +159,8 @@ class IMAPRepository(BaseRepository):
         if user != None:
             return localeval.eval(user)
 
-        user = self.getconf('remoteuser')
+        if self.config.has_option(self.getsection(), 'remoteuser'):
+            user = self.getconf('remoteuser')
         if user != None:
             return user
 
@@ -316,7 +315,7 @@ class IMAPRepository(BaseRepository):
                 raise
         else:
             if netrcentry:
-                user = self.getconf('remoteuser')
+                user = self.getuser()
                 if user == None or user == netrcentry[0]:
                     return netrcentry[2]
         # 5. read password from /etc/netrc
@@ -327,7 +326,7 @@ class IMAPRepository(BaseRepository):
                 raise
         else:
             if netrcentry:
-                user = self.getconf('remoteuser')
+                user = self.getuser()
                 if user == None or user == netrcentry[0]:
                     return netrcentry[2]
         # no strategy yielded a password!
@@ -436,9 +435,8 @@ class IMAPRepository(BaseRepository):
             result = imapobj.create(foldername)
             if result[0] != 'OK':
                 raise OfflineImapError("Folder '%s'[%s] could not be created. "
-                                       "Server responded: %s" % \
-                                           (foldername, self, str(result)),
-                                       OfflineImapError.ERROR.FOLDER)
+                    "Server responded: %s"% (foldername, self, str(result)),
+                    OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
 

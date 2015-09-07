@@ -22,10 +22,9 @@ from sys import exc_info
 from offlineimap import imaputil, OfflineImapError
 from offlineimap import imaplibutil
 import offlineimap.accounts
-
-"""Folder implementation to support features of the Gmail IMAP server.
-"""
 from .IMAP import IMAPFolder
+
+"""Folder implementation to support features of the Gmail IMAP server."""
 
 class GmailFolder(IMAPFolder):
     """Folder implementation to support features of the Gmail IMAP server.
@@ -101,11 +100,11 @@ class GmailFolder(IMAPFolder):
             body = self.addmessageheader(body, '\n', self.labelsheader, labels_str)
 
         if len(body)>200:
-            dbg_output = "%s...%s" % (str(body)[:150], str(body)[-50:])
+            dbg_output = "%s...%s"% (str(body)[:150], str(body)[-50:])
         else:
             dbg_output = body
 
-        self.ui.debug('imap', "Returned object from fetching %d: '%s'" %
+        self.ui.debug('imap', "Returned object from fetching %d: '%s'"%
                       (uid, dbg_output))
         return body
 
@@ -122,16 +121,18 @@ class GmailFolder(IMAPFolder):
 
     # TODO: merge this code with the parent's cachemessagelist:
     # TODO: they have too much common logics.
-    def cachemessagelist(self):
+    def cachemessagelist(self, min_date=None, min_uid=None):
         if not self.synclabels:
-            return super(GmailFolder, self).cachemessagelist()
+            return super(GmailFolder, self).cachemessagelist(
+                min_date=min_date, min_uid=min_uid)
 
         self.messagelist = {}
 
         self.ui.collectingdata(None, self)
         imapobj = self.imapserver.acquireconnection()
         try:
-            msgsToFetch = self._msgs_to_fetch(imapobj)
+            msgsToFetch = self._msgs_to_fetch(
+                imapobj, min_date=min_date, min_uid=min_uid)
             if not msgsToFetch:
                 return # No messages to sync
 
@@ -139,7 +140,7 @@ class GmailFolder(IMAPFolder):
             # imaplib2 from quoting the sequence.
             #
             # NB: msgsToFetch are sequential numbers, not UID's
-            res_type, response = imapobj.fetch("'%s'" % msgsToFetch,
+            res_type, response = imapobj.fetch("'%s'"% msgsToFetch,
               '(FLAGS X-GM-LABELS UID)')
             if res_type != 'OK':
                 raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. " % \

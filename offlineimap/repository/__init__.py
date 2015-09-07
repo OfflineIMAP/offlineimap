@@ -44,16 +44,16 @@ class Repository(object):
             name = account.getconf('remoterepository')
             # We don't support Maildirs on the remote side.
             typemap = {'IMAP': IMAPRepository,
-                       'Gmail': GmailRepository}
+                'Gmail': GmailRepository}
 
         elif reqtype == 'local':
             name = account.getconf('localrepository')
             typemap = {'IMAP': MappedIMAPRepository,
-                       'Maildir': MaildirRepository,
-                       'GmailMaildir': GmailMaildirRepository}
+                'Maildir': MaildirRepository,
+                'GmailMaildir': GmailMaildirRepository}
 
         elif reqtype == 'status':
-            # create and return a LocalStatusRepository
+            # create and return a LocalStatusRepository.
             name = account.getconf('localrepository')
             return LocalStatusRepository(name, account)
 
@@ -61,7 +61,7 @@ class Repository(object):
             errstr = "Repository type %s not supported" % reqtype
             raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO)
 
-        # Get repository type
+        # Get repository type.
         config = account.getconfig()
         try:
             repostype = config.get('Repository ' + name, 'type').strip()
@@ -69,15 +69,15 @@ class Repository(object):
             errstr = ("Could not find section '%s' in configuration. Required "
                       "for account '%s'." % ('Repository %s' % name, account))
             raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO), \
-                  None, exc_info()[2]
+                None, exc_info()[2]
 
         try:
             repo = typemap[repostype]
         except KeyError:
-            errstr = "'%s' repository not supported for '%s' repositories." \
-                     % (repostype, reqtype)
+            errstr = "'%s' repository not supported for '%s' repositories."% \
+                (repostype, reqtype)
             raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO), \
-                  None, exc_info()[2]
+                None, exc_info()[2]
 
         return repo(name, account)
 

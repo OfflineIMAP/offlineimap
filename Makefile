@@ -35,17 +35,15 @@ clean:
 	-find . -name '*.pygc' -exec rm -f {} \;
 	-find . -name '*.class' -exec rm -f {} \;
 	-find . -name '.cache*' -exec rm -f {} \;
-	-find . -name '*.html' -exec rm -f {} \;
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
-	@$(MAKE) -C docs clean
+	@$(MAKE) -C clean
 
-man:
-	@$(MAKE) -C docs man
-
-doc:
+docs:
 	@$(MAKE) -C docs
-	$(RST2HTML) Changelog.rst Changelog.html
+
+websitedoc:
+	@$(MAKE) -C websitedoc
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
@@ -53,7 +51,7 @@ targz: ../$(TARGZ)
 	  echo "Containing directory must be called offlineimap-$(VERSION)"; 	\
 	  exit 1; 								\
 	fi; 									\
-	pwd && cd .. && pwd && tar -zhcv --exclude '.git' -f $(TARGZ) offlineimap-$(VERSION)
+	pwd && cd .. && pwd && tar -zhcv --exclude '.git' --exclude 'website' --exclude 'wiki' -f $(TARGZ) offlineimap-$(VERSION)
 
 rpm: targz
 	cd .. && sudo rpmbuild -ta $(TARGZ)

@@ -28,13 +28,13 @@ class LocalStatusRepository(BaseRepository):
         # class and root for all backends
         self.backends = {}
         self.backends['sqlite'] = {
-          'class': LocalStatusSQLiteFolder,
-          'root': os.path.join(account.getaccountmeta(), 'LocalStatus-sqlite')
+            'class': LocalStatusSQLiteFolder,
+            'root': os.path.join(account.getaccountmeta(), 'LocalStatus-sqlite')
         }
 
         self.backends['plain'] = {
-          'class': LocalStatusFolder,
-          'root': os.path.join(account.getaccountmeta(), 'LocalStatus')
+            'class': LocalStatusFolder,
+            'root': os.path.join(account.getaccountmeta(), 'LocalStatus')
         }
 
         # Set class and root for the configured backend
@@ -54,7 +54,7 @@ class LocalStatusRepository(BaseRepository):
 
         else:
             raise SyntaxWarning("Unknown status_backend '%s' for account '%s'"%
-                                (backend, self.account.name))
+                (backend, self.account.name))
 
     def import_other_backend(self, folder):
         for bk, dic in self.backends.items():
@@ -101,7 +101,7 @@ class LocalStatusRepository(BaseRepository):
 
         folder = self.LocalStatusFolderClass(foldername, self)
 
-        # if folder is empty, try to import data from an other backend
+        # If folder is empty, try to import data from an other backend.
         if folder.isnewfolder():
             self.import_other_backend(folder)
 
