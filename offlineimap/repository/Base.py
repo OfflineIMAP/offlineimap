@@ -48,6 +48,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         self.folderfilter = lambda foldername: 1
         self.folderincludes = []
         self.foldersort = None
+        self.newmail_hook = None
         if self.config.has_option(self.getsection(), 'nametrans'):
             self.nametrans = self.localeval.eval(
                 self.getconf('nametrans'), {'re': re})

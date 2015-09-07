@@ -39,6 +39,11 @@ class BaseFolder(object):
         # Top level dir name is always ''
         self.root = None
         self.name = name if not name == self.getsep() else ''
+        self.newmail_hook = None
+        # Only set the newmail_hook if the IMAP folder is named 'INBOX'
+        if self.name == 'INBOX':
+            self.newmail_hook = repository.newmail_hook
+        self.have_newmail = False
         self.repository = repository
         self.visiblename = repository.nametrans(name)
         # In case the visiblename becomes '.' or '/' (top-level) we use
@@ -704,6 +709,9 @@ class BaseFolder(object):
                     # Got new UID, change the local uid.
                 # Save uploaded status in the statusfolder
                 statusfolder.savemessage(new_uid, message, flags, rtime)
+                #Check whether the mail has been seen
+                if 'S' not in flags:
+                    self.have_newmail = True
             elif new_uid == 0:
                 # Message was stored to dstfolder, but we can't find it's UID
                 # This means we can't link current message to the one created
@@ -741,6 +749,9 @@ class BaseFolder(object):
         This function checks and protects us from action in ryrun mode.
         """
 
+        #We have no new files right now
+        self.have_newmail = False
+
         threads = []
 
         copylist = filter(lambda uid: not \
@@ -771,6 +782,11 @@ class BaseFolder(object):
                                    register = 0)
         for thread in threads:
             thread.join()
+
+        #Play newmail sound if we have new mail
+        if self.have_newmail:
+            if self.newmail_hook != None:
+                self.newmail_hook();
 
     def __syncmessagesto_delete(self, dstfolder, statusfolder):
         """Pass 2: Remove locally deleted messages on dst

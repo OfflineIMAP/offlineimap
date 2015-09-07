@@ -36,6 +36,11 @@ class IMAPRepository(BaseRepository):
         self._host = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
+        # Only set the newmail_hook in an IMAP repository.
+        if self.config.has_option(self.getsection(), 'newmail_hook'):
+            self.newmail_hook = self.localeval.eval(
+                self.getconf('newmail_hook'))
+
         if self.getconf('sep', None):
             self.ui.info("The 'sep' setting is being ignored for IMAP "
                          "repository '%s' (it's autodetected)" % self)
