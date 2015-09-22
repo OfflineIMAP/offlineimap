@@ -259,8 +259,8 @@ out the connection that is used by default.
 +
 Unfortunately, by default we will not verify the certificate of an IMAP
 TLS/SSL server we connect to, so connecting by SSL is no guarantee against
-man-in-the-middle attacks. While verifying a server certificate fingerprint is
-being planned, it is not implemented yet. There is currently only one safe way
+man-in-the-middle attacks. While verifying a server certificate checking the
+fingerprint is recommended. There is currently only one safe way
 to ensure that you connect to the correct server in an encrypted manner: you
 can specify a 'sslcacertfile' setting in your repository section of
 offlineimap.conf pointing to a file that contains (among others) a CA
