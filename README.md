@@ -2,7 +2,7 @@
 [website]: http://offlineimap.org
 [wiki]: http://github.com/OfflineIMAP/offlineimap/wiki
 
-# OfflineImap
+# OfflineIMAP
 
 ## Description
 
