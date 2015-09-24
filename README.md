@@ -9,15 +9,14 @@
 OfflineIMAP is a software to dispose your e-mail mailbox(es) as a **local
 Maildir**. OfflineIMAP will synchronize both sides via *IMAP*.
 
-The main downside to IMAP is that you must **trust** your MAIL provider to not
-lose your mail. This is not common but certainly possible.
+The main downside about IMAP is that you have to **trust** your email provider to
+not lose your mails. This is not something impossible while not very common.
+With OfflineIMAP, you can download your Mailboxes and make you own backups of
+the [Maildir](https://en.wikipedia.org/wiki/Maildir).
 
-With OfflineIMAP you can download your mail boxes and create your own backup
-[Maildir](https://en.wikipedia.org/wiki/Maildir).
-
-This allows reading your mail while offline without the need for the mail
-reader (MUA) to support IMAP disconnected operations. Need an attachement from a
-message without internet? It's fine, the message is still there.
+This allows reading your email while offline without the need for the mail
+reader (MUA) to support IMAP disconnected operations. Need an attachment from a
+message without internet connection? It's fine, the message is still there.
 
 
 ## License
@@ -35,14 +34,14 @@ GNU General Public License v2.
 
 ## Downloads
 
-You should first check if your distribution already package OfflineIMAP for you.
+You should first check if your distribution already packages OfflineIMAP for you.
 Downloads releases as [tarball or zipball](https://github.com/OfflineIMAP/offlineimap/tags).
 
 
 ## Feedbacks and contributions
 
-**The user discussions, development, announces and all the exciting stuff take
-place in the mailing list.** While not mandatory to send emails, you can
+**The user discussions, development, announcements and all the exciting stuff take
+place on the mailing list.** While not mandatory to send emails, you can
 [subscribe here](http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project).
 
 Bugs, issues and contributions can be requested to both the mailing list or the
@@ -66,14 +65,14 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 
 All the current and updated documentation is at the [community's website][website].
 
-### Dispose locally
+### Read documentation locally
 
-You might want to dispose the documentation locally. Get the sources of the website.
-For the other documentations, run the approppriate make target:
+You might want to read the documentation locally. Get the sources of the website.
+For the other documentation, run the appropriate make target:
 ```
 $ ./scripts/get-repository.sh website
 $ cd docs
-$ make html  # Require rst2html
-$ make man   # Require a2x
-$ make api   # Require sphinx
+$ make html  # Requires rst2html
+$ make man   # Requires a2x
+$ make api   # Requires sphinx
 ```
