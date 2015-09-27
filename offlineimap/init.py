@@ -48,7 +48,8 @@ class OfflineImap:
         if options.diagnostics:
             self.__serverdiagnostics(options)
         else:
-            self.__sync(options)
+            retval = self.__sync(options)
+            return retval
 
     def __parse_cmd_options(self):
         parser = OptionParser(version=offlineimap.__bigversion__,
@@ -339,11 +340,13 @@ class OfflineImap:
                 offlineimap.mbnames.write(True)
 
             self.ui.terminate()
+            return 0
         except (SystemExit):
             raise
         except Exception as e:
             self.ui.error(e)
             self.ui.terminate()
+            return 1
 
     def __sync_singlethreaded(self, accs):
         """Executed if we do not want a separate syncmaster thread
