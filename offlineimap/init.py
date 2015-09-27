@@ -89,6 +89,11 @@ class OfflineImap:
         parser.add_option("-l", dest="logfile", metavar="FILE",
                   help="log to FILE")
 
+        parser.add_option("-s",
+                  action="store_true", dest="syslog",
+                  default=False,
+                  help="log to syslog")
+
         parser.add_option("-f", dest="folders",
                   metavar="folder1[,folder2[,...]]",
                   help="only sync the specified folders")
@@ -195,6 +200,10 @@ class OfflineImap:
         #set up additional log files
         if options.logfile:
             self.ui.setlogfile(options.logfile)
+
+        #set up syslog
+        if options.syslog:
+            self.ui.setup_sysloghandler()
 
         #welcome blurb
         self.ui.init_banner()

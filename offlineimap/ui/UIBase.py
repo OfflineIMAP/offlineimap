@@ -91,6 +91,18 @@ class UIBase(object):
         self.logger.info(offlineimap.banner)
         return ch
 
+    def setup_sysloghandler(self):
+        """Backend specific syslog handler."""
+
+        # create console handler with a higher log level
+        ch = logging.SysLogHandler(sys.stdout)
+        #ch.setLevel(logging.DEBUG)
+        # create formatter and add it to the handlers
+        self.formatter = logging.Formatter("%(message)s")
+        ch.setFormatter(self.formatter)
+        # add the handlers to the logger
+        self.logger.addHandler(ch)
+
     def setlogfile(self, logfile):
         """Create file handler which logs to file."""
 
