@@ -15,6 +15,38 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v6.6.0-rc1 (2015-09-28)
+
+#### Notes
+
+Let's go with a new release.
+
+Basic UTF support was implemented while it is still exeprimental. Use this with
+care.  OfflineIMAP can now send the logs to syslog and notify on new mail.
+
+
+#### Features
+
+- 585e5d5 logging: add a switch to log to syslog
+- 48bb2f4 Added the newmail_hook
+- 14a0433 utf-7 feature is set experimental
+
+#### Fixes
+
+- 839d020 offlineimap.conf: fix a typo in the new mail hook example
+- a76f01c Fix language.
+- a3986b2 Fix spelling inconsistency.
+- d53e5fc offlineimap.conf: don't use quotes for sep option
+- 9143ea5 man page: fingerprint can be used with SSL
+- 41692d0 fix #225 « Runonce (offlineimap -o) does not stop if autorefresh is declared in DEFAULT section »
+- 2382b15 CONTRIBUTING: fix links to offlineimap.org
+
+#### Changes
+
+- 71dd03e Bump imaplib2 from 2.43 to 2.48
+- eeb7e89 README: small improvements
+
+
 
 ### OfflineIMAP v6.5.7 (2015-05-15)
 
