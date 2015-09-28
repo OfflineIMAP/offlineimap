@@ -16,7 +16,7 @@
 # TODO: move configuration out and source it.
 # TODO: implement rollback.
 
-__VERSION__='v0.2'
+__VERSION__='v0.3'
 
 SPHINXBUILD=sphinx-build
 
@@ -430,6 +430,16 @@ cat <<EOF
 Release is ready!
 Make your checks and push the changes for both offlineimap and the website.
 Announce template stands in '$TMP_ANNOUNCE'.
+Command samples to do manually:
+- git push <remote> master:master
+- git push <remote> next:next
+- git push <remote> $new_version
+- cd website
+- git checkout master
+- git merge $branch_name
+- git push <remote> master:master
+- cd ..
+- git send-email $TMP_ANNOUNCE
 Have fun! ,-)
 EOF
 
