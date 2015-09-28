@@ -231,12 +231,13 @@ function update_changelog () {
 
   # Check and edit Changelog.
   ask "Next step: you'll be asked to review the diff of $CHANGELOG"
-  action=$No
-  while test ! $action -eq $Yes
+  while true
   do
     git diff -- "$CHANGELOG" | less
     ask 'edit Changelog?' $CHANGELOG
-    action=$?
+    test ! $? -eq $Yes && break
+    # Asked to edit the Changelog; will loop again.
+    $EDITOR "$CHANGELOG"
   done
 }
 
