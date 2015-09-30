@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.48"
+__version__ = "2.49"
 __release__ = "2"
-__revision__ = "48"
+__revision__ = "49"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -49,7 +49,8 @@ Fix for READ-ONLY error from multiple EXAMINE/SELECT calls by Pierre-Louis Bonic
 Fix for null strings appended to untagged responses by Pierre-Louis Bonicoli <pierre-louis.bonicoli@gmx.fr> March 2015.
 Fix for correct byte encoding for _CRAM_MD5_AUTH taken from python3.5 imaplib.py June 2015.
 Fix for correct Python 3 exception handling by Tobias Brink <tobias.brink@gmail.com> August 2015.
-Fix to allow interruptible IDLE command by Tim Peoples <dromedary512@users.sf.net> September 2015."""
+Fix to allow interruptible IDLE command by Tim Peoples <dromedary512@users.sf.net> September 2015.
+Add support for TLS levels by Ben Boeckel <mathstuf@gmail.com> September 2015."""
 __author__ = "Piers Lauder <piers@janeelix.com>"
 __URL__ = "http://imaplib2.sourceforge.net"
 __license__ = "Python License"
@@ -81,6 +82,10 @@ READ_POLL_TIMEOUT = 30                          # Without this timeout interrupt
 READ_SIZE = 32768                               # Consume all available in socket
 
 DFLT_DEBUG_BUF_LVL = 3                          # Level above which the logging output goes directly to stderr
+
+TLS_SECURE = "tls_secure"			# Recognised TLS levels
+TLS_NO_SSL = "tls_no_ssl"
+TLS_COMPAT = "tls_compat"
 
 AllowedVersions = ('IMAP4REV1', 'IMAP4')        # Most recent first
 
@@ -479,21 +484,38 @@ class IMAP4(object):
 
         try:
             import ssl
+
+            TLS_MAP = {}
+            if hasattr(ssl, "PROTOCOL_TLSv1_2"):	# py3
+                TLS_MAP[TLS_SECURE] = {
+                    "tls1_2": ssl.PROTOCOL_TLSv1_2,
+                    "tls1_1": ssl.PROTOCOL_TLSv1_1,
+                }
+            else:
+                TLS_MAP[TLS_SECURE] = {}
+            TLS_MAP[TLS_NO_SSL] = TLS_MAP[TLS_SECURE].copy()
+            TLS_MAP[TLS_NO_SSL].update({
+                "tls1": ssl.PROTOCOL_TLSv1,
+            })
+            TLS_MAP[TLS_COMPAT] = TLS_MAP[TLS_NO_SSL].copy()
+            TLS_MAP[TLS_COMPAT].update({
+                "ssl3": ssl.PROTOCOL_SSLv3,
+                "ssl23": ssl.PROTOCOL_SSLv23,
+                None: ssl.PROTOCOL_SSLv23,
+            })
+
             if self.ca_certs is not None:
                 cert_reqs = ssl.CERT_REQUIRED
             else:
                 cert_reqs = ssl.CERT_NONE
 
-            if self.ssl_version == "tls1":
-                ssl_version = ssl.PROTOCOL_TLSv1
-            elif self.ssl_version == "ssl2":
-                ssl_version = ssl.PROTOCOL_SSLv2
-            elif self.ssl_version == "ssl3":
-                ssl_version = ssl.PROTOCOL_SSLv3
-            elif self.ssl_version == "ssl23" or self.ssl_version is None:
-                ssl_version = ssl.PROTOCOL_SSLv23
-            else:
-                raise socket.sslerror("Invalid SSL version requested: %s", self.ssl_version)
+            if self.tls_level not in TLS_MAP:
+                raise RuntimeError("unknown tls_level: %s" % self.tls_level)
+
+            if self.ssl_version not in TLS_MAP[self.tls_level]:
+                raise socket.sslerror("Invalid SSL version '%s' requested for tls_version '%s'" % (self.ssl_version, self.tls_level))
+
+            ssl_version =  TLS_MAP[self.tls_level][self.ssl_version]
 
             self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, ca_certs=self.ca_certs, cert_reqs=cert_reqs, ssl_version=ssl_version)
             ssl_exc = ssl.SSLError
@@ -1075,8 +1097,8 @@ class IMAP4(object):
         return self._simple_command(name, sort_criteria, charset, *search_criteria, **kw)
 
 
-    def starttls(self, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23", **kw):
-        """(typ, [data]) = starttls(keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23")
+    def starttls(self, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23", tls_level=TLS_COMPAT, **kw):
+        """(typ, [data]) = starttls(keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23", tls_level="tls_compat")
         Start TLS negotiation as per RFC 2595."""
 
         name = 'STARTTLS'
@@ -1112,6 +1134,7 @@ class IMAP4(object):
         self.ca_certs = ca_certs
         self.cert_verify_cb = cert_verify_cb
         self.ssl_version = ssl_version
+        self.tls_level = tls_level
 
         try:
             self.ssl_wrap_socket()
@@ -2058,7 +2081,7 @@ class IMAP4_SSL(IMAP4):
     """IMAP4 client class over SSL connection
 
     Instantiate with:
-        IMAP4_SSL(host=None, port=None, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23", debug=None, debug_file=None, identifier=None, timeout=None)
+        IMAP4_SSL(host=None, port=None, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23", debug=None, debug_file=None, identifier=None, timeout=None, tls_level="tls_compat")
 
         host           - host's name (default: localhost);
         port           - port number (default: standard IMAP4 SSL port);
@@ -2066,23 +2089,30 @@ class IMAP4_SSL(IMAP4):
         certfile       - PEM formatted certificate chain file (default: None);
         ca_certs       - PEM formatted certificate chain file used to validate server certificates (default: None);
         cert_verify_cb - function to verify authenticity of server certificates (default: None);
-        ssl_version    - SSL version to use (default: "ssl23", choose from: "tls1","ssl2","ssl3","ssl23");
+        ssl_version    - SSL version to use (default: "ssl23", choose from: "tls1","ssl3","ssl23");
         debug          - debug level (default: 0 - no debug);
         debug_file     - debug stream (default: sys.stderr);
         identifier     - thread identifier prefix (default: host);
         timeout        - timeout in seconds when expecting a command response.
         debug_buf_lvl  - debug level at which buffering is turned off.
+        tls_level      - TLS security level (default: "tls_compat").
+
+    The recognized values for tls_level are:
+        tls_secure: accept only TLS protocols recognized as "secure"
+        tls_no_ssl: disable SSLv2 and SSLv3 support
+        tls_compat: accept all SSL/TLS versions
 
     For more documentation see the docstring of the parent class IMAP4.
     """
 
 
-    def __init__(self, host=None, port=None, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23", debug=None, debug_file=None, identifier=None, timeout=None, debug_buf_lvl=None):
+    def __init__(self, host=None, port=None, keyfile=None, certfile=None, ca_certs=None, cert_verify_cb=None, ssl_version="ssl23", debug=None, debug_file=None, identifier=None, timeout=None, debug_buf_lvl=None, tls_level=TLS_COMPAT):
         self.keyfile = keyfile
         self.certfile = certfile
         self.ca_certs = ca_certs
         self.cert_verify_cb = cert_verify_cb
         self.ssl_version = ssl_version
+        self.tls_level = tls_level
         IMAP4.__init__(self, host, port, debug, debug_file, identifier, timeout, debug_buf_lvl)
 
 
@@ -2511,7 +2541,7 @@ if __name__ == '__main__':
         if keyfile is not None:
             if not keyfile: keyfile = None
             if not certfile: certfile = None
-            M = IMAP4_SSL(host=host, port=port, keyfile=keyfile, certfile=certfile, debug=debug, identifier='', timeout=10, debug_buf_lvl=debug_buf_lvl)
+            M = IMAP4_SSL(host=host, port=port, keyfile=keyfile, certfile=certfile, ssl_version="tls1", debug=debug, identifier='', timeout=10, debug_buf_lvl=debug_buf_lvl, tls_level="tls_no_ssl")
         elif stream_command:
             M = IMAP4_stream(stream_command, debug=debug, identifier='', timeout=10, debug_buf_lvl=debug_buf_lvl)
         else:
