@@ -59,6 +59,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 
 * Python v2.7
 * Python SQlite (optional while recommended)
+* Python json and urllib (if you want to use XOAuth2 authentication)
 
 
 ## Documentation
