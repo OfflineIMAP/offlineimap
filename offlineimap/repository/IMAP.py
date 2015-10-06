@@ -34,6 +34,7 @@ class IMAPRepository(BaseRepository):
         BaseRepository.__init__(self, reposname, account)
         # self.ui is being set by the BaseRepository
         self._host = None
+        self._oauth2_request_url = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
         # Only set the newmail_hook in an IMAP repository.
@@ -130,12 +131,12 @@ class IMAPRepository(BaseRepository):
         return self.getconf('remote_identity', default=None)
 
     def get_auth_mechanisms(self):
-        supported = ["GSSAPI", "CRAM-MD5", "PLAIN", "LOGIN"]
+        supported = ["GSSAPI", "XOAUTH2", "CRAM-MD5", "PLAIN", "LOGIN"]
         # Mechanisms are ranged from the strongest to the
         # weakest ones.
         # TODO: we need DIGEST-MD5, it must come before CRAM-MD5
         # TODO: due to the chosen-plaintext resistance.
-        default = ["GSSAPI", "CRAM-MD5", "PLAIN", "LOGIN"]
+        default = ["GSSAPI", "XOAUTH2", "CRAM-MD5", "PLAIN", "LOGIN"]
 
         mechs = self.getconflist('auth_mechanisms', r',\s*',
           default)
@@ -256,6 +257,30 @@ class IMAPRepository(BaseRepository):
 
         value = self.getconf('cert_fingerprint', "")
         return [f.strip().lower() for f in value.split(',') if f]
+
+    def getoauth2_request_url(self):
+        if self._oauth2_request_url:  # use cached value if possible
+            return self._oauth2_request_url
+
+        oauth2_request_url = self.getconf('oauth2_request_url', None)
+        if oauth2_request_url != None:
+            self._oauth2_request_url = oauth2_request_url
+            return self._oauth2_request_url
+
+        # no success
+        raise OfflineImapError("No remote oauth2_request_url for repository "\
+                                   "'%s' specified." % self,
+                               OfflineImapError.ERROR.REPO)
+        return self.getconf('oauth2_request_url', None)
+
+    def getoauth2_refresh_token(self):
+        return self.getconf('oauth2_refresh_token', None)
+
+    def getoauth2_client_id(self):
+        return self.getconf('oauth2_client_id', None)
+
+    def getoauth2_client_secret(self):
+        return self.getconf('oauth2_client_secret', None)
 
     def getpreauthtunnel(self):
         return self.getconf('preauthtunnel', None)
