@@ -344,6 +344,8 @@ Email will show up, but may not be processed until the next refresh cycle.
 
   - IMAP IDLE <-> IMAP IDLE doesn't work yet.
 
+  - IDLE might stop syncing on a system suspend/resume.
+
   - IDLE may only work "once" per refresh.
 +
 If you encounter this bug, please send a report to the list!
