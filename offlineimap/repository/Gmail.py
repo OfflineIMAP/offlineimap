@@ -56,12 +56,12 @@ class GmailRepository(IMAPRepository):
 
         Gmail implementation first checks for the usual IMAP settings
         and falls back to imap.gmail.com if not specified."""
-        try:
-            return super(GmailRepository, self).getoauth2_request_url()
-        except OfflineImapError:
-            # nothing was configured, cache and return hardcoded one
+
+        url = super(GmailRepository, self).getoauth2_request_url()
+        if url is None:
+            # Nothing was configured, cache and return hardcoded one.
             self._oauth2_request_url = GmailRepository.OAUTH2_URL
-            return self._oauth2_request_url
+        return self._oauth2_request_url
 
     def getport(self):
         return GmailRepository.PORT
