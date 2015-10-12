@@ -46,4 +46,4 @@ class Syslog(UIBase):
         return ch
 
     def setup_sysloghandler(self):
-        pass
+        pass # Do not honor -s (log to syslog) CLI option.
