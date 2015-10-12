@@ -61,6 +61,8 @@ class GmailRepository(IMAPRepository):
         if url is None:
             # Nothing was configured, cache and return hardcoded one.
             self._oauth2_request_url = GmailRepository.OAUTH2_URL
+        else:
+            self._oauth2_request_url = url
         return self._oauth2_request_url
 
     def getport(self):
