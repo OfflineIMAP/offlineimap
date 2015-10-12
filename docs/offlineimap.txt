@@ -149,7 +149,7 @@ option is ignored if maxage is set.
 +
 This overrides the default specified in the configuration file. The UI
 specified with -u will be forced to be used, even if checks determine that it
-is not usable. Possible interface choices are: quiet, basic, ttyui,
+is not usable. Possible interface choices are: quiet, basic, syslog, ttyui,
 blinkenlights, machineui.
 
 

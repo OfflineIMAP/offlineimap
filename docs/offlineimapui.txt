@@ -127,6 +127,17 @@ It will output nothing except errors and serious warnings.  Like Basic, this
 user interface is not capable of reading a password from the keyboard; account
 passwords must be specified using one of the configuration file options.
 
+
+Syslog
+------
+
+Syslog is designed for situations where OfflineIMAP is run as a daemon (e.g.,
+as a systemd --user service), but errors should be forwarded to the system log.
+Like Basic, this user interface is not capable of reading a password from the
+keyboard; account passwords must be specified using one of the configuration
+file options.
+
+
 MachineUI
 ---------
 

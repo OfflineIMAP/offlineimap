@@ -115,7 +115,7 @@ class OfflineImap:
 
         parser.add_option("-u", dest="interface",
                   help="specifies an alternative user interface"
-                  " (quiet, basic, ttyui, blinkenlights, machineui)")
+                  " (quiet, basic, syslog, ttyui, blinkenlights, machineui)")
 
         (options, args) = parser.parse_args()
         globals.set_options (options)
