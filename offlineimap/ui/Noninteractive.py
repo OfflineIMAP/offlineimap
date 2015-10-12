@@ -19,7 +19,7 @@ import logging
 from offlineimap.ui.UIBase import UIBase
 
 class Basic(UIBase):
-    """'Quiet' simply sets log level to INFO"""
+    """'Basic' simply sets log level to INFO"""
     def __init__(self, config, loglevel = logging.INFO):
         return super(Basic, self).__init__(config, loglevel)
 
