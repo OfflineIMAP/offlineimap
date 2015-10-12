@@ -16,6 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import logging
+import logging.handlers
 import re
 import time
 import sys
@@ -94,9 +95,8 @@ class UIBase(object):
     def setup_sysloghandler(self):
         """Backend specific syslog handler."""
 
-        # create console handler with a higher log level
-        ch = logging.SysLogHandler(sys.stdout)
-        #ch.setLevel(logging.DEBUG)
+        # create syslog handler
+        ch = logging.handlers.SysLogHandler('/dev/log')
         # create formatter and add it to the handlers
         self.formatter = logging.Formatter("%(message)s")
         ch.setFormatter(self.formatter)
