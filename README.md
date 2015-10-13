@@ -1,6 +1,7 @@
-[offlineimap]: https://github.com/OfflineIMAP/offlineimap
+[offlineimap]: http://github.com/OfflineIMAP/offlineimap
 [website]: http://offlineimap.org
 [wiki]: http://github.com/OfflineIMAP/offlineimap/wiki
+[blog]: http://offlineimap.org/posts.html
 
 # OfflineIMAP
 
@@ -31,6 +32,26 @@ GNU General Public License v2.
 * It is **flexible**.
 * It is **safe**.
 
+
+## Project status and future
+
+> As one of the maintainer of OfflineIMAP, I'd like to put my efforts into
+> [imapfw](http://github.com/OfflineIMAP/imapfw). **imapfw** is a software in
+> development that I intend to replace OfflineIMAP in the long term.
+>
+> That's why I'm not going to do development in OfflineIMAP. I continue to do
+> the minimal maintenance job in OfflineIMAP: fixing small bugs, (quick)
+> reviewing/merging patches and rolling out new releases, but that's all.
+>
+> While I keep tracking issues for OfflineIMAP, you should not expect support
+> from me anymore.
+>
+> You won't be left at the side. OfflineIMAP's community is large enough so that
+> you'll find people for most of your issues.
+>
+> Get news from the [blog][blog].
+>
+>                                  Nicolas Sebrecht. ,-)
 
 ## Downloads
 
