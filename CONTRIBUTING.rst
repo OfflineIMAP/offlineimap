@@ -27,6 +27,15 @@ contributions.
 .. contents:: :depth: 3
 
 
+Submit issues
+=============
+
+Issues are welcome to both Github_ and the `mailing list`_, at your own
+convenience.
+
+You might help closing some issues, too. :-)
+
+
 For the imaptients
 ==================
 
@@ -34,13 +43,6 @@ For the imaptients
 - `APIs in OfflineIMAP`_
 - `Know the status of your patches`_ after submission
 - All the `documentation`_
-
-
-Submit issues
-=============
-
-Issues are welcome to both Github_ and the `mailing list`_, at your own
-convenience.
 
 
 Community
