@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.49"
+__version__ = "2.50"
 __release__ = "2"
-__revision__ = "49"
+__revision__ = "50"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -83,7 +83,7 @@ READ_SIZE = 32768                               # Consume all available in socke
 
 DFLT_DEBUG_BUF_LVL = 3                          # Level above which the logging output goes directly to stderr
 
-TLS_SECURE = "tls_secure"			# Recognised TLS levels
+TLS_SECURE = "tls_secure"                       # Recognised TLS levels
 TLS_NO_SSL = "tls_no_ssl"
 TLS_COMPAT = "tls_compat"
 
@@ -486,7 +486,7 @@ class IMAP4(object):
             import ssl
 
             TLS_MAP = {}
-            if hasattr(ssl, "PROTOCOL_TLSv1_2"):	# py3
+            if hasattr(ssl, "PROTOCOL_TLSv1_2"):        # py3
                 TLS_MAP[TLS_SECURE] = {
                     "tls1_2": ssl.PROTOCOL_TLSv1_2,
                     "tls1_1": ssl.PROTOCOL_TLSv1_1,
@@ -499,10 +499,13 @@ class IMAP4(object):
             })
             TLS_MAP[TLS_COMPAT] = TLS_MAP[TLS_NO_SSL].copy()
             TLS_MAP[TLS_COMPAT].update({
-                "ssl3": ssl.PROTOCOL_SSLv3,
                 "ssl23": ssl.PROTOCOL_SSLv23,
                 None: ssl.PROTOCOL_SSLv23,
             })
+            if hasattr(ssl, "PROTOCOL_SSLv3"):          # Might not be available.
+                TLS_MAP[TLS_COMPAT].update({
+                    "ssl3": ssl.PROTOCOL_SSLv3
+                })
 
             if self.ca_certs is not None:
                 cert_reqs = ssl.CERT_REQUIRED
