@@ -49,7 +49,7 @@ GNU General Public License v2.
 > You won't be left at the side. OfflineIMAP's community is large enough so that
 > you'll find people for most of your issues.
 >
-> Get news from the blog.
+> Get news from the [blog][blog].
 >
 >                                  Nicolas Sebrecht. ,-)
 
