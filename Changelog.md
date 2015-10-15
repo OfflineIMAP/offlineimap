@@ -64,24 +64,24 @@ care.  OfflineIMAP can now send the logs to syslog and notify on new mail.
 
 #### Features
 
-- 585e5d5 logging: add a switch to log to syslog
-- 48bb2f4 Added the newmail_hook
-- 14a0433 utf-7 feature is set experimental
+- logging: add a switch to log to syslog.
+- Added the newmail_hook.
+- utf-7 feature is set experimental.
 
 #### Fixes
 
-- 839d020 offlineimap.conf: fix a typo in the new mail hook example
-- a76f01c Fix language.
-- a3986b2 Fix spelling inconsistency.
-- d53e5fc offlineimap.conf: don't use quotes for sep option
-- 9143ea5 man page: fingerprint can be used with SSL
-- 41692d0 fix #225 « Runonce (offlineimap -o) does not stop if autorefresh is declared in DEFAULT section »
-- 2382b15 CONTRIBUTING: fix links to offlineimap.org
+- offlineimap.conf: fix a typo in the new mail hook example.
+- Fix language.
+- Fix spelling inconsistency.
+- offlineimap.conf: don't use quotes for sep option.
+- man page: fingerprint can be used with SSL.
+- fix #225 « Runonce (offlineimap -o) does not stop if autorefresh is declared in DEFAULT section ».
+- CONTRIBUTING: fix links to offlineimap.org.
 
 #### Changes
 
-- 71dd03e Bump imaplib2 from 2.43 to 2.48
-- eeb7e89 README: small improvements
+- Bump imaplib2 from 2.43 to 2.48
+- README: small improvements
 
 
 
