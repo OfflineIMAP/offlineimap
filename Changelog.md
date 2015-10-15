@@ -15,6 +15,43 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v6.6.0-rc2 (2015-10-15)
+
+#### Notes
+
+Interesting job was done in this release with 3 new features:
+
+- Support for XOAUTH2;
+- New 'tls_level' configuration option to automatically discard insecure SSL protocols;
+- New interface 'syslog' comes in, next to the -s CLI option. This allows better
+  integration with systemd.
+
+I won't merge big changes until the stable is out. IOW, you can seriously start
+testing this rc2.
+
+#### Features
+
+- Add a new syslog ui.
+- Introduce the 'tls_level' configuration option.
+- Learn XOAUTH2 authentication (used by Gmail servers).
+- Manual IDLE section improved (minor).
+
+#### Fixes
+
+- Configuration option utime_from_header handles out-of-bounds dates.
+- offlineimap.conf: fix erroneous assumption about ssl23.
+- Fix status code to reflect success or failure of a sync.
+- contrib/release.sh: fix changelog edition.
+
+#### Changes
+
+- Bump imaplib2 from v2.48 to v2.51.
+- README: new section status and future.
+- Minor code cleanups.
+- Makefile: improve building of targz.
+- systemd: log to syslog rather than stderr for better integration.
+
+
 ### OfflineIMAP v6.6.0-rc1 (2015-09-28)
 
 #### Notes
