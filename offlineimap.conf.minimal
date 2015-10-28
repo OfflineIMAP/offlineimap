@@ -17,18 +17,36 @@ type = IMAP
 remotehost = examplehost
 remoteuser = jgoerzen
 
+# ---------------------------------------------------------------
+# Secure Connection Settings
+#
+# NOTE: These only apply to Repository Remote, if you have other
+#       IMAP servers, these options must be added and adjusted to 
+#       those [Repository] blocks as well.
+# 
+# For more info about the SSL options, see offlineimap.conf.
+# ---------------------------------------------------------------
+
+# By default, activate SSL encryption during IMAP data transfers.
 ssl = yes
+
+# Specify the port to use for SSL-encrypted connections, by default
+# setting ssl = yes will set remoteport = 993. 
+# 
+# If your mail host uses a different port for secure connections, 
+# set it here.
 # remoteport = 993
 
-# When you see this error the first time you try to run offlineimap, 
-# copy the real Server SSL fingerprint mentioned in the error message
-# to the 'cert_fingerprint' setting:
+# The first time you try to run offlineimap using this config
+# file, it will produce an error.
+#
+# Copy the server SSL fingerprint mentioned in the error message
+# to the 'cert_fingerprint' setting, and run offlineimap again:
 # 
 #     Establishing connection to examplehost:993
 #
 #     ERROR: Server SSL fingerprint 'f61e88135e15c91982d2369196e258dcdaec68ba' for hostname 'examplehost'
-#     does not match configured fingerprint(s) ['61930e9898bab2440400e03b2b254e086ead09c6'].
+#     does not match configured fingerprint(s) ['baddbaddbaddbaddbaddbaddbaddbaddbaddbadd'].
 #
 #     Please verify and set 'cert_fingerprint' accordingly if not set yet.
-
-cert_fingerprint = 61930e9898bab2440400e03b2b254e086ead09c6
+cert_fingerprint = baddbaddbaddbaddbaddbaddbaddbaddbaddbadd
