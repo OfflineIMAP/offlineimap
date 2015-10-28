@@ -352,7 +352,17 @@ class MaildirFolder(BaseFolder):
         if self.utime_from_header:
             try:
                 date = emailutil.get_message_date(content, 'Date')
+                if date is None:
+                # Give a try with Delivery-date
+                    date = emailutil.get_message_date(content, 'Delivery-date')
                 if date is not None:
+                    # If a date is found, make the timestamp is used a file
+                    # prefix.  This ensure correct order when sorting by most
+                    # recent mail based on filename.  The timeseq is 0 here
+                    # since chances having 2 message arriving at the exact same
+                    # time is very thin.
+                    messagename = '%s_0.%s' % (date, '.'.join(messagename.split('.')[1:]))
+                    tmpname = self.save_to_tmp_file(messagename, content)
                     os.utime(os.path.join(self.getfullname(), tmpname),
                         (date, date))
             # In case date is wrongly so far into the future as to be > max int32
