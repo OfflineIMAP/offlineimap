@@ -195,7 +195,7 @@ class IMAPRepository(BaseRepository):
         return self.getconfint('remoteport', None)
 
     def getssl(self):
-        return self.getconfboolean('ssl', 0)
+        return self.getconfboolean('ssl', 1)
 
     def getsslclientcert(self):
         xforms = [os.path.expanduser, os.path.expandvars, os.path.abspath]
