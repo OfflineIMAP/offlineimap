@@ -16,3 +16,19 @@ localfolders = ~/Test
 type = IMAP
 remotehost = examplehost
 remoteuser = jgoerzen
+
+ssl = yes
+# remoteport = 993
+
+# When you see this error the first time you try to run offlineimap, 
+# copy the real Server SSL fingerprint mentioned in the error message
+# to the 'cert_fingerprint' setting:
+# 
+#     Establishing connection to examplehost:993
+#
+#     ERROR: Server SSL fingerprint 'f61e88135e15c91982d2369196e258dcdaec68ba' for hostname 'examplehost'
+#     does not match configured fingerprint(s) ['61930e9898bab2440400e03b2b254e086ead09c6'].
+#
+#     Please verify and set 'cert_fingerprint' accordingly if not set yet.
+
+cert_fingerprint = 61930e9898bab2440400e03b2b254e086ead09c6
