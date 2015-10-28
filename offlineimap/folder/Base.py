@@ -60,6 +60,13 @@ class BaseFolder(object):
         self._utime_from_header = self.config.getdefaultboolean(repo,
             "utime_from_header", utime_from_header_global)
 
+        # Do we need to use mail timestamp for filename prefix?
+        filename_use_mail_timestamp_global = self.config.getdefaultboolean(
+            "general", "filename_use_mail_timestamp", False)
+        repo = "Repository " + repository.name
+        self._filename_use_mail_timestamp = self.config.getdefaultboolean(repo,
+            "filename_use_mail_timestamp", filename_use_mail_timestamp_global)
+
         # Determine if we're running static or dynamic folder filtering
         # and check filtering status
         self._dynamic_folderfilter = self.config.getdefaultboolean(
