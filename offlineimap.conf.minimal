@@ -16,3 +16,4 @@ localfolders = ~/Test
 type = IMAP
 remotehost = examplehost
 remoteuser = jgoerzen
+cert_fingerprint = baddbaddbaddbaddbaddbaddbaddbaddbaddbadd
