@@ -206,7 +206,8 @@ class IMAPServer:
             authz = self.user_identity
         NULL = u'\x00'
         retval = NULL.join((authz, authc, passwd)).encode('utf-8')
-        self.ui.debug('imap', '__plainhandler: returning %s' % retval)
+        logsafe_retval = NULL.join((authz, authc, "(passwd hidden for log)")).encode('utf-8')
+        self.ui.debug('imap', '__plainhandler: returning %s' % logsafe_retval)
         return retval
 
 
