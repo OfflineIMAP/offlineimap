@@ -38,22 +38,20 @@ re_uidmatch = re.compile(',U=(\d+)')
 # Find a numeric timestamp in a string (filename prefix)
 re_timestampmatch = re.compile('(\d+)');
 
-timeseq = 0
-lasttime = 0
+timehash = {}
 timelock = Lock()
 
-def _gettimeseq():
-    global lasttime, timeseq, timelock
+def _gettimeseq(date=None):
+    global timehash, timelock
     timelock.acquire()
     try:
-        thistime = long(time.time())
-        if thistime == lasttime:
-            timeseq += 1
-            return (thistime, timeseq)
+        if date is None:
+            date = long(time.time())
+        if timehash.has_key(date):
+            timehash[date] += 1
         else:
-            lasttime = thistime
-            timeseq = 0
-            return (thistime, timeseq)
+            timehash[date] = 0
+        return (date, timehash[date])
     finally:
         timelock.release()
 
@@ -269,14 +267,14 @@ class MaildirFolder(BaseFolder):
         filepath = os.path.join(self.getfullname(), filename)
         return os.path.getmtime(filepath)
 
-    def new_message_filename(self, uid, flags=set()):
+    def new_message_filename(self, uid, flags=set(), date=None):
         """Creates a new unique Maildir filename
 
         :param uid: The UID`None`, or a set of maildir flags
         :param flags: A set of maildir flags
         :returns: String containing unique message filename"""
 
-        timeval, timeseq = _gettimeseq()
+        timeval, timeseq = _gettimeseq(date)
         return '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s'% \
             (timeval, timeseq, os.getpid(), socket.gethostname(),
             uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
@@ -346,7 +344,27 @@ class MaildirFolder(BaseFolder):
         # Otherwise, save the message in tmp/ and then call savemessageflags()
         # to give it a permanent home.
         tmpdir = os.path.join(self.getfullname(), 'tmp')
-        messagename = self.new_message_filename(uid, flags)
+
+        # use the mail timestamp given by either Date or Delivery-date mail
+        # headers.
+        message_timestamp = None
+        if self._filename_use_mail_timestamp:
+            try:
+                message_timestamp = emailutil.get_message_date(content, 'Date')
+                if message_timestamp is None:
+                    # Give a try with Delivery-date
+                    date = emailutil.get_message_date(content, 'Delivery-date')
+            except:
+                # This should never happen
+                from email.Parser import Parser
+                from offlineimap.ui import getglobalui
+                datestr = Parser().parsestr(content, True).get("Date")
+                ui = getglobalui()
+                ui.warn("UID %d has invalid date %s: %s\n"
+                    "Not using message timestamp as file prefix" % (uid, datestr, e))
+                # No need to check if date is None here since it would
+                # be overridden by _gettimeseq.
+        messagename = self.new_message_filename(uid, flags, date=message_timestamp)
         tmpname = self.save_to_tmp_file(messagename, content)
 
         if self.utime_from_header:
