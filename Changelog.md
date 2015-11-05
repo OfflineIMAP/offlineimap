@@ -15,6 +15,34 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+
+### OfflineIMAP v6.6.0-rc3 (2015-11-05)
+
+#### Notes
+
+Changes are slowing down and the code is under serious testing by some new
+contributors. Everything expected at this time in the release cycle. Thanks to
+them.
+
+SSL is now enabled by default to prevent from sending private data in clear
+stream to the wild.
+
+#### Features
+
+- Add new config option `filename_use_mail_timestamp`.
+
+#### Fixes
+
+- Bump from imaplib2 v2.51 to v2.52.
+- Minor fixes.
+
+#### Changes
+
+- Enable SSL by default.
+- Fix: avoid writing password to log.
+- offlineimap.conf: improve namtrans doc a bit.
+
+
 ### OfflineIMAP v6.6.0-rc2 (2015-10-15)
 
 #### Notes
