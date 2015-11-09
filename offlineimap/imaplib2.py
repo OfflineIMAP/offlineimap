@@ -869,7 +869,7 @@ class IMAP4(object):
 
 
     def idle(self, timeout=None, **kw):
-        """"(typ, [data]) = idle(timeout=None)
+        """(typ, [data]) = idle(timeout=None)
         Put server into IDLE mode until server notifies some change,
         or 'timeout' (secs) occurs (default: 29 minutes),
         or another IMAP4 command is scheduled."""
