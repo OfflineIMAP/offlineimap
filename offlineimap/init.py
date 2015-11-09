@@ -299,7 +299,7 @@ class OfflineImap:
                 stack_display.append('  => Stopped to handle current signal. ')
             stack_displays.append(stack_display)
         stacks = unique_count(stack_displays)
-        print "** Thread List:\n"
+        print("** Thread List:\n")
         for stack, times in stacks:
             if times == 1:
                 msg = "%s Thread is at:\n%s\n"
