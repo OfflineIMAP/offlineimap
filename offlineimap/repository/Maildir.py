@@ -39,6 +39,14 @@ class MaildirRepository(BaseRepository):
         if not os.path.isdir(self.root):
             os.mkdir(self.root, 0o700)
 
+        # Create the keyword->char mapping
+        self.keyword2char = dict()
+        for c in 'abcdefghijklmnopqrstuvwxyz':
+            confkey = 'customflag_' + c
+            keyword = self.getconf(confkey, None)
+            if keyword is not None:
+                self.keyword2char[keyword] = c
+
     def _append_folder_atimes(self, foldername):
         """Store the atimes of a folder's new|cur in self.folder_atimes"""
 
@@ -71,6 +79,9 @@ class MaildirRepository(BaseRepository):
 
     def getsep(self):
         return self.getconf('sep', '.').strip()
+
+    def getkeywordmap(self):
+        return self.keyword2char
 
     def makefolder(self, foldername):
         """Create new Maildir folder if necessary
