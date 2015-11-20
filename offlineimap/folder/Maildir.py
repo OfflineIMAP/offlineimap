@@ -135,9 +135,7 @@ class MaildirFolder(BaseFolder):
                 uid = long(uidmatch.group(1))
         flagmatch = self.re_flagmatch.search(filename)
         if flagmatch:
-            # Filter out all lowercase (custom maildir) flags. We don't
-            # handle them yet.
-            flags = set((c for c in flagmatch.group(1) if not c.islower()))
+            flags = set((c for c in flagmatch.group(1)))
         return prefix, uid, fmd5, flags
 
     def _scanfolder(self, min_date=None, min_uid=None):
@@ -149,7 +147,7 @@ class MaildirFolder(BaseFolder):
         with similar UID's (e.g. the UID was reassigned much later).
 
         Maildir flags are: R (replied) S (seen) T (trashed) D (draft) F
-        (flagged).
+        (flagged), plus lower-case letters for custom flags.
         :returns: dict that can be used as self.messagelist.
         """
 
@@ -414,8 +412,7 @@ class MaildirFolder(BaseFolder):
 
         if flags != self.messagelist[uid]['flags']:
             # Flags have actually changed, construct new filename Strip
-            # off existing infostring (possibly discarding small letter
-            # flags that dovecot uses TODO)
+            # off existing infostring
             infomatch = self.re_flagmatch.search(filename)
             if infomatch:
                 filename = filename[:-len(infomatch.group())] #strip off
