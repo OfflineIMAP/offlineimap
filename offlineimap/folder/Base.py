@@ -937,6 +937,32 @@ class BaseFolder(object):
             else:
                 statusflags = set()
 
+            #keywords: if there is a keyword map, use it to figure out what
+            #other 'flags' we should add
+            try:
+                keywordmap = dstfolder.getrepository().getkeywordmap()
+                knownkeywords = set(keywordmap.keys())
+
+                selfkeywords = self.getmessagekeywords(uid)
+
+                if not knownkeywords >= selfkeywords:
+                    #some of the message's keywords are not in the mapping, so
+                    #skip them
+
+                    skipped_keywords = list(selfkeywords - knownkeywords)
+                    selfkeywords &= knownkeywords
+
+                    self.ui.warn("Unknown keywords skipped: %s\n"
+                        "You may want to change your configuration to include "
+                        "those\n" % (skipped_keywords))
+
+                keywordletterset = set([keywordmap[keyw] for keyw in selfkeywords])
+
+                #add the lower-case letters to the list of message flags
+                selfflags |= keywordletterset
+            except NotImplementedError:
+                pass
+
             addflags = selfflags - statusflags
             delflags = statusflags - selfflags
 
