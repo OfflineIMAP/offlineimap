@@ -420,6 +420,11 @@ class BaseFolder(object):
 
         raise NotImplementedError
 
+    def getmessagekeywords(self, uid):
+        """Returns the keywords for the specified message."""
+
+        raise NotImplementedError
+
     def savemessageflags(self, uid, flags):
         """Sets the specified message's flags to the given set.
 
