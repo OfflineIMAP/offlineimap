@@ -195,6 +195,14 @@ def flagsimap2maildir(flagstring):
             retval.add(maildirflag)
     return retval
 
+def flagsimap2keywords(flagstring):
+    """Convert string '(\\Draft \\Deleted somekeyword otherkeyword)' into a
+    keyword set (somekeyword otherkeyword)."""
+
+    imapflagset = set(flagstring[1:-1].split())
+    serverflagset = set([flag for (flag, c) in flagmap])
+    return imapflagset - serverflagset
+
 def flagsmaildir2imap(maildirflaglist):
     """Convert set of flags ([DR]) into a string '(\\Deleted \\Draft)'."""
 

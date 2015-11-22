@@ -133,6 +133,9 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
     def getsep(self):
         raise NotImplementedError
 
+    def getkeywordmap(self):
+        raise NotImplementedError
+
     def should_sync_folder(self, fname):
         """Should this folder be synced?"""
 

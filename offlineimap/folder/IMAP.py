@@ -251,8 +251,10 @@ class IMAPFolder(BaseFolder):
                 uid = long(options['UID'])
                 self.messagelist[uid] = self.msglist_item_initializer(uid)
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
+                keywords = imaputil.flagsimap2keywords(options['FLAGS'])
                 rtime = imaplibutil.Internaldate2epoch(messagestr)
-                self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime}
+                self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime,
+                    'keywords': keywords}
         self.ui.messagelistloaded(self.repository, self, self.getmessagecount())
 
     def dropmessagelistcache(self):
@@ -308,6 +310,10 @@ class IMAPFolder(BaseFolder):
     # Interface from BaseFolder
     def getmessageflags(self, uid):
         return self.messagelist[uid]['flags']
+
+    # Interface from BaseFolder
+    def getmessagekeywords(self, uid):
+        return self.messagelist[uid]['keywords']
 
     def __generate_randomheader(self, content):
         """Returns a unique X-OfflineIMAP header

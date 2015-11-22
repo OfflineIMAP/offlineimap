@@ -420,6 +420,11 @@ class BaseFolder(object):
 
         raise NotImplementedError
 
+    def getmessagekeywords(self, uid):
+        """Returns the keywords for the specified message."""
+
+        raise NotImplementedError
+
     def savemessageflags(self, uid, flags):
         """Sets the specified message's flags to the given set.
 
@@ -903,6 +908,45 @@ class BaseFolder(object):
                     return #don't delete messages in dry-run mode
                 dstfolder.deletemessages(deletelist)
 
+    def combine_flags_and_keywords(self, uid, dstfolder):
+        """Combine the message's flags and keywords using the mapping for the
+        destination folder."""
+
+        # Take a copy of the message flag set, otherwise
+        # __syncmessagesto_flags() will fail because statusflags is actually a
+        # reference to selfflags (which it should not, but I don't have time to
+        # debug THAT).
+        selfflags = set(self.getmessageflags(uid))
+
+        try:
+            keywordmap = dstfolder.getrepository().getkeywordmap()
+            if keywordmap is None:
+                return selfflags
+
+            knownkeywords = set(keywordmap.keys())
+
+            selfkeywords = self.getmessagekeywords(uid)
+
+            if not knownkeywords >= selfkeywords:
+                #some of the message's keywords are not in the mapping, so
+                #skip them
+
+                skipped_keywords = list(selfkeywords - knownkeywords)
+                selfkeywords &= knownkeywords
+
+                self.ui.warn("Unknown keywords skipped: %s\n"
+                    "You may want to change your configuration to include "
+                    "those\n" % (skipped_keywords))
+
+            keywordletterset = set([keywordmap[keyw] for keyw in selfkeywords])
+
+            #add the mapped keywords to the list of message flags
+            selfflags |= keywordletterset
+        except NotImplementedError:
+            pass
+
+        return selfflags
+
     def __syncmessagesto_flags(self, dstfolder, statusfolder):
         """Pass 3: Flag synchronization.
 
@@ -925,12 +969,12 @@ class BaseFolder(object):
             if uid < 0 or not dstfolder.uidexists(uid):
                 continue
 
-            selfflags = self.getmessageflags(uid)
-
             if statusfolder.uidexists(uid):
                 statusflags = statusfolder.getmessageflags(uid)
             else:
                 statusflags = set()
+
+            selfflags = self.combine_flags_and_keywords(uid, dstfolder)
 
             addflags = selfflags - statusflags
             delflags = statusflags - selfflags
