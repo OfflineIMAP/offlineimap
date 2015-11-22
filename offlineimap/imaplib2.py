@@ -1383,7 +1383,10 @@ class IMAP4(object):
             self.literal = None
             if isinstance(literal, string_types):
                 literator = None
-                data = '%s {%s}' % (data, len(literal))
+                if 'BINARY' in self.capabilities:
+                    data = '%s ~{%s}' % (data, len(literal))
+                else:
+                    data = '%s {%s}' % (data, len(literal))
             else:
                 literator = literal
 
