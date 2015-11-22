@@ -81,7 +81,7 @@ class MaildirRepository(BaseRepository):
         return self.getconf('sep', '.').strip()
 
     def getkeywordmap(self):
-        return self.keyword2char
+        return self.keyword2char if len(self.keyword2char) > 0 else None
 
     def makefolder(self, foldername):
         """Create new Maildir folder if necessary

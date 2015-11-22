@@ -920,6 +920,9 @@ class BaseFolder(object):
 
         try:
             keywordmap = dstfolder.getrepository().getkeywordmap()
+            if keywordmap is None:
+                return selfflags
+
             knownkeywords = set(keywordmap.keys())
 
             selfkeywords = self.getmessagekeywords(uid)
