@@ -31,6 +31,9 @@ from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
 
+import traceback
+import collections
+
 
 class OfflineImap:
     """The main class that encapsulates the high level use of OfflineImap.
@@ -272,6 +275,42 @@ class OfflineImap:
         self.config = config
         return (options, args)
 
+    def __dumpstacks(self, context=1, sighandler_deep=2):
+        """ Signal handler: dump a stack trace for each existing thread."""
+
+        currentThreadId = threading.currentThread().ident
+
+        def unique_count(l):
+            d = collections.defaultdict(lambda: 0)
+            for v in l:
+                d[tuple(v)] += 1
+            return list((k, v) for k, v in d.iteritems())
+
+        stack_displays = []
+        for threadId, stack in sys._current_frames().items():
+            stack_display = []
+            for filename, lineno, name, line in traceback.extract_stack(stack):
+                stack_display.append('  File: "%s", line %d, in %s'
+                                     % (filename, lineno, name))
+                if line:
+                    stack_display.append("    %s" % (line.strip()))
+            if currentThreadId == threadId:
+                stack_display = stack_display[:- (sighandler_deep * 2)]
+                stack_display.append('  => Stopped to handle current signal. ')
+            stack_displays.append(stack_display)
+        stacks = unique_count(stack_displays)
+        self.ui.debug('thread', "** Thread List:\n")
+        for stack, times in stacks:
+            if times == 1:
+                msg = "%s Thread is at:\n%s\n"
+            else:
+                msg = "%s Threads are at:\n%s\n"
+            self.ui.debug('thread', msg % (times, '\n'.join(stack[- (context * 2):])))
+
+        self.ui.debug('thread', "Dumped a total of %d Threads." %
+                      len(sys._current_frames().keys()))
+
+
     def __sync(self, options):
         """Invoke the correct single/multithread syncing
 
@@ -321,6 +360,8 @@ class OfflineImap:
                     getglobalui().warn("Terminating NOW (this may "\
                                        "take a few seconds)...")
                     accounts.Account.set_abort_event(self.config, 3)
+                    if 'thread' in self.ui.debuglist:
+                        self.__dumpstacks(5)
                 elif sig == signal.SIGQUIT:
                     stacktrace.dump(sys.stderr)
                     os.abort()
