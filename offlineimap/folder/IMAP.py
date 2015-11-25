@@ -282,11 +282,7 @@ class IMAPFolder(BaseFolder):
                   this UID could be found.
         """
 
-        imapobj = self.imapserver.acquireconnection()
-        try:
-            data = self._fetch_from_imap(imapobj, str(uid), 2)
-        finally:
-            self.imapserver.releaseconnection(imapobj)
+        data = self._fetch_from_imap(str(uid), 2)
 
         # data looks now e.g. [('320 (UID 17061 BODY[]
         # {2565}','msgbody....')]  we only asked for one message,
@@ -680,7 +676,7 @@ class IMAPFolder(BaseFolder):
         return uid
 
 
-    def _fetch_from_imap(self, imapobj, uids, retry_num=1):
+    def _fetch_from_imap(self, uids, retry_num=1):
         """Fetches data from IMAP server.
 
         Arguments:
@@ -690,22 +686,37 @@ class IMAPFolder(BaseFolder):
 
         Returns: data obtained by this query."""
 
-        query = "(%s)"% (" ".join(self.imap_query))
-        fails_left = retry_num # retry on dropped connection
-        while fails_left:
-            try:
-                imapobj.select(self.getfullname(), readonly = True)
-                res_type, data = imapobj.uid('fetch', uids, query)
-                fails_left = 0
-            except imapobj.abort as e:
-                # Release dropped connection, and get a new one
-                self.imapserver.releaseconnection(imapobj, True)
-                imapobj = self.imapserver.acquireconnection()
-                self.ui.error(e, exc_info()[2])
-                fails_left -= 1
-                # self.ui.error() will show the original traceback
-                if not fails_left:
-                    raise e
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            query = "(%s)"% (" ".join(self.imap_query))
+            fails_left = retry_num  ## retry on dropped connection
+            while fails_left:
+                try:
+                    imapobj.select(self.getfullname(), readonly = True)
+                    res_type, data = imapobj.uid('fetch', uids, query)
+                    break
+                except imapobj.abort as e:
+                    fails_left -= 1
+                    # self.ui.error() will show the original traceback
+                    if fails_left <= 0:
+                        message = ("%s, while fetching msg %r in folder %r."
+                            " Max retry reached (%d)"%
+                            (e, uids, self.name, retry_num))
+                        severity = OfflineImapError.ERROR.MESSAGE
+                        raise OfflineImapError(message,
+                            OfflineImapError.ERROR.MESSAGE)
+                    # Release dropped connection, and get a new one
+                    self.imapserver.releaseconnection(imapobj, True)
+                    imapobj = self.imapserver.acquireconnection()
+                    self.ui.error("%s. While fetching msg %r in folder %r."
+                        " Retrying (%d/%d)"%
+                        (e, uids, self.name, retry_num - fails_left, retry_num))
+        finally:
+             # The imapobj here might be different than the one created before
+             # the ``try`` clause. So please avoid transforming this to a nice
+             # ``with`` without taking this into account.
+            self.imapserver.releaseconnection(imapobj)
+
         if data == [None] or res_type != 'OK':
             #IMAP server says bad request or UID does not exist
             severity = OfflineImapError.ERROR.MESSAGE
