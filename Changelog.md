@@ -15,6 +15,25 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v6.6.0 (2015-12-05)
+
+#### Features
+
+- Maildir learns to mimic Dovecot's format of lower-case letters (a,b,c..) for
+  "custom flags" or user keywords.
+
+#### Fixes
+
+- Broken retry loop would break connection management.
+- Replace rogue `print` statement by `self.ui.debug`.
+
+#### Changes
+
+- Bump imaplib2 from v2.52 to v2.53.
+- Code cleanups.
+- Add a full stack of all thread dump upon EXIT or KILL signal in thread debug
+  mode.
+
 
 ### OfflineIMAP v6.6.0-rc3 (2015-11-05)
 
