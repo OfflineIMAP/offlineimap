@@ -163,6 +163,8 @@ class MaildirFolder(BaseFolder):
 
         date_excludees = {}
         for dirannex, filename in files:
+            if filename.startswith('.'):
+                continue # Ignore dot files.
             # We store just dirannex and filename, ie 'cur/123...'
             filepath = os.path.join(dirannex, filename)
             # Check maxsize if this message should be considered.
