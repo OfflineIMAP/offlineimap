@@ -276,6 +276,9 @@ class IMAPRepository(BaseRepository):
     def getoauth2_refresh_token(self):
         return self.getconf('oauth2_refresh_token', None)
 
+    def getoauth2_access_token(self):
+        return self.getconf('oauth2_access_token', None)
+
     def getoauth2_client_id(self):
         return self.getconf('oauth2_client_id', None)
 
