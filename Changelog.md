@@ -26,7 +26,7 @@ remove potential harms from dot files in a local maildir.
 
 #### Fixes
 
-- Bump imaplib2 from 2.52 to 2.53. Remove support for binary send.
+- Bump imaplib2 from 2.53 to 2.52. Remove support for binary send.
 - Ignore aloo dot files in the Maildir while scanning for mails.
 
 
