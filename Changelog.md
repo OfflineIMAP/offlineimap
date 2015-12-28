@@ -15,6 +15,21 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v6.6.1 (2015-12-28)
+
+#### Notes
+
+This is a very small new stable release for two fixes.
+
+Amending support for BINARY APPEND which is not correctly implemented. Also,
+remove potential harms from dot files in a local maildir.
+
+#### Fixes
+
+- Bump imaplib2 from 2.52 to 2.53. Remove support for binary send.
+- Ignore aloo dot files in the Maildir while scanning for mails.
+
+
 ### OfflineIMAP v6.6.0 (2015-12-05)
 
 #### Features
