@@ -95,10 +95,10 @@ class IMAPServer:
         self.tlslevel = repos.gettlslevel()
 
         self.oauth2_refresh_token = repos.getoauth2_refresh_token()
+        self.oauth2_access_token = repos.getoauth2_access_token()
         self.oauth2_client_id = repos.getoauth2_client_id()
         self.oauth2_client_secret = repos.getoauth2_client_secret()
         self.oauth2_request_url = repos.getoauth2_request_url()
-        self.oauth2_access_token = None
 
         self.delim = None
         self.root = None
@@ -212,7 +212,7 @@ class IMAPServer:
 
 
     def __xoauth2handler(self, response):
-        if self.oauth2_refresh_token is None:
+        if self.oauth2_refresh_token is None and self.oauth2_access_token is None:
             return None
 
         if self.oauth2_access_token is None:
