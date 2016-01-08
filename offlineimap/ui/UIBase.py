@@ -107,6 +107,7 @@ class UIBase(object):
         """Create file handler which logs to file."""
 
         fh = logging.FileHandler(logfile, 'at')
+        #fh.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter("%(asctime)s %(levelname)s: "
             "%(message)s", '%Y-%m-%d %H:%M:%S')
         fh.setFormatter(file_formatter)
@@ -116,7 +117,9 @@ class UIBase(object):
         msg = "OfflineImap %s starting...\n  Python: %s Platform: %s\n  "\
               "Args: %s"% (offlineimap.__bigversion__, p_ver, sys.platform,
                             " ".join(sys.argv))
-        self.logger.info(msg)
+        record = logging.LogRecord('OfflineImap', logging.INFO, __file__,
+                                   None, msg, None, None)
+        fh.emit(record)
 
     def _msg(self, msg):
         """Display a message."""
