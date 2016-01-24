@@ -15,6 +15,38 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+
+### OfflineIMAP v6.7.0-rc1 (2016-01-24)
+
+#### Notes
+
+Starting a new cycle with all EXPERIMENTAL and TESTING stuff marked stable.
+Otherwise, not much exciting yet. There's pending work that would need some
+love by contributors:
+
+- https://github.com/OfflineIMAP/offlineimap/issues/211
+- https://github.com/OfflineIMAP/offlineimap/pull/111
+- https://github.com/OfflineIMAP/offlineimap/issues/184
+
+#### Features
+
+- Allow authorization via XOAUTH2 using access token.
+
+#### Fixes
+
+- Revert "Don't output initial blurb in "quiet" mode".
+- Fix Changelog.
+
+#### Changes
+
+- Declare newmail_hook option stable.
+- Declare utime_from_header option stable.
+- Decode foldernames is removed EXPERIMENTAL flag.
+- Declare XOAUTH2 stable.
+- Declare tls_level option stable.
+- Declare IMAP Keywords option stable.
+
+
 ### OfflineIMAP v6.6.1 (2015-12-28)
 
 #### Notes
