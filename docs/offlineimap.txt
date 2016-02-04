@@ -77,7 +77,7 @@ amounts of data. This option implies the -1 option.
 
   Overrides the accounts section in the config file.
 +
-Allows to specify a particular account or set of accounts to sync without
+Allows one to specify a particular account or set of accounts to sync without
 having to edit the config file.
 
 
@@ -211,7 +211,7 @@ in between.
 5. Turn off fsync.
 +
 In the [general] section you can set fsync to True or False. If you want to
-play 110% safe and wait for all operations to hit the disk before continueing,
+play 110% safe and wait for all operations to hit the disk before continuing,
 you can set this to True. If you set it to False, you lose some of that
 safety, trading it for speed.
 
@@ -382,7 +382,7 @@ You should enable this option with a value like 10.
 
 * OfflineIMAP confused when mails change while in a sync.
 +
-When OfflineIMAP is syncing, some events happening since the invokation on
+When OfflineIMAP is syncing, some events happening since the invocation on
 remote or local side are badly handled. OfflineIMAP won't track for changes
 during the sync.
 
