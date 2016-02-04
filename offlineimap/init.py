@@ -362,10 +362,17 @@ class OfflineImap:
                     accounts.Account.set_abort_event(self.config, 3)
                     if 'thread' in self.ui.debuglist:
                         self.__dumpstacks(5)
+
+                    # Abort after three Ctrl-C keystrokes
+                    self.num_sigterm += 1
+                    if self.num_sigterm >= 3:
+                        getglobalui().warn("Signaled thrice. Aborting!")
+                        sys.exit(1)
                 elif sig == signal.SIGQUIT:
                     stacktrace.dump(sys.stderr)
                     os.abort()
 
+            self.num_sigterm = 0
             signal.signal(signal.SIGHUP, sig_handler)
             signal.signal(signal.SIGUSR1, sig_handler)
             signal.signal(signal.SIGUSR2, sig_handler)
