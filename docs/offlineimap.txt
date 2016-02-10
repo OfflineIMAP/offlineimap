@@ -219,7 +219,7 @@ safety, trading it for speed.
 Upgrading from plain text to SQLite cache format
 ------------------------------------------------
 
-OfflineImap uses a cache to store the last know status of mails (flags etc).
+OfflineImap uses a cache to store the last known status of mails (flags etc).
 
 Historically that has meant plain text files, but recently we introduced
 sqlite-based cache, which helps with performance and CPU usage on large
