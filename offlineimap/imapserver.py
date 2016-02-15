@@ -227,7 +227,13 @@ class IMAPServer:
             self.ui.debug('imap', 'xoauth2handler: url "%s"' % self.oauth2_request_url)
             self.ui.debug('imap', 'xoauth2handler: params "%s"' % params)
 
-            response = urllib.urlopen(self.oauth2_request_url, urllib.urlencode(params)).read()
+            original_socket = socket.socket
+            socket.socket = self.proxied_socket
+            try:
+                response = urllib.urlopen(self.oauth2_request_url, urllib.urlencode(params)).read()
+            finally:
+                socket.socket = original_socket
+
             resp = json.loads(response)
             self.ui.debug('imap', 'xoauth2handler: response "%s"' % resp)
             self.oauth2_access_token = resp['access_token']
