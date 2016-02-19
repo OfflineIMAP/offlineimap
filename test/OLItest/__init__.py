@@ -24,7 +24,7 @@ __author__      = 'Sebastian Spaeth'
 __author_email__= 'Sebastian@SSpaeth.de'
 __description__ = 'Moo'
 __license__  = "Licensed under the GNU GPL v2+ (v2 or any later version)"
-__homepage__ = "http://offlineimap.org"
+__homepage__ = "http://www.offlineimap.org"
 banner = """%(__productname__)s %(__version__)s
   %(__license__)s""" % locals()
 

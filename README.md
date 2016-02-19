@@ -1,7 +1,7 @@
 [offlineimap]: http://github.com/OfflineIMAP/offlineimap
-[website]: http://offlineimap.org
+[website]: http://www.offlineimap.org
 [wiki]: http://github.com/OfflineIMAP/offlineimap/wiki
-[blog]: http://offlineimap.org/posts.html
+[blog]: http://www.offlineimap.org/posts.html
 
 # OfflineIMAP
 

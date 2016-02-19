@@ -11,7 +11,7 @@ __description__ = "Disconnected Universal IMAP Mail Synchronization/Reader Suppo
 __license__  = "Licensed under the GNU GPL v2 or any later version (with an OpenSSL exception)"
 __bigcopyright__ = """%(__productname__)s %(__bigversion__)s
   %(__license__)s""" % locals()
-__homepage__ = "http://offlineimap.org"
+__homepage__ = "http://www.offlineimap.org"
 
 banner = __bigcopyright__
 
