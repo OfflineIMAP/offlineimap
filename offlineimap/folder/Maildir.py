@@ -292,7 +292,8 @@ class MaildirFolder(BaseFolder):
         that was created."""
 
         tmpname = os.path.join('tmp', filename)
-        # open file and write it out
+        # Open file and write it out.
+        # XXX: why do we need to loop 7 times?
         tries = 7
         while tries:
             tries = tries - 1
@@ -301,6 +302,8 @@ class MaildirFolder(BaseFolder):
                              os.O_EXCL|os.O_CREAT|os.O_WRONLY, 0o666)
                 break
             except OSError as e:
+                if not hasattr(e, 'EEXIST'):
+                    raise
                 if e.errno == e.EEXIST:
                     if tries:
                         time.sleep(0.23)
