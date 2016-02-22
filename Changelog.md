@@ -16,6 +16,39 @@ Note to mainainers:
 {:toc}
 
 
+### OfflineIMAP v6.7.0-rc2 (2016-02-22)
+
+#### Notes
+
+Learn to abruptly abort on multiple Ctrl+C.
+
+Some bugs got fixed. XOAUTH2 now honors the proxy configuration option.  Error
+message was improved when it fails to write a new mail in a local Maildir.
+
+enabled the hook for integration with Github. You'll get notifications on
+updates of the master branch of the repository (mostly for new releases). I may
+write some tweets about OfflineIMAP sometimes.
+
+#### Features
+
+- Abort after three Ctrl-C keystrokes.
+
+#### Fixes
+
+- Fix year of copyright.
+- Versioning: avoid confusing pip by spliting out __version__ with __revision__.
+- Fix: exceptions.OSError might not have attribute EEXIST defined.
+- XOAUTH2 handler: urlopen with proxied socket.
+- Manual: small grammar fix.
+- Fix typos in offlineimap(1) manpage.
+
+#### Changes
+
+- Update links to the new URL www.offlineimap.org.
+
+
+
+
 ### OfflineIMAP v6.7.0-rc1 (2016-01-24)
 
 #### Notes

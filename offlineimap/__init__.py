@@ -1,7 +1,7 @@
 __all__ = ['OfflineImap']
 
 __productname__ = 'OfflineIMAP'
-__version__     = "6.7.0-rc1" # Expecting "-rcN" or "" for stable releases.
+__version__     = "6.7.0-rc2" # Expecting "-rcN" or "" for stable releases.
 __copyright__   = "Copyright 2002-2016 John Goerzen & contributors"
 __author__      = "John Goerzen"
 __author_email__= "offlineimap-project@lists.alioth.debian.org"
