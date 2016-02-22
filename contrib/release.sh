@@ -353,6 +353,9 @@ OfflineIMAP $1 is out.
 Downloads:
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.tar.gz
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.zip
+
+Pip:
+  pip install --user git+https://github.com/OfflineIMAP/offlineimap.git@${1}
 EOF
 }
 
