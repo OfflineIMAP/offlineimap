@@ -54,7 +54,7 @@ class OfflineImap:
             return self.__sync(options)
 
     def __parse_cmd_options(self):
-        parser = OptionParser(version=offlineimap.__bigversion__,
+        parser = OptionParser(version=offlineimap.__version__,
                               description="%s.\n\n%s" %
                               (offlineimap.__copyright__,
                                offlineimap.__license__))
