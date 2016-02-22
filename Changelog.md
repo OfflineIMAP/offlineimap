@@ -25,7 +25,7 @@ Learn to abruptly abort on multiple Ctrl+C.
 Some bugs got fixed. XOAUTH2 now honors the proxy configuration option.  Error
 message was improved when it fails to write a new mail in a local Maildir.
 
-enabled the hook for integration with Github. You'll get notifications on
+I've enabled the hook for integration with Github. You'll get notifications on
 updates of the master branch of the repository (mostly for new releases). I may
 write some tweets about OfflineIMAP sometimes.
 
@@ -45,8 +45,6 @@ write some tweets about OfflineIMAP sometimes.
 #### Changes
 
 - Update links to the new URL www.offlineimap.org.
-
-
 
 
 ### OfflineIMAP v6.7.0-rc1 (2016-01-24)
