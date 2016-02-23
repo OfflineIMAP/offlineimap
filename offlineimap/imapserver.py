@@ -23,6 +23,7 @@ import base64
 import json
 import urllib
 
+import socket
 import time
 import errno
 from sys import exc_info
@@ -80,6 +81,13 @@ class IMAPServer:
         self.goodpassword = None
 
         self.usessl = repos.getssl()
+        self.useipv6 = repos.getipv6()
+        if self.useipv6 == True:
+            self.af = socket.AF_INET6
+        elif self.useipv6 == False:
+            self.af = socket.AF_INET
+        else:
+            self.af = socket.AF_UNSPEC
         self.hostname = \
             None if self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
@@ -487,6 +495,7 @@ class IMAPServer:
                         fingerprint=self.fingerprint,
                         use_socket=self.proxied_socket,
                         tls_level=self.tlslevel,
+                        af=self.af,
                         )
                 else:
                     self.ui.connecting(self.hostname, self.port)
@@ -494,6 +503,7 @@ class IMAPServer:
                         self.hostname, self.port,
                         timeout=socket.getdefaulttimeout(),
                         use_socket=self.proxied_socket,
+                        af=self.af,
                         )
 
                 if not self.preauth_tunnel:

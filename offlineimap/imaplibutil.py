@@ -74,7 +74,7 @@ class UsefulIMAPMixIn(object):
         """open_socket()
         Open socket choosing first address family available."""
         msg = (-1, 'could not open socket')
-        for res in socket.getaddrinfo(self.host, self.port, socket.AF_UNSPEC, socket.SOCK_STREAM):
+        for res in socket.getaddrinfo(self.host, self.port, self.af, socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
             try:
                 # use socket of our own, possiblly socksified socket.
@@ -175,6 +175,9 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
     """Improved version of imaplib.IMAP4_SSL overriding select()."""
 
     def __init__(self, *args, **kwargs):
+        if "af" in kwargs:
+            self.af = kwargs['af']
+            del kwargs['af']
         if "use_socket" in kwargs:
             self.socket = kwargs['use_socket']
             del kwargs['use_socket']
@@ -209,6 +212,9 @@ class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
     """Improved version of imaplib.IMAP4 overriding select()."""
 
     def __init__(self, *args, **kwargs):
+        if "af" in kwargs:
+            self.af = kwargs['af']
+            del kwargs['af']
         if "use_socket" in kwargs:
             self.socket = kwargs['use_socket']
             del kwargs['use_socket']
