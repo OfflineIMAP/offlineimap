@@ -154,7 +154,19 @@ function update_offlineimap_version () {
 #
 function get_git_history () {
   debug 'in get_git_history'
-  git log --oneline "${1}.." | sed -r -e 's,^(.),\- \1,'
+  git log --format='- %h %s. [%aN]' --no-merges  "${1}.." | \
+          sed -r -e 's, \[Nicolas Sebrecht\]$,,'
+}
+
+
+#
+# $1: previous version
+#
+function get_git_who () {
+  debug 'in get_git_who'
+  echo
+  git shortlog --no-merges -sn "${1}.." | \
+          sed -r -e 's, +([0-9]+)\t(.*),- \2 (\1),'
 }
 
 
@@ -178,8 +190,9 @@ function changelog_template () {
 
 #### Notes
 
-// Add some notes. Good notes are about what was done in this release.
-// HINT: explain big changes.
+// Add some notes. Good notes are about what was done in this release from the
+// bigger perspective.
+// HINT: explain most important changes.
 
 #### Features
 
@@ -193,8 +206,12 @@ function changelog_template () {
 
 // Use list syntax with '- '
 
-// The preformatted shortlog was added below.
-// Make use of this to fill the sections 'Features' and 'Fixes' above.
+#### Authors
+
+// Use list syntax with '- '
+
+// The preformatted log was added below. Make use of this to fill the sections
+// above.
 
 EOF
 }
@@ -213,6 +230,7 @@ function update_changelog () {
   then
     changelog_template "$1" > "$TMP_CHANGELOG_EXCERPT"
     get_git_history "$2" >> "$TMP_CHANGELOG_EXCERPT"
+    get_git_who "$2" >> "$TMP_CHANGELOG_EXCERPT"
     edit_file "the Changelog excerpt" $TMP_CHANGELOG_EXCERPT
 
     # Remove comments.
