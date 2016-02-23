@@ -194,6 +194,9 @@ class IMAPRepository(BaseRepository):
 
         return self.getconfint('remoteport', None)
 
+    def getipv6(self):
+        return self.getconfboolean('ipv6', None)
+
     def getssl(self):
         return self.getconfboolean('ssl', 1)
 
