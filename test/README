@@ -1,0 +1,18 @@
+Documentation for the OfflineImap Test suite.
+
+How to run the tests
+====================
+
+- Copy the credentials.conf.sample to credentials.conf and insert
+  credentials for an IMAP account and a Gmail account. Delete the Gmail
+  section if you don't have a Gmail account. Do note, that the tests
+  will change the account and upload/delete/modify it's contents and
+  folder structure. So don't use a real used account here...
+
+- go to the top level dir (one above this one) and execute:
+  'python setup.py test'
+
+System requirements
+===================
+
+This test suite depend on python>=2.7 to run out of the box. If you want to run this with python 2.6 you will need to install the backport from http://pypi.python.org/pypi/unittest2 instead.

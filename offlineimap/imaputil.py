@@ -1,6 +1,5 @@
 # IMAP utility module
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,47 +15,78 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import re, string, types
+import re
+import string
 from offlineimap.ui import getglobalui
-quotere = re.compile('^("(?:[^"]|\\\\")*")')
 
-def debug(*args):
+
+## Globals
+
+# Message headers that use space as the separator (for label storage)
+SPACE_SEPARATED_LABEL_HEADERS = ('X-Label', 'Keywords')
+
+
+def __debug(*args):
     msg = []
     for arg in args:
         msg.append(str(arg))
     getglobalui().debug('imap', " ".join(msg))
 
-def dequote(string):
-    """Takes a string which may or may not be quoted and returns it, unquoted.
-    This function does NOT consider parenthised lists to be quoted.
+def dequote(s):
+    """Takes string which may or may not be quoted and unquotes it.
+
+    It only considers double quotes. This function does NOT consider
+    parenthised lists to be quoted."""
+
+    if s and s.startswith('"') and s.endswith('"'):
+        s = s[1:-1]  # Strip off the surrounding quotes.
+        s = s.replace('\\"', '"')
+        s = s.replace('\\\\', '\\')
+    return s
+
+def quote(s):
+    """Takes an unquoted string and quotes it.
+
+    It only adds double quotes. This function does NOT consider
+    parenthised lists to be quoted."""
+
+    s = s.replace('"', '\\"')
+    s = s.replace('\\', '\\\\')
+    return '"%s"'% s
+
+def flagsplit(s):
+    """Converts a string of IMAP flags to a list
+
+    :returns: E.g. '(\\Draft \\Deleted)' returns  ['\\Draft','\\Deleted'].
+        (FLAGS (\\Seen Old) UID 4807) returns
+        ['FLAGS,'(\\Seen Old)','UID', '4807']
     """
 
-    debug("dequote() called with input:", string)
-    if not (string[0] == '"' and string[-1] == '"'):
-        return string
-    string = string[1:-1]               # Strip off quotes.
-    string = string.replace('\\"', '"')
-    string = string.replace('\\\\', '\\')
-    debug("dequote() returning:", string)
-    return string
+    if s[0] != '(' or s[-1] != ')':
+        raise ValueError("Passed s '%s' is not a flag list"% s)
+    return imapsplit(s[1:-1])
 
-def flagsplit(string):
-    if string[0] != '(' or string[-1] != ')':
-        raise ValueError, "Passed string '%s' is not a flag list" % string
-    return imapsplit(string[1:-1])
+def __options2hash(list):
+    """convert list [1,2,3,4,5,6] to {1:2, 3:4, 5:6}"""
 
-def options2hash(list):
-    debug("options2hash called with input:", list)
+    # effectively this does dict(zip(l[::2],l[1::2])), however
+    # measurements seemed to have indicated that the manual variant is
+    # faster for mosly small lists.
     retval = {}
     counter = 0
     while (counter < len(list)):
         retval[list[counter]] = list[counter + 1]
         counter += 2
-    debug("options2hash returning:", retval)
+    __debug("__options2hash returning:", retval)
     return retval
 
-def flags2hash(string):
-    return options2hash(flagsplit(string))
+def flags2hash(flags):
+    """Converts IMAP response string from eg IMAP4.fetch() to a hash.
+
+    E.g. '(FLAGS (\\Seen Old) UID 4807)' leads to
+    {'FLAGS': '(\\Seen Old)', 'UID': '4807'}"""
+
+    return __options2hash(flagsplit(flags))
 
 def imapsplit(imapstring):
     """Takes a string from an IMAP conversation and returns a list containing
@@ -68,9 +98,8 @@ def imapsplit(imapstring):
 
     ['(\\HasNoChildren)', '"."', '"INBOX.Sent"']"""
 
-    debug("imapsplit() called with input:", imapstring)
-    if type(imapstring) != types.StringType:
-        debug("imapsplit() got a non-string input; working around.")
+    if not isinstance(imapstring, basestring):
+        __debug("imapsplit() got a non-string input; working around.")
         # Sometimes, imaplib will throw us a tuple if the input
         # contains a literal.  See Python bug
         # #619732 at https://sourceforge.net/tracker/index.php?func=detail&aid=619732&group_id=5470&atid=105470
@@ -92,8 +121,7 @@ def imapsplit(imapstring):
                 arg = arg.replace('\\', '\\\\')
                 arg = arg.replace('"', '\\"')
                 arg = '"%s"' % arg
-                debug("imapsplit() non-string [%d]: Appending %s" %\
-                      (i, arg))
+                __debug("imapsplit() non-string [%d]: Appending %s"% (i, arg))
                 retval.append(arg)
             else:
                 # Even -- we have a string that ends with a literal
@@ -102,31 +130,33 @@ def imapsplit(imapstring):
                 # Recursion to the rescue.
                 arg = imapstring[i]
                 arg = re.sub('\{\d+\}$', '', arg)
-                debug("imapsplit() non-string [%d]: Feeding %s to recursion" %\
-                      (i, arg))
+                __debug("imapsplit() non-string [%d]: Feeding %s to recursion"%\
+                    (i, arg))
                 retval.extend(imapsplit(arg))
-        debug("imapsplit() non-string: returning %s" % str(retval))
+        __debug("imapsplit() non-string: returning %s" % str(retval))
         return retval
-        
+
     workstr = imapstring.strip()
     retval = []
     while len(workstr):
+        # handle parenthized fragments (...()...)
         if workstr[0] == '(':
             rparenc = 1 # count of right parenthesis to match
             rpareni = 1 # position to examine
- 	    while rparenc: # Find the end of the group.
- 	    	if workstr[rpareni] == ')':  # end of a group
- 			rparenc -= 1
- 		elif workstr[rpareni] == '(':  # start of a group
- 			rparenc += 1
- 		rpareni += 1  # Move to next character.
+            while rparenc: # Find the end of the group.
+                if workstr[rpareni] == ')':  # end of a group
+                    rparenc -= 1
+                elif workstr[rpareni] == '(':  # start of a group
+                    rparenc += 1
+                rpareni += 1  # Move to next character.
             parenlist = workstr[0:rpareni]
             workstr = workstr[rpareni:].lstrip()
             retval.append(parenlist)
         elif workstr[0] == '"':
-            quotelist = quotere.search(workstr).group(1)
-            workstr = workstr[len(quotelist):].lstrip()
-            retval.append(quotelist)
+            # quoted fragments '"...\"..."'
+            (quoted, rest) = __split_quoted(workstr)
+            retval.append(quoted)
+            workstr = rest
         else:
             splits = string.split(workstr, maxsplit = 1)
             splitslen = len(splits)
@@ -144,9 +174,8 @@ def imapsplit(imapstring):
             elif splitslen == 0:
                 # There was not even an unquoted word.
                 break
-    debug("imapsplit() returning:", retval)
     return retval
-            
+
 flagmap = [('\\Seen', 'S'),
            ('\\Answered', 'R'),
            ('\\Flagged', 'F'),
@@ -154,54 +183,148 @@ flagmap = [('\\Seen', 'S'),
            ('\\Draft', 'D')]
 
 def flagsimap2maildir(flagstring):
-    retval = []
-    imapflaglist = [x.lower() for x in flagstring[1:-1].split()]
+    """Convert string '(\\Draft \\Deleted)' into a flags set(DR)."""
+
+    retval = set()
+    imapflaglist = flagstring[1:-1].split()
     for imapflag, maildirflag in flagmap:
-        if imapflag.lower() in imapflaglist:
-            retval.append(maildirflag)
-    retval.sort()
+        if imapflag in imapflaglist:
+            retval.add(maildirflag)
     return retval
 
 def flagsmaildir2imap(maildirflaglist):
+    """Convert set of flags ([DR]) into a string '(\\Deleted \\Draft)'."""
+
     retval = []
     for imapflag, maildirflag in flagmap:
         if maildirflag in maildirflaglist:
             retval.append(imapflag)
-    retval.sort()
-    return '(' + ' '.join(retval) + ')'
+    return '(' + ' '.join(sorted(retval)) + ')'
 
-def listjoin(list):
-    start = None
-    end = None
-    retval = []
+def uid_sequence(uidlist):
+    """Collapse UID lists into shorter sequence sets
 
-    def getlist(start, end):
+    [1,2,3,4,5,10,12,13] will return "1:5,10,12:13".  This function sorts
+    the list, and only collapses if subsequent entries form a range.
+    :returns: The collapsed UID list as string."""
+
+    def getrange(start, end):
         if start == end:
             return(str(start))
-        else:
-            return(str(start) + ":" + str(end))
-        
+        return "%s:%s"% (start, end)
 
-    for item in list:
-        if start == None:
-            # First item.
-            start = item
-            end = item
-        elif item == end + 1:
-            # An addition to the list.
-            end = item
-        else:
-            # Here on: starting a new list.
-            retval.append(getlist(start, end))
-            start = item
-            end = item
+    if not len(uidlist): return '' # Empty list, return
+    start, end = None, None
+    retval = []
+    # Force items to be longs and sort them
+    sorted_uids = sorted(map(int, uidlist))
 
-    if start != None:
-        retval.append(getlist(start, end))
+    for item in iter(sorted_uids):
+        item = int(item)
+        if start == None:     # First item
+            start, end = item, item
+        elif item == end + 1: # Next item in a range
+            end = item
+        else:                 # Starting a new range
+            retval.append(getrange(start, end))
+            start, end = item, item
 
+    retval.append(getrange(start, end)) # Add final range/item
     return ",".join(retval)
 
 
+def __split_quoted(s):
+    """Looks for the ending quote character in the string that starts
+    with quote character, splitting out quoted component and the
+    rest of the string (without possible space between these two
+    parts.
 
-            
-        
+    First character of the string is taken to be quote character.
+
+    Examples:
+     - "this is \" a test" (\\None) => ("this is \" a test", (\\None))
+     - "\\" => ("\\", )
+    """
+
+    if len(s) == 0:
+        return ('', '')
+
+    q = quoted = s[0]
+    rest = s[1:]
+    while True:
+        next_q = rest.find(q)
+        if next_q == -1:
+            raise ValueError("can't find ending quote '%s' in '%s'"% (q, s))
+        # If quote is preceeded by even number of backslashes,
+        # then it is the ending quote, otherwise the quote
+        # character is escaped by backslash, so we should
+        # continue our search.
+        is_escaped = False
+        i = next_q - 1
+        while i >= 0 and rest[i] == '\\':
+            i -= 1
+            is_escaped = not is_escaped
+        quoted += rest[0:next_q + 1]
+        rest = rest[next_q + 1:]
+        if not is_escaped:
+            return (quoted, rest.lstrip())
+
+
+def format_labels_string(header, labels):
+    """Formats labels for embedding into a message,
+    with format according to header name.
+
+    Headers from SPACE_SEPARATED_LABEL_HEADERS keep space-separated list
+    of labels, the rest uses comma (',') as the separator.
+
+    Also see parse_labels_string() and modify it accordingly
+    if logics here gets changed."""
+
+    if header in SPACE_SEPARATED_LABEL_HEADERS:
+        sep = ' '
+    else:
+        sep = ','
+
+    return sep.join(labels)
+
+
+def parse_labels_string(header, labels_str):
+    """Parses a string into a set of labels, with a format according to
+    the name of the header.
+
+    See __format_labels_string() for explanation on header handling
+    and keep these two functions synced with each other.
+
+    TODO: add test to ensure that
+    - format_labels_string * parse_labels_string is unity
+    and
+    - parse_labels_string * format_labels_string is unity
+    """
+
+    if header in SPACE_SEPARATED_LABEL_HEADERS:
+        sep = ' '
+    else:
+        sep = ','
+
+    labels = labels_str.strip().split(sep)
+
+    return set([l.strip() for l in labels if l.strip()])
+
+
+def labels_from_header(header_name, header_value):
+    """Helper that builds label set from the corresponding header value.
+
+    Arguments:
+    - header_name: name of the header that keeps labels;
+    - header_value: value of the said header, can be None
+
+    Returns: set of labels parsed from the header (or empty set).
+    """
+
+    if header_value:
+        labels = parse_labels_string(header_name, header_value)
+    else:
+        labels = set()
+
+    return labels
+

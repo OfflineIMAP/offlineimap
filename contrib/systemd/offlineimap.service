@@ -1,0 +1,9 @@
+[Unit]
+Description=Offlineimap Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/offlineimap -o
+
+[Install]
+WantedBy=mail.target

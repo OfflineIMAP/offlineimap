@@ -15,10 +15,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-VERSION=6.3.2.3
+VERSION=`./offlineimap.py --version`
 TARGZ=offlineimap_$(VERSION).tar.gz
 SHELL=/bin/bash
-RST2HTML=`type rst2html 2>/dev/null 2>&1 && echo rst2html || echo rst2html.py`
+RST2HTML=`type rst2html >/dev/null 2>&1 && echo rst2html || echo rst2html.py`
 
 all: build
 
@@ -35,19 +35,15 @@ clean:
 	-find . -name '*.pygc' -exec rm -f {} \;
 	-find . -name '*.class' -exec rm -f {} \;
 	-find . -name '.cache*' -exec rm -f {} \;
-	-find . -name '*.html' -exec rm -f {} \;
 	-rm -f manpage.links manpage.refs
 	-find . -name auth -exec rm -vf {}/password {}/username \;
-	@$(MAKE) -C docs clean
+	@$(MAKE) -C clean
 
-man:
-	@$(MAKE) -C docs man
-
-doc:
+docs:
 	@$(MAKE) -C docs
-	$(RST2HTML) README.rst readme.html
-	$(RST2HTML) SubmittingPatches.rst SubmittingPatches.html
-	$(RST2HTML) Changelog.rst Changelog.html
+
+websitedoc:
+	@$(MAKE) -C websitedoc
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
@@ -55,7 +51,7 @@ targz: ../$(TARGZ)
 	  echo "Containing directory must be called offlineimap-$(VERSION)"; 	\
 	  exit 1; 								\
 	fi; 									\
-	pwd && cd .. && pwd && tar -zhcv --exclude '.git' -f $(TARGZ) offlineimap-$(VERSION)
+	pwd && cd .. && pwd && tar -zhcv --exclude '.git' --exclude 'website' --exclude 'wiki' -f $(TARGZ) offlineimap-$(VERSION)
 
 rpm: targz
 	cd .. && sudo rpmbuild -ta $(TARGZ)

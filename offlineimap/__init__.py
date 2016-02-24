@@ -1,23 +1,21 @@
 __all__ = ['OfflineImap']
 
 __productname__ = 'OfflineIMAP'
-__version__     = "6.3.2.3"
-__copyright__   = "Copyright (C) 2002 - 2010 John Goerzen"
+__version__     = "6.5.7"
+__revision__    = ""
+__bigversion__  = __version__ + __revision__
+__copyright__   = "Copyright 2002-2015 John Goerzen & contributors"
 __author__      = "John Goerzen"
-__author_email__= "john@complete.org"
+__author_email__= "offlineimap-project@lists.alioth.debian.org"
 __description__ = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
-__bigcopyright__ = """%(__productname__)s %(__version__)s
-%(__copyright__)s <%(__author_email__)s>""" % locals()
+__license__  = "Licensed under the GNU GPL v2 or any later version (with an OpenSSL exception)"
+__bigcopyright__ = """%(__productname__)s %(__bigversion__)s
+  %(__license__)s""" % locals()
+__homepage__ = "http://offlineimap.org"
 
-banner = __bigcopyright__ + """
+banner = __bigcopyright__
 
-This software comes with ABSOLUTELY NO WARRANTY; see the file
-COPYING for details.  This is free software, and you are welcome
-to distribute it under the conditions laid out in COPYING."""
-
-__homepage__ = "http://github.com/nicolas33/offlineimap"
-__license__  = "Licensed under the GNU GPL v2+ (v2 or any later version)."
-
-# put this last, so we don't run into circular dependencies using 
+from offlineimap.error import OfflineImapError
+# put this last, so we don't run into circular dependencies using
 # e.g. offlineimap.__version__.
 from offlineimap.init import OfflineImap

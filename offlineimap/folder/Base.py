@@ -1,6 +1,5 @@
 # Base folder support
-# Copyright (C) 2002 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,22 +15,89 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import *
-from offlineimap import threadutil
-from offlineimap.ui import getglobalui
 import os.path
 import re
-import sys
-import traceback
+import time
+from sys import exc_info
 
-class BaseFolder:
-    def __init__(self):
-        self.uidlock = Lock()
+from offlineimap import threadutil
+from offlineimap import globals
+from offlineimap.ui import getglobalui
+from offlineimap.error import OfflineImapError
+import offlineimap.accounts
+
+
+class BaseFolder(object):
+    def __init__(self, name, repository):
+        """
+        :param name: Path & name of folder minus root or reference
+        :param repository: Repository() in which the folder is.
+        """
+
         self.ui = getglobalui()
-        
+        # Save original name for folderfilter operations
+        self.ffilter_name = name
+        # Top level dir name is always ''
+        self.root = None
+        self.name = name if not name == self.getsep() else ''
+        self.repository = repository
+        self.visiblename = repository.nametrans(name)
+        # In case the visiblename becomes '.' or '/' (top-level) we use
+        # '' as that is the name that e.g. the Maildir scanning will
+        # return for the top-level dir.
+        if self.visiblename == self.getsep():
+            self.visiblename = ''
+
+        self.config = repository.getconfig()
+        utime_from_header_global = self.config.getdefaultboolean(
+            "general", "utime_from_header", False)
+        repo = "Repository " + repository.name
+        self._utime_from_header = self.config.getdefaultboolean(repo,
+            "utime_from_header", utime_from_header_global)
+
+        # Determine if we're running static or dynamic folder filtering
+        # and check filtering status
+        self._dynamic_folderfilter = self.config.getdefaultboolean(
+            repo, "dynamic_folderfilter", False)
+        self._sync_this = repository.should_sync_folder(self.ffilter_name)
+        if self._dynamic_folderfilter:
+            self.ui.debug('', "Running dynamic folder filtering on '%s'[%s]"%
+                (self.ffilter_name, repository))
+        elif not self._sync_this:
+            self.ui.debug('', "Filtering out '%s'[%s] due to folderfilter"%
+                (self.ffilter_name, repository))
+
+        # Passes for syncmessagesto
+        self.syncmessagesto_passes = [('copying messages'       , self.__syncmessagesto_copy),
+                                      ('deleting messages'      , self.__syncmessagesto_delete),
+                                      ('syncing flags'          , self.__syncmessagesto_flags)]
+
     def getname(self):
         """Returns name"""
         return self.name
+
+    def __str__(self):
+        # FIMXE: remove calls of this. We have getname().
+        return self.name
+
+    @property
+    def accountname(self):
+        """Account name as string"""
+
+        return self.repository.accountname
+
+    @property
+    def sync_this(self):
+        """Should this folder be synced or is it e.g. filtered out?"""
+
+        if not self._dynamic_folderfilter:
+            return self._sync_this
+        else:
+            return self.repository.should_sync_folder(self.ffilter_name)
+
+    @property
+    def utime_from_header(self):
+        return self._utime_from_header
 
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
@@ -39,34 +105,62 @@ class BaseFolder:
         return 0
 
     def waitforthread(self):
-        """For threading folders, waits until there is a resource available
-        before firing off a thread.  For all others, returns immediately."""
-        pass
+        """Implements method that waits for thread to be usable.
+        Should be implemented only for folders that suggest threads."""
+        raise NotImplementedError
+
+    # XXX: we may need someting like supports_quickstatus() to check
+    # XXX: if user specifies 'quick' flag for folder that doesn't
+    # XXX: support quick status queries, so one believes that quick
+    # XXX: status checks will be done, but it won't really be so.
+    def quickchanged(self, statusfolder):
+        """ Runs quick check for folder changes and returns changed
+        status: True -- changed, False -- not changed.
+
+        :param statusfolder: keeps track of the last known folder state.
+        """
+
+        return True
 
     def getcopyinstancelimit(self):
         """For threading folders, returns the instancelimitname for
         InstanceLimitedThreads."""
-        raise NotImplementedException
+
+        raise NotImplementedError
 
     def storesmessages(self):
         """Should be true for any backend that actually saves message bodies.
         (Almost all of them).  False for the LocalStatus backend.  Saves
         us from having to slurp up messages just for localstatus purposes."""
+
         return 1
 
     def getvisiblename(self):
-        return self.name
+        """The nametrans-transposed name of the folder's name."""
+
+        return self.visiblename
+
+    def getexplainedname(self):
+        """Name that shows both real and nametrans-mangled values."""
+
+        if self.name == self.visiblename:
+            return self.name
+        else:
+            return "%s [remote name %s]"% (self.visiblename, self.name)
 
     def getrepository(self):
         """Returns the repository object that this folder is within."""
+
         return self.repository
 
     def getroot(self):
         """Returns the root of the folder, in a folder-specific fashion."""
+
         return self.root
 
     def getsep(self):
         """Returns the separator for this folder type."""
+
         return self.sep
 
     def getfullname(self):
@@ -74,26 +168,47 @@ class BaseFolder:
             return self.getroot() + self.getsep() + self.getname()
         else:
             return self.getname()
-    
-    def getfolderbasename(self):
-        foldername = self.getname()
-        foldername = foldername.replace(self.repository.getsep(), '.')
-        foldername = re.sub('/\.$', '/dot', foldername)
-        foldername = re.sub('^\.$', 'dot', foldername)
-        return foldername
 
-    def isuidvalidityok(self):
-        if self.getsaveduidvalidity() != None:
-            return self.getsaveduidvalidity() == self.getuidvalidity()
+    def getfolderbasename(self):
+        """Return base file name of file to store Status/UID info in."""
+
+        if not self.name:
+            basename = '.'
+        else: # Avoid directory hierarchies and file names such as '/'.
+            basename = self.name.replace('/', '.')
+        # Replace with literal 'dot' if final path name is '.' as '.' is
+        # an invalid file name.
+        basename = re.sub('(^|\/)\.$','\\1dot', basename)
+        return basename
+
+    def check_uidvalidity(self):
+        """Tests if the cached UIDVALIDITY match the real current one
+
+        If required it saves the UIDVALIDITY value. In this case the
+        function is not threadsafe. So don't attempt to call it from
+        concurrent threads.
+
+        :returns: Boolean indicating the match. Returns True in case it
+            implicitely saved the UIDVALIDITY."""
+
+        if self.get_saveduidvalidity() != None:
+            return self.get_saveduidvalidity() == self.get_uidvalidity()
         else:
-            self.saveuidvalidity()
-            return 1
+            self.save_uidvalidity()
+            return True
 
     def _getuidfilename(self):
+        """provides UIDVALIDITY cache filename for class internal purposes."""
+
         return os.path.join(self.repository.getuiddir(),
                             self.getfolderbasename())
-            
-    def getsaveduidvalidity(self):
+
+    def get_saveduidvalidity(self):
+        """Return the previously cached UIDVALIDITY value
+
+        :returns: UIDVALIDITY as (long) number or None, if None had been
+            saved yet."""
+
         if hasattr(self, '_base_saved_uidvalidity'):
             return self._base_saved_uidvalidity
         uidfilename = self._getuidfilename()
@@ -105,325 +220,788 @@ class BaseFolder:
             file.close()
         return self._base_saved_uidvalidity
 
-    def saveuidvalidity(self):
-        newval = self.getuidvalidity()
-        uidfilename = self._getuidfilename()
-        self.uidlock.acquire()
-        try:
-            file = open(uidfilename + ".tmp", "wt")
-            file.write("%d\n" % newval)
-            file.close()
-            os.rename(uidfilename + ".tmp", uidfilename)
-            self._base_saved_uidvalidity = newval
-        finally:
-            self.uidlock.release()
+    def save_uidvalidity(self):
+        """Save the UIDVALIDITY value of the folder to the cache
 
-    def getuidvalidity(self):
-        raise NotImplementedException
+        This function is not threadsafe, so don't attempt to call it
+        from concurrent threads."""
+
+        newval = self.get_uidvalidity()
+        uidfilename = self._getuidfilename()
+
+        with open(uidfilename + ".tmp", "wt") as file:
+            file.write("%d\n"% newval)
+        os.rename(uidfilename + ".tmp", uidfilename)
+        self._base_saved_uidvalidity = newval
+
+    def get_uidvalidity(self):
+        """Retrieve the current connections UIDVALIDITY value
+
+        This function needs to be implemented by each Backend
+        :returns: UIDVALIDITY as a (long) number"""
+
+        raise NotImplementedError
 
     def cachemessagelist(self):
         """Reads the message list from disk or network and stores it in
         memory for later use.  This list will not be re-read from disk or
         memory unless this function is called again."""
-        raise NotImplementedException
+
+        raise NotImplementedError
+
+    def ismessagelistempty(self):
+        """Empty everythings we know about messages."""
+
+        if len(self.messagelist.keys()) < 1:
+            return True
+        return False
+
+    def dropmessagelistcache(self):
+        """Empty everythings we know about messages."""
+
+        self.messagelist = {}
 
     def getmessagelist(self):
         """Gets the current message list.
+
         You must call cachemessagelist() before calling this function!"""
-        raise NotImplementedException
+
+        raise NotImplementedError
+
+    def msglist_item_initializer(self, uid):
+        """Returns value for empty messagelist element with given UID.
+
+        This function must initialize all fields of messagelist item
+        and must be called every time when one creates new messagelist
+        entry to ensure that all fields that must be present are present."""
+
+        raise NotImplementedError
+
+    def uidexists(self, uid):
+        """Returns True if uid exists"""
+
+        return uid in self.getmessagelist()
+
+    def getmessageuidlist(self):
+        """Gets a list of UIDs.
+
+        You may have to call cachemessagelist() before calling this function!"""
+
+        return self.getmessagelist().keys()
+
+    def getmessagecount(self):
+        """Gets the number of messages."""
+
+        return len(self.getmessagelist())
 
     def getmessage(self, uid):
         """Returns the content of the specified message."""
-        raise NotImplementedException
+
+        raise NotImplementedError
+
+    def getmaxage(self):
+        """ maxage is allowed to be either an integer or a date of the
+        form YYYY-mm-dd. This returns a time_struct. """
+
+        maxagestr = self.config.getdefault("Account %s"%
+            self.accountname, "maxage", None)
+        if maxagestr == None:
+            return None
+        # is it a number?
+        try:
+            maxage = int(maxagestr)
+            if maxage < 1:
+                raise OfflineImapError("invalid maxage value %d"% maxage,
+                    OfflineImapError.ERROR.MESSAGE)
+            return time.gmtime(time.time() - 60*60*24*maxage)
+        except ValueError:
+            pass # maybe it was a date
+        # is it a date string?
+        try:
+            date = time.strptime(maxagestr, "%Y-%m-%d")
+            if date[0] < 1900:
+                raise OfflineImapError("maxage led to year %d. "
+                    "Abort syncing."% date[0],
+                    OfflineImapError.ERROR.MESSAGE)
+            return date
+        except ValueError:
+            raise OfflineImapError("invalid maxage value %s"% maxagestr,
+                OfflineImapError.ERROR.MESSAGE)
+
+    def getmaxsize(self):
+        return self.config.getdefaultint("Account %s"%
+            self.accountname, "maxsize", None)
+
+    def getstartdate(self):
+        """ Retrieve the value of the configuration option startdate """
+        datestr = self.config.getdefault("Repository " + self.repository.name,
+            'startdate', None)
+        try:
+            if not datestr:
+                return None
+            date = time.strptime(datestr, "%Y-%m-%d")
+            if date[0] < 1900:
+                raise OfflineImapError("startdate led to year %d. "
+                    "Abort syncing."% date[0],
+                    OfflineImapError.ERROR.MESSAGE)
+            return date
+        except ValueError:
+            raise OfflineImapError("invalid startdate value %s",
+                OfflineImapError.ERROR.MESSAGE)
+
+    def get_min_uid_file(self):
+        startuiddir = os.path.join(self.config.getmetadatadir(),
+            'Repository-' + self.repository.name, 'StartUID')
+        if not os.path.exists(startuiddir):
+            os.mkdir(startuiddir, 0o700)
+        return os.path.join(startuiddir, self.getfolderbasename())
+
+    def retrieve_min_uid(self):
+        uidfile = self.get_min_uid_file()
+        if not os.path.exists(uidfile):
+            return None
+        try:
+            fd = open(uidfile, 'rt')
+            min_uid = long(fd.readline().strip())
+            fd.close()
+            return min_uid
+        except:
+            raise IOError("Can't read %s"% uidfile)
+
 
     def savemessage(self, uid, content, flags, rtime):
         """Writes a new message, with the specified uid.
-        If the uid is < 0, the backend should assign a new uid and return it.
 
-        If the backend cannot assign a new uid, it returns the uid passed in
-        WITHOUT saving the message.
+        If the uid is < 0: The backend should assign a new uid and
+           return it.  In case it cannot assign a new uid, it returns
+           the negative uid passed in WITHOUT saving the message.
 
-        If the backend CAN assign a new uid, but cannot find out what this UID
-        is (as is the case with many IMAP servers), it returns 0 but DOES save
-        the message.
-        
-        IMAP backend should be the only one that can assign a new uid.
+           If the backend CAN assign a new uid, but cannot find out what
+           this UID is (as is the case with some IMAP servers), it
+           returns 0 but DOES save the message.
+
+           IMAP backend should be the only one that can assign a new
+           uid.
 
         If the uid is > 0, the backend should set the uid to this, if it can.
-        If it cannot set the uid to that, it will save it anyway.
-        It will return the uid assigned in any case.
-        """
-        raise NotImplementedException
+           If it cannot set the uid to that, it will save it anyway.
+           It will return the uid assigned in any case.
+
+        Note that savemessage() does not check against dryrun settings,
+        so you need to ensure that savemessage is never called in a
+        dryrun mode."""
+
+        raise NotImplementedError
 
     def getmessagetime(self, uid):
         """Return the received time for the specified message."""
-        raise NotImplementedException
+
+        raise NotImplementedError
+
+    def getmessagemtime(self, uid):
+        """Returns the message modification time of the specified message."""
+
+        raise NotImplementedError
 
     def getmessageflags(self, uid):
         """Returns the flags for the specified message."""
-        raise NotImplementedException
+
+        raise NotImplementedError
 
     def savemessageflags(self, uid, flags):
-        """Sets the specified message's flags to the given set."""
-        raise NotImplementedException
+        """Sets the specified message's flags to the given set.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
+        raise NotImplementedError
 
     def addmessageflags(self, uid, flags):
         """Adds the specified flags to the message's flag set.  If a given
-        flag is already present, it will not be duplicated."""
-        newflags = self.getmessageflags(uid)
-        for flag in flags:
-            if not flag in newflags:
-                newflags.append(flag)
-        newflags.sort()
+        flag is already present, it will not be duplicated.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
+
+        :param flags: A set() of flags"""
+
+        newflags = self.getmessageflags(uid) | flags
         self.savemessageflags(uid, newflags)
 
     def addmessagesflags(self, uidlist, flags):
+        """Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
         for uid in uidlist:
-            self.addmessageflags(uid, flags)
+            if self.uidexists(uid):
+                self.addmessageflags(uid, flags)
 
     def deletemessageflags(self, uid, flags):
         """Removes each flag given from the message's flag set.  If a given
-        flag is already removed, no action will be taken for that flag."""
-        newflags = self.getmessageflags(uid)
-        for flag in flags:
-            if flag in newflags:
-                newflags.remove(flag)
-        newflags.sort()
+        flag is already removed, no action will be taken for that flag.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
+        newflags = self.getmessageflags(uid) - flags
         self.savemessageflags(uid, newflags)
 
     def deletemessagesflags(self, uidlist, flags):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
         for uid in uidlist:
             self.deletemessageflags(uid, flags)
 
+    def getmessagelabels(self, uid):
+        """Returns the labels for the specified message."""
+
+        raise NotImplementedError
+
+    def savemessagelabels(self, uid, labels, ignorelabels=set(), mtime=0):
+        """Sets the specified message's labels to the given set.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
+        raise NotImplementedError
+
+    def addmessagelabels(self, uid, labels):
+        """Adds the specified labels to the message's labels set.  If a given
+        label is already present, it will not be duplicated.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
+
+        :param labels: A set() of labels"""
+
+        newlabels = self.getmessagelabels(uid) | labels
+        self.savemessagelabels(uid, newlabels)
+
+    def addmessageslabels(self, uidlist, labels):
+        """Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
+        for uid in uidlist:
+            self.addmessagelabels(uid, labels)
+
+    def deletemessagelabels(self, uid, labels):
+        """Removes each label given from the message's label set.  If a given
+        label is already removed, no action will be taken for that label.
+
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
+        newlabels = self.getmessagelabels(uid) - labels
+        self.savemessagelabels(uid, newlabels)
+
+    def deletemessageslabels(self, uidlist, labels):
+        """
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
+        for uid in uidlist:
+            self.deletemessagelabels(uid, labels)
+
+    def addmessageheader(self, content, linebreak, headername, headervalue):
+        """Adds new header to the provided message.
+
+        WARNING: This function is a bit tricky, and modifying it in the wrong way,
+        may easily lead to data-loss.
+
+        Arguments:
+        - content: message content, headers and body as a single string
+        - linebreak: string that carries line ending
+        - headername: name of the header to add
+        - headervalue: value of the header to add
+
+        .. note::
+
+           The following documentation will not get displayed correctly after being
+           processed by Sphinx. View the source of this method to read it.
+
+        This has to deal with strange corner cases where the header is
+        missing or empty.  Here are illustrations for all the cases,
+        showing where the header gets inserted and what the end result
+        is.  In each illustration, '+' means the added contents.  Note
+        that these examples assume LF for linebreak, not CRLF, so '\n'
+        denotes a linebreak and '\n\n' corresponds to the transition
+        between header and body.  However if the linebreak parameter
+        is set to '\r\n' then you would have to substitute '\r\n' for
+        '\n' in the below examples.
+
+          * Case 1: No '\n\n', leading '\n'
+
+            +X-Flying-Pig-Header: i am here\n
+            \n
+            This is the body\n
+            next line\n
+
+          * Case 2: '\n\n' at position 0
+
+            +X-Flying-Pig-Header: i am here
+            \n
+            \n
+            This is the body\n
+            next line\n
+
+          * Case 3: No '\n\n', no leading '\n'
+
+            +X-Flying-Pig-Header: i am here\n
+            +\n
+            This is the body\n
+            next line\n
+
+          * Case 4: '\n\n' at non-zero position
+
+            Subject: Something wrong with OI\n
+            From: some@person.at
+            +\nX-Flying-Pig-Header: i am here
+            \n
+            \n
+            This is the body\n
+            next line\n
+        """
+
+        self.ui.debug('', 'addmessageheader: called to add %s: %s'%
+            (headername, headervalue))
+
+        insertionpoint = content.find(linebreak * 2)
+        if insertionpoint == -1:
+            self.ui.debug('', 'addmessageheader: headers were missing')
+        else:
+            self.ui.debug('', 'addmessageheader: headers end at position %d' % insertionpoint)
+            mark = '==>EOH<=='
+            contextstart = max(0,            insertionpoint - 100)
+            contextend   = min(len(content), insertionpoint + 100)
+            self.ui.debug('', 'addmessageheader: header/body transition context (marked by %s): %s' %
+                          (mark, repr(content[contextstart:insertionpoint]) + \
+                          mark + repr(content[insertionpoint:contextend])))
+
+        # Hoping for case #4
+        prefix = linebreak
+        suffix = ''
+        # Case #2
+        if insertionpoint == 0:
+            prefix = ''
+            suffix = ''
+        # Either case #1 or #3
+        elif insertionpoint == -1:
+            prefix = ''
+            suffix = linebreak
+            insertionpoint = 0
+            # Case #3: when body starts immediately, without preceding '\n'
+            # (this shouldn't happen with proper mail messages, but
+            # we seen many broken ones), we should add '\n' to make
+            # new (and the only header, in this case) to be properly
+            # separated from the message body.
+            if content[0:len(linebreak)] != linebreak:
+                suffix = suffix + linebreak
+
+        self.ui.debug('', 'addmessageheader: insertionpoint = %d'% insertionpoint)
+        headers = content[0:insertionpoint]
+        self.ui.debug('', 'addmessageheader: headers = %s'% repr(headers))
+        new_header = prefix + ("%s: %s" % (headername, headervalue)) + suffix
+        self.ui.debug('', 'addmessageheader: new_header = ' + repr(new_header))
+        return headers + new_header + content[insertionpoint:]
+
+
+    def __find_eoh(self, content):
+        """ Searches for the point where mail headers end.
+        Either double '\n', or end of string.
+
+        Arguments:
+        - content: contents of the message to search in
+        Returns: position of the first non-header byte.
+        """
+
+        eoh_cr = content.find('\n\n')
+        if eoh_cr == -1:
+            eoh_cr = len(content)
+
+        return eoh_cr
+
+
+    def getmessageheader(self, content, name):
+        """Searches for the first occurence of the given header and returns
+        its value. Header name is case-insensitive.
+
+        Arguments:
+        - contents: message itself
+        - name: name of the header to be searched
+
+        Returns: header value or None if no such header was found
+        """
+
+        self.ui.debug('', 'getmessageheader: called to get %s'% name)
+        eoh = self.__find_eoh(content)
+        self.ui.debug('', 'getmessageheader: eoh = %d'% eoh)
+        headers = content[0:eoh]
+        self.ui.debug('', 'getmessageheader: headers = %s'% repr(headers))
+
+        m = re.search('^%s:(.*)$' % name, headers, flags = re.MULTILINE | re.IGNORECASE)
+        if m:
+            return m.group(1).strip()
+        else:
+            return None
+
+
+    def getmessageheaderlist(self, content, name):
+        """Searches for the given header and returns a list of values for
+        that header.
+
+        Arguments:
+        - contents: message itself
+        - name: name of the header to be searched
+
+        Returns: list of header values or emptylist if no such header was found
+        """
+
+        self.ui.debug('', 'getmessageheaderlist: called to get %s' % name)
+        eoh = self.__find_eoh(content)
+        self.ui.debug('', 'getmessageheaderlist: eoh = %d' % eoh)
+        headers = content[0:eoh]
+        self.ui.debug('', 'getmessageheaderlist: headers = %s' % repr(headers))
+
+        return re.findall('^%s:(.*)$' % name, headers, flags = re.MULTILINE | re.IGNORECASE)
+
+
+    def deletemessageheaders(self, content, header_list):
+        """Deletes headers in the given list from the message content.
+
+        Arguments:
+        - content: message itself
+        - header_list: list of headers to be deleted or just the header name
+
+        We expect our message to have '\n' as line endings.
+        """
+
+        if type(header_list) != type([]):
+            header_list = [header_list]
+        self.ui.debug('', 'deletemessageheaders: called to delete %s'% (header_list))
+
+        if not len(header_list): return content
+
+        eoh = self.__find_eoh(content)
+        self.ui.debug('', 'deletemessageheaders: end of headers = %d'% eoh)
+        headers = content[0:eoh]
+        rest = content[eoh:]
+        self.ui.debug('', 'deletemessageheaders: headers = %s'% repr(headers))
+        new_headers = []
+        for h in headers.split('\n'):
+            keep_it = True
+            for trim_h in header_list:
+                if len(h) > len(trim_h) and h[0:len(trim_h)+1] == (trim_h + ":"):
+                    keep_it = False
+                    break
+            if keep_it: new_headers.append(h)
+
+        return ('\n'.join(new_headers) + rest)
+
+
+
+
+    def change_message_uid(self, uid, new_uid):
+        """Change the message from existing uid to new_uid
+
+        If the backend supports it (IMAP does not).
+
+        :param new_uid: (optional) If given, the old UID will be changed
+            to a new UID. This allows backends efficient renaming of
+            messages if the UID has changed."""
+
+        raise NotImplementedError
+
     def deletemessage(self, uid):
-        raise NotImplementedException
+        """Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
+        raise NotImplementedError
 
     def deletemessages(self, uidlist):
+        """Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode."""
+
         for uid in uidlist:
             self.deletemessage(uid)
 
-    def syncmessagesto_neguid_msg(self, uid, dest, applyto, register = 1):
-        if register:
-            self.ui.registerthread(self.getaccountname())
-        self.ui.copyingmessage(uid, self, applyto)
-        successobject = None
-        successuid = None
-        message = self.getmessage(uid)
-        flags = self.getmessageflags(uid)
-        rtime = self.getmessagetime(uid)
-        for tryappend in applyto:
-            successuid = tryappend.savemessage(uid, message, flags, rtime)
-            if successuid >= 0:
-                successobject = tryappend
-                break
-        # Did we succeed?
-        if successobject != None:
-            if successuid:       # Only if IMAP actually assigned a UID
-                # Copy the message to the other remote servers.
-                for appendserver in \
-                        [x for x in applyto if x != successobject]:
-                    appendserver.savemessage(successuid, message, flags, rtime)
-                    # Copy to its new name on the local server and delete
-                    # the one without a UID.
-                    self.savemessage(successuid, message, flags, rtime)
-            self.deletemessage(uid) # It'll be re-downloaded.
-        else:
-            # Did not find any server to take this message.  Ignore.
-            pass
-        
+    def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
+        """Copies a message from self to dst if needed, updating the status
 
-    def syncmessagesto_neguid(self, dest, applyto):
-        """Pass 1 of folder synchronization.
+        Note that this function does not check against dryrun settings,
+        so you need to ensure that it is never called in a
+        dryrun mode.
 
-        Look for messages in self with a negative uid.  These are messages in
-        Maildirs that were not added by us.  Try to add them to the dests,
-        and once that succeeds, get the UID, add it to the others for real,
-        add it to local for real, and delete the fake one."""
+        :param uid: uid of the message to be copied.
+        :param dstfolder: A BaseFolder-derived instance
+        :param statusfolder: A LocalStatusFolder instance
+        :param register: whether we should register a new thread."
+        :returns: Nothing on success, or raises an Exception."""
 
-        uidlist = [uid for uid in self.getmessagelist().keys() if uid < 0]
-        threads = []
-
-        usethread = None
-        if applyto != None:
-            usethread = applyto[0]
-        
-        for uid in uidlist:
-            if usethread and usethread.suggeststhreads():
-                usethread.waitforthread()
-                thread = threadutil.InstanceLimitedThread(\
-                    usethread.getcopyinstancelimit(),
-                    target = self.syncmessagesto_neguid_msg,
-                    name = "New msg sync from %s" % self.getvisiblename(),
-                    args = (uid, dest, applyto))
-                thread.setDaemon(1)
-                thread.start()
-                threads.append(thread)
-            else:
-                self.syncmessagesto_neguid_msg(uid, dest, applyto, register = 0)
-        for thread in threads:
-            thread.join()
-
-    def copymessageto(self, uid, applyto, register = 1):
         # Sometimes, it could be the case that if a sync takes awhile,
         # a message might be deleted from the maildir before it can be
         # synced to the status cache.  This is only a problem with
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
+        if register: # output that we start a new thread
+            self.ui.registerthread(self.repository.account)
+
         try:
-            if register:
-                self.ui.registerthread(self.getaccountname())
-            self.ui.copyingmessage(uid, self, applyto)
-            message = ''
-            # If any of the destinations actually stores the message body,
-            # load it up.
-            
-            for object in applyto:
-                if object.storesmessages():
-                    message = self.getmessage(uid)
-                    break
+            message = None
             flags = self.getmessageflags(uid)
             rtime = self.getmessagetime(uid)
-            for object in applyto:
-                newuid = object.savemessage(uid, message, flags, rtime)
-                if newuid > 0 and newuid != uid:
-                    # Change the local uid.
-                    self.savemessage(newuid, message, flags, rtime)
-                    self.deletemessage(uid)
-                    uid = newuid
-        except (KeyboardInterrupt):
+
+            # If any of the destinations actually stores the message body,
+            # load it up.
+            if dstfolder.storesmessages():
+                message = self.getmessage(uid)
+            # Succeeded? -> IMAP actually assigned a UID. If newid
+            # remained negative, no server was willing to assign us an
+            # UID. If newid is 0, saving succeeded, but we could not
+            # retrieve the new UID. Ignore message in this case.
+            new_uid = dstfolder.savemessage(uid, message, flags, rtime)
+            if new_uid > 0:
+                if new_uid != uid:
+                    # Got new UID, change the local uid to match the new one.
+                    self.change_message_uid(uid, new_uid)
+                    statusfolder.deletemessage(uid)
+                    # Got new UID, change the local uid.
+                # Save uploaded status in the statusfolder
+                statusfolder.savemessage(new_uid, message, flags, rtime)
+            elif new_uid == 0:
+                # Message was stored to dstfolder, but we can't find it's UID
+                # This means we can't link current message to the one created
+                # in IMAP. So we just delete local message and on next run
+                # we'll sync it back
+                # XXX This could cause infinite loop on syncing between two
+                # IMAP servers ...
+                self.deletemessage(uid)
+            else:
+                raise OfflineImapError("Trying to save msg (uid %d) on folder "
+                    "%s returned invalid uid %d"% (uid, dstfolder.getvisiblename(),
+                    new_uid), OfflineImapError.ERROR.MESSAGE)
+        except (KeyboardInterrupt): # bubble up CTRL-C
             raise
-        except:
-            self.ui.warn("ERROR attempting to copy message " + str(uid) \
-                 + " for account " + self.getaccountname() + ":" + traceback.format_exc())
-        
+        except OfflineImapError as e:
+            if e.severity > OfflineImapError.ERROR.MESSAGE:
+                raise # bubble severe errors up
+            self.ui.error(e, exc_info()[2])
+        except Exception as e:
+            self.ui.error(e, exc_info()[2],
+              msg = "Copying message %s [acc: %s]"% (uid, self.accountname))
+            raise    #raise on unknown errors, so we can fix those
 
-    def syncmessagesto_copy(self, dest, applyto):
-        """Pass 2 of folder synchronization.
+    def __syncmessagesto_copy(self, dstfolder, statusfolder):
+        """Pass1: Copy locally existing messages not on the other side.
 
-        Look for messages present in self but not in dest.  If any, add
-        them to dest."""
+        This will copy messages to dstfolder that exist locally but are
+        not in the statusfolder yet. The strategy is:
+
+        1) Look for messages present in self but not in statusfolder.
+        2) invoke copymessageto() on those which:
+           - If dstfolder doesn't have it yet, add them to dstfolder.
+           - Update statusfolder
+
+        This function checks and protects us from action in dryrun mode."""
+
         threads = []
-        
-	dest_messagelist = dest.getmessagelist()
-        for uid in self.getmessagelist().keys():
-            if uid < 0:                 # Ignore messages that pass 1 missed.
+
+        copylist = filter(lambda uid: not statusfolder.uidexists(uid),
+            self.getmessageuidlist())
+        num_to_copy = len(copylist)
+        if num_to_copy and self.repository.account.dryrun:
+            self.ui.info("[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
+                num_to_copy, self, self.repository, dstfolder.repository))
+            return
+        for num, uid in enumerate(copylist):
+            # bail out on CTRL-C or SIGTERM
+            if offlineimap.accounts.Account.abort_NOW_signal.is_set():
+                break
+            if uid > 0 and dstfolder.uidexists(uid):
+                # dst has message with that UID already, only update status
+                flags = self.getmessageflags(uid)
+                rtime = self.getmessagetime(uid)
+                statusfolder.savemessage(uid, None, flags, rtime)
                 continue
-            if not uid in dest_messagelist:
-                if self.suggeststhreads():
-                    self.waitforthread()
-                    thread = threadutil.InstanceLimitedThread(\
-                        self.getcopyinstancelimit(),
-                        target = self.copymessageto,
-                        name = "Copy message %d from %s" % (uid,
-                                                            self.getvisiblename()),
-                        args = (uid, applyto))
-                    thread.setDaemon(1)
-                    thread.start()
-                    threads.append(thread)
-                else:
-                    self.copymessageto(uid, applyto, register = 0)
+
+            self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
+            # exceptions are caught in copymessageto()
+            if self.suggeststhreads() and not globals.options.singlethreading:
+                self.waitforthread()
+                thread = threadutil.InstanceLimitedThread(\
+                    self.getcopyinstancelimit(),
+                    target = self.copymessageto,
+                    name = "Copy message from %s:%s" % (self.repository, self),
+                    args = (uid, dstfolder, statusfolder))
+                thread.start()
+                threads.append(thread)
+            else:
+                self.copymessageto(uid, dstfolder, statusfolder,
+                                   register = 0)
         for thread in threads:
             thread.join()
 
-    def syncmessagesto_delete(self, dest, applyto):
-        """Pass 3 of folder synchronization.
+    def __syncmessagesto_delete(self, dstfolder, statusfolder):
+        """Pass 2: Remove locally deleted messages on dst.
 
-        Look for message present in dest but not in self.
-        If any, delete them."""
-        deletelist = []
-	self_messagelist = self.getmessagelist()
-        for uid in dest.getmessagelist().keys():
-            if uid < 0:
-                continue
-            if not uid in self_messagelist:
-                deletelist.append(uid)
+        Get all UIDS in statusfolder but not self. These are messages
+        that were deleted in 'self'. Delete those from dstfolder and
+        statusfolder.
+
+        This function checks and protects us from action in dryrun mode.
+        """
+
+        deletelist = filter(lambda uid: uid >= 0 and not
+            self.uidexists(uid), statusfolder.getmessageuidlist())
         if len(deletelist):
-            self.ui.deletingmessages(deletelist, applyto)
-            for object in applyto:
-                object.deletemessages(deletelist)
+            # Delete in statusfolder first to play safe. In case of abort, we
+            # won't lose message, we will just unneccessarily retransmit some.
+            # Delete messages from statusfolder that were either deleted by the
+            # user, or not being tracked (e.g. because of maxage).
+            statusfolder.deletemessages(deletelist)
+            # Filter out untracked messages
+            deletelist = filter(lambda uid: dstfolder.uidexists(uid), deletelist)
+            if len(deletelist):
+                self.ui.deletingmessages(deletelist, [dstfolder])
+                if self.repository.account.dryrun:
+                    return #don't delete messages in dry-run mode
+                dstfolder.deletemessages(deletelist)
 
-    def syncmessagesto_flags(self, dest, applyto):
-        """Pass 4 of folder synchronization.
+    def __syncmessagesto_flags(self, dstfolder, statusfolder):
+        """Pass 3: Flag synchronization.
 
-        Look for any flag matching issues -- set dest message to have the
-        same flags that we have."""
+        Compare flag mismatches in self with those in statusfolder. If
+        msg has a valid UID and exists on dstfolder (has not e.g. been
+        deleted there), sync the flag change to both dstfolder and
+        statusfolder.
 
-        # As an optimization over previous versions, we store up which flags
-        # are being used for an add or a delete.  For each flag, we store
-        # a list of uids to which it should be added.  Then, we can call
-        # addmessagesflags() to apply them in bulk, rather than one
-        # call per message as before.  This should result in some significant
-        # performance improvements.
+        This function checks and protects us from action in ryrun mode.
+        """
 
+        # For each flag, we store a list of uids to which it should be
+        # added.  Then, we can call addmessagesflags() to apply them in
+        # bulk, rather than one call per message.
         addflaglist = {}
         delflaglist = {}
-        
-        for uid in self.getmessagelist().keys():
-            if uid < 0:                 # Ignore messages missed by pass 1
+        for uid in self.getmessageuidlist():
+            # Ignore messages with negative UIDs missed by pass 1 and
+            # don't do anything if the message has been deleted remotely
+            if uid < 0 or not dstfolder.uidexists(uid):
                 continue
-            selfflags = self.getmessageflags(uid)
-            destflags = dest.getmessageflags(uid)
 
-            addflags = [x for x in selfflags if x not in destflags]
+            selfflags = self.getmessageflags(uid)
+
+            if statusfolder.uidexists(uid):
+                statusflags = statusfolder.getmessageflags(uid)
+            else:
+                statusflags = set()
+
+            addflags = selfflags - statusflags
+            delflags = statusflags - selfflags
 
             for flag in addflags:
                 if not flag in addflaglist:
                     addflaglist[flag] = []
                 addflaglist[flag].append(uid)
 
-            delflags = [x for x in destflags if x not in selfflags]
             for flag in delflags:
                 if not flag in delflaglist:
                     delflaglist[flag] = []
                 delflaglist[flag].append(uid)
 
-        for object in applyto:
-            for flag in addflaglist.keys():
-                self.ui.addingflags(addflaglist[flag], flag, [object])
-                object.addmessagesflags(addflaglist[flag], [flag])
-            for flag in delflaglist.keys():
-                self.ui.deletingflags(delflaglist[flag], flag, [object])
-                object.deletemessagesflags(delflaglist[flag], [flag])
-                
-    def syncmessagesto(self, dest, applyto = None):
-        """Syncs messages in this folder to the destination.
-        If applyto is specified, it should be a list of folders (don't forget
-        to include dest!) to which all write actions should be applied.
-        It defaults to [dest] if not specified.  It is important that
-        the UID generator be listed first in applyto; that is, the other
-        applyto ones should be the ones that "copy" the main action."""
-        if applyto == None:
-            applyto = [dest]
+        for flag, uids in addflaglist.items():
+            self.ui.addingflags(uids, flag, dstfolder)
+            if self.repository.account.dryrun:
+                continue #don't actually add in a dryrun
+            dstfolder.addmessagesflags(uids, set(flag))
+            statusfolder.addmessagesflags(uids, set(flag))
 
-        try:
-            self.syncmessagesto_neguid(dest, applyto)
-        except (KeyboardInterrupt):
-            raise
-        except:
-            self.ui.warn("ERROR attempting to handle negative uids " \
-                + "for account " + self.getaccountname() + ":" + traceback.format_exc())
+        for flag,uids in delflaglist.items():
+            self.ui.deletingflags(uids, flag, dstfolder)
+            if self.repository.account.dryrun:
+                continue #don't actually remove in a dryrun
+            dstfolder.deletemessagesflags(uids, set(flag))
+            statusfolder.deletemessagesflags(uids, set(flag))
 
-        #all threads launched here are in try / except clauses when they copy anyway...
-        self.syncmessagesto_copy(dest, applyto)
+    def syncmessagesto(self, dstfolder, statusfolder):
+        """Syncs messages in this folder to the destination dstfolder.
 
-        try:
-            self.syncmessagesto_delete(dest, applyto)
-        except (KeyboardInterrupt):
-            raise
-        except:
-            self.ui.warn("ERROR attempting to delete messages " \
-                + "for account " + self.getaccountname() + ":" + traceback.format_exc())
+        This is the high level entry for syncing messages in one direction.
+        Syncsteps are:
 
-        # Now, the message lists should be identical wrt the uids present.
-        # (except for potential negative uids that couldn't be placed
-        # anywhere)
+        Pass1: Copy locally existing messages
+         Copy messages in self, but not statusfolder to dstfolder if not
+         already in dstfolder. dstfolder might assign a new UID (e.g. if
+         uploading to IMAP). Update statusfolder.
 
-        try:
-            self.syncmessagesto_flags(dest, applyto)
-        except (KeyboardInterrupt):
-            raise
-        except:
-            self.ui.warn("ERROR attempting to sync flags " \
-                + "for account " + self.getaccountname() + ":" + traceback.format_exc())
-        
-            
+        Pass2: Remove locally deleted messages
+         Get all UIDS in statusfolder but not self. These are messages
+         that were deleted in 'self'. Delete those from dstfolder and
+         statusfolder.
+
+         After this pass, the message lists should be identical wrt the
+         uids present (except for potential negative uids that couldn't
+         be placed anywhere).
+
+        Pass3: Synchronize flag changes
+         Compare flag mismatches in self with those in statusfolder. If
+         msg has a valid UID and exists on dstfolder (has not e.g. been
+         deleted there), sync the flag change to both dstfolder and
+         statusfolder.
+
+        Pass4: Synchronize label changes (Gmail only)
+         Compares label mismatches in self with those in statusfolder.
+         If msg has a valid UID and exists on dstfolder, syncs the labels
+         to both dstfolder and statusfolder.
+
+        :param dstfolder: Folderinstance to sync the msgs to.
+        :param statusfolder: LocalStatus instance to sync against.
+        """
+
+        for (passdesc, action) in self.syncmessagesto_passes:
+            # bail out on CTRL-C or SIGTERM
+            if offlineimap.accounts.Account.abort_NOW_signal.is_set():
+                break
+            try:
+                action(dstfolder, statusfolder)
+            except (KeyboardInterrupt):
+                raise
+            except OfflineImapError as e:
+                if e.severity > OfflineImapError.ERROR.FOLDER:
+                    raise
+                self.ui.error(e, exc_info()[2])
+            except Exception as e:
+                self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
+                                  (self, self.accountname))
+                raise # raise unknown Exceptions so we can fix them
+
+    def __eq__(self, other):
+        """Comparisons work either on string comparing folder names or
+        on the same instance.
+
+        MailDirFolder('foo') == 'foo' --> True
+        a = MailDirFolder('foo'); a == b --> True
+        MailDirFolder('foo') == 'moo' --> False
+        MailDirFolder('foo') == IMAPFolder('foo') --> False
+        MailDirFolder('foo') == MaildirFolder('foo') --> False
+        """
+
+        if isinstance(other, basestring):
+            return other == self.name
+        return id(self) == id(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

@@ -1,6 +1,5 @@
 # imaplib utilities
-# Copyright (C) 2002-2007 John Goerzen <jgoerzen@complete.org>
-#                    2010 Sebastian Spaeth <Sebastian@SSpaeth.de>
+# Copyright (C) 2002-2015 John Goerzen & contributors
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -15,20 +14,94 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-import re, socket, time, subprocess
+import os
+import fcntl
+import time
+import subprocess
+from sys import exc_info
+import threading
+from hashlib import sha1
+import socket
+import errno
+
 from offlineimap.ui import getglobalui
-from imaplib import *
+from offlineimap import OfflineImapError
+from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, InternalDate, Mon2num
 
-# Import the symbols we need that aren't exported by default
-from imaplib import IMAP4_PORT, IMAP4_SSL_PORT, InternalDate, Mon2num
 
-try:
-    import ssl
-except ImportError:
-    #fails on python <2.6
-    pass
+class UsefulIMAPMixIn(object):
+    def __getselectedfolder(self):
+        if self.state == 'SELECTED':
+            return self.mailbox
+        return None
 
-class IMAP4_Tunnel(IMAP4):
+    def select(self, mailbox='INBOX', readonly=False, force=False):
+        """Selects a mailbox on the IMAP server
+
+        :returns: 'OK' on success, nothing if the folder was already
+        selected or raises an :exc:`OfflineImapError`."""
+
+        if self.__getselectedfolder() == mailbox and \
+            self.is_readonly == readonly and \
+            not force:
+            # No change; return.
+            return
+        try:
+            result = super(UsefulIMAPMixIn, self).select(mailbox, readonly)
+        except self.readonly as e:
+            # pass self.readonly to our callers
+            raise
+        except self.abort as e:
+            # self.abort is raised when we are supposed to retry
+            errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
+                "ver said: %s" % (self.host, mailbox, e.args[0])
+            severity = OfflineImapError.ERROR.FOLDER_RETRY
+            raise OfflineImapError(errstr, severity), None, exc_info()[2]
+        if result[0] != 'OK':
+            #in case of error, bail out with OfflineImapError
+            errstr = "Error SELECTing mailbox '%s', server reply:\n%s" %\
+                (mailbox, result)
+            severity = OfflineImapError.ERROR.FOLDER
+            raise OfflineImapError(errstr, severity)
+        return result
+
+    # Overrides private function from IMAP4 (@imaplib2)
+    def _mesg(self, s, tn=None, secs=None):
+        new_mesg(self, s, tn, secs)
+
+    # Overrides private function from IMAP4 (@imaplib2)
+    def open_socket(self):
+        """open_socket()
+        Open socket choosing first address family available."""
+        msg = (-1, 'could not open socket')
+        for res in socket.getaddrinfo(self.host, self.port, socket.AF_UNSPEC, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            try:
+                # use socket of our own, possiblly socksified socket.
+                s = self.socket(af, socktype, proto)
+            except socket.error, msg:
+                continue
+            try:
+                for i in (0, 1):
+                    try:
+                        s.connect(sa)
+                        break
+                    except socket.error, msg:
+                        if len(msg.args) < 2 or msg.args[0] != errno.EINTR:
+                            raise
+                else:
+                    raise socket.error(msg)
+            except socket.error, msg:
+                s.close()
+                continue
+            break
+        else:
+            raise socket.error(msg)
+
+        return s
+
+
+class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
     """IMAP4 client class over a tunnel
 
     Instantiate with: IMAP4_Tunnel(tunnelcmd)
@@ -36,25 +109,51 @@ class IMAP4_Tunnel(IMAP4):
     tunnelcmd -- shell command to generate the tunnel.
     The result will be in PREAUTH stage."""
 
-    def __init__(self, tunnelcmd):
-        IMAP4.__init__(self, tunnelcmd)
+    def __init__(self, tunnelcmd, **kwargs):
+        if "use_socket" in kwargs:
+            self.socket = kwargs['use_socket']
+            del kwargs['use_socket']
+        IMAP4.__init__(self, tunnelcmd, **kwargs)
 
     def open(self, host, port):
         """The tunnelcmd comes in on host!"""
+
+        self.host = host
         self.process = subprocess.Popen(host, shell=True, close_fds=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         (self.outfd, self.infd) = (self.process.stdin, self.process.stdout)
+        # imaplib2 polls on this fd
+        self.read_fd = self.infd.fileno()
+
+        self.set_nonblocking(self.read_fd)
+
+    def set_nonblocking(self, fd):
+        """Mark fd as nonblocking"""
+
+        # get the file's current flag settings
+        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+        # clear non-blocking mode from flags
+        fl = fl & ~os.O_NONBLOCK
+        fcntl.fcntl(fd, fcntl.F_SETFL, fl)
 
     def read(self, size):
-        retval = ''
-        while len(retval) < size:
-            retval += self.infd.read(size - len(retval))
-        return retval
+        """data = read(size)
+        Read at most 'size' bytes from remote."""
 
-    def readline(self):
-        return self.infd.readline()
+        if self.decompressor is None:
+            return os.read(self.read_fd, size)
+
+        if self.decompressor.unconsumed_tail:
+            data = self.decompressor.unconsumed_tail
+        else:
+            data = os.read(self.read_fd, 8192)
+
+        return self.decompressor.decompress(data, size)
 
     def send(self, data):
+        if self.compressor is not None:
+            data = self.compressor.compress(data)
+            data += self.compressor.flush(zlib.Z_SYNC_FLUSH)
         self.outfd.write(data)
 
     def shutdown(self):
@@ -63,189 +162,65 @@ class IMAP4_Tunnel(IMAP4):
         self.process.wait()
 
 
-def new_mesg(self, s, secs=None):
+def new_mesg(self, s, tn=None, secs=None):
             if secs is None:
                 secs = time.time()
+            if tn is None:
+                tn = threading.currentThread().getName()
             tm = time.strftime('%M:%S', time.localtime(secs))
-            getglobalui().debug('imap', '  %s.%02d %s' % (tm, (secs*100)%100, s))
+            getglobalui().debug('imap', '  %s.%02d %s %s' % (tm, (secs*100)%100, tn, s))
 
-class WrappedIMAP4_SSL(IMAP4_SSL):
-    """Provides an improved version of the standard IMAP4_SSL
 
-    It provides a better readline() implementation as impaplib's
-    readline() is extremly inefficient. It can also connect to IPv6
-    addresses."""
+class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
+    """Improved version of imaplib.IMAP4_SSL overriding select()."""
+
     def __init__(self, *args, **kwargs):
-        self._readbuf = ''
-        self._cacertfile = kwargs.get('cacertfile', None)
-        if kwargs.has_key('cacertfile'):
-            del kwargs['cacertfile']
-        IMAP4_SSL.__init__(self, *args, **kwargs)
+        if "use_socket" in kwargs:
+            self.socket = kwargs['use_socket']
+            del kwargs['use_socket']
+        self._fingerprint = kwargs.get('fingerprint', None)
+        if type(self._fingerprint) != type([]):
+            self._fingerprint = [self._fingerprint]
+        if 'fingerprint' in kwargs:
+            del kwargs['fingerprint']
+        super(WrappedIMAP4_SSL, self).__init__(*args, **kwargs)
 
-    def open(self, host = '', port = IMAP4_SSL_PORT):
-        """Do whatever IMAP4_SSL would do in open, but call sslwrap
-        with cert verification"""
-        #IMAP4_SSL.open(self, host, port) uses the below 2 lines:
-        self.host = host
-        self.port = port
-
-        #rather than just self.sock = socket.create_connection((host, port))
-        #we use the below part to be able to connect to ipv6 addresses too
-        #This connects to the first ip found ipv4/ipv6
-        #Added by Adriaan Peeters <apeeters@lashout.net> based on a socket
-        #example from the python documentation:
-        #http://www.python.org/doc/lib/socket-example.html
-        res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
-                                 socket.SOCK_STREAM)
-        # Try all the addresses in turn until we connect()
-        last_error = 0
-        for remote in res:
-            af, socktype, proto, canonname, sa = remote
-            self.sock = socket.socket(af, socktype, proto)
-            last_error = self.sock.connect_ex(sa)
-            if last_error == 0:
-                break
-            else:
-                self.sock.close()
-        if last_error != 0:
-            # FIXME
-            raise socket.error(last_error)
-
-        #connected to socket, now wrap it in SSL
-        try:
-            if self._cacertfile:
-                requirecert = ssl.CERT_REQUIRED
-            else:
-                requirecert = ssl.CERT_NONE
-
-            self.sslobj = ssl.wrap_socket(self.sock, self.keyfile,
-                                          self.certfile,
-                                          ca_certs = self._cacertfile,
-                                          cert_reqs = requirecert)
-        except NameError:
-            #Python 2.4/2.5 don't have the ssl module, we need to
-            #socket.ssl() here but that doesn't allow cert
-            #verification!!!
-            if self._cacertfile:
-                #user configured a CA certificate, but python 2.4/5 doesn't
-                #allow us to easily check it. So bail out here.
-                raise Exception("SSL CA Certificates cannot be checked with python <=2.6. Abort")
-            self.sslobj = socket.ssl(self.sock, self.keyfile,
-                                     self.certfile)
-
-        else:
-            #ssl.wrap_socket worked and cert is verified (if configured),
-            #now check that hostnames also match if we have a CA cert.
-            if self._cacertfile:
-                error = self._verifycert(self.sslobj.getpeercert(), host)
-                if error:
-                    raise ssl.SSLError("SSL Certificate host name mismatch: %s" % error)
-
-        #TODO: Done for now. We should implement a mutt-like behavior
-        #that offers the users to accept a certificate (presenting a
-        #fingerprint of it) (get via self.sslobj.getpeercert()), and
-        #save that, and compare on future connects, rather than having
-        #to trust what the CA certs say.
-
-    def _verifycert(self, cert, hostname):
-        '''Verify that cert (in socket.getpeercert() format) matches hostname.
-        CRLs and subjectAltName are not handled.
-        
-        Returns error message if any problems are found and None on success.
-        '''
-        if not cert:
-            return ('no certificate received')
-        dnsname = hostname.lower()
-        for s in cert.get('subject', []):
-            key, value = s[0]
-            if key == 'commonName':
-                certname = value.lower()
-                if (certname == dnsname or
-                    '.' in dnsname and certname == '*.' + dnsname.split('.', 1)[1]):
-                    return None
-                return ('certificate is for %s') % certname
-        return ('no commonName found in certificate')
-
-    def _read_upto (self, n):
-        """Read up to n bytes, emptying existing _readbuffer first"""
-        bytesfrombuf = min(n, len(self._readbuf))
-        if bytesfrombuf:
-            # Return the stuff in readbuf, even if less than n.
-            # It might contain the rest of the line, and if we try to
-            # read more, might block waiting for data that is not
-            # coming to arrive.
-            retval = self._readbuf[:bytesfrombuf]
-            self._readbuf = self._readbuf[bytesfrombuf:]
-            return retval
-        return self.sslobj.read(min(n, 16384))
-
-    def read(self, n):
-        """Read exactly n bytes
-
-        As done in IMAP4_SSL.read() API. If read returns less than n
-        bytes, things break left and right."""
-        chunks = []
-        read = 0
-        while read < n:
-            data = self._read_upto (n-read)
-            read += len(data)
-            chunks.append(data)
-
-        return ''.join(chunks)
-
-    def readline(self):
-        """Get the next line. This implementation is more efficient
-        than IMAP4_SSL.readline() which reads one char at a time and
-        reassembles the string by appending those chars. Uggh."""
-        retval = ''
-        while 1:
-            linebuf = self._read_upto(1024)
-            nlindex = linebuf.find("\n")
-            if nlindex != -1:
-                retval += linebuf[:nlindex + 1]
-                self._readbuf = linebuf[nlindex + 1:] + self._readbuf
-                return retval
-            else:
-                retval += linebuf
+    def open(self, host=None, port=None):
+        if not self.ca_certs and not self._fingerprint:
+            raise OfflineImapError("No CA certificates "
+              "and no server fingerprints configured.  "
+              "You must configure at least something, otherwise "
+              "having SSL helps nothing.", OfflineImapError.ERROR.REPO)
+        super(WrappedIMAP4_SSL, self).open(host, port)
+        if self._fingerprint:
+            # compare fingerprints
+            fingerprint = sha1(self.sock.getpeercert(True)).hexdigest()
+            if fingerprint not in self._fingerprint:
+                raise OfflineImapError("Server SSL fingerprint '%s' "
+                      "for hostname '%s' "
+                      "does not match configured fingerprint(s) %s.  "
+                      "Please verify and set 'cert_fingerprint' accordingly "
+                      "if not set yet."%
+                      (fingerprint, host, self._fingerprint),
+                      OfflineImapError.ERROR.REPO)
 
 
-class WrappedIMAP4(IMAP4):
-    """Improved version of imaplib.IMAP4 that can also connect to IPv6"""
+class WrappedIMAP4(UsefulIMAPMixIn, IMAP4):
+    """Improved version of imaplib.IMAP4 overriding select()."""
 
-    def open(self, host = '', port = IMAP4_PORT):
-        """Setup connection to remote server on "host:port"
-            (default: localhost:standard IMAP4 port).
-        """
-        #self.host and self.port are needed by the parent IMAP4 class
-        self.host = host
-        self.port = port
-        res = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
-                                 socket.SOCK_STREAM)
+    def __init__(self, *args, **kwargs):
+        if "use_socket" in kwargs:
+            self.socket = kwargs['use_socket']
+            del kwargs['use_socket']
+        IMAP4.__init__(self, *args, **kwargs)
 
-        # Try each address returned by getaddrinfo in turn until we
-        # manage to connect to one.
-        # Try all the addresses in turn until we connect()
-        last_error = 0
-        for remote in res:
-            af, socktype, proto, canonname, sa = remote
-            self.sock = socket.socket(af, socktype, proto)
-            last_error = self.sock.connect_ex(sa)
-            if last_error == 0:
-                break
-            else:
-                self.sock.close()
-        if last_error != 0:
-            # FIXME
-            raise socket.error(last_error)
-        self.file = self.sock.makefile('rb')
-
-mustquote = re.compile(r"[^\w!#$%&'+,.:;<=>?^`|~-]")
 
 def Internaldate2epoch(resp):
     """Convert IMAP4 INTERNALDATE to UT.
 
-    Returns seconds since the epoch.
-    """
+    Returns seconds since the epoch."""
+
+    from calendar import timegm
 
     mo = InternalDate.match(resp)
     if not mo:
@@ -270,4 +245,4 @@ def Internaldate2epoch(resp):
 
     tt = (year, mon, day, hour, min, sec, -1, -1, -1)
 
-    return time.mktime(tt)
+    return timegm(tt) - zone

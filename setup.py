@@ -20,11 +20,35 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-# END OF COPYRIGHT #
 
-
-from distutils.core import setup
+import os
+from distutils.core import setup, Command
 import offlineimap
+import logging
+from test.OLItest import TextTestRunner, TestLoader, OLITestLib
+
+class TestCommand(Command):
+    """runs the OLI testsuite"""
+    description = """Runs the test suite. In order to execute only a single
+        test, you could also issue e.g. 'python -m unittest
+        test.tests.test_01_basic.TestBasicFunctions.test_01_olistartup' on the
+        command line."""
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        logging.basicConfig(format='%(message)s')
+        # set credentials and OfflineImap command to be executed:
+        OLITestLib(cred_file='./test/credentials.conf', cmd='./offlineimap.py')
+        suite = TestLoader().discover('./test/tests')
+        #TODO: failfast does not seem to exist in python2.6?
+        TextTestRunner(verbosity=2,failfast=True).run(suite)
+
 
 setup(name = "offlineimap",
       version = offlineimap.__version__,
@@ -33,9 +57,11 @@ setup(name = "offlineimap",
       author_email = offlineimap.__author_email__,
       url = offlineimap.__homepage__,
       packages = ['offlineimap', 'offlineimap.folder',
-                  'offlineimap.repository', 'offlineimap.ui'],
+                  'offlineimap.repository', 'offlineimap.ui',
+                  'offlineimap.utils'],
       scripts = ['bin/offlineimap'],
       license = offlineimap.__copyright__ + \
-                ", Licensed under the GPL version 2"
+                ", Licensed under the GPL version 2",
+      cmdclass = { 'test': TestCommand}
 )
 

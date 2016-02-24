@@ -1,0 +1,140 @@
+
+offlineimapui(7)
+================
+
+NAME
+----
+offlineimapui - The User Interfaces
+
+DESCRIPTION
+-----------
+
+OfflineIMAP comes with differents UI, each aiming its own purpose.
+
+
+TTYUI
+------
+
+TTYUI interface is for people running in terminals.  It prints out basic
+status messages and is generally friendly to use on a console or xterm.
+
+
+Basic
+------
+
+Basic is designed for situations in which OfflineIMAP will be run non-attended
+and the status of its execution will be logged.
++
+This user interface is not capable of reading a password from the keyboard;
+account passwords must be specified using one of the configuration file
+options. For example, it will not print periodic sleep announcements and tends
+to be a tad less verbose, in general.
+
+
+Blinkenlights
+-------------
+
+Blinkenlights is an interface designed to be sleek, fun to watch, and
+informative of the overall picture of what OfflineIMAP is doing.
+
+Blinkenlights contains a row of "LEDs" with command buttons and a log.  The
+log shows more detail about what is happening and is color-coded to match the
+color of the lights.
+
+Each light in the Blinkenlights interface represents a thread of execution --
+that is, a particular task that OfflineIMAP is performing right now.  The
+colors indicate what task the particular thread is performing, and are as
+follows:
+
+* Black
+
+  indicates that this light's thread has terminated; it will light up again
+  later when new threads start up.  So, black indicates no activity.
+
+* Red (Meaning 1)
+
+  is the color of the main program's thread, which basically does nothing but
+  monitor the others.  It might remind you of HAL 9000 in 2001.
+
+* Gray
+
+  indicates that the thread is establishing a new connection to the IMAP
+  server.
+
+* Purple
+
+  is the color of an account synchronization thread that is monitoring the
+  progress of the folders in that account (not generating any I/O).
+
+* Cyan
+
+  indicates that the thread is syncing a folder.
+
+* Green
+
+  means that a folder's message list is being loaded.
+
+* Blue
+
+  is the color of a message synchronization controller thread.
+
+* Orange
+
+  indicates that an actual message is being copied.  (We use fuchsia for fake
+  messages.)
+
+* Red (meaning 2)
+
+  indicates that a message is being deleted.
+
+* Yellow / bright orange
+
+  indicates that message flags are being added.
+
+* Pink / bright red
+
+  indicates that message flags are being removed.
+
+* Red / Black Flashing
+
+  corresponds to the countdown timer that runs between synchronizations.
+
+
+The name of this interfaces derives from a bit of computer history.  Eric
+Raymond's Jargon File defines blinkenlights, in part, as:
+
+  Front-panel diagnostic lights on a computer, esp. a dinosaur. Now that
+  dinosaurs are rare, this term usually refers to status lights on a modem,
+  network hub, or the like.
+
+This term derives from the last word of the famous blackletter-Gothic sign in
+mangled pseudo-German that once graced about half the computer rooms in the
+English-speaking world. One version ran in its entirety as follows:
+
+  ACHTUNG!  ALLES LOOKENSPEEPERS!
+ 
+  Das computermachine ist nicht fuer gefingerpoken und mittengrabben.
+  Ist easy schnappen der springenwerk, blowenfusen und poppencorken
+  mit spitzensparken.  Ist nicht fuer gewerken bei das dumpkopfen.
+  Das rubbernecken sichtseeren keepen das cotten-pickenen hans in das
+  pockets muss; relaxen und watchen das blinkenlichten.
+
+
+Quiet
+-----
+
+It will output nothing except errors and serious warnings.  Like Basic, this
+user interface is not capable of reading a password from the keyboard; account
+passwords must be specified using one of the configuration file options.
+
+MachineUI
+---------
+
+MachineUI generates output in a machine-parsable format.  It is designed
+for other programs that will interface to OfflineIMAP.
+
+
+See Also
+--------
+
+  offlineimap(1)

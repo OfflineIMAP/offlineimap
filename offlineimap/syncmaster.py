@@ -16,27 +16,24 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap.threadutil import threadlist, InstanceLimitedThread, ExitNotifyThread
-from offlineimap.accounts import SyncableAccount, SigListener
+from offlineimap.threadutil import threadlist, InstanceLimitedThread
+from offlineimap.accounts import SyncableAccount
 from threading import currentThread
 
-def syncaccount(threads, config, accountname, siglisteners):
+def syncaccount(threads, config, accountname):
     account = SyncableAccount(config, accountname)
-    siglistener = SigListener()
     thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                    target = account.syncrunner,
-                                   name = "Account sync %s" % accountname,
-                                   kwargs = {'siglistener': siglistener} )
-    # the Sync Runner thread is the only one that will mutate siglisteners
-    siglisteners.append(siglistener)
-    thread.setDaemon(1)
+                                   name = "Account sync %s" % accountname)
+    thread.setDaemon(True)
     thread.start()
     threads.add(thread)
 
-def syncitall(accounts, config, siglisteners):
-    currentThread().setExitMessage('SYNC_WITH_TIMER_TERMINATE')
+def syncitall(accounts, config):
+    # Special exit message for SyncRunner thread, so main thread can exit
+    currentThread().exit_message = 'SYNCRUNNER_EXITED_NORMALLY'
     threads = threadlist()
     for accountname in accounts:
-        syncaccount(threads, config, accountname, siglisteners)
+        syncaccount(threads, config, accountname)
     # Wait for the threads to finish.
     threads.reset()

@@ -1,0 +1,439 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://dublincore.org/documents/2008/08/04/dc-html/">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="index,follow" />
+    <meta name="creator" content="rfcmarkup version 1.111" />
+    <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+<meta name="DC.Identifier" content="urn:ietf:rfc:1734" />
+<meta name="DC.Description.Abstract" content="This document describes the optional AUTH command, for indicating an
+authentication mechanism to the server, performing an authentication
+protocol exchange, and optionally negotiating a protection mechanism
+for subsequent protocol interactions. [STANDARDS-TRACK]" />
+<meta name="DC.Creator" content="J. Myers" />
+<meta name="DC.Date.Issued" content="December, 1994" />
+<meta name="DC.Title" content="POP3 AUTHentication command" />
+
+    <link rel="icon" href="/images/rfc.png" type="image/png" />
+    <link rel="shortcut icon" href="/images/rfc.png" type="image/png" />
+    <title>RFC 1734 - POP3 AUTHentication command</title>
+    
+    
+    <style type="text/css">
+	body {
+	    margin: 0px 8px;
+            font-size: 1em;
+	}
+        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+	    font-weight: bold;
+            line-height: 0pt;
+            display: inline;
+            white-space: pre;
+            font-family: monospace;
+            font-size: 1em;
+	    font-weight: bold;
+        }
+        pre {
+            font-size: 1em;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+	.pre {
+	    white-space: pre;
+	    font-family: monospace;
+	}
+	.header{
+	    font-weight: bold;
+	}
+        .newpage {
+            page-break-before: always;
+        }
+        .invisible {
+            text-decoration: none;
+            color: white;
+        }
+        a.selflink {
+          color: black;
+          text-decoration: none;
+        }
+        @media print {
+            body {
+                font-family: monospace;
+                font-size: 10.5pt;
+            }
+            h1, h2, h3, h4, h5, h6 {
+                font-size: 1em;
+            }
+        
+            a:link, a:visited {
+                color: inherit;
+                text-decoration: none;
+            }
+            .noprint {
+                display: none;
+            }
+        }
+	@media screen {
+	    .grey, .grey a:link, .grey a:visited {
+		color: #777;
+	    }
+            .docinfo {
+                background-color: #EEE;
+            }
+            .top {
+                border-top: 7px solid #EEE;
+            }
+            .bgwhite  { background-color: white; }
+            .bgred    { background-color: #F44; }
+            .bggrey   { background-color: #666; }
+            .bgbrown  { background-color: #840; }            
+            .bgorange { background-color: #FA0; }
+            .bgyellow { background-color: #EE0; }
+            .bgmagenta{ background-color: #F4F; }
+            .bgblue   { background-color: #66F; }
+            .bgcyan   { background-color: #4DD; }
+            .bggreen  { background-color: #4F4; }
+
+            .legend   { font-size: 90%; }
+            .cplate   { font-size: 70%; border: solid grey 1px; }
+	}
+    </style>
+    <!--[if IE]>
+    <style>
+    body {
+       font-size: 13px;
+       margin: 10px 10px;
+    }
+    </style>
+    <![endif]-->
+
+    <script type="text/javascript"><!--
+    function addHeaderTags() {
+	var spans = document.getElementsByTagName("span");
+	for (var i=0; i < spans.length; i++) {
+	    var elem = spans[i];
+	    if (elem) {
+		var level = elem.getAttribute("class");
+                if (level == "h1" || level == "h2" || level == "h3" || level == "h4" || level == "h5" || level == "h6") {
+                    elem.innerHTML = "<"+level+">"+elem.innerHTML+"</"+level+">";		
+                }
+	    }
+	}
+    }
+    var legend_html = "Colour legend:<br />      <table>         <tr><td>Unknown:</td>                   <td><span class='cplate bgwhite'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Draft:</td>                     <td><span class='cplate bgred'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Informational:</td>             <td><span class='cplate bgorange'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Experimental:</td>              <td><span class='cplate bgyellow'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Best Common Practice:</td>      <td><span class='cplate bgmagenta'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Proposed Standard:</td>         <td><span class='cplate bgblue'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Draft Standard (old designation):</td> <td><span class='cplate bgcyan'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Internet Standard:</td>         <td><span class='cplate bggreen'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Historic:</td>                  <td><span class='cplate bggrey'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Obsolete:</td>                  <td><span class='cplate bgbrown'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>     </table>";
+    function showElem(id) {
+        var elem = document.getElementById(id);
+        elem.innerHTML = eval(id+"_html");
+        elem.style.visibility='visible';
+    }
+    function hideElem(id) {
+        var elem = document.getElementById(id);
+        elem.style.visibility='hidden';        
+        elem.innerHTML = "";
+    }
+    // -->
+    </script>
+</head>
+<body onload="addHeaderTags()">
+   <div style="height: 13px;">
+      <div onmouseover="this.style.cursor='pointer';"
+         onclick="showElem('legend');"
+         onmouseout="hideElem('legend')"
+	 style="height: 6px; position: absolute;"
+         class="pre noprint docinfo bgbrown"
+         title="Click for colour legend." >                                                                        </div>
+      <div id="legend"
+           class="docinfo noprint pre legend"
+           style="position:absolute; top: 4px; left: 4ex; visibility:hidden; background-color: white; padding: 4px 9px 5px 7px; border: solid #345 1px; "
+           onmouseover="showElem('legend');"
+           onmouseout="hideElem('legend');">
+      </div>
+   </div>
+<span class="pre noprint docinfo top">[<a href="../html/" title="Document search and retrieval page">Docs</a>] [<a href="/rfc/rfc1734.txt" title="Plaintext version of this document">txt</a>|<a href="/pdf/rfc1734" title="PDF version of this document">pdf</a>] [<a href="./draft-myers-pop3-auth" title="draft-myers-pop3-auth">draft-myers-pop3-...</a>] [<a href="/rfcdiff?difftype=--hwdiff&amp;url2=rfc1734" title="Inline diff (wdiff)">Diff1</a>] [<a href="/rfcdiff?url2=rfc1734" title="Side-by-side diff">Diff2</a>]                 </span><br />
+<span class="pre noprint docinfo">                                                                        </span><br />
+<span class="pre noprint docinfo">Obsoleted by: <a href="./rfc5034">5034</a>                                     PROPOSED STANDARD</span><br />
+<span class="pre noprint docinfo">                                                                        </span><br />
+<pre>
+Network Working Group                                           J. Myers
+Request for Comments: 1734                               Carnegie Mellon
+Category: Standards Track                                  December 1994
+
+
+                      <span class="h1">POP3 AUTHentication command</span>
+
+Status of this Memo
+
+   This document specifies an Internet standards track protocol for the
+   Internet community, and requests discussion and suggestions for
+   improvements.  Please refer to the current edition of the "Internet
+   Official Protocol Standards" (STD 1) for the standardization state
+   and status of this protocol.  Distribution of this memo is unlimited.
+
+
+<span class="h2"><a class="selflink" name="section-1" href="#section-1">1</a>. Introduction</span>
+
+   This document describes the optional AUTH command, for indicating an
+   authentication mechanism to the server, performing an authentication
+   protocol exchange, and optionally negotiating a protection mechanism
+   for subsequent protocol interactions.  The authentication and
+   protection mechanisms used by the POP3 AUTH command are those used by
+   IMAP4.
+
+
+<span class="h2"><a class="selflink" name="section-2" href="#section-2">2</a>. The AUTH command</span>
+
+   AUTH mechanism
+
+         Arguments:
+             a string identifying an IMAP4 authentication mechanism,
+             such as defined by [<a href="#ref-IMAP4-AUTH" title="&quot;IMAP4 Authentication Mechanisms&quot;">IMAP4-AUTH</a>].  Any use of the string
+             "imap" used in a server authentication identity in the
+             definition of an authentication mechanism is replaced with
+             the string "pop".
+
+         Restrictions:
+             may only be given in the AUTHORIZATION state
+
+         Discussion:
+             The AUTH command indicates an authentication mechanism to
+             the server.  If the server supports the requested
+             authentication mechanism, it performs an authentication
+             protocol exchange to authenticate and identify the user.
+             Optionally, it also negotiates a protection mechanism for
+             subsequent protocol interactions.  If the requested
+             authentication mechanism is not supported, the server
+
+
+
+<span class="grey">Myers                                                           [Page 1]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-2" id="page-2" href="#page-2" class="invisible"> </a>
+<span class="grey"><a href="./rfc1734">RFC 1734</a>                       POP3 AUTH                   December 1994</span>
+
+
+             should reject the AUTH command by sending a negative
+             response.
+
+             The authentication protocol exchange consists of a series
+             of server challenges and client answers that are specific
+             to the authentication mechanism.  A server challenge,
+             otherwise known as a ready response, is a line consisting
+             of a "+" character followed by a single space and a BASE64
+             encoded string.  The client answer consists of a line
+             containing a BASE64 encoded string.  If the client wishes
+             to cancel an authentication exchange, it should issue a
+             line with a single "*".  If the server receives such an
+             answer, it must reject the AUTH command by sending a
+             negative response.
+
+             A protection mechanism provides integrity and privacy
+             protection to the protocol session.  If a protection
+             mechanism is negotiated, it is applied to all subsequent
+             data sent over the connection.  The protection mechanism
+             takes effect immediately following the CRLF that concludes
+             the authentication exchange for the client, and the CRLF of
+             the positive response for the server.  Once the protection
+             mechanism is in effect, the stream of command and response
+             octets is processed into buffers of ciphertext.  Each
+             buffer is transferred over the connection as a stream of
+             octets prepended with a four octet field in network byte
+             order that represents the length of the following data.
+             The maximum ciphertext buffer length is defined by the
+             protection mechanism.
+
+             The server is not required to support any particular
+             authentication mechanism, nor are authentication mechanisms
+             required to support any protection mechanisms.  If an AUTH
+             command fails with a negative response, the session remains
+             in the AUTHORIZATION state and client may try another
+             authentication mechanism by issuing another AUTH command,
+             or may attempt to authenticate by using the USER/PASS or
+             APOP commands.  In other words, the client may request
+             authentication types in decreasing order of preference,
+             with the USER/PASS or APOP command as a last resort.
+
+             Should the client successfully complete the authentication
+             exchange, the POP3 server issues a positive response and
+             the POP3 session enters the TRANSACTION state.
+
+         Possible Responses:
+             +OK maildrop locked and ready
+             -ERR authentication exchange failed
+
+
+
+<span class="grey">Myers                                                           [Page 2]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-3" id="page-3" href="#page-3" class="invisible"> </a>
+<span class="grey"><a href="./rfc1734">RFC 1734</a>                       POP3 AUTH                   December 1994</span>
+
+
+
+         Examples:
+             S: +OK POP3 server ready
+             C: AUTH KERBEROS_V4
+             S: + AmFYig==
+             C: BAcAQU5EUkVXLkNNVS5FRFUAOCAsho84kLN3/IJmrMG+25a4DT
+                +nZImJjnTNHJUtxAA+o0KPKfHEcAFs9a3CL5Oebe/ydHJUwYFd
+                WwuQ1MWiy6IesKvjL5rL9WjXUb9MwT9bpObYLGOKi1Qh
+             S: + or//EoAADZI=
+             C: DiAF5A4gA+oOIALuBkAAmw==
+             S: +OK Kerberos V4 authentication successful
+                ...
+             C: AUTH FOOBAR
+             S: -ERR Unrecognized authentication type
+
+              Note: the line breaks in the first client answer  are
+              for editorial clarity and are not in real authentica-
+              tors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Myers                                                           [Page 3]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-4" id="page-4" href="#page-4" class="invisible"> </a>
+<span class="grey"><a href="./rfc1734">RFC 1734</a>                       POP3 AUTH                   December 1994</span>
+
+
+<span class="h2"><a class="selflink" name="section-3" href="#section-3">3</a>. Formal Syntax</span>
+
+   The following syntax specification uses the augmented Backus-Naur
+   Form (BNF) notation as specified in <a href="./rfc822">RFC 822</a>.
+
+   Except as noted otherwise, all alphabetic characters are case-
+   insensitive.  The use of upper or lower case characters to define
+   token strings is for editorial clarity only.  Implementations MUST
+   accept these strings in a case-insensitive fashion.
+
+   ATOM_CHAR       ::= &lt;any CHAR except atom_specials&gt;
+
+   atom_specials   ::= "(" / ")" / "{" / SPACE / CTLs / "%" / "*" /
+                       &lt;"&gt; / "\"
+
+   auth            ::= "AUTH" 1*(SPACE / TAB) auth_type *(CRLF base64)
+                       CRLF
+
+   auth_type       ::= 1*ATOM_CHAR
+
+   base64          ::= *(4base64_CHAR) [base64_terminal]
+
+   base64_char     ::= "A" / "B" / "C" / "D" / "E" / "F" / "G" / "H" /
+           "I" / "J" / "K" / "L" / "M" / "N" / "O" / "P" /
+                       "Q" / "R" / "S" / "T" / "U" / "V" / "W" / "X" /
+                       "Y" / "Z" /
+                       "a" / "b" / "c" / "d" / "e" / "f" / "g" / "h" /
+                       "i" / "j" / "k" / "l" / "m" / "n" / "o" / "p" /
+                       "q" / "r" / "s" / "t" / "u" / "v" / "w" / "x" /
+                       "y" / "z" /
+                       "0" / "1" / "2" / "3" / "4" / "5" / "6" / "7" /
+                       "8" / "9" / "+" / "/"
+                       ;; Case-sensitive
+
+   base64_terminal ::= (2base64_char "==") / (3base64_char "=")
+
+   CHAR            ::= &lt;any 7-bit US-ASCII character except NUL,
+                        0x01 - 0x7f&gt;
+
+   continue_req    ::= "+" SPACE base64 CRLF
+
+   CR              ::= &lt;ASCII CR, carriage return, 0x0C&gt;
+
+   CRLF            ::= CR LF
+
+   CTL             ::= &lt;any ASCII control character and DEL,
+                        0x00 - 0x1f, 0x7f&gt;
+
+
+
+
+<span class="grey">Myers                                                           [Page 4]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-5" id="page-5" href="#page-5" class="invisible"> </a>
+<span class="grey"><a href="./rfc1734">RFC 1734</a>                       POP3 AUTH                   December 1994</span>
+
+
+   LF              ::= &lt;ASCII LF, line feed, 0x0A&gt;
+
+   SPACE           ::= &lt;ASCII SP, space, 0x20&gt;
+
+   TAB             ::= &lt;ASCII HT, tab, 0x09&gt;
+
+
+
+<span class="h2"><a class="selflink" name="section-4" href="#section-4">4</a>. References</span>
+
+   [<a name="ref-IMAP4-AUTH" id="ref-IMAP4-AUTH">IMAP4-AUTH</a>]  Myers, J., "IMAP4 Authentication Mechanisms", <a href="./rfc1731">RFC 1731</a>,
+   Carnegie Mellon, December 1994.
+
+
+
+<span class="h2"><a class="selflink" name="section-5" href="#section-5">5</a>. Security Considerations</span>
+
+   Security issues are discussed throughout this memo.
+
+
+
+<span class="h2"><a class="selflink" name="section-6" href="#section-6">6</a>. Author's Address</span>
+
+   John G. Myers
+   Carnegie-Mellon University
+   5000 Forbes Ave
+   Pittsburgh, PA 15213
+
+   EMail: jgm+@cmu.edu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Myers                                                           [Page 5]
+
+</pre><br />
+<span class="noprint"><small><small>Html markup produced by rfcmarkup 1.111, available from
+<a href="https://tools.ietf.org/tools/rfcmarkup/">https://tools.ietf.org/tools/rfcmarkup/</a>
+</small></small></span>
+</body></html>

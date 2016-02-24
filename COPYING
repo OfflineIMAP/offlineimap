@@ -1,3 +1,13 @@
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
                     GNU GENERAL PUBLIC LICENSE
                        Version 2, June 1991
 
@@ -55,7 +65,7 @@ patent must be licensed for everyone's free use or not licensed at all.
 
   The precise terms and conditions for copying, distribution and
 modification follow.
-
+
                     GNU GENERAL PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
@@ -110,7 +120,7 @@ above, provided that you also meet all of these conditions:
     License.  (Exception: if the Program itself is interactive but
     does not normally print such an announcement, your work based on
     the Program is not required to print an announcement.)
-
+
 These requirements apply to the modified work as a whole.  If
 identifiable sections of that work are not derived from the Program,
 and can be reasonably considered independent and separate works in
@@ -168,7 +178,7 @@ access to copy from a designated place, then offering equivalent
 access to copy the source code from the same place counts as
 distribution of the source code, even though third parties are not
 compelled to copy the source along with the object code.
-
+
   4. You may not copy, modify, sublicense, or distribute the Program
 except as expressly provided under this License.  Any attempt
 otherwise to copy, modify, sublicense or distribute the Program is
@@ -225,7 +235,7 @@ impose that choice.
 
 This section is intended to make thoroughly clear what is believed to
 be a consequence of the rest of this License.
-
+
   8. If the distribution and/or use of the Program is restricted in
 certain countries either by patents or by copyrighted interfaces, the
 original copyright holder who places the Program under this License
@@ -278,7 +288,7 @@ PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
                      END OF TERMS AND CONDITIONS
-
+
             How to Apply These Terms to Your New Programs
 
   If you develop a new program, and you want it to be of the greatest
@@ -338,3 +348,17 @@ proprietary programs.  If your program is a subroutine library, you may
 consider it more useful to permit linking proprietary applications with the
 library.  If this is what you want to do, use the GNU Library General
 Public License instead of this License.
+
+----------------------------------------------------------------
+In addition, as a special exception, the copyright holders give
+permission to link the code of portions of this program with the OpenSSL
+library under certain conditions as described in each individual source
+file, and distribute linked combinations including the two.
+
+You must obey the GNU General Public License in all respects for all of
+the code used other than OpenSSL. If you modify file(s) with this
+exception, you may extend this exception to your version of the file(s),
+but you are not obligated to do so. If you do not wish to do so, delete
+this exception statement from your version. If you delete this exception
+statement from all source files in the program, then also delete it
+here.
