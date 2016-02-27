@@ -455,6 +455,7 @@ Command samples to do manually:
 - git push <remote> master:master
 - git push <remote> next:next
 - git push <remote> $new_version
+- python setup.py sdist && twine upload dist/* && rm -rf dist MANIFEST
 - cd website
 - git checkout master
 - git merge $branch_name
