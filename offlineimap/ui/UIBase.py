@@ -115,7 +115,7 @@ class UIBase(object):
         # write out more verbose initial info blurb on the log file
         p_ver = ".".join([str(x) for x in sys.version_info[0:3]])
         msg = "OfflineImap %s starting...\n  Python: %s Platform: %s\n  "\
-              "Args: %s"% (offlineimap.__bigversion__, p_ver, sys.platform,
+              "Args: %s"% (offlineimap.__version__, p_ver, sys.platform,
                             " ".join(sys.argv))
         record = logging.LogRecord('OfflineImap', logging.INFO, __file__,
                                    None, msg, None, None)
@@ -445,7 +445,7 @@ class UIBase(object):
                         #TODO: Debug and make below working, it hangs Gmail
                         #res_type, response = conn.id((
                         #    'name', offlineimap.__productname__,
-                        #    'version', offlineimap.__bigversion__))
+                        #    'version', offlineimap.__version__))
                         #self._msg("Server ID: %s %s" % (res_type, response[0]))
                     self._msg("Server welcome string: %s" % str(conn.welcome))
                     self._msg("Server capabilities: %s\n" % str(conn.capabilities))
