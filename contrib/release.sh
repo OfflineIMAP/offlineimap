@@ -29,6 +29,7 @@ CHANGELOG='Changelog.md'
 CACHEDIR='.git/offlineimap-release'
 WEBSITE='website'
 WEBSITE_LATEST="${WEBSITE}/_data/latest.yml"
+ME='Nicolas Sebrecht'
 
 TMP_CHANGELOG_EXCERPT="${CACHEDIR}/changelog.excerpt.md"
 TMP_CHANGELOG_EXCERPT_OLD="${TMP_CHANGELOG_EXCERPT}.old"
@@ -155,7 +156,7 @@ function update_offlineimap_version () {
 function get_git_history () {
   debug 'in get_git_history'
   git log --format='- %h %s. [%aN]' --no-merges  "${1}.." | \
-          sed -r -e 's, \[Nicolas Sebrecht\]$,,'
+          sed -r -e "s, \[${ME}\]$,,"
 }
 
 
@@ -194,6 +195,12 @@ function changelog_template () {
 // bigger perspective.
 // HINT: explain most important changes.
 
+#### Authors
+
+The authors of this release.
+
+// Use list syntax with '- '
+
 #### Features
 
 // Use list syntax with '- '
@@ -203,10 +210,6 @@ function changelog_template () {
 // Use list syntax with '- '
 
 #### Changes
-
-// Use list syntax with '- '
-
-#### Authors
 
 // Use list syntax with '- '
 
