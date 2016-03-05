@@ -163,6 +163,20 @@ blinkenlights, machineui.
 This option is only applicable in non-verbose mode.
 
 
+--migrate-fmd5-using-nametrans::
+  Migrate FMD5 hashes from versions prior to 6.3.5.
++
+The way that FMD5 hashes are calculated was changed in version 6.3.5 (now using
+the nametrans folder name) introducing a regression which may lead to
+re-uploading all messages. Try and fix the above regression by calculating the
+correct FMD5 values and renaming the corresponding messages.
+
+CAUTION: Since the FMD5 part of the filename changes, this may lead to UID
+conflicts. Ensure to dispose a proper backup of both the cache and the Maildir
+before running this fix as well as verify the results using the `--dry-run'
+flag first.
+
+
 Synchronization Performance
 ---------------------------
 

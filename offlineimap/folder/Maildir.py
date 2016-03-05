@@ -485,3 +485,37 @@ class MaildirFolder(BaseFolder):
                 os.unlink(filepath)
             # Yep -- return.
         del(self.messagelist[uid])
+
+    def migratefmd5(self, dryrun=False):
+        """Migrate FMD5 hashes from versions prior to 6.3.5
+
+        :param dryrun: Run in dry run mode
+        :type fix: Boolean
+        :return: None
+        """
+        oldfmd5 = md5(self.name).hexdigest()
+        msglist = self._scanfolder()
+        for mkey, mvalue in msglist.iteritems():
+            filename = os.path.join(self.getfullname(), mvalue['filename'])
+            match = re.search("FMD5=([a-fA-F0-9]+)", filename)
+            if match is None:
+                self.ui.debug("maildir",
+                              "File `%s' doesn't have an FMD5 assigned"
+                              % filename)
+            elif match.group(1) == oldfmd5:
+                self.ui.info("Migrating file `%s' to FMD5 `%s'"
+                             % (filename, self._foldermd5))
+                if not dryrun:
+                    newfilename = filename.replace(
+                        "FMD5=" + match.group(1), "FMD5=" + self._foldermd5)
+                    try:
+                        os.rename(filename, newfilename)
+                    except OSError as e:
+                        raise OfflineImapError(
+                            "Can't rename file '%s' to '%s': %s" % (
+                                filename, newfilename, e[1]),
+                            OfflineImapError.ERROR.FOLDER), None, exc_info()[2]
+            elif match.group(1) != self._foldermd5:
+                self.ui.warn(("Inconsistent FMD5 for file `%s':"
+                              " Neither `%s' nor `%s' found")
+                             % (filename, oldfmd5, self._foldermd5))
