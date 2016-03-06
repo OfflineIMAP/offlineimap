@@ -4,10 +4,15 @@
 - OfflineIMAP version:
 - server name or domain:
 - CLI options:
-- configuration (remove private data):
+
 ```
-<configuration goes here>
+<configuration file goes here>
 ```
+
+```
+<pythoonfile file goes here (if any)>
+```
+
 
 ### Log error
 
@@ -15,4 +20,6 @@
 <error goes here>
 ```
 
-### Step to reproduce the error
+### Steps to reproduce the error
+
+
