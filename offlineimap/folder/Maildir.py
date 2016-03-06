@@ -135,6 +135,13 @@ class MaildirFolder(BaseFolder):
         foldermatch = folderstr in filename
         # If there was no folder MD5 specified, or if it mismatches,
         # assume it is a foreign (new) message and ret: uid, fmd5 = None, None
+
+        # XXX: This is wrong behaviour: if FMD5 is missing or mismatches, assume
+        # the mail is new and **fix UID to None** to avoid any conflict.
+
+        # XXX: If UID is missing, I have no idea what FMD5 can do. Should be
+        # fixed to None in this case, too.
+
         if foldermatch:
             uidmatch = re_uidmatch.search(filename)
             if uidmatch:
