@@ -1,3 +1,4 @@
+> This v1.0 template stands in `.github/`.
 
 ### General informations
 
@@ -6,20 +7,22 @@
 - CLI options:
 
 ```
-<configuration file goes here>
+Configuration file offlineimaprc goes here. REMOVE PRIVATE DATA.
 ```
 
 ```
-<pythoonfile file goes here (if any)>
+The pythonfile file goes here (if any). REMOVE PRIVATE DATA.
 ```
 
 
 ### Log error
 
 ```
-<error goes here>
+Logs go here. REMOVE PRIVATE DATA.
 ```
 
 ### Steps to reproduce the error
 
+- 
+- 
 
