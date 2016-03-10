@@ -15,6 +15,78 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v6.7.0 (2016-03-10)
+
+#### Notes
+
+New stable release out!
+
+With the work of Ilias, maintainer at Debian, OfflineIMAP is learning a new CLI
+option to help fixing filenames for the users using nametrans and updating from
+versions prior to v6.3.5.  Distribution maintainers might want to backport this
+feature for their packaged versions out after v6.3.5. Have a look at commit
+c84d23b65670f to know more.
+
+OfflineIMAP earns the slogan "Get the emails where you need them", authored by
+Norbert Preining.
+
+Julien Danjou, the author of the book _The Hacker’s Guide To Python_, shared us
+his screenshot of a running session of OfflineIMAP.
+
+I recently created rooms for chat sessions at Gitter. It appears to be really
+cool, supports seamless authentication with a github account, persistent logs,
+desktop/mobile clients and many more usefull features. Join us at Gitter!
+
+- https://gitter.im/OfflineIMAP/offlineimap  [NEW]
+- https://gitter.im/OfflineIMAP/imapfw       [NEW]
+
+Now, the OfflineIMAP community has 2 official websites:
+
+- http://www.offlineimap.org (for offlineimap)
+- http://imapfw.offlineimap.org (for imapfw) [NEW]
+
+The Twitter account was resurrected, too. Feel free to join us:
+
+  https://twitter.com/OfflineIMAP
+
+Finally, the teams of the OfflineIMAP organization at Github were renewed to
+facilitate the integration of new contributors and directly improve both the
+documentation and the websites.
+
+As a side note, the [imapfw repository](https://github.com/OfflineIMAP/imapfw)
+has now more than 50 stargazers. This is very encouraging.
+
+Thank you much everybody for your various contributions into OfflineIMAP!
+
+#### Authors
+
+- Ben Boeckel (1)
+- Ebben Aries (1)
+- Ilias Tsitsimpis (1)
+
+#### Features
+
+- Introduce a code of conduct.
+- Add github templates.
+- Change hard coding of AF_UNSPEC to user-defined address-families per repository. [Ebben Aries]
+- Add documentation for the ipv6 configuration option.
+
+#### Fixes
+
+- Identify and fix messages with FMD5 inconsistencies. [Ilias Tsitsimpis]
+- Curses, UIBase: remove references to __bigversion__. [Ben Boeckel]
+- Sphinx doc: remove usage of __bigversion__.
+- MANIFEST: exclude rfcs (used for Pypi packages).
+- Changelog: fix typo.
+
+#### Changes
+
+- release.sh: move the authors section up.
+- release.sh: add pypi instructions.
+- MAINTAINERS: update.
+
+
+
 
 ### OfflineIMAP v6.7.0-rc2 (2016-02-22)
 
