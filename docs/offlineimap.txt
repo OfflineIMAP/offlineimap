@@ -50,7 +50,7 @@ mails it would transfer.
 +
 Useful for debugging and bug reporting. Use in conjunction with the -a option
 to limit the output to a single account. This mode will prevent any actual
-sync to occur and exits after it outp ut the debug information.
+sync to occur and exits after it output the debug information.
 
 
 -1::
@@ -196,8 +196,7 @@ speeds things up considerably in most cases. This setting goes into the
 The quickest sync is a sync that can ignore some folders. I sort my inbox into
 monthly folders, and ignore every folder that is more than 2-3 months old,
 this lets me only inspect a fraction of my Mails on every sync. If you haven't
-done this yet, do it :). See the folderfilter section the example
-offlineimap.conf.
+done this yet, do it :). See the folderfilter section in offlineimap.conf.
 
 3. The cache.
 +
@@ -206,8 +205,8 @@ file for each single new message (or even changed flag) to a temporary file.
 If you have plenty of files in a folder, this is a few hundred kilo to
 megabytes for each mail and is bound to make things slower. I recommend to use
 the sqlite backend for that. See the status_backend = sqlite setting in the
-example offlineimap.conf. You will need to have python-sqlite installed in
-order to use this. This will save you plenty of disk activity. Do note that
+offlineimap.conf. You will need to have python-sqlite installed in order to
+use this. This will save you plenty of disk activity. Do note that
 the sqlite backend is still considered experimental as it has only been
 included recently (although a loss of your status cache should not be a
 tragedy as that file can be rebuilt automatically)
@@ -218,7 +217,7 @@ A regular sync will request all flags and all UIDs of all mails in each folder
 which takes quite some time. A 'quick' sync only compares the number of
 messages in a folder on the IMAP side (it will detect flag changes on the
 Maildir side of things though). A quick sync on my smallish account will take
-7 seconds rather than 40 seconds. Eg, I run a cron script that does a regular
+7 seconds rather than 40 seconds. E.g. I run a cron script that does a regular
 sync once a day, and does quick syncs (-q) only synchronizing the "-f INBOX"
 in between.
 
