@@ -570,6 +570,7 @@ class Blinkenlights(UIBase, CursesUtil):
         self.height, self.width = self.stdscr.getmaxyx()
         self.logheight = self.height - len(self.accframes) - 1
         if resize:
+            self.inputhandler.input_acquire()
             curses.resizeterm(self.height, self.width)
             self.bannerwin.resize(1, self.width)
             self.logwin.resize(self.logheight, self.width)
@@ -592,6 +593,15 @@ class Blinkenlights(UIBase, CursesUtil):
             index += 1
             pos -= 1
         curses.doupdate()
+
+        if resize:
+            # eat any KEY_RESIZE events caused by this resize handler
+            # (otherwise we get an infinite loop of resizing with ncurses 6)
+            key = self.stdscr.getch()
+            while key == curses.KEY_RESIZE:
+                key = self.stdscr.getch()
+            curses.ungetch(key)
+            self.inputhandler.input_release()
 
     def draw_bannerwin(self):
         """Draw the top-line banner line."""
