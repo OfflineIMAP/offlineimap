@@ -40,6 +40,7 @@ clean:
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 	@$(MAKE) -C clean
 
+.PHONY: docs
 docs:
 	@$(MAKE) -C docs
 
