@@ -207,6 +207,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                                                    status_repo.getsep()))
         # Find new folders on dst_repo.
         for dst_name_t, dst_folder in dst_hash.iteritems():
+            if dst_name_t == '':
+                continue
             if not src_repo.get_create_folders():
                 # Don't create missing folder on readonly repo.
                 break
