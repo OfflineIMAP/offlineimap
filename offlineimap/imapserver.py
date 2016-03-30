@@ -26,7 +26,7 @@ import urllib
 import socket
 import time
 import errno
-from sys import exc_info
+from sys import exc_info, stdout
 from socket import gaierror
 from ssl import SSLError, cert_time_to_seconds
 
@@ -207,9 +207,9 @@ class IMAPServer:
         """Implements SASL PLAIN authentication, RFC 4616,
           http://tools.ietf.org/html/rfc4616"""
 
-        authc = self.username
-        passwd = self.__getpassword()
-        authz = ''
+        authc = unicode(self.username, stdout.encoding)
+        passwd = unicode(self.__getpassword(), stdout.encoding)
+        authz = u''
         if self.user_identity != None:
             authz = self.user_identity
         NULL = u'\x00'
