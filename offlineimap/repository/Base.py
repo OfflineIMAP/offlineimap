@@ -170,7 +170,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         to infinite folder creation cycles."""
 
         if not self.get_create_folders() and not dst_repo.get_create_folders():
-            # quick exit if no folder creation is enabled on either side.
+            # Quick exit if no folder creation is enabled on either side.
             return
 
         src_repo = self
@@ -178,7 +178,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         dst_folders = dst_repo.getfolders()
         # Do we need to refresh the folder list afterwards?
         src_haschanged, dst_haschanged = False, False
-        # Create hashes with the names, but convert the source folders
+        # Create hashes with the names, but convert the source folders.
         # to the dest folder's sep.
         src_hash = {}
         for folder in src_folders:
@@ -191,14 +191,14 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
         # Find and create new folders on src_repo.
         for src_name_t, src_folder in src_hash.iteritems():
-            # Don't create on dst_repo, if it is readonly
+            # Don't create on dst_repo, if it is readonly.
             if not dst_repo.get_create_folders():
                 break
 
             if src_folder.sync_this and not src_name_t in dst_folders:
                 try:
                     dst_repo.makefolder(src_name_t)
-                    dst_haschanged = True # Need to refresh list
+                    dst_haschanged = True # Need to refresh list.
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2],
                          "Creating folder %s on repository %s"%

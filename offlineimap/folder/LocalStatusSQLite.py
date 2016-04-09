@@ -221,6 +221,12 @@ class LocalStatusSQLiteFolder(BaseFolder):
             self.messagelist[uid]['labels'] = labels
             self.messagelist[uid]['mtime'] = row[2]
 
+    def closefiles(self):
+        try:
+            self.connection.close()
+        except:
+            pass
+
     # Interface from LocalStatusFolder
     def save(self):
         pass
@@ -329,7 +335,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
     def savemessageslabelsbulk(self, labels):
         """
         Saves labels from a dictionary in a single database operation.
-        
+
         """
         data = [(', '.join(sorted(l)), uid) for uid, l in labels.items()]
         self.__sql_write('UPDATE status SET labels=? WHERE id=?', data, executemany=True)
