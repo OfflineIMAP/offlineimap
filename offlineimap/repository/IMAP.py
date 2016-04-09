@@ -457,9 +457,12 @@ class IMAPRepository(BaseRepository):
 
         :param foldername: Full path of the folder to be created."""
 
+        if foldername is '':
+            return
+
         if self.getreference():
             foldername = self.getreference() + self.getsep() + foldername
-        if not foldername: # Create top level folder as folder separator
+        if not foldername: # Create top level folder as folder separator.
             foldername = self.getsep()
         self.ui.makefolder(self, foldername)
         if self.account.dryrun:
