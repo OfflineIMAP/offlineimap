@@ -46,6 +46,9 @@ class LocalStatusRepository(BaseRepository):
         # self._folders is a dict of name:LocalStatusFolders()
         self._folders = {}
 
+    def _instanciatefolder(self, foldername):
+        return self.LocalStatusFolderClass(foldername, self) # Instanciate.
+
     def setup_backend(self, backend):
         if backend in self.backends.keys():
             self._backend = backend
@@ -87,19 +90,22 @@ class LocalStatusRepository(BaseRepository):
             return # bail out in dry-run mode
 
         # Create an empty StatusFolder
-        folder = self.LocalStatusFolderClass(foldername, self)
+        folder = self._instanciatefolder(foldername)
         folder.save()
+        folder.closefiles()
 
         # Invalidate the cache.
         self.forgetfolders()
 
     def getfolder(self, foldername):
-        """Return the Folder() object for a foldername."""
+        """Return the Folder() object for a foldername.
+
+        Caller must call closefiles() on the folder when done."""
 
         if foldername in self._folders:
             return self._folders[foldername]
 
-        folder = self.LocalStatusFolderClass(foldername, self)
+        folder = self._instanciatefolder(foldername)
 
         # If folder is empty, try to import data from an other backend.
         if folder.isnewfolder():

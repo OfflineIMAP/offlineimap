@@ -155,6 +155,9 @@ class LocalStatusFolder(BaseFolder):
         self.readstatus(cachefd)
         cachefd.close()
 
+    def closefiles(self):
+        pass # Closing files is done on a per-transaction basis.
+
     def save(self):
         """Save changed data to disk. For this backend it is the same as saveall."""
 

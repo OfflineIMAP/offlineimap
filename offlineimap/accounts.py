@@ -595,3 +595,4 @@ def syncfolder(account, remotefolder, quick):
         for folder in ["statusfolder", "localfolder", "remotefolder"]:
             if folder in locals():
                 locals()[folder].dropmessagelistcache()
+        statusfolder.closefiles()
