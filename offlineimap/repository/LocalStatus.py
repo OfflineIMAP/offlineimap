@@ -38,7 +38,7 @@ class LocalStatusRepository(BaseRepository):
         }
 
         # Set class and root for the configured backend
-        self.setup_backend(self.account.getconf('status_backend', 'plain'))
+        self.setup_backend(self.account.getconf('status_backend', 'sqlite'))
 
         if not os.path.exists(self.root):
             os.mkdir(self.root, 0o700)
@@ -71,8 +71,8 @@ class LocalStatusRepository(BaseRepository):
 
             # if backend contains data, import it to folder.
             if not folderbk.isnewfolder():
-                self.ui._msg('Migrating LocalStatus cache from %s to %s " \
-                    "status folder for %s:%s'%
+                self.ui._msg("Migrating LocalStatus cache from %s to %s "
+                    "status folder for %s:%s"%
                     (bk, self._backend, self.name, folder.name))
 
                 folderbk.cachemessagelist()
