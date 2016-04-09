@@ -566,7 +566,7 @@ def syncfolder(account, remotefolder, quick):
             ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
             remotefolder.syncmessagesto(localfolder, statusfolder)
         else:
-            ui.debug('imap', "Not syncing to read-only repository '%s'"%
+            ui.debug('', "Not syncing to read-only repository '%s'"%
                     localrepos.getname())
 
         # Synchronize local changes.
