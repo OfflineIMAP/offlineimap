@@ -61,7 +61,6 @@ class MaildirFolder(BaseFolder):
         super(MaildirFolder, self).__init__(name, repository)
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.root = root
-        self.messagelist = {}
         # check if we should use a different infosep to support Win file systems
         self.wincompatible = self.config.getdefaultboolean(
             "Account "+self.accountname, "maildir-windows-compatible", False)
@@ -243,10 +242,6 @@ class MaildirFolder(BaseFolder):
             self.messagelist = self._scanfolder(min_date=min_date,
                 min_uid=min_uid)
             self.ui.messagelistloaded(self.repository, self, self.getmessagecount())
-
-    # Interface from BaseFolder
-    def getmessagelist(self):
-        return self.messagelist
 
     # Interface from BaseFolder
     def getmessage(self, uid):

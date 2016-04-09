@@ -33,7 +33,6 @@ class LocalStatusFolder(BaseFolder):
         super(LocalStatusFolder, self).__init__(name, repository)
         self.root = repository.root
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
-        self.messagelist = {}
         self.savelock = threading.Lock()
         # Should we perform fsyncs as often as possible?
         self.doautosave = self.config.getdefaultboolean(
@@ -108,12 +107,12 @@ class LocalStatusFolder(BaseFolder):
     # Interface from BaseFolder
     def cachemessagelist(self):
         if self.isnewfolder():
-            self.messagelist = {}
+            self.dropmessagelistcache()
             return
 
         # Loop as many times as version, and update format.
         for i in range(1, self.cur_version + 1):
-            self.messagelist = {}
+            self.dropmessagelistcache()
             cachefd = open(self.filename, "rt")
             line = cachefd.readline().strip()
 
@@ -180,10 +179,6 @@ class LocalStatusFolder(BaseFolder):
                 fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
                 os.fsync(fd)
                 os.close(fd)
-
-    # Interface from BaseFolder
-    def getmessagelist(self):
-        return self.messagelist
 
     # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime, mtime=0, labels=set()):

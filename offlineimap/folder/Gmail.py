@@ -122,7 +122,7 @@ class GmailFolder(IMAPFolder):
             return super(GmailFolder, self).cachemessagelist(
                 min_date=min_date, min_uid=min_uid)
 
-        self.messagelist = {}
+        self.dropmessagelistcache()
 
         self.ui.collectingdata(None, self)
         imapobj = self.imapserver.acquireconnection()

@@ -48,7 +48,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
         super(LocalStatusSQLiteFolder, self).__init__(name, repository)
         self.root = repository.root
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
-        self.messagelist = {}
 
         self._newfolder = False        # Flag if the folder is new.
 
@@ -197,7 +196,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
     # Interface from BaseFolder
     def cachemessagelist(self):
-        self.messagelist = {}
+        self.dropmessagelistcache()
         cursor = self.connection.execute('SELECT id,flags,mtime,labels from status')
         for row in cursor:
             uid = row[0]
@@ -221,9 +220,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['labels'] = labels
             self.messagelist[uid]['mtime'] = row[2]
-
-    def dropmessagelistcache(self):
-        self.messagelist = {}
 
     # Interface from LocalStatusFolder
     def save(self):
@@ -280,11 +276,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
     #            flags = [x for x in row[0]]
     #            return flags
     #        assert False,"getmessageflags() called on non-existing message"
-
-
-    # Interface from BaseFolder
-    def getmessagelist(self):
-        return self.messagelist
 
 
     # Interface from BaseFolder

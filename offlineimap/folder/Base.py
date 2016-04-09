@@ -35,6 +35,7 @@ class BaseFolder(object):
         """
 
         self.ui = getglobalui()
+        self.messagelist = {}
         # Save original name for folderfilter operations
         self.ffilter_name = name
         # Top level dir name is always ''
@@ -262,7 +263,7 @@ class BaseFolder(object):
         raise NotImplementedError
 
     def ismessagelistempty(self):
-        """Empty everythings we know about messages."""
+        """Is the list of messages empty."""
 
         if len(self.messagelist.keys()) < 1:
             return True
@@ -278,7 +279,7 @@ class BaseFolder(object):
 
         You must call cachemessagelist() before calling this function!"""
 
-        raise NotImplementedError
+        return self.messagelist
 
     def msglist_item_initializer(self, uid):
         """Returns value for empty messagelist element with given UID.

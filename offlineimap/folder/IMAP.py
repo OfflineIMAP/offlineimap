@@ -49,7 +49,6 @@ class IMAPFolder(BaseFolder):
         self.expunge = repository.getexpunge()
         self.root = None # imapserver.root
         self.imapserver = imapserver
-        self.messagelist = {}
         self.randomgenerator = random.Random()
         #self.ui is set in BaseFolder
         self.imap_query = ['BODY.PEEK[]']
@@ -216,7 +215,7 @@ class IMAPFolder(BaseFolder):
     # Interface from BaseFolder
     def cachemessagelist(self, min_date=None, min_uid=None):
         self.ui.loadmessagelist(self.repository, self)
-        self.messagelist = {}
+        self.dropmessagelistcache()
 
         imapobj = self.imapserver.acquireconnection()
         try:
@@ -257,19 +256,12 @@ class IMAPFolder(BaseFolder):
                     'keywords': keywords}
         self.ui.messagelistloaded(self.repository, self, self.getmessagecount())
 
-    def dropmessagelistcache(self):
-        self.messagelist = {}
-
     # Interface from BaseFolder
     def getvisiblename(self):
         vname = super(IMAPFolder, self).getvisiblename()
         if self.repository.getdecodefoldernames():
             return imaputil.decode_mailbox_name(vname)
         return vname
-
-    # Interface from BaseFolder
-    def getmessagelist(self):
-        return self.messagelist
 
     # Interface from BaseFolder
     def getmessage(self, uid):
