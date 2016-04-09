@@ -54,24 +54,29 @@ class BaseFolder(object):
         if self.visiblename == self.getsep():
             self.visiblename = ''
 
+        repoconfname = "Repository " + repository.name
+
         self.config = repository.getconfig()
         utime_from_header_global = self.config.getdefaultboolean(
             "general", "utime_from_header", False)
-        repo = "Repository " + repository.name
-        self._utime_from_header = self.config.getdefaultboolean(repo,
-            "utime_from_header", utime_from_header_global)
+        self._utime_from_header = self.config.getdefaultboolean(
+            repoconfname, "utime_from_header", utime_from_header_global)
 
         # Do we need to use mail timestamp for filename prefix?
         filename_use_mail_timestamp_global = self.config.getdefaultboolean(
             "general", "filename_use_mail_timestamp", False)
-        repo = "Repository " + repository.name
-        self._filename_use_mail_timestamp = self.config.getdefaultboolean(repo,
-            "filename_use_mail_timestamp", filename_use_mail_timestamp_global)
+        self._filename_use_mail_timestamp = self.config.getdefaultboolean(
+            repoconfname,
+            "filename_use_mail_timestamp",
+            filename_use_mail_timestamp_global)
+
+        self._sync_deletes = self.config.getdefaultboolean(
+            repoconfname, "sync_deletes", True)
 
         # Determine if we're running static or dynamic folder filtering
         # and check filtering status
         self._dynamic_folderfilter = self.config.getdefaultboolean(
-            repo, "dynamic_folderfilter", False)
+            repoconfname, "dynamic_folderfilter", False)
         self._sync_this = repository.should_sync_folder(self.ffilter_name)
         if self._dynamic_folderfilter:
             self.ui.debug('', "Running dynamic folder filtering on '%s'[%s]"%
@@ -81,9 +86,11 @@ class BaseFolder(object):
                 (self.ffilter_name, repository))
 
         # Passes for syncmessagesto
-        self.syncmessagesto_passes = [('copying messages'       , self.__syncmessagesto_copy),
-                                      ('deleting messages'      , self.__syncmessagesto_delete),
-                                      ('syncing flags'          , self.__syncmessagesto_flags)]
+        self.syncmessagesto_passes = [
+            ('copying messages'       , self.__syncmessagesto_copy),
+            ('deleting messages'      , self.__syncmessagesto_delete),
+            ('syncing flags'          , self.__syncmessagesto_flags)
+        ]
 
     def getname(self):
         """Returns name"""
@@ -756,7 +763,7 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessage(uid)
 
-    def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
+    def copymessageto(self, uid, dstfolder, statusfolder, register=1):
         """Copies a message from self to dst if needed, updating the status
 
         Note that this function does not check against dryrun settings,
@@ -873,8 +880,7 @@ class BaseFolder(object):
                 thread.start()
                 threads.append(thread)
             else:
-                self.copymessageto(uid, dstfolder, statusfolder,
-                                   register = 0)
+                self.copymessageto(uid, dstfolder, statusfolder, register=0)
         for thread in threads:
             thread.join()
 
@@ -886,15 +892,20 @@ class BaseFolder(object):
     def __syncmessagesto_delete(self, dstfolder, statusfolder):
         """Pass 2: Remove locally deleted messages on dst.
 
-        Get all UIDS in statusfolder but not self. These are messages
+        Get all UIDs in statusfolder but not self. These are messages
         that were deleted in 'self'. Delete those from dstfolder and
         statusfolder.
 
         This function checks and protects us from action in dryrun mode.
         """
+        # The list of messages to delete. If sync of deletions is disabled we
+        # still remove stale entries from statusfolder (neither in local nor
+        # remote).
+        deletelist = filter(
+                lambda uid: uid >= 0 and not self.uidexists(uid)
+                    and (self._sync_deletes or not dstfolder.uidexists(uid)),
+                statusfolder.getmessageuidlist())
 
-        deletelist = filter(lambda uid: uid >= 0 and not
-            self.uidexists(uid), statusfolder.getmessageuidlist())
         if len(deletelist):
             # Delete in statusfolder first to play safe. In case of abort, we
             # won't lose message, we will just unneccessarily retransmit some.
