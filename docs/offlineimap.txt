@@ -48,17 +48,17 @@ mails it would transfer.
 
   Output information on the configured email repositories.
 +
-Useful for debugging and bug reporting. Use in conjunction with the -a option
-to limit the output to a single account. This mode will prevent any actual
-sync to occur and exits after it output the debug information.
+Useful for debugging and bug reporting. Use in conjunction with the `-a' option
+to limit the output to a single account. This mode will prevent any actual sync
+to occur and exits after it output the debug information.
 
 
 -1::
 
   Limit multithreading operations and run solely a single-thread sync.
 +
-This effectively sets the maxsyncaccounts and all maxconnections configuration
-file variables to 1. This is 1, the number.
+This effectively sets the 'maxsyncaccounts' and all 'maxconnections' configuration
+file variables to '1' (the number).
 
 
 -P <directory>::
@@ -70,7 +70,7 @@ profiling information about each thread is logged into profiledir. Please
 note: This option is present for debugging and optimization only, and should
 NOT be used unless you have a specific reason to do so. It will significantly
 decrease program performance, may reduce reliability, and can generate huge
-amounts of data. This option implies the -1 option.
+amounts of data. This option implies the `-1' option.
 
 
 -a <account1[,account2[,...]]>::
@@ -93,12 +93,12 @@ having to edit the config file.
 This is useful if you are to track down a malfunction or figure out what is
 going on under the hood. This option requires one or more debugtypes,
 separated by commas. These define what exactly will be debugged, and so far
-include two options: imap, thread, maildir or ALL. The imap option will enable
+include options: "imap", "thread", "maildir" or "ALL". The imap option will enable
 IMAP protocol stream and parsing debugging. Note that the output may contain
 passwords, so take care to remove that from the debugging output before
 sending it to anyone else. The maildir option will enable debugging for
-certain Maildir operations.  The use of any debug option (unless 'thread' is
-included), implies the single-thread option -1.
+certain Maildir operations.  The use of any debug option (unless "thread" is
+included), implies the single-thread option `-1'.
 
 
 -l <path/to/file.log>::
@@ -125,7 +125,7 @@ options in the configuration file.
 If "section" is omitted, it defaults to "general". Any underscores in the
 section name are replaced with spaces: for instance, to override option
 "autorefresh" in the "[Account Personal]" section in the config file one would
-use "-k Account_Personal:autorefresh=30". Repeat this option as much as
+use `-k Account_Personal:autorefresh=30'. Repeat this option as much as
 necessary to redefine multiple options.
 
 -o::
@@ -148,7 +148,7 @@ option is ignored if maxage is set.
   Specifies an alternative user interface to use.
 +
 This overrides the default specified in the configuration file. The UI
-specified with -u will be forced to be used, even if checks determine that it
+specified with `-u' will be forced to be used, even if checks determine that it
 is not usable. Possible interface choices are: quiet, basic, syslog, ttyui,
 blinkenlights, machineui.
 
@@ -157,7 +157,7 @@ blinkenlights, machineui.
 --column[=<options>]::
 --no-column::
         Display branch listing in columns. See configuration variable
-        column.branch for option syntax.`--column` and `--no-column`
+        column.branch for option syntax. `--column' and `--no-column'
         without options are equivalent to 'always' and 'never' respectively.
 +
 This option is only applicable in non-verbose mode.
@@ -185,18 +185,22 @@ that might not be the best performing one. Once you got everything set up and
 running, you might want to look into speeding up your synchronization. Here
 are a couple of hints and tips on how to achieve this.
 
-1. Use maxconnections > 1.
+1. Synchronize more than one account.
 +
 By default we only use one connection to an IMAP server. Using 2 or even 3
-speeds things up considerably in most cases. This setting goes into the
-[Repository XXX] section.
+speeds things up considerably in most cases.  In order to synchronize more than
+one account concurrently, consider starting one instance of offlineimap per
+account.
++
+WARNING: enabling the 'maxsyncaccounts' and 'maxconnections' options is
+deprecated since it's known to have race conditions.
 
 2. Use folderfilters.
 +
 The quickest sync is a sync that can ignore some folders. I sort my inbox into
 monthly folders, and ignore every folder that is more than 2-3 months old,
 this lets me only inspect a fraction of my Mails on every sync. If you haven't
-done this yet, do it :). See the folderfilter section in offlineimap.conf.
+done this yet, do it :). See the 'folderfilter' section in 'offlineimap.conf'.
 
 3. The sqlite cache.
 +
@@ -218,16 +222,16 @@ sqlite cache stands in the 'LocalStatus-sqlite' folder).
 4. Use quick sync.
 +
 A regular sync will request all flags and all UIDs of all mails in each folder
-which takes quite some time. A 'quick' sync only compares the number of
+which takes quite some time. A quick sync only compares the number of
 messages in a folder on the IMAP side (it will detect flag changes on the
 Maildir side of things though). A quick sync on my smallish account will take
-7 seconds rather than 40 seconds. E.g. I run a cron script that does a regular
-sync once a day, and does quick syncs (-q) only synchronizing the "-f INBOX"
+7 seconds rather than 40 seconds. E.g. run a cron script that does a regular
+sync once a day, and does quick syncs `-q' only synchronizing the `-f INBOX'
 in between.
 
 5. Turn off fsync.
 +
-In the [general] section you can set fsync to True or False. If you want to
+In the '[general]' section you can set fsync to 'True' or 'False'. If you want to
 play 110% safe and wait for all operations to hit the disk before continuing,
 you can set this to True. If you set it to False, you lose some of that
 safety, trading it for speed.
@@ -279,8 +283,8 @@ will not protect you from active attacks, such as Man-In-The-Middle attacks
 which cause you to connect to the wrong server and pretend to be your mail
 server.
 +
-DO NOT RELY ON STARTTLS AS A SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF
-YOUR IMAP SERVER!
+*DO NOT RELY ON STARTTLS AS A SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF
+YOUR IMAP SERVER!*
 
 
 Unix Signals
@@ -290,10 +294,10 @@ OfflineImap listens to the unix signals SIGUSR1, SIGUSR2, SIGTERM, SIGINT,
 SIGHUP, SIGQUIT.
 
 * If sent a SIGUSR1 it will abort any current (or next future) sleep of all
-accounts that are configured to "autorefresh". In effect, this will trigger a
+accounts that are configured to 'autorefresh'. In effect, this will trigger a
 full sync of all accounts to be performed as soon as possible.
 
-* If sent a SIGUSR2, it will stop "autorefresh mode" for all accounts. That
+* If sent a SIGUSR2, it will stop 'autorefresh' mode for all accounts. That
 is, accounts will abort any current sleep and will exit after a currently
 running synchronization has finished. This signal can be used to gracefully
 exit out of a running offlineimap "daemon".
@@ -303,6 +307,8 @@ possible. This means it will finish syncing the current folder in each
 account, close keep alive connections, remove locks on the accounts and exit.
 +
 It may take up to 10 seconds, if autorefresh option is used.
++
+More than one SIGTERM will behave like SIGQUIT.
 
 * If sent SIGQUIT, dumps stack traces for all threads and tries to dump
 process core.
@@ -386,10 +392,10 @@ will fail to sync some mails as it thinks they are already existent.
 I would create a new local Maildir Repository for the Personal Gmail and
 use a different root to be on the safe side here. You could e.g. use
 
-    `~/mail/Pro` as Maildir root for the ProGmail and
-    `~/mail/Personal` as root for the personal one.
+    `~/mail/Pro' as Maildir root for the ProGmail and
+    `~/mail/Personal' as root for the personal one.
 +
-If you then point your local mutt, or whatever MUA you use to `~/mail/`
+If you then point your local mutt, or whatever MUA you use to `~/mail/'
 as root, it should still recognize all folders.
 
 
