@@ -29,10 +29,18 @@ class netrc:
                 file = os.path.join(os.environ['HOME'], ".netrc")
             except KeyError:
                 raise IOError("Could not find .netrc: $HOME is not set")
-        self.hosts = {}
+        self._hosts = {}
         self.macros = {}
         with open(file) as fp:
             self._parse(file, fp, default_netrc)
+
+    @property
+    def hosts(self):
+        ret = {}
+        for host in self._hosts.keys():
+            ret[host] = self._hosts[host][-1]
+
+        return ret
 
     def _parse(self, file, fp, default_netrc):
         lexer = shlex.shlex(fp)
@@ -72,13 +80,15 @@ class netrc:
             # We're looking at start of an entry for a named machine or default.
             login = ''
             account = password = None
-            self.hosts[entryname] = {}
+            if entryname not in self._hosts:
+                self._hosts[entryname] = []
+
             while 1:
                 tt = lexer.get_token()
                 if (tt.startswith('#') or
                     tt in {'', 'machine', 'default', 'macdef'}):
                     if password:
-                        self.hosts[entryname] = (login, account, password)
+                        self._hosts[entryname].append((login, account, password))
                         lexer.push_token(tt)
                         break
                     else:
@@ -116,24 +126,32 @@ class netrc:
                     raise NetrcParseError("bad follower token %r" % tt,
                                           file, lexer.lineno)
 
-    def authenticators(self, host):
+    def authenticators(self, host, user=None):
         """Return a (user, account, password) tuple for given host."""
-        if host in self.hosts:
-            return self.hosts[host]
-        elif 'default' in self.hosts:
-            return self.hosts['default']
+        ret = None
+        if host in self._hosts:
+            ret = self._hosts[host]
+        elif 'default' in self._hosts:
+            ret = self._hosts['default']
         else:
             return None
+
+        if user is not None:
+            for entry in ret:
+                if entry[0] == user:
+                    return entry
+
+        return ret[-1]
 
     def __repr__(self):
         """Dump the class data in the format of a .netrc file."""
         rep = ""
-        for host in self.hosts.keys():
-            attrs = self.hosts[host]
-            rep = rep + "machine "+ host + "\n\tlogin " + repr(attrs[0]) + "\n"
-            if attrs[1]:
-                rep = rep + "account " + repr(attrs[1])
-            rep = rep + "\tpassword " + repr(attrs[2]) + "\n"
+        for host in self._hosts.keys():
+            for attrs in self._hosts[host]:
+                rep = rep + "machine "+ host + "\n\tlogin " + repr(attrs[0]) + "\n"
+                if attrs[1]:
+                    rep = rep + "account " + repr(attrs[1])
+                rep = rep + "\tpassword " + repr(attrs[2]) + "\n"
         for macro in self.macros.keys():
             rep = rep + "macdef " + macro + "\n"
             for line in self.macros[macro]:
