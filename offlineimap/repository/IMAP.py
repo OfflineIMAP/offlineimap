@@ -273,8 +273,8 @@ class IMAPRepository(BaseRepository):
             self._oauth2_request_url = oauth2_request_url
             return self._oauth2_request_url
 
-        #raise OfflineImapError("No remote oauth2_request_url for repository "
-            #"'%s' specified."% self, OfflineImapError.ERROR.REPO)
+        raise OfflineImapError("No remote oauth2_request_url for repository "
+            "'%s' specified."% self, OfflineImapError.ERROR.REPO)
 
     def getoauth2_refresh_token(self):
         return self.getconf('oauth2_refresh_token', None)
