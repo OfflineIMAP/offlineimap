@@ -220,36 +220,45 @@ class IMAPServer:
 
 
     def __xoauth2handler(self, response):
-        if self.oauth2_refresh_token is None and self.oauth2_access_token is None:
+        if self.oauth2_refresh_token is None \
+                and self.oauth2_access_token is None:
             return None
 
         if self.oauth2_access_token is None:
-            # need to move these to config
-            # generate new access token
+            if self.oauth2_request_url is None:
+                raise OfflineImapError("No remote oauth2_request_url for "
+                    "repository '%s' specified."%
+                    self, OfflineImapError.ERROR.REPO)
+
+            # Generate new access token.
             params = {}
             params['client_id'] = self.oauth2_client_id
             params['client_secret'] = self.oauth2_client_secret
             params['refresh_token'] = self.oauth2_refresh_token
             params['grant_type'] = 'refresh_token'
 
-            self.ui.debug('imap', 'xoauth2handler: url "%s"' % self.oauth2_request_url)
-            self.ui.debug('imap', 'xoauth2handler: params "%s"' % params)
+            self.ui.debug('imap', 'xoauth2handler: url "%s"'%
+                self.oauth2_request_url)
+            self.ui.debug('imap', 'xoauth2handler: params "%s"'% params)
 
             original_socket = socket.socket
             socket.socket = self.proxied_socket
             try:
-                response = urllib.urlopen(self.oauth2_request_url, urllib.urlencode(params)).read()
+                response = urllib.urlopen(
+                    self.oauth2_request_url, urllib.urlencode(params)).read()
             finally:
                 socket.socket = original_socket
 
             resp = json.loads(response)
-            self.ui.debug('imap', 'xoauth2handler: response "%s"' % resp)
+            self.ui.debug('imap', 'xoauth2handler: response "%s"'% resp)
             self.oauth2_access_token = resp['access_token']
 
-        self.ui.debug('imap', 'xoauth2handler: access_token "%s"' % self.oauth2_access_token)
-        auth_string = 'user=%s\1auth=Bearer %s\1\1' % (self.username, self.oauth2_access_token)
+        self.ui.debug('imap', 'xoauth2handler: access_token "%s"'%
+            self.oauth2_access_token)
+        auth_string = 'user=%s\1auth=Bearer %s\1\1'% (
+            self.username, self.oauth2_access_token)
         #auth_string = base64.b64encode(auth_string)
-        self.ui.debug('imap', 'xoauth2handler: returning "%s"' % auth_string)
+        self.ui.debug('imap', 'xoauth2handler: returning "%s"'% auth_string)
         return auth_string
 
     def __gssauth(self, response):

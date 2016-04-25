@@ -268,13 +268,8 @@ class IMAPRepository(BaseRepository):
         if self._oauth2_request_url:  # Use cached value if possible.
             return self._oauth2_request_url
 
-        oauth2_request_url = self.getconf('oauth2_request_url', None)
-        if oauth2_request_url != None:
-            self._oauth2_request_url = oauth2_request_url
-            return self._oauth2_request_url
-
-        raise OfflineImapError("No remote oauth2_request_url for repository "
-            "'%s' specified."% self, OfflineImapError.ERROR.REPO)
+        self.oauth2_request_url = self.getconf('oauth2_request_url', None)
+        return self._oauth2_request_url
 
     def getoauth2_refresh_token(self):
         return self.getconf('oauth2_refresh_token', None)
