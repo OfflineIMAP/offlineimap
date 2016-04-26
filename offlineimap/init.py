@@ -324,13 +324,6 @@ class OfflineImap:
         self.config is supposed to have been correctly initialized
         already."""
         try:
-            pidfd = open(self.config.getmetadatadir() + "/pid", "w")
-            pidfd.write(str(os.getpid()) + "\n")
-            pidfd.close()
-        except:
-            pass
-
-        try:
             # Honor CLI --account option, only.
             # Accounts to sync are put into syncaccounts variable.
             activeaccounts = self.config.get("general", "accounts")
