@@ -343,6 +343,10 @@ class BaseFolder(object):
                 raise OfflineImapError("maxage led to year %d. "
                     "Abort syncing."% date[0],
                     OfflineImapError.ERROR.MESSAGE)
+            if (time.mktime(date) - time.mktime(time.localtime())) > 0:
+                raise OfflineImapError("maxage led to future date %s. "
+                    "Abort syncing."% maxagestr,
+                    OfflineImapError.ERROR.MESSAGE)
             return date
         except ValueError:
             raise OfflineImapError("invalid maxage value %s"% maxagestr,
@@ -363,6 +367,10 @@ class BaseFolder(object):
             if date[0] < 1900:
                 raise OfflineImapError("startdate led to year %d. "
                     "Abort syncing."% date[0],
+                    OfflineImapError.ERROR.MESSAGE)
+            if (time.mktime(date) - time.mktime(time.localtime())) > 0:
+                raise OfflineImapError("startdate led to future date %s. "
+                    "Abort syncing."% datestr,
                     OfflineImapError.ERROR.MESSAGE)
             return date
         except ValueError:
