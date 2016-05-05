@@ -12,3 +12,5 @@
 *.pyc
 offlineimap.1
 offlineimapui.7
+# Editors/IDEs
+tags
