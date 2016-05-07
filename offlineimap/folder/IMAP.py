@@ -177,7 +177,11 @@ class IMAPFolder(BaseFolder):
                     "Search string was '%s'. Server responded '[%s] %s'"% (
                     self.getrepository(), self, search_cond, res_type, res_data),
                     OfflineImapError.ERROR.FOLDER)
-            return res_data[0].split()
+            # Davmail returns list instead of list of one element string.
+            # On first run the first element is empty.
+            if ' ' in res_data[0] or res_data[0] == '':
+                res_data = res_data[0].split()
+            return res_data
 
         res_type, imapdata = imapobj.select(self.getfullname(), True, True)
         if imapdata == [None] or imapdata[0] == '0':
