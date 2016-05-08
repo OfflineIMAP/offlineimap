@@ -400,6 +400,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
         if not len(uidlist):
             return
         # arg2 needs to be an iterable of 1-tuples [(1,),(2,),...]
-        self.__sql_write('DELETE FROM status WHERE id=?', zip(uidlist, ), True)
+        self.__sql_write('DELETE FROM status WHERE id=?', list(zip(uidlist, )), True)
         for uid in uidlist:
             del(self.messagelist[uid])
