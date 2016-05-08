@@ -64,7 +64,7 @@ class LocalStatusFolder(BaseFolder):
         - fp: I/O object that points to the opened database file.
         """
 
-        for line in fp.xreadlines():
+        for line in fp:
             line = line.strip()
             try:
                 uid, flags = line.split(':')
@@ -85,7 +85,7 @@ class LocalStatusFolder(BaseFolder):
         - fp: I/O object that points to the opened database file.
         """
 
-        for line in fp.xreadlines():
+        for line in fp:
             line = line.strip()
             try:
                 uid, flags, mtime, labels = line.split('|')
