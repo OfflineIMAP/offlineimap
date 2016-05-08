@@ -1086,7 +1086,7 @@ class BaseFolder(object):
         MailDirFolder('foo') == MaildirFolder('foo') --> False
         """
 
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return other == self.name
         return id(self) == id(other)
 

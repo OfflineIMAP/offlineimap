@@ -393,7 +393,7 @@ class IMAPRepository(BaseRepository):
             self.imapserver.releaseconnection(imapobj)
         for s in listresult:
             if s == None or \
-                   (isinstance(s, basestring) and s == ''):
+                   (isinstance(s, str) and s == ''):
                 # Bug in imaplib: empty strings in results from
                 # literals. TODO: still relevant?
                 continue
