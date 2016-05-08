@@ -433,8 +433,7 @@ class IMAPServer:
 
         if not tried_to_authn:
             methods = ", ".join(map(
-              lambda x: x[5:], filter(lambda x: x[0:5] == "AUTH=",
-               imapobj.capabilities)
+              lambda x: x[5:], [x for x in imapobj.capabilities if x[0:5] == "AUTH="]
             ))
             raise OfflineImapError(u"Repository %s: no supported "
               "authentication mechanisms found; configured %s, "

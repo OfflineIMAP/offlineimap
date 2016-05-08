@@ -858,8 +858,7 @@ class BaseFolder(object):
 
         threads = []
 
-        copylist = filter(lambda uid: not statusfolder.uidexists(uid),
-            self.getmessageuidlist())
+        copylist = [uid for uid in self.getmessageuidlist() if not statusfolder.uidexists(uid)]
         num_to_copy = len(copylist)
         if num_to_copy and self.repository.account.dryrun:
             self.ui.info("[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
@@ -909,10 +908,10 @@ class BaseFolder(object):
         # The list of messages to delete. If sync of deletions is disabled we
         # still remove stale entries from statusfolder (neither in local nor
         # remote).
-        deletelist = filter(
-                lambda uid: uid >= 0 and not self.uidexists(uid)
-                    and (self._sync_deletes or not dstfolder.uidexists(uid)),
-                statusfolder.getmessageuidlist())
+        deletelist = [uid for uid in statusfolder.getmessageuidlist()
+                      if uid >= 0 and
+                      not self.uidexists(uid) and
+                      (self._sync_deletes or not dstfolder.uidexists(uid))]
 
         if len(deletelist):
             # Delete in statusfolder first to play safe. In case of abort, we
@@ -921,7 +920,7 @@ class BaseFolder(object):
             # user, or not being tracked (e.g. because of maxage).
             statusfolder.deletemessages(deletelist)
             # Filter out untracked messages
-            deletelist = filter(lambda uid: dstfolder.uidexists(uid), deletelist)
+            deletelist = [uid for uid in deletelist if dstfolder.uidexists(uid)]
             if len(deletelist):
                 self.ui.deletingmessages(deletelist, [dstfolder])
                 if self.repository.account.dryrun:

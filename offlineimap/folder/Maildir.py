@@ -204,7 +204,7 @@ class MaildirFolder(BaseFolder):
                 retval[uid]['filename'] = filepath
         if min_date != None:
             # Re-include messages with high enough uid's.
-            positive_uids = filter(lambda uid: uid > 0, retval)
+            positive_uids = [uid for uid in retval if uid > 0]
             if positive_uids:
                 min_uid = min(positive_uids)
                 for uid in date_excludees.keys():

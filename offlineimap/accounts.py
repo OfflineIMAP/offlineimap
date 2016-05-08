@@ -438,8 +438,7 @@ def syncfolder(account, remotefolder, quick):
         # sync to messages with UIDs >= min_uid from this list.
         #
         # local messagelist might contain new messages (with uid's < 0).
-        positive_uids = filter(
-            lambda uid: uid > 0, localfolder.getmessageuidlist())
+        positive_uids = [uid for uid in localfolder.getmessageuidlist() if uid > 0]
         if len(positive_uids) > 0:
             remotefolder.cachemessagelist(min_uid=min(positive_uids))
         else:
@@ -482,8 +481,7 @@ def syncfolder(account, remotefolder, quick):
                 # messagelist.keys() instead of getuidmessagelist() because in
                 # the UID mapped case we want the actual local UIDs, not their
                 # remote counterparts
-                positive_uids = filter(
-                    lambda uid: uid > 0, partial.messagelist.keys())
+                positive_uids = [uid for uid in list(partial.messagelist.keys()) if uid > 0]
                 if len(positive_uids) > 0:
                     min_uid = min(positive_uids)
                 else:
