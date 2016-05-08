@@ -68,7 +68,7 @@ class LocalStatusFolder(BaseFolder):
             line = line.strip()
             try:
                 uid, flags = line.split(':')
-                uid = long(uid)
+                uid = int(uid)
                 flags = set(flags)
             except ValueError as e:
                 errstr = "Corrupt line '%s' in cache file '%s'" % \
@@ -89,9 +89,9 @@ class LocalStatusFolder(BaseFolder):
             line = line.strip()
             try:
                 uid, flags, mtime, labels = line.split('|')
-                uid = long(uid)
+                uid = int(uid)
                 flags = set(flags)
-                mtime = long(mtime)
+                mtime = int(mtime)
                 labels = set([lb.strip() for lb in labels.split(',') if len(lb.strip()) > 0])
             except ValueError as e:
                 errstr = "Corrupt line '%s' in cache file '%s'"% \

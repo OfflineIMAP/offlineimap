@@ -159,7 +159,7 @@ class GmailFolder(IMAPFolder):
                                           str(options),
                                           minor = 1)
             else:
-                uid = long(options['UID'])
+                uid = int(options['UID'])
                 self.messagelist[uid] = self.msglist_item_initializer(uid)
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
                 m = re.search('\(([^\)]*)\)', options['X-GM-LABELS'])

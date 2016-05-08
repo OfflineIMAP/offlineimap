@@ -64,8 +64,8 @@ class MappedIMAPFolder(IMAPFolder):
                     raise Exception("Corrupt line '%s' in UID mapping file '%s'"%
                         (line, mapfilename)), None, exc_info()[2]
                 (str1, str2) = line.split(':')
-                loc = long(str1)
-                rem = long(str2)
+                loc = int(str1)
+                rem = int(str2)
                 r2l[rem] = loc
                 l2r[loc] = rem
             return (r2l, l2r)

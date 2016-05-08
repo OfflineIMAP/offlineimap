@@ -46,7 +46,7 @@ def _gettimeseq(date=None):
     timelock.acquire()
     try:
         if date is None:
-            date = long(time.time())
+            date = int(time.time())
         if timehash.has_key(date):
             timehash[date] += 1
         else:
@@ -97,7 +97,7 @@ class MaildirFolder(BaseFolder):
         if not timestampmatch:
             return True
         timestampstr = timestampmatch.group()
-        timestamplong = long(timestampstr)
+        timestamplong = int(timestampstr)
         if(timestamplong < time.mktime(date)):
             return False
         else:
@@ -131,7 +131,7 @@ class MaildirFolder(BaseFolder):
         if foldermatch:
             uidmatch = re_uidmatch.search(filename)
             if uidmatch:
-                uid = long(uidmatch.group(1))
+                uid = int(uidmatch.group(1))
         flagmatch = self.re_flagmatch.search(filename)
         if flagmatch:
             flags = set((c for c in flagmatch.group(1)))
@@ -182,7 +182,7 @@ class MaildirFolder(BaseFolder):
                     uid = nouidcounter
                     nouidcounter -= 1
                 else:
-                    uid = long(uidmatch.group(1))
+                    uid = int(uidmatch.group(1))
             if min_uid != None and uid > 0 and uid < min_uid:
                 continue
             if min_date != None and not self._iswithintime(filename, min_date):

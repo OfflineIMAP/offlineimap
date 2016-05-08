@@ -72,7 +72,7 @@ class GmailMaildirFolder(MaildirFolder):
         if self.synclabels:
             for uid, msg in self.messagelist.items():
                 filepath = os.path.join(self.getfullname(), msg['filename'])
-                msg['mtime'] = long(os.stat(filepath).st_mtime)
+                msg['mtime'] = int(os.stat(filepath).st_mtime)
 
 
     def getmessagelabels(self, uid):
@@ -122,7 +122,7 @@ class GmailMaildirFolder(MaildirFolder):
         # Update the mtime and labels
         filename = self.messagelist[uid]['filename']
         filepath = os.path.join(self.getfullname(), filename)
-        self.messagelist[uid]['mtime'] = long(os.stat(filepath).st_mtime)
+        self.messagelist[uid]['mtime'] = int(os.stat(filepath).st_mtime)
         self.messagelist[uid]['labels'] = labels
         return ret
 
@@ -159,7 +159,7 @@ class GmailMaildirFolder(MaildirFolder):
         content = self.deletemessageheaders(content, self.labelsheader)
         content = self.addmessageheader(content, '\n', self.labelsheader, labels_str)
 
-        mtime = long(os.stat(filepath).st_mtime)
+        mtime = int(os.stat(filepath).st_mtime)
 
         # write file with new labels to a unique file in tmp
         messagename = self.new_message_filename(uid, set())
@@ -179,7 +179,7 @@ class GmailMaildirFolder(MaildirFolder):
             os.utime(filepath, (mtime, mtime))
 
         # save the new mtime and labels
-        self.messagelist[uid]['mtime'] = long(os.stat(filepath).st_mtime)
+        self.messagelist[uid]['mtime'] = int(os.stat(filepath).st_mtime)
         self.messagelist[uid]['labels'] = labels
 
     def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
@@ -319,7 +319,7 @@ class GmailMaildirFolder(MaildirFolder):
 
                 filename = self.messagelist[uid]['filename']
                 filepath = os.path.join(self.getfullname(), filename)
-                mtimes[uid] = long(os.stat(filepath).st_mtime)
+                mtimes[uid] = int(os.stat(filepath).st_mtime)
 
             # finally update statusfolder in a single DB transaction
             statusfolder.savemessagesmtimebulk(mtimes)

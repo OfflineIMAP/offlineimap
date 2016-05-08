@@ -106,7 +106,7 @@ class IMAPFolder(BaseFolder):
             typ, uidval = imapobj.response('UIDVALIDITY')
             assert uidval != [None] and uidval != None, \
                 "response('UIDVALIDITY') returned [None]!"
-            self._uidvalidity = long(uidval[-1])
+            self._uidvalidity = int(uidval[-1])
             return self._uidvalidity
         finally:
             self.imapserver.releaseconnection(imapobj)
@@ -143,7 +143,7 @@ class IMAPFolder(BaseFolder):
             return True
         maxmsgid = 0
         for msgid in imapdata:
-            maxmsgid = max(long(msgid), maxmsgid)
+            maxmsgid = max(int(msgid), maxmsgid)
         # Different number of messages than last time?
         if maxmsgid != statusfolder.getmessagecount():
             return True
@@ -251,7 +251,7 @@ class IMAPFolder(BaseFolder):
                                           str(options),
                                           minor = 1)
             else:
-                uid = long(options['UID'])
+                uid = int(options['UID'])
                 self.messagelist[uid] = self.msglist_item_initializer(uid)
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
                 keywords = imaputil.flagsimap2keywords(options['FLAGS'])
@@ -360,7 +360,7 @@ class IMAPFolder(BaseFolder):
             raise ValueError("While attempting to find UID for message with "
                              "header %s, got wrong-sized matchinguids of %s"%\
                                  (headername, str(matchinguids)))
-        return long(matchinguids[0])
+        return int(matchinguids[0])
 
     def __savemessage_fetchheaders(self, imapobj, headername, headervalue):
         """ We fetch all new mail headers and search for the right
@@ -643,7 +643,7 @@ class IMAPFolder(BaseFolder):
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
                         "appending a message.")
                     return 0
-                uid = long(resp[-1].split(' ')[1])
+                uid = int(resp[-1].split(' ')[1])
                 if uid == 0:
                     self.ui.warn("savemessage: Server supports UIDPLUS, but"
                         " we got no usable uid back. APPENDUID reponse was "
@@ -823,7 +823,7 @@ class IMAPFolder(BaseFolder):
                 # Compensate for servers that don't return a UID attribute.
                 continue
             flagstr = attributehash['FLAGS']
-            uid = long(attributehash['UID'])
+            uid = int(attributehash['UID'])
             self.messagelist[uid]['flags'] = imaputil.flagsimap2maildir(flagstr)
             try:
                 needupdate.remove(uid)

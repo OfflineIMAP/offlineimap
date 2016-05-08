@@ -236,7 +236,7 @@ class BaseFolder(object):
             self._base_saved_uidvalidity = None
         else:
             file = open(uidfilename, "rt")
-            self._base_saved_uidvalidity = long(file.readline().strip())
+            self._base_saved_uidvalidity = int(file.readline().strip())
             file.close()
         return self._base_saved_uidvalidity
 
@@ -390,7 +390,7 @@ class BaseFolder(object):
             return None
         try:
             fd = open(uidfile, 'rt')
-            min_uid = long(fd.readline().strip())
+            min_uid = int(fd.readline().strip())
             fd.close()
             return min_uid
         except:
