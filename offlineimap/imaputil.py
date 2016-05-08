@@ -161,7 +161,13 @@ def imapsplit(imapstring):
             retval.append(quoted)
             workstr = rest
         else:
-            splits = string.split(workstr, maxsplit = 1)
+            splits = None
+            # Python2
+            if hasattr(string, 'split'):
+                splits = string.split(workstr, maxsplit = 1)
+            # Python3
+            else:
+                splits = str.split(workstr, maxsplit = 1)
             splitslen = len(splits)
             # The unquoted word is splits[0]; the remainder is splits[1]
             if splitslen == 2:
