@@ -271,7 +271,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         pass
 
     def getlocalroot(self):
-    	""" Local root folder for storing messages.
-    	Will not be set for remote repositories."""
+        """ Local root folder for storing messages.
+        Will not be set for remote repositories."""
         return None
 
