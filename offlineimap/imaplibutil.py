@@ -79,19 +79,19 @@ class UsefulIMAPMixIn(object):
             try:
                 # use socket of our own, possiblly socksified socket.
                 s = self.socket(af, socktype, proto)
-            except socket.error, msg:
+            except socket.error as msg:
                 continue
             try:
                 for i in (0, 1):
                     try:
                         s.connect(sa)
                         break
-                    except socket.error, msg:
+                    except socket.error as msg:
                         if len(msg.args) < 2 or msg.args[0] != errno.EINTR:
                             raise
                 else:
                     raise socket.error(msg)
-            except socket.error, msg:
+            except socket.error as msg:
                 s.close()
                 continue
             break
