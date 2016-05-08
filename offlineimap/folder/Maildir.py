@@ -47,7 +47,7 @@ def _gettimeseq(date=None):
     try:
         if date is None:
             date = int(time.time())
-        if timehash.has_key(date):
+        if date in timehash:
             timehash[date] += 1
         else:
             timehash[date] = 0
