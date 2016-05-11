@@ -74,6 +74,11 @@ class MaildirFolder(BaseFolder):
         self._foldermd5 = md5(self.getvisiblename()).hexdigest()
         # Cache the full folder path, as we use getfullname() very often.
         self._fullname = os.path.join(self.getroot(), self.getname())
+        # Modification time from 'Date' header.
+        utime_from_header_global = self.config.getdefaultboolean(
+            "general", "utime_from_header", False)
+        self._utime_from_header = self.config.getdefaultboolean(
+            self.repoconfname, "utime_from_header", utime_from_header_global)
 
     # Interface from BaseFolder
     def getfullname(self):
@@ -365,7 +370,7 @@ class MaildirFolder(BaseFolder):
         messagename = self.new_message_filename(uid, flags, date=message_timestamp)
         tmpname = self.save_to_tmp_file(messagename, content)
 
-        if self.utime_from_header:
+        if self._utime_from_header is True:
             try:
                 date = emailutil.get_message_date(content, 'Date')
                 if date is not None:

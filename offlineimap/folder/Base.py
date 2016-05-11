@@ -54,29 +54,25 @@ class BaseFolder(object):
         if self.visiblename == self.getsep():
             self.visiblename = ''
 
-        repoconfname = "Repository " + repository.name
+        self.repoconfname = "Repository " + repository.name
 
         self.config = repository.getconfig()
-        utime_from_header_global = self.config.getdefaultboolean(
-            "general", "utime_from_header", False)
-        self._utime_from_header = self.config.getdefaultboolean(
-            repoconfname, "utime_from_header", utime_from_header_global)
 
         # Do we need to use mail timestamp for filename prefix?
         filename_use_mail_timestamp_global = self.config.getdefaultboolean(
             "general", "filename_use_mail_timestamp", False)
         self._filename_use_mail_timestamp = self.config.getdefaultboolean(
-            repoconfname,
+            self.repoconfname,
             "filename_use_mail_timestamp",
             filename_use_mail_timestamp_global)
 
         self._sync_deletes = self.config.getdefaultboolean(
-            repoconfname, "sync_deletes", True)
+            self.repoconfname, "sync_deletes", True)
 
         # Determine if we're running static or dynamic folder filtering
         # and check filtering status
         self._dynamic_folderfilter = self.config.getdefaultboolean(
-            repoconfname, "dynamic_folderfilter", False)
+            self.repoconfname, "dynamic_folderfilter", False)
         self._sync_this = repository.should_sync_folder(self.ffilter_name)
         if self._dynamic_folderfilter:
             self.ui.debug('', "Running dynamic folder filtering on '%s'[%s]"%
@@ -114,10 +110,6 @@ class BaseFolder(object):
             return self._sync_this
         else:
             return self.repository.should_sync_folder(self.ffilter_name)
-
-    @property
-    def utime_from_header(self):
-        return self._utime_from_header
 
     def suggeststhreads(self):
         """Returns true if this folder suggests using threads for actions;
