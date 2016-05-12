@@ -58,9 +58,11 @@ class LocalStatusSQLiteFolder(BaseFolder):
             raise UserWarning("SQLite database path '%s' is not a directory."%
                 dirname)
 
-        # dblock protects against concurrent writes in same connection.
+        # This lock protects against concurrent writes in same connection.
         self._dblock = Lock()
+        self.connection = None
 
+    def openfiles(self):
         # Try to establish connection, no need for threadsafety in __init__.
         try:
             self.connection = sqlite.connect(self.filename, check_same_thread=False)
@@ -84,10 +86,10 @@ class LocalStatusSQLiteFolder(BaseFolder):
             cursor = self.connection.execute(
                 "SELECT value from metadata WHERE key='db_version'")
         except sqlite.DatabaseError:
-            #db file missing or corrupt, recreate it.
+            # db file missing or corrupt, recreate it.
             self.__create_db()
         else:
-            # fetch db version and upgrade if needed
+            # Fetch db version and upgrade if needed.
             version = int(cursor.fetchone()[0])
             if version < LocalStatusSQLiteFolder.cur_version:
                 self.__upgrade_db(version)

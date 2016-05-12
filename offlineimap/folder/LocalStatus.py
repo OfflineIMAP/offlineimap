@@ -154,6 +154,9 @@ class LocalStatusFolder(BaseFolder):
         self.readstatus(cachefd)
         cachefd.close()
 
+    def openfiles(self):
+        pass # Closing files is done on a per-transaction basis.
+
     def closefiles(self):
         pass # Closing files is done on a per-transaction basis.
 
