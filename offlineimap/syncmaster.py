@@ -16,24 +16,29 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap.threadutil import threadlist, InstanceLimitedThread
+from offlineimap.threadutil import threadlist, InstanceLimitedThread, NORMAL_EXIT
 from offlineimap.accounts import SyncableAccount
 from threading import currentThread
 
-def syncaccount(threads, config, accountname):
+def syncaccount(config, accountname):
+    """Return a new running thread for this account."""
+
     account = SyncableAccount(config, accountname)
     thread = InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
                                    target = account.syncrunner,
                                    name = "Account sync %s" % accountname)
     thread.setDaemon(True)
     thread.start()
-    threads.add(thread)
+    return thread
 
 def syncitall(accounts, config):
-    # Special exit message for SyncRunner thread, so main thread can exit
-    currentThread().exit_message = 'SYNCRUNNER_EXITED_NORMALLY'
-    threads = threadlist()
+    """The target when in multithreading mode."""
+
+    # Special exit message for SyncRunner thread, so main thread can exit.
+    currentThread().exit_message = NORMAL_EXIT
+    threads = threadlist() # The collection of threads.
     for accountname in accounts:
-        syncaccount(threads, config, accountname)
+        # Start a new thread per account and store it in the collection.
+        threads.add(syncaccount(config, accountname))
     # Wait for the threads to finish.
-    threads.reset()
+    threads.wait() # Blocks until all accounts are processed.

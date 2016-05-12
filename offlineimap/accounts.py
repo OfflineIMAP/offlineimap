@@ -204,7 +204,10 @@ class SyncableAccount(Account):
 
     Derives from :class:`accounts.Account` but contains the additional
     functions :meth:`syncrunner`, :meth:`sync`, :meth:`syncfolders`,
-    used for syncing."""
+    used for syncing.
+
+    In multi-threaded mode, one instance of this object is run per "account"
+    thread."""
 
     def __init__(self, *args, **kwargs):
         Account.__init__(self, *args, **kwargs)
@@ -239,6 +242,8 @@ class SyncableAccount(Account):
                 pass    # Failed to delete for some reason.
 
     def syncrunner(self):
+        """The target for both single and multi-threaded modes."""
+
         self.ui.registerthread(self)
         try:
             accountmetadata = self.getaccountmeta()

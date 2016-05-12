@@ -25,6 +25,9 @@ import os.path
 import sys
 from offlineimap.ui import getglobalui
 
+
+NORMAL_EXIT = 'SYNCRUNNER_EXITED_NORMALLY'
+
 ######################################################################
 # General utilities
 ######################################################################
@@ -70,7 +73,7 @@ class threadlist:
         finally:
             self.lock.release()
 
-    def reset(self):
+    def wait(self):
         while 1:
             thread = self.pop()
             if not thread:
@@ -129,7 +132,7 @@ def threadexited(thread):
             raise SystemExit
         ui.threadException(thread)      # Expected to terminate
         sys.exit(100)                   # Just in case...
-    elif thread.exit_message == 'SYNCRUNNER_EXITED_NORMALLY':
+    elif thread.exit_message == NORMAL_EXIT:
         return True
     else:
         ui.threadExited(thread)
@@ -157,6 +160,8 @@ class ExitNotifyThread(Thread):
         self._exit_stacktrace = None
 
     def run(self):
+        """Allow profiling of a run."""
+
         global exitthreads
         try:
             if not ExitNotifyThread.profiledir: # normal case
