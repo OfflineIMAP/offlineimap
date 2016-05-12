@@ -883,10 +883,10 @@ class BaseFolder(object):
         for thread in threads:
             thread.join()
 
-        # Execute new mail hook if we have new mail
+        # Execute new mail hook if we have new mail.
         if self.have_newmail:
             if self.newmail_hook != None:
-                self.newmail_hook();
+                self.newmail_hook()
 
     def __syncmessagesto_delete(self, dstfolder, statusfolder):
         """Pass 2: Remove locally deleted messages on dst.
