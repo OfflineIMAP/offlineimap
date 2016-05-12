@@ -85,7 +85,7 @@ class threadlist:
 # Exit-notify threads
 ######################################################################
 
-exitthreads = Queue(100)
+exitthreads = Queue()
 
 def exitnotifymonitorloop(callback):
     """An infinite "monitoring" loop watching for finished ExitNotifyThread's.
