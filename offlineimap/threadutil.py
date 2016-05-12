@@ -22,7 +22,6 @@ except ImportError: # python3
     from queue import Queue, Empty
 import traceback
 import os.path
-import sys
 from offlineimap.ui import getglobalui
 
 
@@ -87,7 +86,7 @@ class threadlist:
 
 exitthreads = Queue()
 
-def exitnotifymonitorloop(callback):
+def exitnotifymonitorloop():
     """An infinite "monitoring" loop watching for finished ExitNotifyThread's.
 
     This one is supposed to run in the main thread.
@@ -105,38 +104,36 @@ def exitnotifymonitorloop(callback):
     """
 
     global exitthreads
-    do_loop = True
-    while do_loop:
+    ui = getglobalui()
+
+    while True:
         # Loop forever and call 'callback' for each thread that exited
         try:
-            # we need a timeout in the get() call, so that ctrl-c can throw
+            # We need a timeout in the get() call, so that ctrl-c can throw
             # a SIGINT (http://bugs.python.org/issue1360). A timeout with empty
             # Queue will raise `Empty`.
-            thrd = exitthreads.get(True, 60)
+            thread = exitthreads.get(True, 60)
             # request to abort when callback returns true
-            do_loop = (callback(thrd) != True)
+
+            if thread.exit_exception is not None:
+                if isinstance(thread.exit_exception, SystemExit):
+                    # Bring a SystemExit into the main thread.
+                    # Do not send it back to UI layer right now.
+                    # Maybe later send it to ui.terminate?
+                    raise SystemExit
+                ui.threadException(thread) # Expected to terminate the program.
+                # Should never hit this line.
+                raise AssertionError("thread has 'exit_exception' set to"
+                    " '%s' [%s] but this value is unexpected"
+                    " and the ui did not stop the program."%
+                    (repr(thread.exit_exception), type(thread.exit_exception)))
+
+            elif thread.exit_message == NORMAL_EXIT:
+                break # Exit the loop here.
+            else:
+                ui.threadExited(thread)
         except Empty:
             pass
-
-def threadexited(thread):
-    """Called when a thread exits.
-
-    Main thread is aborted when this returns True."""
-
-    ui = getglobalui()
-    if thread.exit_exception:
-        if isinstance(thread.exit_exception, SystemExit):
-            # Bring a SystemExit into the main thread.
-            # Do not send it back to UI layer right now.
-            # Maybe later send it to ui.terminate?
-            raise SystemExit
-        ui.threadException(thread)      # Expected to terminate
-        sys.exit(100)                   # Just in case...
-    elif thread.exit_message == NORMAL_EXIT:
-        return True
-    else:
-        ui.threadExited(thread)
-        return False
 
 class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a
@@ -145,7 +142,10 @@ class ExitNotifyThread(Thread):
     bail out when the mainloop dies.
 
     The thread can set instance variables self.exit_message for a human
-    readable reason of the thread exit."""
+    readable reason of the thread exit.
+
+    There is one instance of this class at runtime. The main thread waits for
+    the monitor to end."""
 
     profiledir = None
     """Class variable that is set to the profile directory if required."""

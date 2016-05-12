@@ -389,11 +389,10 @@ class OfflineImap:
             else:
                 # multithreaded
                 t = threadutil.ExitNotifyThread(target=syncmaster.syncitall,
-                                 name='Sync Runner',
-                                 kwargs = {'accounts': syncaccounts,
-                                           'config': self.config})
+                    name='Sync Runner',
+                    kwargs={'accounts': syncaccounts, 'config': self.config})
                 t.start()
-                threadutil.exitnotifymonitorloop(threadutil.threadexited)
+                threadutil.exitnotifymonitorloop()
 
             if not options.dryrun:
                 offlineimap.mbnames.write(True)
