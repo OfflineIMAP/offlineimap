@@ -510,6 +510,7 @@ def syncfolder(account, remotefolder, quick):
         # Load status folder.
         statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().
             replace(remoterepos.getsep(), statusrepos.getsep()))
+        statusfolder.openfiles()
 
         if localfolder.get_uidvalidity() == None:
             # This is a new folder, so delete the status cache to be
