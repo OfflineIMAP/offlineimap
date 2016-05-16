@@ -190,7 +190,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                     dst_repo.getsep(), src_repo.getsep())] = folder
 
         # Find and create new folders on src_repo.
-        for src_name_t, src_folder in src_hash.iteritems():
+        for src_name_t, src_folder in src_hash.items():
             # Don't create on dst_repo, if it is readonly.
             if not dst_repo.get_create_folders():
                 break
@@ -207,7 +207,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                 status_repo.makefolder(src_name_t.replace(dst_repo.getsep(),
                                                    status_repo.getsep()))
         # Find and create new folders on dst_repo.
-        for dst_name_t, dst_folder in dst_hash.iteritems():
+        for dst_name_t, dst_folder in dst_hash.items():
             if not src_repo.get_create_folders():
                 # Don't create missing folder on readonly repo.
                 break

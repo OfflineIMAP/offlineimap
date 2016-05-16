@@ -230,7 +230,7 @@ class MaildirFolder(BaseFolder):
                 sorted(statusfolder.getmessageuidlist()):
             return True
         # Also check for flag changes, it's quick on a Maildir.
-        for (uid, message) in self.getmessagelist().iteritems():
+        for (uid, message) in self.getmessagelist().items():
             if message['flags'] != statusfolder.getmessageflags(uid):
                 return True
         return False  # Nope, nothing changed.
@@ -495,7 +495,7 @@ class MaildirFolder(BaseFolder):
         """
         oldfmd5 = md5(self.name).hexdigest()
         msglist = self._scanfolder()
-        for mkey, mvalue in msglist.iteritems():
+        for mkey, mvalue in msglist.items():
             filename = os.path.join(self.getfullname(), mvalue['filename'])
             match = re.search("FMD5=([a-fA-F0-9]+)", filename)
             if match is None:

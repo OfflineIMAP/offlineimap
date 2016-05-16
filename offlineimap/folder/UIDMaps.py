@@ -77,7 +77,7 @@ class MappedIMAPFolder(IMAPFolder):
         if dolock: self.maplock.acquire()
         try:
             file = open(mapfilename + ".tmp", 'wt')
-            for (key, value) in self.diskl2r.iteritems():
+            for (key, value) in self.diskl2r.items():
                 file.write("%d:%d\n"% (key, value))
             file.close()
             os.rename(mapfilename + '.tmp', mapfilename)
@@ -162,7 +162,7 @@ class MappedIMAPFolder(IMAPFolder):
         localhash = self._mb.getmessagelist()
         self.maplock.acquire()
         try:
-            for key, value in localhash.items():
+            for key, value in list(localhash.items()):
                 try:
                     key = self.l2r[key]
                 except KeyError:

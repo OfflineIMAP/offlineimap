@@ -291,7 +291,7 @@ class OfflineImap:
             d = collections.defaultdict(lambda: 0)
             for v in l:
                 d[tuple(v)] += 1
-            return list((k, v) for k, v in d.iteritems())
+            return list((k, v) for k, v in d.items())
 
         stack_displays = []
         for threadId, stack in sys._current_frames().items():

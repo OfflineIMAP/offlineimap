@@ -48,11 +48,11 @@ class GmailMaildirFolder(MaildirFolder):
                 sorted(statusfolder.getmessageuidlist()):
             return True
         # check for flag changes, it's quick on a Maildir
-        for (uid, message) in self.getmessagelist().iteritems():
+        for (uid, message) in self.getmessagelist().items():
             if message['flags'] != statusfolder.getmessageflags(uid):
                 return True
         # check for newer mtimes. it is also fast
-        for (uid, message) in self.getmessagelist().iteritems():
+        for (uid, message) in self.getmessagelist().items():
             if message['mtime'] > statusfolder.getmessagemtime(uid):
                 return True
         return False  #Nope, nothing changed
@@ -70,7 +70,7 @@ class GmailMaildirFolder(MaildirFolder):
 
         # Get mtimes
         if self.synclabels:
-            for uid, msg in self.messagelist.items():
+            for uid, msg in list(self.messagelist.items()):
                 filepath = os.path.join(self.getfullname(), msg['filename'])
                 msg['mtime'] = int(os.stat(filepath).st_mtime)
 
