@@ -36,24 +36,22 @@ import traceback
 import collections
 
 
-def syncaccount(config, accountname):
-    """Return a new running thread for this account."""
-
-    account = accounts.SyncableAccount(config, accountname)
-    thread = threadutil.InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
-                                   target = account.syncrunner,
-                                   name = "Account sync %s" % accountname)
-    thread.setDaemon(True)
-    thread.start()
-    return thread
-
-def syncitall(accounts, config):
+def syncitall(list_accounts, config):
     """The target when in multithreading mode for running accounts threads."""
 
     threads = threadutil.accountThreads() # The collection of accounts threads.
-    for accountname in accounts:
+    for accountname in list_accounts:
         # Start a new thread per account and store it in the collection.
-        threads.add(syncaccount(config, accountname))
+        account = accounts.SyncableAccount(config, accountname)
+        thread = threadutil.InstanceLimitedThread(
+            instancename = 'ACCOUNTLIMIT',
+            target = account.syncrunner,
+            name = "Account sync %s"% accountname
+            )
+        thread.setDaemon(True)
+        # The add() method expects a started thread.
+        thread.start()
+        threads.add(thread)
     # Wait for the threads to finish.
     threads.wait() # Blocks until all accounts are processed.
 
@@ -410,9 +408,11 @@ class OfflineImap:
                 self.__sync_singlethreaded(syncaccounts)
             else:
                 # multithreaded
-                t = threadutil.ExitNotifyThread(target=syncitall,
+                t = threadutil.ExitNotifyThread(
+                    target=syncitall,
                     name='Sync Runner',
-                    kwargs={'accounts': syncaccounts, 'config': self.config})
+                    args=(syncaccounts, self.config,)
+                    )
                 # Special exit message for the monitor to stop looping.
                 t.exit_message = threadutil.STOP_MONITOR
                 t.start()
