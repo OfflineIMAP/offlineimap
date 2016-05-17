@@ -224,8 +224,10 @@ class ExitNotifyThread(Thread):
 instancelimitedsems = {}
 
 def initInstanceLimit(instancename, instancemax):
-    """Initialize the instance-limited thread implementation to permit
-    up to intancemax threads with the given instancename."""
+    """Initialize the instance-limited thread implementation.
+
+    Run up to intancemax threads for the given instancename. This allows
+    to honor maxsyncaccounts and maxconnections."""
 
     global instancelimitedsems
 
@@ -235,6 +237,7 @@ def initInstanceLimit(instancename, instancemax):
 
 class InstanceLimitedThread(ExitNotifyThread):
     def __init__(self, instancename, *args, **kwargs):
+        # XXX: this is not a instance name, is it?
         self.instancename = instancename
         super(InstanceLimitedThread, self).__init__(*args, **kwargs)
 

@@ -35,6 +35,7 @@ from offlineimap.repository import Repository
 import traceback
 import collections
 
+ACCOUNT_LIMITED_THREAD_NAME = 'MAX_ACCOUNTS'
 
 def syncitall(list_accounts, config):
     """The target when in multithreading mode for running accounts threads."""
@@ -44,7 +45,7 @@ def syncitall(list_accounts, config):
         # Start a new thread per account and store it in the collection.
         account = accounts.SyncableAccount(config, accountname)
         thread = threadutil.InstanceLimitedThread(
-            instancename = 'ACCOUNTLIMIT',
+            instancename = ACCOUNT_LIMITED_THREAD_NAME,
             target = account.syncrunner,
             name = "Account sync %s"% accountname
             )
@@ -287,18 +288,27 @@ class OfflineImap:
         if socktimeout > 0:
             socket.setdefaulttimeout(socktimeout)
 
-        threadutil.initInstanceLimit('ACCOUNTLIMIT',
-            config.getdefaultint('general', 'maxsyncaccounts', 1))
+        threadutil.initInstanceLimit(
+            ACCOUNT_LIMITED_THREAD_NAME,
+            config.getdefaultint('general', 'maxsyncaccounts', 1)
+            )
 
         for reposname in config.getsectionlist('Repository'):
+            # XXX: We are likely lying around. If we must use at most n
+            # connections for a remote IMAP server, why do we allow twice this
+            # number? The max connections number is used by both the FOLDER_ and
+            # the MSGCOPY_ prefixes!
             for instancename in ["FOLDER_" + reposname,
                                  "MSGCOPY_" + reposname]:
                 if options.singlethreading:
                     threadutil.initInstanceLimit(instancename, 1)
                 else:
-                    threadutil.initInstanceLimit(instancename,
-                        config.getdefaultint('Repository ' + reposname,
-                                                  'maxconnections', 2))
+                    threadutil.initInstanceLimit(
+                        instancename,
+                        config.getdefaultint(
+                            'Repository ' + reposname,
+                            'maxconnections', 2)
+                        )
         self.config = config
         return (options, args)
 

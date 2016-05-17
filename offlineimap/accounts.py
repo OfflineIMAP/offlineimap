@@ -351,11 +351,12 @@ class SyncableAccount(Account):
                                  "[%s]"% (localfolder, localfolder.repository))
                     continue # Ignore filtered folder
                 if not globals.options.singlethreading:
-                    thread = InstanceLimitedThread(\
+                    thread = InstanceLimitedThread(
                         instancename = 'FOLDER_' + self.remoterepos.getname(),
                         target = syncfolder,
                         name = "Folder %s [acc: %s]"% (remotefolder.getexplainedname(), self),
-                        args = (self, remotefolder, quick))
+                        args = (self, remotefolder, quick)
+                        )
                     thread.start()
                     folderthreads.append(thread)
                 else:

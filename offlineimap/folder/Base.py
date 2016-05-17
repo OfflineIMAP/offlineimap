@@ -871,11 +871,12 @@ class BaseFolder(object):
             # exceptions are caught in copymessageto()
             if self.suggeststhreads() and not globals.options.singlethreading:
                 self.waitforthread()
-                thread = threadutil.InstanceLimitedThread(\
+                thread = threadutil.InstanceLimitedThread(
                     self.getcopyinstancelimit(),
                     target = self.copymessageto,
                     name = "Copy message from %s:%s" % (self.repository, self),
-                    args = (uid, dstfolder, statusfolder))
+                    args = (uid, dstfolder, statusfolder)
+                    )
                 thread.start()
                 threads.append(thread)
             else:
