@@ -41,7 +41,7 @@ def semaphorereset(semaphore, originalstate):
     for i in range(originalstate):
         semaphore.release()
 
-class threadlist:
+class accountThreads(object):
     """Store the list of all threads in the software so it can be used to find out
     what's running and what's not."""
 
