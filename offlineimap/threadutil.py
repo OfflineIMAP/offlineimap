@@ -222,16 +222,16 @@ class ExitNotifyThread(Thread):
 ######################################################################
 
 instancelimitedsems = {}
-instancelimitedlock = Lock()
 
 def initInstanceLimit(instancename, instancemax):
     """Initialize the instance-limited thread implementation to permit
     up to intancemax threads with the given instancename."""
 
-    instancelimitedlock.acquire()
+    global instancelimitedsems
+
     if not instancename in instancelimitedsems:
         instancelimitedsems[instancename] = BoundedSemaphore(instancemax)
-    instancelimitedlock.release()
+
 
 class InstanceLimitedThread(ExitNotifyThread):
     def __init__(self, instancename, *args, **kwargs):
@@ -239,10 +239,14 @@ class InstanceLimitedThread(ExitNotifyThread):
         super(InstanceLimitedThread, self).__init__(*args, **kwargs)
 
     def start(self):
+        global instancelimitedsems
+
         instancelimitedsems[self.instancename].acquire()
         ExitNotifyThread.start(self)
 
     def run(self):
+        global instancelimitedsems
+
         try:
             ExitNotifyThread.run(self)
         finally:
