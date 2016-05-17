@@ -392,7 +392,7 @@ class OfflineImap:
                     name='Sync Runner',
                     kwargs={'accounts': syncaccounts, 'config': self.config})
                 t.start()
-                threadutil.exitnotifymonitorloop()
+                threadutil.monitor()
 
             if not options.dryrun:
                 offlineimap.mbnames.write(True)

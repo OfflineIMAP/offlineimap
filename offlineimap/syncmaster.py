@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from offlineimap.threadutil import threadlist, InstanceLimitedThread, NORMAL_EXIT
+from offlineimap.threadutil import threadlist, InstanceLimitedThread, STOP_MONITOR
 from offlineimap.accounts import SyncableAccount
 from threading import currentThread
 
@@ -32,10 +32,11 @@ def syncaccount(config, accountname):
     return thread
 
 def syncitall(accounts, config):
-    """The target when in multithreading mode."""
+    """The target when in multithreading mode for running accounts threads."""
 
-    # Special exit message for SyncRunner thread, so main thread can exit.
-    currentThread().exit_message = NORMAL_EXIT
+    # Special exit message for the monitor to stop looping so the main thread
+    # can exit.
+    currentThread().exit_message = STOP_MONITOR
     threads = threadlist() # The collection of threads.
     for accountname in accounts:
         # Start a new thread per account and store it in the collection.

@@ -25,7 +25,7 @@ import os.path
 from offlineimap.ui import getglobalui
 
 
-NORMAL_EXIT = 'SYNCRUNNER_EXITED_NORMALLY'
+STOP_MONITOR = 'STOP_MONITOR'
 
 ######################################################################
 # General utilities
@@ -86,7 +86,7 @@ class threadlist:
 
 exitthreads = Queue()
 
-def exitnotifymonitorloop():
+def monitor():
     """An infinite "monitoring" loop watching for finished ExitNotifyThread's.
 
     This one is supposed to run in the main thread.
@@ -128,7 +128,7 @@ def exitnotifymonitorloop():
                     " and the ui did not stop the program."%
                     (repr(thread.exit_exception), type(thread.exit_exception)))
 
-            elif thread.exit_message == NORMAL_EXIT:
+            elif thread.exit_message == STOP_MONITOR:
                 break # Exit the loop here.
             else:
                 ui.threadExited(thread)
