@@ -21,6 +21,8 @@ import threading
 
 from .Base import BaseFolder
 
+import six
+
 
 class LocalStatusFolder(BaseFolder):
     """LocalStatus backend implemented as a plain text file."""
@@ -74,7 +76,7 @@ class LocalStatusFolder(BaseFolder):
                 errstr = "Corrupt line '%s' in cache file '%s'" % \
                     (line, self.filename)
                 self.ui.warn(errstr)
-                raise ValueError(errstr), None, exc_info()[2]
+                six.reraise(ValueError(errstr), None, exc_info()[2])
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
 
@@ -97,7 +99,7 @@ class LocalStatusFolder(BaseFolder):
                 errstr = "Corrupt line '%s' in cache file '%s'"% \
                     (line, self.filename)
                 self.ui.warn(errstr)
-                raise ValueError(errstr), None, exc_info()[2]
+                six.reraise(ValueError(errstr), None, exc_info()[2])
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['mtime'] = mtime

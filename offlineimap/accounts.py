@@ -27,6 +27,8 @@ from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread
 
+import six
+
 try:
     import fcntl
 except:
@@ -226,9 +228,9 @@ class SyncableAccount(Account):
             pass
         except IOError:
             self._lockfd.close()
-            raise OfflineImapError("Could not lock account %s. Is another "
+            six.reraise(OfflineImapError("Could not lock account %s. Is another "
                 "instance using this account?"% self,
-                OfflineImapError.ERROR.REPO), None, exc_info()[2]
+                OfflineImapError.ERROR.REPO), None, exc_info()[2])
 
     def _unlock(self):
         """Unlock the account, deleting the lock file"""
@@ -535,10 +537,10 @@ def syncfolder(account, remotefolder, quick):
         localstart = localfolder.getstartdate()
         remotestart = remotefolder.getstartdate()
         if (maxage != None) + (localstart != None) + (remotestart != None) > 1:
-            raise OfflineImapError("You can set at most one of the "
+            six.reraise(OfflineImapError("You can set at most one of the "
                 "following: maxage, startdate (for the local folder), "
                 "startdate (for the remote folder)",
-                OfflineImapError.ERROR.REPO), None, exc_info()[2]
+                OfflineImapError.ERROR.REPO), None, exc_info()[2])
         if (maxage != None or localstart or remotestart) and quick:
             # IMAP quickchanged isn't compatible with options that
             # involve restricting the messagelist, since the "quick"

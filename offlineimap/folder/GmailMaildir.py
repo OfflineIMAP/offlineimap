@@ -23,6 +23,8 @@ from offlineimap import OfflineImapError
 import offlineimap.accounts
 from offlineimap import imaputil
 
+import six
+
 class GmailMaildirFolder(MaildirFolder):
     """Folder implementation to support adding labels to messages in a Maildir.
     """
@@ -170,9 +172,8 @@ class GmailMaildirFolder(MaildirFolder):
         try:
             os.rename(tmppath, filepath)
         except OSError as e:
-            raise OfflineImapError("Can't rename file '%s' to '%s': %s" % \
-              (tmppath, filepath, e[1]), OfflineImapError.ERROR.FOLDER), \
-              None, exc_info()[2]
+            six.reraise(OfflineImapError("Can't rename file '%s' to '%s': %s" % \
+              (tmppath, filepath, e[1]), OfflineImapError.ERROR.FOLDER), None, exc_info()[2])
 
         # if utime_from_header=true, we don't want to change the mtime.
         if self.utime_from_header and mtime:

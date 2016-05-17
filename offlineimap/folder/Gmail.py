@@ -24,6 +24,8 @@ from offlineimap import imaplibutil
 import offlineimap.accounts
 from .IMAP import IMAPFolder
 
+import six
+
 """Folder implementation to support features of the Gmail IMAP server."""
 
 class GmailFolder(IMAPFolder):
@@ -139,11 +141,10 @@ class GmailFolder(IMAPFolder):
             res_type, response = imapobj.fetch("'%s'"% msgsToFetch,
               '(FLAGS X-GM-LABELS UID)')
             if res_type != 'OK':
-                raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. " % \
+                six.reraise(OfflineImapError("FETCHING UIDs in folder [%s]%s failed. " % \
                   (self.getrepository(), self) + \
                   "Server responded '[%s] %s'" % \
-                  (res_type, response), OfflineImapError.ERROR.FOLDER), \
-                  None, exc_info()[2]
+                  (res_type, response), OfflineImapError.ERROR.FOLDER), None, exc_info()[2])
         finally:
             self.imapserver.releaseconnection(imapobj)
 

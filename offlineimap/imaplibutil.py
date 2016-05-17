@@ -28,6 +28,8 @@ from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
 from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, InternalDate, Mon2num
 
+import six
+
 
 class UsefulIMAPMixIn(object):
     def __getselectedfolder(self):
@@ -56,7 +58,7 @@ class UsefulIMAPMixIn(object):
             errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
                 "ver said: %s" % (self.host, mailbox, e.args[0])
             severity = OfflineImapError.ERROR.FOLDER_RETRY
-            raise OfflineImapError(errstr, severity), None, exc_info()[2]
+            six.reraise(OfflineImapError(errstr, severity), None, exc_info()[2])
         if result[0] != 'OK':
             #in case of error, bail out with OfflineImapError
             errstr = "Error SELECTing mailbox '%s', server reply:\n%s" %\

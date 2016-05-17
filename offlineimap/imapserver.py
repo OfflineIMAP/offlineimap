@@ -34,6 +34,8 @@ from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 import offlineimap.accounts
 from offlineimap.ui import getglobalui
 
+import six
+
 
 try:
     # do we have a recent pykerberos?
@@ -570,7 +572,7 @@ class IMAPServer:
                          "'%s'. Make sure you have configured the ser"\
                          "ver name correctly and that you are online."%\
                          (self.hostname, self.repos)
-                raise OfflineImapError(reason, severity), None, exc_info()[2]
+                six.reraise(OfflineImapError(reason, severity), None, exc_info()[2])
 
             elif isinstance(e, SSLError) and e.errno == errno.EPERM:
                 # SSL unknown protocol error
@@ -583,7 +585,7 @@ class IMAPServer:
                     reason = "Unknown SSL protocol connecting to host '%s' for "\
                          "repository '%s'. OpenSSL responded:\n%s"\
                          % (self.hostname, self.repos, e)
-                raise OfflineImapError(reason, severity), None, exc_info()[2]
+                six.reraise(OfflineImapError(reason, severity), None, exc_info()[2])
 
             elif isinstance(e, socket.error) and e.args[0] == errno.ECONNREFUSED:
                 # "Connection refused", can be a non-existing port, or an unauthorized
@@ -592,14 +594,14 @@ class IMAPServer:
                     "refused. Make sure you have the right host and port "\
                     "configured and that you are actually able to access the "\
                     "network."% (self.hostname, self.port, self.repos)
-                raise OfflineImapError(reason, severity), None, exc_info()[2]
+                six.reraise(OfflineImapError(reason, severity), None, exc_info()[2])
             # Could not acquire connection to the remote;
             # socket.error(last_error) raised
             if str(e)[:24] == "can't open socket; error":
-                raise OfflineImapError("Could not connect to remote server '%s' "\
+                six.reraise(OfflineImapError("Could not connect to remote server '%s' "\
                     "for repository '%s'. Remote does not answer."
                     % (self.hostname, self.repos),
-                    OfflineImapError.ERROR.REPO), None, exc_info()[2]
+                    OfflineImapError.ERROR.REPO), None, exc_info()[2])
             else:
                 # re-raise all other errors
                 raise

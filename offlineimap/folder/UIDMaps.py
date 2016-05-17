@@ -21,6 +21,8 @@ from offlineimap import OfflineImapError
 from .IMAP import IMAPFolder
 import os.path
 
+import six
+
 class MappedIMAPFolder(IMAPFolder):
     """IMAP class to map between Folder() instances where both side assign a uid
 
@@ -61,8 +63,8 @@ class MappedIMAPFolder(IMAPFolder):
                 try:
                     line = line.strip()
                 except ValueError:
-                    raise Exception("Corrupt line '%s' in UID mapping file '%s'"%
-                        (line, mapfilename)), None, exc_info()[2]
+                    six.reraise(Exception("Corrupt line '%s' in UID mapping file '%s'"%
+                        (line, mapfilename)), None, exc_info()[2])
                 (str1, str2) = line.split(':')
                 loc = int(str1)
                 rem = int(str2)
@@ -88,10 +90,10 @@ class MappedIMAPFolder(IMAPFolder):
         try:
             return [mapping[x] for x in items]
         except KeyError as e:
-            raise OfflineImapError("Could not find UID for msg '{0}' (f:'{1}'."
+            six.reraise(OfflineImapError("Could not find UID for msg '{0}' (f:'{1}'."
                 " This is usually a bad thing and should be reported on the ma"
                 "iling list.".format(e.args[0], self),
-                OfflineImapError.ERROR.MESSAGE), None, exc_info()[2]
+                OfflineImapError.ERROR.MESSAGE), None, exc_info()[2])
 
     # Interface from BaseFolder
     def cachemessagelist(self, min_date=None, min_uid=None):
