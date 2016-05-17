@@ -25,7 +25,7 @@ import logging
 from optparse import OptionParser
 
 import offlineimap
-from offlineimap import accounts, threadutil, syncmaster, folder
+from offlineimap import accounts, threadutil, folder
 from offlineimap import globals
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
@@ -34,6 +34,28 @@ from offlineimap.repository import Repository
 
 import traceback
 import collections
+
+
+def syncaccount(config, accountname):
+    """Return a new running thread for this account."""
+
+    account = accounts.SyncableAccount(config, accountname)
+    thread = threadutil.InstanceLimitedThread(instancename = 'ACCOUNTLIMIT',
+                                   target = account.syncrunner,
+                                   name = "Account sync %s" % accountname)
+    thread.setDaemon(True)
+    thread.start()
+    return thread
+
+def syncitall(accounts, config):
+    """The target when in multithreading mode for running accounts threads."""
+
+    threads = threadutil.accountThreads() # The collection of accounts threads.
+    for accountname in accounts:
+        # Start a new thread per account and store it in the collection.
+        threads.add(syncaccount(config, accountname))
+    # Wait for the threads to finish.
+    threads.wait() # Blocks until all accounts are processed.
 
 
 class OfflineImap:
@@ -388,9 +410,11 @@ class OfflineImap:
                 self.__sync_singlethreaded(syncaccounts)
             else:
                 # multithreaded
-                t = threadutil.ExitNotifyThread(target=syncmaster.syncitall,
+                t = threadutil.ExitNotifyThread(target=syncitall,
                     name='Sync Runner',
                     kwargs={'accounts': syncaccounts, 'config': self.config})
+                # Special exit message for the monitor to stop looping.
+                t.exit_message = threadutil.STOP_MONITOR
                 t.start()
                 threadutil.monitor()
 
@@ -407,13 +431,12 @@ class OfflineImap:
             return 1
 
     def __sync_singlethreaded(self, accs):
-        """Executed if we do not want a separate syncmaster thread
+        """Executed in singlethreaded mode only.
 
         :param accs: A list of accounts that should be synced
         """
         for accountname in accs:
-            account = offlineimap.accounts.SyncableAccount(self.config,
-                                                           accountname)
+            account = accounts.SyncableAccount(self.config, accountname)
             threading.currentThread().name = "Account sync %s"% accountname
             account.syncrunner()
 

@@ -84,7 +84,7 @@ class accountThreads(object):
 # Exit-notify threads
 ######################################################################
 
-exitthreads = Queue()
+exitedThreads = Queue()
 
 def monitor():
     """An infinite "monitoring" loop watching for finished ExitNotifyThread's.
@@ -103,17 +103,20 @@ def monitor():
     :type callback:  a callable function
     """
 
-    global exitthreads
+    global exitedThreads
     ui = getglobalui()
 
     while True:
         # Loop forever and call 'callback' for each thread that exited
         try:
-            # We need a timeout in the get() call, so that ctrl-c can throw
-            # a SIGINT (http://bugs.python.org/issue1360). A timeout with empty
+            # We need a timeout in the get() call, so that ctrl-c can throw a
+            # SIGINT (http://bugs.python.org/issue1360). A timeout with empty
             # Queue will raise `Empty`.
-            thread = exitthreads.get(True, 60)
-            # request to abort when callback returns true
+            #
+            # ExitNotifyThread add themselves to the exitedThreads queue once
+            # they are done (normally or with exception).
+            thread = exitedThreads.get(True, 60)
+            # Request to abort when callback returns True.
 
             if thread.exit_exception is not None:
                 if isinstance(thread.exit_exception, SystemExit):
@@ -128,6 +131,7 @@ def monitor():
                     " and the ui did not stop the program."%
                     (repr(thread.exit_exception), type(thread.exit_exception)))
 
+            # Only the monitor thread has this exit message set.
             elif thread.exit_message == STOP_MONITOR:
                 break # Exit the loop here.
             else:
@@ -160,9 +164,9 @@ class ExitNotifyThread(Thread):
         self._exit_stacktrace = None
 
     def run(self):
-        """Allow profiling of a run."""
+        """Allow profiling of a run and store exceptions."""
 
-        global exitthreads
+        global exitedThreads
         try:
             if not ExitNotifyThread.profiledir: # normal case
                 Thread.run(self)
@@ -183,8 +187,7 @@ class ExitNotifyThread(Thread):
             tb = traceback.format_exc()
             self.set_exit_exception(e, tb)
 
-        if exitthreads:
-            exitthreads.put(self, True)
+        exitedThreads.put(self, True)
 
     def set_exit_exception(self, exc, st=None):
         """Sets Exception and stacktrace of a thread, so that other
