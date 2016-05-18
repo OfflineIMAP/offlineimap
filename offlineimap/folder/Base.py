@@ -21,7 +21,6 @@ import time
 from sys import exc_info
 
 from offlineimap import threadutil
-from offlineimap import globals
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
 import offlineimap.accounts
@@ -112,9 +111,12 @@ class BaseFolder(object):
             return self.repository.should_sync_folder(self.ffilter_name)
 
     def suggeststhreads(self):
-        """Returns true if this folder suggests using threads for actions;
-        false otherwise.  Probably only IMAP will return true."""
-        return 0
+        """Returns True if this folder suggests using threads for actions.
+
+        Only IMAP returns True. This method must honor any CLI or configuration
+        option."""
+
+        return False
 
     def waitforthread(self):
         """Implements method that waits for thread to be usable.
@@ -869,7 +871,7 @@ class BaseFolder(object):
 
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
             # exceptions are caught in copymessageto()
-            if self.suggeststhreads() and not globals.options.singlethreading:
+            if self.suggeststhreads():
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(
                     self.getinstancelimitnamespace(),
