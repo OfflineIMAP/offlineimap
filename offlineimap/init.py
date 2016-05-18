@@ -31,6 +31,7 @@ from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
 from offlineimap.repository import Repository
+from offlineimap.folder.IMAP import MSGCOPY_NAMESPACE
 
 import traceback
 import collections
@@ -45,7 +46,7 @@ def syncitall(list_accounts, config):
         # Start a new thread per account and store it in the collection.
         account = accounts.SyncableAccount(config, accountname)
         thread = threadutil.InstanceLimitedThread(
-            instancename = ACCOUNT_LIMITED_THREAD_NAME,
+            ACCOUNT_LIMITED_THREAD_NAME,
             target = account.syncrunner,
             name = "Account sync %s"% accountname
             )
@@ -298,8 +299,8 @@ class OfflineImap:
             # connections for a remote IMAP server, why do we allow twice this
             # number? The max connections number is used by both the FOLDER_ and
             # the MSGCOPY_ prefixes!
-            for instancename in ["FOLDER_" + reposname,
-                                 "MSGCOPY_" + reposname]:
+            for instancename in [accounts.FOLDER_NAMESPACE + reposname,
+                                 MSGCOPY_NAMESPACE + reposname]:
                 if options.singlethreading:
                     threadutil.initInstanceLimit(instancename, 1)
                 else:

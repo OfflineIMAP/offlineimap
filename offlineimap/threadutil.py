@@ -221,37 +221,36 @@ class ExitNotifyThread(Thread):
 # Instance-limited threads
 ######################################################################
 
-instancelimitedsems = {}
+limitedNamespaces = {}
 
-def initInstanceLimit(instancename, instancemax):
+def initInstanceLimit(limitNamespace, instancemax):
     """Initialize the instance-limited thread implementation.
 
-    Run up to intancemax threads for the given instancename. This allows
-    to honor maxsyncaccounts and maxconnections."""
+    Run up to intancemax threads for the given limitNamespace. This allows to
+    honor maxsyncaccounts and maxconnections."""
 
-    global instancelimitedsems
+    global limitedNamespaces
 
-    if not instancename in instancelimitedsems:
-        instancelimitedsems[instancename] = BoundedSemaphore(instancemax)
+    if not limitNamespace in limitedNamespaces:
+        limitedNamespaces[limitNamespace] = BoundedSemaphore(instancemax)
 
 
 class InstanceLimitedThread(ExitNotifyThread):
-    def __init__(self, instancename, *args, **kwargs):
-        # XXX: this is not a instance name, is it?
-        self.instancename = instancename
+    def __init__(self, limitNamespace, *args, **kwargs):
+        self.limitNamespace = limitNamespace
         super(InstanceLimitedThread, self).__init__(*args, **kwargs)
 
     def start(self):
-        global instancelimitedsems
+        global limitedNamespaces
 
-        instancelimitedsems[self.instancename].acquire()
+        limitedNamespaces[self.limitNamespace].acquire()
         ExitNotifyThread.start(self)
 
     def run(self):
-        global instancelimitedsems
+        global limitedNamespaces
 
         try:
             ExitNotifyThread.run(self)
         finally:
-            if instancelimitedsems and instancelimitedsems[self.instancename]:
-                instancelimitedsems[self.instancename].release()
+            if limitedNamespaces and limitedNamespaces[self.limitNamespace]:
+                limitedNamespaces[self.limitNamespace].release()

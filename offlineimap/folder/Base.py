@@ -134,7 +134,7 @@ class BaseFolder(object):
 
         return True
 
-    def getcopyinstancelimit(self):
+    def getinstancelimitnamespace(self):
         """For threading folders, returns the instancelimitname for
         InstanceLimitedThreads."""
 
@@ -872,7 +872,7 @@ class BaseFolder(object):
             if self.suggeststhreads() and not globals.options.singlethreading:
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(
-                    self.getcopyinstancelimit(),
+                    self.getinstancelimitnamespace(),
                     target = self.copymessageto,
                     name = "Copy message from %s:%s" % (self.repository, self),
                     args = (uid, dstfolder, statusfolder)

@@ -32,6 +32,7 @@ import six
 
 # Globals
 CRLF = '\r\n'
+MSGCOPY_NAMESPACE = 'MSGCOPY_'
 
 
 # NB: message returned from getmessage() will have '\n' all over the place,
@@ -88,8 +89,8 @@ class IMAPFolder(BaseFolder):
                 OfflineImapError.ERROR.REPO), None, exc_info()[2])
 
     # Interface from BaseFolder
-    def getcopyinstancelimit(self):
-        return 'MSGCOPY_' + self.repository.getname()
+    def getinstancelimitnamespace(self):
+        return MSGCOPY_NAMESPACE + self.repository.getname()
 
     # Interface from BaseFolder
     def get_uidvalidity(self):

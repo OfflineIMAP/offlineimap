@@ -29,6 +29,8 @@ from offlineimap.threadutil import InstanceLimitedThread
 
 import six
 
+FOLDER_NAMESPACE = 'LIMITED_FOLDER_'
+
 try:
     import fcntl
 except:
@@ -354,9 +356,11 @@ class SyncableAccount(Account):
                     continue # Ignore filtered folder
                 if not globals.options.singlethreading:
                     thread = InstanceLimitedThread(
-                        instancename = 'FOLDER_' + self.remoterepos.getname(),
+                        limitNamespace = "%s%s"% (
+                            FOLDER_NAMESPACE, self.remoterepos.getname()),
                         target = syncfolder,
-                        name = "Folder %s [acc: %s]"% (remotefolder.getexplainedname(), self),
+                        name = "Folder %s [acc: %s]"% (
+                            remotefolder.getexplainedname(), self),
                         args = (self, remotefolder, quick)
                         )
                     thread.start()
