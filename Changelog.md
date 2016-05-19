@@ -15,6 +15,99 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.0-rc1 (2016-05-19)
+
+#### Notes
+
+We are starting a new major release cycle.
+
+The dabatase for the cache is now sqlite by default. This means downgrading to
+previous versions is prone to errors if you don't have sqlite enabled in your
+configuration. All users should enable the sqlite database now to avoid issues.
+Expect the legacy text files to be deprecated and removed in the future.
+
+The long time awaited feature to not delete any message while allowing adding
+new messages and sync flags is now implemented and marked stable. Thanks to the
+testers and your feedbacks!
+
+Łukasz started the work to support Python 3. Because of this, the six dependency
+is required.
+
+If you have scripts using the pid file, be aware this file is no longer used
+because running multiple instances of the program is supported for years.
+
+There a lot of code factorization and documentation improvements, especially
+around threads.
+
+I'm happy new contributors joined the official team, especially Łukasz and Ilias
+(Debian maintainer). Thank you!
+
+#### Authors
+
+- Nicolas Sebrecht (32)
+- Łukasz Żarnowiecki (17)
+- Dodji Seketeli (1)
+- Om Prakash (1)
+
+#### Features
+
+- Make sqlite status cache the default. [Nicolas Sebrecht]
+- Learn to not delete messages. [Nicolas Sebrecht]
+- Inform when maxage/startdate is in the future. [Łukasz Żarnowiecki]
+- offlineimap.conf: XOAUTH2: expose and document the oauth2_request_url option. [Nicolas Sebrecht]
+- offlineimap.conf: improve documentation for oauth2. [Nicolas Sebrecht]
+
+#### Fixes
+
+- sqlite: open database when we use it rather than at instantiation time. [Nicolas Sebrecht]
+- SQLite: close db when done. [Nicolas Sebrecht]
+- conf: newmail_hook is a remote option. [Nicolas Sebrecht]
+- folder: utime_from_header is for Maildir only. [Nicolas Sebrecht]
+- Handle maxage for davmail correctly. [Łukasz Żarnowiecki]
+- XOAUTH2: don't force oauth2_request_url to be defined. [Nicolas Sebrecht]
+- XOAUTH2: raise error when oauth_request_url is missing for IMAP type. [Nicolas Sebrecht]
+- IMAP: don't try to create empty folders. [Nicolas Sebrecht]
+- Really execute the recipe of the 'docs' target in top-most Makefile. [Dodji Seketeli]
+
+#### Changes
+
+- release.sh: make no differences between contributors. [Nicolas Sebrecht]
+- threading: fix variable names about namespaces. [Nicolas Sebrecht]
+- imapserver: use boolean where it makes sense. [Nicolas Sebrecht]
+- threading: suggeststhreads must honor CLI and conf options. [Nicolas Sebrecht]
+- threading: improve variable names and factorize code. [Nicolas Sebrecht]
+- py3: raise exceptions using six module. [Łukasz Żarnowiecki]
+- threading: minor improvements. [Nicolas Sebrecht]
+- instancelimitedsems does not need a lock but must be used with global. [Nicolas Sebrecht]
+- threading: get rid of the syncaccount function. [Nicolas Sebrecht]
+- get rid of offlineimap/syncmaster.py. [Nicolas Sebrecht]
+- threading: rename threadslist to accountThreads. [Nicolas Sebrecht]
+- threading: simplify names. [Nicolas Sebrecht]
+- Encode utf-8 argument for md5 function. [Łukasz Żarnowiecki]
+- Replace dictionary iteration methods. [Łukasz Żarnowiecki]
+- threading: simplify the monitoring code for threads. [Nicolas Sebrecht]
+- threadutil: don't limit the number of threads. [Nicolas Sebrecht]
+- threading: add comments. [Nicolas Sebrecht]
+- Wrap zip calls with list call. [Łukasz Żarnowiecki]
+- Remove xreadlines calls. [Łukasz Żarnowiecki]
+- Replace xrange with range. [Łukasz Żarnowiecki]
+- Replace has_key method to "key in dict". [Łukasz Żarnowiecki]
+- Change filter with lambda to list comprehension. [Łukasz Żarnowiecki]
+- Replace calls to long with int calls. [Łukasz Żarnowiecki]
+- Add workaround for string.split for Python3. [Łukasz Żarnowiecki]
+- Convert basestring to str. [Łukasz Żarnowiecki]
+- Rename email.Parser to email.parser. [Łukasz Żarnowiecki]
+- Do not mix tabs with spaces. [Łukasz Żarnowiecki]
+- Convert except X,T to except X as T. [Łukasz Żarnowiecki]
+- Add tags to gitignore. [Łukasz Żarnowiecki]
+- don't write a pid file. [Nicolas Sebrecht]
+- manual: improve rendering. [Nicolas Sebrecht]
+- manual: improve sqlite section. [Nicolas Sebrecht]
+- minor: logs: print readonly message in all debug modes. [Nicolas Sebrecht]
+- accounts.py: minor improvements. [Nicolas Sebrecht]
+- folder: properly factorize initialization and dropping of self.message. [Nicolas Sebrecht]
+- offlineimap.txt: minor typo fixes. [Om Prakash]
+
 ### OfflineIMAP v6.7.0 (2016-03-10)
 
 #### Notes
