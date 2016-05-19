@@ -374,7 +374,7 @@ Downloads:
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.zip
 
 Pip:
-  pip install --user git+https://github.com/OfflineIMAP/offlineimap.git@${1}
+  pip install -r requirements.txt --user git+https://github.com/OfflineIMAP/offlineimap.git@${1}
 EOF
 }
 
