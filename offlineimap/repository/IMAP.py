@@ -20,6 +20,7 @@ import os
 from sys import exc_info
 import netrc
 import errno
+import six
 
 from offlineimap.repository.Base import BaseRepository
 from offlineimap import folder, imaputil, imapserver, OfflineImapError
@@ -27,12 +28,11 @@ from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
 from offlineimap.utils.distro import get_os_sslcertfile, get_os_sslcertfile_searchpath
 
-import six
-
 
 class IMAPRepository(BaseRepository):
     def __init__(self, reposname, account):
         """Initialize an IMAPRepository object."""
+
         BaseRepository.__init__(self, reposname, account)
         # self.ui is being set by the BaseRepository
         self._host = None

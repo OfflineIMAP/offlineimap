@@ -299,13 +299,13 @@ class OfflineImap:
             # connections for a remote IMAP server, why do we allow twice this
             # number? The max connections number is used by both the FOLDER_ and
             # the MSGCOPY_ prefixes!
-            for instancename in [accounts.FOLDER_NAMESPACE + reposname,
+            for namespace in [accounts.FOLDER_NAMESPACE + reposname,
                                  MSGCOPY_NAMESPACE + reposname]:
                 if options.singlethreading:
-                    threadutil.initInstanceLimit(instancename, 1)
+                    threadutil.initInstanceLimit(namespace, 1)
                 else:
                     threadutil.initInstanceLimit(
-                        instancename,
+                        namespace,
                         config.getdefaultint(
                             'Repository ' + reposname,
                             'maxconnections', 2)

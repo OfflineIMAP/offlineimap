@@ -60,6 +60,8 @@ class IMAPServer(object):
     GSS_STATE_WRAP = 1
 
     def __init__(self, repos):
+        """:repos: a IMAPRepository instance."""
+
         self.ui = getglobalui()
         self.repos = repos
         self.config = repos.getconfig()
