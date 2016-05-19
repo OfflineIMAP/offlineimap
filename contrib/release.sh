@@ -29,7 +29,6 @@ CHANGELOG='Changelog.md'
 CACHEDIR='.git/offlineimap-release'
 WEBSITE='website'
 WEBSITE_LATEST="${WEBSITE}/_data/latest.yml"
-ME='Nicolas Sebrecht'
 
 TMP_CHANGELOG_EXCERPT="${CACHEDIR}/changelog.excerpt.md"
 TMP_CHANGELOG_EXCERPT_OLD="${TMP_CHANGELOG_EXCERPT}.old"
@@ -155,8 +154,7 @@ function update_offlineimap_version () {
 #
 function get_git_history () {
   debug 'in get_git_history'
-  git log --format='- %h %s. [%aN]' --no-merges  "${1}.." | \
-          sed -r -e "s, \[${ME}\]$,,"
+  git log --format='- %h %s. [%aN]' --no-merges  "${1}.."
 }
 
 
