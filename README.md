@@ -5,7 +5,7 @@
 
 # OfflineIMAP
 
-***Get the emails where you need them.***
+***"Get the emails where you need them."***
 
 ## Description
 
@@ -81,7 +81,8 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 ## Requirements
 
 * Python v2.7
-* Python SQlite (optional while recommended)
+* six (required)
+* Python sqlite (required)
 * Python json and urllib (used for XOAuth2 authentication)
 
 
