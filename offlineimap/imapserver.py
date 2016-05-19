@@ -46,7 +46,7 @@ try:
 except ImportError:
     pass
 
-class IMAPServer:
+class IMAPServer(object):
     """Initializes all variables from an IMAPRepository() instance
 
     Various functions, such as acquireconnection() return an IMAP4
@@ -58,6 +58,7 @@ class IMAPServer:
 
     GSS_STATE_STEP = 0
     GSS_STATE_WRAP = 1
+
     def __init__(self, repos):
         self.ui = getglobalui()
         self.repos = repos
@@ -479,9 +480,9 @@ class IMAPServer:
 
         # Must be careful here that if we fail we should bail out gracefully
         # and release locks / threads so that the next attempt can try...
-        success = 0
+        success = False
         try:
-            while not success:
+            while success is not True:
                 # Generate a new connection.
                 if self.tunnel:
                     self.ui.connecting('tunnel', self.tunnel)
@@ -490,7 +491,7 @@ class IMAPServer:
                         timeout=socket.getdefaulttimeout(),
                         use_socket=self.proxied_socket,
                         )
-                    success = 1
+                    success = True
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4_SSL(
@@ -520,7 +521,7 @@ class IMAPServer:
                     try:
                         self.__authn_helper(imapobj)
                         self.goodpassword = self.password
-                        success = 1
+                        success = True
                     except OfflineImapError as e:
                         self.passworderror = str(e)
                         raise
