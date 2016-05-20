@@ -1,5 +1,5 @@
 # IMAP server support
-# Copyright (C) 2002 - 2011 John Goerzen & contributors
+# Copyright (C) 2002 - 2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -29,12 +29,11 @@ import errno
 from sys import exc_info
 from socket import gaierror
 from ssl import SSLError, cert_time_to_seconds
+import six
 
 from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
 import offlineimap.accounts
 from offlineimap.ui import getglobalui
-
-import six
 
 
 try:
@@ -45,6 +44,7 @@ try:
         have_gss = True
 except ImportError:
     pass
+
 
 class IMAPServer(object):
     """Initializes all variables from an IMAPRepository() instance
@@ -181,7 +181,9 @@ class IMAPServer(object):
         :param drop_conn: If True, the connection will be released and
            not be reused. This can be used to indicate broken connections."""
 
-        if connection is None: return #noop on bad connection
+        if connection is None:
+            return # Noop on bad connection.
+
         self.connectionlock.acquire()
         self.assignedconnections.remove(connection)
         # Don't reuse broken connections
