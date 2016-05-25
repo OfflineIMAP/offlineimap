@@ -184,6 +184,10 @@ class IMAPFolder(BaseFolder):
             # On first run the first element is empty.
             if ' ' in res_data[0] or res_data[0] == '':
                 res_data = res_data[0].split()
+            # Some servers are broken.
+            if 0 in res_data:
+                self.ui.warn("server returned UID with 0; ignoring.")
+                res_data.remove(0)
             return res_data
 
         res_type, imapdata = imapobj.select(self.getfullname(), True, True)
@@ -229,7 +233,7 @@ class IMAPFolder(BaseFolder):
             msgsToFetch = self._msgs_to_fetch(
                 imapobj, min_date=min_date, min_uid=min_uid)
             if not msgsToFetch:
-                return # No messages to sync
+                return # No messages to sync.
 
             # Get the flags and UIDs for these. single-quotes prevent
             # imaplib2 from quoting the sequence.
@@ -695,7 +699,7 @@ class IMAPFolder(BaseFolder):
                     break
                 except imapobj.abort as e:
                     fails_left -= 1
-                    # self.ui.error() will show the original traceback
+                    # self.ui.error() will show the original traceback.
                     if fails_left <= 0:
                         message = ("%s, while fetching msg %r in folder %r."
                             " Max retry reached (%d)"%
@@ -703,7 +707,7 @@ class IMAPFolder(BaseFolder):
                         severity = OfflineImapError.ERROR.MESSAGE
                         raise OfflineImapError(message,
                             OfflineImapError.ERROR.MESSAGE)
-                    # Release dropped connection, and get a new one
+                    # Release dropped connection, and get a new one.
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
                     self.ui.error("%s. While fetching msg %r in folder %r."
@@ -716,13 +720,13 @@ class IMAPFolder(BaseFolder):
             self.imapserver.releaseconnection(imapobj)
 
         if data == [None] or res_type != 'OK':
-            #IMAP server says bad request or UID does not exist
+            # IMAP server says bad request or UID does not exist.
             severity = OfflineImapError.ERROR.MESSAGE
             reason = "IMAP server '%s' failed to fetch messages UID '%s'."\
                 "Server responded: %s %s"% (self.getrepository(), uids,
                                              res_type, data)
             if data == [None]:
-                #IMAP server did not find a message with this UID
+                # IMAP server did not find a message with this UID.
                 reason = "IMAP server '%s' does not have a message "\
                     "with UID '%s'" % (self.getrepository(), uids)
             raise OfflineImapError(reason, severity)
