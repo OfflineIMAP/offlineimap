@@ -778,6 +778,9 @@ class BaseFolder(object):
         :param register: whether we should register a new thread."
         :returns: Nothing on success, or raises an Exception."""
 
+        if uid == 0: # assert that the UID is non-zero (non-complaint servers) #336.
+            raise OfflineImapError("Trying to copy msg with uid 0", OfflineImapError.ERROR.MESSAGE)
+
         # Sometimes, it could be the case that if a sync takes awhile,
         # a message might be deleted from the maildir before it can be
         # synced to the status cache.  This is only a problem with
@@ -868,6 +871,8 @@ class BaseFolder(object):
                 rtime = self.getmessagetime(uid)
                 statusfolder.savemessage(uid, None, flags, rtime)
                 continue
+            elif uid == 0:
+                continue # skip to the next message (ignore) #336
 
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
             # exceptions are caught in copymessageto()
