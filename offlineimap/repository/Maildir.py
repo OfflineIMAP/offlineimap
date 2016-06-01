@@ -37,7 +37,7 @@ class MaildirRepository(BaseRepository):
 
         # Create the top-level folder if it doesn't exist
         if not os.path.isdir(self.root):
-            os.mkdir(self.root, 0o700)
+            os.makedirs(self.root, 0o700)
 
         # Create the keyword->char mapping
         self.keyword2char = dict()
