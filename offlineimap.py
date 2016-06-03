@@ -20,16 +20,6 @@
 import os
 import sys
 
-if not 'DEVELOPING_OFFLINEIMAP_PYTHON3_SUPPORT' in os.environ:
-	if sys.version_info[0] > 2:
-		sys.stderr.write("""IIMAPS!
-
-Sorry, OfflineIMAP currently doesn't support Python higher than 2.x.
-We're doing our best to bring in support for 3.x really soon.  You can
-also join us at https://github.com/OfflineIMAP/offlineimap/ and help.
-""")
-		sys.exit(1)
-
 from offlineimap import OfflineImap
 
 oi = OfflineImap()
