@@ -1,5 +1,5 @@
 # imaplib utilities
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -23,12 +23,12 @@ import threading
 from hashlib import sha1
 import socket
 import errno
+import zlib
+import six
 
 from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
-from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, InternalDate, Mon2num
-
-import six
+from offlineimap.virtual_imaplib2 import IMAP4, IMAP4_SSL, InternalDate, Mon2num
 
 
 class UsefulIMAPMixIn(object):

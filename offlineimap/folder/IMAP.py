@@ -1,5 +1,5 @@
 # IMAP folder support
-# Copyright (C) 2002-2012 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,14 +20,13 @@ import binascii
 import re
 import os
 import time
+import six
 from sys import exc_info
 
 from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
 from offlineimap import globals
-from offlineimap.imaplib2 import MonthNames
-
-import six
+from offlineimap.virtual_imaplib2 import MonthNames
 
 
 # Globals

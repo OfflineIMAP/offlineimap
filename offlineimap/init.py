@@ -1,5 +1,5 @@
 # OfflineIMAP initialization code
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 import os
 import sys
 import threading
-import offlineimap.imaplib2 as imaplib
+import offlineimap.virtual_imaplib2 as imaplib
 import signal
 import socket
 import logging
