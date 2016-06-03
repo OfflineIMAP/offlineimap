@@ -80,7 +80,8 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 
 ## Requirements
 
-* Python v2.7
+* Python v2.7+
+* Python v3.4+ ***(experimental)***
 * six (required)
 * Python sqlite (required)
 * Python json and urllib (used for XOAuth2 authentication)
