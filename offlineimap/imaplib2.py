@@ -17,9 +17,9 @@ Public functions: Internaldate2Time
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate")
 
-__version__ = "2.52"
+__version__ = "2.53"
 __release__ = "2"
-__revision__ = "52"
+__revision__ = "53"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -2337,7 +2337,7 @@ class _IdleCont(object):
 MonthNames = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-Mon2num = dict(list(zip((x.encode() for x in MonthNames[1:]), list(range(1, 13)))))
+Mon2num = dict(list(zip((x for x in MonthNames[1:]), list(range(1, 13)))))
 
 InternalDate = re.compile(r'.*INTERNALDATE "'
     r'(?P<day>[ 0123][0-9])-(?P<mon>[A-Z][a-z][a-z])-(?P<year>[0-9][0-9][0-9][0-9])'
