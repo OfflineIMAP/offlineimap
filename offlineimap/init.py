@@ -58,7 +58,7 @@ def syncitall(list_accounts, config):
     threads.wait() # Blocks until all accounts are processed.
 
 
-class OfflineImap:
+class OfflineImap(object):
     """The main class that encapsulates the high level use of OfflineImap.
 
     To invoke OfflineImap you would call it with::
@@ -152,7 +152,7 @@ class OfflineImap:
         (options, args) = parser.parse_args()
         globals.set_options (options)
 
-        #read in configuration file
+        # Read in configuration file.
         if not options.configfile:
             # Try XDG location, then fall back to ~/.offlineimaprc
             xdg_var = 'XDG_CONFIG_HOME'
@@ -175,7 +175,7 @@ class OfflineImap:
             sys.exit(1)
         config.read(configfilename)
 
-        #profile mode chosen?
+        # Profile mode chosen?
         if options.profiledir:
             if not options.singlethreading:
                 # TODO, make use of chosen ui for logging
@@ -192,7 +192,7 @@ class OfflineImap:
             logging.warn("Profile mode: Potentially large data will be "
                          "created in '%s'"% options.profiledir)
 
-        #override a config value
+        # Override a config value.
         if options.configoverride:
             for option in options.configoverride:
                 (key, value) = option.split('=', 1)
@@ -203,25 +203,25 @@ class OfflineImap:
                     section = "general"
                 config.set(section, key, value)
 
-        #which ui to use? cmd line option overrides config file
+        # Which ui to use? CLI option overrides config file.
         ui_type = config.getdefault('general', 'ui', 'ttyui')
         if options.interface != None:
             ui_type = options.interface
         if '.' in ui_type:
-            #transform Curses.Blinkenlights -> Blinkenlights
+            # Transform Curses.Blinkenlights -> Blinkenlights.
             ui_type = ui_type.split('.')[-1]
             # TODO, make use of chosen ui for logging
             logging.warning('Using old interface name, consider using one '
                             'of %s'% ', '.join(UI_LIST.keys()))
         if options.diagnostics: ui_type = 'basic' # enforce basic UI for --info
 
-        # dry-run? Set [general]dry-run=True
+        # dry-run? Set [general]dry-run=True.
         if options.dryrun:
             dryrun = config.set('general', 'dry-run', 'True')
         config.set_if_not_exists('general', 'dry-run', 'False')
 
         try:
-            # create the ui class
+            # Create the ui class.
             self.ui = UI_LIST[ui_type.lower()](config)
         except KeyError:
             logging.error("UI '%s' does not exist, choose one of: %s"% \
@@ -229,22 +229,22 @@ class OfflineImap:
             sys.exit(1)
         setglobalui(self.ui)
 
-        #set up additional log files
+        # Set up additional log files.
         if options.logfile:
             self.ui.setlogfile(options.logfile)
 
-        #set up syslog
+        # Set up syslog.
         if options.syslog:
             self.ui.setup_sysloghandler()
 
-        #welcome blurb
+        # Welcome blurb.
         self.ui.init_banner()
 
         if options.debugtype:
             self.ui.logger.setLevel(logging.DEBUG)
             if options.debugtype.lower() == 'all':
                 options.debugtype = 'imap,maildir,thread'
-            #force single threading?
+            # Force single threading?
             if not ('thread' in options.debugtype.split(',') \
                     and not options.singlethreading):
                 self.ui._msg("Debug mode: Forcing to singlethreaded.")
@@ -269,7 +269,7 @@ class OfflineImap:
             for section in accounts.getaccountlist(config):
                 config.set('Account ' + section, "quick", '-1')
 
-        #custom folder list specified?
+        # Custom folder list specified?
         if options.folders:
             foldernames = options.folders.split(",")
             folderfilter = "lambda f: f in %s"% foldernames
@@ -411,14 +411,14 @@ class OfflineImap:
             signal.signal(signal.SIGINT, sig_handler)
             signal.signal(signal.SIGQUIT, sig_handler)
 
-            #various initializations that need to be performed:
+            # Various initializations that need to be performed:
             offlineimap.mbnames.init(self.config, syncaccounts)
 
             if options.singlethreading:
-                #singlethreaded
+                # Singlethreaded.
                 self.__sync_singlethreaded(syncaccounts)
             else:
-                # multithreaded
+                # Multithreaded.
                 t = threadutil.ExitNotifyThread(
                     target=syncitall,
                     name='Sync Runner',
