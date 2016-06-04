@@ -621,7 +621,7 @@ class IMAPServer(object):
         It's OK if we have maxconnections + 1 or 2 threads, which is what this
         will help us do."""
 
-        self.semaphore.acquire()
+        self.semaphore.acquire() # Blocking until maxconnections has free slots.
         self.semaphore.release()
 
     def close(self):

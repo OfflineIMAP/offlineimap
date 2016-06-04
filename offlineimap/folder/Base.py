@@ -1,5 +1,5 @@
 # Base folder support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -832,7 +832,7 @@ class BaseFolder(object):
         except Exception as e:
             self.ui.error(e, exc_info()[2],
               msg = "Copying message %s [acc: %s]"% (uid, self.accountname))
-            raise    #raise on unknown errors, so we can fix those
+            raise  # Raise on unknown errors, so we can fix those.
 
     def __syncmessagesto_copy(self, dstfolder, statusfolder):
         """Pass1: Copy locally existing messages not on the other side.
@@ -870,13 +870,14 @@ class BaseFolder(object):
                 continue
 
             self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
-            # exceptions are caught in copymessageto()
+
+            # Exceptions are caught in copymessageto().
             if self.suggeststhreads():
                 self.waitforthread()
                 thread = threadutil.InstanceLimitedThread(
                     self.getinstancelimitnamespace(),
                     target = self.copymessageto,
-                    name = "Copy message from %s:%s" % (self.repository, self),
+                    name = "Copy message from %s:%s"% (self.repository, self),
                     args = (uid, dstfolder, statusfolder)
                     )
                 thread.start()
@@ -884,7 +885,7 @@ class BaseFolder(object):
             else:
                 self.copymessageto(uid, dstfolder, statusfolder, register=0)
         for thread in threads:
-            thread.join()
+            thread.join() # Block until all "copy" threads are done.
 
         # Execute new mail hook if we have new mail.
         if self.have_newmail:

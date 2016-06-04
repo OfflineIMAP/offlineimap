@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2012 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 # Thread support module
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -243,6 +243,7 @@ class InstanceLimitedThread(ExitNotifyThread):
     def start(self):
         global limitedNamespaces
 
+        # Will block until the semaphore has free slots.
         limitedNamespaces[self.limitNamespace].acquire()
         ExitNotifyThread.start(self)
 
