@@ -18,12 +18,11 @@
 from threading import Event
 import os
 from sys import exc_info
-import netrc
 import errno
 import six
 
 from offlineimap.repository.Base import BaseRepository
-from offlineimap import folder, imaputil, imapserver, OfflineImapError
+from offlineimap import folder, imaputil, imapserver, OfflineImapError, netrc
 from offlineimap.folder.UIDMaps import MappedIMAPFolder
 from offlineimap.threadutil import ExitNotifyThread
 from offlineimap.utils.distro import get_os_sslcertfile, get_os_sslcertfile_searchpath
@@ -339,7 +338,9 @@ class IMAPRepository(BaseRepository):
             return password
         # 4. read password from ~/.netrc
         try:
-            netrcentry = netrc.netrc().authenticators(self.gethost())
+            netrcentry = netrc.netrc().authenticators(
+                self.gethost(),
+                self.getuser())
         except IOError as inst:
             if inst.errno != errno.ENOENT:
                 raise
@@ -350,7 +351,9 @@ class IMAPRepository(BaseRepository):
                     return netrcentry[2]
         # 5. read password from /etc/netrc
         try:
-            netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
+            netrcentry = netrc.netrc('/etc/netrc').authenticators(
+                self.gethost(),
+                self.getuser())
         except IOError as inst:
             if inst.errno not in (errno.ENOENT, errno.EACCES):
                 raise
