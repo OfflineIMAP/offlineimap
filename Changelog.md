@@ -15,6 +15,48 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.0-rc2 (2016-06-04)
+
+#### Notes
+
+Enable offlineimap to run with Python 3. This feature is still experimental but
+very welcome those days. Thanks Łukasz Żarnowiecki to work on this!
+
+You are all welcome to test offlineimap with Python 3 and report both sucess and
+failures.
+
+Maintainers, we now work with a virtual imaplib2. Under the hood, the imported
+imaplib2 can be the bundled version or any other (recent enough) imaplib2
+provided by the system. If you already package imaplib2 and want to avoid
+duplication of code, just remove the bundled version of imaplib2 while packaging
+offlineimap and it should work out of the box. Be care, the filenames have
+change.
+
+#### Authors
+
+- Nicolas Sebrecht (9)
+- Łukasz Żarnowiecki (2)
+
+#### Features
+
+- Introduce a virtual imaplib2. [Nicolas Sebrecht]
+- Mark Python 3 supported and experimental. [Nicolas Sebrecht]
+- Allow to run under python3 without special env. [Łukasz Żarnowiecki]
+- Maildir: Create top level dir recursively. [Łukasz Żarnowiecki]
+
+#### Fixes
+
+- IMAP: ignore UID with 0 as value when searching for UIDs. [Nicolas Sebrecht]
+- Minor: fix copyright date. [Nicolas Sebrecht]
+
+#### Changes
+
+- Threading: improve comments. [Nicolas Sebrecht]
+- Bump imaplib2 from v2.52 to v2.53. [Nicolas Sebrecht]
+- globals: use whitespaces instead of tabs. [Nicolas Sebrecht]
+- six: add requirements for pip. [Nicolas Sebrecht]
+- README: add six library requirement. [Nicolas Sebrecht]
+
 ### OfflineIMAP v7.0.0-rc1 (2016-05-19)
 
 #### Notes
