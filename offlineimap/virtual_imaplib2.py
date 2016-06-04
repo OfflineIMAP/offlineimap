@@ -22,6 +22,8 @@ this virtual_imaplib2 or we might go into troubles.
 
 """
 
+DESC = None
+
 _SUPPORTED_RELEASE = 2
 _SUPPORTED_REVISION = 53
 
@@ -35,10 +37,12 @@ try:
             int(imaplib.__revision__) < _SUPPORTED_REVISION):
         raise ImportError("The provided imaplib2 version '%s' is not supported"%
             imaplib.__version__)
+    DESC = "system"
 except (ImportError, NameError) as e:
     try:
         from offlineimap.bundled_imaplib2 import *
         import offlineimap.bundled_imaplib2 as imaplib
+        DESC = "bundled"
     except:
         print("Error while trying to import system imaplib2: %s"% e)
         raise
@@ -48,3 +52,4 @@ except (ImportError, NameError) as e:
 InternalDate = imaplib.InternalDate
 Mon2num = imaplib.Mon2num
 MonthNames = imaplib.MonthNames
+__version__ = imaplib.__version__

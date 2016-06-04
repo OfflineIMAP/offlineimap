@@ -452,6 +452,7 @@ class OfflineImap(object):
             account.syncrunner()
 
     def __serverdiagnostics(self, options):
+        self.ui.info("  imaplib2: %s (%s)"% (imaplib.__version__, imaplib.DESC))
         activeaccounts = self.config.get("general", "accounts")
         if options.accounts:
             activeaccounts = options.accounts
