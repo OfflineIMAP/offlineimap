@@ -83,8 +83,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 * Python v2.7+
 * Python v3.4+ ***(experimental)***
 * six (required)
-* Python sqlite (required)
-* Python json and urllib (used for XOAuth2 authentication)
+* imaplib2 >= 2.53 (optional)
 
 
 ## Documentation
