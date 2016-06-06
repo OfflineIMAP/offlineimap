@@ -2,7 +2,7 @@
 
 ### General informations
 
-- OfflineIMAP version:
+- OfflineIMAP version (including imaplib2 if available: `offlineimap -V`):
 - server name or domain:
 - CLI options:
 

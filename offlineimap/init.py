@@ -79,10 +79,11 @@ class OfflineImap(object):
             return self.__sync(options)
 
     def __parse_cmd_options(self):
-        parser = OptionParser(version=offlineimap.__version__,
-                              description="%s.\n\n%s" %
-                              (offlineimap.__copyright__,
-                               offlineimap.__license__))
+        parser = OptionParser(
+            version=offlineimap.__version__,
+            description="%s.\n\n%s"% (offlineimap.__copyright__,
+                offlineimap.__license__)
+            )
         parser.add_option("--dry-run",
                   action="store_true", dest="dryrun",
                   default=False,
@@ -149,8 +150,18 @@ class OfflineImap(object):
                   action="store_true", dest="migrate_fmd5", default=False,
                   help="migrate FMD5 hashes from versions prior to 6.3.5")
 
+        parser.add_option("-V",
+                  action="store_true", dest="version",
+                  default=False,
+                  help="show full version infos")
+
         (options, args) = parser.parse_args()
         globals.set_options (options)
+
+        if options.version:
+            print("offlineimap v%s, imaplib2 v%s (%s)"% (
+                offlineimap.__version__, imaplib.__version__, imaplib.DESC))
+            sys.exit(0)
 
         # Read in configuration file.
         if not options.configfile:
