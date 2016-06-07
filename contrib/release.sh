@@ -174,8 +174,8 @@ function get_git_who () {
 #
 # $1: new version
 # $2: shortlog
-function changelog_template () {
-  debug 'in changelog_template'
+function changelog_template_part1 () {
+  debug 'in changelog_template_part1'
   cat <<EOF
 // vim: expandtab ts=2 syntax=markdown
 
@@ -196,9 +196,12 @@ function changelog_template () {
 
 #### Authors
 
-The authors of this release.
+EOF
 
-// Use list syntax with '- '
+
+function changelog_template_part2 () {
+  debug 'in changelog_template_part2'
+  cat <<EOF
 
 #### Features
 
@@ -230,9 +233,10 @@ function update_changelog () {
   # Write Changelog excerpt.
   if test ! -f "$TMP_CHANGELOG_EXCERPT"
   then
-    changelog_template "$1" > "$TMP_CHANGELOG_EXCERPT"
-    get_git_history "$2" >> "$TMP_CHANGELOG_EXCERPT"
+    changelog_template_part1 "$1" > "$TMP_CHANGELOG_EXCERPT"
     get_git_who "$2" >> "$TMP_CHANGELOG_EXCERPT"
+    changelog_template_part2 >> "$TMP_CHANGELOG_EXCERPT"
+    get_git_history "$2" >> "$TMP_CHANGELOG_EXCERPT"
     edit_file "the Changelog excerpt" $TMP_CHANGELOG_EXCERPT
 
     # Remove comments.
