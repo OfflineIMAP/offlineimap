@@ -65,11 +65,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
         # Try to establish connection, no need for threadsafety in __init__.
         try:
             self.connection = sqlite.connect(self.filename, check_same_thread=False)
-        except NameError:
-            # sqlite import had failed.
-            six.reraise(UserWarning("SQLite backend chosen, but cannot connect "
-                "with available bindings to '%s'. Is the sqlite3 package "
-                "installed?."% self.filename), None, exc_info()[2])
         except sqlite.OperationalError as e:
             # Operation had failed.
             six.reraise(UserWarning("cannot open database file '%s': %s.\nYou might "
