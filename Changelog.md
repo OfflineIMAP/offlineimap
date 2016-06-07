@@ -15,6 +15,272 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v6.7.0 (2016-03-10)
+
+#### Notes
+
+New stable release out!
+
+With the work of Ilias, maintainer at Debian, OfflineIMAP is learning a new CLI
+option to help fixing filenames for the users using nametrans and updating from
+versions prior to v6.3.5.  Distribution maintainers might want to backport this
+feature for their packaged versions out after v6.3.5. Have a look at commit
+c84d23b65670f to know more.
+
+OfflineIMAP earns the slogan "Get the emails where you need them", authored by
+Norbert Preining.
+
+Julien Danjou, the author of the book _The Hacker’s Guide To Python_, shared us
+his screenshot of a running session of OfflineIMAP.
+
+I recently created rooms for chat sessions at Gitter. It appears to be really
+cool, supports seamless authentication with a github account, persistent logs,
+desktop/mobile clients and many more usefull features. Join us at Gitter!
+
+- https://gitter.im/OfflineIMAP/offlineimap  [NEW]
+- https://gitter.im/OfflineIMAP/imapfw       [NEW]
+
+Now, the OfflineIMAP community has 2 official websites:
+
+- http://www.offlineimap.org (for offlineimap)
+- http://imapfw.offlineimap.org (for imapfw) [NEW]
+
+The Twitter account was resurrected, too. Feel free to join us:
+
+  https://twitter.com/OfflineIMAP
+
+Finally, the teams of the OfflineIMAP organization at Github were renewed to
+facilitate the integration of new contributors and directly improve both the
+documentation and the websites.
+
+As a side note, the [imapfw repository](https://github.com/OfflineIMAP/imapfw)
+has now more than 50 stargazers. This is very encouraging.
+
+Thank you much everybody for your various contributions into OfflineIMAP!
+
+#### Authors
+
+- Ben Boeckel (1)
+- Ebben Aries (1)
+- Ilias Tsitsimpis (1)
+
+#### Features
+
+- Introduce a code of conduct.
+- Add github templates.
+- Change hard coding of AF_UNSPEC to user-defined address-families per repository. [Ebben Aries]
+- Add documentation for the ipv6 configuration option.
+
+#### Fixes
+
+- Identify and fix messages with FMD5 inconsistencies. [Ilias Tsitsimpis]
+- Curses, UIBase: remove references to __bigversion__. [Ben Boeckel]
+- Sphinx doc: remove usage of __bigversion__.
+- MANIFEST: exclude rfcs (used for Pypi packages).
+- Changelog: fix typo.
+
+#### Changes
+
+- release.sh: move the authors section up.
+- release.sh: add pypi instructions.
+- MAINTAINERS: update.
+
+
+
+
+### OfflineIMAP v6.7.0-rc2 (2016-02-22)
+
+#### Notes
+
+Learn to abruptly abort on multiple Ctrl+C.
+
+Some bugs got fixed. XOAUTH2 now honors the proxy configuration option.  Error
+message was improved when it fails to write a new mail in a local Maildir.
+
+I've enabled the hook for integration with Github. You'll get notifications on
+updates of the master branch of the repository (mostly for new releases). I may
+write some tweets about OfflineIMAP sometimes.
+
+#### Features
+
+- Abort after three Ctrl-C keystrokes.
+
+#### Fixes
+
+- Fix year of copyright.
+- Versioning: avoid confusing pip by spliting out __version__ with __revision__.
+- Fix: exceptions.OSError might not have attribute EEXIST defined.
+- XOAUTH2 handler: urlopen with proxied socket.
+- Manual: small grammar fix.
+- Fix typos in offlineimap(1) manpage.
+
+#### Changes
+
+- Update links to the new URL www.offlineimap.org.
+
+
+### OfflineIMAP v6.7.0-rc1 (2016-01-24)
+
+#### Notes
+
+Starting a new cycle with all EXPERIMENTAL and TESTING stuff marked stable.
+Otherwise, not much exciting yet. There's pending work that would need some
+love by contributors:
+
+- https://github.com/OfflineIMAP/offlineimap/issues/211
+- https://github.com/OfflineIMAP/offlineimap/pull/111
+- https://github.com/OfflineIMAP/offlineimap/issues/184
+
+#### Features
+
+- Allow authorization via XOAUTH2 using access token.
+
+#### Fixes
+
+- Revert "Don't output initial blurb in "quiet" mode".
+- Fix Changelog.
+
+#### Changes
+
+- Declare newmail_hook option stable.
+- Declare utime_from_header option stable.
+- Decode foldernames is removed EXPERIMENTAL flag.
+- Declare XOAUTH2 stable.
+- Declare tls_level option stable.
+- Declare IMAP Keywords option stable.
+
+
+### OfflineIMAP v6.6.1 (2015-12-28)
+
+#### Notes
+
+This is a very small new stable release for two fixes.
+
+Amending support for BINARY APPEND which is not correctly implemented. Also,
+remove potential harms from dot files in a local maildir.
+
+#### Fixes
+
+- Bump imaplib2 from 2.53 to 2.52. Remove support for binary send.
+- Ignore aloo dot files in the Maildir while scanning for mails.
+
+
+### OfflineIMAP v6.6.0 (2015-12-05)
+
+#### Features
+
+- Maildir learns to mimic Dovecot's format of lower-case letters (a,b,c..) for
+  "custom flags" or user keywords.
+
+#### Fixes
+
+- Broken retry loop would break connection management.
+- Replace rogue `print` statement by `self.ui.debug`.
+
+#### Changes
+
+- Bump imaplib2 from v2.52 to v2.53.
+- Code cleanups.
+- Add a full stack of all thread dump upon EXIT or KILL signal in thread debug
+  mode.
+
+
+### OfflineIMAP v6.6.0-rc3 (2015-11-05)
+
+#### Notes
+
+Changes are slowing down and the code is under serious testing by some new
+contributors. Everything expected at this time in the release cycle. Thanks to
+them.
+
+SSL is now enabled by default to prevent from sending private data in clear
+stream to the wild.
+
+#### Features
+
+- Add new config option `filename_use_mail_timestamp`.
+
+#### Fixes
+
+- Bump from imaplib2 v2.51 to v2.52.
+- Minor fixes.
+
+#### Changes
+
+- Enable SSL by default.
+- Fix: avoid writing password to log.
+- offlineimap.conf: improve namtrans doc a bit.
+
+
+### OfflineIMAP v6.6.0-rc2 (2015-10-15)
+
+#### Notes
+
+Interesting job was done in this release with 3 new features:
+
+- Support for XOAUTH2;
+- New 'tls_level' configuration option to automatically discard insecure SSL protocols;
+- New interface 'syslog' comes in, next to the -s CLI option. This allows better
+  integration with systemd.
+
+I won't merge big changes until the stable is out. IOW, you can seriously start
+testing this rc2.
+
+#### Features
+
+- Add a new syslog ui.
+- Introduce the 'tls_level' configuration option.
+- Learn XOAUTH2 authentication (used by Gmail servers).
+- Manual IDLE section improved (minor).
+
+#### Fixes
+
+- Configuration option utime_from_header handles out-of-bounds dates.
+- offlineimap.conf: fix erroneous assumption about ssl23.
+- Fix status code to reflect success or failure of a sync.
+- contrib/release.sh: fix changelog edition.
+
+#### Changes
+
+- Bump imaplib2 from v2.48 to v2.51.
+- README: new section status and future.
+- Minor code cleanups.
+- Makefile: improve building of targz.
+- systemd: log to syslog rather than stderr for better integration.
+
+
+### OfflineIMAP v6.6.0-rc1 (2015-09-28)
+
+#### Notes
+
+Let's go with a new release.
+
+Basic UTF support was implemented while it is still exeprimental. Use this with
+care.  OfflineIMAP can now send the logs to syslog and notify on new mail.
+
+
+#### Features
+
+- logging: add a switch to log to syslog.
+- Added the newmail_hook.
+- utf-7 feature is set experimental.
+
+#### Fixes
+
+- offlineimap.conf: fix a typo in the new mail hook example.
+- Fix language.
+- Fix spelling inconsistency.
+- offlineimap.conf: don't use quotes for sep option.
+- man page: fingerprint can be used with SSL.
+- fix #225 « Runonce (offlineimap -o) does not stop if autorefresh is declared in DEFAULT section ».
+- CONTRIBUTING: fix links to offlineimap.org.
+
+#### Changes
+
+- Bump imaplib2 from 2.43 to 2.48
+- README: small improvements
+
+
 
 ### OfflineIMAP v6.5.7 (2015-05-15)
 

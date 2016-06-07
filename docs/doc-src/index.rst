@@ -1,5 +1,5 @@
 .. OfflineImap documentation master file
-.. _OfflineIMAP: http://offlineimap.org
+.. _OfflineIMAP: http://www.offlineimap.org
 
 
 Welcome to OfflineIMAP's developer documentation

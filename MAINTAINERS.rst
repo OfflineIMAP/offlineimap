@@ -1,7 +1,7 @@
 .. -*- coding: utf-8 -*-
 
-Official maintainers
-====================
+Maintainers
+===========
 
 Eygene Ryabinkin
   email: rea at freebsd.org
@@ -15,15 +15,31 @@ Nicolas Sebrecht
   email: nicolas.s-dev at laposte.net
   github: nicolas33
 
-Mailing List maintainers
-========================
 
-Eygene Ryabinkin
-  email: rea at freebsd.org
+Github
+------
 
-Sebastian Spaeth
-  email: sebastian at sspaeth.de
+- Eygene Ryabinkin
+- Sebastian Spaeth
+- Nicolas Sebrecht
 
-Nicolas Sebrecht
-  email: nicolas.s-dev at laposte.net
 
+Mailing List
+------------
+
+- Eygene Ryabinkin
+- Sebastian Spaeth
+- Nicolas Sebrecht
+
+
+Twitter
+-------
+
+- Nicolas Sebrecht
+
+
+Pypi
+----
+
+- Nicolas Sebrecht
+- Sebastian Spaeth

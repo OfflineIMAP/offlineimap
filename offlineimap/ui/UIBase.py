@@ -16,6 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import logging
+import logging.handlers
 import re
 import time
 import sys
@@ -91,10 +92,22 @@ class UIBase(object):
         self.logger.info(offlineimap.banner)
         return ch
 
+    def setup_sysloghandler(self):
+        """Backend specific syslog handler."""
+
+        # create syslog handler
+        ch = logging.handlers.SysLogHandler('/dev/log')
+        # create formatter and add it to the handlers
+        self.formatter = logging.Formatter("%(message)s")
+        ch.setFormatter(self.formatter)
+        # add the handlers to the logger
+        self.logger.addHandler(ch)
+
     def setlogfile(self, logfile):
         """Create file handler which logs to file."""
 
         fh = logging.FileHandler(logfile, 'at')
+        #fh.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter("%(asctime)s %(levelname)s: "
             "%(message)s", '%Y-%m-%d %H:%M:%S')
         fh.setFormatter(file_formatter)
@@ -102,9 +115,11 @@ class UIBase(object):
         # write out more verbose initial info blurb on the log file
         p_ver = ".".join([str(x) for x in sys.version_info[0:3]])
         msg = "OfflineImap %s starting...\n  Python: %s Platform: %s\n  "\
-              "Args: %s"% (offlineimap.__bigversion__, p_ver, sys.platform,
+              "Args: %s"% (offlineimap.__version__, p_ver, sys.platform,
                             " ".join(sys.argv))
-        self.logger.info(msg)
+        record = logging.LogRecord('OfflineImap', logging.INFO, __file__,
+                                   None, msg, None, None)
+        fh.emit(record)
 
     def _msg(self, msg):
         """Display a message."""
@@ -430,7 +445,7 @@ class UIBase(object):
                         #TODO: Debug and make below working, it hangs Gmail
                         #res_type, response = conn.id((
                         #    'name', offlineimap.__productname__,
-                        #    'version', offlineimap.__bigversion__))
+                        #    'version', offlineimap.__version__))
                         #self._msg("Server ID: %s %s" % (res_type, response[0]))
                     self._msg("Server welcome string: %s" % str(conn.welcome))
                     self._msg("Server capabilities: %s\n" % str(conn.capabilities))

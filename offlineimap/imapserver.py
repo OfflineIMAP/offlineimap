@@ -19,6 +19,11 @@ from threading import Lock, BoundedSemaphore, Thread, Event, currentThread
 import hmac
 import socket
 import base64
+
+import json
+import urllib
+
+import socket
 import time
 import errno
 from sys import exc_info
@@ -76,6 +81,13 @@ class IMAPServer:
         self.goodpassword = None
 
         self.usessl = repos.getssl()
+        self.useipv6 = repos.getipv6()
+        if self.useipv6 == True:
+            self.af = socket.AF_INET6
+        elif self.useipv6 == False:
+            self.af = socket.AF_INET
+        else:
+            self.af = socket.AF_UNSPEC
         self.hostname = \
             None if self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
@@ -88,6 +100,13 @@ class IMAPServer:
             self.__verifycert = None # disable cert verification
         self.fingerprint = repos.get_ssl_fingerprint()
         self.sslversion = repos.getsslversion()
+        self.tlslevel = repos.gettlslevel()
+
+        self.oauth2_refresh_token = repos.getoauth2_refresh_token()
+        self.oauth2_access_token = repos.getoauth2_access_token()
+        self.oauth2_client_id = repos.getoauth2_client_id()
+        self.oauth2_client_secret = repos.getoauth2_client_secret()
+        self.oauth2_request_url = repos.getoauth2_request_url()
 
         self.delim = None
         self.root = None
@@ -195,11 +214,44 @@ class IMAPServer:
             authz = self.user_identity
         NULL = u'\x00'
         retval = NULL.join((authz, authc, passwd)).encode('utf-8')
-        self.ui.debug('imap', '__plainhandler: returning %s' % retval)
+        logsafe_retval = NULL.join((authz, authc, "(passwd hidden for log)")).encode('utf-8')
+        self.ui.debug('imap', '__plainhandler: returning %s' % logsafe_retval)
         return retval
 
 
-    # XXX: describe function
+    def __xoauth2handler(self, response):
+        if self.oauth2_refresh_token is None and self.oauth2_access_token is None:
+            return None
+
+        if self.oauth2_access_token is None:
+            # need to move these to config
+            # generate new access token
+            params = {}
+            params['client_id'] = self.oauth2_client_id
+            params['client_secret'] = self.oauth2_client_secret
+            params['refresh_token'] = self.oauth2_refresh_token
+            params['grant_type'] = 'refresh_token'
+
+            self.ui.debug('imap', 'xoauth2handler: url "%s"' % self.oauth2_request_url)
+            self.ui.debug('imap', 'xoauth2handler: params "%s"' % params)
+
+            original_socket = socket.socket
+            socket.socket = self.proxied_socket
+            try:
+                response = urllib.urlopen(self.oauth2_request_url, urllib.urlencode(params)).read()
+            finally:
+                socket.socket = original_socket
+
+            resp = json.loads(response)
+            self.ui.debug('imap', 'xoauth2handler: response "%s"' % resp)
+            self.oauth2_access_token = resp['access_token']
+
+        self.ui.debug('imap', 'xoauth2handler: access_token "%s"' % self.oauth2_access_token)
+        auth_string = 'user=%s\1auth=Bearer %s\1\1' % (self.username, self.oauth2_access_token)
+        #auth_string = base64.b64encode(auth_string)
+        self.ui.debug('imap', 'xoauth2handler: returning "%s"' % auth_string)
+        return auth_string
+
     def __gssauth(self, response):
         data = base64.b64encode(response)
         try:
@@ -283,6 +335,10 @@ class IMAPServer:
         imapobj.authenticate('PLAIN', self.__plainhandler)
         return True
 
+    def __authn_xoauth2(self, imapobj):
+        imapobj.authenticate('XOAUTH2', self.__xoauth2handler)
+        return True
+
     def __authn_login(self, imapobj):
         # Use LOGIN command, unless LOGINDISABLED is advertized
         # (per RFC 2595)
@@ -314,6 +370,7 @@ class IMAPServer:
         auth_methods = {
           "GSSAPI": (self.__authn_gssapi, False, True),
           "CRAM-MD5": (self.__authn_cram_md5, True, True),
+          "XOAUTH2": (self.__authn_xoauth2, True, True),
           "PLAIN": (self.__authn_plain, True, True),
           "LOGIN": (self.__authn_login, True, False),
         }
@@ -437,6 +494,8 @@ class IMAPServer:
                         timeout=socket.getdefaulttimeout(),
                         fingerprint=self.fingerprint,
                         use_socket=self.proxied_socket,
+                        tls_level=self.tlslevel,
+                        af=self.af,
                         )
                 else:
                     self.ui.connecting(self.hostname, self.port)
@@ -444,6 +503,7 @@ class IMAPServer:
                         self.hostname, self.port,
                         timeout=socket.getdefaulttimeout(),
                         use_socket=self.proxied_socket,
+                        af=self.af,
                         )
 
                 if not self.preauth_tunnel:

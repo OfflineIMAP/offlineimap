@@ -40,6 +40,11 @@ class BaseFolder(object):
         # Top level dir name is always ''
         self.root = None
         self.name = name if not name == self.getsep() else ''
+        self.newmail_hook = None
+        # Only set the newmail_hook if the IMAP folder is named 'INBOX'
+        if self.name == 'INBOX':
+            self.newmail_hook = repository.newmail_hook
+        self.have_newmail = False
         self.repository = repository
         self.visiblename = repository.nametrans(name)
         # In case the visiblename becomes '.' or '/' (top-level) we use
@@ -54,6 +59,13 @@ class BaseFolder(object):
         repo = "Repository " + repository.name
         self._utime_from_header = self.config.getdefaultboolean(repo,
             "utime_from_header", utime_from_header_global)
+
+        # Do we need to use mail timestamp for filename prefix?
+        filename_use_mail_timestamp_global = self.config.getdefaultboolean(
+            "general", "filename_use_mail_timestamp", False)
+        repo = "Repository " + repository.name
+        self._filename_use_mail_timestamp = self.config.getdefaultboolean(repo,
+            "filename_use_mail_timestamp", filename_use_mail_timestamp_global)
 
         # Determine if we're running static or dynamic folder filtering
         # and check filtering status
@@ -405,6 +417,11 @@ class BaseFolder(object):
 
     def getmessageflags(self, uid):
         """Returns the flags for the specified message."""
+
+        raise NotImplementedError
+
+    def getmessagekeywords(self, uid):
+        """Returns the keywords for the specified message."""
 
         raise NotImplementedError
 
@@ -781,6 +798,9 @@ class BaseFolder(object):
                     # Got new UID, change the local uid.
                 # Save uploaded status in the statusfolder
                 statusfolder.savemessage(new_uid, message, flags, rtime)
+                # Check whether the mail has been seen
+                if 'S' not in flags:
+                    self.have_newmail = True
             elif new_uid == 0:
                 # Message was stored to dstfolder, but we can't find it's UID
                 # This means we can't link current message to the one created
@@ -816,6 +836,9 @@ class BaseFolder(object):
            - Update statusfolder
 
         This function checks and protects us from action in dryrun mode."""
+
+        # We have no new mail yet
+        self.have_newmail = False
 
         threads = []
 
@@ -854,6 +877,11 @@ class BaseFolder(object):
         for thread in threads:
             thread.join()
 
+        # Execute new mail hook if we have new mail
+        if self.have_newmail:
+            if self.newmail_hook != None:
+                self.newmail_hook();
+
     def __syncmessagesto_delete(self, dstfolder, statusfolder):
         """Pass 2: Remove locally deleted messages on dst.
 
@@ -880,6 +908,45 @@ class BaseFolder(object):
                     return #don't delete messages in dry-run mode
                 dstfolder.deletemessages(deletelist)
 
+    def combine_flags_and_keywords(self, uid, dstfolder):
+        """Combine the message's flags and keywords using the mapping for the
+        destination folder."""
+
+        # Take a copy of the message flag set, otherwise
+        # __syncmessagesto_flags() will fail because statusflags is actually a
+        # reference to selfflags (which it should not, but I don't have time to
+        # debug THAT).
+        selfflags = set(self.getmessageflags(uid))
+
+        try:
+            keywordmap = dstfolder.getrepository().getkeywordmap()
+            if keywordmap is None:
+                return selfflags
+
+            knownkeywords = set(keywordmap.keys())
+
+            selfkeywords = self.getmessagekeywords(uid)
+
+            if not knownkeywords >= selfkeywords:
+                #some of the message's keywords are not in the mapping, so
+                #skip them
+
+                skipped_keywords = list(selfkeywords - knownkeywords)
+                selfkeywords &= knownkeywords
+
+                self.ui.warn("Unknown keywords skipped: %s\n"
+                    "You may want to change your configuration to include "
+                    "those\n" % (skipped_keywords))
+
+            keywordletterset = set([keywordmap[keyw] for keyw in selfkeywords])
+
+            #add the mapped keywords to the list of message flags
+            selfflags |= keywordletterset
+        except NotImplementedError:
+            pass
+
+        return selfflags
+
     def __syncmessagesto_flags(self, dstfolder, statusfolder):
         """Pass 3: Flag synchronization.
 
@@ -902,12 +969,12 @@ class BaseFolder(object):
             if uid < 0 or not dstfolder.uidexists(uid):
                 continue
 
-            selfflags = self.getmessageflags(uid)
-
             if statusfolder.uidexists(uid):
                 statusflags = statusfolder.getmessageflags(uid)
             else:
                 statusflags = set()
+
+            selfflags = self.combine_flags_and_keywords(uid, dstfolder)
 
             addflags = selfflags - statusflags
             delflags = statusflags - selfflags

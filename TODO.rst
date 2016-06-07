@@ -120,8 +120,4 @@ TODO list
   so don't matter much about that if you don't get the point or what could be
   done.
 
-
-* Support Python 3.
-
-
 * Support Unicode.

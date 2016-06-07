@@ -3,7 +3,7 @@ Description=Offlineimap Service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/offlineimap -o
+ExecStart=/usr/bin/offlineimap -o -u syslog
 
 [Install]
 WantedBy=mail.target

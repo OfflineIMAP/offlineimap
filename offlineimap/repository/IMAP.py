@@ -34,8 +34,14 @@ class IMAPRepository(BaseRepository):
         BaseRepository.__init__(self, reposname, account)
         # self.ui is being set by the BaseRepository
         self._host = None
+        self._oauth2_request_url = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
+        # Only set the newmail_hook in an IMAP repository.
+        if self.config.has_option(self.getsection(), 'newmail_hook'):
+            self.newmail_hook = self.localeval.eval(
+                self.getconf('newmail_hook'))
+
         if self.getconf('sep', None):
             self.ui.info("The 'sep' setting is being ignored for IMAP "
                          "repository '%s' (it's autodetected)"% self)
@@ -125,12 +131,12 @@ class IMAPRepository(BaseRepository):
         return self.getconf('remote_identity', default=None)
 
     def get_auth_mechanisms(self):
-        supported = ["GSSAPI", "CRAM-MD5", "PLAIN", "LOGIN"]
+        supported = ["GSSAPI", "XOAUTH2", "CRAM-MD5", "PLAIN", "LOGIN"]
         # Mechanisms are ranged from the strongest to the
         # weakest ones.
         # TODO: we need DIGEST-MD5, it must come before CRAM-MD5
         # TODO: due to the chosen-plaintext resistance.
-        default = ["GSSAPI", "CRAM-MD5", "PLAIN", "LOGIN"]
+        default = ["GSSAPI", "XOAUTH2", "CRAM-MD5", "PLAIN", "LOGIN"]
 
         mechs = self.getconflist('auth_mechanisms', r',\s*',
           default)
@@ -188,8 +194,11 @@ class IMAPRepository(BaseRepository):
 
         return self.getconfint('remoteport', None)
 
+    def getipv6(self):
+        return self.getconfboolean('ipv6', None)
+
     def getssl(self):
-        return self.getconfboolean('ssl', 0)
+        return self.getconfboolean('ssl', 1)
 
     def getsslclientcert(self):
         xforms = [os.path.expanduser, os.path.expandvars, os.path.abspath]
@@ -240,6 +249,9 @@ class IMAPRepository(BaseRepository):
             raise OfflineImapError(reason, OfflineImapError.ERROR.REPO)
         return cacertfile
 
+    def gettlslevel(self):
+        return self.getconf('tls_level', 'tls_compat')
+
     def getsslversion(self):
         return self.getconf('ssl_version', None)
 
@@ -252,6 +264,30 @@ class IMAPRepository(BaseRepository):
         value = self.getconf('cert_fingerprint', "")
         return [f.strip().lower() for f in value.split(',') if f]
 
+    def getoauth2_request_url(self):
+        if self._oauth2_request_url:  # Use cached value if possible.
+            return self._oauth2_request_url
+
+        oauth2_request_url = self.getconf('oauth2_request_url', None)
+        if oauth2_request_url != None:
+            self._oauth2_request_url = oauth2_request_url
+            return self._oauth2_request_url
+
+        #raise OfflineImapError("No remote oauth2_request_url for repository "
+            #"'%s' specified."% self, OfflineImapError.ERROR.REPO)
+
+    def getoauth2_refresh_token(self):
+        return self.getconf('oauth2_refresh_token', None)
+
+    def getoauth2_access_token(self):
+        return self.getconf('oauth2_access_token', None)
+
+    def getoauth2_client_id(self):
+        return self.getconf('oauth2_client_id', None)
+
+    def getoauth2_client_secret(self):
+        return self.getconf('oauth2_client_secret', None)
+
     def getpreauthtunnel(self):
         return self.getconf('preauthtunnel', None)
 
@@ -260,6 +296,9 @@ class IMAPRepository(BaseRepository):
 
     def getreference(self):
         return self.getconf('reference', '')
+
+    def getdecodefoldernames(self):
+        return self.getconfboolean('decodefoldernames', 0)
 
     def getidlefolders(self):
         localeval = self.localeval

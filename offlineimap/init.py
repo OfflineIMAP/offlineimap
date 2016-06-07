@@ -25,11 +25,15 @@ import logging
 from optparse import OptionParser
 
 import offlineimap
-from offlineimap import accounts, threadutil, syncmaster
+from offlineimap import accounts, threadutil, syncmaster, folder
 from offlineimap import globals
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
+from offlineimap.repository import Repository
+
+import traceback
+import collections
 
 
 class OfflineImap:
@@ -47,11 +51,13 @@ class OfflineImap:
         options, args = self.__parse_cmd_options()
         if options.diagnostics:
             self.__serverdiagnostics(options)
+        elif options.migrate_fmd5:
+            self.__migratefmd5(options)
         else:
-            self.__sync(options)
+            return self.__sync(options)
 
     def __parse_cmd_options(self):
-        parser = OptionParser(version=offlineimap.__bigversion__,
+        parser = OptionParser(version=offlineimap.__version__,
                               description="%s.\n\n%s" %
                               (offlineimap.__copyright__,
                                offlineimap.__license__))
@@ -89,6 +95,11 @@ class OfflineImap:
         parser.add_option("-l", dest="logfile", metavar="FILE",
                   help="log to FILE")
 
+        parser.add_option("-s",
+                  action="store_true", dest="syslog",
+                  default=False,
+                  help="log to syslog")
+
         parser.add_option("-f", dest="folders",
                   metavar="folder1[,folder2[,...]]",
                   help="only sync the specified folders")
@@ -110,7 +121,11 @@ class OfflineImap:
 
         parser.add_option("-u", dest="interface",
                   help="specifies an alternative user interface"
-                  " (quiet, basic, ttyui, blinkenlights, machineui)")
+                  " (quiet, basic, syslog, ttyui, blinkenlights, machineui)")
+
+        parser.add_option("--migrate-fmd5-using-nametrans",
+                  action="store_true", dest="migrate_fmd5", default=False,
+                  help="migrate FMD5 hashes from versions prior to 6.3.5")
 
         (options, args) = parser.parse_args()
         globals.set_options (options)
@@ -196,6 +211,10 @@ class OfflineImap:
         if options.logfile:
             self.ui.setlogfile(options.logfile)
 
+        #set up syslog
+        if options.syslog:
+            self.ui.setup_sysloghandler()
+
         #welcome blurb
         self.ui.init_banner()
 
@@ -217,6 +236,9 @@ class OfflineImap:
                     imaplib.Debug = 5
 
         if options.runonce:
+            # Must kill the possible default option
+            if config.has_option('DEFAULT', 'autorefresh'):
+                config.remove_option('DEFAULT', 'autorefresh')
             # FIXME: spaghetti code alert!
             for section in accounts.getaccountlist(config):
                 config.remove_option('Account ' + section, "autorefresh")
@@ -259,6 +281,42 @@ class OfflineImap:
                                                   'maxconnections', 2))
         self.config = config
         return (options, args)
+
+    def __dumpstacks(self, context=1, sighandler_deep=2):
+        """ Signal handler: dump a stack trace for each existing thread."""
+
+        currentThreadId = threading.currentThread().ident
+
+        def unique_count(l):
+            d = collections.defaultdict(lambda: 0)
+            for v in l:
+                d[tuple(v)] += 1
+            return list((k, v) for k, v in d.iteritems())
+
+        stack_displays = []
+        for threadId, stack in sys._current_frames().items():
+            stack_display = []
+            for filename, lineno, name, line in traceback.extract_stack(stack):
+                stack_display.append('  File: "%s", line %d, in %s'
+                                     % (filename, lineno, name))
+                if line:
+                    stack_display.append("    %s" % (line.strip()))
+            if currentThreadId == threadId:
+                stack_display = stack_display[:- (sighandler_deep * 2)]
+                stack_display.append('  => Stopped to handle current signal. ')
+            stack_displays.append(stack_display)
+        stacks = unique_count(stack_displays)
+        self.ui.debug('thread', "** Thread List:\n")
+        for stack, times in stacks:
+            if times == 1:
+                msg = "%s Thread is at:\n%s\n"
+            else:
+                msg = "%s Threads are at:\n%s\n"
+            self.ui.debug('thread', msg % (times, '\n'.join(stack[- (context * 2):])))
+
+        self.ui.debug('thread', "Dumped a total of %d Threads." %
+                      len(sys._current_frames().keys()))
+
 
     def __sync(self, options):
         """Invoke the correct single/multithread syncing
@@ -309,10 +367,19 @@ class OfflineImap:
                     getglobalui().warn("Terminating NOW (this may "\
                                        "take a few seconds)...")
                     accounts.Account.set_abort_event(self.config, 3)
+                    if 'thread' in self.ui.debuglist:
+                        self.__dumpstacks(5)
+
+                    # Abort after three Ctrl-C keystrokes
+                    self.num_sigterm += 1
+                    if self.num_sigterm >= 3:
+                        getglobalui().warn("Signaled thrice. Aborting!")
+                        sys.exit(1)
                 elif sig == signal.SIGQUIT:
                     stacktrace.dump(sys.stderr)
                     os.abort()
 
+            self.num_sigterm = 0
             signal.signal(signal.SIGHUP, sig_handler)
             signal.signal(signal.SIGUSR1, sig_handler)
             signal.signal(signal.SIGUSR2, sig_handler)
@@ -339,11 +406,13 @@ class OfflineImap:
                 offlineimap.mbnames.write(True)
 
             self.ui.terminate()
+            return 0
         except (SystemExit):
             raise
         except Exception as e:
             self.ui.error(e)
             self.ui.terminate()
+            return 1
 
     def __sync_singlethreaded(self, accs):
         """Executed if we do not want a separate syncmaster thread
@@ -365,3 +434,21 @@ class OfflineImap:
         for account in allaccounts:
             if account.name not in activeaccounts: continue
             account.serverdiagnostics()
+
+    def __migratefmd5(self, options):
+        activeaccounts = self.config.get("general", "accounts")
+        if options.accounts:
+            activeaccounts = options.accounts
+        activeaccounts = activeaccounts.replace(" ", "")
+        activeaccounts = activeaccounts.split(",")
+        allaccounts = accounts.AccountListGenerator(self.config)
+
+        for account in allaccounts:
+            if account.name not in activeaccounts:
+                continue
+            localrepo = Repository(account, 'local')
+            if localrepo.getfoldertype() != folder.Maildir.MaildirFolder:
+                continue
+            folders = localrepo.getfolders()
+            for f in folders:
+                f.migratefmd5(options.dryrun)

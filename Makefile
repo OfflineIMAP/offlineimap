@@ -15,8 +15,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-VERSION=`./offlineimap.py --version`
-TARGZ=offlineimap_$(VERSION).tar.gz
+VERSION=$(shell ./offlineimap.py --version)
+ABBREV=$(shell git log --format='%h' HEAD~1..)
+TARGZ=offlineimap-$(VERSION)-$(ABBREV)
 SHELL=/bin/bash
 RST2HTML=`type rst2html >/dev/null 2>&1 && echo rst2html || echo rst2html.py`
 
@@ -30,12 +31,12 @@ build:
 
 clean:
 	-python setup.py clean --all
-	-rm -f bin/offlineimapc
+	-rm -f bin/offlineimapc 2>/dev/null
 	-find . -name '*.pyc' -exec rm -f {} \;
 	-find . -name '*.pygc' -exec rm -f {} \;
 	-find . -name '*.class' -exec rm -f {} \;
 	-find . -name '.cache*' -exec rm -f {} \;
-	-rm -f manpage.links manpage.refs
+	-rm -f manpage.links manpage.refs 2>/dev/null
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 	@$(MAKE) -C clean
 
@@ -47,11 +48,7 @@ websitedoc:
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
-	if ! pwd | grep -q "/offlineimap-$(VERSION)$$"; then 			\
-	  echo "Containing directory must be called offlineimap-$(VERSION)"; 	\
-	  exit 1; 								\
-	fi; 									\
-	pwd && cd .. && pwd && tar -zhcv --exclude '.git' --exclude 'website' --exclude 'wiki' -f $(TARGZ) offlineimap-$(VERSION)
+	cd .. && tar -zhcv --transform s,^offlineimap,$(TARGZ), -f $(TARGZ).tar.gz --exclude '*.pyc' offlineimap/{bin,Changelog.md,contrib,CONTRIBUTING.rst,COPYING,docs,MAINTAINERS.rst,MANIFEST.in,offlineimap,offlineimap.conf,offlineimap.conf.minimal,offlineimap.py,README.md,scripts,setup.py,test,TODO.rst}
 
 rpm: targz
 	cd .. && sudo rpmbuild -ta $(TARGZ)

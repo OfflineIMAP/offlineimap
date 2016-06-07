@@ -8,7 +8,9 @@ include Makefile
 include README.md
 include offlineimap.conf*
 include offlineimap.py
+recursive-include contrib *
 recursive-include offlineimap *.py
 recursive-include bin *
 recursive-include docs *
 recursive-include test *
+prune docs/rfcs
