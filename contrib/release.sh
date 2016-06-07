@@ -21,6 +21,7 @@ __VERSION__='v0.3'
 SPHINXBUILD=sphinx-build
 
 MAILING_LIST='offlineimap-project@lists.alioth.debian.org'
+GITHUB_FILE_LINK_PREFIX='https://raw.githubusercontent.com/OfflineIMAP/offlineimap'
 
 DOCSDIR='docs'
 ANNOUNCE_MAGIC='#### Notes '
@@ -374,7 +375,8 @@ Downloads:
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.zip
 
 Pip:
-  pip install -r requirements.txt --user git+https://github.com/OfflineIMAP/offlineimap.git@${1}
+  wget "${GITHUB_FILE_LINK_PREFIX}/${1}/requirements.txt" -O requirements.txt
+  pip install -r ./requirements.txt --user git+https://github.com/OfflineIMAP/offlineimap.git@${1}
 EOF
 }
 
