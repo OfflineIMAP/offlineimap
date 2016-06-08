@@ -63,6 +63,25 @@ function api () {
 
 
 #
+# Return title from release entry.
+# $1: full release title
+#
+function parse_releases_get_link () {
+    echo $1 | sed -r -e 's,^### (OfflineIMAP.*)\),\1,'
+      | tr '[:upper:]' '[:lower:]' \
+      | sed -r -e 's,[\.("],,g' \
+      | sed -r -e 's, ,-,g'
+}
+
+#
+# Return version from release entry.
+# $1: full release title
+#
+function parse_releases_get_version () {
+    echo $title | sed -r -e 's,^### [a-Z]+ (v[^ ]+).*,\1,'
+}
+
+#
 # Make Changelog public and save links to them as JSON.
 #
 function releases () {
@@ -76,17 +95,19 @@ function releases () {
   #       - {version: '<version>', link: '<link>'}
   #       - ...
   echo "$HEADER" > "$ANNOUNCES_YML"
+  # Announces for the mainline.
   grep -E '^### OfflineIMAP' ./Changelog.md | while read title
   do
-    link="$(echo $title | sed -r -e 's,^### (OfflineIMAP.*)\),\1,' \
-      | tr '[:upper:]' '[:lower:]' \
-      | sed -r -e 's,[\.("],,g' \
-      | sed -r -e 's, ,-,g'
-    )"
-    v="$(echo $title \
-      | sed -r -e 's,^### [a-Z]+ (v[^ ]+).*,\1,'
-    )"
+    link="$(parse_releases_get_link $title)"
+    v="$(parse_releases_get_version $title)"
     echo "- {version: '${v}', link: 'Changelog.html#${link}'}"
+  done | tee -a "$ANNOUNCES_YML"
+  # Announces for the maintenance releases.
+  grep -E '^### OfflineIMAP' ./Changelog.maint.md | while read title
+  do
+    link="$(parse_releases_get_link $title)"
+    v="$(parse_releases_get_version $title)"
+    echo "- {version: '${v}', link: 'Changelog.maint.html#${link}'}"
   done | tee -a "$ANNOUNCES_YML"
 }
 
