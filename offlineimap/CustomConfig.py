@@ -114,10 +114,10 @@ class CustomConfigParser(SafeConfigParser):
 
     def getsectionlist(self, key):
         """Returns a list of sections that start with (str) key + " ".
-        
+
         That is, if key is "Account", returns all section names that
         start with "Account ", but strips off the "Account ".
-        
+
         For instance, for "Account Test", returns "Test"."""
 
         key = key + ' '

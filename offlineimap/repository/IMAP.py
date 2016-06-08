@@ -211,7 +211,7 @@ class IMAPRepository(BaseRepository):
 
     def getsslcacertfile(self):
         """Determines CA bundle.
-        
+
         Returns path to the CA bundle.  It is either explicitely specified
         or requested via "OS-DEFAULT" value (and we will search known
         locations for the current OS and distribution).
@@ -229,6 +229,7 @@ class IMAPRepository(BaseRepository):
 
         xforms = [os.path.expanduser, os.path.expandvars, os.path.abspath]
         cacertfile = self.getconf_xform('sslcacertfile', xforms, None)
+        # Can't use above cacertfile because of abspath.
         if self.getconf('sslcacertfile', None) == "OS-DEFAULT":
             cacertfile = get_os_sslcertfile()
             if cacertfile == None:
