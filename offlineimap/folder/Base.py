@@ -123,10 +123,6 @@ class BaseFolder(object):
         Should be implemented only for folders that suggest threads."""
         raise NotImplementedError
 
-    # XXX: we may need someting like supports_quickstatus() to check
-    # XXX: if user specifies 'quick' flag for folder that doesn't
-    # XXX: support quick status queries, so one believes that quick
-    # XXX: status checks will be done, but it won't really be so.
     def quickchanged(self, statusfolder):
         """ Runs quick check for folder changes and returns changed
         status: True -- changed, False -- not changed.

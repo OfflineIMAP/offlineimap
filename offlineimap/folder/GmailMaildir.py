@@ -1,5 +1,5 @@
 # Maildir folder support with labels
-# Copyright (C) 2002 - 2011 John Goerzen & contributors
+# Copyright (C) 2002 - 2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 
 
 import os
+import six
 from sys import exc_info
+
 from .Maildir import MaildirFolder
 from offlineimap import OfflineImapError
 import offlineimap.accounts
 from offlineimap import imaputil
-
-import six
 
 class GmailMaildirFolder(MaildirFolder):
     """Folder implementation to support adding labels to messages in a Maildir.
@@ -44,6 +44,10 @@ class GmailMaildirFolder(MaildirFolder):
     def quickchanged(self, statusfolder):
         """Returns True if the Maildir has changed. Checks uids, flags and mtimes"""
 
+        if self._utime_from_header is True:
+            raise Exception("GmailMaildir does not support quick mode"
+                " when 'utime_from_header' is enabled.")
+
         self.cachemessagelist()
         # Folder has different uids than statusfolder => TRUE
         if sorted(self.getmessageuidlist()) != \
@@ -57,7 +61,7 @@ class GmailMaildirFolder(MaildirFolder):
         for (uid, message) in self.getmessagelist().items():
             if message['mtime'] > statusfolder.getmessagemtime(uid):
                 return True
-        return False  #Nope, nothing changed
+        return False  # Nope, nothing changed.
 
 
     # Interface from BaseFolder
