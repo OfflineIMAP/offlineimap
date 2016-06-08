@@ -86,7 +86,7 @@ function releases () {
     v="$(echo $title \
       | sed -r -e 's,^### [a-Z]+ (v[^ ]+).*,\1,'
     )"
-    echo "- {version: '${v}', link: '$link'}"
+    echo "- {version: '${v}', link: 'Changelog.html#${link}'}"
   done | tee -a "$ANNOUNCES_YML"
 }
 
