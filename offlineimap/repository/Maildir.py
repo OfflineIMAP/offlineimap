@@ -146,8 +146,7 @@ class MaildirRepository(BaseRepository):
             if foldername == f.name:
                 return f
         raise OfflineImapError("getfolder() asked for a nonexisting "
-                               "folder '%s'."% foldername,
-                               OfflineImapError.ERROR.FOLDER)
+            "folder '%s'."% foldername, OfflineImapError.ERROR.FOLDER)
 
     def _getfolders_scandir(self, root, extension=None):
         """Recursively scan folder 'root'; return a list of MailDirFolder

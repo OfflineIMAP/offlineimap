@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2015 John Goerzen & contributors
+# Copyright (C) 2003-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,14 +20,13 @@ import os
 import time
 from sys import exc_info
 import traceback
+import six
 
 from offlineimap import mbnames, CustomConfig, OfflineImapError
 from offlineimap import globals
 from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread
-
-import six
 
 FOLDER_NAMESPACE = 'LIMITED_FOLDER_'
 

@@ -1,5 +1,5 @@
 # Maildir folder support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,11 +19,10 @@ import socket
 import time
 import re
 import os
-from sys import exc_info
-from .Base import BaseFolder
-from threading import Lock
-
 import six
+from sys import exc_info
+from threading import Lock
+from .Base import BaseFolder
 
 try:
     from hashlib import md5
