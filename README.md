@@ -83,7 +83,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 * Python v2.7+
 * Python v3.4+ ***(experimental)***
 * six (required)
-* imaplib2 >= 2.53 (optional)
+* imaplib2 >= 2.55 (optional)
 
 
 ## Documentation

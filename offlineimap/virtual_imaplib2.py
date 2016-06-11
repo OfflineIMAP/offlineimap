@@ -25,7 +25,7 @@ this virtual_imaplib2 or we might go into troubles.
 DESC = None
 
 _SUPPORTED_RELEASE = 2
-_SUPPORTED_REVISION = 53
+_SUPPORTED_REVISION = 55
 
 try:
     # Try any imaplib2 in PYTHONPATH first. This allows both maintainers of
@@ -42,14 +42,14 @@ except (ImportError, NameError) as e:
     try:
         from offlineimap.bundled_imaplib2 import *
         import offlineimap.bundled_imaplib2 as imaplib
+
         DESC = "bundled"
     except:
         print("Error while trying to import system imaplib2: %s"% e)
         raise
 
-# We should really get those literals exposed by upstream. Same goes for
-# __version__, __release__ and __revision__.
-InternalDate = imaplib.InternalDate
-Mon2num = imaplib.Mon2num
-MonthNames = imaplib.MonthNames
+# Upstream won't expose those literals to avoid erasing them with "import *" in
+# case they exist.
 __version__ = imaplib.__version__
+__release__ = imaplib.__release__
+__revision__ = imaplib.__revision__

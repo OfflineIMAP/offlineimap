@@ -15,11 +15,12 @@ Public functions: Internaldate2Time
 
 
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
-           "Internaldate2Time", "ParseFlags", "Time2Internaldate")
+           "Internaldate2Time", "ParseFlags", "Time2Internaldate",
+           "Mon2num", "MonthNames", "InternalDate")
 
-__version__ = "2.53"
+__version__ = "2.55"
 __release__ = "2"
-__revision__ = "53"
+__revision__ = "55"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -484,7 +485,7 @@ class IMAP4(object):
             import ssl
 
             TLS_MAP = {}
-            if hasattr(ssl, "PROTOCOL_TLSv1_2"):        # py3
+            if hasattr(ssl, "PROTOCOL_TLSv1_2"):
                 TLS_MAP[TLS_SECURE] = {
                     "tls1_2": ssl.PROTOCOL_TLSv1_2,
                     "tls1_1": ssl.PROTOCOL_TLSv1_1,
@@ -2293,7 +2294,10 @@ class _Authenticator(object):
         #  so when it gets to the end of the 8-bit input
         #  there's no partial 6-bit output.
         #
-        oup = ''
+        if bytes != str:
+            oup = b''
+        else:
+            oup = ''
         while inp:
             if len(inp) > 48:
                 t = inp[:48]
