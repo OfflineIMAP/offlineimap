@@ -2293,14 +2293,14 @@ class _Authenticator(object):
         #  so when it gets to the end of the 8-bit input
         #  there's no partial 6-bit output.
         #
-        oup = ''
+        oup = bytes()
         while inp:
             if len(inp) > 48:
                 t = inp[:48]
                 inp = inp[48:]
             else:
                 t = inp
-                inp = ''
+                inp = bytes()
             e = binascii.b2a_base64(t)
             if e:
                 oup = oup + e[:-1]
