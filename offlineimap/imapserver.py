@@ -198,7 +198,7 @@ class IMAPServer(object):
         challenge = response.strip()
         self.ui.debug('imap', '__md5handler: got challenge %s'% challenge)
 
-        passwd = self.__getpassword()
+        passwd = self.__getpassword().encode('ascii')
         retval = self.username + ' ' + hmac.new(passwd, challenge).hexdigest()
         self.ui.debug('imap', '__md5handler: returning %s'% retval)
         return retval
