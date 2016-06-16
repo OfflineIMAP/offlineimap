@@ -169,13 +169,6 @@ class IMAPServer(object):
         self.passworderror = None
         return self.password
 
-    # XXX: is this function used anywhere?
-    def getroot(self):
-        """Returns this server's folder root. Can only be called after one
-        or more calls to acquireconnection."""
-
-        return self.root
-
 
     def releaseconnection(self, connection, drop_conn=False):
         """Releases a connection, returning it to the pool.
