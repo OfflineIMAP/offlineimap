@@ -154,6 +154,7 @@ class IMAPServer(object):
 
     def __getpassword(self):
         """Returns the server password or None"""
+
         if self.goodpassword != None: # use cached good one first
             return self.goodpassword
 
@@ -216,13 +217,15 @@ class IMAPServer(object):
 
         authc = self.username
         passwd = self.__getpassword()
-        authz = ''
+        authz = b''
         if self.user_identity != None:
             authz = self.user_identity
-        NULL = u'\x00'
-        retval = NULL.join((authz, authc, passwd)).encode('utf-8')
-        logsafe_retval = NULL.join((authz, authc, "(passwd hidden for log)")).encode('utf-8')
-        self.ui.debug('imap', '__plainhandler: returning %s' % logsafe_retval)
+        # At this point all authz, authc and passwd are expected bytes encoded
+        # in UTF-8.
+        NULL = b'\x00'
+        retval = NULL.join((authz, authc, passwd))
+        logsafe_retval = NULL.join((authz, authc, "(passwd hidden for log)"))
+        self.ui.debug('imap', '__plainhandler: returning %s'% logsafe_retval)
         return retval
 
 

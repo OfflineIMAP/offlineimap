@@ -1,5 +1,5 @@
 # IMAP repository support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ from sys import exc_info
 import netrc
 import errno
 import six
+import codecs
 
 from offlineimap.repository.Base import BaseRepository
 from offlineimap import folder, imaputil, imapserver, OfflineImapError
@@ -129,7 +130,10 @@ class IMAPRepository(BaseRepository):
         (currently -- PLAIN) to inform server about the ID
         we want to authorize as instead of our login name."""
 
-        return self.getconf('remote_identity', default=None)
+        identity = self.getconf('remote_identity', default=None)
+        if identity != None:
+            identity = identity.encode('UTF-8')
+        return identity
 
     def get_auth_mechanisms(self):
         supported = ["GSSAPI", "XOAUTH2", "CRAM-MD5", "PLAIN", "LOGIN"]
@@ -159,12 +163,12 @@ class IMAPRepository(BaseRepository):
         if self.config.has_option(self.getsection(), 'remoteusereval'):
             user = self.getconf('remoteusereval')
         if user != None:
-            return localeval.eval(user)
+            return localeval.eval(user).encode('UTF-8')
 
         if self.config.has_option(self.getsection(), 'remoteuser'):
             user = self.getconf('remoteuser')
         if user != None:
-            return user
+            return user.encode('UTF-8')
 
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
@@ -326,18 +330,18 @@ class IMAPRepository(BaseRepository):
         # 1. evaluate Repository 'remotepasseval'
         passwd = self.getconf('remotepasseval', None)
         if passwd != None:
-            return self.localeval.eval(passwd)
+            return self.localeval.eval(passwd).encode('UTF-8')
         # 2. read password from Repository 'remotepass'
         password = self.getconf('remotepass', None)
         if password != None:
-            return password
+            return password.encode('UTF-8')
         # 3. read password from file specified in Repository 'remotepassfile'
         passfile = self.getconf('remotepassfile', None)
         if passfile != None:
-            fd = open(os.path.expanduser(passfile))
+            fd = codecs.open(os.path.expanduser(passfile), 'r', 'UTF-8')
             password = fd.readline().strip()
             fd.close()
-            return password
+            return password.encode('UTF-8')
         # 4. read password from ~/.netrc
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
