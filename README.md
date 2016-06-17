@@ -78,7 +78,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 * And finally, [the wiki][wiki].
 
 
-## Requirements
+## Requirements & dependencies
 
 * Python v2.7+
 * Python v3.4+ ***(experimental)***
