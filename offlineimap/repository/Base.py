@@ -1,5 +1,5 @@
 # Base repository support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -222,12 +222,13 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                         "') as it would be filtered out on that repository."%
                         (dst_name_t, self))
                     continue
-                # get IMAPFolder and see if the reverse nametrans
+                # Get IMAPFolder and see if the reverse nametrans
                 # works fine TODO: getfolder() works only because we
                 # succeed in getting inexisting folders which I would
                 # like to change. Take care!
                 folder = self.getfolder(dst_name_t)
-                # apply reverse nametrans to see if we end up with the same name
+                # Apply reverse nametrans to see if we end up with the same
+                # name.
                 newdst_name = folder.getvisiblename().replace(
                     src_repo.getsep(), dst_repo.getsep())
                 if dst_folder.name != newdst_name:
@@ -239,13 +240,14 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                         "itories so they lead to identical names if applied bac"
                         "k and forth. 2) Use folderfilter settings on a reposit"
                         "ory to prevent some folders from being created on the "
-                        "other side." % (dst_folder.name, dst_repo, dst_name_t,
-                                         src_repo, newdst_name),
-                                           OfflineImapError.ERROR.REPO)
-                # end sanity check, actually create the folder
+                        "other side."%
+                        (dst_folder.name, dst_repo, dst_name_t,
+                            src_repo, newdst_name),
+                        OfflineImapError.ERROR.REPO)
+                # End sanity check, actually create the folder.
                 try:
                     src_repo.makefolder(dst_name_t)
-                    src_haschanged = True # Need to refresh list
+                    src_haschanged = True # Need to refresh list.
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
                                   "repository %s" % (dst_name_t, src_repo))
@@ -255,7 +257,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         # Find deleted folders.
         # TODO: We don't delete folders right now.
 
-        #Forget old list of cached folders so we get new ones if needed
+        # Forget old list of cached folders so we get new ones if needed.
         if src_haschanged:
             self.forgetfolders()
         if dst_haschanged:

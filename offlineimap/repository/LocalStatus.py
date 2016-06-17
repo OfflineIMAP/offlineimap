@@ -1,5 +1,5 @@
 # Local status cache repository support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -61,15 +61,15 @@ class LocalStatusRepository(BaseRepository):
 
     def import_other_backend(self, folder):
         for bk, dic in self.backends.items():
-            # skip folder's own type
+            # Skip folder's own type.
             if dic['class'] == type(folder):
                 continue
 
             repobk = LocalStatusRepository(self.name, self.account)
-            repobk.setup_backend(bk)      # fake the backend
+            repobk.setup_backend(bk)      # Fake the backend.
             folderbk = dic['class'](folder.name, repobk)
 
-            # if backend contains data, import it to folder.
+            # If backend contains data, import it to folder.
             if not folderbk.isnewfolder():
                 self.ui._msg("Migrating LocalStatus cache from %s to %s "
                     "status folder for %s:%s"%
@@ -87,10 +87,14 @@ class LocalStatusRepository(BaseRepository):
         """Create a LocalStatus Folder."""
 
         if self.account.dryrun:
-            return # bail out in dry-run mode
+            return # Bail out in dry-run mode.
 
-        # Create an empty StatusFolder
+        # Create an empty StatusFolder.
         folder = self._instanciatefolder(foldername)
+        # First delete any existing data to make sure we won't consider obsolete
+        # data. This might happen if the user removed the folder (maildir) and
+        # it is re-created afterwards.
+        folder.purge()
         folder.save()
         folder.closefiles()
 

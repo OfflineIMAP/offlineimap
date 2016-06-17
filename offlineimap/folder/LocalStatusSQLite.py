@@ -88,6 +88,14 @@ class LocalStatusSQLiteFolder(BaseFolder):
             if version < LocalStatusSQLiteFolder.cur_version:
                 self.__upgrade_db(version)
 
+    def purge(self):
+        """Remove any pre-existing database."""
+
+        try:
+            os.unlink(self.filename)
+        except OSError as e:
+            self.ui.debug('', "could not remove file %s: %s"%
+                (self.filename, e))
 
     def storesmessages(self):
         return False

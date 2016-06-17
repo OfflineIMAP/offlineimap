@@ -1,5 +1,5 @@
 # Local status cache virtual folder
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,10 +18,9 @@
 from sys import exc_info
 import os
 import threading
+import six
 
 from .Base import BaseFolder
-
-import six
 
 
 class LocalStatusFolder(BaseFolder):
@@ -73,8 +72,8 @@ class LocalStatusFolder(BaseFolder):
                 uid = int(uid)
                 flags = set(flags)
             except ValueError as e:
-                errstr = "Corrupt line '%s' in cache file '%s'" % \
-                    (line, self.filename)
+                errstr = ("Corrupt line '%s' in cache file '%s'"%
+                    (line, self.filename))
                 self.ui.warn(errstr)
                 six.reraise(ValueError(errstr), None, exc_info()[2])
             self.messagelist[uid] = self.msglist_item_initializer(uid)
@@ -161,6 +160,15 @@ class LocalStatusFolder(BaseFolder):
 
     def closefiles(self):
         pass # Closing files is done on a per-transaction basis.
+
+    def purge(self):
+        """Remove any pre-existing database."""
+
+        try:
+            os.unlink(self.filename)
+        except OSError as e:
+            self.ui.debug('', "could not remove file %s: %s"%
+                (self.filename, e))
 
     def save(self):
         """Save changed data to disk. For this backend it is the same as saveall."""
