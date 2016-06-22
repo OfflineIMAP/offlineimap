@@ -369,9 +369,7 @@ class SyncableAccount(Account):
             # wait for all threads to finish
             for thr in folderthreads:
                 thr.join()
-            # Write out mailbox names if required and not in dry-run mode
-            if not self.dryrun:
-                mbnames.write(False)
+            mbnames.writeIntermediateFile(self.name) # Write out mailbox names.
             localrepos.forgetfolders()
             remoterepos.forgetfolders()
         except:
@@ -512,9 +510,9 @@ def syncfolder(account, remotefolder, quick):
         # Load local folder.
         localfolder = account.get_local_folder(remotefolder)
 
-        # Write the mailboxes
-        mbnames.add(account.name, localfolder.getname(),
-            localrepos.getlocalroot())
+        # Add the folder to the mbnames mailboxes.
+        mbnames.add(account.name, localrepos.getlocalroot(),
+            localfolder.getname())
 
         # Load status folder.
         statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().

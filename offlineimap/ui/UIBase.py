@@ -1,5 +1,5 @@
 # UI base class
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -148,7 +148,7 @@ class UIBase(object):
         of the sync run when offlineiamp exits. It is recommended to
         always pass in exceptions if possible, so we can give the user
         the best debugging info.
-        
+
         We are always pushing tracebacks to the exception queue to
         make them to be output at the end of the run to allow users
         pass sensible diagnostics to the developers or to solve

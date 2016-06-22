@@ -25,8 +25,7 @@ import logging
 from optparse import OptionParser
 
 import offlineimap
-from offlineimap import accounts, threadutil, folder
-from offlineimap import globals
+from offlineimap import globals, accounts, threadutil, folder, mbnames
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
@@ -423,7 +422,7 @@ class OfflineImap(object):
             signal.signal(signal.SIGQUIT, sig_handler)
 
             # Various initializations that need to be performed:
-            offlineimap.mbnames.init(self.config, syncaccounts)
+            mbnames.init(self.config, self.ui, options.dryrun)
 
             if options.singlethreading:
                 # Singlethreaded.
@@ -440,9 +439,8 @@ class OfflineImap(object):
                 t.start()
                 threadutil.monitor()
 
-            if not options.dryrun:
-                offlineimap.mbnames.write(True)
-
+            # All sync are done.
+            mbnames.write()
             self.ui.terminate()
             return 0
         except (SystemExit):

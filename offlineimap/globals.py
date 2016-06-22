@@ -8,6 +8,6 @@ from offlineimap.utils import const
 options = const.ConstProxy()
 
 def set_options(source):
-    """ Sets the source for options variable """
+    """Sets the source for options variable."""
 
-    options.set_source (source)
+    options.set_source(source)
