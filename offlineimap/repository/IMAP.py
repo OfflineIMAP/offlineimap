@@ -78,7 +78,7 @@ class IMAPRepository(BaseRepository):
     def getholdconnectionopen(self):
         if self.getidlefolders():
             return 1
-        return self.getconfboolean("holdconnectionopen", 0)
+        return self.getconfboolean("holdconnectionopen", False)
 
     def getkeepalive(self):
         num = self.getconfint("keepalive", 0)
@@ -200,10 +200,10 @@ class IMAPRepository(BaseRepository):
         return self.getconfint('remoteport', None)
 
     def getipv6(self):
-        return self.getconfboolean('ipv6', None)
+        return self.getconfboolean('ipv6', False)
 
     def getssl(self):
-        return self.getconfboolean('ssl', 1)
+        return self.getconfboolean('ssl', True)
 
     def getsslclientcert(self):
         xforms = [os.path.expanduser, os.path.expandvars, os.path.abspath]
@@ -302,7 +302,7 @@ class IMAPRepository(BaseRepository):
         return self.getconf('reference', '')
 
     def getdecodefoldernames(self):
-        return self.getconfboolean('decodefoldernames', 0)
+        return self.getconfboolean('decodefoldernames', False)
 
     def getidlefolders(self):
         localeval = self.localeval
@@ -314,7 +314,7 @@ class IMAPRepository(BaseRepository):
         return max(num1, num2)
 
     def getexpunge(self):
-        return self.getconfboolean('expunge', 1)
+        return self.getconfboolean('expunge', True)
 
     def getpassword(self):
         """Return the IMAP password for this repository.
