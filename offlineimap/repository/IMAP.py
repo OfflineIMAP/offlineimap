@@ -261,6 +261,9 @@ class IMAPRepository(BaseRepository):
     def getsslversion(self):
         return self.getconf('ssl_version', None)
 
+    def getstarttls(self):
+        return self.getconfboolean('starttls', True)
+
     def get_ssl_fingerprint(self):
         """Return array of possible certificate fingerprints.
 

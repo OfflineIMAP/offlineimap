@@ -106,6 +106,7 @@ class IMAPServer(object):
         self.fingerprint = repos.get_ssl_fingerprint()
         self.sslversion = repos.getsslversion()
         self.tlslevel = repos.gettlslevel()
+        self.starttls = repos.getstarttls()
 
         self.oauth2_refresh_token = repos.getoauth2_refresh_token()
         self.oauth2_access_token = repos.getoauth2_access_token()
@@ -414,7 +415,7 @@ class IMAPServer(object):
 
             # TLS must be initiated before checking capabilities:
             # they could have been changed after STARTTLS.
-            if tryTLS and not tried_tls:
+            if tryTLS and self.starttls and not tried_tls:
                 tried_tls = True
                 self.__start_tls(imapobj)
 
