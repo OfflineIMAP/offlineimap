@@ -347,11 +347,25 @@ class SyncableAccount(Account):
                     self.ui.debug('', "Not syncing filtered folder '%s'"
                                   "[%s]"% (remotefolder, remoterepos))
                     continue # Ignore filtered folder.
+
+                # The remote folder names must not have the local sep char in
+                # their names since this would cause troubles while converting
+                # the name back (from local to remote).
+                sep = localrepos.getsep()
+                if (sep != os.path.sep and
+                    sep != remoterepos.getsep() and
+                    sep in remotefolder.getvisiblename()):
+                    self.ui.warn('', "Ignoring folder %s due to unsupported "
+                        "'%s' character serving as local separator."%
+                        (remotefolder.getvisiblename(), localrepos.getsep()))
+                    continue # Ignore unsupported folder name.
+
                 localfolder = self.get_local_folder(remotefolder)
                 if not localfolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
                                  "[%s]"% (localfolder, localfolder.repository))
                     continue # Ignore filtered folder.
+
                 if not globals.options.singlethreading:
                     thread = InstanceLimitedThread(
                         limitNamespace = "%s%s"% (
@@ -405,6 +419,7 @@ class SyncableAccount(Account):
             raise
         except Exception as e:
             self.ui.error(e, exc_info()[2], msg="Calling hook")
+
 
 def syncfolder(account, remotefolder, quick):
     """Synchronizes given remote folder for the specified account.
