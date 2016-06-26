@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2015 John Goerzen & contributors
+# Copyright (C) 2003-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import six
 
 try:
     from ConfigParser import SafeConfigParser, Error
-except ImportError: #python3
+except ImportError: # Python3.
     from configparser import SafeConfigParser, Error
 from offlineimap.localeval import LocalEval
 

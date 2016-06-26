@@ -177,6 +177,22 @@ before running this fix as well as verify the results using the `--dry-run'
 flag first.
 
 
+--mbnames-prune::
+  Remove dangling entries for removed accounts or if mbnames is not enabled/used
+  anymore.
++
+Internally, offlineimap build intermediate mbnames files. They are added
+automatically when mbnames is enabled. However, disabling accounts so they are
+not synced anymore does not necessarily means they should be removed from the file
+built by mbnames. It is required to start offlineimap with this CLI option each
+time accounts are removed. When run, any account not in the 'accounts'
+configuration option are removed in the mbnames file.
++
+It is possible to manually remove intermediate files in '<metadata>/mbnames/'.
++
+Notice this option honors --dry-run.
+
+
 Synchronization Performance
 ---------------------------
 

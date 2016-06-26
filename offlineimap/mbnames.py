@@ -19,22 +19,28 @@
 import re   # For folderfilter.
 import json
 from threading import Lock
-from os import listdir, makedirs, path
+from os import listdir, makedirs, path, unlink
 from sys import exc_info
 try:
     import UserDict
-except ImportError:
-    # Py3
+except ImportError: # Py3.
     from collections import UserDict
+try:
+    from ConfigParser import NoSectionError
+except ImportError: # Py3.
+    from configparser import NoSectionError
 
 
 _mbLock = Lock()
 _mbnames = None
 
 
+def _is_enabled(conf):
+    return False
+
 def add(accountname, folder_root, foldername):
     global _mbnames
-    if _mbnames is None:
+    if _mbnames.is_enabled() is not True:
         return
 
     with _mbLock:
@@ -42,15 +48,21 @@ def add(accountname, folder_root, foldername):
 
 def init(conf, ui, dry_run):
     global _mbnames
-    enabled = conf.getdefaultboolean("mbnames", "enabled", False)
-    if enabled is True and _mbnames is None:
+    if _mbnames is None:
         _mbnames = _Mbnames(conf, ui, dry_run)
+
+def prune(accounts):
+    global _mbnames
+    if _mbnames.is_enabled() is True:
+        _mbnames.prune(accounts)
+    else:
+        _mbnames.pruneAll(accounts)
 
 def write():
     """Write the mbnames file."""
 
     global _mbnames
-    if _mbnames is None:
+    if _mbnames.is_enabled() is not True:
         return
 
     if _mbnames.get_incremental() is not True:
@@ -60,7 +72,7 @@ def writeIntermediateFile(accountname):
     """Write intermediate mbnames file."""
 
     global _mbnames
-    if _mbnames is None:
+    if _mbnames.is_enabled() is not True:
         return
 
     _mbnames.writeIntermediateFile(accountname)
@@ -101,17 +113,18 @@ class _IntermediateMbnames(object):
                 })
 
         if not self._dryrun:
-            with open(self._path, "wt") as intermediateFile:
-                json.dump(itemlist, intermediateFile)
+            with open(self._path, "wt") as intermediateFD:
+                json.dump(itemlist, intermediateFD)
 
 
 class _Mbnames(object):
     def __init__(self, config, ui, dry_run):
 
         self._config = config
-        self._dryrun = dry_run
         self.ui = ui
+        self._dryrun = dry_run
 
+        self._enabled = None
         # Keys: accountname, values: _IntermediateMbnames instance
         self._intermediates = {}
         self._incremental = None
@@ -119,14 +132,13 @@ class _Mbnames(object):
         self._path = None
         self._folderfilter = lambda accountname, foldername: True
         self._func_sortkey = lambda d: (d['accountname'], d['foldername'])
-        self._peritem = self._config.get("mbnames", "peritem", raw=1)
-
         localeval = config.getlocaleval()
-        self._header = localeval.eval(config.get("mbnames", "header"))
-        self._sep = localeval.eval(config.get("mbnames", "sep"))
-        self._footer = localeval.eval(config.get("mbnames", "footer"))
-
         mbnamesdir = path.join(config.getmetadatadir(), "mbnames")
+        self._peritem = None
+        self._header = None
+        self._sep = None
+        self._footer = None
+
         try:
             if not self._dryrun:
                 makedirs(mbnamesdir)
@@ -134,17 +146,40 @@ class _Mbnames(object):
             pass
         self._mbnamesdir = mbnamesdir
 
-        xforms = [path.expanduser, path.expandvars]
-        self._path = config.apply_xforms(
-            config.get("mbnames", "filename"), xforms)
+        try:
+            self._enabled = self._config.getdefaultboolean(
+                "mbnames", "enabled", False)
+            self._peritem = self._config.get("mbnames", "peritem", raw=1)
+            self._header = localeval.eval(config.get("mbnames", "header"))
+            self._sep = localeval.eval(config.get("mbnames", "sep"))
+            self._footer = localeval.eval(config.get("mbnames", "footer"))
 
-        if self._config.has_option("mbnames", "sort_keyfunc"):
-            self._func_sortkey = localeval.eval(
-                self._config.get("mbnames", "sort_keyfunc"), {'re': re})
+            xforms = [path.expanduser, path.expandvars]
+            self._path = config.apply_xforms(
+                config.get("mbnames", "filename"), xforms)
 
-        if self._config.has_option("mbnames", "folderfilter"):
-            self._folderfilter = localeval.eval(
-                self._config.get("mbnames", "folderfilter"), {'re': re})
+            if self._config.has_option("mbnames", "sort_keyfunc"):
+                self._func_sortkey = localeval.eval(
+                    self._config.get("mbnames", "sort_keyfunc"), {'re': re})
+
+            if self._config.has_option("mbnames", "folderfilter"):
+                self._folderfilter = localeval.eval(
+                    self._config.get("mbnames", "folderfilter"), {'re': re})
+        except NoSectionError:
+            pass
+
+    def _iterIntermediateFiles(self):
+        for foo in listdir(self._mbnamesdir):
+            foo = path.join(self._mbnamesdir, foo)
+            if path.isfile(foo) and foo[-5:] == '.json':
+                yield foo
+
+    def _removeIntermediateFile(self, path):
+        if self._dryrun:
+            self.ui.info("would remove %s"% path)
+        else:
+            unlink(path)
+            self.ui.info("removed %s"% path)
 
     def addAccountFolder(self, accountname, folder_root, foldername):
         """Add foldername entry for an account."""
@@ -167,23 +202,41 @@ class _Mbnames(object):
 
         return self._incremental
 
+    def is_enabled(self):
+        return self._enabled
+
+    def prune(self, accounts):
+        removals = False
+        for intermediateFile in self._iterIntermediateFiles():
+            filename = path.basename(intermediateFile)
+            accountname = filename[:-5]
+            if accountname not in accounts:
+                removals = True
+                self._removeIntermediateFile(intermediateFile)
+
+        if removals is False:
+            self.ui.info("no cache file to remove")
+
+    def pruneAll(self, accounts):
+        for intermediateFile in self._iterIntermediateFiles():
+            self._removeIntermediateFile(intermediateFile)
+
     def write(self):
         itemlist = []
 
         try:
-            for foo in listdir(self._mbnamesdir):
-                foo = path.join(self._mbnamesdir, foo)
-                if path.isfile(foo) and foo[-5:] == '.json':
-                    try:
-                        with open(foo, 'rt') as intermediateFile:
-                            for item in json.load(intermediateFile):
-                                itemlist.append(item)
-                    except Exception as e:
-                        self.ui.error(
-                            e,
-                            exc_info()[2],
-                            "intermediate mbnames file %s not properly read"% foo
-                        )
+            for intermediateFile in self._iterIntermediateFiles():
+                try:
+                    with open(intermediateFile, 'rt') as intermediateFD:
+                        for item in json.load(intermediateFD):
+                            itemlist.append(item)
+                except Exception as e:
+                    self.ui.error(
+                        e,
+                        exc_info()[2],
+                        ("intermediate mbnames file %s not properly read"%
+                            intermediateFile)
+                    )
         except OSError:
             pass
 

@@ -148,6 +148,10 @@ class OfflineImap(object):
                   action="store_true", dest="migrate_fmd5", default=False,
                   help="migrate FMD5 hashes from versions prior to 6.3.5")
 
+        parser.add_option("--mbnames-prune",
+                  action="store_true", dest="mbnames_prune", default=False,
+                  help="remove mbnames entries for accounts not in accounts")
+
         parser.add_option("-V",
                   action="store_true", dest="version",
                   default=False,
@@ -266,8 +270,14 @@ class OfflineImap(object):
                 if dtype.lower() == u'imap':
                     imaplib.Debug = 5
 
+        if options.mbnames_prune:
+            mbnames.init(config, self.ui, options.dryrun)
+            mbnames.prune(config.get("general", "accounts"))
+            mbnames.write()
+            sys.exit(0)
+
         if options.runonce:
-            # Must kill the possible default option
+            # Must kill the possible default option.
             if config.has_option('DEFAULT', 'autorefresh'):
                 config.remove_option('DEFAULT', 'autorefresh')
             # FIXME: spaghetti code alert!
