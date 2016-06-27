@@ -164,7 +164,6 @@ function get_git_history () {
 #
 function get_git_who () {
   debug 'in get_git_who'
-  echo
   git shortlog --no-merges -sn "${1}.." | \
           sed -r -e 's, +([0-9]+)\t(.*),- \2 (\1),'
 }
