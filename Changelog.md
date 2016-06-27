@@ -15,6 +15,55 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.0-rc3 (2016-06-27)
+
+#### Notes
+
+The most important changes are:
+
+- The passwords (and usernames) are now expected in Unicode.
+- The sync_deletes feature is marked stable.
+- It is possible to disable STARTTLS if it is failing.
+- mbnames correctly honors the `-a` CLI option.
+
+#### Authors
+
+- Nicolas Sebrecht (31)
+- Ilias Tsitsimpis (1)
+
+#### Features
+
+- Learn to disable STARTTLS. [Nicolas Sebrecht]
+- Require usernames and passwords to be UTF-8 encoded. [Nicolas Sebrecht]
+- offlineimap.conf: sync_deletes option is stable. [Nicolas Sebrecht]
+- Learn -V CLI option. [Nicolas Sebrecht]
+
+#### Fixes
+
+- Don't try to copy messages with UID == 0. [Nicolas Sebrecht]
+- Avoid removing of data when user removed a maildir. [Nicolas Sebrecht]
+- When called with -a, mbnames must not erase entries of other accounts. [Nicolas Sebrecht]
+- GmailMaildir: quick mode is not compatible with utime_from_header. [Nicolas Sebrecht]
+- Manual: offlineimapui: minor typo fix. [Ilias Tsitsimpis]
+
+#### Changes
+
+- --info displays the imaplib2 version and whether it's the bundled or system one. [Nicolas Sebrecht]
+- Bump from imaplib2 v2.53 to v2.55. [Nicolas Sebrecht]
+- Move requirements.txt to the root directory. [Nicolas Sebrecht]
+- README: rename "Requirements" section to "Requirements & dependencies". [Nicolas Sebrecht]
+- README: add imaplib2 dependency and remove libraries in the standard libraries. [Nicolas Sebrecht]
+- offlineimap.conf: improved comments. [Nicolas Sebrecht]
+- sqlite was made mandatory: import error can fail at import time. [Nicolas Sebrecht]
+- release.sh: put the authors directly to the AUTHORS section. [Nicolas Sebrecht]
+- release.sh: learn users how to get the requirements file for pip. [Nicolas Sebrecht]
+- website-doc.sh: include maintenance releases in the list of announces. [Nicolas Sebrecht]
+- website-doc.sh: announces.yml: fill the page for the links. [Nicolas Sebrecht]
+- Remove dead code and other code cleanups. [Nicolas Sebrecht]
+- Style and comments improvements. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.0-rc2 (2016-06-04)
 
 #### Notes
