@@ -67,7 +67,7 @@ function api () {
 # $1: full release title
 #
 function parse_releases_get_link () {
-    echo $1 | sed -r -e 's,^### (OfflineIMAP.*)\),\1,'
+    echo $1 | sed -r -e 's,^### (OfflineIMAP.*)\),\1,' \
       | tr '[:upper:]' '[:lower:]' \
       | sed -r -e 's,[\.("],,g' \
       | sed -r -e 's, ,-,g'
