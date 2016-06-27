@@ -857,7 +857,7 @@ class BaseFolder(object):
         1) Look for messages present in self but not in statusfolder.
         2) invoke copymessageto() on those which:
            - If dstfolder doesn't have it yet, add them to dstfolder.
-           - Update statusfolder
+           - Update statusfolder.
 
         This function checks and protects us from action in dryrun mode."""
 
@@ -866,16 +866,26 @@ class BaseFolder(object):
 
         threads = []
 
-        copylist = [uid for uid in self.getmessageuidlist() if not statusfolder.uidexists(uid)]
+        copylist = [uid for uid in self.getmessageuidlist()
+            if not statusfolder.uidexists(uid)]
         num_to_copy = len(copylist)
-        if num_to_copy and self.repository.account.dryrun:
-            self.ui.info("[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
-                num_to_copy, self, self.repository, dstfolder.repository))
+
+        if num_to_copy > 0 and self.repository.account.dryrun:
+            self.ui.info(
+                "[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
+                num_to_copy, self, self.repository, dstfolder.repository)
+                )
             return
+
         for num, uid in enumerate(copylist):
             # Bail out on CTRL-C or SIGTERM.
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break
+
+            if uid == 0:
+                self.ui.warn("Assertion that UID != 0 failed; ignoring message.")
+                continue
+
             if uid > 0 and dstfolder.uidexists(uid):
                 # dstfolder has message with that UID already, only update status.
                 flags = self.getmessageflags(uid)
