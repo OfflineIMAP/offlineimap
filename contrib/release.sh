@@ -197,6 +197,7 @@ function changelog_template_part1 () {
 #### Authors
 
 EOF
+}
 
 
 function changelog_template_part2 () {
