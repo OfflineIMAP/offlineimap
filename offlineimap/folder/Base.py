@@ -618,8 +618,8 @@ class BaseFolder(object):
             mark = '==>EOH<=='
             contextstart = max(0,            insertionpoint - 100)
             contextend   = min(len(content), insertionpoint + 100)
-            self.ui.debug('', 'addmessageheader: header/body transition "
-                context (marked by %s): %s%s%s'% (
+            self.ui.debug('', 'addmessageheader: header/body transition " \
+                "context (marked by %s): %s%s%s'% (
                     mark, repr(content[contextstart:insertionpoint]),
                     mark, repr(content[insertionpoint:contextend])
                 )
