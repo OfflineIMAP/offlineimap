@@ -18,22 +18,21 @@
 import os
 import sys
 import threading
-import offlineimap.virtual_imaplib2 as imaplib
 import signal
 import socket
 import logging
+import traceback
+import collections
 from optparse import OptionParser
 
 import offlineimap
+import offlineimap.virtual_imaplib2 as imaplib
 from offlineimap import globals, accounts, threadutil, folder, mbnames
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
 from offlineimap.repository import Repository
 from offlineimap.folder.IMAP import MSGCOPY_NAMESPACE
-
-import traceback
-import collections
 
 ACCOUNT_LIMITED_THREAD_NAME = 'MAX_ACCOUNTS'
 
