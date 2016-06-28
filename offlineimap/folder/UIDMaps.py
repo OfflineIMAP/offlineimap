@@ -16,9 +16,9 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import six
-from threading import Lock
-from sys import exc_info
 import os.path
+from sys import exc_info
+from threading import Lock
 
 from offlineimap import OfflineImapError
 from .IMAP import IMAPFolder
