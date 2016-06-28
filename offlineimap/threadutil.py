@@ -50,33 +50,24 @@ class accountThreads(object):
         self.list = []
 
     def add(self, thread):
-        self.lock.acquire()
-        try:
+        with self.lock:
             self.list.append(thread)
-        finally:
-            self.lock.release()
 
     def remove(self, thread):
-        self.lock.acquire()
-        try:
+        with self.lock:
             self.list.remove(thread)
-        finally:
-            self.lock.release()
 
     def pop(self):
-        self.lock.acquire()
-        try:
-            if not len(self.list):
+        with self.lock:
+            if len(self.list) < 1:
                 return None
             return self.list.pop()
-        finally:
-            self.lock.release()
 
     def wait(self):
-        while 1:
+        while True:
             thread = self.pop()
-            if not thread:
-                return
+            if thread is None:
+                break
             thread.join()
 
 
