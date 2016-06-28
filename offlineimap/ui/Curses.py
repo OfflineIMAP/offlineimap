@@ -1,5 +1,5 @@
 # Curses-based interfaces
-# Copyright (C) 2003-2015 John Goerzen & contributors
+# Copyright (C) 2003-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -441,6 +441,10 @@ class Blinkenlights(UIBase, CursesUtil):
     def syncingmessages(self, *args):
         self.gettf().setcolor('blue')
         super(Blinkenlights, self).syncingmessages(*args)
+
+    def ignorecopyingmessage(self, *args):
+        self.gettf().setcolor('red')
+        super(Blinkenlights, self).ignorecopyingmessage(*args)
 
     def copyingmessage(self, *args):
         self.gettf().setcolor('orange')

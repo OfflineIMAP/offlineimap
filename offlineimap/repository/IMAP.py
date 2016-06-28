@@ -40,6 +40,8 @@ class IMAPRepository(BaseRepository):
         self._oauth2_request_url = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
+        self.copy_ignore_eval = None
+
         # Only set the newmail_hook in an IMAP repository.
         if self.config.has_option(self.getsection(), 'newmail_hook'):
             self.newmail_hook = self.localeval.eval(
@@ -74,6 +76,19 @@ class IMAPRepository(BaseRepository):
 
     def dropconnections(self):
         self.imapserver.close()
+
+    def get_copy_ignore_UIDs(self, foldername):
+        """Return a list of UIDs to not copy for this foldername."""
+
+        if self.copy_ignore_eval is None:
+            if self.config.has_option(self.getsection(),
+                                     'copy_ignore_eval'):
+                self.copy_ignore_eval = self.localeval.eval(
+                        self.getconf('copy_ignore_eval'))
+            else:
+                self.copy_ignore_eval = lambda x: None
+
+        return self.copy_ignore_eval(foldername)
 
     def getholdconnectionopen(self):
         if self.getidlefolders():

@@ -1,5 +1,5 @@
 # Noninteractive UI
-# Copyright (C) 2002-2012 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,11 +16,13 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import logging
-from offlineimap.ui.UIBase import UIBase
+
 import offlineimap
+from offlineimap.ui.UIBase import UIBase
 
 class Basic(UIBase):
-    """'Basic' simply sets log level to INFO"""
+    """'Basic' simply sets log level to INFO."""
+
     def __init__(self, config, loglevel = logging.INFO):
         return super(Basic, self).__init__(config, loglevel)
 

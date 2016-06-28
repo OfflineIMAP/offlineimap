@@ -58,6 +58,10 @@ class IMAPFolder(BaseFolder):
         fh_conf = self.repository.account.getconf('filterheaders', '')
         self.filterheaders = [h for h in re.split(r'\s*,\s*', fh_conf) if h]
 
+        # self.copy_ignoreUIDs is used by BaseFolder.
+        self.copy_ignoreUIDs = repository.get_copy_ignore_UIDs(
+            self.getvisiblename())
+
 
     def __selectro(self, imapobj, force=False):
         """Select this folder when we do not need write access.

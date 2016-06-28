@@ -45,6 +45,7 @@ class BaseFolder(object):
         if self.name == 'INBOX':
             self.newmail_hook = repository.newmail_hook
         self.have_newmail = False
+        self.copy_ignoreUIDs = None # List of UIDs to ignore.
         self.repository = repository
         self.visiblename = repository.nametrans(name)
         # In case the visiblename becomes '.' or '/' (top-level) we use
@@ -869,6 +870,13 @@ class BaseFolder(object):
         copylist = [uid for uid in self.getmessageuidlist()
             if not statusfolder.uidexists(uid)]
         num_to_copy = len(copylist)
+
+        # Honor 'copy_ignore_eval' configuration option.
+        if self.copy_ignoreUIDs is not None:
+            for uid in self.copy_ignoreUIDs:
+                if uid in copylist:
+                    copylist.remove(uid)
+                    self.ui.ignorecopyingmessage(uid, self, dstfolder)
 
         if num_to_copy > 0 and self.repository.account.dryrun:
             self.ui.info(

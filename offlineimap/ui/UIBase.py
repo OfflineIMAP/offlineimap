@@ -1,5 +1,5 @@
 # UI base class
-# Copyright (C) 2002-2016 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,11 +24,12 @@ import traceback
 import threading
 try:
     from Queue import Queue
-except ImportError: #python3
+except ImportError: # python3
     from queue import Queue
 from collections import deque
-from offlineimap.error import OfflineImapError
+
 import offlineimap
+from offlineimap.error import OfflineImapError
 
 debugtypes = {'':'Other offlineimap related sync messages',
               'imap': 'IMAP protocol debugging',
@@ -384,6 +385,12 @@ class UIBase(object):
         self.logger.debug("Syncing messages %s[%s] -> %s[%s]" % (
                 self.getnicename(sr), srcfolder,
                 self.getnicename(dr), dstfolder))
+
+    def ignorecopyingmessage(self, uid, src, destfolder):
+        """Output a log line stating which message is ignored."""
+
+        self.logger.info("IGNORED: Copy message UID %s %s:%s -> %s"% (
+                uid, src.repository, src, destfolder.repository))
 
     def copyingmessage(self, uid, num, num_to_copy, src, destfolder):
         """Output a log line stating which message we copy."""

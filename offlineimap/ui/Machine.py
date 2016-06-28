@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2015 John Goerzen & contributors
+# Copyright (C) 2007-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@ import sys
 import time
 import logging
 from threading import currentThread
-from offlineimap.ui.UIBase import UIBase
-import offlineimap
 
-protocol = '7.0.0'
+import offlineimap
+from offlineimap.ui.UIBase import UIBase
+
+protocol = '7.1.0'
 
 class MachineLogFormatter(logging.Formatter):
     """urlencodes any outputted line, to avoid multi-line output"""
@@ -124,6 +125,11 @@ class MachineUI(UIBase):
         s._printData(s.logger.info, 'syncingmessages', "%s\n%s\n%s\n%s\n"%
                 (s.getnicename(sr), sf.getname(), s.getnicename(dr),
                  df.getname()))
+
+    def ignorecopyingmessage(s, uid, srcfolder, destfolder):
+        s._printData(s.logger.info, 'ignorecopyingmessage', "%d\n%s\n%s\n%s[%s]"%
+                (uid, s.getnicename(srcfolder), srcfolder.getname(),
+                 s.getnicename(destfolder), destfolder))
 
     def copyingmessage(s, uid, num, num_to_copy, srcfolder, destfolder):
         s._printData(s.logger.info, 'copyingmessage', "%d\n%s\n%s\n%s[%s]"%
