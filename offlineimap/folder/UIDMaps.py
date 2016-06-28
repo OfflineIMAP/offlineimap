@@ -77,10 +77,19 @@ class MappedIMAPFolder(IMAPFolder):
 
     def _savemaps(self):
         mapfilename = self._getmapfilename()
-        with open(mapfilename + ".tmp", 'wt') as mapfilefd:
-            for (key, value) in self.diskl2r.items():
-                mapfilefd.write("%d:%d\n"% (key, value))
-        os.rename(mapfilename + '.tmp', mapfilename)
+        mapfilenamelock = "%s.lock"% mapfilename
+        with open(mapfilenamelock, 'w') as mapfilelock:
+            # The "account" lock already prevents from multiple access by
+            # different processes. However, we still need to protect for
+            # multiple access from different threads.
+            try:
+                fnctl.lockf(mapfilelock, fnctl.LOCK_EX) # Blocks until acquired.
+            except NameError:
+                pass # Windows...
+            with open(mapfilename, 'wt') as mapfilefd:
+                for (key, value) in self.diskl2r.items():
+                    mapfilefd.write("%d:%d\n"% (key, value))
+            # The lock is released when the file descriptor ends.
 
     def _uidlist(self, mapping, items):
         try:
