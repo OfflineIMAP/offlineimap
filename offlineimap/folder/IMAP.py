@@ -294,7 +294,7 @@ class IMAPFolder(BaseFolder):
         # in [0][1].
         data = data[0][1].replace(CRLF, "\n")
 
-        if len(data)>200:
+        if len(data) > 200:
             dbg_output = "%s...%s"% (str(data)[:150], str(data)[-50:])
         else:
             dbg_output = data
@@ -688,7 +688,6 @@ class IMAPFolder(BaseFolder):
         """Fetches data from IMAP server.
 
         Arguments:
-        - imapobj: IMAPlib object
         - uids: message UIDS
         - retry_num: number of retries to make
 
@@ -700,7 +699,7 @@ class IMAPFolder(BaseFolder):
             fails_left = retry_num  # Retry on dropped connection.
             while fails_left:
                 try:
-                    imapobj.select(self.getfullname(), readonly = True)
+                    imapobj.select(self.getfullname(), readonly=True)
                     res_type, data = imapobj.uid('fetch', uids, query)
                     break
                 except imapobj.abort as e:
