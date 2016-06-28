@@ -386,8 +386,9 @@ class UIBase(object):
                 self.getnicename(dr), dstfolder))
 
     def copyingmessage(self, uid, num, num_to_copy, src, destfolder):
-        """Output a log line stating which message we copy"""
-        self.logger.info("Copy message %s (%d of %d) %s:%s -> %s" % (
+        """Output a log line stating which message we copy."""
+
+        self.logger.info("Copy message UID %s (%d/%d) %s:%s -> %s"% (
                 uid, num, num_to_copy, src.repository, src,
                 destfolder.repository))
 
