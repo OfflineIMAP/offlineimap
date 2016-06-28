@@ -49,15 +49,14 @@ class MappedIMAPFolder(IMAPFolder):
                             self.getfolderbasename())
 
     def _loadmaps(self):
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             mapfilename = self._getmapfilename()
             if not os.path.exists(mapfilename):
                 return ({}, {})
             file = open(mapfilename, 'rt')
             r2l = {}
             l2r = {}
-            while 1:
+            while True:
                 line = file.readline()
                 if not len(line):
                     break
@@ -75,20 +74,13 @@ class MappedIMAPFolder(IMAPFolder):
                 r2l[rem] = loc
                 l2r[loc] = rem
             return (r2l, l2r)
-        finally:
-            self.maplock.release()
 
-    def _savemaps(self, dolock = 1):
+    def _savemaps(self):
         mapfilename = self._getmapfilename()
-        if dolock: self.maplock.acquire()
-        try:
-            file = open(mapfilename + ".tmp", 'wt')
+        with open(mapfilename + ".tmp", 'wt') as mapfilefd:
             for (key, value) in self.diskl2r.items():
-                file.write("%d:%d\n"% (key, value))
-            file.close()
-            os.rename(mapfilename + '.tmp', mapfilename)
-        finally:
-            if dolock: self.maplock.release()
+                mapfilefd.write("%d:%d\n"% (key, value))
+        os.rename(mapfilename + '.tmp', mapfilename)
 
     def _uidlist(self, mapping, items):
         try:
@@ -109,8 +101,7 @@ class MappedIMAPFolder(IMAPFolder):
         reallist = self._mb.getmessagelist()
         self.messagelist = self._mb.messagelist
 
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             # OK.  Now we've got a nice list.  First, delete things from the
             # summary that have been deleted from the folder.
 
@@ -121,7 +112,7 @@ class MappedIMAPFolder(IMAPFolder):
                     del self.diskl2r[luid]
 
             # Now, assign negative UIDs to local items.
-            self._savemaps(dolock = 0)
+            self._savemaps()
             nextneg = -1
 
             self.r2l = self.diskr2l.copy()
@@ -133,8 +124,6 @@ class MappedIMAPFolder(IMAPFolder):
                     nextneg -= 1
                     self.l2r[luid] = ruid
                     self.r2l[ruid] = luid
-        finally:
-            self.maplock.release()
 
     def dropmessagelistcache(self):
         self._mb.dropmessagelistcache()
@@ -170,8 +159,7 @@ class MappedIMAPFolder(IMAPFolder):
 
         retval = {}
         localhash = self._mb.getmessagelist()
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             for key, value in list(localhash.items()):
                 try:
                     key = self.l2r[key]
@@ -185,8 +173,6 @@ class MappedIMAPFolder(IMAPFolder):
                 value['uid'] = self.l2r[value['uid']]
                 retval[key] = value
             return retval
-        finally:
-            self.maplock.release()
 
     # Interface from BaseFolder
     def getmessage(self, uid):
@@ -228,15 +214,12 @@ class MappedIMAPFolder(IMAPFolder):
         if newluid < 1:
             raise ValueError("Backend could not find uid for message, "
                 "returned %s"% newluid)
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             self.diskl2r[newluid] = uid
             self.diskr2l[uid] = newluid
             self.l2r[newluid] = uid
             self.r2l[uid] = newluid
-            self._savemaps(dolock = 0)
-        finally:
-            self.maplock.release()
+            self._savemaps()
         return uid
 
     # Interface from BaseFolder
@@ -275,8 +258,7 @@ class MappedIMAPFolder(IMAPFolder):
             raise OfflineImapError("Cannot change unknown Maildir UID %s"%
                 ruid, OfflineImapError.ERROR.MESSAGE)
         if ruid == new_ruid: return  # sanity check shortcut
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             luid = self.r2l[ruid]
             self.l2r[luid] = new_ruid
             del self.r2l[ruid]
@@ -286,13 +268,10 @@ class MappedIMAPFolder(IMAPFolder):
             if luid > 0: self.diskl2r[luid] = new_ruid
             if ruid > 0: del self.diskr2l[ruid]
             if new_ruid > 0: self.diskr2l[new_ruid] = luid
-            self._savemaps(dolock = 0)
-        finally:
-            self.maplock.release()
+            self._savemaps()
 
     def _mapped_delete(self, uidlist):
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             needssave = 0
             for ruid in uidlist:
                 luid = self.r2l[ruid]
@@ -303,9 +282,7 @@ class MappedIMAPFolder(IMAPFolder):
                     del self.diskl2r[luid]
                     needssave = 1
             if needssave:
-                self._savemaps(dolock = 0)
-        finally:
-            self.maplock.release()
+                self._savemaps()
 
     # Interface from BaseFolder
     def deletemessageflags(self, uid, flags):
