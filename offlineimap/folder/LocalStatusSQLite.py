@@ -1,5 +1,5 @@
 # Local status cache virtual folder: SQLite backend
-# Copyright (C) 2009-2016 Stewart Smith and contributors
+# Copyright (C) 2009-2016 Stewart Smith and contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -67,10 +67,13 @@ class LocalStatusSQLiteFolder(BaseFolder):
             self.connection = sqlite.connect(self.filename, check_same_thread=False)
         except sqlite.OperationalError as e:
             # Operation had failed.
-            six.reraise(UserWarning("cannot open database file '%s': %s.\nYou might "
-                "want to check the rights to that file and if it cleanly opens "
-                "with the 'sqlite<3>' command."%
-                (self.filename, e)), None, exc_info()[2])
+            six.reraise(UserWarning,
+                        UserWarning(
+                            "cannot open database file '%s': %s.\nYou might "
+                            "want to check the rights to that file and if it "
+                            "cleanly opens with the 'sqlite<3>' command."%
+                            (self.filename, e)),
+                        exc_info()[2])
 
         # Make sure sqlite is in multithreading SERIALIZE mode.
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'

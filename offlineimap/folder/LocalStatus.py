@@ -1,5 +1,5 @@
 # Local status cache virtual folder
-# Copyright (C) 2002-2016 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ class LocalStatusFolder(BaseFolder):
                 errstr = ("Corrupt line '%s' in cache file '%s'"%
                     (line, self.filename))
                 self.ui.warn(errstr)
-                six.reraise(ValueError(errstr), None, exc_info()[2])
+                six.reraise(ValueError, ValueError(errstr), exc_info()[2])
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
 
@@ -98,7 +98,7 @@ class LocalStatusFolder(BaseFolder):
                 errstr = "Corrupt line '%s' in cache file '%s'"% \
                     (line, self.filename)
                 self.ui.warn(errstr)
-                six.reraise(ValueError(errstr), None, exc_info()[2])
+                six.reraise(ValueError, ValueError(errstr), exc_info()[2])
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['mtime'] = mtime

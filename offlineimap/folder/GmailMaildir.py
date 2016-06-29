@@ -1,5 +1,5 @@
 # Maildir folder support with labels
-# Copyright (C) 2002 - 2016 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -176,8 +176,11 @@ class GmailMaildirFolder(MaildirFolder):
         try:
             os.rename(tmppath, filepath)
         except OSError as e:
-            six.reraise(OfflineImapError("Can't rename file '%s' to '%s': %s" % \
-              (tmppath, filepath, e[1]), OfflineImapError.ERROR.FOLDER), None, exc_info()[2])
+            six.reraise(OfflineImapError,
+                    OfflineImapError("Can't rename file '%s' to '%s': %s"%
+                        (tmppath, filepath, e[1]),
+                        OfflineImapError.ERROR.FOLDER),
+                    exc_info()[2])
 
         # if utime_from_header=true, we don't want to change the mtime.
         if self.utime_from_header and mtime:

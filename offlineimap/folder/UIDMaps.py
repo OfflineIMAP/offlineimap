@@ -1,5 +1,5 @@
 # Base folder support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,13 +15,14 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from sys import exc_info
+import six
 from threading import Lock
-from offlineimap import OfflineImapError
-from .IMAP import IMAPFolder
+from sys import exc_info
 import os.path
 
-import six
+from offlineimap import OfflineImapError
+from .IMAP import IMAPFolder
+
 
 class MappedIMAPFolder(IMAPFolder):
     """IMAP class to map between Folder() instances where both side assign a uid
@@ -63,8 +64,11 @@ class MappedIMAPFolder(IMAPFolder):
                 try:
                     line = line.strip()
                 except ValueError:
-                    six.reraise(Exception("Corrupt line '%s' in UID mapping file '%s'"%
-                        (line, mapfilename)), None, exc_info()[2])
+                    six.reraise(Exception,
+                            Exception(
+                                "Corrupt line '%s' in UID mapping file '%s'"%
+                                (line, mapfilename)),
+                            exc_info()[2])
                 (str1, str2) = line.split(':')
                 loc = int(str1)
                 rem = int(str2)
@@ -90,10 +94,14 @@ class MappedIMAPFolder(IMAPFolder):
         try:
             return [mapping[x] for x in items]
         except KeyError as e:
-            six.reraise(OfflineImapError("Could not find UID for msg '{0}' (f:'{1}'."
-                " This is usually a bad thing and should be reported on the ma"
-                "iling list.".format(e.args[0], self),
-                OfflineImapError.ERROR.MESSAGE), None, exc_info()[2])
+            six.reraise(OfflineImapError,
+                        OfflineImapError(
+                            "Could not find UID for msg '{0}' (f:'{1}'."
+                            " This is usually a bad thing and should be "
+                            "reported on the mailing list.".format(
+                                e.args[0], self),
+                            OfflineImapError.ERROR.MESSAGE),
+                        exc_info()[2])
 
     # Interface from BaseFolder
     def cachemessagelist(self, min_date=None, min_uid=None):

@@ -139,10 +139,14 @@ class GmailFolder(IMAPFolder):
             res_type, response = imapobj.fetch("'%s'"% msgsToFetch,
               '(FLAGS X-GM-LABELS UID)')
             if res_type != 'OK':
-                six.reraise(OfflineImapError("FETCHING UIDs in folder [%s]%s failed. " % \
-                  (self.getrepository(), self) + \
-                  "Server responded '[%s] %s'" % \
-                  (res_type, response), OfflineImapError.ERROR.FOLDER), None, exc_info()[2])
+                six.reraise(OfflineImapError,
+                            OfflineImapError(
+                                "FETCHING UIDs in folder [%s]%s failed. "%
+                                (self.getrepository(), self) +
+                                "Server responded '[%s] %s'"%
+                                (res_type, response),
+                                OfflineImapError.ERROR.FOLDER),
+                            exc_info()[2])
         finally:
             self.imapserver.releaseconnection(imapobj)
 

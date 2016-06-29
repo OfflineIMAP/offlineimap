@@ -1,5 +1,5 @@
 # IMAP folder support
-# Copyright (C) 2002-2016 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -84,8 +84,11 @@ class IMAPFolder(BaseFolder):
     def getmaxage(self):
         if self.config.getdefault("Account %s"%
                 self.accountname, "maxage", None):
-            six.reraise(OfflineImapError("maxage is not supported on IMAP-IMAP sync",
-                OfflineImapError.ERROR.REPO), None, exc_info()[2])
+            six.reraise(OfflineImapError,
+                        OfflineImapError(
+                            "maxage is not supported on IMAP-IMAP sync",
+                            OfflineImapError.ERROR.REPO),
+                        exc_info()[2])
 
     # Interface from BaseFolder
     def getinstancelimitnamespace(self):
@@ -613,11 +616,13 @@ class IMAPFolder(BaseFolder):
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
                     if not retry_left:
-                        six.reraise(OfflineImapError("Saving msg (%s) in folder '%s', "
-                              "repository '%s' failed (abort). Server responded: %s\n"
-                              "Message content was: %s"%
-                              (msg_id, self, self.getrepository(), str(e), dbg_output),
-                                               OfflineImapError.ERROR.MESSAGE), None, exc_info()[2])
+                        six.reraise(OfflineImapError,
+                                    OfflineImapError("Saving msg (%s) in folder '%s', "
+                                        "repository '%s' failed (abort). Server responded: %s\n"
+                                        "Message content was: %s"%
+                                        (msg_id, self, self.getrepository(), str(e), dbg_output),
+                                        OfflineImapError.ERROR.MESSAGE),
+                                    exc_info()[2])
                     # XXX: is this still needed?
                     self.ui.error(e, exc_info()[2])
                 except imapobj.error as e: # APPEND failed
@@ -626,10 +631,12 @@ class IMAPFolder(BaseFolder):
                     # drop conn, it might be bad.
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = None
-                    six.reraise(OfflineImapError("Saving msg (%s) folder '%s', repo '%s'"
-                        "failed (error). Server responded: %s\nMessage content was: "
-                        "%s" % (msg_id, self, self.getrepository(), str(e), dbg_output),
-                            OfflineImapError.ERROR.MESSAGE), None, exc_info()[2])
+                    six.reraise(OfflineImapError,
+                                OfflineImapError("Saving msg (%s) folder '%s', repo '%s'"
+                                    "failed (error). Server responded: %s\nMessage content was: "
+                                    "%s"% (msg_id, self, self.getrepository(), str(e), dbg_output),
+                                    OfflineImapError.ERROR.MESSAGE),
+                                exc_info()[2])
             # Checkpoint. Let it write out stuff, etc. Eg searches for
             # just uploaded messages won't work if we don't do this.
             (typ,dat) = imapobj.check()

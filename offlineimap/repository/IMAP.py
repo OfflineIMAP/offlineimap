@@ -110,8 +110,12 @@ class IMAPRepository(BaseRepository):
             try:
                 host = self.localeval.eval(host)
             except Exception as e:
-                six.reraise(OfflineImapError("remotehosteval option for repository "
-                    "'%s' failed:\n%s"% (self, e), OfflineImapError.ERROR.REPO), None, exc_info()[2])
+                six.reraise(OfflineImapError,
+                            OfflineImapError(
+                                "remotehosteval option for repository "
+                                "'%s' failed:\n%s"% (self, e),
+                                OfflineImapError.ERROR.REPO),
+                            exc_info()[2])
             if host:
                 self._host = host
                 return self._host

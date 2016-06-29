@@ -18,16 +18,16 @@ import os
 import fcntl
 import time
 import subprocess
-from sys import exc_info
 import threading
-from hashlib import sha1
 import socket
 import errno
 import zlib
 import six
+from sys import exc_info
+from hashlib import sha1
 
-from offlineimap.ui import getglobalui
 from offlineimap import OfflineImapError
+from offlineimap.ui import getglobalui
 from offlineimap.virtual_imaplib2 import IMAP4, IMAP4_SSL, InternalDate, Mon2num
 
 
@@ -58,7 +58,9 @@ class UsefulIMAPMixIn(object):
             errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
                 "ver said: %s" % (self.host, mailbox, e.args[0])
             severity = OfflineImapError.ERROR.FOLDER_RETRY
-            six.reraise(OfflineImapError(errstr, severity), None, exc_info()[2])
+            six.reraise(OfflineImapError,
+                        OfflineImapError(errstr, severity),
+                        exc_info()[2])
         if result[0] != 'OK':
             #in case of error, bail out with OfflineImapError
             errstr = "Error SELECTing mailbox '%s', server reply:\n%s" %\
