@@ -1,6 +1,5 @@
 # Gmail IMAP folder support
-# Copyright (C) 2008 Riccardo Murri <riccardo.murri@gmail.com>
-# Copyright (C) 2002-2007 John Goerzen <jgoerzen@complete.org>
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,14 +16,13 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import re
+import six
 from sys import exc_info
 
 from offlineimap import imaputil, OfflineImapError
 from offlineimap import imaplibutil
 import offlineimap.accounts
 from .IMAP import IMAPFolder
-
-import six
 
 """Folder implementation to support features of the Gmail IMAP server."""
 
