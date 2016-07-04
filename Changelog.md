@@ -15,6 +15,52 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.0-rc4 (2016-07-04)
+
+#### Notes
+
+Here we are to stabilize the code. I don't expect to merge features anymore.
+
+When emails failed to download, offlineimap was raising the same issues again
+and again. Users can now filter emails based on UID numbers.
+
+The mbnames was missing a way to remove obsolete entries from deleted accounts.
+Hence, --mbnames-prune is added.
+
+Syncing folders with the local "sep" characters in their names was causing
+troubles on next syncs. They are now filtered with a warning message.
+
+IMAP/IMAP mode is improved: this was suffuring a (rare) bug related to
+concurrent writes.
+
+Usual code cleanups and minor improvements are included in this release.
+
+I think this candidate is more stable than the previous v6.7.0 stable. Enjoy!
+
+#### Authors
+
+- Nicolas Sebrecht (17)
+
+#### Features
+
+- Learn to not download UIDs defined by the user. [Nicolas Sebrecht]
+- Learn --mbnames-prune CLI option. [Nicolas Sebrecht]
+
+#### Fixes
+
+- UIDMaps (IMAP/IMAP mode): correctly protect from concurrent writes. [Nicolas Sebrecht]
+- Correctly reraise errors with six. [Nicolas Sebrecht]
+- Don't sync folders with local separator characters in their names. [Nicolas Sebrecht]
+
+#### Changes
+
+- Minor: improve "Copy message" output. [Nicolas Sebrecht]
+- threadutil: use 'with' statements for lock. [Nicolas Sebrecht]
+- Code cleanups and minor improvements. [Nicolas Sebrecht]
+- release.sh: get_git_who(): remove unnecessary blank line. [Nicolas Sebrecht]
+- website-doc.sh: fix line continuation. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.0.0-rc3 (2016-06-27)
 
 #### Notes
