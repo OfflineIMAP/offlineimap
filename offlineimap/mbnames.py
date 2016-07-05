@@ -35,9 +35,6 @@ _mbLock = Lock()
 _mbnames = None
 
 
-def _is_enabled(conf):
-    return False
-
 def add(accountname, folder_root, foldername):
     global _mbnames
     if _mbnames.is_enabled() is not True:
@@ -224,21 +221,21 @@ class _Mbnames(object):
     def write(self):
         itemlist = []
 
-        try:
-            for intermediateFile in self._iterIntermediateFiles():
-                try:
-                    with open(intermediateFile, 'rt') as intermediateFD:
-                        for item in json.load(intermediateFD):
-                            itemlist.append(item)
-                except Exception as e:
-                    self.ui.error(
-                        e,
-                        exc_info()[2],
-                        ("intermediate mbnames file %s not properly read"%
-                            intermediateFile)
-                    )
-        except OSError:
-            pass
+        for intermediateFile in self._iterIntermediateFiles():
+            try:
+                with open(intermediateFile, 'rt') as intermediateFD:
+                    for item in json.load(intermediateFD):
+                        itemlist.append(item)
+            except (OSError, IOError) as e:
+                self.ui.error("could not read intermediate mbnames file '%s':"
+                    "%s"% (intermediateFile, str(e)))
+            except Exception as e:
+                self.ui.error(
+                    e,
+                    exc_info()[2],
+                    ("intermediate mbnames file %s not properly read"%
+                        intermediateFile)
+                )
 
         itemlist.sort(key=self._func_sortkey)
         itemlist = [self._peritem % d for d in itemlist]
