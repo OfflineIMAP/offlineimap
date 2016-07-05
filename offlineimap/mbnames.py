@@ -43,10 +43,12 @@ def add(accountname, folder_root, foldername):
     with _mbLock:
         _mbnames.addAccountFolder(accountname, folder_root, foldername)
 
+
 def init(conf, ui, dry_run):
     global _mbnames
     if _mbnames is None:
         _mbnames = _Mbnames(conf, ui, dry_run)
+
 
 def prune(accounts):
     global _mbnames
@@ -54,6 +56,7 @@ def prune(accounts):
         _mbnames.prune(accounts)
     else:
         _mbnames.pruneAll(accounts)
+
 
 def write():
     """Write the mbnames file."""
@@ -64,6 +67,7 @@ def write():
 
     if _mbnames.get_incremental() is not True:
         _mbnames.write()
+
 
 def writeIntermediateFile(accountname):
     """Write intermediate mbnames file."""
@@ -87,7 +91,7 @@ class _IntermediateMbnames(object):
         self._accountname = accountname
         self._folder_root = folder_root
         self._folderfilter = folderfilter
-        self._path = path.join(mbnamesdir, "%s.yml"% accountname)
+        self._path = path.join(mbnamesdir, "%s.json"% accountname)
         self._dryrun = dry_run
 
     def add(self, foldername):
