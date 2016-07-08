@@ -363,61 +363,64 @@ class OfflineImap(object):
         self.ui.debug('thread', "Dumped a total of %d Threads." %
                       len(sys._current_frames().keys()))
 
+    def _get_activeaccounts(self, options):
+        activeaccounts = []
+        errormsg = None
+
+        activeaccountnames = self.config.get("general", "accounts")
+        if options.accounts:
+            activeaccountnames = options.accounts
+        activeaccountnames = activeaccountnames.split(",")
+
+        allaccounts = accounts.getaccountlist(self.config)
+        for accountname in activeaccountnames:
+            if accountname in allaccounts:
+                activeaccounts.append(accountname)
+            else:
+                errormsg = "Valid accounts are: %s"% (
+                    ", ".join(allaccounts))
+                self.ui.error("The account '%s' does not exist"% accountname)
+
+        if len(activeaccounts) < 1:
+            errormsg = "No accounts are defined!"
+
+        if errormsg is not None:
+            self.ui.terminate(1, errormsg=errormsg)
+
+        return activeaccounts
 
     def __sync(self, options):
         """Invoke the correct single/multithread syncing
 
         self.config is supposed to have been correctly initialized
         already."""
+
+        def sig_handler(sig, frame):
+            if sig == signal.SIGUSR1:
+                # tell each account to stop sleeping
+                accounts.Account.set_abort_event(self.config, 1)
+            elif sig == signal.SIGUSR2:
+                # tell each account to stop looping
+                getglobalui().warn("Terminating after this sync...")
+                accounts.Account.set_abort_event(self.config, 2)
+            elif sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+                # tell each account to ABORT ASAP (ctrl-c)
+                getglobalui().warn("Terminating NOW (this may "\
+                                   "take a few seconds)...")
+                accounts.Account.set_abort_event(self.config, 3)
+                if 'thread' in self.ui.debuglist:
+                    self.__dumpstacks(5)
+
+                # Abort after three Ctrl-C keystrokes
+                self.num_sigterm += 1
+                if self.num_sigterm >= 3:
+                    getglobalui().warn("Signaled thrice. Aborting!")
+                    sys.exit(1)
+            elif sig == signal.SIGQUIT:
+                stacktrace.dump(sys.stderr)
+                os.abort()
+
         try:
-            # Honor CLI --account option, only.
-            # Accounts to sync are put into syncaccounts variable.
-            activeaccounts = self.config.get("general", "accounts")
-            if options.accounts:
-                activeaccounts = options.accounts
-            activeaccounts = activeaccounts.replace(" ", "")
-            activeaccounts = activeaccounts.split(",")
-            allaccounts = accounts.AccountHashGenerator(self.config)
-
-            syncaccounts = []
-            for account in activeaccounts:
-                if account not in allaccounts:
-                    if len(allaccounts) == 0:
-                        errormsg = "The account '%s' does not exist because no" \
-                            " accounts are defined!"% account
-                    else:
-                        errormsg = "The account '%s' does not exist.  Valid ac" \
-                            "counts are: %s"% \
-                            (account, ", ".join(allaccounts.keys()))
-                    self.ui.terminate(1, errormsg=errormsg)
-                if account not in syncaccounts:
-                    syncaccounts.append(account)
-
-            def sig_handler(sig, frame):
-                if sig == signal.SIGUSR1:
-                    # tell each account to stop sleeping
-                    accounts.Account.set_abort_event(self.config, 1)
-                elif sig == signal.SIGUSR2:
-                    # tell each account to stop looping
-                    getglobalui().warn("Terminating after this sync...")
-                    accounts.Account.set_abort_event(self.config, 2)
-                elif sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
-                    # tell each account to ABORT ASAP (ctrl-c)
-                    getglobalui().warn("Terminating NOW (this may "\
-                                       "take a few seconds)...")
-                    accounts.Account.set_abort_event(self.config, 3)
-                    if 'thread' in self.ui.debuglist:
-                        self.__dumpstacks(5)
-
-                    # Abort after three Ctrl-C keystrokes
-                    self.num_sigterm += 1
-                    if self.num_sigterm >= 3:
-                        getglobalui().warn("Signaled thrice. Aborting!")
-                        sys.exit(1)
-                elif sig == signal.SIGQUIT:
-                    stacktrace.dump(sys.stderr)
-                    os.abort()
-
             self.num_sigterm = 0
             signal.signal(signal.SIGHUP, sig_handler)
             signal.signal(signal.SIGUSR1, sig_handler)
@@ -427,17 +430,18 @@ class OfflineImap(object):
             signal.signal(signal.SIGQUIT, sig_handler)
 
             # Various initializations that need to be performed:
+            activeaccounts = self._get_activeaccounts(options)
             mbnames.init(self.config, self.ui, options.dryrun)
 
             if options.singlethreading:
                 # Singlethreaded.
-                self.__sync_singlethreaded(syncaccounts)
+                self.__sync_singlethreaded(activeaccounts)
             else:
                 # Multithreaded.
                 t = threadutil.ExitNotifyThread(
                     target=syncitall,
                     name='Sync Runner',
-                    args=(syncaccounts, self.config,)
+                    args=(activeaccounts, self.config,)
                     )
                 # Special exit message for the monitor to stop looping.
                 t.exit_message = threadutil.STOP_MONITOR
@@ -455,38 +459,25 @@ class OfflineImap(object):
             self.ui.terminate()
             return 1
 
-    def __sync_singlethreaded(self, accs):
+    def __sync_singlethreaded(self, list_accounts):
         """Executed in singlethreaded mode only.
 
         :param accs: A list of accounts that should be synced
         """
-        for accountname in accs:
+        for accountname in list_accounts:
             account = accounts.SyncableAccount(self.config, accountname)
-            threading.currentThread().name = "Account sync %s"% accountname
+            threading.currentThread().name = "Account sync %s"% account.name
             account.syncrunner()
 
     def __serverdiagnostics(self, options):
         self.ui.info("  imaplib2: %s (%s)"% (imaplib.__version__, imaplib.DESC))
-        activeaccounts = self.config.get("general", "accounts")
-        if options.accounts:
-            activeaccounts = options.accounts
-        activeaccounts = activeaccounts.split(",")
-        allaccounts = accounts.AccountListGenerator(self.config)
-        for account in allaccounts:
-            if account.name not in activeaccounts: continue
+        for accountname in self._get_activeaccounts(options):
+            account = accounts.Account(self.config, accountname)
             account.serverdiagnostics()
 
     def __migratefmd5(self, options):
-        activeaccounts = self.config.get("general", "accounts")
-        if options.accounts:
-            activeaccounts = options.accounts
-        activeaccounts = activeaccounts.replace(" ", "")
-        activeaccounts = activeaccounts.split(",")
-        allaccounts = accounts.AccountListGenerator(self.config)
-
-        for account in allaccounts:
-            if account.name not in activeaccounts:
-                continue
+        for accountname in self._get_activeaccounts(options):
+            account = accounts.Account(self.config, accountname)
             localrepo = Repository(account, 'local')
             if localrepo.getfoldertype() != folder.Maildir.MaildirFolder:
                 continue

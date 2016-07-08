@@ -40,23 +40,6 @@ def getaccountlist(customconfig):
     # Account names in a list.
     return customconfig.getsectionlist('Account')
 
-# FIXME: spaghetti code alert!
-def AccountListGenerator(customconfig):
-    """Returns a list of instanciated Account class, one per account name."""
-
-    return [Account(customconfig, accountname)
-            for accountname in getaccountlist(customconfig)]
-
-# FIXME: spaghetti code alert!
-def AccountHashGenerator(customconfig):
-    """Returns a dict of instanciated Account class with the account name as
-    key."""
-
-    retval = {}
-    for item in AccountListGenerator(customconfig):
-        retval[item.getname()] = item
-    return retval
-
 
 class Account(CustomConfig.ConfigHelperMixin):
     """Represents an account (ie. 2 repositories) to sync.
