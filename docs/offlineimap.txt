@@ -33,6 +33,10 @@ OPTIONS
 
   Output version.
 
+-V::
+
+  Output offlineimap version and additional imaplib2 information.
+
 --dry-run::
 
   Run in dry run mode.
