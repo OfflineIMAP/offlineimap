@@ -88,6 +88,12 @@ class OfflineImap(object):
             description="%s.\n\n%s"% (offlineimap.__copyright__,
                 offlineimap.__license__)
             )
+
+        parser.add_option("-V",
+                  action="store_true", dest="version",
+                  default=False,
+                  help="show full version infos")
+
         parser.add_option("--dry-run",
                   action="store_true", dest="dryrun",
                   default=False,
@@ -162,11 +168,6 @@ class OfflineImap(object):
         parser.add_option("--mbnames-prune",
                   action="store_true", dest="mbnames_prune", default=False,
                   help="remove mbnames entries for accounts not in accounts")
-
-        parser.add_option("-V",
-                  action="store_true", dest="version",
-                  default=False,
-                  help="show full version infos")
 
         (options, args) = parser.parse_args()
         globals.set_options (options)
