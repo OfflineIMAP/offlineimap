@@ -73,6 +73,10 @@ class OfflineImap(object):
             self.__serverdiagnostics(options)
         elif options.migrate_fmd5:
             self.__migratefmd5(options)
+        elif options.mbnames_prune:
+            mbnames.init(self.config, self.ui, options.dryrun)
+            mbnames.prune(self.config.get("general", "accounts"))
+            mbnames.write()
         else:
             return self.__sync(options)
 
@@ -237,8 +241,8 @@ class OfflineImap(object):
             # Create the ui class.
             self.ui = UI_LIST[ui_type.lower()](config)
         except KeyError:
-            logging.error("UI '%s' does not exist, choose one of: %s"% \
-                              (ui_type, ', '.join(UI_LIST.keys())))
+            logging.error("UI '%s' does not exist, choose one of: %s"%
+                (ui_type, ', '.join(UI_LIST.keys())))
             sys.exit(1)
         setglobalui(self.ui)
 
@@ -269,12 +273,6 @@ class OfflineImap(object):
                 self.ui.add_debug(dtype)
                 if dtype.lower() == u'imap':
                     imaplib.Debug = 5
-
-        if options.mbnames_prune:
-            mbnames.init(config, self.ui, options.dryrun)
-            mbnames.prune(config.get("general", "accounts"))
-            mbnames.write()
-            sys.exit(0)
 
         if options.runonce:
             # Must kill the possible default option.
@@ -314,10 +312,8 @@ class OfflineImap(object):
             )
 
         for reposname in config.getsectionlist('Repository'):
-            # XXX: We are likely lying around. If we must use at most n
-            # connections for a remote IMAP server, why do we allow twice this
-            # number? The max connections number is used by both the FOLDER_ and
-            # the MSGCOPY_ prefixes!
+            # Limit the number of threads. Limitation on usage is handled at the
+            # imapserver level.
             for namespace in [accounts.FOLDER_NAMESPACE + reposname,
                                  MSGCOPY_NAMESPACE + reposname]:
                 if options.singlethreading:
