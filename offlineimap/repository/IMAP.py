@@ -15,17 +15,16 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import Event
 import os
-from sys import exc_info
 import netrc
 import errno
-import six
 import codecs
+from sys import exc_info
+from threading import Event
+import six
 
-from offlineimap.repository.Base import BaseRepository
 from offlineimap import folder, imaputil, imapserver, OfflineImapError
-from offlineimap.folder.UIDMaps import MappedIMAPFolder
+from offlineimap.repository.Base import BaseRepository
 from offlineimap.threadutil import ExitNotifyThread
 from offlineimap.utils.distro import get_os_sslcertfile, get_os_sslcertfile_searchpath
 
@@ -471,6 +470,19 @@ class IMAPRepository(BaseRepository):
         self.folders = retval
         return self.folders
 
+    def deletefolder(self, foldername):
+        """Delete a folder on the IMAP server."""
+
+        imapobj = self.imapserver.acquireconnection()
+        try:
+            result = imapobj.delete(foldername)
+            if result[0] != 'OK':
+                raise OfflineImapError("Folder '%s'[%s] could not be deleted. "
+                    "Server responded: %s"% (foldername, self, str(result)),
+                    OfflineImapError.ERROR.FOLDER)
+        finally:
+            self.imapserver.releaseconnection(imapobj)
+
     def makefolder(self, foldername):
         """Create a folder on the IMAP server
 
@@ -502,4 +514,4 @@ class IMAPRepository(BaseRepository):
 
 class MappedIMAPRepository(IMAPRepository):
     def getfoldertype(self):
-        return MappedIMAPFolder
+        return folder.UIDMaps.MappedIMAPFolder

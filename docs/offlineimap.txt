@@ -153,6 +153,14 @@ is not usable. Possible interface choices are: quiet, basic, syslog, ttyui,
 blinkenlights, machineui.
 
 
+--delete-folder::
+  Delete a folder on the remote repository.
++
+Only one account must be specified/configured for this feature to work. The
+folder name must be provided in IMAP encoding with the remote separators (likely
+'/'). E.g.: "Remote/folder/name".
+
+
 --migrate-fmd5-using-nametrans::
   Migrate FMD5 hashes from versions prior to 6.3.5.
 +

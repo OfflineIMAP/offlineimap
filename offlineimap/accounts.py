@@ -183,6 +183,21 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.ui.serverdiagnostics(local_repo, 'Local')
         #self.ui.serverdiagnostics(statusrepos, 'Status')
 
+    def deletefolder(self, foldername):
+        remote_repo = Repository(self, 'remote')
+
+        try:
+            if self.dryrun:
+                self.ui.info("would try to remove '%s' on remote of '%s' "
+                    "account"% (foldername, self))
+            else:
+                remote_repo.deletefolder(foldername)
+                self.ui.info("Folder '%s' deleted."% foldername)
+            return 0
+        except Exception as e:
+            self.ui.error(e)
+            return 1
+
 
 class SyncableAccount(Account):
     """A syncable email account connecting 2 repositories.

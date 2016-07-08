@@ -27,7 +27,7 @@ from optparse import OptionParser
 
 import offlineimap
 import offlineimap.virtual_imaplib2 as imaplib
-from offlineimap import globals, accounts, threadutil, folder, mbnames
+from offlineimap import globals, threadutil, accounts, folder, mbnames
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
@@ -77,6 +77,8 @@ class OfflineImap(object):
             mbnames.init(self.config, self.ui, options.dryrun)
             mbnames.prune(self.config.get("general", "accounts"))
             mbnames.write()
+        elif options.deletefolder:
+            return self.__deletefolder(options)
         else:
             return self.__sync(options)
 
@@ -147,6 +149,11 @@ class OfflineImap(object):
         parser.add_option("-u", dest="interface",
                   help="specifies an alternative user interface"
                   " (quiet, basic, syslog, ttyui, blinkenlights, machineui)")
+
+        parser.add_option("--delete-folder", dest="deletefolder",
+                  default=None,
+                  metavar="FOLDERNAME",
+                  help="Delete a folder")
 
         parser.add_option("--migrate-fmd5-using-nametrans",
                   action="store_true", dest="migrate_fmd5", default=False,
@@ -474,6 +481,14 @@ class OfflineImap(object):
         for accountname in self._get_activeaccounts(options):
             account = accounts.Account(self.config, accountname)
             account.serverdiagnostics()
+
+    def __deletefolder(self, options):
+        list_accounts = self._get_activeaccounts(options)
+        if len(list_accounts) != 1:
+            self.ui.error("you must supply only one account with '-a'")
+            return 1
+        account = accounts.Account(self.config, list_accounts.pop())
+        return account.deletefolder(options.deletefolder)
 
     def __migratefmd5(self, options):
         for accountname in self._get_activeaccounts(options):
