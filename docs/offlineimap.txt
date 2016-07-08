@@ -153,16 +153,6 @@ is not usable. Possible interface choices are: quiet, basic, syslog, ttyui,
 blinkenlights, machineui.
 
 
-
---column[=<options>]::
---no-column::
-        Display branch listing in columns. See configuration variable
-        column.branch for option syntax. `--column' and `--no-column'
-        without options are equivalent to 'always' and 'never' respectively.
-+
-This option is only applicable in non-verbose mode.
-
-
 --migrate-fmd5-using-nametrans::
   Migrate FMD5 hashes from versions prior to 6.3.5.
 +
