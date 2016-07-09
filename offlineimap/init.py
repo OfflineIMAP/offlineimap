@@ -159,7 +159,7 @@ class OfflineImap(object):
         parser.add_option("--delete-folder", dest="deletefolder",
                   default=None,
                   metavar="FOLDERNAME",
-                  help="Delete a folder")
+                  help="Delete a folder (on the remote repository)")
 
         parser.add_option("--migrate-fmd5-using-nametrans",
                   action="store_true", dest="migrate_fmd5", default=False,
