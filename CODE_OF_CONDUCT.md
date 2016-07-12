@@ -5,7 +5,7 @@
 
 2. Everybody is free to decide how to contribute.
 
-3. Free speech owns to anyone of us.
+3. We believe in free speech. Everyone's entitled to their opinion.
 
 4. Feel offended? This might be very well-deserved.
 
