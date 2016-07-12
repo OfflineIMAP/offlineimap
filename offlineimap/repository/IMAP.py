@@ -180,13 +180,15 @@ class IMAPRepository(BaseRepository):
 
         if self.config.has_option(self.getsection(), 'remoteusereval'):
             user = self.getconf('remoteusereval')
-        if user != None:
-            return localeval.eval(user).encode('UTF-8')
+            if user != None:
+                return localeval.eval(user).encode('UTF-8')
 
         if self.config.has_option(self.getsection(), 'remoteuser'):
+            # Assume the configuration file to be UTF-8 encoded so we must not
+            # encode this string again.
             user = self.getconf('remoteuser')
-        if user != None:
-            return user.encode('UTF-8')
+            if user != None:
+                return user
 
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
@@ -355,7 +357,9 @@ class IMAPRepository(BaseRepository):
         # 2. read password from Repository 'remotepass'
         password = self.getconf('remotepass', None)
         if password != None:
-            return password.encode('UTF-8')
+            # Assume the configuration file to be UTF-8 encoded so we must not
+            # encode this string again.
+            return password
         # 3. read password from file specified in Repository 'remotepassfile'
         passfile = self.getconf('remotepassfile', None)
         if passfile != None:
