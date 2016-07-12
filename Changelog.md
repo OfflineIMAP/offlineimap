@@ -15,6 +15,36 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.0-rc5 (2016-07-12)
+
+#### Notes
+
+This is a short -rc5 to stabilize the code with late improvements, mostly.
+
+#### Authors
+
+- Nicolas Sebrecht (9)
+- Ævar Arnfjörð Bjarmason (1)
+
+#### Features
+
+- learn --delete-folder CLI option. [Nicolas Sebrecht]
+
+#### Fixes
+
+- mbnames: fix the filename extension for the intermediate files. [Nicolas Sebrecht]
+- manual: offlineimap knows -V CLI option. [Nicolas Sebrecht]
+- manual: remove unkown --column CLI option. [Nicolas Sebrecht]
+- code of conduct: try to clarify what item 3 might mean. [Ævar Arnfjörð Bjarmason]
+
+#### Changes
+
+- mbnames: enable action at correct time. [Nicolas Sebrecht]
+- mbnames: output message on errors while reading intermediate files. [Nicolas Sebrecht]
+- --help: move -V option up. [Nicolas Sebrecht]
+- init: factorize code to get active accounts. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.0.0-rc4 (2016-07-04)
 
 #### Notes
