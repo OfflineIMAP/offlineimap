@@ -183,7 +183,7 @@ class GmailMaildirFolder(MaildirFolder):
                     exc_info()[2])
 
         # if utime_from_header=true, we don't want to change the mtime.
-        if self.utime_from_header and mtime:
+        if self._utime_from_header and mtime:
             os.utime(filepath, (mtime, mtime))
 
         # save the new mtime and labels
