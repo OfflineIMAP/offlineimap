@@ -162,7 +162,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
         if hasattr(self, 'connection'):
             self.connection.close() #close old connections first
         self.connection = sqlite.connect(self.filename,
-                                         check_same_thread = False)
+                                         check_same_thread=False)
 
         # Upgrade from database version 1 to version 2
         # This change adds labels and mtime columns, to be used by Gmail IMAP and Maildir folders.

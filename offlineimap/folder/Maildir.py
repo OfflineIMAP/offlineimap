@@ -462,7 +462,8 @@ class MaildirFolder(BaseFolder):
         """
 
         if not uid in self.messagelist:
-            raise OfflineImapError("Cannot change unknown Maildir UID %s"% uid)
+            raise OfflineImapError("Cannot change unknown Maildir UID %s"% uid,
+                                   OfflineImapError.ERROR.MESSAGE)
         if uid == new_uid: return
 
         oldfilename = self.messagelist[uid]['filename']
