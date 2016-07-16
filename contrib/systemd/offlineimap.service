@@ -4,6 +4,8 @@ Description=Offlineimap Service
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/offlineimap -o -u syslog
+# Give 12 seconds for offlineimap to gracefully stop before hard killing it.
+TimeoutStopSec=12
 
 [Install]
 WantedBy=mail.target
