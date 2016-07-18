@@ -83,9 +83,9 @@ class BaseFolder(object):
 
         # Passes for syncmessagesto.
         self.syncmessagesto_passes = [
-            ('copying messages'       , self.__syncmessagesto_copy),
-            ('deleting messages'      , self.__syncmessagesto_delete),
-            ('syncing flags'          , self.__syncmessagesto_flags)
+            self.__syncmessagesto_copy,
+            self.__syncmessagesto_delete,
+            self.__syncmessagesto_flags,
         ]
 
     def getname(self):
@@ -1039,7 +1039,7 @@ class BaseFolder(object):
             dstfolder.addmessagesflags(uids, set(flag))
             statusfolder.addmessagesflags(uids, set(flag))
 
-        for flag,uids in delflaglist.items():
+        for flag, uids in delflaglist.items():
             self.ui.deletingflags(uids, flag, dstfolder)
             if self.repository.account.dryrun:
                 continue # Don't actually remove in a dryrun.
@@ -1081,7 +1081,7 @@ class BaseFolder(object):
         :param statusfolder: LocalStatus instance to sync against.
         """
 
-        for (passdesc, action) in self.syncmessagesto_passes:
+        for action in self.syncmessagesto_passes:
             # Bail out on CTRL-C or SIGTERM.
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break
@@ -1094,8 +1094,8 @@ class BaseFolder(object):
                     raise
                 self.ui.error(e, exc_info()[2])
             except Exception as e:
-                self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
-                                  (self, self.accountname))
+                self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]"%
+                                                (self, self.accountname))
                 raise # Raise unknown Exceptions so we can fix them.
 
     def __eq__(self, other):
