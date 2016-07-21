@@ -238,7 +238,8 @@ class OfflineImap(object):
             # TODO, make use of chosen ui for logging
             logging.warning('Using old interface name, consider using one '
                             'of %s'% ', '.join(UI_LIST.keys()))
-        if options.diagnostics: ui_type = 'basic' # enforce basic UI for --info
+        if options.diagnostics:
+            ui_type = 'ttyui' # Enforce this UI for --info.
 
         # dry-run? Set [general]dry-run=True.
         if options.dryrun:
