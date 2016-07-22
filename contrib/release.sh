@@ -138,6 +138,14 @@ function checkout_next () {
 }
 
 
+function merge_maint () {
+  debug 'in merge_maint'
+  git merge --quiet -Xours maint || {
+    die 7 "Could not merge 'maint' branch"
+  }
+}
+
+
 function get_version () {
   debug 'in get_version'
   echo "v$(./offlineimap.py --version)"
@@ -423,6 +431,7 @@ function run () {
   check_dirty
   prepare_env
   checkout_next
+  merge_maint
   clear
   welcome
 
