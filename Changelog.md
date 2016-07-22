@@ -15,6 +15,53 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.0 (2016-07-22)
+
+#### Notes
+
+Finally, the new v7.0.0 is ready. This comes with breaking changes:
+
+- Passwords are now expected in Unicode almost everywhere. They are used with
+  the UTF-8 charset. However, some configuration options are not UTF-8 friendly
+  mostly because of library limitations (e.g.: `remotepass`).
+
+  Users with Unicode caracters in the passwords are recommended to use a file or
+  `remotepasseval`.
+
+- The sqlite database is the default.
+
+  Please, read [this blog post]({% post_url 2016-05-19-sqlite-becomes-default %}).
+
+- The PID file is no longer used because offlineimap is able to run multiple
+  instances.
+
+Please read the intermediate changelogs.
+
+
+#### Authors
+
+- Nicolas Sebrecht (9)
+
+#### Features
+
+- release.sh: learn to merge maint branch into next before releasing. [Nicolas Sebrecht]
+
+#### Fixes
+
+- sqlite: close the database when no more threads need access. [Nicolas Sebrecht]
+- Fix attribute name _utime_from_header. [Nicolas Sebrecht]
+- Maildir: OfflineImapError is missing the severity argument. [Nicolas Sebrecht]
+- Fix: configparser does not know about python types like u"". [Nicolas Sebrecht]
+- Manual: offlineimapui: fix minor rendering issue. [Nicolas Sebrecht]
+
+#### Changes
+
+- --info: allow user to enter a password. [Nicolas Sebrecht]
+- Remove dead code: the description of the passes is never used. [Nicolas Sebrecht]
+- offlineimap.conf: improve documentation for copy_ignore_eval. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.0-rc5 (2016-07-12)
 
 #### Notes
