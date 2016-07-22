@@ -79,7 +79,7 @@ function parse_releases_get_link () {
 # $1: full release title
 #
 function parse_releases_get_version () {
-  echo $title | sed -r -e 's,^### [a-Z]+ (v[^ ]+).*,\1,'
+  echo $1 | sed -r -e 's,^### [a-Z]+ (v[^ ]+).*,\1,'
 }
 
 #
@@ -87,7 +87,7 @@ function parse_releases_get_version () {
 # $1: full release title
 #
 function parse_releases_get_date () {
-  echo $title | sed -r -e 's,.*\(([0-9]+-[0-9]+-[0-9]+)\),\1,'
+  echo $1 | sed -r -e 's,.*\(([0-9]+-[0-9]+-[0-9]+).*,\1,'
 }
 
 #
@@ -107,17 +107,17 @@ function releases () {
   # Announces for the mainline.
   grep -E '^### OfflineIMAP' ./Changelog.md | while read title
   do
-    link="$(parse_releases_get_link $title)"
-    v="$(parse_releases_get_version $title)"
-    d="$(parse_releases_get_date $title)"
+    link="$(parse_releases_get_link "$title")"
+    v="$(parse_releases_get_version "$title")"
+    d="$(parse_releases_get_date "$title")"
     echo "- {date: '${d}', version: '${v}', link: 'Changelog.html#${link}'}"
   done | tee -a "$ANNOUNCES_YML_TMP"
   # Announces for the maintenance releases.
   grep -E '^### OfflineIMAP' ./Changelog.maint.md | while read title
   do
-    link="$(parse_releases_get_link $title)"
-    v="$(parse_releases_get_version $title)"
-    d="$(parse_releases_get_date $title)"
+    link="$(parse_releases_get_link "$title")"
+    v="$(parse_releases_get_version "$title")"
+    d="$(parse_releases_get_date "$title")"
     echo "- {date: '${d}', version: '${v}', link: 'Changelog.maint.html#${link}'}"
   done | tee -a "$ANNOUNCES_YML_TMP"
   sort -nr "$ANNOUNCES_YML_TMP" >> "$ANNOUNCES_YML"
