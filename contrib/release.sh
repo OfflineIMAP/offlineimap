@@ -431,7 +431,6 @@ function run () {
   check_dirty
   prepare_env
   checkout_next
-  merge_maint
   clear
   welcome
 
@@ -456,8 +455,12 @@ function run () {
   build_announce "$new_version" "$previous_version"
   edit_announce
 
+  # Wait for the mainline and announce to be built to not include commits from
+  # maint.
+  merge_maint
   git_release $new_version
 
+  # Wait for all the Changelogs to be up-to-date in next.
   update_website $new_version
 }
 
