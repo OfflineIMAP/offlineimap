@@ -301,16 +301,32 @@ class IMAPRepository(BaseRepository):
         return self._oauth2_request_url
 
     def getoauth2_refresh_token(self):
-        return self.getconf('oauth2_refresh_token', None)
+        refresh_token = self.getconf('oauth2_refresh_token', None)
+        if refresh_token is None:
+            refresh_token = self.localeval.eval(
+                self.getconf('oauth2_refresh_token_eval', "lambda: None"))
+        return refresh_token
 
     def getoauth2_access_token(self):
-        return self.getconf('oauth2_access_token', None)
+        access_token = self.getconf('oauth2_access_token', None)
+        if access_token is None:
+            access_token = self.localeval.eval(
+                self.getconf('oauth2_access_token_eval', "lambda: None"))
+        return access_token
 
     def getoauth2_client_id(self):
-        return self.getconf('oauth2_client_id', None)
+        client_id = self.getconf('oauth2_client_id', None)
+        if client_id is None:
+            client_id = self.localeval.eval(
+                self.getconf('oauth2_client_id_eval', "lambda: None"))
+        return client_id
 
     def getoauth2_client_secret(self):
-        return self.getconf('oauth2_client_secret', None)
+        client_secret = self.getconf('oauth2_client_secret', None)
+        if client_secret is None:
+            client_secret = self.localeval.eval(
+                self.getconf('oauth2_client_secret_eval', "lambda: None"))
+        return client_secret
 
     def getpreauthtunnel(self):
         return self.getconf('preauthtunnel', None)
@@ -325,8 +341,7 @@ class IMAPRepository(BaseRepository):
         return self.getconfboolean('decodefoldernames', False)
 
     def getidlefolders(self):
-        localeval = self.localeval
-        return localeval.eval(self.getconf('idlefolders', '[]'))
+        return self.localeval.eval(self.getconf('idlefolders', '[]'))
 
     def getmaxconnections(self):
         num1 = len(self.getidlefolders())

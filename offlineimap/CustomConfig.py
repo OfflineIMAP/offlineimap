@@ -16,8 +16,8 @@
 
 import os
 import re
-import six
 from sys import exc_info
+import six
 
 try:
     from ConfigParser import SafeConfigParser, Error
