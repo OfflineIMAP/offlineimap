@@ -38,7 +38,7 @@ except:
 # FIXME: spaghetti code alert!
 def getaccountlist(customconfig):
     # Account names in a list.
-    return customconfig.getsectionlist('Account')
+    return [name.lstrip() for name in customconfig.getsectionlist('Account')]
 
 
 class Account(CustomConfig.ConfigHelperMixin):
