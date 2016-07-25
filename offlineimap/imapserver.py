@@ -20,14 +20,15 @@ import socket
 import base64
 import json
 import urllib
-import socket
 import time
 import errno
-import six
-from sys import exc_info
+import socket
 from socket import gaierror
+from sys import exc_info
 from ssl import SSLError, cert_time_to_seconds
 from threading import Lock, BoundedSemaphore, Thread, Event, currentThread
+
+import six
 
 import offlineimap.accounts
 from offlineimap import imaplibutil, imaputil, threadutil, OfflineImapError
@@ -102,9 +103,13 @@ class IMAPServer(object):
         if self.sslcacertfile is None:
             self.__verifycert = None # disable cert verification
         self.fingerprint = repos.get_ssl_fingerprint()
-        self.sslversion = repos.getsslversion()
         self.tlslevel = repos.gettlslevel()
+        self.sslversion = repos.getsslversion()
         self.starttls = repos.getstarttls()
+
+        if self.tlslevel is not "tls_compat" and self.sslversion is None:
+            raise Exception("When 'tls_version' is not 'tls_compat' "
+                "the 'ssl_version' must be set explicitly.")
 
         self.oauth2_refresh_token = repos.getoauth2_refresh_token()
         self.oauth2_access_token = repos.getoauth2_access_token()
@@ -494,13 +499,13 @@ class IMAPServer(object):
                 elif self.usessl:
                     self.ui.connecting(self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4_SSL(
-                        self.hostname,
-                        self.port,
-                        self.sslclientkey,
-                        self.sslclientcert,
-                        self.sslcacertfile,
-                        self.__verifycert,
-                        self.sslversion,
+                        host=self.hostname,
+                        port=self.port,
+                        keyfile=self.sslclientkey,
+                        certfile=self.sslclientcert,
+                        ca_certs=self.sslcacertfile,
+                        cert_verify_cb=self.__verifycert,
+                        ssl_version=self.sslversion,
                         timeout=socket.getdefaulttimeout(),
                         fingerprint=self.fingerprint,
                         use_socket=self.proxied_socket,

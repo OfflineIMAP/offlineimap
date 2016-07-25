@@ -22,9 +22,10 @@ import threading
 import socket
 import errno
 import zlib
-import six
 from sys import exc_info
 from hashlib import sha1
+
+import six
 
 from offlineimap import OfflineImapError
 from offlineimap.ui import getglobalui
