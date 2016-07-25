@@ -95,6 +95,7 @@ class LocalStatusRepository(BaseRepository):
         # data. This might happen if the user removed the folder (maildir) and
         # it is re-created afterwards.
         folder.purge()
+        folder.openfiles()
         folder.save()
         folder.closefiles()
 
