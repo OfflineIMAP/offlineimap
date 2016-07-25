@@ -401,7 +401,8 @@ class SyncableAccount(Account):
 def syncfolder(account, remotefolder, quick):
     """Synchronizes given remote folder for the specified account.
 
-    Filtered folders on the remote side will not invoke this function."""
+    Filtered folders on the remote side will not invoke this function. However,
+    this might be called in a concurrently."""
 
     def check_uid_validity(localfolder, remotefolder, statusfolder):
         # If either the local or the status folder has messages and
@@ -430,7 +431,7 @@ def syncfolder(account, remotefolder, quick):
         fd.close()
 
     def cachemessagelists_upto_date(localfolder, remotefolder, date):
-        """ Returns messages with uid > min(uids of messages newer than date)."""
+        """Returns messages with uid > min(uids of messages newer than date)."""
 
         localfolder.cachemessagelist(min_date=date)
         check_uid_validity(localfolder, remotefolder, statusfolder)
@@ -451,7 +452,7 @@ def syncfolder(account, remotefolder, quick):
                 min_date=time.gmtime(time.mktime(date) + 24*60*60))
 
     def cachemessagelists_startdate(new, partial, date):
-        """ Retrieve messagelists when startdate has been set for
+        """Retrieve messagelists when startdate has been set for
         the folder 'partial'.
 
         Idea: suppose you want to clone the messages after date in one
@@ -466,8 +467,7 @@ def syncfolder(account, remotefolder, quick):
         might not correspond. But, if we're cloning a folder into a new one,
         [min_uid, ...] does correspond to [1, ...].
 
-        This is just for IMAP-IMAP. For Maildir-IMAP, use maxage instead.
-        """
+        This is just for IMAP-IMAP. For Maildir-IMAP, use maxage instead."""
 
         new.cachemessagelist()
         min_uid = partial.retrieve_min_uid()
@@ -587,8 +587,8 @@ def syncfolder(account, remotefolder, quick):
         if e.severity > OfflineImapError.ERROR.FOLDER:
             raise
         else:
-            ui.error(e, exc_info()[2], msg = "Aborting sync, folder '%s' "
-                     "[acc: '%s']" % (localfolder, account))
+            ui.error(e, exc_info()[2], msg="Aborting sync, folder '%s' "
+                     "[acc: '%s']"% (localfolder, account))
     except Exception as e:
         ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s"%
             (account, remotefolder.getvisiblename(), traceback.format_exc()))

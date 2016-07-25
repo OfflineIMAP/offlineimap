@@ -91,6 +91,11 @@ class LocalStatusRepository(BaseRepository):
 
         # Create an empty StatusFolder
         folder = self._instanciatefolder(foldername)
+        # First delete any existing data to make sure we won't consider obsolete
+        # data. This might happen if the user removed the folder (maildir) and
+        # it is re-created afterwards.
+        folder.purge()
+        folder.openfiles()
         folder.save()
         folder.closefiles()
 
