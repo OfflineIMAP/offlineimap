@@ -118,14 +118,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
     def isnewfolder(self):
         return self._newfolder
 
-
-    # Interface from LocalStatusFolder
-    def deletemessagelist(self):
-        """Delete all messages in the db."""
-
-        self.__sql_write('DELETE FROM status')
-
-
     def __sql_write(self, sql, vars=None, executemany=False):
         """Execute some SQL, retrying if the db was locked.
 

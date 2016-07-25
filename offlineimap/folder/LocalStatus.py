@@ -50,10 +50,6 @@ class LocalStatusFolder(BaseFolder):
     def getfullname(self):
         return self.filename
 
-    def deletemessagelist(self):
-        if not self.isnewfolder():
-            os.unlink(self.filename)
-
     # Interface from BaseFolder
     def msglist_item_initializer(self, uid):
         return {'uid': uid, 'flags': set(), 'labels': set(), 'time': 0, 'mtime': 0}

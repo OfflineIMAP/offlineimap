@@ -369,13 +369,13 @@ class SyncableAccount(Account):
 
                 if not globals.options.singlethreading:
                     thread = InstanceLimitedThread(
-                        limitNamespace = "%s%s"% (
+                        limitNamespace="%s%s"% (
                             FOLDER_NAMESPACE, self.remoterepos.getname()),
-                        target = syncfolder,
-                        name = "Folder %s [acc: %s]"% (
+                        target=syncfolder,
+                        name="Folder %s [acc: %s]"% (
                             remotefolder.getexplainedname(), self),
-                        args = (self, remotefolder, quick)
-                        )
+                        args=(self, remotefolder, quick)
+                    )
                     thread.start()
                     folderthreads.append(thread)
                 else:
@@ -533,16 +533,7 @@ def syncfolder(account, remotefolder, quick):
         statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().
             replace(remoterepos.getsep(), statusrepos.getsep()))
         statusfolder.openfiles()
-
-        if localfolder.get_uidvalidity() == None:
-            # This is a new folder, so delete the status cache to be
-            # sure we don't have a conflict.
-            # TODO: This does not work. We always return a value, need
-            # to rework this...
-            statusfolder.deletemessagelist()
-
         statusfolder.cachemessagelist()
-
 
         # Load local folder.
         ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
