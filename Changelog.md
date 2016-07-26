@@ -15,6 +15,33 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.1 (2016-07-26)
+
+#### Notes
+
+This is a small stable release fixing all the reported regressions and issues
+about v7.0.0.
+
+#### Authors
+
+- Nicolas Sebrecht (9)
+
+#### Fixes
+
+- sqlite: properly serialize operations on the databases. [Nicolas Sebrecht]
+- IMAP/IMAP: fix import issue about UIDMaps. [Nicolas Sebrecht]
+- offlineimap.conf: allow non-spaces in the account list. [Nicolas Sebrecht]
+- website-doc.sh: fix link in announces.yml. [Nicolas Sebrecht]
+- release.sh: don't mess the mainline Changelog with commits in maint. [Nicolas Sebrecht]
+
+#### Changes
+
+- Improve error message when ssl_version must be set due to the tls_level. [Nicolas Sebrecht]
+- Code cleanups.
+- website-doc: order announces by date. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.0 (2016-07-22)
 
 #### Notes
