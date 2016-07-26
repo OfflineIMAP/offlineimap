@@ -90,23 +90,21 @@ class LocalStatusSQLiteFolder(BaseFolder):
                 dirname)
 
         self.connection = None
-        # This lock protects against concurrent writes in same connection.
-        self._dblock = Lock()
+        # The lock serialize the writing/open/close of database accross threads.
+        if self.filename not in LocalStatusSQLiteFolder.locks:
+            LocalStatusSQLiteFolder.locks[self.filename] = DatabaseFileLock()
+        self._databaseFileLock = LocalStatusSQLiteFolder.locks[self.filename]
 
     def openfiles(self):
         # Make sure sqlite is in multithreading SERIALIZE mode.
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'
 
-        # Protect the creation/upgrade of database accross threads.
-        if self.filename not in LocalStatusSQLiteFolder.locks:
-            LocalStatusSQLiteFolder.locks[self.filename] = DatabaseFileLock()
-        databaseFileLock = LocalStatusSQLiteFolder.locks[self.filename]
-        with databaseFileLock.getLock():
+        with self._databaseFileLock.getLock():
             # Try to establish connection, no need for threadsafety in __init__.
             try:
                 self.connection = sqlite.connect(self.filename,
                                                  check_same_thread=False)
-                databaseFileLock.registerNewUser()
+                self._databaseFileLock.registerNewUser()
             except sqlite.OperationalError as e:
                 # Operation had failed.
                 raise UserWarning("cannot open database file '%s': %s.\nYou might "
@@ -159,7 +157,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
         success = False
         while not success:
             try:
-                with LocalStatusSQLiteFolder.locks[self.filename].getLock():
+                with self._databaseFileLock.getLock():
                     if args is None:
                         if executemany:
                             self.connection.executemany(sql)
@@ -254,10 +252,9 @@ class LocalStatusSQLiteFolder(BaseFolder):
             self.messagelist[uid]['mtime'] = row[2]
 
     def closefiles(self):
-        databaseFileLock = LocalStatusSQLiteFolder.locks[self.filename]
-        with databaseFileLock.getLock():
-            databaseFileLock.removeOneUser()
-            if databaseFileLock.shouldClose():
+        with self._databaseFileLock.getLock():
+            self._databaseFileLock.removeOneUser()
+            if self._databaseFileLock.shouldClose():
                 try:
                     self.connection.close()
                 except:
