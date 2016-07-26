@@ -22,6 +22,8 @@ from threading import Lock
 
 import six
 
+import six
+
 from .Base import BaseFolder
 
 class DatabaseFileLock(object):
