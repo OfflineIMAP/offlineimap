@@ -355,10 +355,10 @@ class SyncableAccount(Account):
                 sep = localrepos.getsep()
                 if (sep != os.path.sep and
                     sep != remoterepos.getsep() and
-                    sep in remotefolder.getvisiblename()):
-                    self.ui.warn('', "Ignoring folder %s due to unsupported "
+                    sep in remotefolder.getname()):
+                    self.ui.warn('', "Ignoring folder '%s' due to unsupported "
                         "'%s' character serving as local separator."%
-                        (remotefolder.getvisiblename(), localrepos.getsep()))
+                        (remotefolder.getname(), localrepos.getsep()))
                     continue # Ignore unsupported folder name.
 
                 localfolder = self.get_local_folder(remotefolder)
