@@ -40,8 +40,7 @@ class GmailMaildirFolder(MaildirFolder):
 
         # If synclabels is enabled, add a 4th pass to sync labels.
         if self.synclabels:
-            self.syncmessagesto_passes.append(('syncing labels',
-                                               self.syncmessagesto_labels))
+            self.syncmessagesto_passes.append(self.syncmessagesto_labels)
 
     def quickchanged(self, statusfolder):
         """Returns True if the Maildir has changed.
