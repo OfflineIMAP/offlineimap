@@ -15,6 +15,29 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.2 (2016-07-27)
+
+#### Notes
+
+Small release to fix regression introduced in v7.0.0.
+
+#### Authors
+
+- Nicolas Sebrecht (1)
+- Philipp Meier (1)
+- Ævar Arnfjörð Bjarmason (1)
+
+#### Features
+
+- offlineimap.conf: learn to evaluate oauth2 related options. [Nicolas Sebrecht]
+
+#### Fixes
+
+- GmailMaildir: don't add a tuple to syncmessagesto_passes. [Philipp Meier]
+- Remove double import of "six". [Ævar Arnfjörð Bjarmason]
+
+
+
 ### OfflineIMAP v7.0.1 (2016-07-26)
 
 #### Notes
