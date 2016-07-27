@@ -1,6 +1,6 @@
 """Eval python code with global namespace of a python source file."""
 
-# Copyright (C) 2002-2014 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ try:
 except:
     pass
 
-class LocalEval:
+class LocalEval(object):
     """Here is a powerfull but very dangerous option, of course."""
 
     def __init__(self, path=None):

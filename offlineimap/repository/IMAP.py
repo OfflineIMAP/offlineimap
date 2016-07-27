@@ -1,4 +1,5 @@
-# IMAP repository support
+""" IMAP repository support """
+
 # Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -21,6 +22,7 @@ import errno
 import codecs
 from sys import exc_info
 from threading import Event
+
 import six
 
 from offlineimap import folder, imaputil, imapserver, OfflineImapError
@@ -31,8 +33,6 @@ from offlineimap.utils.distro import get_os_sslcertfile, get_os_sslcertfile_sear
 
 class IMAPRepository(BaseRepository):
     def __init__(self, reposname, account):
-        """Initialize an IMAPRepository object."""
-
         BaseRepository.__init__(self, reposname, account)
         # self.ui is being set by the BaseRepository
         self._host = None
@@ -40,6 +40,10 @@ class IMAPRepository(BaseRepository):
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
         self.copy_ignore_eval = None
+        self.oauth2_request_url = None
+        # Keep alive.
+        self.kaevent = None
+        self.kathread = None
 
         # Only set the newmail_hook in an IMAP repository.
         if self.config.has_option(self.getsection(), 'newmail_hook'):
@@ -52,11 +56,12 @@ class IMAPRepository(BaseRepository):
 
     def startkeepalive(self):
         keepalivetime = self.getkeepalive()
-        if not keepalivetime: return
+        if not keepalivetime:
+            return
         self.kaevent = Event()
-        self.kathread = ExitNotifyThread(target = self.imapserver.keepalive,
-                                         name = "Keep alive " + self.getname(),
-                                         args = (keepalivetime, self.kaevent))
+        self.kathread = ExitNotifyThread(target=self.imapserver.keepalive,
+                                         name="Keep alive " + self.getname(),
+                                         args=(keepalivetime, self.kaevent))
         self.kathread.setDaemon(1)
         self.kathread.start()
 
@@ -83,7 +88,7 @@ class IMAPRepository(BaseRepository):
             if self.config.has_option(self.getsection(),
                                      'copy_ignore_eval'):
                 self.copy_ignore_eval = self.localeval.eval(
-                        self.getconf('copy_ignore_eval'))
+                    self.getconf('copy_ignore_eval'))
             else:
                 self.copy_ignore_eval = lambda x: None
 
@@ -115,10 +120,10 @@ class IMAPRepository(BaseRepository):
         """Return the configured hostname to connect to
 
         :returns: hostname as string or throws Exception"""
-        if self._host:  # use cached value if possible
+        if self._host:  # Use cached value if possible.
             return self._host
 
-        # 1) check for remotehosteval setting
+        # 1) Check for remotehosteval setting.
         if self.config.has_option(self.getsection(), 'remotehosteval'):
             host = self.getconf('remotehosteval')
             try:
@@ -133,13 +138,13 @@ class IMAPRepository(BaseRepository):
             if host:
                 self._host = host
                 return self._host
-        # 2) check for plain remotehost setting
+        # 2) Check for plain remotehost setting.
         host = self.getconf('remotehost', None)
         if host != None:
             self._host = host
             return self._host
 
-        # no success
+        # No success.
         raise OfflineImapError("No remote host for repository "
             "'%s' specified."% self, OfflineImapError.ERROR.REPO)
 
@@ -158,7 +163,7 @@ class IMAPRepository(BaseRepository):
         # Mechanisms are ranged from the strongest to the
         # weakest ones.
         # TODO: we need DIGEST-MD5, it must come before CRAM-MD5
-        # TODO: due to the chosen-plaintext resistance.
+        # due to the chosen-plaintext resistance.
         default = ["GSSAPI", "XOAUTH2", "CRAM-MD5", "PLAIN", "LOGIN"]
 
         mechs = self.getconflist('auth_mechanisms', r',\s*',
@@ -172,7 +177,6 @@ class IMAPRepository(BaseRepository):
 
         self.ui.debug('imap', "Using authentication mechanisms %s" % mechs)
         return mechs
-
 
     def getuser(self):
         user = None
@@ -207,7 +211,6 @@ class IMAPRepository(BaseRepository):
         else:
             if netrcentry:
                 return netrcentry[0]
-
 
     def getport(self):
         port = None
@@ -365,24 +368,24 @@ class IMAPRepository(BaseRepository):
         On success we return the password.
         If all strategies fail we return None."""
 
-        # 1. evaluate Repository 'remotepasseval'
+        # 1. Evaluate Repository 'remotepasseval'.
         passwd = self.getconf('remotepasseval', None)
-        if passwd != None:
+        if passwd is not None:
             return self.localeval.eval(passwd).encode('UTF-8')
-        # 2. read password from Repository 'remotepass'
+        # 2. Read password from Repository 'remotepass'.
         password = self.getconf('remotepass', None)
-        if password != None:
+        if password is not None:
             # Assume the configuration file to be UTF-8 encoded so we must not
             # encode this string again.
             return password
-        # 3. read password from file specified in Repository 'remotepassfile'
+        # 3. Read password from file specified in Repository 'remotepassfile'.
         passfile = self.getconf('remotepassfile', None)
-        if passfile != None:
+        if passfile is not None:
             fd = codecs.open(os.path.expanduser(passfile), 'r', 'UTF-8')
             password = fd.readline().strip()
             fd.close()
             return password.encode('UTF-8')
-        # 4. read password from ~/.netrc
+        # 4. Read password from ~/.netrc.
         try:
             netrcentry = netrc.netrc().authenticators(self.gethost())
         except IOError as inst:
@@ -391,9 +394,9 @@ class IMAPRepository(BaseRepository):
         else:
             if netrcentry:
                 user = self.getuser()
-                if user == None or user == netrcentry[0]:
+                if user is None or user == netrcentry[0]:
                     return netrcentry[2]
-        # 5. read password from /etc/netrc
+        # 5. Read password from /etc/netrc.
         try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
         except IOError as inst:
@@ -402,9 +405,9 @@ class IMAPRepository(BaseRepository):
         else:
             if netrcentry:
                 user = self.getuser()
-                if user == None or user == netrcentry[0]:
+                if user is None or user == netrcentry[0]:
                     return netrcentry[2]
-        # no strategy yielded a password!
+        # No strategy yielded a password!
         return None
 
     def getfolder(self, foldername):
@@ -425,7 +428,7 @@ class IMAPRepository(BaseRepository):
     def getfolders(self):
         """Return a list of instances of OfflineIMAP representative folder."""
 
-        if self.folders != None:
+        if self.folders is not None:
             return self.folders
         retval = []
         imapobj = self.imapserver.acquireconnection()
@@ -434,7 +437,7 @@ class IMAPRepository(BaseRepository):
         if self.getconfboolean('subscribedonly', False):
             listfunction = imapobj.lsub
         try:
-            listresult = listfunction(directory = self.imapserver.reference)[1]
+            listresult = listfunction(directory=self.imapserver.reference)[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         for s in listresult:
@@ -456,7 +459,7 @@ class IMAPRepository(BaseRepository):
             try:
                 for foldername in self.folderincludes:
                     try:
-                        imapobj.select(foldername, readonly = True)
+                        imapobj.select(foldername, readonly=True)
                     except OfflineImapError as e:
                         # couldn't select this folderinclude, so ignore folder.
                         if e.severity > OfflineImapError.ERROR.FOLDER:
@@ -478,7 +481,7 @@ class IMAPRepository(BaseRepository):
             def cmp2key(mycmp):
                 """Converts a cmp= function into a key= function
                 We need to keep cmp functions for backward compatibility"""
-                class K:
+                class K(object):
                     def __init__(self, obj, *args):
                         self.obj = obj
                     def __cmp__(self, other):

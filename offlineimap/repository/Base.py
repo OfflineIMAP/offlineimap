@@ -1,4 +1,5 @@
-# Base repository support
+""" Base repository support """
+
 # Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -23,8 +24,8 @@ from offlineimap import CustomConfig
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
 
-class BaseRepository(CustomConfig.ConfigHelperMixin, object):
 
+class BaseRepository(CustomConfig.ConfigHelperMixin):
     def __init__(self, reposname, account):
         self.ui = getglobalui()
         self.account = account
@@ -178,16 +179,16 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
         dst_folders = dst_repo.getfolders()
         # Do we need to refresh the folder list afterwards?
         src_haschanged, dst_haschanged = False, False
-        # Create hashes with the names, but convert the source folders.
+        # Create hashes with the names, but convert the source folders
         # to the dest folder's sep.
         src_hash = {}
         for folder in src_folders:
             src_hash[folder.getvisiblename().replace(
-                    src_repo.getsep(), dst_repo.getsep())] = folder
+                src_repo.getsep(), dst_repo.getsep())] = folder
         dst_hash = {}
         for folder in dst_folders:
             dst_hash[folder.getvisiblename().replace(
-                    dst_repo.getsep(), src_repo.getsep())] = folder
+                dst_repo.getsep(), src_repo.getsep())] = folder
 
         # Find and create new folders on src_repo.
         for src_name_t, src_folder in src_hash.items():
@@ -250,10 +251,10 @@ class BaseRepository(CustomConfig.ConfigHelperMixin, object):
                     src_haschanged = True # Need to refresh list.
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
-                                  "repository %s" % (dst_name_t, src_repo))
+                                  "repository %s"% (dst_name_t, src_repo))
                     raise
                 status_repo.makefolder(dst_name_t.replace(
-                                src_repo.getsep(), status_repo.getsep()))
+                    src_repo.getsep(), status_repo.getsep()))
         # Find deleted folders.
         # TODO: We don't delete folders right now.
 
