@@ -66,13 +66,12 @@ class IMAPRepository(BaseRepository):
         self.kathread.start()
 
     def stopkeepalive(self):
-        if not hasattr(self, 'kaevent'):
-            # Keepalive is not active.
-            return
+        if self.kaevent is None:
+            return # Keepalive is not active.
 
         self.kaevent.set()
-        del self.kathread
-        del self.kaevent
+        self.kathread = None
+        self.kaevent = None
 
     def holdordropconnections(self):
         if not self.getholdconnectionopen():

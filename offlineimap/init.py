@@ -379,7 +379,7 @@ class OfflineImap(object):
         activeaccountnames = self.config.get("general", "accounts")
         if options.accounts:
             activeaccountnames = options.accounts
-        activeaccountnames = activeaccountnames.split(",")
+        activeaccountnames = [x.lstrip() for x in activeaccountnames.split(",")]
 
         allaccounts = accounts.getaccountlist(self.config)
         for accountname in activeaccountnames:
