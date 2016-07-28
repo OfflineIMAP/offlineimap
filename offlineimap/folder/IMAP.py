@@ -734,8 +734,14 @@ class IMAPFolder(BaseFolder):
              # ``with`` without taking this into account.
             self.imapserver.releaseconnection(imapobj)
 
-        if data == [None] or res_type != 'OK':
-            # IMAP server says bad request or UID does not exist.
+        # Ensure to not consider unsolicited FETCH responses caused by flag
+        # changes from concurrent connections.  These appear as strings in
+        # 'data' (the BODY response appears as a tuple).  This should leave
+        # exactly one response.
+        if res_type == 'OK':
+            data = [res for res in data if not isinstance(res, str)]
+        # Could not fetch message.
+        if data == [None] or res_type != 'OK' or len(data) != 1:
             severity = OfflineImapError.ERROR.MESSAGE
             reason = "IMAP server '%s' failed to fetch messages UID '%s'."\
                 "Server responded: %s %s"% (self.getrepository(), uids,
@@ -764,7 +770,7 @@ class IMAPFolder(BaseFolder):
             severity = OfflineImapError.ERROR.MESSAGE
             reason = "IMAP server '%s' failed to store %s for message UID '%d'."\
                      "Server responded: %s %s"% (
-                    self.getrepository(), field, uid, res_type, retdata)
+                     self.getrepository(), field, uid, res_type, retdata)
             raise OfflineImapError(reason, severity)
         return retdata[0]
 
