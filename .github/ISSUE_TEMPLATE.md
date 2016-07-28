@@ -1,6 +1,7 @@
 
 #### General informations
 
+- system/distribution (with version): 
 - offlineimap version (`offlineimap -V`): 
 - Python version: 
 - server name or domain: 
