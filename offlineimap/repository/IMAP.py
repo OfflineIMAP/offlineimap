@@ -36,11 +36,11 @@ class IMAPRepository(BaseRepository):
         BaseRepository.__init__(self, reposname, account)
         # self.ui is being set by the BaseRepository
         self._host = None
-        self._oauth2_request_url = None
+        # Must be set before calling imapserver.IMAPServer(self)
+        self.oauth2_request_url = None
         self.imapserver = imapserver.IMAPServer(self)
         self.folders = None
         self.copy_ignore_eval = None
-        self.oauth2_request_url = None
         # Keep alive.
         self.kaevent = None
         self.kathread = None
@@ -295,12 +295,15 @@ class IMAPRepository(BaseRepository):
         value = self.getconf('cert_fingerprint', "")
         return [f.strip().lower() for f in value.split(',') if f]
 
-    def getoauth2_request_url(self):
-        if self._oauth2_request_url:  # Use cached value if possible.
-            return self._oauth2_request_url
+    def setoauth2_request_url(self, url):
+        self.oauth2_request_url = url
 
-        self.oauth2_request_url = self.getconf('oauth2_request_url', None)
-        return self._oauth2_request_url
+    def getoauth2_request_url(self):
+        if self.oauth2_request_url is not None: # Use cached value if possible.
+            return self.oauth2_request_url
+
+        self.setoauth2_request_url(self.getconf('oauth2_request_url', None))
+        return self.oauth2_request_url
 
     def getoauth2_refresh_token(self):
         refresh_token = self.getconf('oauth2_refresh_token', None)

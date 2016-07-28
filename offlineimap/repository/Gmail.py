@@ -47,7 +47,7 @@ class GmailRepository(IMAPRepository):
         try:
             return super(GmailRepository, self).gethost()
         except OfflineImapError:
-            # nothing was configured, cache and return hardcoded one
+            # Nothing was configured, cache and return hardcoded one.
             self._host = GmailRepository.HOSTNAME
             return self._host
 
@@ -60,10 +60,10 @@ class GmailRepository(IMAPRepository):
         url = super(GmailRepository, self).getoauth2_request_url()
         if url is None:
             # Nothing was configured, cache and return hardcoded one.
-            self._oauth2_request_url = GmailRepository.OAUTH2_URL
+            self.setoauth2_request_url(GmailRepository.OAUTH2_URL)
         else:
-            self._oauth2_request_url = url
-        return self._oauth2_request_url
+            self.setoauth2_request_url(url)
+        return self.oauth2_request_url
 
     def getport(self):
         return GmailRepository.PORT
@@ -82,8 +82,8 @@ class GmailRepository(IMAPRepository):
         return folder.Gmail.GmailFolder
 
     def gettrashfolder(self, foldername):
-        #: Where deleted mail should be moved
-        return  self.getconf('trashfolder','[Gmail]/Trash')
+        # Where deleted mail should be moved
+        return self.getconf('trashfolder', '[Gmail]/Trash')
 
     def getspamfolder(self):
         #: Gmail also deletes messages upon EXPUNGE in the Spam folder
