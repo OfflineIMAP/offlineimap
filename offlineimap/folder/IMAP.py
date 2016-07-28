@@ -139,9 +139,10 @@ class IMAPFolder(BaseFolder):
                 self.imapserver.releaseconnection(imapobj, True)
                 if e.severity == OfflineImapError.ERROR.FOLDER_RETRY:
                     retry = True
-                else: raise
+                else:
+                    raise
             except:
-                # cleanup and raise on all other errors
+                # Cleanup and raise on all other errors.
                 self.imapserver.releaseconnection(imapobj, True)
                 raise
         # 1. Some mail servers do not return an EXISTS response
@@ -349,7 +350,7 @@ class IMAPFolder(BaseFolder):
 
 
     def __savemessage_searchforheader(self, imapobj, headername, headervalue):
-        self.ui.debug('imap', '__savemessage_searchforheader called for %s: %s'% \
+        self.ui.debug('imap', '__savemessage_searchforheader called for %s: %s'%
             (headername, headervalue))
         # Now find the UID it got.
         headervalue = imapobj._quote(headervalue)
@@ -358,20 +359,24 @@ class IMAPFolder(BaseFolder):
                 headername, headervalue)[1][0]
         except imapobj.error as err:
             # IMAP server doesn't implement search or had a problem.
-            self.ui.debug('imap', "__savemessage_searchforheader: got IMAP error '%s' while attempting to UID SEARCH for message with header %s"% (err, headername))
+            self.ui.debug('imap', "__savemessage_searchforheader: got IMAP "
+                "error '%s' while attempting to UID SEARCH for message with "
+                "header %s"% (err, headername))
             return 0
-        self.ui.debug('imap', '__savemessage_searchforheader got initial matchinguids: ' + repr(matchinguids))
+        self.ui.debug('imap', "__savemessage_searchforheader got initial "
+                              "matchinguids: " + repr(matchinguids))
 
         if matchinguids == '':
-            self.ui.debug('imap', "__savemessage_searchforheader: UID SEARCH for message with header %s yielded no results"% headername)
+            self.ui.debug('imap', "__savemessage_searchforheader: UID SEARCH "
+                "for message with header %s yielded no results"% headername)
             return 0
 
         matchinguids = matchinguids.split(' ')
-        self.ui.debug('imap', '__savemessage_searchforheader: matchinguids now ' + \
-                 repr(matchinguids))
-        if len(matchinguids) != 1 or matchinguids[0] == None:
+        self.ui.debug('imap', '__savemessage_searchforheader: matchinguids now '
+            + repr(matchinguids))
+        if len(matchinguids) != 1 or matchinguids[0] is None:
             raise ValueError("While attempting to find UID for message with "
-                             "header %s, got wrong-sized matchinguids of %s"%\
+                             "header %s, got wrong-sized matchinguids of %s"%
                                  (headername, str(matchinguids)))
         return int(matchinguids[0])
 
@@ -579,7 +584,7 @@ class IMAPFolder(BaseFolder):
                         (headername, headervalue))
                     content = self.addmessageheader(content, CRLF, headername, headervalue)
 
-                if len(content)>200:
+                if len(content) > 200:
                     dbg_output = "%s...%s"% (content[:150], content[-50:])
                 else:
                     dbg_output = content
@@ -678,7 +683,8 @@ class IMAPFolder(BaseFolder):
                     self.ui.warn('imap', "savemessage: Searching mails for new "
                         "Message-ID failed. Could not determine new UID.")
         finally:
-            if imapobj: self.imapserver.releaseconnection(imapobj)
+            if imapobj:
+                self.imapserver.releaseconnection(imapobj)
 
         if uid: # Avoid UID FETCH 0 crash happening later on
             self.messagelist[uid] = self.msglist_item_initializer(uid)
