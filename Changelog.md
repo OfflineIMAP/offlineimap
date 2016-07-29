@@ -15,6 +15,39 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.3 (2016-07-30)
+
+#### Notes
+
+Here's a new bugfix release for the v7.0.x series. Only time we let us know if
+it's a good release. However, I'm more confident.
+
+Thanks for the reports and feedbacks!
+
+
+#### Authors
+
+- Nicolas Sebrecht (11)
+
+
+#### Fixes
+
+- Make systemd service kill offlineimap as expected. [Nicolas Sebrecht]
+- XOAUTH2: fix the \*\_eval configuration options. [Nicolas Sebrecht]
+- IMAP: don't take junk data for valid mail content. [Nicolas Sebrecht]
+- offlineimap.conf: allow non-spaces in the account list. [Nicolas Sebrecht]
+- Properly ignore folders with invalid characters (sep) in their name. [Nicolas Sebrecht]
+
+#### Changes
+
+- Add the repository name when connecting. [Nicolas Sebrecht]
+- Github template: add system/distribution. [Nicolas Sebrecht]
+- XOAUTH2: use one "public" attribute everywhere for self.oauth2_request_url. [Nicolas Sebrecht]
+- Code style and minor code enhancements. [Nicolas Sebrecht]
+- Manual: add known issue about netrc. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.2 (2016-07-27)
 
 #### Notes
