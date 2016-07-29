@@ -378,6 +378,10 @@ class IMAPServer(object):
         warnings for failed methods are to be produced in the
         respective except blocks."""
 
+        # Stack stores pairs of (method name, exception)
+        exc_stack = []
+        tried_to_authn = False
+        tried_tls = False
         # Authentication routines, hash keyed by method name
         # with value that is a tuple with
         # - authentication function,
@@ -385,24 +389,15 @@ class IMAPServer(object):
         # - check IMAP capability flag.
         auth_methods = {
           "GSSAPI": (self.__authn_gssapi, False, True),
-          "CRAM-MD5": (self.__authn_cram_md5, True, True),
           "XOAUTH2": (self.__authn_xoauth2, True, True),
+          "CRAM-MD5": (self.__authn_cram_md5, True, True),
           "PLAIN": (self.__authn_plain, True, True),
           "LOGIN": (self.__authn_login, True, False),
         }
-        # Stack stores pairs of (method name, exception)
-        exc_stack = []
-        tried_to_authn = False
-        tried_tls = False
-        mechs = self.authmechs
 
-        # GSSAPI must be tried first: we will probably go TLS after it
-        # and GSSAPI mustn't be tunneled over TLS.
-        if "GSSAPI" in mechs:
-            mechs.remove("GSSAPI")
-            mechs.insert(0, "GSSAPI")
-
-        for m in mechs:
+        # GSSAPI is tried first by default: we will probably go TLS after it and
+        # GSSAPI mustn't be tunneled over TLS.
+        for m in self.authmechs:
             if m not in auth_methods:
                 raise Exception("Bad authentication method %s, "
                   "please, file OfflineIMAP bug" % m)
