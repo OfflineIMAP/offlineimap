@@ -161,9 +161,9 @@ class UIBase(object):
                "repo %s")
         """
         if msg:
-            self.logger.error("ERROR: %s\n  %s" % (msg, exc))
+            self.logger.error("ERROR: %s\n  %s"% (msg, exc))
         else:
-            self.logger.error("ERROR: %s" % (exc))
+            self.logger.error("ERROR: %s"% (exc))
 
         instant_traceback = exc_traceback
         if not self.debuglist:
@@ -181,8 +181,8 @@ class UIBase(object):
         if cur_thread in self.threadaccounts:
             # was already associated with an old account, update info
             self.debug('thread', "Register thread '%s' (previously '%s', now "
-                    "'%s')" % (cur_thread.getName(),
-                               self.getthreadaccount(cur_thread), account))
+                    "'%s')"% (cur_thread.getName(),
+                              self.getthreadaccount(cur_thread), account))
         else:
             self.debug('thread', "Register new thread '%s' (account '%s')"%
                 (cur_thread.getName(), account))
@@ -193,7 +193,7 @@ class UIBase(object):
 
         if thr in self.threadaccounts:
             del self.threadaccounts[thr]
-        self.debug('thread', "Unregister thread '%s'" % thr.getName())
+        self.debug('thread', "Unregister thread '%s'"% thr.getName())
 
     def getthreadaccount(self, thr=None):
         """Get Account() for a thread (current if None)
@@ -311,7 +311,7 @@ class UIBase(object):
         create the application window here."""
         pass
 
-    def connecting(self, hostname, port):
+    def connecting(self, reposname, hostname, port):
         """Log 'Establishing connection to'."""
 
         if not self.logger.isEnabledFor(logging.INFO): return
@@ -320,13 +320,14 @@ class UIBase(object):
         port = "%s"% port if port else ''
         if hostname:
             displaystr = ' to %s:%s' % (hostname, port)
-        self.logger.info("Establishing connection%s" % displaystr)
+        self.logger.info("Establishing connection%s (%s)"%
+            (displaystr, reposname))
 
     def acct(self, account):
         """Output that we start syncing an account (and start counting)."""
 
         self.acct_startimes[account] = time.time()
-        self.logger.info("*** Processing account %s" % account)
+        self.logger.info("*** Processing account %s"% account)
 
     def acctdone(self, account):
         """Output that we finished syncing an account (in which time)."""

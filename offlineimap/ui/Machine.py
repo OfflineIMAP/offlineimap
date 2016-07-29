@@ -25,15 +25,16 @@ from threading import currentThread
 import offlineimap
 from offlineimap.ui.UIBase import UIBase
 
-protocol = '7.1.0'
+protocol = '7.2.0'
 
 class MachineLogFormatter(logging.Formatter):
     """urlencodes any outputted line, to avoid multi-line output"""
+
     def format(s, record):
         # Mapping of log levels to historic tag names
         severity_map = {
-         'info': 'msg',
-         'warning': 'warn',
+            'info': 'msg',
+            'warning': 'warn',
         }
         line = super(MachineLogFormatter, s).format(record)
         severity = record.levelname.lower()
@@ -101,8 +102,9 @@ class MachineUI(UIBase):
                 (folder.getname(), folder.getrepository().getname(),
                  folder.get_saveduidvalidity(), folder.get_uidvalidity()))
 
-    def connecting(s, hostname, port):
-        s._printData(s.logger.info, 'connecting', "%s\n%s"% (hostname, str(port)))
+    def connecting(s, reposname, hostname, port):
+        s._printData(s.logger.info, 'connecting', "%s\n%s\nMs"% (hostname,
+            str(port), reposname))
 
     def syncfolders(s, srcrepos, destrepos):
         s._printData(s.logger.info, 'syncfolders', "%s\n%s"% (s.getnicename(srcrepos),

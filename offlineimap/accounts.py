@@ -342,7 +342,8 @@ class SyncableAccount(Account):
             # Iterate through all folders on the remote repo and sync.
             for remotefolder in remoterepos.getfolders():
                 # Check for CTRL-C or SIGTERM.
-                if Account.abort_NOW_signal.is_set(): break
+                if Account.abort_NOW_signal.is_set():
+                    break
 
                 if not remotefolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
@@ -605,7 +606,7 @@ def syncfolder(account, remotefolder, quick):
             ui.error(e, exc_info()[2], msg="Aborting sync, folder '%s' "
                      "[acc: '%s']"% (localfolder, account))
     except Exception as e:
-        ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s"%
+        ui.error(e, msg="ERROR in syncfolder for %s folder %s: %s"%
             (account, remotefolder.getvisiblename(), traceback.format_exc()))
     finally:
         for folder in ["statusfolder", "localfolder", "remotefolder"]:

@@ -484,7 +484,8 @@ class IMAPServer(object):
             while success is not True:
                 # Generate a new connection.
                 if self.tunnel:
-                    self.ui.connecting('tunnel', self.tunnel)
+                    self.ui.connecting(
+                        self.repos.getname(), 'tunnel', self.tunnel)
                     imapobj = imaplibutil.IMAP4_Tunnel(
                         self.tunnel,
                         timeout=socket.getdefaulttimeout(),
@@ -492,7 +493,8 @@ class IMAPServer(object):
                         )
                     success = True
                 elif self.usessl:
-                    self.ui.connecting(self.hostname, self.port)
+                    self.ui.connecting(
+                        self.repos.getname(), self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4_SSL(
                         host=self.hostname,
                         port=self.port,
@@ -508,7 +510,8 @@ class IMAPServer(object):
                         af=self.af,
                         )
                 else:
-                    self.ui.connecting(self.hostname, self.port)
+                    self.ui.connecting(
+                        self.repos.getname(), self.hostname, self.port)
                     imapobj = imaplibutil.WrappedIMAP4(
                         self.hostname, self.port,
                         timeout=socket.getdefaulttimeout(),
