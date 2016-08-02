@@ -244,8 +244,11 @@ class IMAPFolder(BaseFolder):
 
             # Get the flags and UIDs for these. single-quotes prevent
             # imaplib2 from quoting the sequence.
-            res_type, response = imapobj.fetch("'%s'"%
-                msgsToFetch, '(FLAGS UID INTERNALDATE)')
+            fetch_msg = "'%s'"% msgsToFetch
+            self.ui.debug('imap', "calling imaplib2 fetch command: %s %s"%
+                (fetch_msg, '(FLAGS UID INTERNALDATE)'))
+            res_type, response = imapobj.fetch(
+                fetch_msg, '(FLAGS UID INTERNALDATE)')
             if res_type != 'OK':
                 raise OfflineImapError("FETCHING UIDs in folder [%s]%s failed. "
                     "Server responded '[%s] %s'"% (self.getrepository(), self,
@@ -256,11 +259,11 @@ class IMAPFolder(BaseFolder):
         for messagestr in response:
             # Looks like: '1 (FLAGS (\\Seen Old) UID 4807)' or None if no msg.
             # Discard initial message number.
-            if messagestr == None:
+            if messagestr is None:
                 continue
             messagestr = messagestr.split(' ', 1)[1]
             options = imaputil.flags2hash(messagestr)
-            if not 'UID' in options:
+            if 'UID' not in options:
                 self.ui.warn('No UID in message with options %s'%
                     str(options), minor=1)
             else:
