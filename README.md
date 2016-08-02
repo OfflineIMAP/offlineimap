@@ -7,6 +7,8 @@
 
 ***"Get the emails where you need them."***
 
+[Official offlineimap][offlineimap].
+
 ## Description
 
 OfflineIMAP is a software to dispose your e-mail mailbox(es) as a **local
