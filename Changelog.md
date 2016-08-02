@@ -15,6 +15,21 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.4 (2016-08-02)
+
+#### Notes
+
+Small bugfix release for Gmail users.
+
+#### Authors
+
+- Nicolas Sebrecht (1)
+
+#### Fixes
+
+- ConfigHelperMixin must be new-style class to not break inheritance. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.0.3 (2016-07-30)
 
 #### Notes
