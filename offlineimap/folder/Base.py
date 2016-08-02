@@ -1092,9 +1092,10 @@ class BaseFolder(object):
             except OfflineImapError as e:
                 if e.severity > OfflineImapError.ERROR.FOLDER:
                     raise
-                self.ui.error(e, exc_info()[2])
+                self.ui.error(e, exc_info()[2], "while syncing %s [account %s]"%
+                                                (self, self.accountname))
             except Exception as e:
-                self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]"%
+                self.ui.error(e, exc_info()[2], "while syncing %s [account %s]"%
                                                 (self, self.accountname))
                 raise # Raise unknown Exceptions so we can fix them.
 

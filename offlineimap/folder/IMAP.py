@@ -832,19 +832,22 @@ class IMAPFolder(BaseFolder):
             except imapobj.readonly:
                 self.ui.flagstoreadonly(self, uidlist, flags)
                 return
-            r = imapobj.uid('store',
+            response = imapobj.uid('store',
                 imaputil.uid_sequence(uidlist), operation + 'FLAGS',
                     imaputil.flagsmaildir2imap(flags))
-            assert r[0] == 'OK', 'Error with store: ' + '. '.join(r[1])
-            r = r[1]
+            if response[0] != 'OK':
+                raise OfflineImapError(
+                    'Error with store: %s'% '. '.join(response[1]),
+                    OfflineImapError.ERROR.MESSAGE)
+            response = response[1]
         finally:
             self.imapserver.releaseconnection(imapobj)
         # Some IMAP servers do not always return a result.  Therefore,
         # only update the ones that it talks about, and manually fix
         # the others.
         needupdate = list(uidlist)
-        for result in r:
-            if result == None:
+        for result in response:
+            if result is None:
                 # Compensate for servers that don't return anything from
                 # STORE.
                 continue
