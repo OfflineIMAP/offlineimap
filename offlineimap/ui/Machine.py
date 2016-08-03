@@ -103,7 +103,7 @@ class MachineUI(UIBase):
                  folder.get_saveduidvalidity(), folder.get_uidvalidity()))
 
     def connecting(s, reposname, hostname, port):
-        s._printData(s.logger.info, 'connecting', "%s\n%s\nMs"% (hostname,
+        s._printData(s.logger.info, 'connecting', "%s\n%s\n%s"% (hostname,
             str(port), reposname))
 
     def syncfolders(s, srcrepos, destrepos):
