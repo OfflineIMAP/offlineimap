@@ -426,17 +426,12 @@ class IMAPServer(object):
                 exc_stack.append((m, e))
 
         if len(exc_stack):
-            msg = "\n\t".join(map(
-              lambda x: ": ".join((x[0], str(x[1]))),
-              exc_stack
-            ))
+            msg = "\n\t".join([": ".join((x[0], str(x[1]))) for x in exc_stack])
             raise OfflineImapError("All authentication types "
               "failed:\n\t%s"% msg, OfflineImapError.ERROR.REPO)
 
         if not tried_to_authn:
-            methods = ", ".join(map(
-              lambda x: x[5:], [x for x in imapobj.capabilities if x[0:5] == "AUTH="]
-            ))
+            methods = ", ".join([x[5:] for x in [x for x in imapobj.capabilities if x[0:5] == "AUTH="]])
             raise OfflineImapError(u"Repository %s: no supported "
               "authentication mechanisms found; configured %s, "
               "server advertises %s"% (self.repos,
