@@ -27,6 +27,8 @@ import offlineimap.accounts
 
 
 class BaseFolder(object):
+    __hash__ = None
+
     def __init__(self, name, repository):
         """
         :param name: Path & name of folder minus root or reference
