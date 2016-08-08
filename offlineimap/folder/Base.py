@@ -881,10 +881,9 @@ class BaseFolder(object):
                     self.ui.ignorecopyingmessage(uid, self, dstfolder)
 
         if num_to_copy > 0 and self.repository.account.dryrun:
-            self.ui.info(
-                "[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
+            self.ui.info("[DRYRUN] Copy {} messages from {}[{}] to {}".format(
                 num_to_copy, self, self.repository, dstfolder.repository)
-                )
+            )
             return
 
         for num, uid in enumerate(copylist):
@@ -907,12 +906,12 @@ class BaseFolder(object):
             # Exceptions are caught in copymessageto().
             if self.suggeststhreads():
                 self.waitforthread()
-                thread = threadutil.InstanceLimitedThread(
+                thread=threadutil.InstanceLimitedThread(
                     self.getinstancelimitnamespace(),
-                    target = self.copymessageto,
-                    name = "Copy message from %s:%s"% (self.repository, self),
-                    args = (uid, dstfolder, statusfolder)
-                    )
+                    target=self.copymessageto,
+                    name="Copy message from %s:%s"% (self.repository, self),
+                    args=(uid, dstfolder, statusfolder)
+                )
                 thread.start()
                 threads.append(thread)
             else:
@@ -947,14 +946,14 @@ class BaseFolder(object):
             # won't lose message, we will just unneccessarily retransmit some.
             # Delete messages from statusfolder that were either deleted by the
             # user, or not being tracked (e.g. because of maxage).
-            statusfolder.deletemessages(deletelist)
-            # Filter out untracked messages
+            if not self.repository.account.dryrun:
+                statusfolder.deletemessages(deletelist)
+            # Filter out untracked messages.
             deletelist = [uid for uid in deletelist if dstfolder.uidexists(uid)]
             if len(deletelist):
                 self.ui.deletingmessages(deletelist, [dstfolder])
-                if self.repository.account.dryrun:
-                    return #don't delete messages in dry-run mode
-                dstfolder.deletemessages(deletelist)
+                if not self.repository.account.dryrun:
+                    dstfolder.deletemessages(deletelist)
 
     def combine_flags_and_keywords(self, uid, dstfolder):
         """Combine the message's flags and keywords using the mapping for the

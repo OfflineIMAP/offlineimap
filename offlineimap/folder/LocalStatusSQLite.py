@@ -24,6 +24,7 @@ import six
 
 from .Base import BaseFolder
 
+
 class DatabaseFileLock(object):
     """Lock at database file level."""
 
@@ -125,7 +126,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
                     self.__upgrade_db(version)
 
     def purge(self):
-        """Remove any pre-existing database."""
+        """Remove any pre-existing database. Do not call in dry-run mode."""
 
         try:
             os.unlink(self.filename)
@@ -328,7 +329,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
             # We cannot assign a uid.
             return uid
 
-        if self.uidexists(uid):     # already have it
+        if self.uidexists(uid):     # Already have it.
             self.savemessageflags(uid, flags)
             return uid
 
