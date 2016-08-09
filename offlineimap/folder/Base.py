@@ -906,7 +906,7 @@ class BaseFolder(object):
             # Exceptions are caught in copymessageto().
             if self.suggeststhreads():
                 self.waitforthread()
-                thread=threadutil.InstanceLimitedThread(
+                thread = threadutil.InstanceLimitedThread(
                     self.getinstancelimitnamespace(),
                     target=self.copymessageto,
                     name="Copy message from %s:%s"% (self.repository, self),
