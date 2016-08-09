@@ -22,10 +22,6 @@ from threading import Lock
 from os import listdir, makedirs, path, unlink
 from sys import exc_info
 try:
-    import UserDict
-except ImportError: # Py3.
-    from collections import UserDict
-try:
     from ConfigParser import NoSectionError
 except ImportError: # Py3.
     from configparser import NoSectionError
