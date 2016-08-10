@@ -15,6 +15,40 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.5 (2016-08-10)
+
+#### Notes
+
+Bugfix release. The machineui is fixed and the dry-run mode is a bit improved.
+
+Thanks to all the contributors and bug reporters. This release is yours.
+
+#### Authors
+
+- Nicolas Sebrecht (6)
+- Wieland Hoffmann (2)
+- Łukasz Żarnowiecki (2)
+- Christopher League (1)
+
+#### Fixes
+
+- don't delete messages in local cache in dry-run mode. [Nicolas Sebrecht]
+- Fix typo in format string in machineui. [Christopher League]
+
+#### Changes
+
+- folder: IMAP: change raw assert to OfflineImapError. [Nicolas Sebrecht]
+- folder: IMAP: add 'imap' debug output before calling FETCH. [Nicolas Sebrecht]
+- explicitly set __hash__ of Base class to None. [Łukasz Żarnowiecki]
+- imapserver: change lambdas with map to list comprehension. [Łukasz Żarnowiecki]
+- Clarify which settings are required for mbnames. [Wieland Hoffmann]
+- Remove an unused import. [Wieland Hoffmann]
+- folder: Base: minor style fix. [Nicolas Sebrecht]
+- CONTRIBUTING: add link to external page on "How to fix a bug". [Nicolas Sebrecht]
+- README: add link to the official repository on top of the page. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.4 (2016-08-02)
 
 #### Notes
