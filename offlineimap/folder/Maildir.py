@@ -158,8 +158,9 @@ class MaildirFolder(BaseFolder):
         This handles the edge cases where the date is much earlier than messages
         with similar UID's (e.g. the UID was reassigned much later).
 
-        Maildir flags are: R (replied) S (seen) T (trashed) D (draft) F
-        (flagged), plus lower-case letters for custom flags.
+        Maildir flags are:
+            D (draft) F (flagged) R (replied) S (seen) T (trashed),
+        plus lower-case letters for custom flags.
         :returns: dict that can be used as self.messagelist.
         """
 
@@ -167,7 +168,7 @@ class MaildirFolder(BaseFolder):
 
         retval = {}
         files = []
-        nouidcounter = -1          # Messages without UIDs get negative UIDs.
+        nouidcounter = -1   # Messages without UIDs get negative UIDs.
         for dirannex in ['new', 'cur']:
             fulldirname = os.path.join(self.getfullname(), dirannex)
             files.extend((dirannex, filename) for
@@ -180,11 +181,11 @@ class MaildirFolder(BaseFolder):
             # We store just dirannex and filename, ie 'cur/123...'
             filepath = os.path.join(dirannex, filename)
             # Check maxsize if this message should be considered.
-            if maxsize and (os.path.getsize(os.path.join(
-                        self.getfullname(), filepath)) > maxsize):
+            if maxsize and (os.path.getsize(
+                    os.path.join(self.getfullname(), filepath)) > maxsize):
                 continue
 
-            (prefix, uid, fmd5, flags) = self._parse_filename(filename)
+            prefix, uid, fmd5, flags = self._parse_filename(filename)
             if uid is None: # Assign negative uid to upload it.
                 uid = nouidcounter
                 nouidcounter -= 1
@@ -359,7 +360,7 @@ class MaildirFolder(BaseFolder):
         # to give it a permanent home.
         tmpdir = os.path.join(self.getfullname(), 'tmp')
 
-        # use the mail timestamp given by either Date or Delivery-date mail
+        # Use the mail timestamp given by either Date or Delivery-date mail
         # headers.
         message_timestamp = None
         if self._filename_use_mail_timestamp:
@@ -368,14 +369,15 @@ class MaildirFolder(BaseFolder):
                 if message_timestamp is None:
                     # Give a try with Delivery-date
                     date = emailutil.get_message_date(content, 'Delivery-date')
-            except:
-                # This should never happen
+            except Exception as e:
+                # This should never happen.
                 from email.Parser import Parser
                 from offlineimap.ui import getglobalui
                 datestr = Parser().parsestr(content, True).get("Date")
                 ui = getglobalui()
                 ui.warn("UID %d has invalid date %s: %s\n"
-                    "Not using message timestamp as file prefix" % (uid, datestr, e))
+                    "Not using message timestamp as file prefix"%
+                    (uid, datestr, e))
                 # No need to check if date is None here since it would
                 # be overridden by _gettimeseq.
         messagename = self.new_message_filename(uid, flags, date=message_timestamp)
@@ -387,19 +389,20 @@ class MaildirFolder(BaseFolder):
                 if date is not None:
                     os.utime(os.path.join(self.getfullname(), tmpname),
                         (date, date))
-            # In case date is wrongly so far into the future as to be > max int32
+            # In case date is wrongly so far into the future as to be > max
+            # int32.
             except Exception as e:
                 from email.Parser import Parser
                 from offlineimap.ui import getglobalui
                 datestr = Parser().parsestr(content, True).get("Date")
                 ui = getglobalui()
                 ui.warn("UID %d has invalid date %s: %s\n"
-                    "Not changing file modification time" % (uid, datestr, e))
+                    "Not changing file modification time"% (uid, datestr, e))
 
         self.messagelist[uid] = self.msglist_item_initializer(uid)
         self.messagelist[uid]['flags'] = flags
         self.messagelist[uid]['filename'] = tmpname
-        # savemessageflags moves msg to 'cur' or 'new' as appropriate
+        # savemessageflags moves msg to 'cur' or 'new' as appropriate.
         self.savemessageflags(uid, flags)
         self.ui.debug('maildir', 'savemessage: returning uid %d' % uid)
         return uid
