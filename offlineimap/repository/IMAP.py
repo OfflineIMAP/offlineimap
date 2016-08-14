@@ -309,7 +309,7 @@ class IMAPRepository(BaseRepository):
         refresh_token = self.getconf('oauth2_refresh_token', None)
         if refresh_token is None:
             refresh_token = self.localeval.eval(
-                self.getconf('oauth2_refresh_token_eval', "lambda x: None")
+                self.getconf('oauth2_refresh_token_eval', "lambda: None")
             )
         return refresh_token
 
@@ -317,7 +317,7 @@ class IMAPRepository(BaseRepository):
         access_token = self.getconf('oauth2_access_token', None)
         if access_token is None:
             access_token = self.localeval.eval(
-                self.getconf('oauth2_access_token_eval', "lambda x: None")
+                self.getconf('oauth2_access_token_eval', "lambda: None")
             )
         return access_token
 
@@ -325,7 +325,7 @@ class IMAPRepository(BaseRepository):
         client_id = self.getconf('oauth2_client_id', None)
         if client_id is None:
             client_id = self.localeval.eval(
-                self.getconf('oauth2_client_id_eval', "lambda x: None")
+                self.getconf('oauth2_client_id_eval', "lambda: None")
             )
         return client_id
 
@@ -333,7 +333,7 @@ class IMAPRepository(BaseRepository):
         client_secret = self.getconf('oauth2_client_secret', None)
         if client_secret is None:
             client_secret = self.localeval.eval(
-                self.getconf('oauth2_client_secret_eval', "lambda x: None")
+                self.getconf('oauth2_client_secret_eval', "lambda: None")
             )
         return client_secret
 
