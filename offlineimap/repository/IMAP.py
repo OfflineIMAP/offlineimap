@@ -309,36 +309,32 @@ class IMAPRepository(BaseRepository):
         refresh_token = self.getconf('oauth2_refresh_token', None)
         if refresh_token is None:
             refresh_token = self.localeval.eval(
-                self.getconf('oauth2_refresh_token_eval',
-                             "lambda x: None")
-                )(self.account.getname())
+                self.getconf('oauth2_refresh_token_eval', "lambda x: None")
+            )
         return refresh_token
 
     def getoauth2_access_token(self):
         access_token = self.getconf('oauth2_access_token', None)
         if access_token is None:
             access_token = self.localeval.eval(
-                self.getconf('oauth2_access_token_eval',
-                             "lambda x: None")
-                )(self.account.getname())
+                self.getconf('oauth2_access_token_eval', "lambda x: None")
+            )
         return access_token
 
     def getoauth2_client_id(self):
         client_id = self.getconf('oauth2_client_id', None)
         if client_id is None:
             client_id = self.localeval.eval(
-                self.getconf('oauth2_client_id_eval',
-                             "lambda x: None")
-                )(self.account.getname())
+                self.getconf('oauth2_client_id_eval', "lambda x: None")
+            )
         return client_id
 
     def getoauth2_client_secret(self):
         client_secret = self.getconf('oauth2_client_secret', None)
         if client_secret is None:
             client_secret = self.localeval.eval(
-                self.getconf('oauth2_client_secret_eval',
-                             "lambda x: None")
-                )(self.account.getname())
+                self.getconf('oauth2_client_secret_eval', "lambda x: None")
+            )
         return client_secret
 
     def getpreauthtunnel(self):
