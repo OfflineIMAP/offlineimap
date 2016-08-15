@@ -34,7 +34,10 @@ from offlineimap.utils import stacktrace
 from offlineimap.repository import Repository
 from offlineimap.folder.IMAP import MSGCOPY_NAMESPACE
 
+
 ACCOUNT_LIMITED_THREAD_NAME = 'MAX_ACCOUNTS'
+PYTHON_VERSION = sys.version.split(' ')[0]
+
 
 def syncitall(list_accounts, config):
     """The target when in multithreading mode for running accounts threads."""
@@ -173,8 +176,10 @@ class OfflineImap(object):
         globals.set_options (options)
 
         if options.version:
-            print("offlineimap v%s, imaplib2 v%s (%s)"% (
-                offlineimap.__version__, imaplib.__version__, imaplib.DESC))
+            print("offlineimap v%s, imaplib2 v%s (%s), Python v%s"% (
+                  offlineimap.__version__, imaplib.__version__, imaplib.DESC,
+                  PYTHON_VERSION)
+            )
             sys.exit(0)
 
         # Read in configuration file.
