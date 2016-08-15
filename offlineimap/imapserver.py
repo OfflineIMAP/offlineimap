@@ -253,6 +253,12 @@ class IMAPServer(object):
             try:
                 response = urllib.urlopen(
                     self.oauth2_request_url, urllib.urlencode(params)).read()
+            except Exception as e:
+                try:
+                    msg = "%s (configuration is: %s)"% (e, str(params))
+                except Exception as eparams:
+                    msg = "%s [cannot display configuration: %s]"% (e, eparams)
+                six.reraise(type(e), type(e)(msg), exc_info()[2])
             finally:
                 socket.socket = original_socket
 
