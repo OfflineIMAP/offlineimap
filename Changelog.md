@@ -15,6 +15,37 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.6 (2016-08-21)
+
+#### Notes
+
+Evaluated XOAUTH2 configuration options are fixed. With this release,
+offlineimap can try to keep the UIDs in order.
+
+#### Authors
+
+- Nicolas Sebrecht (10)
+- James E. Blair (2)
+
+#### Features
+
+- Learn singlethreadperfolder configuration option. [James E. Blair]
+- folder: Base: sort message UID list. [James E. Blair]
+
+#### Fixes
+
+- Maildir: add missing exception instance "as e" in except clause. [Nicolas Sebrecht]
+- XOAUTH2: fix evaluated configuration options. [Nicolas Sebrecht]
+
+#### Changes
+
+- XOAUTH2: improve error message while trying to get access token. [Nicolas Sebrecht]
+- Show python version for -V CLI option. [Nicolas Sebrecht]
+- README: link Python 3 version to issues. [Nicolas Sebrecht]
+- offlineimap.conf: add note about Gmail\All Mail keeping the emails while deleted. [Nicolas Sebrecht]
+- release.sh: minor enhancements. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.0.5 (2016-08-10)
 
 #### Notes
