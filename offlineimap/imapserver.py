@@ -264,6 +264,9 @@ class IMAPServer(object):
 
             resp = json.loads(response)
             self.ui.debug('imap', 'xoauth2handler: response "%s"'% resp)
+            if u'error' in resp:
+                raise OfflineImapError("xoauth2handler got: %s"% resp,
+                    OfflineImapError.ERROR.REPO)
             self.oauth2_access_token = resp['access_token']
 
         self.ui.debug('imap', 'xoauth2handler: access_token "%s"'%
