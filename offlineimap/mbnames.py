@@ -81,8 +81,9 @@ class _IntermediateMbnames(object):
     """mbnames data for one account."""
 
     def __init__(self, accountname, folder_root, mbnamesdir, folderfilter,
-            dry_run):
+            dry_run, ui):
 
+        self.ui = ui
         self._foldernames = []
         self._accountname = accountname
         self._folder_root = folder_root
@@ -109,7 +110,9 @@ class _IntermediateMbnames(object):
                     'localfolders': self._folder_root,
                 })
 
-        if not self._dryrun:
+        if self._dryrun:
+            self.ui.info("mbnames would write %s"% self._path)
+        else:
             with open(self._path, "wt") as intermediateFD:
                 json.dump(itemlist, intermediateFD)
 
@@ -122,7 +125,7 @@ class _Mbnames(object):
         self._dryrun = dry_run
 
         self._enabled = None
-        # Keys: accountname, values: _IntermediateMbnames instance
+        # Keys: accountname, values: _IntermediateMbnames instance.
         self._intermediates = {}
         self._incremental = None
         self._mbnamesdir = None
@@ -173,7 +176,7 @@ class _Mbnames(object):
 
     def _removeIntermediateFile(self, path):
         if self._dryrun:
-            self.ui.info("would remove %s"% path)
+            self.ui.info("mbnames would remove %s"% path)
         else:
             unlink(path)
             self.ui.info("removed %s"% path)
@@ -188,6 +191,7 @@ class _Mbnames(object):
                 self._mbnamesdir,
                 self._folderfilter,
                 self._dryrun,
+                self.ui,
             )
 
         self._intermediates[accountname].add(foldername)
@@ -240,7 +244,9 @@ class _Mbnames(object):
         itemlist.sort(key=self._func_sortkey)
         itemlist = [self._peritem % d for d in itemlist]
 
-        if not self._dryrun:
+        if self._dryrun:
+            self.ui.info("mbnames would write %s"% self._path)
+        else:
             try:
                 with open(self._path, 'wt') as mbnamesFile:
                     mbnamesFile.write(self._header)
