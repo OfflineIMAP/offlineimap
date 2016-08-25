@@ -51,7 +51,7 @@ def prune(accounts):
     if _mbnames.is_enabled() is True:
         _mbnames.prune(accounts)
     else:
-        _mbnames.pruneAll(accounts)
+        _mbnames.pruneAll()
 
 
 def write():
@@ -214,7 +214,7 @@ class _Mbnames(object):
         if removals is False:
             self.ui.info("no cache file to remove")
 
-    def pruneAll(self, accounts):
+    def pruneAll(self):
         for intermediateFile in self._iterIntermediateFiles():
             self._removeIntermediateFile(intermediateFile)
 
