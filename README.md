@@ -100,6 +100,6 @@ For the other documentation, run the appropriate make target:
 $ ./scripts/get-repository.sh website
 $ cd docs
 $ make html  # Requires rst2html
-$ make man   # Requires a2x
+$ make man   # Requires a2x (http://asciidoc.org)
 $ make api   # Requires sphinx
 ```
