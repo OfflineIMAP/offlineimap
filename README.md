@@ -70,7 +70,16 @@ place on the mailing list.** While not mandatory to send emails, you can
 [subscribe here](http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project).
 
 Bugs, issues and contributions can be requested to both the mailing list or the
-[official Github project][offlineimap].
+[official Github project][offlineimap].  Provide the following information:
+- system/distribution (with version)
+- offlineimap version (`offlineimap -V`)
+- Python version
+- server name or domain
+- CLI options
+- Configuration file (offlineimaprc)
+- pythonfile (if any)
+- Logs, error
+- Steps to reproduce the error
 
 
 ## The community

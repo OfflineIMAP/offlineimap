@@ -32,7 +32,16 @@ Submit issues
 =============
 
 Issues are welcome to both Github_ and the `mailing list`_, at your own
-convenience.
+convenience. Provide the following information:
+- system/distribution (with version)
+- offlineimap version (`offlineimap -V`)
+- Python version
+- server name or domain
+- CLI options
+- Configuration file (offlineimaprc)
+- pythonfile (if any)
+- Logs, error
+- Steps to reproduce the error
 
 Worth the read: `How to fix a bug in open source software`_.
 
