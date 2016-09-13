@@ -86,22 +86,22 @@ class IMAPServer(object):
 
         self.usessl = repos.getssl()
         self.useipv6 = repos.getipv6()
-        if self.useipv6 == True:
+        if self.useipv6 is True:
             self.af = socket.AF_INET6
-        elif self.useipv6 == False:
+        elif self.useipv6 is False:
             self.af = socket.AF_INET
         else:
             self.af = socket.AF_UNSPEC
-        self.hostname = \
-            None if self.preauth_tunnel else repos.gethost()
+        self.hostname = None if self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
-        if self.port == None:
+        if self.port is None:
             self.port = 993 if self.usessl else 143
         self.sslclientcert = repos.getsslclientcert()
         self.sslclientkey = repos.getsslclientkey()
         self.sslcacertfile = repos.getsslcacertfile()
         if self.sslcacertfile is None:
-            self.__verifycert = None # disable cert verification
+            self.__verifycert = None # Disable cert verification.
+                                     # This way of working sucks hard...
         self.fingerprint = repos.get_ssl_fingerprint()
         self.tlslevel = repos.gettlslevel()
         self.sslversion = repos.getsslversion()
@@ -671,7 +671,8 @@ class IMAPServer(object):
 
             threads = []
             for i in range(numconnections):
-                self.ui.debug('imap', 'keepalive: processing connection %d of %d'% (i, numconnections))
+                self.ui.debug('imap', 'keepalive: processing connection %d of %d'%
+                                      (i, numconnections))
                 if len(self.idlefolders) > i:
                     # IDLE thread
                     idler = IdleThread(self, self.idlefolders[i])
@@ -805,11 +806,26 @@ class IdleThread(object):
             while in IDLE mode, b) we get an Exception (e.g. on dropped
             connections, or c) the standard imaplib IDLE timeout of 29
             minutes kicks in."""
+
             result, cb_arg, exc_data = args
             if exc_data is None and not self.stop_sig.isSet():
                 # No Exception, and we are not supposed to stop:
                 self.needsync = True
             self.stop_sig.set() # Continue to sync.
+
+        def noop(imapobj):
+            """Factorize the noop code."""
+
+            try:
+                # End IDLE mode with noop, imapobj can point to a dropped conn.
+                imapobj.noop()
+            except imapobj.abort:
+                self.ui.warn('Attempting NOOP on dropped connection %s'%
+                    imapobj.identifier)
+                self.parent.releaseconnection(imapobj, True)
+            else:
+                self.parent.releaseconnection(imapobj)
+
 
         while not self.stop_sig.isSet():
             self.needsync = False
@@ -837,17 +853,9 @@ class IdleThread(object):
             else:
                 self.ui.warn("IMAP IDLE not supported on server '%s'."
                     "Sleep until next refresh cycle."% imapobj.identifier)
-                imapobj.noop()
+                noop(imapobj) #XXX: why?
             self.stop_sig.wait() # self.stop() or IDLE callback are invoked.
-            try:
-                # End IDLE mode with noop, imapobj can point to a dropped conn.
-                imapobj.noop()
-            except imapobj.abort:
-                self.ui.warn('Attempting NOOP on dropped connection %s'%
-                    imapobj.identifier)
-                self.parent.releaseconnection(imapobj, True)
-            else:
-                self.parent.releaseconnection(imapobj)
+            noop(imapobj)
 
             if self.needsync:
                 # Here not via self.stop, but because IDLE responded. Do
