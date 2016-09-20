@@ -33,6 +33,7 @@ from offlineimap.utils.distro import get_os_sslcertfile, get_os_sslcertfile_sear
 
 class IMAPRepository(BaseRepository):
     def __init__(self, reposname, account):
+        self.idlefolders = None
         BaseRepository.__init__(self, reposname, account)
         # self.ui is being set by the BaseRepository
         self._host = None
@@ -95,15 +96,14 @@ class IMAPRepository(BaseRepository):
 
     def getholdconnectionopen(self):
         if self.getidlefolders():
-            return 1
+            return True
         return self.getconfboolean("holdconnectionopen", False)
 
     def getkeepalive(self):
         num = self.getconfint("keepalive", 0)
         if num == 0 and self.getidlefolders():
             return 29*60
-        else:
-            return num
+        return num
 
     def getsep(self):
         """Return the folder separator for the IMAP repository
@@ -358,7 +358,11 @@ class IMAPRepository(BaseRepository):
         return self.getconfboolean('decodefoldernames', False)
 
     def getidlefolders(self):
-        return self.localeval.eval(self.getconf('idlefolders', '[]'))
+        if self.idlefolders is None:
+            self.idlefolders = self.localeval.eval(
+                self.getconf('idlefolders', '[]')
+            )
+        return self.idlefolders
 
     def getmaxconnections(self):
         num1 = len(self.getidlefolders())
