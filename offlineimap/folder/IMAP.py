@@ -48,6 +48,7 @@ class IMAPFolder(BaseFolder):
         name = imaputil.dequote(name)
         self.sep = imapserver.delim
         super(IMAPFolder, self).__init__(name, repository)
+        self.idle_mode = False
         self.expunge = repository.getexpunge()
         self.root = None # imapserver.root
         self.imapserver = imapserver
@@ -61,6 +62,8 @@ class IMAPFolder(BaseFolder):
         # self.copy_ignoreUIDs is used by BaseFolder.
         self.copy_ignoreUIDs = repository.get_copy_ignore_UIDs(
             self.getvisiblename())
+        if self.repository.getidlefolders() > 0:
+            self.idle_mode = True
 
 
     def __selectro(self, imapobj, force=False):
@@ -79,9 +82,13 @@ class IMAPFolder(BaseFolder):
 
     # Interface from BaseFolder
     def suggeststhreads(self):
+        singlethreadperfolder_default = False
+        if self.idle_mode is True:
+            singlethreadperfolder_default = True
+
         onethread = self.config.getdefaultboolean(
             "Repository %s"% self.repository.getname(),
-            "singlethreadperfolder", False)
+            "singlethreadperfolder", singlethreadperfolder_default)
         if onethread is True:
             return False
         return not globals.options.singlethreading
