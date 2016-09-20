@@ -1,4 +1,4 @@
-# Copyright 2014 Eygene A. Ryabinkin.
+# Copyright 2014-2006 Eygene A. Ryabinkin & contributors.
 #
 # Module that supports distribution-specific functions.
 
