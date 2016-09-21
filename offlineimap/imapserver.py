@@ -221,7 +221,7 @@ class IMAPServer(object):
         # in UTF-8.
         NULL = b'\x00'
         retval = NULL.join((authz, authc, passwd))
-        logsafe_retval = NULL.join((authz, authc, "(passwd hidden for log)"))
+        logsafe_retval = NULL.join((authz, authc, b'(passwd hidden for log)'))
         self.ui.debug('imap', '__plainhandler: returning %s'% logsafe_retval)
         return retval
 
