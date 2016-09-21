@@ -15,6 +15,47 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.7 (2016-09-21)
+
+#### Notes
+
+With this release, IDLE mode is a bit improved regarding stability. Offlineimap
+learns the default path to the certificate for Gentoo.
+
+There are few improvements for logs and documentation. Minor code refactoring,
+too.
+
+#### Authors
+
+- Nicolas Sebrecht (12)
+- Dan Loewenherz (1)
+- Espen Henriksen (1)
+
+#### Features
+
+- Add gentoo cert path for OS-DEFAULT. [Espen Henriksen]
+- Remove EXPERIMENTAL flag for the singlethreadperfolder configuration option. [Nicolas Sebrecht]
+
+#### Fixes
+
+- Ensure logs are in bytes for PLAIN authentication. [Nicolas Sebrecht]
+- Minor: utils: distro: fix copyright line. [Nicolas Sebrecht]
+- README: minor copy edits. [Dan Loewenherz]
+- IDLE: protect all calls to imapobj.noop() (coonection might be dropped). [Nicolas Sebrecht]
+- XOAUTH2: raise error if string 'error' is in the response. [Nicolas Sebrecht]
+
+#### Changes
+
+- Set singlethreadperfolder configuration option when in idle mode. [Nicolas Sebrecht]
+- repository: IMAP: cache the idle folders in memory. [Nicolas Sebrecht]
+- mbnames: add info output messages in dry run mode. [Nicolas Sebrecht]
+- mbnames: remove non-required argument. [Nicolas Sebrecht]
+- offlineimap.conf: explain hooks in idle mode. [Nicolas Sebrecht]
+- Explain how to submit issues in more files. [Nicolas Sebrecht]
+- README: explain the a2x dependency to build the man page. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.6 (2016-08-21)
 
 #### Notes
