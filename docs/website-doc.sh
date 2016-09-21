@@ -126,7 +126,7 @@ function releases () {
 
 
 exit_code=0
-test "n$ARGS" = 'n' && ARG='usage' # no option passed
+test "n$ARGS" = 'n' && ARGS='usage' # no option passed
 for arg in $ARGS
 do
   # PWD was fixed at the very beginning.
