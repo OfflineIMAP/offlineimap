@@ -22,6 +22,8 @@ Note to mainainers:
 With this release, IDLE mode is a bit improved regarding stability. Offlineimap
 learns the default path to the certificate for Gentoo.
 
+The singlethreadperfolder configuration option is marked stable.
+
 There are few improvements for logs and documentation. Minor code refactoring,
 too.
 
