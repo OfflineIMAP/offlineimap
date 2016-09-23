@@ -98,6 +98,11 @@ class BaseFolder(object):
         # FIMXE: remove calls of this. We have getname().
         return self.name
 
+    def __unicode__(self):
+        # NOTE(sheeprine): Implicit call to this by UIBase deletingflags() which
+        # fails if the str is utf-8
+        return self.name.decode('utf-8')
+
     @property
     def accountname(self):
         """Account name as string"""
