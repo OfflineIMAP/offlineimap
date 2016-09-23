@@ -172,26 +172,6 @@ class IMAPServer(object):
         self.passworderror = None
         return self.password
 
-
-    def releaseconnection(self, connection, drop_conn=False):
-        """Releases a connection, returning it to the pool.
-
-        :param drop_conn: If True, the connection will be released and
-           not be reused. This can be used to indicate broken connections."""
-
-        if connection is None:
-            return # Noop on bad connection.
-
-        self.connectionlock.acquire()
-        self.assignedconnections.remove(connection)
-        # Don't reuse broken connections
-        if connection.Terminate or drop_conn:
-            connection.logout()
-        else:
-            self.availableconnections.append(connection)
-        self.connectionlock.release()
-        self.semaphore.release()
-
     def __md5handler(self, response):
         challenge = response.strip()
         self.ui.debug('imap', '__md5handler: got challenge %s'% challenge)
@@ -206,7 +186,6 @@ class IMAPServer(object):
 
         self.ui.debug('imap', 'Attempting IMAP LOGIN authentication')
         imapobj.login(self.username, self.__getpassword())
-
 
     def __plainhandler(self, response):
         """Implements SASL PLAIN authentication, RFC 4616,
@@ -224,7 +203,6 @@ class IMAPServer(object):
         logsafe_retval = NULL.join((authz, authc, b'(passwd hidden for log)'))
         self.ui.debug('imap', '__plainhandler: returning %s'% logsafe_retval)
         return retval
-
 
     def __xoauth2handler(self, response):
         if self.oauth2_refresh_token is None \
@@ -304,7 +282,6 @@ class IMAPServer(object):
             response = ''
         return base64.b64decode(response)
 
-
     def __start_tls(self, imapobj):
         if 'STARTTLS' in imapobj.capabilities and not self.usessl:
             self.ui.debug('imap', 'Using STARTTLS connection')
@@ -314,7 +291,6 @@ class IMAPServer(object):
                 raise OfflineImapError("Failed to start "
                     "TLS connection: %s"% str(e),
                     OfflineImapError.ERROR.REPO, None, exc_info()[2])
-
 
     ## All __authn_* procedures are helpers that do authentication.
     ## They are class methods that take one parameter, IMAP object.
@@ -374,7 +350,6 @@ class IMAPServer(object):
         else:
             self.__loginauth(imapobj)
             return True
-
 
     def __authn_helper(self, imapobj):
         """Authentication machinery for self.acquireconnection().
@@ -447,8 +422,45 @@ class IMAPServer(object):
               ", ".join(self.authmechs), methods),
               OfflineImapError.ERROR.REPO)
 
+    def __verifycert(self, cert, hostname):
+        """Verify that cert (in socket.getpeercert() format) matches hostname.
 
-    # XXX: move above, closer to releaseconnection()
+        CRLs are not handled.
+        Returns error message if any problems are found and None on success."""
+
+        errstr = "CA Cert verifying failed: "
+        if not cert:
+            return ('%s no certificate received'% errstr)
+        dnsname = hostname.lower()
+        certnames = []
+
+        # cert expired?
+        notafter = cert.get('notAfter')
+        if notafter:
+            if time.time() >= cert_time_to_seconds(notafter):
+                return '%s certificate expired %s'% (errstr, notafter)
+
+        # First read commonName
+        for s in cert.get('subject', []):
+            key, value = s[0]
+            if key == 'commonName':
+                certnames.append(value.lower())
+        if len(certnames) == 0:
+            return ('%s no commonName found in certificate'% errstr)
+
+        # Then read subjectAltName
+        for key, value in cert.get('subjectAltName', []):
+            if key == 'DNS':
+                certnames.append(value.lower())
+
+        # And finally try to match hostname with one of these names
+        for certname in certnames:
+            if (certname == dnsname or
+                '.' in dnsname and certname == '*.' + dnsname.split('.', 1)[1]):
+                return None
+
+        return ('%s no matching domain name found in certificate'% errstr)
+
     def acquireconnection(self):
         """Fetches a connection from the pool, making sure to create a new one
         if needed, to obey the maximum connection limits, etc.
@@ -694,44 +706,25 @@ class IMAPServer(object):
         self.ui.debug('imap', 'keepalive: event is set; exiting')
         return
 
-    def __verifycert(self, cert, hostname):
-        """Verify that cert (in socket.getpeercert() format) matches hostname.
 
-        CRLs are not handled.
-        Returns error message if any problems are found and None on success."""
+    def releaseconnection(self, connection, drop_conn=False):
+        """Releases a connection, returning it to the pool.
 
-        errstr = "CA Cert verifying failed: "
-        if not cert:
-            return ('%s no certificate received'% errstr)
-        dnsname = hostname.lower()
-        certnames = []
+        :param drop_conn: If True, the connection will be released and
+           not be reused. This can be used to indicate broken connections."""
 
-        # cert expired?
-        notafter = cert.get('notAfter')
-        if notafter:
-            if time.time() >= cert_time_to_seconds(notafter):
-                return '%s certificate expired %s'% (errstr, notafter)
+        if connection is None:
+            return # Noop on bad connection.
 
-        # First read commonName
-        for s in cert.get('subject', []):
-            key, value = s[0]
-            if key == 'commonName':
-                certnames.append(value.lower())
-        if len(certnames) == 0:
-            return ('%s no commonName found in certificate'% errstr)
-
-        # Then read subjectAltName
-        for key, value in cert.get('subjectAltName', []):
-            if key == 'DNS':
-                certnames.append(value.lower())
-
-        # And finally try to match hostname with one of these names
-        for certname in certnames:
-            if (certname == dnsname or
-                '.' in dnsname and certname == '*.' + dnsname.split('.', 1)[1]):
-                return None
-
-        return ('%s no matching domain name found in certificate'% errstr)
+        self.connectionlock.acquire()
+        self.assignedconnections.remove(connection)
+        # Don't reuse broken connections
+        if connection.Terminate or drop_conn:
+            connection.logout()
+        else:
+            self.availableconnections.append(connection)
+        self.connectionlock.release()
+        self.semaphore.release()
 
 
 class IdleThread(object):
