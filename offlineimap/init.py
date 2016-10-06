@@ -27,8 +27,11 @@ from optparse import OptionParser
 
 import offlineimap
 import offlineimap.virtual_imaplib2 as imaplib
-from offlineimap import globals, threadutil, accounts, folder, mbnames
+
+# Ensure that `ui` gets loaded before `threadutil` in order to
+# break the circular dependency between `threadutil` and `Curses`.
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
+from offlineimap import globals, threadutil, accounts, folder, mbnames
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
 from offlineimap.repository import Repository
