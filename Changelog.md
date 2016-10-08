@@ -15,6 +15,36 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.8 (2016-10-08)
+
+#### Notes
+
+Very small release to fix the broken UI relying on Curses. Thanks for the
+contributors!
+
+#### Authors
+
+- Nicolas Sebrecht (4)
+- Ilias Tsitsimpis (1)
+- Stéphane Albert (1)
+
+#### Features
+
+- Introduce contrib/README.md. [Nicolas Sebrecht]
+
+#### Fixes
+
+- Import ui before threadutil to resolve circular dependency. [Ilias Tsitsimpis]
+- Fix implicit call to unicode() from UI functions. [Stéphane Albert]
+
+#### Changes
+
+- imapserver: minor code cleaning: reorder methods. [Nicolas Sebrecht]
+- website-doc.sh: print usage when no argument is given. [Nicolas Sebrecht]
+- Changelog: add remark about singlethreadperfolder in the resume. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.7 (2016-09-21)
 
 #### Notes
