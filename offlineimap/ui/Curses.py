@@ -149,6 +149,7 @@ class CursesAccountFrame:
         self.window = curses_win
         self.acc_num = acc_num
         self.drawleadstr()
+        self.ui.exec_locked(self.window.noutrefresh)
         # Update the child ThreadFrames
         for child in self.children:
             child.update(curses_win, self.location, 0)
@@ -510,6 +511,7 @@ class Blinkenlights(UIBase, CursesUtil):
         # received special KEY_RESIZE, resize terminal
         if key == curses.KEY_RESIZE:
             self.resizeterm()
+            return
 
         if key < 1 or key > 255:
             return
@@ -574,9 +576,12 @@ class Blinkenlights(UIBase, CursesUtil):
         self.height, self.width = self.stdscr.getmaxyx()
         self.logheight = self.height - len(self.accframes) - 1
         if resize:
-            curses.resizeterm(self.height, self.width)
+            if curses.is_term_resized(self.height, self.width):
+                curses.resizeterm(self.height, self.width)
             self.bannerwin.resize(1, self.width)
             self.logwin.resize(self.logheight, self.width)
+            self.stdscr.clear()
+            self.stdscr.noutrefresh()
         else:
             self.bannerwin = curses.newwin(1, self.width, 0, 0)
             self.logwin = curses.newwin(self.logheight, self.width, 1, 0)
@@ -621,8 +626,9 @@ class Blinkenlights(UIBase, CursesUtil):
         else:
             color = curses.A_NORMAL
         self.logwin.move(0, 0)
-        self.logwin.erase()
+        self.logwin.clear()
         self.logwin.bkgd(' ', color)
+        self.logwin.noutrefresh()
 
     def getaccountframe(self, acc_name):
         """Return an AccountFrame() corresponding to acc_name.
