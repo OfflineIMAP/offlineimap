@@ -18,10 +18,9 @@
 import random
 import binascii
 import re
-import os
 import time
-import six
 from sys import exc_info
+import six
 
 from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
