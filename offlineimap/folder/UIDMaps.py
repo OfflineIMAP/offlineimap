@@ -33,6 +33,7 @@ class MappedIMAPFolder(IMAPFolder):
     be an IMAPFolder.
 
     Instance variables (self.):
+      dryrun: boolean.
       dofsync: boolean for fsync calls.
       r2l: dict mapping message uids: self.r2l[remoteuid]=localuid
       l2r: dict mapping message uids: self.r2l[localuid]=remoteuid
@@ -42,6 +43,7 @@ class MappedIMAPFolder(IMAPFolder):
 
     def __init__(self, *args, **kwargs):
         IMAPFolder.__init__(self, *args, **kwargs)
+        self.dryrun = self.config.getdefaultboolean("general", "dry-run", True)
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.maplock = Lock()
         self.diskr2l, self.diskl2r = self._loadmaps()
@@ -94,6 +96,9 @@ class MappedIMAPFolder(IMAPFolder):
             return (r2l, l2r)
 
     def _savemaps(self):
+        if self.dryrun is True:
+            return
+
         mapfilename = self._getmapfilename()
         # Do not use the map file directly to prevent from leaving it truncated.
         mapfilenametmp = "%s.tmp"% mapfilename
@@ -136,7 +141,6 @@ class MappedIMAPFolder(IMAPFolder):
         with self.maplock:
             # OK.  Now we've got a nice list.  First, delete things from the
             # summary that have been deleted from the folder.
-
             for luid in self.diskl2r.keys():
                 if not luid in reallist:
                     ruid = self.diskl2r[luid]
