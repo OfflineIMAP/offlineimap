@@ -16,6 +16,8 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import os.path
+import shutil
+from os import fsync, unlink
 from sys import exc_info
 from threading import Lock
 import six
@@ -31,6 +33,7 @@ class MappedIMAPFolder(IMAPFolder):
     be an IMAPFolder.
 
     Instance variables (self.):
+      dofsync: boolean for fsync calls.
       r2l: dict mapping message uids: self.r2l[remoteuid]=localuid
       l2r: dict mapping message uids: self.r2l[localuid]=remoteuid
       #TODO: what is the difference, how are they used?
@@ -39,18 +42,33 @@ class MappedIMAPFolder(IMAPFolder):
 
     def __init__(self, *args, **kwargs):
         IMAPFolder.__init__(self, *args, **kwargs)
+        self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.maplock = Lock()
-        (self.diskr2l, self.diskl2r) = self._loadmaps()
+        self.diskr2l, self.diskl2r = self._loadmaps()
+        self.r2l, self.l2r = None, None
+        # Representing the local IMAP Folder using local UIDs.
+        # XXX: This should be removed since we inherit from IMAPFolder.
+        # See commit 3ce514e92ba7 to know more.
         self._mb = IMAPFolder(*args, **kwargs)
-        """Representing the local IMAP Folder using local UIDs"""
 
     def _getmapfilename(self):
         return os.path.join(self.repository.getmapdir(),
                             self.getfolderbasename())
 
     def _loadmaps(self):
-        with self.maplock:
-            mapfilename = self._getmapfilename()
+        mapfilename = self._getmapfilename()
+        mapfilenametmp = "%s.tmp"% mapfilename
+        mapfilenamelock = "%s.lock"% mapfilename
+        with self.maplock and open(mapfilenamelock, 'w') as mapfilelock:
+            try:
+                fnctl.lockf(mapfilelock, fnctl.LOCK_EX) # Blocks until acquired.
+            except NameError:
+                pass # Windows...
+            if os.path.exists(mapfilenametmp):
+                self.ui.warn("a previous run might have leave the UIDMaps file"
+                    " in incorrect state; some sync operations might be done"
+                    " again and some emails might become duplicated.")
+                unlink(mapfilenametmp)
             if not os.path.exists(mapfilename):
                 return ({}, {})
             file = open(mapfilename, 'rt')
@@ -77,8 +95,10 @@ class MappedIMAPFolder(IMAPFolder):
 
     def _savemaps(self):
         mapfilename = self._getmapfilename()
+        # Do not use the map file directly to prevent from leaving it truncated.
+        mapfilenametmp = "%s.tmp"% mapfilename
         mapfilenamelock = "%s.lock"% mapfilename
-        with open(mapfilenamelock, 'w') as mapfilelock:
+        with self.maplock and open(mapfilenamelock, 'w') as mapfilelock:
             # The "account" lock already prevents from multiple access by
             # different processes. However, we still need to protect for
             # multiple access from different threads.
@@ -86,10 +106,13 @@ class MappedIMAPFolder(IMAPFolder):
                 fnctl.lockf(mapfilelock, fnctl.LOCK_EX) # Blocks until acquired.
             except NameError:
                 pass # Windows...
-            with open(mapfilename, 'wt') as mapfilefd:
+            with open(mapfilenametmp, 'wt') as mapfilefd:
                 for (key, value) in self.diskl2r.items():
                     mapfilefd.write("%d:%d\n"% (key, value))
+                if self.dofsync is True:
+                    fsync(mapfilefd)
             # The lock is released when the file descriptor ends.
+            shutil.move(mapfilenametmp, mapfilename)
 
     def _uidlist(self, mapping, items):
         try:
@@ -140,6 +163,7 @@ class MappedIMAPFolder(IMAPFolder):
     # Interface from BaseFolder
     def uidexists(self, ruid):
         """Checks if the (remote) UID exists in this Folder"""
+
         # This implementation overrides the one in BaseFolder, as it is
         # much more efficient for the mapped case.
         return ruid in self.r2l
@@ -147,7 +171,9 @@ class MappedIMAPFolder(IMAPFolder):
     # Interface from BaseFolder
     def getmessageuidlist(self):
         """Gets a list of (remote) UIDs.
+
         You may have to call cachemessagelist() before calling this function!"""
+
         # This implementation overrides the one in BaseFolder, as it is
         # much more efficient for the mapped case.
         return self.r2l.keys()
@@ -155,16 +181,19 @@ class MappedIMAPFolder(IMAPFolder):
     # Interface from BaseFolder
     def getmessagecount(self):
         """Gets the number of messages in this folder.
+
         You may have to call cachemessagelist() before calling this function!"""
+
         # This implementation overrides the one in BaseFolder, as it is
         # much more efficient for the mapped case.
         return len(self.r2l)
 
     # Interface from BaseFolder
     def getmessagelist(self):
-        """Gets the current message list. This function's implementation
-        is quite expensive for the mapped UID case.  You must call
-        cachemessagelist() before calling this function!"""
+        """Gets the current message list.
+
+        This function's implementation is quite expensive for the mapped UID
+        case.  You must call cachemessagelist() before calling this function!"""
 
         retval = {}
         localhash = self._mb.getmessagelist()
@@ -208,6 +237,7 @@ class MappedIMAPFolder(IMAPFolder):
         check against dryrun settings, so you need to ensure that
         savemessage is never called in a dryrun mode.
         """
+
         self.ui.savemessage('imap', uid, flags, self)
         # Mapped UID instances require the source to already have a
         # positive UID, so simply return here.
@@ -263,6 +293,7 @@ class MappedIMAPFolder(IMAPFolder):
         :param new_uid: The old remote UID will be changed to a new
             UID. The UIDMaps case handles this efficiently by simply
             changing the mappings file."""
+
         if ruid not in self.r2l:
             raise OfflineImapError("Cannot change unknown Maildir UID %s"%
                 ruid, OfflineImapError.ERROR.MESSAGE)
