@@ -34,7 +34,6 @@ class MappedIMAPFolder(IMAPFolder):
 
     Instance variables (self.):
       dryrun: boolean.
-      dofsync: boolean for fsync calls.
       r2l: dict mapping message uids: self.r2l[remoteuid]=localuid
       l2r: dict mapping message uids: self.r2l[localuid]=remoteuid
       #TODO: what is the difference, how are they used?
@@ -44,7 +43,6 @@ class MappedIMAPFolder(IMAPFolder):
     def __init__(self, *args, **kwargs):
         IMAPFolder.__init__(self, *args, **kwargs)
         self.dryrun = self.config.getdefaultboolean("general", "dry-run", True)
-        self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.maplock = Lock()
         self.diskr2l, self.diskl2r = self._loadmaps()
         self.r2l, self.l2r = None, None
@@ -114,7 +112,7 @@ class MappedIMAPFolder(IMAPFolder):
             with open(mapfilenametmp, 'wt') as mapfilefd:
                 for (key, value) in self.diskl2r.items():
                     mapfilefd.write("%d:%d\n"% (key, value))
-                if self.dofsync is True:
+                if self.dofsync():
                     fsync(mapfilefd)
             # The lock is released when the file descriptor ends.
             shutil.move(mapfilenametmp, mapfilename)
