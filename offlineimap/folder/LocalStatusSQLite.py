@@ -92,6 +92,19 @@ class LocalStatusSQLiteFolder(BaseFolder):
             LocalStatusSQLiteFolder.locks[self.filename] = DatabaseFileLock()
         self._databaseFileLock = LocalStatusSQLiteFolder.locks[self.filename]
 
+        self._in_transactions = 0
+
+    def __enter__(self):
+        assert self.connection is not None
+        self._in_transactions += 1
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        assert self._in_transactions > 0
+
+        self._in_transactions -= 1
+        if not self._in_transactions:
+            self.connection.commit()
+
     def openfiles(self):
         # Make sure sqlite is in multithreading SERIALIZE mode.
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'
@@ -169,7 +182,8 @@ class LocalStatusSQLiteFolder(BaseFolder):
                         else:
                             self.connection.execute(sql, args)
                     success = True
-                    self.connection.commit()
+                    if not self._in_transactions:
+                        self.connection.commit()
             except sqlite.OperationalError as e:
                 if e.args[0] == 'cannot commit - no transaction is active':
                     pass

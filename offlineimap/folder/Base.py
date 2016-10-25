@@ -103,6 +103,16 @@ class BaseFolder(object):
         # fails if the str is utf-8
         return self.name.decode('utf-8')
 
+    def __enter__(self):
+        """Starts a transaction. This will postpone (guaranteed) saving to disk
+        of all messages saved inside this transaction until its committed."""
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Commits a transaction, all messages saved inside this transaction
+        will only now be persisted to disk."""
+        pass
+
     @property
     def accountname(self):
         """Account name as string"""
@@ -891,38 +901,39 @@ class BaseFolder(object):
             )
             return
 
-        for num, uid in enumerate(copylist):
-            # Bail out on CTRL-C or SIGTERM.
-            if offlineimap.accounts.Account.abort_NOW_signal.is_set():
-                break
+        with self:
+            for num, uid in enumerate(copylist):
+                # Bail out on CTRL-C or SIGTERM.
+                if offlineimap.accounts.Account.abort_NOW_signal.is_set():
+                    break
 
-            if uid == 0:
-                self.ui.warn("Assertion that UID != 0 failed; ignoring message.")
-                continue
+                if uid == 0:
+                    self.ui.warn("Assertion that UID != 0 failed; ignoring message.")
+                    continue
 
-            if uid > 0 and dstfolder.uidexists(uid):
-                # dstfolder has message with that UID already, only update status.
-                flags = self.getmessageflags(uid)
-                rtime = self.getmessagetime(uid)
-                statusfolder.savemessage(uid, None, flags, rtime)
-                continue
+                if uid > 0 and dstfolder.uidexists(uid):
+                    # dstfolder has message with that UID already, only update status.
+                    flags = self.getmessageflags(uid)
+                    rtime = self.getmessagetime(uid)
+                    statusfolder.savemessage(uid, None, flags, rtime)
+                    continue
 
-            self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
-            # Exceptions are caught in copymessageto().
-            if self.suggeststhreads():
-                self.waitforthread()
-                thread = threadutil.InstanceLimitedThread(
-                    self.getinstancelimitnamespace(),
-                    target=self.copymessageto,
-                    name="Copy message from %s:%s"% (self.repository, self),
-                    args=(uid, dstfolder, statusfolder)
-                )
-                thread.start()
-                threads.append(thread)
-            else:
-                self.copymessageto(uid, dstfolder, statusfolder, register=0)
-        for thread in threads:
-            thread.join() # Block until all "copy" threads are done.
+                self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
+                # Exceptions are caught in copymessageto().
+                if self.suggeststhreads():
+                    self.waitforthread()
+                    thread = threadutil.InstanceLimitedThread(
+                        self.getinstancelimitnamespace(),
+                        target=self.copymessageto,
+                        name="Copy message from %s:%s"% (self.repository, self),
+                        args=(uid, dstfolder, statusfolder)
+                    )
+                    thread.start()
+                    threads.append(thread)
+                else:
+                    self.copymessageto(uid, dstfolder, statusfolder, register=0)
+            for thread in threads:
+                thread.join() # Block until all "copy" threads are done.
 
         # Execute new mail hook if we have new mail.
         if self.have_newmail:
