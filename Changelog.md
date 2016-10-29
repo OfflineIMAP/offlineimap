@@ -15,6 +15,49 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.9 (2016-10-29)
+
+#### Notes
+
+Let's go for this small but still interesting release.
+
+The Blinkenlights UI got fixed. Reliability for IMAP/IMAP setups is improved.
+
+The sqlite backend now honors the fsync configuration option. This allows
+commits to the database to be postponed. This might be usefull to disable the
+default fsync for some use cases like cache migration from text to sqlite,
+syncing after long away periods and more generally when a lot of new email
+entries must be written to the cache.
+
+Because of this change the old fsync option is marked EXPERIMENTAL. However,
+setups using the plain text cache are not concerned. Bear in mind that disabling
+fsync greatly decreases reliability when resuming from unexpected halts.
+
+Small code cleanups, too.
+
+#### Authors
+
+- Nicolas Sebrecht (4)
+- Giel van Schijndel (1)
+- Ilias Tsitsimpis (1)
+
+#### Features
+
+- SQLite: make postponing transaction committing possible.. [Giel van Schijndel]
+
+#### Fixes
+
+- UIDMaps: ensure we don't update the map file in dry run mode. [Nicolas Sebrecht]
+- UIDMaps: prevent from leaving a truncated map file. [Nicolas Sebrecht]
+- Fix flickering in Blinkenlights UI. [Ilias Tsitsimpis]
+
+#### Changes
+
+- UIDMaps: reorder imports. [Nicolas Sebrecht]
+- folder: IMAP: remove unused import. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.8 (2016-10-08)
 
 #### Notes
