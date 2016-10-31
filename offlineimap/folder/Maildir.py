@@ -71,7 +71,7 @@ class MaildirFolder(BaseFolder):
         # Everything up to the first comma or colon (or ! if Windows):
         self.re_prefixmatch = re.compile('([^'+ self.infosep + ',]*)')
         # folder's md, so we can match with recorded file md5 for validity.
-        self._foldermd5 = md5(self.getvisiblename().encode('utf-8')).hexdigest()
+        self._foldermd5 = md5(self.getvisiblename()).hexdigest()
         # Cache the full folder path, as we use getfullname() very often.
         self._fullname = os.path.join(self.getroot(), self.getname())
         # Modification time from 'Date' header.
