@@ -16,6 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 
+import codecs
 import re   # For folderfilter.
 import json
 from threading import Lock
@@ -106,14 +107,15 @@ class _IntermediateMbnames(object):
             if self._folderfilter(self._accountname, foldername):
                 itemlist.append({
                     'accountname': self._accountname,
-                    'foldername': foldername,
+                    'foldername': foldername.decode('utf-8'),
                     'localfolders': self._folder_root,
                 })
 
         if self._dryrun:
             self.ui.info("mbnames would write %s"% self._path)
         else:
-            with open(self._path, "wt") as intermediateFD:
+            with codecs.open(
+                self._path, "wt", encoding='UTF-8') as intermediateFD:
                 json.dump(itemlist, intermediateFD)
 
 
@@ -227,7 +229,8 @@ class _Mbnames(object):
 
         for intermediateFile in self._iterIntermediateFiles():
             try:
-                with open(intermediateFile, 'rt') as intermediateFD:
+                with codecs.open(
+                    intermediateFile, 'rt', encoding="UTF-8") as intermediateFD:
                     for item in json.load(intermediateFD):
                         itemlist.append(item)
             except (OSError, IOError) as e:
@@ -248,7 +251,8 @@ class _Mbnames(object):
             self.ui.info("mbnames would write %s"% self._path)
         else:
             try:
-                with open(self._path, 'wt') as mbnamesFile:
+                with codecs.open(
+                    self._path, 'wt', encoding='UTF-8') as mbnamesFile:
                     mbnamesFile.write(self._header)
                     mbnamesFile.write(self._sep.join(itemlist))
                     mbnamesFile.write(self._footer)
