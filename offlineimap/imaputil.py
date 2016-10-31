@@ -368,5 +368,5 @@ def decode_mailbox_name(name):
 
     try:
         return ret.decode('utf-7').encode('utf-8')
-    except UnicodeEncodeError:
+    except (UnicodeDecodeError, UnicodeEncodeError):
         return name
