@@ -61,7 +61,7 @@ class IMAPFolder(BaseFolder):
         # self.copy_ignoreUIDs is used by BaseFolder.
         self.copy_ignoreUIDs = repository.get_copy_ignore_UIDs(
             self.getvisiblename())
-        if self.repository.getidlefolders() > 0:
+        if self.repository.getidlefolders():
             self.idle_mode = True
 
 
