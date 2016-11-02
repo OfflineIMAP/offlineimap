@@ -182,12 +182,18 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         # Create hashes with the names, but convert the source folders
         # to the dest folder's sep.
         src_hash = {}
+        src_list = []
         for folder in src_folders:
-            src_hash[folder.getvisiblename().replace(
+            foldername = folder.getvisiblename()
+            src_list.append(foldername)
+            src_hash[foldername.replace(
                 src_repo.getsep(), dst_repo.getsep())] = folder
         dst_hash = {}
+        dst_list = []
         for folder in dst_folders:
-            dst_hash[folder.getvisiblename().replace(
+            foldername = folder.getvisiblename()
+            dst_list.append(foldername)
+            dst_hash[foldername.replace(
                 dst_repo.getsep(), src_repo.getsep())] = folder
 
         # Find and create new folders on src_repo.
@@ -196,7 +202,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
             if not dst_repo.get_create_folders():
                 break
 
-            if src_folder.sync_this and not src_name_t in dst_folders:
+            if src_folder.sync_this and not src_name_t in dst_list:
                 try:
                     dst_repo.makefolder(src_name_t)
                     dst_haschanged = True # Need to refresh list.
@@ -213,7 +219,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                 # Don't create missing folder on readonly repo.
                 break
 
-            if dst_folder.sync_this and not dst_name_t in src_folders:
+            if dst_folder.sync_this and not dst_name_t in src_list:
                 # nametrans sanity check!
                 # Does nametrans back&forth lead to identical names?
                 # 1) would src repo filter out the new folder name? In this
