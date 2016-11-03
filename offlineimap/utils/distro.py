@@ -25,6 +25,7 @@ __DEF_OS_LOCATIONS = {
     'linux-fedora': '/etc/pki/tls/certs/ca-bundle.crt',
     'linux-redhat': '/etc/pki/tls/certs/ca-bundle.crt',
     'linux-suse': '/etc/ssl/ca-bundle.pem',
+    'linux-opensuse': '/etc/ssl/ca-bundle.pem',
 }
 
 
