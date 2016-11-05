@@ -415,7 +415,8 @@ class IMAPServer(object):
               "failed:\n\t%s"% msg, OfflineImapError.ERROR.REPO)
 
         if not tried_to_authn:
-            methods = ", ".join([x[5:] for x in [x for x in imapobj.capabilities if x[0:5] == "AUTH="]])
+            methods = ", ".join([x[5:] for x in
+                [x for x in imapobj.capabilities if x[0:5] == "AUTH="]])
             raise OfflineImapError(u"Repository %s: no supported "
               "authentication mechanisms found; configured %s, "
               "server advertises %s"% (self.repos,
