@@ -1,5 +1,6 @@
 # Gmail IMAP repository support
-# Copyright (C) 2008 Riccardo Murri <riccardo.murri@gmail.com>
+# Copyright (C) 2008-2016 Riccardo Murri <riccardo.murri@gmail.com> &
+# contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,12 +25,12 @@ class GmailRepository(IMAPRepository):
     Falls back to hard-coded gmail host name and port, if none were specified:
     http://mail.google.com/support/bin/answer.py?answer=78799&topic=12814
     """
+
+    OAUTH2_URL = 'https://accounts.google.com/o/oauth2/token'
     # Gmail IMAP server hostname
     HOSTNAME = "imap.gmail.com"
     # Gmail IMAP server port
     PORT = 993
-
-    OAUTH2_URL = 'https://accounts.google.com/o/oauth2/token'
 
     def __init__(self, reposname, account):
         """Initialize a GmailRepository object."""
@@ -69,7 +70,7 @@ class GmailRepository(IMAPRepository):
         return GmailRepository.PORT
 
     def getssl(self):
-        return 1
+        return True
 
     def getpreauthtunnel(self):
         return None
