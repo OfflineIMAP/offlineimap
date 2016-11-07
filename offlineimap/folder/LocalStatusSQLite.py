@@ -91,7 +91,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
         if self.filename not in LocalStatusSQLiteFolder.locks:
             LocalStatusSQLiteFolder.locks[self.filename] = DatabaseFileLock()
         self._databaseFileLock = LocalStatusSQLiteFolder.locks[self.filename]
-
         self._in_transactions = 0
 
     def __enter__(self):

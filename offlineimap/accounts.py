@@ -453,15 +453,10 @@ def syncfolder(account, remotefolder, quick):
             localfolder.save_uidvalidity()
             remotefolder.save_uidvalidity()
 
-    def save_min_uid(folder, min_uid):
-        uidfile = folder.get_min_uid_file()
-        fd = open(uidfile, 'wt')
-        fd.write(str(min_uid) + "\n")
-        fd.close()
-
-    def cachemessagelists_upto_date(localfolder, remotefolder, date):
+    def cachemessagelists_upto_date(date):
         """Returns messages with uid > min(uids of messages newer than date)."""
 
+        # Warning: this makes sense only if the cached list is empty.
         localfolder.cachemessagelist(min_date=date)
         check_uid_validity(localfolder, remotefolder, statusfolder)
         # Local messagelist had date restriction applied already. Restrict
@@ -515,7 +510,7 @@ def syncfolder(account, remotefolder, quick):
                     min_uid = min(positive_uids)
                 else:
                     min_uid = 1
-                save_min_uid(partial, min_uid)
+                partial.save_min_uid(min_uid)
         else:
             partial.cachemessagelist(min_uid=min_uid)
 
@@ -562,7 +557,7 @@ def syncfolder(account, remotefolder, quick):
             ui.warn("Quick syncs (-q) not supported in conjunction "
                 "with maxage or startdate; ignoring -q.")
         if maxage != None:
-            cachemessagelists_upto_date(localfolder, remotefolder, maxage)
+            cachemessagelists_upto_date(maxage)
         elif localstart != None:
             cachemessagelists_startdate(remotefolder, localfolder,
                 localstart)

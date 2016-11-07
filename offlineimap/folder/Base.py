@@ -400,6 +400,12 @@ class BaseFolder(object):
             os.mkdir(startuiddir, 0o700)
         return os.path.join(startuiddir, self.getfolderbasename())
 
+    def save_min_uid(self, min_uid):
+        uidfile = self.get_min_uid_file()
+        fd = open(uidfile, 'wt')
+        fd.write(str(min_uid) + "\n")
+        fd.close()
+
     def retrieve_min_uid(self):
         uidfile = self.get_min_uid_file()
         if not os.path.exists(uidfile):

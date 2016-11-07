@@ -34,13 +34,15 @@ except NameError:
 from offlineimap import OfflineImapError, emailutil
 from .Base import BaseFolder
 
+
 # Find the UID in a message filename
 re_uidmatch = re.compile(',U=(\d+)')
 # Find a numeric timestamp in a string (filename prefix)
-re_timestampmatch = re.compile('(\d+)');
+re_timestampmatch = re.compile('(\d+)')
 
 timehash = {}
 timelock = Lock()
+
 
 def _gettimeseq(date=None):
     global timehash, timelock
@@ -55,6 +57,7 @@ def _gettimeseq(date=None):
         return (date, timehash[date])
     finally:
         timelock.release()
+
 
 class MaildirFolder(BaseFolder):
     def __init__(self, root, name, sep, repository):
@@ -343,6 +346,7 @@ class MaildirFolder(BaseFolder):
         See folder/Base for detail. Note that savemessage() does not
         check against dryrun settings, so you need to ensure that
         savemessage is never called in a dryrun mode."""
+
         # This function only ever saves to tmp/,
         # but it calls savemessageflags() to actually save to cur/ or new/.
         self.ui.savemessage('maildir', uid, flags, self)
@@ -471,6 +475,8 @@ class MaildirFolder(BaseFolder):
         oldfilename = self.messagelist[uid]['filename']
         dir_prefix, filename = os.path.split(oldfilename)
         flags = self.getmessageflags(uid)
+        # TODO: we aren't keeping the prefix timestamp so we don't honor the
+        # filename_use_mail_timestamp configuration option.
         newfilename = os.path.join(dir_prefix,
           self.new_message_filename(new_uid, flags))
         os.rename(os.path.join(self.getfullname(), oldfilename),
