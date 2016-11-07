@@ -71,6 +71,10 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
         self.dryrun = self.config.getboolean('general', 'dry-run')
         self.quicknum = 0
+        if self.refreshperiod < 0:
+            self.ui.warn("autorefresh for %s is negative, fixing it to 0."%
+                    name)
+            self.refreshperiod = 0.0
         if self.refreshperiod == 0.0:
             self.refreshperiod = None
 
