@@ -366,12 +366,13 @@ class MaildirFolder(BaseFolder):
         # Use the mail timestamp given by either Date or Delivery-date mail
         # headers.
         message_timestamp = None
-        if self._filename_use_mail_timestamp:
+        if self._filename_use_mail_timestamp is not False:
             try:
                 message_timestamp = emailutil.get_message_date(content, 'Date')
                 if message_timestamp is None:
                     # Give a try with Delivery-date
-                    date = emailutil.get_message_date(content, 'Delivery-date')
+                    message_timestamp = emailutil.get_message_date(
+                            content, 'Delivery-date')
             except Exception as e:
                 # This should never happen.
                 from email.Parser import Parser
@@ -381,8 +382,8 @@ class MaildirFolder(BaseFolder):
                 ui.warn("UID %d has invalid date %s: %s\n"
                     "Not using message timestamp as file prefix"%
                     (uid, datestr, e))
-                # No need to check if date is None here since it would
-                # be overridden by _gettimeseq.
+                # No need to check if message_timestamp is None here since it
+                # would be overridden by _gettimeseq.
         messagename = self.new_message_filename(uid, flags, date=message_timestamp)
         tmpname = self.save_to_tmp_file(messagename, content)
 
