@@ -433,7 +433,7 @@ def syncfolder(account, remotefolder, quick):
     Filtered folders on the remote side will not invoke this function. However,
     this might be called in a concurrently."""
 
-    def check_uid_validity(localfolder, remotefolder, statusfolder):
+    def check_uid_validity():
         # If either the local or the status folder has messages and
         # there is a UID validity problem, warn and abort.  If there are
         # no messages, UW IMAPd loses UIDVALIDITY.  But we don't really
@@ -558,14 +558,15 @@ def syncfolder(account, remotefolder, quick):
                 "with maxage or startdate; ignoring -q.")
         if maxage != None:
             cachemessagelists_upto_date(maxage)
+            check_uid_validity()
         elif localstart != None:
             cachemessagelists_startdate(remotefolder, localfolder,
                 localstart)
-            check_uid_validity(localfolder, remotefolder, statusfolder)
+            check_uid_validity()
         elif remotestart != None:
             cachemessagelists_startdate(localfolder, remotefolder,
                 remotestart)
-            check_uid_validity(localfolder, remotefolder, statusfolder)
+            check_uid_validity()
         else:
             localfolder.cachemessagelist()
             if quick:
@@ -574,7 +575,7 @@ def syncfolder(account, remotefolder, quick):
                     ui.skippingfolder(remotefolder)
                     localrepos.restore_atime()
                     return
-            check_uid_validity(localfolder, remotefolder, statusfolder)
+            check_uid_validity()
             remotefolder.cachemessagelist()
 
         # Synchronize remote changes.
