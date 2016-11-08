@@ -130,6 +130,7 @@ def monitor():
         except Empty:
             pass
 
+
 class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a
     thread has exited and to provide for the ability for it to find out
@@ -141,9 +142,6 @@ class ExitNotifyThread(Thread):
 
     There is one instance of this class at runtime. The main thread waits for
     the monitor to end."""
-
-    profiledir = None
-    """Class variable that is set to the profile directory if required."""
 
     def __init__(self, *args, **kwargs):
         super(ExitNotifyThread, self).__init__(*args, **kwargs)
@@ -159,20 +157,7 @@ class ExitNotifyThread(Thread):
 
         global exitedThreads
         try:
-            if not ExitNotifyThread.profiledir: # normal case
-                Thread.run(self)
-            else:
-                try:
-                    import cProfile as profile
-                except ImportError:
-                    import profile
-                prof = profile.Profile()
-                try:
-                    prof = prof.runctx("Thread.run(self)", globals(), locals())
-                except SystemExit:
-                    pass
-                prof.dump_stats(os.path.join(ExitNotifyThread.profiledir,
-                                "%s_%s.prof"% (self.ident, self.getName())))
+            Thread.run(self)
         except Exception as e:
             # Thread exited with Exception, store it
             tb = traceback.format_exc()
@@ -200,12 +185,6 @@ class ExitNotifyThread(Thread):
         """Returns a string representing the stack trace if set"""
 
         return self._exit_stacktrace
-
-    @classmethod
-    def set_profiledir(cls, directory):
-        """If set, will output profile information to 'directory'"""
-
-        cls.profiledir = directory
 
 
 ######################################################################

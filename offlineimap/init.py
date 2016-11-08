@@ -31,7 +31,8 @@ import offlineimap.virtual_imaplib2 as imaplib
 # Ensure that `ui` gets loaded before `threadutil` in order to
 # break the circular dependency between `threadutil` and `Curses`.
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
-from offlineimap import globals, threadutil, accounts, folder, mbnames
+from offlineimap import threadutil, accounts, folder, mbnames
+from offlineimap import globals as glob
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
 from offlineimap.repository import Repository
@@ -176,7 +177,7 @@ class OfflineImap(object):
                   help="remove mbnames entries for accounts not in accounts")
 
         (options, args) = parser.parse_args()
-        globals.set_options (options)
+        glob.set_options(options)
 
         if options.version:
             print("offlineimap v%s, imaplib2 v%s (%s), Python v%s"% (
@@ -220,7 +221,6 @@ class OfflineImap(object):
                              options.profiledir)
             else:
                 os.mkdir(options.profiledir)
-            threadutil.ExitNotifyThread.set_profiledir(options.profiledir)
             # TODO, make use of chosen ui for logging
             logging.warn("Profile mode: Potentially large data will be "
                          "created in '%s'"% options.profiledir)
@@ -452,7 +452,7 @@ class OfflineImap(object):
 
             if options.singlethreading:
                 # Singlethreaded.
-                self.__sync_singlethreaded(activeaccounts)
+                self.__sync_singlethreaded(activeaccounts, options.profiledir)
             else:
                 # Multithreaded.
                 t = threadutil.ExitNotifyThread(
@@ -476,15 +476,32 @@ class OfflineImap(object):
             self.ui.terminate()
             return 1
 
-    def __sync_singlethreaded(self, list_accounts):
+    def __sync_singlethreaded(self, list_accounts, profiledir):
         """Executed in singlethreaded mode only.
 
         :param accs: A list of accounts that should be synced
         """
         for accountname in list_accounts:
             account = accounts.SyncableAccount(self.config, accountname)
-            threading.currentThread().name = "Account sync %s"% account.name
-            account.syncrunner()
+            threading.currentThread().name = \
+                    "Account sync %s"% account.getname()
+            if not profiledir:
+                account.syncrunner()
+            # Profile mode.
+            else:
+                try:
+                    import cProfile as profile
+                except ImportError:
+                    import profile
+                prof = profile.Profile()
+                try:
+                    prof = prof.runctx("account.syncrunner()", globals(), locals())
+                except SystemExit:
+                    pass
+                from datetime import datetime
+                dt = datetime.now().strftime('%Y%m%d%H%M%S')
+                prof.dump_stats(os.path.join(
+                    profiledir, "%s_%s.prof"% (dt, account.getname())))
 
     def __serverdiagnostics(self, options):
         self.ui.info("  imaplib2: %s (%s)"% (imaplib.__version__, imaplib.DESC))
