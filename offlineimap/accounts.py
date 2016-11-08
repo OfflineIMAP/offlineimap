@@ -489,23 +489,21 @@ def syncfolder(account, remotefolder, quick):
     def cachemessagelists_upto_date(date):
         """Returns messages with uid > min(uids of messages newer than date)."""
 
-        # Warning: this makes sense only if the cached list is empty.
-        localfolder.cachemessagelist(min_date=date)
-        check_uid_validity()
-        # Local messagelist had date restriction applied already. Restrict
-        # sync to messages with UIDs >= min_uid from this list.
-        #
-        # Local messagelist might contain new messages (with uid's < 0).
-        positive_uids = [uid for uid in localfolder.getmessageuidlist() if uid > 0]
-        if len(positive_uids) > 0:
-            remotefolder.cachemessagelist(min_uid=min(positive_uids))
+        remotefolder.cachemessagelist(
+            min_date=time.gmtime(time.mktime(date) + 24*60*60))
+        uids = remotefolder.getmessageuidlist()
+        localfolder.dropmessagelistcache()
+        if len(uids) > 0:
+            localfolder.cachemessagelist(min_uid=min(uids))
         else:
-            # No messages with UID > 0 in range in localfolder.
-            # date restriction was applied with respect to local dates but
-            # remote folder timezone might be different from local, so be
-            # safe and make sure the range isn't bigger than in local.
-            remotefolder.cachemessagelist(
-                min_date=time.gmtime(time.mktime(date) + 24*60*60))
+            # Remote folder UIDs list is empty for the given range. We still
+            # might have valid local UIDs for this range (e.g.: new local
+            # emails).
+            localfolder.cachemessagelist(min_date=date)
+            uids = localfolder.getmessageuidlist()
+            if len(uids) > 0:
+                # Update the remote cache list for this new min(uids).
+                remotefolder.cachemessagelist(min_uid=min(uids))
 
     def cachemessagelists_startdate(new, partial, date):
         """Retrieve messagelists when startdate has been set for
