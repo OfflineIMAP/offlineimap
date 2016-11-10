@@ -458,7 +458,7 @@ def syncfolder(account, remotefolder, quick):
 
         # Warning: this makes sense only if the cached list is empty.
         localfolder.cachemessagelist(min_date=date)
-        check_uid_validity(localfolder, remotefolder, statusfolder)
+        check_uid_validity()
         # Local messagelist had date restriction applied already. Restrict
         # sync to messages with UIDs >= min_uid from this list.
         #
