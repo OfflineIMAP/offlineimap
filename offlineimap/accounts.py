@@ -33,7 +33,7 @@ FOLDER_NAMESPACE = 'LIMITED_FOLDER_'
 try:
     import fcntl
 except:
-    pass # ok if this fails, we can do without
+    pass # Ok if this fails, we can do without.
 
 # FIXME: spaghetti code alert!
 def getaccountlist(customconfig):
@@ -77,6 +77,9 @@ class Account(CustomConfig.ConfigHelperMixin):
             self.refreshperiod = 0.0
         if self.refreshperiod == 0.0:
             self.refreshperiod = None
+        self.remoterepos = None
+        self.localrepos = None
+        self.statusrepos = None
 
     def getlocaleval(self):
         return self.localeval
@@ -287,7 +290,7 @@ class SyncableAccount(Account):
                 self.ui.error(e, exc_info()[2], msg=
                     "While attempting to sync account '%s'"% self)
             else:
-                # after success sync, reset the looping counter to 3
+                # After success sync, reset the looping counter to 3.
                 if self.refreshperiod:
                     looping = 3
             finally:
