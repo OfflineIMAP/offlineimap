@@ -69,6 +69,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         Controlled by the 'restoreatime' config parameter (default
         False), applies only to local Maildir mailboxes and does nothing
         on all other repository types."""
+
         pass
 
     def connect(self):
@@ -78,6 +79,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         error recovery -- we need to connect first outside of the error
         trap in order to validate the password, and that's the point of
         this function."""
+
         pass
 
     def holdordropconnections(self):
@@ -98,6 +100,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
     @property
     def accountname(self):
         """Account name as string"""
+
         return self._accountname
 
     def getuiddir(self):
@@ -117,6 +120,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
     @property
     def readonly(self):
         """Is the repository readonly?"""
+
         return self._readonly
 
     def getlocaleval(self):
@@ -124,11 +128,13 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
 
     def getfolders(self):
         """Returns a list of ALL folders on this server."""
+
         return []
 
     def forgetfolders(self):
         """Forgets the cached list of folders, if any.  Useful to run
         after a sync run."""
+
         pass
 
     def getsep(self):
@@ -142,7 +148,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
 
         return fname in self.folderincludes or self.folderfilter(fname)
 
-    def get_create_folders(self):
+    def should_create_folders(self):
         """Is folder creation enabled on this repository?
 
         It is disabled by either setting the whole repository
@@ -153,6 +159,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
 
     def makefolder(self, foldername):
         """Create a new folder."""
+
         raise NotImplementedError
 
     def deletefolder(self, foldername):
@@ -161,84 +168,65 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
     def getfolder(self, foldername):
         raise NotImplementedError
 
-    def sync_folder_structure(self, dst_repo, status_repo):
-        """Syncs the folders in this repository to those in dest.
+    def sync_folder_structure(self, local_repo, status_repo):
+        """Sync the folders structure.
 
         It does NOT sync the contents of those folders. nametrans rules
-        in both directions will be honored, but there are NO checks yet
-        that forward and backward nametrans actually match up!
-        Configuring nametrans on BOTH repositories therefore could lead
-        to infinite folder creation cycles."""
+        in both directions will be honored
 
-        if not self.get_create_folders() and not dst_repo.get_create_folders():
+        Configuring nametrans on BOTH repositories could lead to infinite folder
+        creation cycles."""
+
+        if not self.should_create_folders() and not local_repo.should_create_folders():
             # Quick exit if no folder creation is enabled on either side.
             return
 
-        src_repo = self
-        src_folders = src_repo.getfolders()
-        dst_folders = dst_repo.getfolders()
-        # Do we need to refresh the folder list afterwards?
-        src_haschanged, dst_haschanged = False, False
-        # Create hashes with the names, but convert the source folders
-        # to the dest folder's sep.
-        src_hash = {}
-        src_list = []
-        for folder in src_folders:
-            foldername = folder.getvisiblename()
-            src_list.append(foldername)
-            src_hash[foldername.replace(
-                src_repo.getsep(), dst_repo.getsep())] = folder
-        dst_hash = {}
-        dst_list = []
-        for folder in dst_folders:
-            foldername = folder.getvisiblename()
-            dst_list.append(foldername)
-            dst_hash[foldername.replace(
-                dst_repo.getsep(), src_repo.getsep())] = folder
+        remote_repo = self
+        remote_hash, local_hash = {}, {}
 
-        # Find and create new folders on src_repo.
-        for src_name_t, src_folder in src_hash.items():
-            # Don't create on dst_repo, if it is readonly.
-            if not dst_repo.get_create_folders():
-                break
+        # Create hashes with the names, but convert the local folder names
+        # into the remote folder names:
+        #   - for remote, keys are: name_A -> name_A
+        #   - for local,  keys are: name_X -> (nametrans + separator) -> name_Y
+        for folder in remote_repo.getfolders():
+            remote_hash[folder.getname()] = folder
 
-            if src_folder.sync_this and not src_name_t in dst_list:
-                try:
-                    dst_repo.makefolder(src_name_t)
-                    dst_haschanged = True # Need to refresh list.
-                except OfflineImapError as e:
-                    self.ui.error(e, exc_info()[2],
-                         "Creating folder %s on repository %s"%
-                         (src_name_t, dst_repo))
-                    raise
-                status_repo.makefolder(src_name_t.replace(dst_repo.getsep(),
-                                                   status_repo.getsep()))
-        # Find and create new folders on dst_repo.
-        for dst_name_t, dst_folder in dst_hash.items():
-            if not src_repo.get_create_folders():
+        for folder in local_repo.getfolders():
+            remote_name = folder.getvisiblename().replace(
+                local_repo.getsep(), remote_repo.getsep())
+            local_hash[remote_name] = folder
+
+        # Create new folders from local to remote.
+        for remote_name, local_folder in local_hash.items():
+            if not remote_repo.should_create_folders():
                 # Don't create missing folder on readonly repo.
                 break
 
-            if dst_folder.sync_this and not dst_name_t in src_list:
-                # nametrans sanity check!
-                # Does nametrans back&forth lead to identical names?
-                # 1) would src repo filter out the new folder name? In this
-                # case don't create it on it:
-                if not self.should_sync_folder(dst_name_t):
+            if local_folder.sync_this and not remote_name in remote_hash.keys():
+                # Would the remote filter out the new folder name? In this case
+                # don't create it.
+                if not remote_repo.should_sync_folder(remote_name):
                     self.ui.debug('', "Not creating folder '%s' (repository '%s"
                         "') as it would be filtered out on that repository."%
-                        (dst_name_t, self))
+                        (remote_name, self))
                     continue
-                # Get IMAPFolder and see if the reverse nametrans
-                # works fine TODO: getfolder() works only because we
-                # succeed in getting inexisting folders which I would
-                # like to change. Take care!
-                folder = self.getfolder(dst_name_t)
+
+                # nametrans sanity check!
+                # Does nametrans back&forth lead to identical names?
+                #
                 # Apply reverse nametrans to see if we end up with the same
-                # name.
-                newdst_name = folder.getvisiblename().replace(
-                    src_repo.getsep(), dst_repo.getsep())
-                if dst_folder.name != newdst_name:
+                # name:
+                #   - for remote, keys are: A -> A
+                #   - for local,  keys are: X -> (nametrans + separator) -> Y
+                #   We want B == X in: A -> remote (nametrans + separator) -> B
+                #
+                # Get IMAPFolder and see if the reverse nametrans works fine.
+                # TODO: getfolder() works only because we succeed in getting
+                # inexisting folders which I would like to change. Take care!
+                tmpremotefolder = remote_repo.getfolder(remote_name)
+                new_localname = tmpremotefolder.getvisiblename().replace(
+                    remote_repo.getsep(), local_repo.getsep())
+                if local_folder.getname() != new_localname:
                     raise OfflineImapError("INFINITE FOLDER CREATION DETECTED! "
                         "Folder '%s' (repository '%s') would be created as fold"
                         "er '%s' (repository '%s'). The latter becomes '%s' in "
@@ -248,39 +236,61 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                         "k and forth. 2) Use folderfilter settings on a reposit"
                         "ory to prevent some folders from being created on the "
                         "other side."%
-                        (dst_folder.name, dst_repo, dst_name_t,
-                            src_repo, newdst_name),
+                        (local_folder.getname(), local_repo, remote_name,
+                            remote_repo,
+                            new_localname),
                         OfflineImapError.ERROR.REPO)
+
                 # End sanity check, actually create the folder.
                 try:
-                    src_repo.makefolder(dst_name_t)
-                    src_haschanged = True # Need to refresh list.
+                    remote_repo.makefolder(remote_name)
+                    # Need to refresh list.
+                    self.forgetfolders()
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
-                                  "repository %s"% (dst_name_t, src_repo))
+                                  "repository %s"% (remote_name, remote_repo))
                     raise
-                status_repo.makefolder(dst_name_t.replace(
-                    src_repo.getsep(), status_repo.getsep()))
+                status_repo.makefolder(remote_name.replace(
+                    remote_repo.getsep(), status_repo.getsep()))
+
+        # Find and create new folders from remote to local.
+        for remote_name, remote_folder in remote_hash.items():
+            # Don't create on local_repo, if it is readonly.
+            if not local_repo.should_create_folders():
+                break
+
+            if remote_folder.sync_this and not remote_name in local_hash.keys():
+                try:
+                    local_name = remote_folder.getvisiblename().replace(
+                        remote_repo.getsep(), local_repo.getsep())
+                    local_repo.makefolder(local_name)
+                    # Need to refresh list.
+                    local_repo.forgetfolders()
+                except OfflineImapError as e:
+                    self.ui.error(e, exc_info()[2],
+                         "Creating folder %s on repository %s"%
+                         (local_name, local_repo))
+                    raise
+                status_repo.makefolder(local_name.replace(
+                    local_repo.getsep(), status_repo.getsep()))
+
         # Find deleted folders.
         # TODO: We don't delete folders right now.
-
-        # Forget old list of cached folders so we get new ones if needed.
-        if src_haschanged:
-            self.forgetfolders()
-        if dst_haschanged:
-            dst_repo.forgetfolders()
+        return None
 
     def startkeepalive(self):
         """The default implementation will do nothing."""
+
         pass
 
     def stopkeepalive(self):
         """Stop keep alive, but don't bother waiting
         for the threads to terminate."""
+
         pass
 
     def getlocalroot(self):
         """ Local root folder for storing messages.
         Will not be set for remote repositories."""
-        return None
 
+        return None
