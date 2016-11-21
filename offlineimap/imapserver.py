@@ -477,7 +477,6 @@ class IMAPServer(object):
             # Try to find one that previously belonged to this thread
             # as an optimization.  Start from the back since that's where
             # they're popped on.
-            imapobj = None
             for i in range(len(self.availableconnections) - 1, -1, -1):
                 tryobj = self.availableconnections[i]
                 if self.lastowner[tryobj] == curThread.ident:
