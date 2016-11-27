@@ -271,8 +271,8 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
                                   "repository %s"% (remote_name, remote_repo))
                     raise
-                status_repo.makefolder(remote_name.replace(
-                    remote_repo.getsep(), status_repo.getsep()))
+                status_repo.makefolder(local_trans[remote_name].replace(
+                    local_repo.getsep(), status_repo.getsep()))
 
         # Find and create new folders from remote to local.
         for remote_name, remote_folder in remote_hash.items():
