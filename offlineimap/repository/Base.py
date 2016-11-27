@@ -282,17 +282,15 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
 
             if remote_folder.sync_this and not remote_name in local_hash.keys():
                 try:
-                    local_name = remote_folder.getvisiblename().replace(
-                        remote_repo.getsep(), local_repo.getsep())
-                    local_repo.makefolder(local_name)
+                    local_repo.makefolder(local_trans[remote_name])
                     # Need to refresh list.
                     local_repo.forgetfolders()
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2],
                          "Creating folder %s on repository %s"%
-                         (local_name, local_repo))
+                         (local_trans[remote_name], local_repo))
                     raise
-                status_repo.makefolder(local_name.replace(
+                status_repo.makefolder(local_trans[remote_name].replace(
                     local_repo.getsep(), status_repo.getsep()))
 
         # Find deleted folders.
