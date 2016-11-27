@@ -198,7 +198,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         # the end, we are guaranteed that going back & forth, either local ->
         # remote -> local, or remote -> local -> remote, does not change the
         # folder name.
-        def _add_folder_translation(lname, rname):
+        def add_folder_translation(lname, rname):
             if lname in remote_trans and rname != remote_trans[lname]:
                 raise OfflineImapError(
                     "FOLDER NAMETRANS INCONSISTENCY! "
@@ -231,13 +231,13 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
             name = folder.getname()
             trans_name = folder.getvisiblename().replace(local_repo.getsep(),
                                                          remote_repo.getsep())
-            _add_folder_translation(name, trans_name)
+            add_folder_translation(name, trans_name)
 
         for folder in remote_repo.getfolders():
             name = folder.getname()
             trans_name = folder.getvisiblename().replace(remote_repo.getsep(),
                                                          local_repo.getsep())
-            _add_folder_translation(trans_name, name)
+            add_folder_translation(trans_name, name)
 
         # Create hashes with the names. Both remote_hash and local_hash are
         # keyed by folder names as in the remote repository, obtained via
