@@ -182,19 +182,71 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
             return
 
         remote_repo = self
+
+        # dict of remote folder names transformed to local, and local folder
+        # names transformed to remote.
+        remote_trans, local_trans = {}, {}
+
+        # dict of folders, indexed by folder names on the remote.
         remote_hash, local_hash = {}, {}
 
-        # Create hashes with the names, but convert the local folder names
-        # into the remote folder names:
-        #   - for remote, keys are: name_A -> name_A
-        #   - for local,  keys are: name_X -> (nametrans + separator) -> name_Y
+        # Create translation tables of folder names.
+        #   - local_trans gives the local name for a remote folder name,
+        #   - remote_trans gives the remote name for a local folder name.
+        #
+        # While doing this, we check the consistency of the transformation. At
+        # the end, we are guaranteed that going back & forth, either local ->
+        # remote -> local, or remote -> local -> remote, does not change the
+        # folder name.
+        def _add_folder_translation(lname, rname):
+            if lname in remote_trans and rname != remote_trans[lname]:
+                raise OfflineImapError(
+                    "FOLDER NAMETRANS INCONSISTENCY! "
+                    "Folder nametrans rules are not inverse one of the other."
+                    "Local folder '%s' (repository '%s') has multiple remote "
+                    "name translations: '%s', '%s'.\n"
+                    "Make sure that name translation rules from local to remote "
+                    "and from remote to local are one inverse of the other."
+                    % (lname, local_repo, rname, remote_trans[lname]),
+                    OfflineImapError.ERROR.REPO)
+
+            if rname in local_trans and lname != local_trans[rname]:
+                raise OfflineImapError(
+                    "FOLDER NAMETRANS INCONSISTENCY! "
+                    "Folder nametrans rules are not inverse one of the other."
+                    "Remote folder '%s' (repository '%s') has multiple local "
+                    "name translations: '%s', '%s'.\n"
+                    "Make sure that name translation rules from local to remote "
+                    "and from remote to local are one inverse of the other."
+                    % (rname, remote_repo, lname, local_trans[rname]),
+                    OfflineImapError.ERROR.REPO)
+
+            # Now, assuming all previous translation pairs are created by this
+            # function, either the current translation pair does not exist in
+            # the table, or it exists and both terms are the same.
+            remote_trans[lname] = rname
+            local_trans[rname] = lname
+
+        for folder in local_repo.getfolders():
+            name = folder.getname()
+            trans_name = folder.getvisiblename().replace(local_repo.getsep(),
+                                                         remote_repo.getsep())
+            _add_folder_translation(name, trans_name)
+
+        for folder in remote_repo.getfolders():
+            name = folder.getname()
+            trans_name = folder.getvisiblename().replace(remote_repo.getsep(),
+                                                         local_repo.getsep())
+            _add_folder_translation(trans_name, name)
+
+        # Create hashes with the names. Both remote_hash and local_hash are
+        # keyed by folder names as in the remote repository, obtained via
+        # local -> remote translation.
         for folder in remote_repo.getfolders():
             remote_hash[folder.getname()] = folder
 
         for folder in local_repo.getfolders():
-            remote_name = folder.getvisiblename().replace(
-                local_repo.getsep(), remote_repo.getsep())
-            local_hash[remote_name] = folder
+            local_hash[remote_trans[folder.getname()]] = folder
 
         # Create new folders from local to remote.
         for remote_name, local_folder in local_hash.items():
@@ -211,37 +263,6 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                         (remote_name, self))
                     continue
 
-                # nametrans sanity check!
-                # Does nametrans back&forth lead to identical names?
-                #
-                # Apply reverse nametrans to see if we end up with the same
-                # name:
-                #   - for remote, keys are: A -> A
-                #   - for local,  keys are: X -> (nametrans + separator) -> Y
-                #   We want B == X in: A -> remote (nametrans + separator) -> B
-                #
-                # Get IMAPFolder and see if the reverse nametrans works fine.
-                # TODO: getfolder() works only because we succeed in getting
-                # inexisting folders which I would like to change. Take care!
-                tmpremotefolder = remote_repo.getfolder(remote_name)
-                new_localname = tmpremotefolder.getvisiblename().replace(
-                    remote_repo.getsep(), local_repo.getsep())
-                if local_folder.getname() != new_localname:
-                    raise OfflineImapError("INFINITE FOLDER CREATION DETECTED! "
-                        "Folder '%s' (repository '%s') would be created as fold"
-                        "er '%s' (repository '%s'). The latter becomes '%s' in "
-                        "return, leading to infinite folder creation cycles.\n "
-                        "SOLUTION: 1) Do set your nametrans rules on both repos"
-                        "itories so they lead to identical names if applied bac"
-                        "k and forth. 2) Use folderfilter settings on a reposit"
-                        "ory to prevent some folders from being created on the "
-                        "other side."%
-                        (local_folder.getname(), local_repo, remote_name,
-                            remote_repo,
-                            new_localname),
-                        OfflineImapError.ERROR.REPO)
-
-                # End sanity check, actually create the folder.
                 try:
                     remote_repo.makefolder(remote_name)
                     # Need to refresh list.
