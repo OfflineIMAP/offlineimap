@@ -1,19 +1,32 @@
 .. -*- coding: utf-8 -*-
 
+Contacts
+========
+
+- Eygene Ryabinkin
+  - email: rea at freebsd.org
+  - github: konvpalto
+
+- Sebastian Spaeth
+  - email: sebastian at sspaeth.de
+  - github: spaetz
+
+- Nicolas Sebrecht
+  - email: nicolas.s-dev at laposte.net
+  - github: nicolas33
+
+Testers
+=======
+
+- Nicolas Sebrecht
+
+
 Maintainers
 ===========
 
-Eygene Ryabinkin
-  email: rea at freebsd.org
-  github: konvpalto
-
-Sebastian Spaeth
-  email: sebastian at sspaeth.de
-  github: spaetz
-
-Nicolas Sebrecht
-  email: nicolas.s-dev at laposte.net
-  github: nicolas33
+- Eygene Ryabinkin
+- Sebastian Spaeth
+- Nicolas Sebrecht
 
 
 Github

@@ -15,6 +15,61 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.10 (2016-11-28)
+
+#### Notes
+
+This release is mainly about improving reliability. The biggest changes are
+about comparing the local and remote structures of folders.
+
+The Gmail repository type allows to tune some predefined options for advanced
+use cases.
+
+Offlineimap learns where to find the default OpenSUSE certificate.
+
+Some code refactoring and documentation improvements.
+
+#### Authors
+
+- Nicolas Sebrecht (15)
+- Stéphane Albert (4)
+- Abdo Roig-Maranges (2)
+- Xudong Zhang (1)
+- altruizine (1)
+- Ævar Arnfjörð Bjarmason (1)
+
+#### Features
+
+- GMail: Add ability to set a custom host/port/ssl etc.. [Ævar Arnfjörð Bjarmason]
+- Add OpenSUSE to list of supported distros. [altruizine]
+
+#### Fixes
+
+- repository: Base: fix name of the status folder. [Abdo Roig-Maranges]
+- repository: Base: rework the structure folders comparison. [Nicolas Sebrecht]
+- Fix remaining instance of check_uid_validity refactoring. [Abdo Roig-Maranges]
+- Fix the profile mode. [Nicolas Sebrecht]
+- folder: Maildir: actually try to use Delivery-Date if Date is broken. [Nicolas Sebrecht]
+- Fix decodefoldernames not applying in folder sync. [Stéphane Albert]
+- Fix mbnames writing with folders using utf-8. [Stéphane Albert]
+- Fix utf7 decode error not caught. [Stéphane Albert]
+- Fix md5 folder generation wanting unicode. [Stéphane Albert]
+- Fix bug: should not compare list to int. [Xudong Zhang]
+
+#### Changes
+
+- folder: IMAP: display error message before starting next try. [Nicolas Sebrecht]
+- offlineimap.conf: XOAUTH2: certificate validation is required for Gmail. [Nicolas Sebrecht]
+- offlineimap.conf: autorefresh points to maxsyncaccounts. [Nicolas Sebrecht]
+- offlineimap.conf: use 'Offlineimap' to name the software. [Nicolas Sebrecht]
+- offlineimap.conf: add comments for the readonly configuration option. [Nicolas Sebrecht]
+- offlineimap.conf: mbnames: provide sample for the folderfilter option. [Nicolas Sebrecht]
+- Minor code refactoring. [Nicolas Sebrecht]
+- Don't allow negative values for autorefresh. [Nicolas Sebrecht]
+- Manual: add known issues entry about XOAUTH2 "invalid_grant". [Nicolas Sebrecht]
+- repository: Gmail: fix copyright line. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.0.9 (2016-10-29)
 
 #### Notes
