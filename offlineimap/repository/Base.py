@@ -184,24 +184,43 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
         remote_repo = self
         remote_hash, local_hash = {}, {}
 
-        # Create hashes with the names, but convert the local folder names
-        # into the remote folder names:
-        #   - for remote, keys are: name_A -> name_A
-        #   - for local,  keys are: name_X -> (nametrans + separator) -> name_Y
         for folder in remote_repo.getfolders():
             remote_hash[folder.getname()] = folder
 
         for folder in local_repo.getfolders():
-            remote_name = folder.getvisiblename().replace(
-                local_repo.getsep(), remote_repo.getsep())
-            local_hash[remote_name] = folder
+            local_hash[folder.getname()] = folder
+
+        # Create new folders from remote to local.
+        for remote_name, remote_folder in remote_hash.items():
+            # Don't create on local_repo, if it is readonly.
+            if not local_repo.should_create_folders():
+                break
+
+            # Apply remote nametrans and fix serparator.
+            local_name = folder.getvisiblename().replace(
+                remote_repo.getsep(), local_repo.getsep())
+            if remote_folder.sync_this and not local_name in local_hash.keys():
+                try:
+                    local_repo.makefolder(local_name)
+                    # Need to refresh list.
+                    local_repo.forgetfolders()
+                except OfflineImapError as e:
+                    self.ui.error(e, exc_info()[2],
+                         "Creating folder %s on repository %s"%
+                         (local_name, local_repo))
+                    raise
+                status_repo.makefolder(local_name.replace(
+                    local_repo.getsep(), status_repo.getsep()))
 
         # Create new folders from local to remote.
-        for remote_name, local_folder in local_hash.items():
+        for local_name, local_folder in local_hash.items():
             if not remote_repo.should_create_folders():
                 # Don't create missing folder on readonly repo.
                 break
 
+            # Apply reverse nametrans and fix serparator.
+            remote_name = folder.getvisiblename().replace(
+                local_repo.getsep(), remote_repo.getsep())
             if local_folder.sync_this and not remote_name in remote_hash.keys():
                 # Would the remote filter out the new folder name? In this case
                 # don't create it.
@@ -211,22 +230,22 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                         (remote_name, self))
                     continue
 
-                # nametrans sanity check!
-                # Does nametrans back&forth lead to identical names?
+                # nametrans sanity check! Does remote nametrans lead to the
+                # original local name?
                 #
-                # Apply reverse nametrans to see if we end up with the same
-                # name:
-                #   - for remote, keys are: A -> A
-                #   - for local,  keys are: X -> (nametrans + separator) -> Y
-                #   We want B == X in: A -> remote (nametrans + separator) -> B
+                # Apply remote nametrans to see if we end up with the same
+                # name. We have:
+                #   - remote_name: local_name -> reverse nametrans + separator
+                # We want local_name == loop_name from:
+                #   - remote_name -> remote (nametrans + separator) -> loop_name
                 #
                 # Get IMAPFolder and see if the reverse nametrans works fine.
                 # TODO: getfolder() works only because we succeed in getting
                 # inexisting folders which I would like to change. Take care!
-                tmpremotefolder = remote_repo.getfolder(remote_name)
-                new_localname = tmpremotefolder.getvisiblename().replace(
+                tmp_remotefolder = remote_repo.getfolder(remote_name)
+                loop_name = tmp_remotefolder.getvisiblename().replace(
                     remote_repo.getsep(), local_repo.getsep())
-                if local_folder.getname() != new_localname:
+                if local_name != loop_name:
                     raise OfflineImapError("INFINITE FOLDER CREATION DETECTED! "
                         "Folder '%s' (repository '%s') would be created as fold"
                         "er '%s' (repository '%s'). The latter becomes '%s' in "
@@ -238,11 +257,10 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                         "other side."%
                         (local_folder.getname(), local_repo, remote_name,
                             remote_repo,
-                            new_localname),
+                            loop_name),
                         OfflineImapError.ERROR.REPO)
 
                 # End sanity check, actually create the folder.
-                local_name = local_folder.getname()
                 try:
                     remote_repo.makefolder(remote_name)
                     # Need to refresh list.
@@ -250,27 +268,6 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                 except OfflineImapError as e:
                     self.ui.error(e, exc_info()[2], "Creating folder %s on "
                                   "repository %s"% (remote_name, remote_repo))
-                    raise
-                status_repo.makefolder(local_name.replace(
-                    local_repo.getsep(), status_repo.getsep()))
-
-        # Find and create new folders from remote to local.
-        for remote_name, remote_folder in remote_hash.items():
-            # Don't create on local_repo, if it is readonly.
-            if not local_repo.should_create_folders():
-                break
-
-            if remote_folder.sync_this and not remote_name in local_hash.keys():
-                try:
-                    local_name = remote_folder.getvisiblename().replace(
-                        remote_repo.getsep(), local_repo.getsep())
-                    local_repo.makefolder(local_name)
-                    # Need to refresh list.
-                    local_repo.forgetfolders()
-                except OfflineImapError as e:
-                    self.ui.error(e, exc_info()[2],
-                         "Creating folder %s on repository %s"%
-                         (local_name, local_repo))
                     raise
                 status_repo.makefolder(local_name.replace(
                     local_repo.getsep(), status_repo.getsep()))
