@@ -15,6 +15,29 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.12 (2016-11-30)
+
+#### Notes
+
+Quick small release to fix v7.0.11 for the users of nametrans.
+
+#### Authors
+
+- Abdo Roig-Maranges (1)
+- Darshit Shah (1)
+- Nicolas Sebrecht (1)
+
+#### Features
+
+- Enable environment variable expansion on Repository.localfolders. [Darshit Shah]
+
+#### Fixes
+
+- repository: Base: fix typo in folder variable name. [Abdo Roig-Maranges]
+- MAINTAINERS: minor: fix rendering. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.11 (2016-11-30)
 
 #### Notes
