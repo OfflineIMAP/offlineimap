@@ -11,6 +11,10 @@ Contacts
  - email: mathstuf at gmail.com
  - github: mathstuf
 
+- Darshit Shah
+ - email: darnir at gmail.com
+ - github: darnir
+
 - Eygene Ryabinkin
  - email: rea at freebsd.org
  - github: konvpalto
@@ -24,6 +28,10 @@ Contacts
  - email: i.tsitsimpis at gmail.com
  - github: iliastsi
  - other: Debian maintainer
+
+- "J"
+ - email: offlineimap at 927589452.de
+ - other: FreeBSD user
 
 - Łukasz Żarnowiecki
  - email: dolohow at outlook.com
@@ -44,9 +52,11 @@ Testers
 
 - Abdó Roig-Maranges
 - Ben Boeckel
+- Darshit Shah
 - Eygene Ryabinkin
 - Igor Almeida
 - Ilias Tsitsimpis
+- "J"
 - Łukasz Żarnowiecki
 - Nicolas Sebrecht
 
