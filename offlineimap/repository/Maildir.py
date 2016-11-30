@@ -71,7 +71,7 @@ class MaildirRepository(BaseRepository):
             os.utime(cur_dir, (cur_atime, os.path.getmtime(cur_dir)))
 
     def getlocalroot(self):
-        xforms = [os.path.expanduser]
+        xforms = [os.path.expanduser, os.path.expandvars]
         return self.getconf_xform('localfolders', xforms)
 
     def debug(self, msg):
