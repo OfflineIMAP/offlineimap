@@ -197,7 +197,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                 break
 
             # Apply remote nametrans and fix serparator.
-            local_name = folder.getvisiblename().replace(
+            local_name = remote_folder.getvisiblename().replace(
                 remote_repo.getsep(), local_repo.getsep())
             if remote_folder.sync_this and not local_name in local_hash.keys():
                 try:
@@ -219,7 +219,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                 break
 
             # Apply reverse nametrans and fix serparator.
-            remote_name = folder.getvisiblename().replace(
+            remote_name = local_folder.getvisiblename().replace(
                 local_repo.getsep(), remote_repo.getsep())
             if local_folder.sync_this and not remote_name in remote_hash.keys():
                 # Would the remote filter out the new folder name? In this case
