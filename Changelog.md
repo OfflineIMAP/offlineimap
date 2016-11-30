@@ -15,6 +15,26 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.11 (2016-11-30)
+
+#### Notes
+
+Very small release to fix a regression about structure comparison in v7.0.10.
+
+#### Authors
+
+- Nicolas Sebrecht (2)
+
+#### Fixes
+
+- repository: Base: fix folder structure comparison. [Nicolas Sebrecht]
+
+#### Changes
+
+- MAINTAINERS: add all the contributors. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.10 (2016-11-28)
 
 #### Notes
