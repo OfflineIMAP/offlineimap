@@ -40,6 +40,12 @@ Contacts
 - Nicolas Sebrecht
  - email: nicolas.s-dev at laposte.net
  - github: nicolas33
+ - system: Linux
+
+- Rainer M Krug
+ - email: Rainer at krugs.de
+ - github: rkrug
+ - system: OSX
 
 - Sebastian Spaeth
  - email: sebastian at sspaeth.de
@@ -59,6 +65,7 @@ Testers
 - "J"
 - Łukasz Żarnowiecki
 - Nicolas Sebrecht
+- Rainer M Krug
 
 
 Maintainers
