@@ -289,11 +289,11 @@ function git_release () {
 
 
 function get_last_rc () {
-  git tag | grep -E '^v([0-9][\.-]){3}rc' | sort -n | tail -n1
+  git tag | grep -E '^v([0-9][\.-]){3}rc' | sort -V | tail -n1
 }
 
 function get_last_stable () {
-  git tag | grep -E '^v([0-9][\.])+' | grep -v '\-rc' | sort -n | tail -n1
+  git tag | grep -E '^v([0-9][\.])+' | grep -v '\-rc' | sort -V | tail -n1
 }
 
 function update_website_releases_info() {
