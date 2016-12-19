@@ -55,6 +55,9 @@ class IMAPFolder(BaseFolder):
         # self.ui is set in BaseFolder.
         self.imap_query = ['BODY.PEEK[]']
 
+        # number of times to retry fetching messages
+        self.retrycount = self.repository.getconfint('retrycount', 2)
+
         fh_conf = self.repository.account.getconf('filterheaders', '')
         self.filterheaders = [h for h in re.split(r'\s*,\s*', fh_conf) if h]
 
@@ -305,7 +308,7 @@ class IMAPFolder(BaseFolder):
                   this UID could be found.
         """
 
-        data = self._fetch_from_imap(str(uid), 2)
+        data = self._fetch_from_imap(str(uid), self.retrycount)
 
         # Data looks now e.g.
         # [('320 (UID 17061 BODY[] {2565}','msgbody....')]

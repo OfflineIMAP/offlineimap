@@ -71,7 +71,7 @@ class GmailFolder(IMAPFolder):
                   (probably severity MESSAGE) if e.g. no message with
                   this UID could be found.
         """
-        data = self._fetch_from_imap(str(uid), 2)
+        data = self._fetch_from_imap(str(uid), self.retrycount)
 
         # data looks now e.g.
         #[('320 (X-GM-LABELS (...) UID 17061 BODY[] {2565}','msgbody....')]
