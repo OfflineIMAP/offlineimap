@@ -134,27 +134,43 @@ class IMAPServer(object):
         # In order to support proxy connection, we have to override the
         # default socket instance with our own socksified socket instance.
         # We add this option to bypass the GFW in China.
-        _account_section = 'Account ' + self.repos.account.name
-        if not self.config.has_option(_account_section, 'proxy'):
-            self.proxied_socket = socket.socket
-        else:
-            proxy = self.config.get(_account_section, 'proxy')
-            # Powered by PySocks.
-            try:
-                import socks
-                proxy_type, host, port = proxy.split(":")
-                port = int(port)
-                socks.setdefaultproxy(getattr(socks, proxy_type), host, port)
-                self.proxied_socket = socks.socksocket
-            except ImportError:
-                self.ui.warn("PySocks not installed, ignoring proxy option.")
-                self.proxied_socket = socket.socket
-            except (AttributeError, ValueError) as e:
-                self.ui.warn("Bad proxy option %s for account %s: %s "
-                    "Ignoring proxy option."%
-                    (proxy, self.repos.account.name, e))
-                self.proxied_socket = socket.socket
+        self.proxied_socket = self._get_proxy('proxy', socket.socket)
 
+        # Turns out that the GFW in China is no longer blocking imap.gmail.com
+        # However accounts.google.com (for oauth2) definitey is.  Therefore
+        # it is not strictly necessary to use a proxy for *both* IMAP *and*
+        # oauth2, so a new option is added: authproxy.
+
+        # Set proxy for use in authentication (only) if desired.
+        # If not set, is same as proxy option (compatible with current configs)
+        # To use a proxied_socket but not an authproxied_socket
+        # set authproxy = '' in config
+        self.authproxied_socket = self._get_proxy('authproxy',
+                                                  self.proxied_socket)
+
+    def _get_proxy(self, proxysection, dfltsocket):
+        _account_section = 'Account ' + self.repos.account.name
+        if not self.config.has_option(_account_section, proxysection):
+            return dfltsocket
+        proxy = self.config.get(_account_section, proxysection)
+        if proxy == '':
+            # explicitly set no proxy (overrides default return of dfltsocket)
+            return socket.socket
+
+        # Powered by PySocks.
+        try:
+            import socks
+            proxy_type, host, port = proxy.split(":")
+            port = int(port)
+            socks.setdefaultproxy(getattr(socks, proxy_type), host, port)
+            return socks.socksocket
+        except ImportError:
+            self.ui.warn("PySocks not installed, ignoring proxy option.")
+        except (AttributeError, ValueError) as e:
+            self.ui.warn("Bad proxy option %s for account %s: %s "
+                "Ignoring %s option."%
+                (proxy, self.repos.account.name, e, proxysection))
+        return dfltsocket
 
     def __getpassword(self):
         """Returns the server password or None"""
@@ -227,7 +243,7 @@ class IMAPServer(object):
             self.ui.debug('imap', 'xoauth2handler: params "%s"'% params)
 
             original_socket = socket.socket
-            socket.socket = self.proxied_socket
+            socket.socket = self.authproxied_socket
             try:
                 response = urllib.urlopen(
                     self.oauth2_request_url, urllib.urlencode(params)).read()
