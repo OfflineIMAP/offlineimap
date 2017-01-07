@@ -123,6 +123,10 @@ class OfflineImap(object):
                   metavar="account1[,account2[,...]]",
                   help="list of accounts to sync")
 
+        parser.add_option("-A", dest="skipaccounts",
+                  metavar="account1[,account2[,...]]",
+                  help="list of accounts to skip")
+
         parser.add_option("-c", dest="configfile", metavar="FILE",
                   default=None,
                   help="specifies a configuration file to use")
@@ -388,6 +392,8 @@ class OfflineImap(object):
         if options.accounts:
             activeaccountnames = options.accounts
         activeaccountnames = [x.lstrip() for x in activeaccountnames.split(",")]
+        if options.skipaccounts:
+            activeaccountnames = [x for x in activeaccountnames if x not in options.skipaccounts]
 
         allaccounts = accounts.getaccountlist(self.config)
         for accountname in activeaccountnames:

@@ -85,6 +85,14 @@ Allows one to specify a particular account or set of accounts to sync without
 having to edit the config file.
 
 
+-A <account1[,account2[,...]]>::
+
+  Skips the listed accounts, even if they are in the config file.
++
+Allows one to specify a particular account or set of accounts to skip sync 
+without having to edit the config file.
+
+
 -c <path/to/configuration_file>::
 
   Specifies a configuration file to use.
