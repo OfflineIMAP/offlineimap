@@ -416,7 +416,7 @@ class OfflineImap(object):
             if sig == signal.SIGUSR1:
                 # tell each account to stop sleeping
                 accounts.Account.set_abort_event(self.config, 1)
-            elif sig == signal.SIGUSR2:
+            elif sig in (signal.SIGUSR2, signal.SIGABRT):
                 # tell each account to stop looping
                 getglobalui().warn("Terminating after this sync...")
                 accounts.Account.set_abort_event(self.config, 2)
@@ -442,6 +442,7 @@ class OfflineImap(object):
             signal.signal(signal.SIGHUP, sig_handler)
             signal.signal(signal.SIGUSR1, sig_handler)
             signal.signal(signal.SIGUSR2, sig_handler)
+            signal.signal(signal.SIGABRT, sig_handler)
             signal.signal(signal.SIGTERM, sig_handler)
             signal.signal(signal.SIGINT, sig_handler)
             signal.signal(signal.SIGQUIT, sig_handler)
