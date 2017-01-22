@@ -454,17 +454,29 @@ class IMAPRepository(BaseRepository):
         listfunction = imapobj.list
         if self.getconfboolean('subscribedonly', False):
             listfunction = imapobj.lsub
+
         try:
-            listresult = listfunction(directory=self.imapserver.reference)[1]
+            result, listresult = listfunction(directory=self.imapserver.reference)
+            if result != 'OK':
+                raise OfflineImapError("Could not list the folders for"
+                        " repository %s. Server responded: %s"%
+                        (self.name, self, str(listresult)),
+                    OfflineImapError.ERROR.FOLDER)
         finally:
             self.imapserver.releaseconnection(imapobj)
+
         for s in listresult:
             if s == None or \
                    (isinstance(s, str) and s == ''):
                 # Bug in imaplib: empty strings in results from
                 # literals. TODO: still relevant?
                 continue
-            flags, delim, name = imaputil.imapsplit(s)
+            try:
+                flags, delim, name = imaputil.imapsplit(s)
+            except ValueError:
+                self.ui.error(
+                    "could not correctly parse server response; got: %s"% s)
+                raise
             flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
             if '\\noselect' in flaglist:
                 continue
