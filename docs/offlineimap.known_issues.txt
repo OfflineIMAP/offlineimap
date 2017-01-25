@@ -1,4 +1,15 @@
 
+* Deletions.
++
+While in usual run the deletions are propagated. To prevent from data loss,
+removing a folder makes offlineimap re-sync the folder. However, propagating the
+removal of the whole content of a folder can happen in the two following cases:
+
+  - The whole content of a folder is deleted but the folder directory still
+    exists.
+
+  - The parent directory of the folder was deleted.
+
 * SSL3 write pending.
 +
 Users enabling SSL may hit a bug about "SSL3 write pending". If so, the
