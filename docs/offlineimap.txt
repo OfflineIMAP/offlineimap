@@ -315,10 +315,10 @@ SIGHUP, SIGQUIT.
 accounts that are configured to 'autorefresh'. In effect, this will trigger a
 full sync of all accounts to be performed as soon as possible.
 
-* If sent a SIGUSR2, it will stop 'autorefresh' mode for all accounts. That
-is, accounts will abort any current sleep and will exit after a currently
-running synchronization has finished. This signal can be used to gracefully
-exit out of a running offlineimap "daemon".
+* If sent a SIGUSR2 or SIGABRT, it will stop 'autorefresh' mode for all
+accounts. That is, accounts will abort any current sleep and will exit after a
+currently running synchronization has finished. This signal can be used to
+gracefully exit out of a running offlineimap "daemon".
 
 * SIGTERM, SIGINT, SIGHUP are all treated to gracefully terminate as soon as
 possible. This means it will finish syncing the current folder in each

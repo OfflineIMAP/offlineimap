@@ -4,6 +4,8 @@ Description=Offlineimap Service for account %i
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/offlineimap -o -a %i -u syslog
+#Restart=on-watchdog
+#WatchdogSec=300
 
 [Install]
 WantedBy=mail.target
