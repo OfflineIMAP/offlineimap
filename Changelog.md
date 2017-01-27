@@ -15,6 +15,42 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.13 (2017-01-27)
+
+#### Notes
+
+Here is a small release with some new features. IMAP servers are better supported.
+
+The release cycle was improved. Now, we include a new freeze time before
+important releases.
+
+#### Authors
+
+- Nicolas Sebrecht (8)
+- lkcl (2)
+- Chris Smart (1)
+
+#### Features
+
+- init: register SIGABRT and handle as per SIGUSR2. [Chris Smart]
+- add documentation about SIGABRT. [Nicolas Sebrecht]
+- learn repository retrycount configuration option. [lkcl]
+- learn authproxy configuration option. [lkcl]
+
+#### Fixes
+
+- folder: IMAP: add missing whitespace in error message. [Nicolas Sebrecht]
+- repository: IMAP: correctly check the response while listing remote folders. [Nicolas Sebrecht]
+- release.sh: correctly sort releases to compute latest stable and rc. [Nicolas Sebrecht]
+
+#### Changes
+
+- manual: KNOWN ISSUES: add documentation about the deletions. [Nicolas Sebrecht]
+- folder: IMAP: improve error message when Dovecot returns any data for UID FETCH. [Nicolas Sebrecht]
+- MAINTAINERS: add new official testers. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.12 (2016-11-30)
 
 #### Notes
