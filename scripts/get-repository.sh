@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# Licence: this file is in the public deomain.
+# Licence: this file is in the public domain.
 #
 # Download and configure the repositories of the website or wiki.
 
