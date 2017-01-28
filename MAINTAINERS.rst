@@ -31,6 +31,7 @@ Contacts
 
 - "J"
  - email: offlineimap at 927589452.de
+ - github: 927589452
  - other: FreeBSD user
 
 - Łukasz Żarnowiecki
