@@ -1,0 +1,10 @@
+diff a/scripts/get-repository.sh b/scripts/get-repository.sh	(rejected hunks)
+@@ -1,6 +1,6 @@
+-#!/bin/bash
++#!/bin/sh
+ #
+-# Licence: this file is in the public deomain.
++# Licence: this file is in the public domain.
+ #
+ # Download and configure the repositories of the website or wiki.
+ 

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #
 # Licence: this file is in the public domain.
 #
@@ -10,7 +10,7 @@ github_remote=$2
 #
 # TODO
 #
-function final_note () {
+final_note () {
 	cat <<EOF
 
 Now, you can fork the repository into Github from $2
@@ -22,7 +22,7 @@ and add a reference to it in your local copy:
 EOF
 }
 
-function setup () {
+setup () {
 	target_dir=$1
 	remote_url=$2
 
@@ -49,7 +49,7 @@ function setup () {
 	fi
 }
 
-function configure_website () {
+configure_website () {
 	renderer='./render.sh'
 
 	echo "Found Github username: '$1'"
@@ -65,7 +65,7 @@ function configure_website () {
 	fi
 }
 
-function configure_wiki () {
+configure_wiki () {
 	:	# noop
 }
 
