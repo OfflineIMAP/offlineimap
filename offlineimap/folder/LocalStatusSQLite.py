@@ -1,5 +1,5 @@
 # Local status cache virtual folder: SQLite backend
-# Copyright (C) 2009-2016 Stewart Smith and contributors.
+# Copyright (C) 2009-2017 Stewart Smith and contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -282,16 +282,17 @@ class LocalStatusSQLiteFolder(BaseFolder):
     def saveall(self):
         """Saves the entire messagelist to the database."""
 
-        data = []
-        for uid, msg in self.messagelist.items():
-            mtime = msg['mtime']
-            flags = ''.join(sorted(msg['flags']))
-            labels = ', '.join(sorted(msg['labels']))
-            data.append((uid, flags, mtime, labels))
+        with self._databaseFileLock.getLock():
+            data = []
+            for uid, msg in self.messagelist.items():
+                mtime = msg['mtime']
+                flags = ''.join(sorted(msg['flags']))
+                labels = ', '.join(sorted(msg['labels']))
+                data.append((uid, flags, mtime, labels))
 
-        self.__sql_write('INSERT OR REPLACE INTO status '
-            '(id,flags,mtime,labels) VALUES (?,?,?,?)',
-            data, executemany=True)
+            self.__sql_write('INSERT OR REPLACE INTO status '
+                '(id,flags,mtime,labels) VALUES (?,?,?,?)',
+                data, executemany=True)
 
 
     # Following some pure SQLite functions, where we chose to use

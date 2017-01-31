@@ -1,5 +1,5 @@
 # Local status cache repository support
-# Copyright (C) 2002-2016 John Goerzen & contributors
+# Copyright (C) 2002-2017 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import os
 from offlineimap.folder.LocalStatus import LocalStatusFolder
 from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
 from offlineimap.repository.Base import BaseRepository
+
 
 class LocalStatusRepository(BaseRepository):
     def __init__(self, reposname, account):
