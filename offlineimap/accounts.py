@@ -528,6 +528,9 @@ def syncfolder(account, remotefolder, quick):
         # Load local folder.
         localfolder = account.get_local_folder(remotefolder)
 
+        localfolder.mutex.acquire()
+        remotefolder.mutex.acquire()
+
         # Add the folder to the mbnames mailboxes.
         mbnames.add(account.name, localrepos.getlocalroot(),
             localfolder.getname())
@@ -616,3 +619,5 @@ def syncfolder(account, remotefolder, quick):
             if folder in locals():
                 locals()[folder].dropmessagelistcache()
         statusfolder.closefiles()
+        remotefolder.mutex.release()
+        localfolder.mutex.release()
