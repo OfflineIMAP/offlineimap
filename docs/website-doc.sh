@@ -58,7 +58,7 @@ function api () {
   for version in $(ls "$DESTBASE" -1 | sort -nr)
   do
     echo "- $version"
-  done >> "$VERSIONS_YML"
+  done | sort -V >> "$VERSIONS_YML"
 }
 
 
