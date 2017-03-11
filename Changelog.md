@@ -15,6 +15,48 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.0.14 (2017-03-11)
+
+#### Notes
+
+Here is a new small fixup release for the v7.0 series. The first v7.0.0 release
+is near to 8 months old. This v7.0.14 release is more reliable than v6.7.0.3.
+Hence, I'm deprecating the v6.7 series.
+
+Now, you are all enjoined to migrate to v7.0.14. Migrating back to v6.7 is not
+supported so you might like to backup your local maildirs and metadata first.
+
+We will fully remove the legacy text backend driver in near future. The SQLite
+driver proved to be better for both performance and reliability.
+
+With this release we use imaplib2 v2.57 to support some faulting IMAP servers,
+fix a little bug about the backend migration to SQLite and serialize the sync
+processes to prevent from issues when both IDLE and autorefresh are enabled.
+
+Happy sync'ing!
+
+#### Authors
+
+- Nicolas Sebrecht (5)
+- 927589452 (2)
+- Jens Heinrich (1)
+- Stéphane Graber (1)
+
+#### Fixes
+
+- SQLite: avoid concurrent writes on backend migration. [Nicolas Sebrecht]
+- Fix ipv6 configuration handling. [Stéphane Graber]
+- Prevent synchronization of identical folders from multiple threads. [Nicolas Sebrecht]
+
+#### Changes
+
+- Bump from imaplib2 v2.55 to v2.57. [Nicolas Sebrecht]
+- scripts/get-repository.sh: use portable /bin/sh. [Jens Heinrich]
+- MAINTAINERS: add new tester. [Nicolas Sebrecht]
+- scripts/get-repository.sh: use env to call bash. [mailinglists@927589452.de]
+
+
+
 ### OfflineIMAP v7.0.13 (2017-01-27)
 
 #### Notes
