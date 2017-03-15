@@ -221,10 +221,6 @@ class IMAPServer(object):
         return retval
 
     def __xoauth2handler(self, response):
-        if self.oauth2_refresh_token is None \
-                and self.oauth2_access_token is None:
-            return None
-
         if self.oauth2_access_token is None:
             if self.oauth2_request_url is None:
                 raise OfflineImapError("No remote oauth2_request_url for "
@@ -353,6 +349,10 @@ class IMAPServer(object):
         return True
 
     def __authn_xoauth2(self, imapobj):
+        if self.oauth2_refresh_token is None \
+                and self.oauth2_access_token is None:
+            return False
+
         imapobj.authenticate('XOAUTH2', self.__xoauth2handler)
         return True
 
