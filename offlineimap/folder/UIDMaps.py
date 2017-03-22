@@ -142,8 +142,22 @@ class MappedIMAPFolder(IMAPFolder):
             for luid in self.diskl2r.keys():
                 if not luid in reallist:
                     ruid = self.diskl2r[luid]
-                    del self.diskr2l[ruid]
-                    del self.diskl2r[luid]
+                    #XXX: the following KeyError are sightly unexpected. This
+                    # would require more digging to understand how it's
+                    # possible.
+                    errorMessage = ("unexpected error: key {} was not found "
+                        "in memory, see "
+                        "https://github.com/OfflineIMAP/offlineimap/issues/445"
+                        " to know more."
+                    )
+                    try:
+                        del self.diskr2l[ruid]
+                    except KeyError as e:
+                        self.ui.warn(errorMessage.format(ruid))
+                    try:
+                        del self.diskl2r[luid]
+                    except KeyError as e:
+                        self.ui.warn(errorMessage.format(ruid))
 
             # Now, assign negative UIDs to local items.
             self._savemaps()
