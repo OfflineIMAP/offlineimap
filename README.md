@@ -93,7 +93,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 ## Requirements & dependencies
 
 * Python v2.7+
-* Python v3.4+ ***(experimental: [see known issues](https://github.com/OfflineIMAP/offlineimap/issues?q=is%3Aissue+is%3Aopen+label%3APy3))***
+* Python v3.4+ ***[STALLED] (experimental: [see known issues](https://github.com/OfflineIMAP/offlineimap/issues?q=is%3Aissue+is%3Aopen+label%3APy3))***
 * six (required)
 * imaplib2 >= 2.55 (optional)
 
