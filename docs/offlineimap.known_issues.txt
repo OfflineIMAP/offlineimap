@@ -120,7 +120,7 @@ Sometimes, you might hit one of the following error:
 - oauth2handler got: {u'error': u'invalid_grant'}
 
 +
-In such case, we had report that generating a new refesh token from the same
+In such case, we had reports that generating a new refresh token from the same
 client ID and secret can help.
 +
 .Google documentation on "invalid_grant"
