@@ -20,31 +20,37 @@ import os
 from offlineimap.folder.LocalStatus import LocalStatusFolder
 from offlineimap.folder.LocalStatusSQLite import LocalStatusSQLiteFolder
 from offlineimap.repository.Base import BaseRepository
+from offlineimap.error import OfflineImapError
 
 
 class LocalStatusRepository(BaseRepository):
     def __init__(self, reposname, account):
         BaseRepository.__init__(self, reposname, account)
 
-        # class and root for all backends
+        # class and root for all backends.
         self.backends = {}
         self.backends['sqlite'] = {
             'class': LocalStatusSQLiteFolder,
             'root': os.path.join(account.getaccountmeta(), 'LocalStatus-sqlite')
         }
-
         self.backends['plain'] = {
             'class': LocalStatusFolder,
             'root': os.path.join(account.getaccountmeta(), 'LocalStatus')
         }
 
-        # Set class and root for the configured backend
-        self.setup_backend(self.account.getconf('status_backend', 'sqlite'))
+        if self.account.getconf('status_backend', None) is not None:
+            raise OfflineImapError(
+                "the 'status_backend' configuration option is not supported"
+                " anymore; please, remove this configuration option.",
+                OfflineImapError.ERROR.REPO
+            )
+        # Set class and root for sqlite.
+        self.setup_backend('sqlite')
 
         if not os.path.exists(self.root):
             os.mkdir(self.root, 0o700)
 
-        # self._folders is a dict of name:LocalStatusFolders()
+        # self._folders is a dict of name:LocalStatusFolders().
         self._folders = {}
 
     def _instanciatefolder(self, foldername):
@@ -55,10 +61,6 @@ class LocalStatusRepository(BaseRepository):
             self._backend = backend
             self.root = self.backends[backend]['root']
             self.LocalStatusFolderClass = self.backends[backend]['class']
-
-        else:
-            raise SyntaxWarning("Unknown status_backend '%s' for account '%s'"%
-                (backend, self.account.name))
 
     def import_other_backend(self, folder):
         for bk, dic in self.backends.items():

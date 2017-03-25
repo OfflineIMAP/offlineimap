@@ -228,10 +228,10 @@ if a mail has been added or deleted on either side.
 The historical status cache is a plain text file that writes out the complete
 file for each single new message (or even changed flag) to a temporary file. If
 you have plenty of files in a folder, this is a few hundred kilo to megabytes
-for each mail and is bound to make things slow. The latest default status cache
+for each mail and is bound to make things slow. The latest status cache
 is sqlite. This saves plenty of disk activity. The sqlite engine and the Python
-sqlite module must be installed. Enable the 'status_backend = plain' setting in
-'offlineimap.conf' for legacy compatibility with versions prior to '6.4.0'.
+sqlite module must be installed. The historical plain status cache is not
+supported anymore.
 +
 If you switch the backend from plain to sqlite, you may want to delete the old
 cache directory in '<metadata>/Account-<account>/LocalStatus' manually (the
