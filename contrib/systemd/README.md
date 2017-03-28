@@ -40,7 +40,7 @@ For example, it may be useful in assisting with the occasional situation where
 offlineimap may not return successfully after a suspend and resume.
 
 To make use of this, users could add the following to the [Service] section of
-their systemd offlineimap service file (restart every 5 minutes):
+their corresponding systemd offlineimap-oneshot service file (restart every 5 minutes):
 
 ``` conf
 Restart=on-watchdog
