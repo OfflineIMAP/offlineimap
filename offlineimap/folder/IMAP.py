@@ -392,9 +392,12 @@ class IMAPFolder(BaseFolder):
         self.ui.debug('imap', '__savemessage_searchforheader: matchinguids now '
             + repr(matchinguids))
         if len(matchinguids) != 1 or matchinguids[0] is None:
-            raise ValueError("While attempting to find UID for message with "
-                             "header %s, got wrong-sized matchinguids of %s"%
-                                 (headername, str(matchinguids)))
+            raise OfflineImapError(
+                "While attempting to find UID for message with "
+                "header %s, got wrong-sized matchinguids of %s"%
+                (headername, str(matchinguids)),
+                OfflineImapError.ERROR.MESSAGE
+            )
         return int(matchinguids[0])
 
     def __savemessage_fetchheaders(self, imapobj, headername, headervalue):
