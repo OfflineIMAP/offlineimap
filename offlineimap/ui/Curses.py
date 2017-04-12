@@ -315,11 +315,11 @@ class CursesLogHandler(logging.StreamHandler):
             y,x = self.ui.logwin.getyx()
             if y or x: self.ui.logwin.addch(10) # no \n before 1st item
             self.ui.logwin.addstr(log_str, color)
+            self.ui.logwin.noutrefresh()
+            self.ui.stdscr.refresh()
         finally:
             self.ui.unlock()
             self.ui.tframe_lock.release()
-        self.ui.logwin.noutrefresh()
-        self.ui.stdscr.refresh()
 
 class Blinkenlights(UIBase, CursesUtil):
     """Curses-cased fancy UI.
@@ -611,11 +611,12 @@ class Blinkenlights(UIBase, CursesUtil):
             color = curses.A_REVERSE
         self.bannerwin.clear() # Delete old content (eg before resizes)
         self.bannerwin.bkgd(' ', color) # Fill background with that color
-        string = "%s %s"% (offlineimap.__productname__,
-            offlineimap.__version__)
-        self.bannerwin.addstr(0, 0, string, color)
-        self.bannerwin.addstr(0, self.width -len(offlineimap.__copyright__) -1,
-                              offlineimap.__copyright__, color)
+        string = "%s %s" % (offlineimap.__productname__,
+                            offlineimap.__version__)
+        spaces = " " * max(1, (self.width - len(offlineimap.__copyright__)
+                               - len(string) - 1))
+        string = "%s%s%s" % (string, spaces, offlineimap.__copyright__)
+        self.bannerwin.addnstr(0, 0, string, self.width - 1, color)
         self.bannerwin.noutrefresh()
 
     def draw_logwin(self):
