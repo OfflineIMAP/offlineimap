@@ -15,6 +15,41 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.1.0 (2017-04-16)
+
+#### Notes
+
+The most important change is the removal of the status_backend configuration
+option and that's why we're moving to v7.1.0.
+
+There are other small bug fixes and improvements. However, the codebase didn't
+change much since v7.0.14.
+
+#### Authors
+
+- Nicolas Sebrecht (6)
+- benutzer193 (4)
+- Ilias Tsitsimpis (1)
+
+#### Fixes
+
+- doc: Fix typo in offlineimap.1 man page. [Ilias Tsitsimpis]
+- README: we moved to imaplib2 v2.57. [Nicolas Sebrecht]
+- README: mark porting to py3 as stalled. [Nicolas Sebrecht]
+- folder: UIDMaps: ignore KeyError failure while removing keys. [Nicolas Sebrecht]
+
+#### Changes
+
+- Remove support for the status_backend configuration option. [Nicolas Sebrecht]
+- folder/IMAP: improve handling of "matchinguids" error while searching headers. [Nicolas Sebrecht]
+- Adjust README to systemd service file changes. [benutzer193]
+- Remove oneshot switch from systemd services. [benutzer193]
+- Use oneshot services for systemd timers. [benutzer193]
+- Create systemd oneshot services. [benutzer193]
+- website-doc.sh: versions.yml: set versions in order. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.0.14 (2017-03-11)
 
 #### Notes
