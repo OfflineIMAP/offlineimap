@@ -55,6 +55,8 @@ function api () {
   echo "Building Jekyll data: $VERSIONS_YML"
   # Erase previous content.
   echo "$HEADER" > "$VERSIONS_YML"
+  echo "# However, it's correct to /remove/ old API docs here."
+  echo "# While at it, don't forget to adjust the _doc/versions directory."
   for version in $(ls "$DESTBASE" -1 | sort -nr)
   do
     echo "- $version"
