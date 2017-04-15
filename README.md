@@ -15,6 +15,8 @@
 OfflineIMAP is software that downloads your email mailbox(es) as **local
 Maildirs**. OfflineIMAP will synchronize both sides via *IMAP*.
 
+## Why should I use OfflineIMAP?
+
 IMAP's main downside is that you have to **trust** your email provider to
 not lose your email. While certainly unlikely, it's not impossible.
 With OfflineIMAP, you can download your Mailboxes and make you own backups of
@@ -48,14 +50,6 @@ message without internet connection? No problem, the message is still there.
 ## License
 
 GNU General Public License v2.
-
-
-## Why should I use OfflineIMAP?
-
-* It is **fast**.
-* It is **reliable**.
-* It is **flexible**.
-* It is **safe**.
 
 
 ## Downloads
