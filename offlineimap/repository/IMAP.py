@@ -203,6 +203,14 @@ class IMAPRepository(BaseRepository):
                 return netrcentry[0]
 
         try:
+            netrcentry = netrc.netrc().authenticators(self.gethost())
+        except IOError as inst:
+            if inst.errno not in (errno.ENOENT, errno.EACCES):
+                raise
+        else:
+            if netrcentry:
+                return netrcentry[0]
+        try:
             netrcentry = netrc.netrc('/etc/netrc').authenticators(self.gethost())
         except IOError as inst:
             if inst.errno not in (errno.ENOENT, errno.EACCES):
