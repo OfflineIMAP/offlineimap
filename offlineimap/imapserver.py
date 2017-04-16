@@ -803,6 +803,8 @@ class IdleThread(object):
         account.callhook(hook)
 
         ui = getglobalui()
+        hook = account.getconf('postsynchook', '')
+        account.callhook(hook)
         ui.unregisterthread(currentThread()) #syncfolder registered the thread
 
     def __idle(self):
