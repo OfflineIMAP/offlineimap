@@ -151,3 +151,10 @@ See <https://developers.google.com/analytics/devguides/config/mgmt/v3/authorizat
 and <https://developers.google.com/identity/protocols/OAuth2#expiration>
 to know more.
 
+* Dry-run crashes upon encountering new local or remote folders
++
+`--dry-run` will die with `getfolder() asked for a nonexisting folder` when it
+encounters folders that it has not previously synced. This is unfortunately a
+result of the way that OfflineIMAP expects folders to look, and is nontrivial
+to fix. In the meantime, dry run should only be used when the same sets of 
+folders exist on the local and remote sides of the sync. 
