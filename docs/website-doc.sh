@@ -126,6 +126,15 @@ function releases () {
   rm -f "$ANNOUNCES_YML_TMP"
 }
 
+function manhtml () {
+  set -e
+
+  cd ./docs
+  make manhtml
+  cd ..
+  cp -av ./docs/manhtml/* "$DOCBASE"
+}
+
 
 exit_code=0
 test "n$ARGS" = 'n' && ARGS='usage' # no option passed
@@ -138,6 +147,9 @@ do
       ;;
     "napi")
       api
+      ;;
+    "nhtml")
+      manhtml
       ;;
     "ncontrib")
       contrib

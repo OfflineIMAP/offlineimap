@@ -16,6 +16,15 @@ html: $(HTML_TARGETS)
 $(HTML_TARGETS): %.html : %.rst
 	$(RST2HTML) $? $@
 
+manhtml: offlineimap.html offlineimapui.html
+
+offlineimap.html: offlineimap.txt offlineimap.known_issues.txt
+	a2x -v -d manpage -D manhtml -f xhtml $<
+
+offlineimapui.html: offlineimapui.txt
+	a2x -v -d manpage -D manhtml -f xhtml $<
+
+
 man: offlineimap.1 offlineimapui.7
 
 offlineimap.1: offlineimap.txt offlineimap.known_issues.txt
@@ -30,12 +39,14 @@ api:
 websitedoc:
 	./website-doc.sh releases
 	./website-doc.sh api
+	./website-doc.sh html
 	./website-doc.sh contrib
 
 clean:
 	$(RM) -f $(HTML_TARGETS)
 	$(RM) -f offlineimap.1
 	$(RM) -f offlineimap.7
+	$(RM) -f manhtml/*
 	$(RM) -rf html/*
 	-find ./docs -name '*.html' -exec rm -f {} \;
 
