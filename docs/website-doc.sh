@@ -132,7 +132,7 @@ function manhtml () {
   cd ./docs
   make manhtml
   cd ..
-  cp -av ./docs/manhtml/* "$DOCBASE"
+  cp -afv ./docs/manhtml/* "$DOCBASE"
 }
 
 
