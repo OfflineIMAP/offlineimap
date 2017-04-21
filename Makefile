@@ -38,7 +38,7 @@ clean:
 	-find . -name '.cache*' -exec rm -f {} \;
 	-rm -f manpage.links manpage.refs 2>/dev/null
 	-find . -name auth -exec rm -vf {}/password {}/username \;
-	@$(MAKE) -C clean
+	-$(MAKE) -C docs clean
 
 .PHONY: docs
 docs:

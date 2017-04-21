@@ -48,6 +48,6 @@ clean:
 	$(RM) -f offlineimap.7
 	$(RM) -f manhtml/*
 	$(RM) -rf html/*
-	-find ./docs -name '*.html' -exec rm -f {} \;
+	-find . -name '*.html' -exec rm -f {} \;
 
 .PHONY: clean doc
