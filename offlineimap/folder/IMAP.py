@@ -686,6 +686,8 @@ class IMAPFolder(BaseFolder):
                     return 0
                 try:
                     uid = int(resp[-1].split(' ')[1])
+                except ValueError as e:
+                    uid = 0 # Definetly not what we should have.
                 except Exception as e:
                     raise OfflineImapError("Unexpected response: %s"% str(resp),
                         OfflineImapError.ERROR.MESSAGE)
