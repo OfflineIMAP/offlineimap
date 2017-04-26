@@ -682,9 +682,13 @@ class IMAPFolder(BaseFolder):
                 resp = imapobj._get_untagged_response('APPENDUID')
                 if resp == [None] or resp is None:
                     self.ui.warn("Server supports UIDPLUS but got no APPENDUID "
-                        "appending a message.")
+                        "appending a message. Got: %s."% str(resp))
                     return 0
-                uid = int(resp[-1].split(' ')[1])
+                try:
+                    uid = int(resp[-1].split(' ')[1])
+                except Exception as e:
+                    raise OfflineImapError("Unexpected response: %s"% str(resp),
+                        OfflineImapError.ERROR.MESSAGE)
                 if uid == 0:
                     self.ui.warn("savemessage: Server supports UIDPLUS, but"
                         " we got no usable uid back. APPENDUID reponse was "
@@ -706,7 +710,7 @@ class IMAPFolder(BaseFolder):
             if imapobj:
                 self.imapserver.releaseconnection(imapobj)
 
-        if uid: # Avoid UID FETCH 0 crash happening later on
+        if uid: # Avoid UID FETCH 0 crash happening later on.
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
 
