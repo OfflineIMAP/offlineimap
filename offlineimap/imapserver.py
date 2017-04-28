@@ -527,6 +527,8 @@ class IMAPServer(object):
                 elif self.usessl:
                     self.ui.connecting(
                         self.repos.getname(), self.hostname, self.port)
+                    self.ui.debug('imap', "%s: level '%s', version '%s'"%
+                        (self.repos.getname(), self.tlslevel, self.sslversion))
                     imapobj = imaplibutil.WrappedIMAP4_SSL(
                         host=self.hostname,
                         port=self.port,
