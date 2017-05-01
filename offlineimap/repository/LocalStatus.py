@@ -41,7 +41,7 @@ class LocalStatusRepository(BaseRepository):
         if self.account.getconf('status_backend', None) is not None:
             raise OfflineImapError(
                 "the 'status_backend' configuration option is not supported"
-                " anymore; please, remove this configuration option.",
+                " anymore and may be safely removed.",
                 OfflineImapError.ERROR.REPO
             )
         # Set class and root for sqlite.
