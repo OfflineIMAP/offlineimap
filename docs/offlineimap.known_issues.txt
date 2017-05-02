@@ -151,3 +151,12 @@ See <https://developers.google.com/analytics/devguides/config/mgmt/v3/authorizat
 and <https://developers.google.com/identity/protocols/OAuth2#expiration>
 to know more.
 
+* "does not have message with UID" with Microsoft servers
++
+  `ERROR: IMAP server 'Server ### Remote' does not have a message with UID 'xxx'`
++
+Microsoft IMAP servers are not compliant with the RFC. It is currently required
+to folderfilter some faulting folders. See
+http://www.offlineimap.org/doc/FAQ.html#exchange-and-office365 for a detailed
+list.
+
