@@ -73,9 +73,15 @@ class OfflineImap(object):
     """
 
     def get_env_info(self):
-        return "imaplib2 v%s (%s), Python v%s"% (
+        info = "imaplib2 v%s (%s), Python v%s"% (
               imaplib.__version__, imaplib.DESC, PYTHON_VERSION
         )
+        try:
+            import ssl
+            info = "%s, %s"% (info, ssl.OPENSSL_VERSION)
+        except:
+            pass
+        return info
 
     def run(self):
         """Parse the commandline and invoke everything"""
