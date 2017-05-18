@@ -32,6 +32,7 @@ _mbLock = Lock()
 _mbnames = None
 
 
+# Called at sync time for each folder.
 def add(accountname, folder_root, foldername):
     global _mbnames
     if _mbnames.is_enabled() is not True:
@@ -41,12 +42,14 @@ def add(accountname, folder_root, foldername):
         _mbnames.addAccountFolder(accountname, folder_root, foldername)
 
 
+# Called once.
 def init(conf, ui, dry_run):
     global _mbnames
     if _mbnames is None:
         _mbnames = _Mbnames(conf, ui, dry_run)
 
 
+# Called once.
 def prune(accounts):
     global _mbnames
     if _mbnames.is_enabled() is True:
@@ -55,6 +58,7 @@ def prune(accounts):
         _mbnames.pruneAll()
 
 
+# Called once.
 def write():
     """Write the mbnames file."""
 
@@ -66,6 +70,7 @@ def write():
         _mbnames.write()
 
 
+# Called as soon as all the folders are synced for the account.
 def writeIntermediateFile(accountname):
     """Write intermediate mbnames file."""
 
@@ -93,7 +98,8 @@ class _IntermediateMbnames(object):
         self._dryrun = dry_run
 
     def add(self, foldername):
-        self._foldernames.append(foldername)
+        if foldername not in self._foldernames:
+            self._foldernames.append(foldername)
 
     def get_folder_root(self):
         return self._folder_root

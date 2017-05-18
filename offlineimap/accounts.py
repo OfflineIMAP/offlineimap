@@ -309,6 +309,9 @@ class SyncableAccount(Account):
             remotefolder.getvisiblename().
             replace(self.remoterepos.getsep(), self.localrepos.getsep()))
 
+
+    # The syncrunner will loop on this method. This means it is called more than
+    # once during the run.
     def __sync(self):
         """Synchronize the account once, then return.
 
