@@ -19,8 +19,13 @@ Note to mainainers:
 
 #### Notes
 
-The most important change is the removal of the status_backend configuration
-option and that's why we're moving to v7.1.0.
+The most important change is that the syncronisation status cache is now stored
+in SQLite and the `status_backend` option is no longer configurable. You may
+safely remove this option from your configuration. This change is why we're
+moving to v7.1.0. If you were previously using the default `plain` backend, you
+may want to delete the old cache directory in
+'<metadata>/Account-<account>/LocalStatus' manually (the sqlite cache stands in
+the 'LocalStatus-sqlite' folder).
 
 There are other small bug fixes and improvements. However, the codebase didn't
 change much since v7.0.14.
