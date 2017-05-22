@@ -225,17 +225,17 @@ done this yet, do it :). See the 'folderfilter' section in 'offlineimap.conf'.
 OfflineImap caches the state of the synchronisation to e.g. be able to determine
 if a mail has been added or deleted on either side.
 +
-The historical status cache is a plain text file that writes out the complete
-file for each single new message (or even changed flag) to a temporary file. If
-you have plenty of files in a folder, this is a few hundred kilo to megabytes
-for each mail and is bound to make things slow. The latest status cache
-is sqlite. This saves plenty of disk activity. The sqlite engine and the Python
-sqlite module must be installed. The historical plain status cache is not
-supported anymore.
+The historical status cache was a plain text file that was writing out the
+complete file for each single new message (or even changed flag) to a temporary
+file. If there was plenty of files in a folder this was bound to make things
+slow. The latest status cache is sqlite. This saves plenty of disk activity.
 +
-If you switch the backend from plain to sqlite, you may want to delete the old
-cache directory in '<metadata>/Account-<account>/LocalStatus' manually (the
-sqlite cache stands in the 'LocalStatus-sqlite' folder).
+The historical plain status cache is not supported anymore but migrating from a
+very old installation using the plain text cache is still supported.  In this
+case, you may want to delete the old cache directory in
+'<metadata>/Account-<account>/LocalStatus' manually (the sqlite cache stands in
+the 'LocalStatus-sqlite' folder). First, make sure you have run the new version
+of offlineimap for all your accounts so that the status cache was migrated.
 
 4. Use quick sync.
 +
