@@ -29,12 +29,12 @@ Furthermore, this release was tested by:
 
 #### Authors
 
-    17  Nicolas Sebrecht
-     1  Chris Coleman
-     1  Ilias Tsitsimpis
-     1  Maximilian Kaul
-     1  benutzer193
-     1  Ævar Arnfjörð Bjarmason
+- Nicolas Sebrecht (17)
+- Chris Coleman (1)
+- Ilias Tsitsimpis (1)
+- Maximilian Kaul (1)
+- benutzer193 (1)
+- Ævar Arnfjörð Bjarmason (1)
 
 #### Features
 
