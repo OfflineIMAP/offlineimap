@@ -15,6 +15,60 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.1.1 (2017-05-28)
+
+#### Notes
+
+This release has some interesting fixes, including one for the Blinkenlights UI.
+
+Otherwise, there is no big change since the previous version.
+
+Furthermore, this release was tested by:
+
+- Remi Locherer
+
+#### Authors
+
+    17  Nicolas Sebrecht
+     1  Chris Coleman
+     1  Ilias Tsitsimpis
+     1  Maximilian Kaul
+     1  benutzer193
+     1  Ævar Arnfjörð Bjarmason
+
+#### Features
+
+- contrib: introduce a tool to produce the "upcoming notes". [Nicolas Sebrecht]
+- contrib: secure HTTPS test internet is connected.. [Chris Coleman]
+- Env info (used by -V and banner): add openssl version. [Nicolas Sebrecht]
+- docs: learn to build html files for the manual pages. [Nicolas Sebrecht]
+
+#### Fixes
+
+- Acquire lock before updating the CursesLogHandler window. [Ilias Tsitsimpis]
+- maxage: use the remote folder first to compute min_uid. [Nicolas Sebrecht]
+- Fix systemd.timer: initialize timer after boot. [benutzer193]
+- XOAUTH2: don't try this authentication method when not configured. [Nicolas Sebrecht]
+- mbnames: don't duplicate entries in autorefresh mode. [Nicolas Sebrecht]
+- docs: update the instructions for creating OAuth projects for GMail. [Ævar Arnfjörð Bjarmason]
+- Fixed typo in doc: tls_1_2 => tls1_2. [Maximilian Kaul]
+- IMAP: UIDPLUS: correctly warn about weird responses from some servers. [Nicolas Sebrecht]
+- website-doc: force copy of the new HTML generated man pages. [Nicolas Sebrecht]
+- Makefile: fix clean target. [Nicolas Sebrecht]
+
+#### Changes
+
+- MAINTAINERS: benutzer193 joins the testers team. [Nicolas Sebrecht]
+- IMAP: UIDPLUS: improve error message on response error for new UID. [Nicolas Sebrecht]
+- Display the imaplib and python versions for each normal run. [Nicolas Sebrecht]
+- imapserver: provide some SSL info while in imap debug mode. [Nicolas Sebrecht]
+- manual: improve the documentation about sqlite migration. [Nicolas Sebrecht]
+- documentation: add entry for faulting folders with Microsoft servers. [Nicolas Sebrecht]
+- website-doc.sh: add hint on API removal. [Nicolas Sebrecht]
+- README: refactorize sections. [Nicolas Sebrecht]
+
+
+
 ### OfflineIMAP v7.1.0 (2017-04-16)
 
 #### Notes
