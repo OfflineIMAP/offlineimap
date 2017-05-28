@@ -56,6 +56,10 @@ Contacts
   - github: rkrug
   - system: OSX
 
+- Remi Locherer
+  - email: remi.locherer at relo.ch
+  - system: OpenBSD maintainer
+
 - Sebastian Spaeth
   - email: sebastian at sspaeth.de
   - github: spaetz
@@ -76,6 +80,7 @@ Testers
 - Łukasz Żarnowiecki
 - Nicolas Sebrecht
 - Rainer M Krug
+- Remi Locherer
 
 
 Maintainers
