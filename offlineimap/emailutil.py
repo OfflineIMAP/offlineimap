@@ -16,7 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import email
-from email.Parser import Parser as MailParser
+from email.parser import Parser as MailParser
 
 def get_message_date(content, header='Date'):
     """Parses mail and returns resulting timestamp.

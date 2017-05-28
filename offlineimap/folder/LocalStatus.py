@@ -1,5 +1,5 @@
 # Local status cache virtual folder
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 from sys import exc_info
 import os
 import threading
+import six
 
 from .Base import BaseFolder
 
@@ -33,7 +34,6 @@ class LocalStatusFolder(BaseFolder):
         super(LocalStatusFolder, self).__init__(name, repository)
         self.root = repository.root
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
-        self.messagelist = {}
         self.savelock = threading.Lock()
         # Should we perform fsyncs as often as possible?
         self.doautosave = self.config.getdefaultboolean(
@@ -50,10 +50,6 @@ class LocalStatusFolder(BaseFolder):
     def getfullname(self):
         return self.filename
 
-    def deletemessagelist(self):
-        if not self.isnewfolder():
-            os.unlink(self.filename)
-
     # Interface from BaseFolder
     def msglist_item_initializer(self, uid):
         return {'uid': uid, 'flags': set(), 'labels': set(), 'time': 0, 'mtime': 0}
@@ -65,17 +61,17 @@ class LocalStatusFolder(BaseFolder):
         - fp: I/O object that points to the opened database file.
         """
 
-        for line in fp.xreadlines():
+        for line in fp:
             line = line.strip()
             try:
                 uid, flags = line.split(':')
-                uid = long(uid)
+                uid = int(uid)
                 flags = set(flags)
             except ValueError as e:
-                errstr = "Corrupt line '%s' in cache file '%s'" % \
-                    (line, self.filename)
+                errstr = ("Corrupt line '%s' in cache file '%s'"%
+                    (line, self.filename))
                 self.ui.warn(errstr)
-                raise ValueError(errstr), None, exc_info()[2]
+                six.reraise(ValueError, ValueError(errstr), exc_info()[2])
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
 
@@ -86,19 +82,19 @@ class LocalStatusFolder(BaseFolder):
         - fp: I/O object that points to the opened database file.
         """
 
-        for line in fp.xreadlines():
+        for line in fp:
             line = line.strip()
             try:
                 uid, flags, mtime, labels = line.split('|')
-                uid = long(uid)
+                uid = int(uid)
                 flags = set(flags)
-                mtime = long(mtime)
+                mtime = int(mtime)
                 labels = set([lb.strip() for lb in labels.split(',') if len(lb.strip()) > 0])
             except ValueError as e:
                 errstr = "Corrupt line '%s' in cache file '%s'"% \
                     (line, self.filename)
                 self.ui.warn(errstr)
-                raise ValueError(errstr), None, exc_info()[2]
+                six.reraise(ValueError, ValueError(errstr), exc_info()[2])
             self.messagelist[uid] = self.msglist_item_initializer(uid)
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['mtime'] = mtime
@@ -108,12 +104,12 @@ class LocalStatusFolder(BaseFolder):
     # Interface from BaseFolder
     def cachemessagelist(self):
         if self.isnewfolder():
-            self.messagelist = {}
+            self.dropmessagelistcache()
             return
 
         # Loop as many times as version, and update format.
         for i in range(1, self.cur_version + 1):
-            self.messagelist = {}
+            self.dropmessagelistcache()
             cachefd = open(self.filename, "rt")
             line = cachefd.readline().strip()
 
@@ -161,6 +157,15 @@ class LocalStatusFolder(BaseFolder):
     def closefiles(self):
         pass # Closing files is done on a per-transaction basis.
 
+    def purge(self):
+        """Remove any pre-existing database."""
+
+        try:
+            os.unlink(self.filename)
+        except OSError as e:
+            self.ui.debug('', "could not remove file %s: %s"%
+                (self.filename, e))
+
     def save(self):
         """Save changed data to disk. For this backend it is the same as saveall."""
 
@@ -186,10 +191,6 @@ class LocalStatusFolder(BaseFolder):
                 fd = os.open(os.path.dirname(self.filename), os.O_RDONLY)
                 os.fsync(fd)
                 os.close(fd)
-
-    # Interface from BaseFolder
-    def getmessagelist(self):
-        return self.messagelist
 
     # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime, mtime=0, labels=set()):

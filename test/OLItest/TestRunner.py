@@ -131,9 +131,7 @@ class OLITestLib():
         else:
             sections = [r for r in config.sections() \
                             if r.startswith('Repository')]
-            sections = filter(lambda s: \
-                                  config.get(s, 'Type').lower() == 'imap',
-                              sections)
+            sections = [s for s in sections if config.get(s, 'Type').lower() == 'imap']
         for sec in sections:
             # Connect to each IMAP repo and delete all folders
             # matching the folderfilter setting. We only allow basic

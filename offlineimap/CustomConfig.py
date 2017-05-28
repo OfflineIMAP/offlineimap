@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2015 John Goerzen & contributors
+# Copyright (C) 2003-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 import os
 import re
 from sys import exc_info
+import six
 
 try:
     from ConfigParser import SafeConfigParser, Error
-except ImportError: #python3
+except ImportError: # Python3.
     from configparser import SafeConfigParser, Error
 from offlineimap.localeval import LocalEval
 
@@ -75,8 +76,10 @@ class CustomConfigParser(SafeConfigParser):
             val = self.get(section, option).strip()
             return re.split(separator_re, val)
         except re.error as e:
-            raise Error("Bad split regexp '%s': %s" % \
-              (separator_re, e)), None, exc_info()[2]
+            six.reraise(Error,
+                        Error("Bad split regexp '%s': %s"%
+                            (separator_re, e)),
+                        exc_info()[2])
 
     def getdefaultlist(self, section, option, default, separator_re):
         """Same as getlist, but returns the value of `default`
@@ -112,10 +115,10 @@ class CustomConfigParser(SafeConfigParser):
 
     def getsectionlist(self, key):
         """Returns a list of sections that start with (str) key + " ".
-        
+
         That is, if key is "Account", returns all section names that
         start with "Account ", but strips off the "Account ".
-        
+
         For instance, for "Account Test", returns "Test"."""
 
         key = key + ' '
@@ -162,7 +165,7 @@ def CustomConfigDefault():
 
 
 
-class ConfigHelperMixin:
+class ConfigHelperMixin(object):
     """Allow comfortable retrieving of config values pertaining
     to a section.
 

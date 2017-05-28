@@ -19,8 +19,10 @@ import logging
 import sys
 import time
 from getpass import getpass
+
 from offlineimap import banner
 from offlineimap.ui.UIBase import UIBase
+
 
 class TTYFormatter(logging.Formatter):
     """Specific Formatter that adds thread information to the log output."""

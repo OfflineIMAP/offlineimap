@@ -12,6 +12,7 @@
 .. _documentation: http://www.offlineimap.org/documentation.html
 .. _Coding Guidelines: http://www.offlineimap.org/doc/CodingGuidelines.html
 .. _Know the status of your patches: http://www.offlineimap.org/doc/GitAdvanced.html#know-the-status-of-your-patch-after-submission
+.. _How to fix a bug in open source software: https://opensource.com/life/16/8/how-get-bugs-fixed-open-source-software
 
 
 =================
@@ -31,7 +32,18 @@ Submit issues
 =============
 
 Issues are welcome to both Github_ and the `mailing list`_, at your own
-convenience.
+convenience. Provide the following information:
+- system/distribution (with version)
+- offlineimap version (`offlineimap -V`)
+- Python version
+- server name or domain
+- CLI options
+- Configuration file (offlineimaprc)
+- pythonfile (if any)
+- Logs, error
+- Steps to reproduce the error
+
+Worth the read: `How to fix a bug in open source software`_.
 
 You might help closing some issues, too. :-)
 

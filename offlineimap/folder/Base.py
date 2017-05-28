@@ -1,5 +1,5 @@
 # Base folder support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,13 +21,14 @@ import time
 from sys import exc_info
 
 from offlineimap import threadutil
-from offlineimap import globals
 from offlineimap.ui import getglobalui
 from offlineimap.error import OfflineImapError
 import offlineimap.accounts
 
 
 class BaseFolder(object):
+    __hash__ = None
+
     def __init__(self, name, repository):
         """
         :param name: Path & name of folder minus root or reference
@@ -35,16 +36,18 @@ class BaseFolder(object):
         """
 
         self.ui = getglobalui()
-        # Save original name for folderfilter operations
+        self.messagelist = {}
+        # Save original name for folderfilter operations.
         self.ffilter_name = name
-        # Top level dir name is always ''
+        # Top level dir name is always ''.
         self.root = None
         self.name = name if not name == self.getsep() else ''
         self.newmail_hook = None
-        # Only set the newmail_hook if the IMAP folder is named 'INBOX'
+        # Only set the newmail_hook if the IMAP folder is named 'INBOX'.
         if self.name == 'INBOX':
             self.newmail_hook = repository.newmail_hook
         self.have_newmail = False
+        self.copy_ignoreUIDs = None # List of UIDs to ignore.
         self.repository = repository
         self.visiblename = repository.nametrans(name)
         # In case the visiblename becomes '.' or '/' (top-level) we use
@@ -53,24 +56,26 @@ class BaseFolder(object):
         if self.visiblename == self.getsep():
             self.visiblename = ''
 
+        self.repoconfname = "Repository " + repository.name
+
         self.config = repository.getconfig()
-        utime_from_header_global = self.config.getdefaultboolean(
-            "general", "utime_from_header", False)
-        repo = "Repository " + repository.name
-        self._utime_from_header = self.config.getdefaultboolean(repo,
-            "utime_from_header", utime_from_header_global)
 
         # Do we need to use mail timestamp for filename prefix?
         filename_use_mail_timestamp_global = self.config.getdefaultboolean(
             "general", "filename_use_mail_timestamp", False)
-        repo = "Repository " + repository.name
-        self._filename_use_mail_timestamp = self.config.getdefaultboolean(repo,
-            "filename_use_mail_timestamp", filename_use_mail_timestamp_global)
+        self._filename_use_mail_timestamp = self.config.getdefaultboolean(
+            self.repoconfname,
+            "filename_use_mail_timestamp",
+            filename_use_mail_timestamp_global)
+
+        self._sync_deletes = self.config.getdefaultboolean(
+            self.repoconfname, "sync_deletes", True)
+        self._dofsync = self.config.getdefaultboolean("general", "fsync", True)
 
         # Determine if we're running static or dynamic folder filtering
-        # and check filtering status
+        # and check filtering status.
         self._dynamic_folderfilter = self.config.getdefaultboolean(
-            repo, "dynamic_folderfilter", False)
+            self.repoconfname, "dynamic_folderfilter", False)
         self._sync_this = repository.should_sync_folder(self.ffilter_name)
         if self._dynamic_folderfilter:
             self.ui.debug('', "Running dynamic folder filtering on '%s'[%s]"%
@@ -79,10 +84,12 @@ class BaseFolder(object):
             self.ui.debug('', "Filtering out '%s'[%s] due to folderfilter"%
                 (self.ffilter_name, repository))
 
-        # Passes for syncmessagesto
-        self.syncmessagesto_passes = [('copying messages'       , self.__syncmessagesto_copy),
-                                      ('deleting messages'      , self.__syncmessagesto_delete),
-                                      ('syncing flags'          , self.__syncmessagesto_flags)]
+        # Passes for syncmessagesto.
+        self.syncmessagesto_passes = [
+            self.__syncmessagesto_copy,
+            self.__syncmessagesto_delete,
+            self.__syncmessagesto_flags,
+        ]
 
     def getname(self):
         """Returns name"""
@@ -91,6 +98,21 @@ class BaseFolder(object):
     def __str__(self):
         # FIMXE: remove calls of this. We have getname().
         return self.name
+
+    def __unicode__(self):
+        # NOTE(sheeprine): Implicit call to this by UIBase deletingflags() which
+        # fails if the str is utf-8
+        return self.name.decode('utf-8')
+
+    def __enter__(self):
+        """Starts a transaction. This will postpone (guaranteed) saving to disk
+        of all messages saved inside this transaction until its committed."""
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Commits a transaction, all messages saved inside this transaction
+        will only now be persisted to disk."""
+        pass
 
     @property
     def accountname(self):
@@ -107,24 +129,22 @@ class BaseFolder(object):
         else:
             return self.repository.should_sync_folder(self.ffilter_name)
 
-    @property
-    def utime_from_header(self):
-        return self._utime_from_header
+    def dofsync(self):
+        return self._dofsync
 
     def suggeststhreads(self):
-        """Returns true if this folder suggests using threads for actions;
-        false otherwise.  Probably only IMAP will return true."""
-        return 0
+        """Returns True if this folder suggests using threads for actions.
+
+        Only IMAP returns True. This method must honor any CLI or configuration
+        option."""
+
+        return False
 
     def waitforthread(self):
         """Implements method that waits for thread to be usable.
         Should be implemented only for folders that suggest threads."""
         raise NotImplementedError
 
-    # XXX: we may need someting like supports_quickstatus() to check
-    # XXX: if user specifies 'quick' flag for folder that doesn't
-    # XXX: support quick status queries, so one believes that quick
-    # XXX: status checks will be done, but it won't really be so.
     def quickchanged(self, statusfolder):
         """ Runs quick check for folder changes and returns changed
         status: True -- changed, False -- not changed.
@@ -134,7 +154,7 @@ class BaseFolder(object):
 
         return True
 
-    def getcopyinstancelimit(self):
+    def getinstancelimitnamespace(self):
         """For threading folders, returns the instancelimitname for
         InstanceLimitedThreads."""
 
@@ -190,7 +210,7 @@ class BaseFolder(object):
             basename = self.name.replace('/', '.')
         # Replace with literal 'dot' if final path name is '.' as '.' is
         # an invalid file name.
-        basename = re.sub('(^|\/)\.$','\\1dot', basename)
+        basename = re.sub('(^|\/)\.$', '\\1dot', basename)
         return basename
 
     def check_uidvalidity(self):
@@ -228,7 +248,7 @@ class BaseFolder(object):
             self._base_saved_uidvalidity = None
         else:
             file = open(uidfilename, "rt")
-            self._base_saved_uidvalidity = long(file.readline().strip())
+            self._base_saved_uidvalidity = int(file.readline().strip())
             file.close()
         return self._base_saved_uidvalidity
 
@@ -241,8 +261,8 @@ class BaseFolder(object):
         newval = self.get_uidvalidity()
         uidfilename = self._getuidfilename()
 
-        with open(uidfilename + ".tmp", "wt") as file:
-            file.write("%d\n"% newval)
+        with open(uidfilename + ".tmp", "wt") as uidfile:
+            uidfile.write("%d\n"% newval)
         os.rename(uidfilename + ".tmp", uidfilename)
         self._base_saved_uidvalidity = newval
 
@@ -250,19 +270,21 @@ class BaseFolder(object):
         """Retrieve the current connections UIDVALIDITY value
 
         This function needs to be implemented by each Backend
-        :returns: UIDVALIDITY as a (long) number"""
+        :returns: UIDVALIDITY as a (long) number."""
 
         raise NotImplementedError
 
     def cachemessagelist(self):
-        """Reads the message list from disk or network and stores it in
-        memory for later use.  This list will not be re-read from disk or
-        memory unless this function is called again."""
+        """Cache the list of messages.
+
+        Reads the message list from disk or network and stores it in memory for
+        later use.  This list will not be re-read from disk or memory unless
+        this function is called again."""
 
         raise NotImplementedError
 
     def ismessagelistempty(self):
-        """Empty everythings we know about messages."""
+        """Is the list of messages empty."""
 
         if len(self.messagelist.keys()) < 1:
             return True
@@ -278,7 +300,7 @@ class BaseFolder(object):
 
         You must call cachemessagelist() before calling this function!"""
 
-        raise NotImplementedError
+        return self.messagelist
 
     def msglist_item_initializer(self, uid):
         """Returns value for empty messagelist element with given UID.
@@ -290,7 +312,7 @@ class BaseFolder(object):
         raise NotImplementedError
 
     def uidexists(self, uid):
-        """Returns True if uid exists"""
+        """Returns True if uid exists."""
 
         return uid in self.getmessagelist()
 
@@ -299,7 +321,7 @@ class BaseFolder(object):
 
         You may have to call cachemessagelist() before calling this function!"""
 
-        return self.getmessagelist().keys()
+        return sorted(self.getmessagelist().keys())
 
     def getmessagecount(self):
         """Gets the number of messages."""
@@ -312,14 +334,16 @@ class BaseFolder(object):
         raise NotImplementedError
 
     def getmaxage(self):
-        """ maxage is allowed to be either an integer or a date of the
-        form YYYY-mm-dd. This returns a time_struct. """
+        """Return maxage.
+
+        maxage is allowed to be either an integer or a date of the form
+        YYYY-mm-dd. This returns a time_struct."""
 
         maxagestr = self.config.getdefault("Account %s"%
             self.accountname, "maxage", None)
-        if maxagestr == None:
+        if maxagestr is None:
             return None
-        # is it a number?
+        # Is it a number?
         try:
             maxage = int(maxagestr)
             if maxage < 1:
@@ -327,13 +351,17 @@ class BaseFolder(object):
                     OfflineImapError.ERROR.MESSAGE)
             return time.gmtime(time.time() - 60*60*24*maxage)
         except ValueError:
-            pass # maybe it was a date
-        # is it a date string?
+            pass # Maybe it was a date.
+        # Is it a date string?
         try:
             date = time.strptime(maxagestr, "%Y-%m-%d")
             if date[0] < 1900:
                 raise OfflineImapError("maxage led to year %d. "
                     "Abort syncing."% date[0],
+                    OfflineImapError.ERROR.MESSAGE)
+            if (time.mktime(date) - time.mktime(time.localtime())) > 0:
+                raise OfflineImapError("maxage led to future date %s. "
+                    "Abort syncing."% maxagestr,
                     OfflineImapError.ERROR.MESSAGE)
             return date
         except ValueError:
@@ -356,6 +384,10 @@ class BaseFolder(object):
                 raise OfflineImapError("startdate led to year %d. "
                     "Abort syncing."% date[0],
                     OfflineImapError.ERROR.MESSAGE)
+            if (time.mktime(date) - time.mktime(time.localtime())) > 0:
+                raise OfflineImapError("startdate led to future date %s. "
+                    "Abort syncing."% datestr,
+                    OfflineImapError.ERROR.MESSAGE)
             return date
         except ValueError:
             raise OfflineImapError("invalid startdate value %s",
@@ -368,13 +400,19 @@ class BaseFolder(object):
             os.mkdir(startuiddir, 0o700)
         return os.path.join(startuiddir, self.getfolderbasename())
 
+    def save_min_uid(self, min_uid):
+        uidfile = self.get_min_uid_file()
+        fd = open(uidfile, 'wt')
+        fd.write(str(min_uid) + "\n")
+        fd.close()
+
     def retrieve_min_uid(self):
         uidfile = self.get_min_uid_file()
         if not os.path.exists(uidfile):
             return None
         try:
             fd = open(uidfile, 'rt')
-            min_uid = long(fd.readline().strip())
+            min_uid = int(fd.readline().strip())
             fd.close()
             return min_uid
         except:
@@ -435,8 +473,9 @@ class BaseFolder(object):
         raise NotImplementedError
 
     def addmessageflags(self, uid, flags):
-        """Adds the specified flags to the message's flag set.  If a given
-        flag is already present, it will not be duplicated.
+        """Adds the specified flags to the message's flag set.
+
+        If a given flag is already present, it will not be duplicated.
 
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
@@ -457,12 +496,14 @@ class BaseFolder(object):
                 self.addmessageflags(uid, flags)
 
     def deletemessageflags(self, uid, flags):
-        """Removes each flag given from the message's flag set.  If a given
-        flag is already removed, no action will be taken for that flag.
+        """Removes each flag given from the message's flag set.
 
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
-        dryrun mode."""
+        dryrun mode.
+
+        If a given flag is already removed, no action will be taken for that
+        flag."""
 
         newflags = self.getmessageflags(uid) - flags
         self.savemessageflags(uid, newflags)
@@ -512,8 +553,10 @@ class BaseFolder(object):
             self.addmessagelabels(uid, labels)
 
     def deletemessagelabels(self, uid, labels):
-        """Removes each label given from the message's label set.  If a given
-        label is already removed, no action will be taken for that label.
+        """Removes each label given from the message's label set.
+
+        If a given label is already removed, no action will be taken for that
+        label.
 
         Note that this function does not check against dryrun settings,
         so you need to ensure that it is never called in a
@@ -598,22 +641,26 @@ class BaseFolder(object):
         if insertionpoint == -1:
             self.ui.debug('', 'addmessageheader: headers were missing')
         else:
-            self.ui.debug('', 'addmessageheader: headers end at position %d' % insertionpoint)
+            self.ui.debug('',
+                'addmessageheader: headers end at position %d'% insertionpoint)
             mark = '==>EOH<=='
             contextstart = max(0,            insertionpoint - 100)
             contextend   = min(len(content), insertionpoint + 100)
-            self.ui.debug('', 'addmessageheader: header/body transition context (marked by %s): %s' %
-                          (mark, repr(content[contextstart:insertionpoint]) + \
-                          mark + repr(content[insertionpoint:contextend])))
+            self.ui.debug('', 'addmessageheader: header/body transition " \
+                "context (marked by %s): %s%s%s'% (
+                    mark, repr(content[contextstart:insertionpoint]),
+                    mark, repr(content[insertionpoint:contextend])
+                )
+            )
 
-        # Hoping for case #4
+        # Hoping for case #4.
         prefix = linebreak
         suffix = ''
-        # Case #2
+        # Case #2.
         if insertionpoint == 0:
             prefix = ''
             suffix = ''
-        # Either case #1 or #3
+        # Either case #1 or #3.
         elif insertionpoint == -1:
             prefix = ''
             suffix = linebreak
@@ -626,16 +673,18 @@ class BaseFolder(object):
             if content[0:len(linebreak)] != linebreak:
                 suffix = suffix + linebreak
 
-        self.ui.debug('', 'addmessageheader: insertionpoint = %d'% insertionpoint)
+        self.ui.debug('',
+            'addmessageheader: insertionpoint = %d'% insertionpoint)
         headers = content[0:insertionpoint]
         self.ui.debug('', 'addmessageheader: headers = %s'% repr(headers))
-        new_header = prefix + ("%s: %s" % (headername, headervalue)) + suffix
-        self.ui.debug('', 'addmessageheader: new_header = ' + repr(new_header))
+        new_header = prefix + ("%s: %s"% (headername, headervalue)) + suffix
+        self.ui.debug('', 'addmessageheader: new_header = %s'% repr(new_header))
         return headers + new_header + content[insertionpoint:]
 
 
     def __find_eoh(self, content):
-        """ Searches for the point where mail headers end.
+        """Searches for the point where mail headers end.
+
         Either double '\n', or end of string.
 
         Arguments:
@@ -651,14 +700,15 @@ class BaseFolder(object):
 
 
     def getmessageheader(self, content, name):
-        """Searches for the first occurence of the given header and returns
-        its value. Header name is case-insensitive.
+        """Return the value of the first occurence of the given header.
+
+        Header name is case-insensitive.
 
         Arguments:
         - contents: message itself
         - name: name of the header to be searched
 
-        Returns: header value or None if no such header was found
+        Returns: header value or None if no such header was found.
         """
 
         self.ui.debug('', 'getmessageheader: called to get %s'% name)
@@ -667,7 +717,8 @@ class BaseFolder(object):
         headers = content[0:eoh]
         self.ui.debug('', 'getmessageheader: headers = %s'% repr(headers))
 
-        m = re.search('^%s:(.*)$' % name, headers, flags = re.MULTILINE | re.IGNORECASE)
+        m = re.search('^%s:(.*)$'% name, headers,
+            flags= re.MULTILINE | re.IGNORECASE)
         if m:
             return m.group(1).strip()
         else:
@@ -675,23 +726,23 @@ class BaseFolder(object):
 
 
     def getmessageheaderlist(self, content, name):
-        """Searches for the given header and returns a list of values for
-        that header.
+        """Return a list of values for the given header.
 
         Arguments:
         - contents: message itself
         - name: name of the header to be searched
 
-        Returns: list of header values or emptylist if no such header was found
+        Returns: list of header values or empty list if no such header was found.
         """
 
-        self.ui.debug('', 'getmessageheaderlist: called to get %s' % name)
+        self.ui.debug('', 'getmessageheaderlist: called to get %s'% name)
         eoh = self.__find_eoh(content)
-        self.ui.debug('', 'getmessageheaderlist: eoh = %d' % eoh)
+        self.ui.debug('', 'getmessageheaderlist: eoh = %d'% eoh)
         headers = content[0:eoh]
-        self.ui.debug('', 'getmessageheaderlist: headers = %s' % repr(headers))
+        self.ui.debug('', 'getmessageheaderlist: headers = %s'% repr(headers))
 
-        return re.findall('^%s:(.*)$' % name, headers, flags = re.MULTILINE | re.IGNORECASE)
+        return re.findall('^%s:(.*)$'%
+            name, headers, flags= re.MULTILINE | re.IGNORECASE)
 
 
     def deletemessageheaders(self, content, header_list):
@@ -701,14 +752,14 @@ class BaseFolder(object):
         - content: message itself
         - header_list: list of headers to be deleted or just the header name
 
-        We expect our message to have '\n' as line endings.
-        """
+        We expect our message to have '\n' as line endings."""
 
         if type(header_list) != type([]):
             header_list = [header_list]
         self.ui.debug('', 'deletemessageheaders: called to delete %s'% (header_list))
 
-        if not len(header_list): return content
+        if not len(header_list):
+            return content
 
         eoh = self.__find_eoh(content)
         self.ui.debug('', 'deletemessageheaders: end of headers = %d'% eoh)
@@ -722,15 +773,16 @@ class BaseFolder(object):
                 if len(h) > len(trim_h) and h[0:len(trim_h)+1] == (trim_h + ":"):
                     keep_it = False
                     break
-            if keep_it: new_headers.append(h)
+            if keep_it:
+                new_headers.append(h)
 
-        return ('\n'.join(new_headers) + rest)
+        return '\n'.join(new_headers) + rest
 
 
 
 
     def change_message_uid(self, uid, new_uid):
-        """Change the message from existing uid to new_uid
+        """Change the message from existing uid to new_uid.
 
         If the backend supports it (IMAP does not).
 
@@ -755,7 +807,7 @@ class BaseFolder(object):
         for uid in uidlist:
             self.deletemessage(uid)
 
-    def copymessageto(self, uid, dstfolder, statusfolder, register = 1):
+    def copymessageto(self, uid, dstfolder, statusfolder, register=1):
         """Copies a message from self to dst if needed, updating the status
 
         Note that this function does not check against dryrun settings,
@@ -773,7 +825,7 @@ class BaseFolder(object):
         # synced to the status cache.  This is only a problem with
         # self.getmessage().  So, don't call self.getmessage unless
         # really needed.
-        if register: # output that we start a new thread
+        if register: # Output that we start a new thread.
             self.ui.registerthread(self.repository.account)
 
         try:
@@ -796,9 +848,9 @@ class BaseFolder(object):
                     self.change_message_uid(uid, new_uid)
                     statusfolder.deletemessage(uid)
                     # Got new UID, change the local uid.
-                # Save uploaded status in the statusfolder
+                # Save uploaded status in the statusfolder.
                 statusfolder.savemessage(new_uid, message, flags, rtime)
-                # Check whether the mail has been seen
+                # Check whether the mail has been seen.
                 if 'S' not in flags:
                     self.have_newmail = True
             elif new_uid == 0:
@@ -813,16 +865,16 @@ class BaseFolder(object):
                 raise OfflineImapError("Trying to save msg (uid %d) on folder "
                     "%s returned invalid uid %d"% (uid, dstfolder.getvisiblename(),
                     new_uid), OfflineImapError.ERROR.MESSAGE)
-        except (KeyboardInterrupt): # bubble up CTRL-C
+        except (KeyboardInterrupt): # Bubble up CTRL-C.
             raise
         except OfflineImapError as e:
             if e.severity > OfflineImapError.ERROR.MESSAGE:
-                raise # bubble severe errors up
+                raise # Bubble severe errors up.
             self.ui.error(e, exc_info()[2])
         except Exception as e:
             self.ui.error(e, exc_info()[2],
               msg = "Copying message %s [acc: %s]"% (uid, self.accountname))
-            raise    #raise on unknown errors, so we can fix those
+            raise  # Raise on unknown errors, so we can fix those.
 
     def __syncmessagesto_copy(self, dstfolder, statusfolder):
         """Pass1: Copy locally existing messages not on the other side.
@@ -833,80 +885,101 @@ class BaseFolder(object):
         1) Look for messages present in self but not in statusfolder.
         2) invoke copymessageto() on those which:
            - If dstfolder doesn't have it yet, add them to dstfolder.
-           - Update statusfolder
+           - Update statusfolder.
 
         This function checks and protects us from action in dryrun mode."""
 
-        # We have no new mail yet
+        # We have no new mail yet.
         self.have_newmail = False
 
         threads = []
 
-        copylist = filter(lambda uid: not statusfolder.uidexists(uid),
-            self.getmessageuidlist())
+        copylist = [uid for uid in self.getmessageuidlist()
+            if not statusfolder.uidexists(uid)]
         num_to_copy = len(copylist)
-        if num_to_copy and self.repository.account.dryrun:
-            self.ui.info("[DRYRUN] Copy {0} messages from {1}[{2}] to {3}".format(
-                num_to_copy, self, self.repository, dstfolder.repository))
+
+        # Honor 'copy_ignore_eval' configuration option.
+        if self.copy_ignoreUIDs is not None:
+            for uid in self.copy_ignoreUIDs:
+                if uid in copylist:
+                    copylist.remove(uid)
+                    self.ui.ignorecopyingmessage(uid, self, dstfolder)
+
+        if num_to_copy > 0 and self.repository.account.dryrun:
+            self.ui.info("[DRYRUN] Copy {} messages from {}[{}] to {}".format(
+                num_to_copy, self, self.repository, dstfolder.repository)
+            )
             return
-        for num, uid in enumerate(copylist):
-            # bail out on CTRL-C or SIGTERM
-            if offlineimap.accounts.Account.abort_NOW_signal.is_set():
-                break
-            if uid > 0 and dstfolder.uidexists(uid):
-                # dst has message with that UID already, only update status
-                flags = self.getmessageflags(uid)
-                rtime = self.getmessagetime(uid)
-                statusfolder.savemessage(uid, None, flags, rtime)
-                continue
 
-            self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
-            # exceptions are caught in copymessageto()
-            if self.suggeststhreads() and not globals.options.singlethreading:
-                self.waitforthread()
-                thread = threadutil.InstanceLimitedThread(\
-                    self.getcopyinstancelimit(),
-                    target = self.copymessageto,
-                    name = "Copy message from %s:%s" % (self.repository, self),
-                    args = (uid, dstfolder, statusfolder))
-                thread.start()
-                threads.append(thread)
-            else:
-                self.copymessageto(uid, dstfolder, statusfolder,
-                                   register = 0)
-        for thread in threads:
-            thread.join()
+        with self:
+            for num, uid in enumerate(copylist):
+                # Bail out on CTRL-C or SIGTERM.
+                if offlineimap.accounts.Account.abort_NOW_signal.is_set():
+                    break
 
-        # Execute new mail hook if we have new mail
+                if uid == 0:
+                    self.ui.warn("Assertion that UID != 0 failed; ignoring message.")
+                    continue
+
+                if uid > 0 and dstfolder.uidexists(uid):
+                    # dstfolder has message with that UID already, only update status.
+                    flags = self.getmessageflags(uid)
+                    rtime = self.getmessagetime(uid)
+                    statusfolder.savemessage(uid, None, flags, rtime)
+                    continue
+
+                self.ui.copyingmessage(uid, num+1, num_to_copy, self, dstfolder)
+                # Exceptions are caught in copymessageto().
+                if self.suggeststhreads():
+                    self.waitforthread()
+                    thread = threadutil.InstanceLimitedThread(
+                        self.getinstancelimitnamespace(),
+                        target=self.copymessageto,
+                        name="Copy message from %s:%s"% (self.repository, self),
+                        args=(uid, dstfolder, statusfolder)
+                    )
+                    thread.start()
+                    threads.append(thread)
+                else:
+                    self.copymessageto(uid, dstfolder, statusfolder, register=0)
+            for thread in threads:
+                thread.join() # Block until all "copy" threads are done.
+
+        # Execute new mail hook if we have new mail.
         if self.have_newmail:
             if self.newmail_hook != None:
-                self.newmail_hook();
+                self.newmail_hook()
 
     def __syncmessagesto_delete(self, dstfolder, statusfolder):
         """Pass 2: Remove locally deleted messages on dst.
 
-        Get all UIDS in statusfolder but not self. These are messages
+        Get all UIDs in statusfolder but not self. These are messages
         that were deleted in 'self'. Delete those from dstfolder and
         statusfolder.
 
         This function checks and protects us from action in dryrun mode.
         """
+        # The list of messages to delete. If sync of deletions is disabled we
+        # still remove stale entries from statusfolder (neither in local nor
+        # remote).
+        deletelist = [uid for uid in statusfolder.getmessageuidlist()
+                      if uid >= 0 and
+                      not self.uidexists(uid) and
+                      (self._sync_deletes or not dstfolder.uidexists(uid))]
 
-        deletelist = filter(lambda uid: uid >= 0 and not
-            self.uidexists(uid), statusfolder.getmessageuidlist())
         if len(deletelist):
             # Delete in statusfolder first to play safe. In case of abort, we
             # won't lose message, we will just unneccessarily retransmit some.
             # Delete messages from statusfolder that were either deleted by the
             # user, or not being tracked (e.g. because of maxage).
-            statusfolder.deletemessages(deletelist)
-            # Filter out untracked messages
-            deletelist = filter(lambda uid: dstfolder.uidexists(uid), deletelist)
+            if not self.repository.account.dryrun:
+                statusfolder.deletemessages(deletelist)
+            # Filter out untracked messages.
+            deletelist = [uid for uid in deletelist if dstfolder.uidexists(uid)]
             if len(deletelist):
                 self.ui.deletingmessages(deletelist, [dstfolder])
-                if self.repository.account.dryrun:
-                    return #don't delete messages in dry-run mode
-                dstfolder.deletemessages(deletelist)
+                if not self.repository.account.dryrun:
+                    dstfolder.deletemessages(deletelist)
 
     def combine_flags_and_keywords(self, uid, dstfolder):
         """Combine the message's flags and keywords using the mapping for the
@@ -924,23 +997,20 @@ class BaseFolder(object):
                 return selfflags
 
             knownkeywords = set(keywordmap.keys())
-
             selfkeywords = self.getmessagekeywords(uid)
 
             if not knownkeywords >= selfkeywords:
-                #some of the message's keywords are not in the mapping, so
-                #skip them
-
+                # Some of the message's keywords are not in the mapping, so
+                # skip them.
                 skipped_keywords = list(selfkeywords - knownkeywords)
                 selfkeywords &= knownkeywords
-
                 self.ui.warn("Unknown keywords skipped: %s\n"
                     "You may want to change your configuration to include "
                     "those\n" % (skipped_keywords))
 
             keywordletterset = set([keywordmap[keyw] for keyw in selfkeywords])
 
-            #add the mapped keywords to the list of message flags
+            # Add the mapped keywords to the list of message flags.
             selfflags |= keywordletterset
         except NotImplementedError:
             pass
@@ -992,14 +1062,14 @@ class BaseFolder(object):
         for flag, uids in addflaglist.items():
             self.ui.addingflags(uids, flag, dstfolder)
             if self.repository.account.dryrun:
-                continue #don't actually add in a dryrun
+                continue # Don't actually add in a dryrun.
             dstfolder.addmessagesflags(uids, set(flag))
             statusfolder.addmessagesflags(uids, set(flag))
 
-        for flag,uids in delflaglist.items():
+        for flag, uids in delflaglist.items():
             self.ui.deletingflags(uids, flag, dstfolder)
             if self.repository.account.dryrun:
-                continue #don't actually remove in a dryrun
+                continue # Don't actually remove in a dryrun.
             dstfolder.deletemessagesflags(uids, set(flag))
             statusfolder.deletemessagesflags(uids, set(flag))
 
@@ -1038,8 +1108,8 @@ class BaseFolder(object):
         :param statusfolder: LocalStatus instance to sync against.
         """
 
-        for (passdesc, action) in self.syncmessagesto_passes:
-            # bail out on CTRL-C or SIGTERM
+        for action in self.syncmessagesto_passes:
+            # Bail out on CTRL-C or SIGTERM.
             if offlineimap.accounts.Account.abort_NOW_signal.is_set():
                 break
             try:
@@ -1049,11 +1119,12 @@ class BaseFolder(object):
             except OfflineImapError as e:
                 if e.severity > OfflineImapError.ERROR.FOLDER:
                     raise
-                self.ui.error(e, exc_info()[2])
+                self.ui.error(e, exc_info()[2], "while syncing %s [account %s]"%
+                                                (self, self.accountname))
             except Exception as e:
-                self.ui.error(e, exc_info()[2], "Syncing folder %s [acc: %s]" %\
-                                  (self, self.accountname))
-                raise # raise unknown Exceptions so we can fix them
+                self.ui.error(e, exc_info()[2], "while syncing %s [account %s]"%
+                                                (self, self.accountname))
+                raise # Raise unknown Exceptions so we can fix them.
 
     def __eq__(self, other):
         """Comparisons work either on string comparing folder names or
@@ -1066,7 +1137,7 @@ class BaseFolder(object):
         MailDirFolder('foo') == MaildirFolder('foo') --> False
         """
 
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return other == self.name
         return id(self) == id(other)
 

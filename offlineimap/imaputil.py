@@ -101,7 +101,7 @@ def imapsplit(imapstring):
 
     ['(\\HasNoChildren)', '"."', '"INBOX.Sent"']"""
 
-    if not isinstance(imapstring, basestring):
+    if not isinstance(imapstring, str):
         __debug("imapsplit() got a non-string input; working around.")
         # Sometimes, imaplib will throw us a tuple if the input
         # contains a literal.  See Python bug
@@ -161,7 +161,13 @@ def imapsplit(imapstring):
             retval.append(quoted)
             workstr = rest
         else:
-            splits = string.split(workstr, maxsplit = 1)
+            splits = None
+            # Python2
+            if hasattr(string, 'split'):
+                splits = string.split(workstr, maxsplit = 1)
+            # Python3
+            else:
+                splits = str.split(workstr, maxsplit = 1)
             splitslen = len(splits)
             # The unquoted word is splits[0]; the remainder is splits[1]
             if splitslen == 2:
@@ -362,5 +368,5 @@ def decode_mailbox_name(name):
 
     try:
         return ret.decode('utf-7').encode('utf-8')
-    except UnicodeEncodeError:
+    except (UnicodeDecodeError, UnicodeEncodeError):
         return name

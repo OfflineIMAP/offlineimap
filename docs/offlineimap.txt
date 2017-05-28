@@ -15,10 +15,10 @@ DESCRIPTION
 -----------
 
 Synchronize the accounts configured in the configuration file via IMAP. Each
-account has two sides.
+account has two sides.  One of the side must be an IMAP server.  The other side
+can either be a Maildir or another IMAP server.
 
-One of the side must be an IMAP server.
-The other side can either be a Maildir or another IMAP server.
+Python 3 is supported while still EXPERIMENTAL.
 
 
 OPTIONS
@@ -32,6 +32,10 @@ OPTIONS
 --version::
 
   Output version.
+
+-V::
+
+  Output offlineimap version and additional imaplib2 information.
 
 --dry-run::
 
@@ -48,17 +52,17 @@ mails it would transfer.
 
   Output information on the configured email repositories.
 +
-Useful for debugging and bug reporting. Use in conjunction with the -a option
-to limit the output to a single account. This mode will prevent any actual
-sync to occur and exits after it outp ut the debug information.
+Useful for debugging and bug reporting. Use in conjunction with the `-a' option
+to limit the output to a single account. This mode will prevent any actual sync
+to occur and exits after it output the debug information.
 
 
 -1::
 
   Limit multithreading operations and run solely a single-thread sync.
 +
-This effectively sets the maxsyncaccounts and all maxconnections configuration
-file variables to 1. This is 1, the number.
+This effectively sets the 'maxsyncaccounts' and all 'maxconnections' configuration
+file variables to '1' (the number).
 
 
 -P <directory>::
@@ -70,7 +74,7 @@ profiling information about each thread is logged into profiledir. Please
 note: This option is present for debugging and optimization only, and should
 NOT be used unless you have a specific reason to do so. It will significantly
 decrease program performance, may reduce reliability, and can generate huge
-amounts of data. This option implies the -1 option.
+amounts of data. This option implies the `-1' option.
 
 
 -a <account1[,account2[,...]]>::
@@ -93,12 +97,12 @@ having to edit the config file.
 This is useful if you are to track down a malfunction or figure out what is
 going on under the hood. This option requires one or more debugtypes,
 separated by commas. These define what exactly will be debugged, and so far
-include two options: imap, thread, maildir or ALL. The imap option will enable
+include options: "imap", "thread", "maildir" or "ALL". The imap option will enable
 IMAP protocol stream and parsing debugging. Note that the output may contain
 passwords, so take care to remove that from the debugging output before
 sending it to anyone else. The maildir option will enable debugging for
-certain Maildir operations.  The use of any debug option (unless 'thread' is
-included), implies the single-thread option -1.
+certain Maildir operations.  The use of any debug option (unless "thread" is
+included), implies the single-thread option `-1'.
 
 
 -l <path/to/file.log>::
@@ -125,7 +129,7 @@ options in the configuration file.
 If "section" is omitted, it defaults to "general". Any underscores in the
 section name are replaced with spaces: for instance, to override option
 "autorefresh" in the "[Account Personal]" section in the config file one would
-use "-k Account_Personal:autorefresh=30". Repeat this option as much as
+use `-k Account_Personal:autorefresh=30'. Repeat this option as much as
 necessary to redefine multiple options.
 
 -o::
@@ -148,19 +152,17 @@ option is ignored if maxage is set.
   Specifies an alternative user interface to use.
 +
 This overrides the default specified in the configuration file. The UI
-specified with -u will be forced to be used, even if checks determine that it
+specified with `-u' will be forced to be used, even if checks determine that it
 is not usable. Possible interface choices are: quiet, basic, syslog, ttyui,
 blinkenlights, machineui.
 
 
-
---column[=<options>]::
---no-column::
-        Display branch listing in columns. See configuration variable
-        column.branch for option syntax.`--column` and `--no-column`
-        without options are equivalent to 'always' and 'never' respectively.
+--delete-folder::
+  Delete a folder on the remote repository.
 +
-This option is only applicable in non-verbose mode.
+Only one account must be specified/configured for this feature to work. The
+folder name must be provided in IMAP encoding with the remote separators (likely
+'/'). E.g.: "Remote/folder/name".
 
 
 --migrate-fmd5-using-nametrans::
@@ -177,6 +179,22 @@ before running this fix as well as verify the results using the `--dry-run'
 flag first.
 
 
+--mbnames-prune::
+  Remove dangling entries for removed accounts or if mbnames is not enabled/used
+  anymore.
++
+Internally, offlineimap build intermediate mbnames files. They are added
+automatically when mbnames is enabled. However, disabling accounts so they are
+not synced anymore does not necessarily means they should be removed from the file
+built by mbnames. It is required to start offlineimap with this CLI option each
+time accounts are removed. When run, any account not in the 'accounts'
+configuration option are removed in the mbnames file.
++
+It is possible to manually remove intermediate files in '<metadata>/mbnames/'.
++
+Notice this option honors --dry-run.
+
+
 Synchronization Performance
 ---------------------------
 
@@ -185,80 +203,56 @@ that might not be the best performing one. Once you got everything set up and
 running, you might want to look into speeding up your synchronization. Here
 are a couple of hints and tips on how to achieve this.
 
-1. Use maxconnections > 1.
+1. Synchronize more than one account.
 +
 By default we only use one connection to an IMAP server. Using 2 or even 3
-speeds things up considerably in most cases. This setting goes into the
-[Repository XXX] section.
+speeds things up considerably in most cases.  In order to synchronize more than
+one account concurrently, consider starting one instance of offlineimap per
+account.
++
+WARNING: enabling the 'maxsyncaccounts' and 'maxconnections' options is
+deprecated since it's known to have race conditions.
 
 2. Use folderfilters.
 +
 The quickest sync is a sync that can ignore some folders. I sort my inbox into
 monthly folders, and ignore every folder that is more than 2-3 months old,
 this lets me only inspect a fraction of my Mails on every sync. If you haven't
-done this yet, do it :). See the folderfilter section the example
-offlineimap.conf.
+done this yet, do it :). See the 'folderfilter' section in 'offlineimap.conf'.
 
-3. The cache.
+3. The sqlite cache.
 +
-The default status cache is a plain text file that will write out the complete
-file for each single new message (or even changed flag) to a temporary file.
-If you have plenty of files in a folder, this is a few hundred kilo to
-megabytes for each mail and is bound to make things slower. I recommend to use
-the sqlite backend for that. See the status_backend = sqlite setting in the
-example offlineimap.conf. You will need to have python-sqlite installed in
-order to use this. This will save you plenty of disk activity. Do note that
-the sqlite backend is still considered experimental as it has only been
-included recently (although a loss of your status cache should not be a
-tragedy as that file can be rebuilt automatically)
+OfflineImap caches the state of the synchronisation to e.g. be able to determine
+if a mail has been added or deleted on either side.
++
+The historical status cache is a plain text file that writes out the complete
+file for each single new message (or even changed flag) to a temporary file. If
+you have plenty of files in a folder, this is a few hundred kilo to megabytes
+for each mail and is bound to make things slow. The latest default status cache
+is sqlite. This saves plenty of disk activity. The sqlite engine and the Python
+sqlite module must be installed. Enable the 'status_backend = plain' setting in
+'offlineimap.conf' for legacy compatibility with versions prior to '6.4.0'.
++
+If you switch the backend from plain to sqlite, you may want to delete the old
+cache directory in '<metadata>/Account-<account>/LocalStatus' manually (the
+sqlite cache stands in the 'LocalStatus-sqlite' folder).
 
 4. Use quick sync.
 +
 A regular sync will request all flags and all UIDs of all mails in each folder
-which takes quite some time. A 'quick' sync only compares the number of
+which takes quite some time. A quick sync only compares the number of
 messages in a folder on the IMAP side (it will detect flag changes on the
 Maildir side of things though). A quick sync on my smallish account will take
-7 seconds rather than 40 seconds. Eg, I run a cron script that does a regular
-sync once a day, and does quick syncs (-q) only synchronizing the "-f INBOX"
+7 seconds rather than 40 seconds. E.g. run a cron script that does a regular
+sync once a day, and does quick syncs `-q' only synchronizing the `-f INBOX'
 in between.
 
 5. Turn off fsync.
 +
-In the [general] section you can set fsync to True or False. If you want to
+In the '[general]' section you can set fsync to 'True' or 'False'. If you want to
 play 110% safe and wait for all operations to hit the disk before continuing,
 you can set this to True. If you set it to False, you lose some of that
 safety, trading it for speed.
-
-
-Upgrading from plain text to SQLite cache format
-------------------------------------------------
-
-OfflineImap uses a cache to store the last known status of mails (flags etc).
-
-Historically that has meant plain text files, but recently we introduced
-sqlite-based cache, which helps with performance and CPU usage on large
-folders.  Here is how to upgrade existing plain text cache installations to
-sqlite based one:
-
-1. Sync to make sure things are reasonably similar.
-
-2. Change the account section to "status_backend = sqlite".
-
-3. Run a new sync.
-+
-This will convert your plain text cache to an sqlite cache (but leave
-the old plain text cache around for easy reverting). This must be quick and
-not involve any mail up/downloading.
-
-4. See if it works! :-)
-
-5. If it does not work, go back to the old version or set "status_backend = plain"
-
-6. Delete the old text cache files.
-
-Once you are sure it works, you can delete the
-~/.offlineimap/Account-foo/LocalStatus folder (the new cache will be in the
-LocalStatus-sqlite folder)
 
 
 Security and SSL
@@ -307,8 +301,8 @@ will not protect you from active attacks, such as Man-In-The-Middle attacks
 which cause you to connect to the wrong server and pretend to be your mail
 server.
 +
-DO NOT RELY ON STARTTLS AS A SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF
-YOUR IMAP SERVER!
+*DO NOT RELY ON STARTTLS AS A SAFE CONNECTION GUARANTEEING THE AUTHENTICITY OF
+YOUR IMAP SERVER!*
 
 
 Unix Signals
@@ -318,19 +312,21 @@ OfflineImap listens to the unix signals SIGUSR1, SIGUSR2, SIGTERM, SIGINT,
 SIGHUP, SIGQUIT.
 
 * If sent a SIGUSR1 it will abort any current (or next future) sleep of all
-accounts that are configured to "autorefresh". In effect, this will trigger a
+accounts that are configured to 'autorefresh'. In effect, this will trigger a
 full sync of all accounts to be performed as soon as possible.
 
-* If sent a SIGUSR2, it will stop "autorefresh mode" for all accounts. That
-is, accounts will abort any current sleep and will exit after a currently
-running synchronization has finished. This signal can be used to gracefully
-exit out of a running offlineimap "daemon".
+* If sent a SIGUSR2 or SIGABRT, it will stop 'autorefresh' mode for all
+accounts. That is, accounts will abort any current sleep and will exit after a
+currently running synchronization has finished. This signal can be used to
+gracefully exit out of a running offlineimap "daemon".
 
 * SIGTERM, SIGINT, SIGHUP are all treated to gracefully terminate as soon as
 possible. This means it will finish syncing the current folder in each
 account, close keep alive connections, remove locks on the accounts and exit.
 +
 It may take up to 10 seconds, if autorefresh option is used.
++
+More than one SIGTERM will behave like SIGQUIT.
 
 * If sent SIGQUIT, dumps stack traces for all threads and tries to dump
 process core.
@@ -339,97 +335,7 @@ process core.
 Known Issues
 ------------
 
-* SSL3 write pending.
-+
-Users enabling SSL may hit a bug about "SSL3 write pending". If so, the
-account(s) will stay unsynchronised from the time the bug appeared. Running
-OfflineIMAP again can help. We are still working on this bug.  Patches or
-detailed bug reports would be appreciated. Please check you're running the
-last stable version and send us a report to the mailing list including the
-full log.
-
-* IDLE support is incomplete and experimental. Bugs may be encountered.
-
-  - No hook exists for "run after an IDLE response".
-+
-Email will show up, but may not be processed until the next refresh cycle.
-
-  - nametrans may not be supported correctly.
-
-  - IMAP IDLE <-> IMAP IDLE doesn't work yet.
-
-  - IDLE might stop syncing on a system suspend/resume.
-
-  - IDLE may only work "once" per refresh.
-+
-If you encounter this bug, please send a report to the list!
-
-* Maildir support in Windows drive.
-+
-Maildir uses colon caracter (:) in message file names. Colon is however
-forbidden character in windows drives. There are several workarounds for that
-situation:
-
-    . Enable file name character translation in windows registry (not tested).
-      - <http://support.microsoft.com/kb/289627>
-
-    . Use cygwin managed mount (not tested).
-      - not available anymore since cygwin 1.7
-
-    . Use "maildir-windows-compatible = yes" account OfflineIMAP configuration.
-      - That makes OfflineIMAP to use exclamation mark (!) instead of colon for
-        storing messages. Such files can be written to windows partitions. But
-        you will probably loose compatibility with other programs trying to
-        read the same Maildir.
-+
-      - Exclamation mark was chosen because of the note in
-        http://docs.python.org/library/mailbox.html
-+
-      - If you have some messages already stored without this option, you will
-        have to re-sync them again
-
-* OfflineIMAP confused after system suspend.
-+
-When resuming a suspended session, OfflineIMAP does not cleanly handles the
-broken socket(s) if socktimeout option is not set.
-You should enable this option with a value like 10.
-
-* OfflineIMAP confused when mails change while in a sync.
-+
-When OfflineIMAP is syncing, some events happening since the invocation on
-remote or local side are badly handled. OfflineIMAP won't track for changes
-during the sync.
-
-
-* Sharing a maildir with multiple IMAP servers.
-+
-Generally a word of caution mixing IMAP repositories on the same Maildir root.
-You have to be careful that you *never* use the same maildir folder for 2 IMAP
-servers. In the best case, the folder MD5 will be different, and you will get
-a loop where it will upload your mails to both servers in turn (infinitely!)
-as it thinks you have placed new mails in the local Maildir. In the worst
-case, the MD5 is the same (likely) and mail UIDs overlap (likely too!) and it
-will fail to sync some mails as it thinks they are already existent.
-+
-I would create a new local Maildir Repository for the Personal Gmail and
-use a different root to be on the safe side here. You could e.g. use
-
-    `~/mail/Pro` as Maildir root for the ProGmail and
-    `~/mail/Personal` as root for the personal one.
-+
-If you then point your local mutt, or whatever MUA you use to `~/mail/`
-as root, it should still recognize all folders.
-
-
-* Edge cases with maxage causing too many messages to be synced.
-+
-All messages from at most maxage days ago (+/- a few hours, depending on
-timezones) are synced, but there are cases in which older messages can also be
-synced. This happens when a message's UID is significantly higher than those of
-other messages with similar dates, e.g. when messages are added to the local
-folder behind offlineimap's back, causing them to get assigned a new UID, or
-when offlineimap first syncs a pre-existing Maildir. In the latter case, it
-could appear as if a noticeable and random subset of old messages are synced.
+include::./offlineimap.known_issues.txt[]
 
 
 Main authors

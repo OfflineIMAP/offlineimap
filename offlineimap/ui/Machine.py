@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2015 John Goerzen & contributors
+# Copyright (C) 2007-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,18 +21,20 @@ import sys
 import time
 import logging
 from threading import currentThread
-from offlineimap.ui.UIBase import UIBase
-import offlineimap
 
-protocol = '7.0.0'
+import offlineimap
+from offlineimap.ui.UIBase import UIBase
+
+protocol = '7.2.0'
 
 class MachineLogFormatter(logging.Formatter):
     """urlencodes any outputted line, to avoid multi-line output"""
+
     def format(s, record):
         # Mapping of log levels to historic tag names
         severity_map = {
-         'info': 'msg',
-         'warning': 'warn',
+            'info': 'msg',
+            'warning': 'warn',
         }
         line = super(MachineLogFormatter, s).format(record)
         severity = record.levelname.lower()
@@ -100,8 +102,9 @@ class MachineUI(UIBase):
                 (folder.getname(), folder.getrepository().getname(),
                  folder.get_saveduidvalidity(), folder.get_uidvalidity()))
 
-    def connecting(s, hostname, port):
-        s._printData(s.logger.info, 'connecting', "%s\n%s"% (hostname, str(port)))
+    def connecting(s, reposname, hostname, port):
+        s._printData(s.logger.info, 'connecting', "%s\n%s\n%s"% (hostname,
+            str(port), reposname))
 
     def syncfolders(s, srcrepos, destrepos):
         s._printData(s.logger.info, 'syncfolders', "%s\n%s"% (s.getnicename(srcrepos),
@@ -124,6 +127,11 @@ class MachineUI(UIBase):
         s._printData(s.logger.info, 'syncingmessages', "%s\n%s\n%s\n%s\n"%
                 (s.getnicename(sr), sf.getname(), s.getnicename(dr),
                  df.getname()))
+
+    def ignorecopyingmessage(s, uid, srcfolder, destfolder):
+        s._printData(s.logger.info, 'ignorecopyingmessage', "%d\n%s\n%s\n%s[%s]"%
+                (uid, s.getnicename(srcfolder), srcfolder.getname(),
+                 s.getnicename(destfolder), destfolder))
 
     def copyingmessage(s, uid, num, num_to_copy, srcfolder, destfolder):
         s._printData(s.logger.info, 'copyingmessage', "%d\n%s\n%s\n%s[%s]"%

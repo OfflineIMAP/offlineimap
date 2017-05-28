@@ -18,11 +18,11 @@ $(HTML_TARGETS): %.html : %.rst
 
 man: offlineimap.1 offlineimapui.7
 
-offlineimap.1: offlineimap.txt
-	a2x -v -f manpage $?
+offlineimap.1: offlineimap.txt offlineimap.known_issues.txt
+	a2x -v -d manpage -f manpage $<
 
 offlineimapui.7: offlineimapui.txt
-	a2x -v -f manpage $?
+	a2x -v -d manpage -f manpage $<
 
 api:
 	$(SPHINXBUILD) -b html -d html/doctrees doc-src html

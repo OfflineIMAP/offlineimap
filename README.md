@@ -5,35 +5,37 @@
 
 # OfflineIMAP
 
-***Get the emails where you need them.***
+***"Get the emails where you need them."***
+
+[Official offlineimap][offlineimap].
+
 
 ## Description
 
-OfflineIMAP is a software to dispose your e-mail mailbox(es) as a **local
-Maildir**. OfflineIMAP will synchronize both sides via *IMAP*.
+OfflineIMAP is software that downloads your email mailbox(es) as **local
+Maildirs**. OfflineIMAP will synchronize both sides via *IMAP*.
 
-The main downside about IMAP is that you have to **trust** your email provider to
-not lose your mails. This is not something impossible while not very common.
+IMAP's main downside is that you have to **trust** your email provider to
+not lose your email. While certainly unlikely, it's not impossible.
 With OfflineIMAP, you can download your Mailboxes and make you own backups of
-the [Maildir](https://en.wikipedia.org/wiki/Maildir).
+your [Maildir](https://en.wikipedia.org/wiki/Maildir).
 
-This allows reading your email while offline without the need for the mail
-reader (MUA) to support IMAP disconnected operations. Need an attachment from a
-message without internet connection? It's fine, the message is still there.
+This allows reading your email offline without the need for your mail
+reader (MUA) to support IMAP operations. Need an attachment from a
+message without internet connection? No problem, the message is still there.
 
 
 ## Project status and future
 
 > As one of the maintainer of OfflineIMAP, I'd like to put my efforts into
-> [imapfw](http://github.com/OfflineIMAP/imapfw). **imapfw** is a software in
-> development that I intend to replace OfflineIMAP in the long term.
+> [imapfw](http://github.com/OfflineIMAP/imapfw). **imapfw** is software in
+> development that I intend to replace OfflineIMAP with in the long term.
 >
-> That's why I'm not going to do development in OfflineIMAP. I continue to do
-> the maintenance job in OfflineIMAP: fixing small bugs, (quick)
-> reviewing/merging patches and rolling out new releases, but that's all.
+> That's why I'm not going to continue OfflineIMAP development. I'll continue
+> to maintain OfflineIMAP (fixing small bugs, reviewing patches and merging,
+> and rolling out new releases), but that's all.
 >
-> While I keep tracking issues for OfflineIMAP, you should not expect support
-> much from me anymore.
+> While I keep tracking issues for OfflineIMAP, you should not expect future support.
 >
 > You won't be left at the side. OfflineIMAP's community is large enough so that
 > you'll find people for most of your issues.
@@ -55,6 +57,7 @@ GNU General Public License v2.
 * It is **flexible**.
 * It is **safe**.
 
+
 ## Downloads
 
 You should first check if your distribution already packages OfflineIMAP for you.
@@ -68,7 +71,16 @@ place on the mailing list.** While not mandatory to send emails, you can
 [subscribe here](http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project).
 
 Bugs, issues and contributions can be requested to both the mailing list or the
-[official Github project][offlineimap].
+[official Github project][offlineimap].  Provide the following information:
+- system/distribution (with version)
+- offlineimap version (`offlineimap -V`)
+- Python version
+- server name or domain
+- CLI options
+- Configuration file (offlineimaprc)
+- pythonfile (if any)
+- Logs, error
+- Steps to reproduce the error
 
 
 ## The community
@@ -78,25 +90,28 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 * And finally, [the wiki][wiki].
 
 
-## Requirements
+## Requirements & dependencies
 
-* Python v2.7
-* Python SQlite (optional while recommended)
-* Python json and urllib (used for XOAuth2 authentication)
+* Python v2.7+
+* Python v3.4+ ***(experimental: [see known issues](https://github.com/OfflineIMAP/offlineimap/issues?q=is%3Aissue+is%3Aopen+label%3APy3))***
+* six (required)
+* imaplib2 >= 2.55 (optional)
 
 
 ## Documentation
 
-All the current and updated documentation is at the [community's website][website].
+All current and updated documentation is on the [community's website][website].
+
 
 ### Read documentation locally
 
 You might want to read the documentation locally. Get the sources of the website.
 For the other documentation, run the appropriate make target:
-```
+
+```sh
 $ ./scripts/get-repository.sh website
 $ cd docs
 $ make html  # Requires rst2html
-$ make man   # Requires a2x
+$ make man   # Requires a2x (http://asciidoc.org)
 $ make api   # Requires sphinx
 ```

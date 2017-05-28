@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2007 John Goerzen <jgoerzen@complete.org>
-#               2010 Sebastian Spaeth <Sebastian@SSpaeth.de> and contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,6 +14,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import six
 from sys import exc_info
 
 try:
@@ -68,16 +68,18 @@ class Repository(object):
         except NoSectionError as e:
             errstr = ("Could not find section '%s' in configuration. Required "
                       "for account '%s'." % ('Repository %s' % name, account))
-            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO), \
-                None, exc_info()[2]
+            six.reraise(OfflineImapError,
+                        OfflineImapError(errstr, OfflineImapError.ERROR.REPO),
+                        exc_info()[2])
 
         try:
             repo = typemap[repostype]
         except KeyError:
             errstr = "'%s' repository not supported for '%s' repositories."% \
                 (repostype, reqtype)
-            raise OfflineImapError(errstr, OfflineImapError.ERROR.REPO), \
-                None, exc_info()[2]
+            six.reraise(OfflineImapError,
+                        OfflineImapError(errstr, OfflineImapError.ERROR.REPO),
+                        exc_info()[2])
 
         return repo(name, account)
 

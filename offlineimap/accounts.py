@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2015 John Goerzen & contributors
+# Copyright (C) 2003-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,11 +15,12 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 from subprocess import Popen, PIPE
-from threading import Event
+from threading import Event, Lock
 import os
 import time
 from sys import exc_info
 import traceback
+import six
 
 from offlineimap import mbnames, CustomConfig, OfflineImapError
 from offlineimap import globals
@@ -27,32 +28,20 @@ from offlineimap.repository import Repository
 from offlineimap.ui import getglobalui
 from offlineimap.threadutil import InstanceLimitedThread
 
+FOLDER_NAMESPACE = 'LIMITED_FOLDER_'
+# Key: account name, Value: Dict of Key: remotefolder name, Value: lock.
+SYNC_MUTEXES = {}
+SYNC_MUTEXES_LOCK = Lock()
+
 try:
     import fcntl
 except:
-    pass # ok if this fails, we can do without
+    pass # Ok if this fails, we can do without.
 
 # FIXME: spaghetti code alert!
 def getaccountlist(customconfig):
     # Account names in a list.
-    return customconfig.getsectionlist('Account')
-
-# FIXME: spaghetti code alert!
-def AccountListGenerator(customconfig):
-    """Returns a list of instanciated Account class, one per account name."""
-
-    return [Account(customconfig, accountname)
-            for accountname in getaccountlist(customconfig)]
-
-# FIXME: spaghetti code alert!
-def AccountHashGenerator(customconfig):
-    """Returns a dict of instanciated Account class with the account name as
-    key."""
-
-    retval = {}
-    for item in AccountListGenerator(customconfig):
-        retval[item.getname()] = item
-    return retval
+    return [name.lstrip() for name in customconfig.getsectionlist('Account')]
 
 
 class Account(CustomConfig.ConfigHelperMixin):
@@ -80,14 +69,20 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.name = name
         self.metadatadir = config.getmetadatadir()
         self.localeval = config.getlocaleval()
-        # current :mod:`offlineimap.ui`, can be used for logging:
+        # Current :mod:`offlineimap.ui`, can be used for logging:
         self.ui = getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
-        # should we run in "dry-run" mode?
         self.dryrun = self.config.getboolean('general', 'dry-run')
         self.quicknum = 0
+        if self.refreshperiod < 0:
+            self.ui.warn("autorefresh for %s is negative, fixing it to 0."%
+                    name)
+            self.refreshperiod = 0.0
         if self.refreshperiod == 0.0:
             self.refreshperiod = None
+        self.remoterepos = None
+        self.localrepos = None
+        self.statusrepos = None
 
     def getlocaleval(self):
         return self.localeval
@@ -198,13 +193,31 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.ui.serverdiagnostics(local_repo, 'Local')
         #self.ui.serverdiagnostics(statusrepos, 'Status')
 
+    def deletefolder(self, foldername):
+        remote_repo = Repository(self, 'remote')
+
+        try:
+            if self.dryrun:
+                self.ui.info("would try to remove '%s' on remote of '%s' "
+                    "account"% (foldername, self))
+            else:
+                remote_repo.deletefolder(foldername)
+                self.ui.info("Folder '%s' deleted."% foldername)
+            return 0
+        except Exception as e:
+            self.ui.error(e)
+            return 1
+
 
 class SyncableAccount(Account):
     """A syncable email account connecting 2 repositories.
 
     Derives from :class:`accounts.Account` but contains the additional
     functions :meth:`syncrunner`, :meth:`sync`, :meth:`syncfolders`,
-    used for syncing."""
+    used for syncing.
+
+    In multi-threaded mode, one instance of this object is run per "account"
+    thread."""
 
     def __init__(self, *args, **kwargs):
         Account.__init__(self, *args, **kwargs)
@@ -223,9 +236,12 @@ class SyncableAccount(Account):
             pass
         except IOError:
             self._lockfd.close()
-            raise OfflineImapError("Could not lock account %s. Is another "
-                "instance using this account?"% self,
-                OfflineImapError.ERROR.REPO), None, exc_info()[2]
+            six.reraise(OfflineImapError,
+                        OfflineImapError(
+                            "Could not lock account %s. Is another "
+                            "instance using this account?"% self,
+                            OfflineImapError.ERROR.REPO),
+                        exc_info()[2])
 
     def _unlock(self):
         """Unlock the account, deleting the lock file"""
@@ -239,6 +255,8 @@ class SyncableAccount(Account):
                 pass    # Failed to delete for some reason.
 
     def syncrunner(self):
+        """The target for both single and multi-threaded modes."""
+
         self.ui.registerthread(self)
         try:
             accountmetadata = self.getaccountmeta()
@@ -254,7 +272,7 @@ class SyncableAccount(Account):
                 raise
             return
 
-        # Loop account sync if needed (bail out after 3 failures)
+        # Loop account sync if needed (bail out after 3 failures).
         looping = 3
         while looping:
             self.ui.acct(self)
@@ -275,7 +293,7 @@ class SyncableAccount(Account):
                 self.ui.error(e, exc_info()[2], msg=
                     "While attempting to sync account '%s'"% self)
             else:
-                # after success sync, reset the looping counter to 3
+                # After success sync, reset the looping counter to 3.
                 if self.refreshperiod:
                     looping = 3
             finally:
@@ -321,56 +339,72 @@ class SyncableAccount(Account):
             localrepos = self.localrepos
             statusrepos = self.statusrepos
 
-            # init repos with list of folders, so we have them (and the
-            # folder delimiter etc)
+            # Init repos with list of folders, so we have them (and the
+            # folder delimiter etc).
             remoterepos.getfolders()
             localrepos.getfolders()
 
             remoterepos.sync_folder_structure(localrepos, statusrepos)
-            # replicate the folderstructure between REMOTE to LOCAL
+            # Replicate the folderstructure between REMOTE to LOCAL.
             if not localrepos.getconfboolean('readonly', False):
                 self.ui.syncfolders(remoterepos, localrepos)
 
-            # iterate through all folders on the remote repo and sync
+            # Iterate through all folders on the remote repo and sync.
             for remotefolder in remoterepos.getfolders():
-                # check for CTRL-C or SIGTERM
-                if Account.abort_NOW_signal.is_set(): break
+                # Check for CTRL-C or SIGTERM.
+                if Account.abort_NOW_signal.is_set():
+                    break
 
                 if not remotefolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
                                   "[%s]"% (remotefolder, remoterepos))
-                    continue # Ignore filtered folder
+                    continue # Ignore filtered folder.
+
+                # The remote folder names must not have the local sep char in
+                # their names since this would cause troubles while converting
+                # the name back (from local to remote).
+                sep = localrepos.getsep()
+                if (sep != os.path.sep and
+                    sep != remoterepos.getsep() and
+                    sep in remotefolder.getname()):
+                    self.ui.warn('', "Ignoring folder '%s' due to unsupported "
+                        "'%s' character serving as local separator."%
+                        (remotefolder.getname(), localrepos.getsep()))
+                    continue # Ignore unsupported folder name.
+
                 localfolder = self.get_local_folder(remotefolder)
                 if not localfolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
                                  "[%s]"% (localfolder, localfolder.repository))
-                    continue # Ignore filtered folder
+                    continue # Ignore filtered folder.
+
                 if not globals.options.singlethreading:
-                    thread = InstanceLimitedThread(\
-                        instancename = 'FOLDER_' + self.remoterepos.getname(),
-                        target = syncfolder,
-                        name = "Folder %s [acc: %s]"% (remotefolder.getexplainedname(), self),
-                        args = (self, remotefolder, quick))
+                    thread = InstanceLimitedThread(
+                        limitNamespace="%s%s"% (
+                            FOLDER_NAMESPACE, self.remoterepos.getname()),
+                        target=syncfolder,
+                        name="Folder %s [acc: %s]"% (
+                            remotefolder.getexplainedname(), self),
+                        args=(self, remotefolder, quick)
+                    )
                     thread.start()
                     folderthreads.append(thread)
                 else:
                     syncfolder(self, remotefolder, quick)
-            # wait for all threads to finish
+            # Wait for all threads to finish.
             for thr in folderthreads:
                 thr.join()
-            # Write out mailbox names if required and not in dry-run mode
-            if not self.dryrun:
-                mbnames.write(False)
+            mbnames.writeIntermediateFile(self.name) # Write out mailbox names.
             localrepos.forgetfolders()
             remoterepos.forgetfolders()
         except:
-            #error while syncing. Drop all connections that we have, they
-            #might be bogus by now (e.g. after suspend)
+            # Error while syncing. Drop all connections that we have, they
+            # might be bogus by now (e.g. after suspend).
             localrepos.dropconnections()
             remoterepos.dropconnections()
             raise
         else:
-            # sync went fine. Hold or drop depending on config
+            # Sync went fine. Hold or drop depending on config.
             localrepos.holdordropconnections()
             remoterepos.holdordropconnections()
 
@@ -378,14 +412,14 @@ class SyncableAccount(Account):
         self.callhook(hook)
 
     def callhook(self, cmd):
-        # check for CTRL-C or SIGTERM and run postsynchook
+        # Check for CTRL-C or SIGTERM and run postsynchook.
         if Account.abort_NOW_signal.is_set():
             return
         if not cmd:
             return
         try:
             self.ui.callhook("Calling hook: " + cmd)
-            if self.dryrun: # don't if we are in dry-run mode
+            if self.dryrun:
                 return
             p = Popen(cmd, shell=True,
                       stdin=PIPE, stdout=PIPE, stderr=PIPE,
@@ -398,13 +432,38 @@ class SyncableAccount(Account):
         except Exception as e:
             self.ui.error(e, exc_info()[2], msg="Calling hook")
 
+
+#XXX: This function should likely be refactored. This should not be passed the
+# account instance.
 def syncfolder(account, remotefolder, quick):
     """Synchronizes given remote folder for the specified account.
 
-    Filtered folders on the remote side will not invoke this function. However,
-    this might be called in a concurrently."""
+    Filtered folders on the remote side will not invoke this function.
 
-    def check_uid_validity(localfolder, remotefolder, statusfolder):
+    When called in concurrently for the same localfolder, syncs are
+    serialized."""
+
+    def acquire_mutex():
+        account_name = account.getname()
+        localfolder_name = localfolder.getfullname()
+
+        with SYNC_MUTEXES_LOCK:
+            if SYNC_MUTEXES.get(account_name) is None:
+                SYNC_MUTEXES[account_name] = {}
+            # The localfolder full name is good to uniquely identify the sync
+            # transaction.
+            if SYNC_MUTEXES[account_name].get(localfolder_name) is None:
+                #XXX: This lock could be an external file lock so we can remove
+                # the lock at the account level.
+                SYNC_MUTEXES[account_name][localfolder_name] = Lock()
+
+        # Acquire the lock.
+        SYNC_MUTEXES[account_name][localfolder_name].acquire()
+
+    def release_mutex():
+        SYNC_MUTEXES[account.getname()][localfolder.getfullname()].release()
+
+    def check_uid_validity():
         # If either the local or the status folder has messages and
         # there is a UID validity problem, warn and abort.  If there are
         # no messages, UW IMAPd loses UIDVALIDITY.  But we don't really
@@ -420,27 +479,21 @@ def syncfolder(account, remotefolder, quick):
                 localrepos.restore_atime()
                 return
         else:
-            # Both folders empty, just save new UIDVALIDITY
+            # Both folders empty, just save new UIDVALIDITY.
             localfolder.save_uidvalidity()
             remotefolder.save_uidvalidity()
 
-    def save_min_uid(folder, min_uid):
-        uidfile = folder.get_min_uid_file()
-        fd = open(uidfile, 'wt')
-        fd.write(str(min_uid) + "\n")
-        fd.close()
-
-    def cachemessagelists_upto_date(localfolder, remotefolder, date):
+    def cachemessagelists_upto_date(date):
         """Returns messages with uid > min(uids of messages newer than date)."""
 
+        # Warning: this makes sense only if the cached list is empty.
         localfolder.cachemessagelist(min_date=date)
-        check_uid_validity(localfolder, remotefolder, statusfolder)
-        # local messagelist had date restriction applied already. Restrict
+        check_uid_validity()
+        # Local messagelist had date restriction applied already. Restrict
         # sync to messages with UIDs >= min_uid from this list.
         #
-        # local messagelist might contain new messages (with uid's < 0).
-        positive_uids = filter(
-            lambda uid: uid > 0, localfolder.getmessageuidlist())
+        # Local messagelist might contain new messages (with uid's < 0).
+        positive_uids = [uid for uid in localfolder.getmessageuidlist() if uid > 0]
         if len(positive_uids) > 0:
             remotefolder.cachemessagelist(min_uid=min(positive_uids))
         else:
@@ -481,14 +534,13 @@ def syncfolder(account, remotefolder, quick):
                 partial.cachemessagelist(min_date=date)
                 # messagelist.keys() instead of getuidmessagelist() because in
                 # the UID mapped case we want the actual local UIDs, not their
-                # remote counterparts
-                positive_uids = filter(
-                    lambda uid: uid > 0, partial.messagelist.keys())
+                # remote counterparts.
+                positive_uids = [uid for uid in list(partial.messagelist.keys()) if uid > 0]
                 if len(positive_uids) > 0:
                     min_uid = min(positive_uids)
                 else:
                     min_uid = 1
-                save_min_uid(partial, min_uid)
+                partial.save_min_uid(min_uid)
         else:
             partial.cachemessagelist(min_uid=min_uid)
 
@@ -503,38 +555,34 @@ def syncfolder(account, remotefolder, quick):
         # Load local folder.
         localfolder = account.get_local_folder(remotefolder)
 
-        # Write the mailboxes
-        mbnames.add(account.name, localfolder.getname(),
-            localrepos.getlocalroot())
+        # Acquire the mutex to start syncing.
+        acquire_mutex()
+
+        # Add the folder to the mbnames mailboxes.
+        mbnames.add(account.name, localrepos.getlocalroot(),
+            localfolder.getname())
 
         # Load status folder.
         statusfolder = statusrepos.getfolder(remotefolder.getvisiblename().
             replace(remoterepos.getsep(), statusrepos.getsep()))
         statusfolder.openfiles()
-
-        if localfolder.get_uidvalidity() == None:
-            # This is a new folder, so delete the status cache to be
-            # sure we don't have a conflict.
-            # TODO: This does not work. We always return a value, need
-            # to rework this...
-            statusfolder.deletemessagelist()
-
         statusfolder.cachemessagelist()
-
 
         # Load local folder.
         ui.syncingfolder(remoterepos, remotefolder, localrepos, localfolder)
 
         # Retrieve messagelists, taking into account age-restriction
-        # options
+        # options.
         maxage = localfolder.getmaxage()
         localstart = localfolder.getstartdate()
         remotestart = remotefolder.getstartdate()
         if (maxage != None) + (localstart != None) + (remotestart != None) > 1:
-            raise OfflineImapError("You can set at most one of the "
-                "following: maxage, startdate (for the local folder), "
-                "startdate (for the remote folder)",
-                OfflineImapError.ERROR.REPO), None, exc_info()[2]
+            six.reraise(OfflineImapError,
+                        OfflineImapError("You can set at most one of the "
+                            "following: maxage, startdate (for the local "
+                            "folder), startdate (for the remote folder)",
+                            OfflineImapError.ERROR.REPO),
+                        exc_info()[2])
         if (maxage != None or localstart or remotestart) and quick:
             # IMAP quickchanged isn't compatible with options that
             # involve restricting the messagelist, since the "quick"
@@ -542,15 +590,16 @@ def syncfolder(account, remotefolder, quick):
             ui.warn("Quick syncs (-q) not supported in conjunction "
                 "with maxage or startdate; ignoring -q.")
         if maxage != None:
-            cachemessagelists_upto_date(localfolder, remotefolder, maxage)
+            cachemessagelists_upto_date(maxage)
+            check_uid_validity()
         elif localstart != None:
             cachemessagelists_startdate(remotefolder, localfolder,
                 localstart)
-            check_uid_validity(localfolder, remotefolder, statusfolder)
+            check_uid_validity()
         elif remotestart != None:
             cachemessagelists_startdate(localfolder, remotefolder,
                 remotestart)
-            check_uid_validity(localfolder, remotefolder, statusfolder)
+            check_uid_validity()
         else:
             localfolder.cachemessagelist()
             if quick:
@@ -559,7 +608,7 @@ def syncfolder(account, remotefolder, quick):
                     ui.skippingfolder(remotefolder)
                     localrepos.restore_atime()
                     return
-            check_uid_validity(localfolder, remotefolder, statusfolder)
+            check_uid_validity()
             remotefolder.cachemessagelist()
 
         # Synchronize remote changes.
@@ -567,33 +616,35 @@ def syncfolder(account, remotefolder, quick):
             ui.syncingmessages(remoterepos, remotefolder, localrepos, localfolder)
             remotefolder.syncmessagesto(localfolder, statusfolder)
         else:
-            ui.debug('imap', "Not syncing to read-only repository '%s'" \
-                         % localrepos.getname())
+            ui.debug('', "Not syncing to read-only repository '%s'"%
+                    localrepos.getname())
 
-        # Synchronize local changes
+        # Synchronize local changes.
         if not remoterepos.getconfboolean('readonly', False):
             ui.syncingmessages(localrepos, localfolder, remoterepos, remotefolder)
             localfolder.syncmessagesto(remotefolder, statusfolder)
         else:
-            ui.debug('', "Not syncing to read-only repository '%s'" \
-                         % remoterepos.getname())
+            ui.debug('', "Not syncing to read-only repository '%s'"%
+                    remoterepos.getname())
 
         statusfolder.save()
         localrepos.restore_atime()
     except (KeyboardInterrupt, SystemExit):
         raise
     except OfflineImapError as e:
-        # bubble up severe Errors, skip folder otherwise
+        # Bubble up severe Errors, skip folder otherwise.
         if e.severity > OfflineImapError.ERROR.FOLDER:
             raise
         else:
             ui.error(e, exc_info()[2], msg="Aborting sync, folder '%s' "
                      "[acc: '%s']"% (localfolder, account))
     except Exception as e:
-        ui.error(e, msg = "ERROR in syncfolder for %s folder %s: %s"%
+        ui.error(e, msg="ERROR in syncfolder for %s folder %s: %s"%
             (account, remotefolder.getvisiblename(), traceback.format_exc()))
     finally:
         for folder in ["statusfolder", "localfolder", "remotefolder"]:
             if folder in locals():
                 locals()[folder].dropmessagelistcache()
         statusfolder.closefiles()
+        # Release the mutex of this sync transaction.
+        release_mutex()

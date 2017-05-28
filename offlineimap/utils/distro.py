@@ -1,4 +1,4 @@
-# Copyright 2014 Eygene A. Ryabinkin.
+# Copyright 2014-2006 Eygene A. Ryabinkin & contributors.
 #
 # Module that supports distribution-specific functions.
 
@@ -7,7 +7,7 @@ import os
 
 
 # Each dictionary value is either string or some iterable.
-# 
+#
 # For the former we will just return the value, for an iterable
 # we will walk through the values and will return the first
 # one that corresponds to the existing file.
@@ -21,9 +21,11 @@ __DEF_OS_LOCATIONS = {
     ],
     'linux-ubuntu': '/etc/ssl/certs/ca-certificates.crt',
     'linux-debian': '/etc/ssl/certs/ca-certificates.crt',
+    'linux-gentoo': '/etc/ssl/certs/ca-certificates.crt',
     'linux-fedora': '/etc/pki/tls/certs/ca-bundle.crt',
     'linux-redhat': '/etc/pki/tls/certs/ca-bundle.crt',
     'linux-suse': '/etc/ssl/ca-bundle.pem',
+    'linux-opensuse': '/etc/ssl/ca-bundle.pem',
 }
 
 
@@ -43,13 +45,13 @@ def get_os_name():
     if OS.startswith('linux'):
         DISTRO = platform.linux_distribution()[0]
         if DISTRO:
-          OS = OS + "-%s" % DISTRO.lower()
+          OS = OS + "-%s" % DISTRO.split()[0].lower()
 
     return OS
 
 def get_os_sslcertfile_searchpath():
     """Returns search path for CA bundle for the current OS.
-    
+
     We will return an iterable even if configuration has just
     a single value: it is easier for our callers to be sure
     that they can iterate over result.

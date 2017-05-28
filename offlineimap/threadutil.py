@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2012 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 # Thread support module
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,10 @@ except ImportError: # python3
     from queue import Queue, Empty
 import traceback
 import os.path
-import sys
 from offlineimap.ui import getglobalui
+
+
+STOP_MONITOR = 'STOP_MONITOR'
 
 ######################################################################
 # General utilities
@@ -39,7 +41,7 @@ def semaphorereset(semaphore, originalstate):
     for i in range(originalstate):
         semaphore.release()
 
-class threadlist:
+class accountThreads(object):
     """Store the list of all threads in the software so it can be used to find out
     what's running and what's not."""
 
@@ -48,33 +50,24 @@ class threadlist:
         self.list = []
 
     def add(self, thread):
-        self.lock.acquire()
-        try:
+        with self.lock:
             self.list.append(thread)
-        finally:
-            self.lock.release()
 
     def remove(self, thread):
-        self.lock.acquire()
-        try:
+        with self.lock:
             self.list.remove(thread)
-        finally:
-            self.lock.release()
 
     def pop(self):
-        self.lock.acquire()
-        try:
-            if not len(self.list):
+        with self.lock:
+            if len(self.list) < 1:
                 return None
             return self.list.pop()
-        finally:
-            self.lock.release()
 
-    def reset(self):
-        while 1:
+    def wait(self):
+        while True:
             thread = self.pop()
-            if not thread:
-                return
+            if thread is None:
+                break
             thread.join()
 
 
@@ -82,9 +75,9 @@ class threadlist:
 # Exit-notify threads
 ######################################################################
 
-exitthreads = Queue(100)
+exitedThreads = Queue()
 
-def exitnotifymonitorloop(callback):
+def monitor():
     """An infinite "monitoring" loop watching for finished ExitNotifyThread's.
 
     This one is supposed to run in the main thread.
@@ -101,39 +94,42 @@ def exitnotifymonitorloop(callback):
     :type callback:  a callable function
     """
 
-    global exitthreads
-    do_loop = True
-    while do_loop:
+    global exitedThreads
+    ui = getglobalui()
+
+    while True:
         # Loop forever and call 'callback' for each thread that exited
         try:
-            # we need a timeout in the get() call, so that ctrl-c can throw
-            # a SIGINT (http://bugs.python.org/issue1360). A timeout with empty
+            # We need a timeout in the get() call, so that ctrl-c can throw a
+            # SIGINT (http://bugs.python.org/issue1360). A timeout with empty
             # Queue will raise `Empty`.
-            thrd = exitthreads.get(True, 60)
-            # request to abort when callback returns true
-            do_loop = (callback(thrd) != True)
+            #
+            # ExitNotifyThread add themselves to the exitedThreads queue once
+            # they are done (normally or with exception).
+            thread = exitedThreads.get(True, 60)
+            # Request to abort when callback returns True.
+
+            if thread.exit_exception is not None:
+                if isinstance(thread.exit_exception, SystemExit):
+                    # Bring a SystemExit into the main thread.
+                    # Do not send it back to UI layer right now.
+                    # Maybe later send it to ui.terminate?
+                    raise SystemExit
+                ui.threadException(thread) # Expected to terminate the program.
+                # Should never hit this line.
+                raise AssertionError("thread has 'exit_exception' set to"
+                    " '%s' [%s] but this value is unexpected"
+                    " and the ui did not stop the program."%
+                    (repr(thread.exit_exception), type(thread.exit_exception)))
+
+            # Only the monitor thread has this exit message set.
+            elif thread.exit_message == STOP_MONITOR:
+                break # Exit the loop here.
+            else:
+                ui.threadExited(thread)
         except Empty:
             pass
 
-def threadexited(thread):
-    """Called when a thread exits.
-
-    Main thread is aborted when this returns True."""
-
-    ui = getglobalui()
-    if thread.exit_exception:
-        if isinstance(thread.exit_exception, SystemExit):
-            # Bring a SystemExit into the main thread.
-            # Do not send it back to UI layer right now.
-            # Maybe later send it to ui.terminate?
-            raise SystemExit
-        ui.threadException(thread)      # Expected to terminate
-        sys.exit(100)                   # Just in case...
-    elif thread.exit_message == 'SYNCRUNNER_EXITED_NORMALLY':
-        return True
-    else:
-        ui.threadExited(thread)
-        return False
 
 class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a
@@ -142,10 +138,10 @@ class ExitNotifyThread(Thread):
     bail out when the mainloop dies.
 
     The thread can set instance variables self.exit_message for a human
-    readable reason of the thread exit."""
+    readable reason of the thread exit.
 
-    profiledir = None
-    """Class variable that is set to the profile directory if required."""
+    There is one instance of this class at runtime. The main thread waits for
+    the monitor to end."""
 
     def __init__(self, *args, **kwargs):
         super(ExitNotifyThread, self).__init__(*args, **kwargs)
@@ -157,29 +153,17 @@ class ExitNotifyThread(Thread):
         self._exit_stacktrace = None
 
     def run(self):
-        global exitthreads
+        """Allow profiling of a run and store exceptions."""
+
+        global exitedThreads
         try:
-            if not ExitNotifyThread.profiledir: # normal case
-                Thread.run(self)
-            else:
-                try:
-                    import cProfile as profile
-                except ImportError:
-                    import profile
-                prof = profile.Profile()
-                try:
-                    prof = prof.runctx("Thread.run(self)", globals(), locals())
-                except SystemExit:
-                    pass
-                prof.dump_stats(os.path.join(ExitNotifyThread.profiledir,
-                                "%s_%s.prof"% (self.ident, self.getName())))
+            Thread.run(self)
         except Exception as e:
             # Thread exited with Exception, store it
             tb = traceback.format_exc()
             self.set_exit_exception(e, tb)
 
-        if exitthreads:
-            exitthreads.put(self, True)
+        exitedThreads.put(self, True)
 
     def set_exit_exception(self, exc, st=None):
         """Sets Exception and stacktrace of a thread, so that other
@@ -202,41 +186,42 @@ class ExitNotifyThread(Thread):
 
         return self._exit_stacktrace
 
-    @classmethod
-    def set_profiledir(cls, directory):
-        """If set, will output profile information to 'directory'"""
-
-        cls.profiledir = directory
-
 
 ######################################################################
 # Instance-limited threads
 ######################################################################
 
-instancelimitedsems = {}
-instancelimitedlock = Lock()
+limitedNamespaces = {}
 
-def initInstanceLimit(instancename, instancemax):
-    """Initialize the instance-limited thread implementation to permit
-    up to intancemax threads with the given instancename."""
+def initInstanceLimit(limitNamespace, instancemax):
+    """Initialize the instance-limited thread implementation.
 
-    instancelimitedlock.acquire()
-    if not instancename in instancelimitedsems:
-        instancelimitedsems[instancename] = BoundedSemaphore(instancemax)
-    instancelimitedlock.release()
+    Run up to intancemax threads for the given limitNamespace. This allows to
+    honor maxsyncaccounts and maxconnections."""
+
+    global limitedNamespaces
+
+    if not limitNamespace in limitedNamespaces:
+        limitedNamespaces[limitNamespace] = BoundedSemaphore(instancemax)
+
 
 class InstanceLimitedThread(ExitNotifyThread):
-    def __init__(self, instancename, *args, **kwargs):
-        self.instancename = instancename
+    def __init__(self, limitNamespace, *args, **kwargs):
+        self.limitNamespace = limitNamespace
         super(InstanceLimitedThread, self).__init__(*args, **kwargs)
 
     def start(self):
-        instancelimitedsems[self.instancename].acquire()
+        global limitedNamespaces
+
+        # Will block until the semaphore has free slots.
+        limitedNamespaces[self.limitNamespace].acquire()
         ExitNotifyThread.start(self)
 
     def run(self):
+        global limitedNamespaces
+
         try:
             ExitNotifyThread.run(self)
         finally:
-            if instancelimitedsems and instancelimitedsems[self.instancename]:
-                instancelimitedsems[self.instancename].release()
+            if limitedNamespaces and limitedNamespaces[self.limitNamespace]:
+                limitedNamespaces[self.limitNamespace].release()

@@ -1,27 +1,32 @@
-> This v1.0 template stands in `.github/`.
 
-### General informations
+#### General informations
 
-- OfflineIMAP version:
-- server name or domain:
-- CLI options:
+- system/distribution (with version): 
+- offlineimap version (`offlineimap -V`): 
+- Python version: 
+- server name or domain: 
+- CLI options: 
 
-```
-Configuration file offlineimaprc goes here. REMOVE PRIVATE DATA.
-```
-
-```
-The pythonfile file goes here (if any). REMOVE PRIVATE DATA.
-```
-
-
-### Log error
+#### Configuration file offlineimaprc
 
 ```
-Logs go here. REMOVE PRIVATE DATA.
+REMOVE PRIVATE DATA.
 ```
 
-### Steps to reproduce the error
+#### pythonfile (if any)
+
+```
+REMOVE PRIVATE DATA.
+```
+
+
+#### Logs, error
+
+```
+REMOVE PRIVATE DATA.
+```
+
+#### Steps to reproduce the error
 
 - 
 - 

@@ -1,5 +1,5 @@
 # Base folder support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,11 +15,16 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import os.path
+import shutil
+from os import fsync, unlink
 from sys import exc_info
 from threading import Lock
+import six
+
 from offlineimap import OfflineImapError
 from .IMAP import IMAPFolder
-import os.path
+
 
 class MappedIMAPFolder(IMAPFolder):
     """IMAP class to map between Folder() instances where both side assign a uid
@@ -28,6 +33,7 @@ class MappedIMAPFolder(IMAPFolder):
     be an IMAPFolder.
 
     Instance variables (self.):
+      dryrun: boolean.
       r2l: dict mapping message uids: self.r2l[remoteuid]=localuid
       l2r: dict mapping message uids: self.r2l[localuid]=remoteuid
       #TODO: what is the difference, how are they used?
@@ -36,62 +42,93 @@ class MappedIMAPFolder(IMAPFolder):
 
     def __init__(self, *args, **kwargs):
         IMAPFolder.__init__(self, *args, **kwargs)
+        self.dryrun = self.config.getdefaultboolean("general", "dry-run", True)
         self.maplock = Lock()
-        (self.diskr2l, self.diskl2r) = self._loadmaps()
+        self.diskr2l, self.diskl2r = self._loadmaps()
+        self.r2l, self.l2r = None, None
+        # Representing the local IMAP Folder using local UIDs.
+        # XXX: This should be removed since we inherit from IMAPFolder.
+        # See commit 3ce514e92ba7 to know more.
         self._mb = IMAPFolder(*args, **kwargs)
-        """Representing the local IMAP Folder using local UIDs"""
 
     def _getmapfilename(self):
         return os.path.join(self.repository.getmapdir(),
                             self.getfolderbasename())
 
     def _loadmaps(self):
-        self.maplock.acquire()
-        try:
-            mapfilename = self._getmapfilename()
+        mapfilename = self._getmapfilename()
+        mapfilenametmp = "%s.tmp"% mapfilename
+        mapfilenamelock = "%s.lock"% mapfilename
+        with self.maplock and open(mapfilenamelock, 'w') as mapfilelock:
+            try:
+                fnctl.lockf(mapfilelock, fnctl.LOCK_EX) # Blocks until acquired.
+            except NameError:
+                pass # Windows...
+            if os.path.exists(mapfilenametmp):
+                self.ui.warn("a previous run might have leave the UIDMaps file"
+                    " in incorrect state; some sync operations might be done"
+                    " again and some emails might become duplicated.")
+                unlink(mapfilenametmp)
             if not os.path.exists(mapfilename):
                 return ({}, {})
             file = open(mapfilename, 'rt')
             r2l = {}
             l2r = {}
-            while 1:
+            while True:
                 line = file.readline()
                 if not len(line):
                     break
                 try:
                     line = line.strip()
                 except ValueError:
-                    raise Exception("Corrupt line '%s' in UID mapping file '%s'"%
-                        (line, mapfilename)), None, exc_info()[2]
+                    six.reraise(Exception,
+                            Exception(
+                                "Corrupt line '%s' in UID mapping file '%s'"%
+                                (line, mapfilename)),
+                            exc_info()[2])
                 (str1, str2) = line.split(':')
-                loc = long(str1)
-                rem = long(str2)
+                loc = int(str1)
+                rem = int(str2)
                 r2l[rem] = loc
                 l2r[loc] = rem
             return (r2l, l2r)
-        finally:
-            self.maplock.release()
 
-    def _savemaps(self, dolock = 1):
+    def _savemaps(self):
+        if self.dryrun is True:
+            return
+
         mapfilename = self._getmapfilename()
-        if dolock: self.maplock.acquire()
-        try:
-            file = open(mapfilename + ".tmp", 'wt')
-            for (key, value) in self.diskl2r.iteritems():
-                file.write("%d:%d\n"% (key, value))
-            file.close()
-            os.rename(mapfilename + '.tmp', mapfilename)
-        finally:
-            if dolock: self.maplock.release()
+        # Do not use the map file directly to prevent from leaving it truncated.
+        mapfilenametmp = "%s.tmp"% mapfilename
+        mapfilenamelock = "%s.lock"% mapfilename
+        with self.maplock and open(mapfilenamelock, 'w') as mapfilelock:
+            # The "account" lock already prevents from multiple access by
+            # different processes. However, we still need to protect for
+            # multiple access from different threads.
+            try:
+                fnctl.lockf(mapfilelock, fnctl.LOCK_EX) # Blocks until acquired.
+            except NameError:
+                pass # Windows...
+            with open(mapfilenametmp, 'wt') as mapfilefd:
+                for (key, value) in self.diskl2r.items():
+                    mapfilefd.write("%d:%d\n"% (key, value))
+                if self.dofsync():
+                    fsync(mapfilefd)
+            # The lock is released when the file descriptor ends.
+            shutil.move(mapfilenametmp, mapfilename)
 
     def _uidlist(self, mapping, items):
         try:
             return [mapping[x] for x in items]
         except KeyError as e:
-            raise OfflineImapError("Could not find UID for msg '{0}' (f:'{1}'."
-                " This is usually a bad thing and should be reported on the ma"
-                "iling list.".format(e.args[0], self),
-                OfflineImapError.ERROR.MESSAGE), None, exc_info()[2]
+            six.reraise(OfflineImapError,
+                        OfflineImapError(
+                            "Could not find UID for msg '{0}' (f:'{1}'."
+                            " This is usually a bad thing and should be "
+                            "reported on the mailing list.".format(
+                                e.args[0], self),
+                            OfflineImapError.ERROR.MESSAGE),
+                        exc_info()[2])
 
     # Interface from BaseFolder
     def cachemessagelist(self, min_date=None, min_uid=None):
@@ -99,11 +136,9 @@ class MappedIMAPFolder(IMAPFolder):
         reallist = self._mb.getmessagelist()
         self.messagelist = self._mb.messagelist
 
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             # OK.  Now we've got a nice list.  First, delete things from the
             # summary that have been deleted from the folder.
-
             for luid in self.diskl2r.keys():
                 if not luid in reallist:
                     ruid = self.diskl2r[luid]
@@ -111,7 +146,7 @@ class MappedIMAPFolder(IMAPFolder):
                     del self.diskl2r[luid]
 
             # Now, assign negative UIDs to local items.
-            self._savemaps(dolock = 0)
+            self._savemaps()
             nextneg = -1
 
             self.r2l = self.diskr2l.copy()
@@ -123,8 +158,6 @@ class MappedIMAPFolder(IMAPFolder):
                     nextneg -= 1
                     self.l2r[luid] = ruid
                     self.r2l[ruid] = luid
-        finally:
-            self.maplock.release()
 
     def dropmessagelistcache(self):
         self._mb.dropmessagelistcache()
@@ -132,6 +165,7 @@ class MappedIMAPFolder(IMAPFolder):
     # Interface from BaseFolder
     def uidexists(self, ruid):
         """Checks if the (remote) UID exists in this Folder"""
+
         # This implementation overrides the one in BaseFolder, as it is
         # much more efficient for the mapped case.
         return ruid in self.r2l
@@ -139,7 +173,9 @@ class MappedIMAPFolder(IMAPFolder):
     # Interface from BaseFolder
     def getmessageuidlist(self):
         """Gets a list of (remote) UIDs.
+
         You may have to call cachemessagelist() before calling this function!"""
+
         # This implementation overrides the one in BaseFolder, as it is
         # much more efficient for the mapped case.
         return self.r2l.keys()
@@ -147,22 +183,24 @@ class MappedIMAPFolder(IMAPFolder):
     # Interface from BaseFolder
     def getmessagecount(self):
         """Gets the number of messages in this folder.
+
         You may have to call cachemessagelist() before calling this function!"""
+
         # This implementation overrides the one in BaseFolder, as it is
         # much more efficient for the mapped case.
         return len(self.r2l)
 
     # Interface from BaseFolder
     def getmessagelist(self):
-        """Gets the current message list. This function's implementation
-        is quite expensive for the mapped UID case.  You must call
-        cachemessagelist() before calling this function!"""
+        """Gets the current message list.
+
+        This function's implementation is quite expensive for the mapped UID
+        case.  You must call cachemessagelist() before calling this function!"""
 
         retval = {}
         localhash = self._mb.getmessagelist()
-        self.maplock.acquire()
-        try:
-            for key, value in localhash.items():
+        with self.maplock:
+            for key, value in list(localhash.items()):
                 try:
                     key = self.l2r[key]
                 except KeyError:
@@ -175,8 +213,6 @@ class MappedIMAPFolder(IMAPFolder):
                 value['uid'] = self.l2r[value['uid']]
                 retval[key] = value
             return retval
-        finally:
-            self.maplock.release()
 
     # Interface from BaseFolder
     def getmessage(self, uid):
@@ -203,6 +239,7 @@ class MappedIMAPFolder(IMAPFolder):
         check against dryrun settings, so you need to ensure that
         savemessage is never called in a dryrun mode.
         """
+
         self.ui.savemessage('imap', uid, flags, self)
         # Mapped UID instances require the source to already have a
         # positive UID, so simply return here.
@@ -218,15 +255,12 @@ class MappedIMAPFolder(IMAPFolder):
         if newluid < 1:
             raise ValueError("Backend could not find uid for message, "
                 "returned %s"% newluid)
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             self.diskl2r[newluid] = uid
             self.diskr2l[uid] = newluid
             self.l2r[newluid] = uid
             self.r2l[uid] = newluid
-            self._savemaps(dolock = 0)
-        finally:
-            self.maplock.release()
+            self._savemaps()
         return uid
 
     # Interface from BaseFolder
@@ -261,12 +295,12 @@ class MappedIMAPFolder(IMAPFolder):
         :param new_uid: The old remote UID will be changed to a new
             UID. The UIDMaps case handles this efficiently by simply
             changing the mappings file."""
+
         if ruid not in self.r2l:
             raise OfflineImapError("Cannot change unknown Maildir UID %s"%
                 ruid, OfflineImapError.ERROR.MESSAGE)
         if ruid == new_ruid: return  # sanity check shortcut
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             luid = self.r2l[ruid]
             self.l2r[luid] = new_ruid
             del self.r2l[ruid]
@@ -276,13 +310,10 @@ class MappedIMAPFolder(IMAPFolder):
             if luid > 0: self.diskl2r[luid] = new_ruid
             if ruid > 0: del self.diskr2l[ruid]
             if new_ruid > 0: self.diskr2l[new_ruid] = luid
-            self._savemaps(dolock = 0)
-        finally:
-            self.maplock.release()
+            self._savemaps()
 
     def _mapped_delete(self, uidlist):
-        self.maplock.acquire()
-        try:
+        with self.maplock:
             needssave = 0
             for ruid in uidlist:
                 luid = self.r2l[ruid]
@@ -293,9 +324,7 @@ class MappedIMAPFolder(IMAPFolder):
                     del self.diskl2r[luid]
                     needssave = 1
             if needssave:
-                self._savemaps(dolock = 0)
-        finally:
-            self.maplock.release()
+                self._savemaps()
 
     # Interface from BaseFolder
     def deletemessageflags(self, uid, flags):

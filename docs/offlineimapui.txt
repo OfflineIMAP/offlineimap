@@ -9,7 +9,7 @@ offlineimapui - The User Interfaces
 DESCRIPTION
 -----------
 
-OfflineIMAP comes with differents UI, each aiming its own purpose.
+OfflineIMAP comes with different UIs, each aiming its own purpose.
 
 
 TTYUI
@@ -24,7 +24,7 @@ Basic
 
 Basic is designed for situations in which OfflineIMAP will be run non-attended
 and the status of its execution will be logged.
-+
+
 This user interface is not capable of reading a password from the keyboard;
 account passwords must be specified using one of the configuration file
 options. For example, it will not print periodic sleep announcements and tends

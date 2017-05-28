@@ -1,5 +1,5 @@
 # UI base class
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,11 +24,12 @@ import traceback
 import threading
 try:
     from Queue import Queue
-except ImportError: #python3
+except ImportError: # python3
     from queue import Queue
 from collections import deque
-from offlineimap.error import OfflineImapError
+
 import offlineimap
+from offlineimap.error import OfflineImapError
 
 debugtypes = {'':'Other offlineimap related sync messages',
               'imap': 'IMAP protocol debugging',
@@ -148,7 +149,7 @@ class UIBase(object):
         of the sync run when offlineiamp exits. It is recommended to
         always pass in exceptions if possible, so we can give the user
         the best debugging info.
-        
+
         We are always pushing tracebacks to the exception queue to
         make them to be output at the end of the run to allow users
         pass sensible diagnostics to the developers or to solve
@@ -160,9 +161,9 @@ class UIBase(object):
                "repo %s")
         """
         if msg:
-            self.logger.error("ERROR: %s\n  %s" % (msg, exc))
+            self.logger.error("ERROR: %s\n  %s"% (msg, exc))
         else:
-            self.logger.error("ERROR: %s" % (exc))
+            self.logger.error("ERROR: %s"% (exc))
 
         instant_traceback = exc_traceback
         if not self.debuglist:
@@ -180,8 +181,8 @@ class UIBase(object):
         if cur_thread in self.threadaccounts:
             # was already associated with an old account, update info
             self.debug('thread', "Register thread '%s' (previously '%s', now "
-                    "'%s')" % (cur_thread.getName(),
-                               self.getthreadaccount(cur_thread), account))
+                    "'%s')"% (cur_thread.getName(),
+                              self.getthreadaccount(cur_thread), account))
         else:
             self.debug('thread', "Register new thread '%s' (account '%s')"%
                 (cur_thread.getName(), account))
@@ -192,7 +193,7 @@ class UIBase(object):
 
         if thr in self.threadaccounts:
             del self.threadaccounts[thr]
-        self.debug('thread', "Unregister thread '%s'" % thr.getName())
+        self.debug('thread', "Unregister thread '%s'"% thr.getName())
 
     def getthreadaccount(self, thr=None):
         """Get Account() for a thread (current if None)
@@ -310,7 +311,7 @@ class UIBase(object):
         create the application window here."""
         pass
 
-    def connecting(self, hostname, port):
+    def connecting(self, reposname, hostname, port):
         """Log 'Establishing connection to'."""
 
         if not self.logger.isEnabledFor(logging.INFO): return
@@ -319,13 +320,14 @@ class UIBase(object):
         port = "%s"% port if port else ''
         if hostname:
             displaystr = ' to %s:%s' % (hostname, port)
-        self.logger.info("Establishing connection%s" % displaystr)
+        self.logger.info("Establishing connection%s (%s)"%
+            (displaystr, reposname))
 
     def acct(self, account):
         """Output that we start syncing an account (and start counting)."""
 
         self.acct_startimes[account] = time.time()
-        self.logger.info("*** Processing account %s" % account)
+        self.logger.info("*** Processing account %s"% account)
 
     def acctdone(self, account):
         """Output that we finished syncing an account (in which time)."""
@@ -385,9 +387,16 @@ class UIBase(object):
                 self.getnicename(sr), srcfolder,
                 self.getnicename(dr), dstfolder))
 
+    def ignorecopyingmessage(self, uid, src, destfolder):
+        """Output a log line stating which message is ignored."""
+
+        self.logger.info("IGNORED: Copy message UID %s %s:%s -> %s"% (
+                uid, src.repository, src, destfolder.repository))
+
     def copyingmessage(self, uid, num, num_to_copy, src, destfolder):
-        """Output a log line stating which message we copy"""
-        self.logger.info("Copy message %s (%d of %d) %s:%s -> %s" % (
+        """Output a log line stating which message we copy."""
+
+        self.logger.info("Copy message UID %s (%d/%d) %s:%s -> %s"% (
                 uid, num, num_to_copy, src.repository, src,
                 destfolder.repository))
 

@@ -15,11 +15,12 @@ Public functions: Internaldate2Time
 
 
 __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
-           "Internaldate2Time", "ParseFlags", "Time2Internaldate")
+           "Internaldate2Time", "ParseFlags", "Time2Internaldate",
+           "Mon2num", "MonthNames", "InternalDate")
 
-__version__ = "2.52"
+__version__ = "2.57"
 __release__ = "2"
-__revision__ = "52"
+__revision__ = "57"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -108,6 +109,7 @@ Commands = {
         'CREATE':       ((AUTH, SELECTED),            True),
         'DELETE':       ((AUTH, SELECTED),            True),
         'DELETEACL':    ((AUTH, SELECTED),            True),
+        'ENABLE':       ((AUTH,),                     False),
         'EXAMINE':      ((AUTH, SELECTED),            False),
         'EXPUNGE':      ((SELECTED,),                 True),
         'FETCH':        ((SELECTED,),                 True),
@@ -299,17 +301,18 @@ class IMAP4(object):
     class readonly(abort): pass     # Mailbox status changed to READ-ONLY
 
 
+    # These must be encoded according to utf8 setting in _mode_xxx():
+    _literal = br'.*{(?P<size>\d+)}$'
+    _untagged_status = br'\* (?P<data>\d+) (?P<type>[A-Z-]+)( (?P<data2>.*))?'
+
     continuation_cre = re.compile(r'\+( (?P<data>.*))?')
-    literal_cre = re.compile(r'.*{(?P<size>\d+)}$')
     mapCRLF_cre = re.compile(r'\r\n|\r|\n')
         # Need to quote "atom-specials" :-
         #   "(" / ")" / "{" / SP / 0x00 - 0x1f / 0x7f / "%" / "*" / DQUOTE / "\" / "]"
         # so match not the inverse set
     mustquote_cre = re.compile(r"[^!#$&'+,./0-9:;<=>?@A-Z\[^_`a-z|}~-]")
     response_code_cre = re.compile(r'\[(?P<type>[A-Z-]+)( (?P<data>[^\]]*))?\]')
-    # sequence_set_cre = re.compile(r"^[0-9]+(:([0-9]+|\*))?(,[0-9]+(:([0-9]+|\*))?)*$")
     untagged_response_cre = re.compile(r'\* (?P<type>[A-Z-]+)( (?P<data>.*))?')
-    untagged_status_cre = re.compile(r'\* (?P<data>\d+) (?P<type>[A-Z-]+)( (?P<data2>.*))?')
 
 
     def __init__(self, host=None, port=None, debug=None, debug_file=None, identifier=None, timeout=None, debug_buf_lvl=None):
@@ -340,6 +343,8 @@ class IMAP4(object):
         self.tagre = re.compile(r'(?P<tag>'
                         + self.tagpre
                         + r'\d+) (?P<type>[A-Z]+) (?P<data>.*)')
+
+        self._mode_ascii()	# Only option in py2
 
         if __debug__: self._init_debug(debug, debug_file, debug_buf_lvl)
 
@@ -427,6 +432,28 @@ class IMAP4(object):
         raise AttributeError("Unknown IMAP4 command: '%s'" % attr)
 
 
+    def _mode_ascii(self):
+        self.utf8_enabled = False
+        self._encoding = 'ascii'
+        if bytes != str:
+            self.literal_cre = re.compile(self._literal, re.ASCII)
+            self.untagged_status_cre = re.compile(self._untagged_status, re.ASCII)
+        else:
+            self.literal_cre = re.compile(self._literal)
+            self.untagged_status_cre = re.compile(self._untagged_status)
+
+
+    def _mode_utf8(self):
+        self.utf8_enabled = True
+        self._encoding = 'utf-8'
+        if bytes != str:
+            self.literal_cre = re.compile(self._literal)
+            self.untagged_status_cre = re.compile(self._untagged_status)
+        else:
+            self.literal_cre = re.compile(self._literal, re.UNICODE)
+            self.untagged_status_cre = re.compile(self._untagged_status, re.UNICODE)
+
+
 
     #       Overridable methods
 
@@ -484,7 +511,7 @@ class IMAP4(object):
             import ssl
 
             TLS_MAP = {}
-            if hasattr(ssl, "PROTOCOL_TLSv1_2"):        # py3
+            if hasattr(ssl, "PROTOCOL_TLSv1_2"):
                 TLS_MAP[TLS_SECURE] = {
                     "tls1_2": ssl.PROTOCOL_TLSv1_2,
                     "tls1_1": ssl.PROTOCOL_TLSv1_1,
@@ -675,7 +702,10 @@ class IMAP4(object):
             date_time = Time2Internaldate(date_time)
         else:
             date_time = None
-        self.literal = self.mapCRLF_cre.sub(CRLF, message)
+        literal = self.mapCRLF_cre.sub(CRLF, message)
+        if self.utf8_enabled:
+            literal = b'UTF8 (' + literal + b')'
+        self.literal = literal
         try:
             return self._simple_command(name, mailbox, flags, date_time, **kw)
         finally:
@@ -771,6 +801,19 @@ class IMAP4(object):
         Delete the ACLs (remove any rights) set for who on mailbox."""
 
         return self._simple_command('DELETEACL', mailbox, who, **kw)
+
+
+    def enable(self, capability):
+        """Send an RFC5161 enable string to the server.
+
+        (typ, [data]) = <intance>.enable(capability)
+        """
+        if 'ENABLE' not in self.capabilities:
+            raise self.error("Server does not support ENABLE")
+        typ, data = self._simple_command('ENABLE', capability)
+        if typ == 'OK' and 'UTF8=ACCEPT' in capability.upper():
+            self._mode_utf8()
+        return typ, data
 
 
     def examine(self, mailbox='INBOX', **kw):
@@ -1024,11 +1067,14 @@ class IMAP4(object):
     def search(self, charset, *criteria, **kw):
         """(typ, [data]) = search(charset, criterion, ...)
         Search mailbox for matching messages.
+        If UTF8 is enabled, charset MUST be None.
         'data' is space separated list of matching message numbers."""
 
         name = 'SEARCH'
         kw['untagged_response'] = name
         if charset:
+            if self.utf8_enabled:
+                raise self.error("Non-None charset not valid in UTF8 mode")
             return self._simple_command(name, 'CHARSET', charset, *criteria, **kw)
         return self._simple_command(name, *criteria, **kw)
 
@@ -1410,6 +1456,9 @@ class IMAP4(object):
 
             if not ok:
                 break
+
+            if data == 'go ahead':	# Apparently not uncommon broken IMAP4 server response to AUTHENTICATE command
+                data = ''
 
             # Send literal
 
@@ -2293,7 +2342,10 @@ class _Authenticator(object):
         #  so when it gets to the end of the 8-bit input
         #  there's no partial 6-bit output.
         #
-        oup = ''
+        if bytes != str:
+            oup = b''
+        else:
+            oup = ''
         while inp:
             if len(inp) > 48:
                 t = inp[:48]
@@ -2337,7 +2389,7 @@ class _IdleCont(object):
 MonthNames = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-Mon2num = dict(list(zip((x.encode() for x in MonthNames[1:]), list(range(1, 13)))))
+Mon2num = dict(list(zip((x for x in MonthNames[1:]), list(range(1, 13)))))
 
 InternalDate = re.compile(r'.*INTERNALDATE "'
     r'(?P<day>[ 0123][0-9])-(?P<mon>[A-Z][a-z][a-z])-(?P<year>[0-9][0-9][0-9][0-9])'

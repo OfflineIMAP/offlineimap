@@ -1,5 +1,5 @@
 # imaplib utilities
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -18,15 +18,18 @@ import os
 import fcntl
 import time
 import subprocess
-from sys import exc_info
 import threading
-from hashlib import sha1
 import socket
 import errno
+import zlib
+from sys import exc_info
+from hashlib import sha1
 
-from offlineimap.ui import getglobalui
+import six
+
 from offlineimap import OfflineImapError
-from offlineimap.imaplib2 import IMAP4, IMAP4_SSL, zlib, InternalDate, Mon2num
+from offlineimap.ui import getglobalui
+from offlineimap.virtual_imaplib2 import IMAP4, IMAP4_SSL, InternalDate, Mon2num
 
 
 class UsefulIMAPMixIn(object):
@@ -56,7 +59,9 @@ class UsefulIMAPMixIn(object):
             errstr = "Server '%s' closed connection, error on SELECT '%s'. Ser"\
                 "ver said: %s" % (self.host, mailbox, e.args[0])
             severity = OfflineImapError.ERROR.FOLDER_RETRY
-            raise OfflineImapError(errstr, severity), None, exc_info()[2]
+            six.reraise(OfflineImapError,
+                        OfflineImapError(errstr, severity),
+                        exc_info()[2])
         if result[0] != 'OK':
             #in case of error, bail out with OfflineImapError
             errstr = "Error SELECTing mailbox '%s', server reply:\n%s" %\
@@ -79,19 +84,19 @@ class UsefulIMAPMixIn(object):
             try:
                 # use socket of our own, possiblly socksified socket.
                 s = self.socket(af, socktype, proto)
-            except socket.error, msg:
+            except socket.error as msg:
                 continue
             try:
                 for i in (0, 1):
                     try:
                         s.connect(sa)
                         break
-                    except socket.error, msg:
+                    except socket.error as msg:
                         if len(msg.args) < 2 or msg.args[0] != errno.EINTR:
                             raise
                 else:
                     raise socket.error(msg)
-            except socket.error, msg:
+            except socket.error as msg:
                 s.close()
                 continue
             break
