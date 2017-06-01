@@ -3,8 +3,8 @@ layout: page
 title: Integrating OfflineIMAP into systemd
 author: Ben Boeckel
 date: 2015-03-22
-contributors: Abdo Roig-Maranges
-updated: 2015-03-25
+contributors: Abdo Roig-Maranges, benutzer193
+updated: 2017-06-01
 ---
 
 <!-- This file is copied to the website by script. -->
@@ -25,25 +25,4 @@ These unit files are installed as being enabled via a `mail.target` unit which
 is intended to be a catch-all for mail-related unit files. A simple
 `mail.target` file is also provided.
 
-## Signals
-
-Systemd supports a watchdog (via the WatchdogSec service file option) which
-will send the program a SIGABRT when the timer expires.
-
-Offlineimap handles it in the same manner as SIGUSR2, so that the current
-synchronisation is completed before the program exits safely.
-
-This makes offlineimap more flexible and robust for persistent setups that make
-use of holdconnectionopen and autorefresh options.
-
-For example, it may be useful in assisting with the occasional situation where
-offlineimap may not return successfully after a suspend and resume.
-
-To make use of this, users could add the following to the [Service] section of
-their corresponding systemd offlineimap-oneshot service file (restart every 5 minutes):
-
-``` conf
-Restart=on-watchdog
-WatchdogSec=300
-```
 
