@@ -1,5 +1,6 @@
 [Unit]
 Description=Offlineimap Service for account %i (oneshot)
+Documentation=man:offlineimap(1)
 
 [Service]
 Type=oneshot

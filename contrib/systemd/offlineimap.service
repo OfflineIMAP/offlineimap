@@ -1,5 +1,6 @@
 [Unit]
 Description=Offlineimap Service
+Documentation=man:offlineimap(1)
 
 [Service]
 ExecStart=/usr/bin/offlineimap -u syslog
