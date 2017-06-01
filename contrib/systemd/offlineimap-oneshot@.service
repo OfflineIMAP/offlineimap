@@ -5,8 +5,11 @@ Documentation=man:offlineimap(1)
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/offlineimap -o -a %i -u syslog
-#Restart=on-watchdog
-#WatchdogSec=300
+# Give 120 seconds for offlineimap to gracefully stop before hard killing it.
+TimeoutStopSec=120
+Restart=on-failure
+RestartSec=60
+
 
 [Install]
 WantedBy=mail.target
