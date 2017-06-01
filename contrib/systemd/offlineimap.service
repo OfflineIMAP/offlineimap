@@ -3,7 +3,7 @@ Description=Offlineimap Service
 Documentation=man:offlineimap(1)
 
 [Service]
-ExecStart=/usr/bin/offlineimap -u syslog
+ExecStart=/usr/bin/offlineimap -u basic
 Restart=on-failure
 RestartSec=60
 

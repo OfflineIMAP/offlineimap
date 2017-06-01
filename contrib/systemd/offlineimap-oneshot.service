@@ -4,8 +4,8 @@ Documentation=man:offlineimap(1)
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/offlineimap -o -u syslog
-# Give 120 seconds for offlineimap to gracefully stop before hard killing it.
+ExecStart=/usr/bin/offlineimap -o -u basic
+# Give 120 seconds for offlineimap to gracefully stop before hard killing it:
 TimeoutStopSec=120
 Restart=on-failure
 RestartSec=60
