@@ -7,4 +7,4 @@ OnUnitInactiveSec=15m
 Unit=offlineimap-oneshot@%i.service
 
 [Install]
-WantedBy=mail.target
+WantedBy=default.target
