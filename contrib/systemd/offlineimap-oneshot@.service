@@ -9,4 +9,4 @@ ExecStart=/usr/bin/offlineimap -o -a %i -u basic
 TimeoutStopSec=120
 
 [Install]
-WantedBy=mail.target
+WantedBy=default.target

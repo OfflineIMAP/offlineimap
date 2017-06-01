@@ -21,10 +21,6 @@ start offlineimap.service` or by enabling the timer unit using `systemctl --user
 enable offlineimap.timer`. Additionally, specific accounts may be triggered by
 using `offlineimap@myaccount.timer` or `offlineimap@myaccount.service`.
 
-These unit files are installed as being enabled via a `mail.target` unit which
-is intended to be a catch-all for mail-related unit files. A simple
-`mail.target` file is also provided.
-
 If the defaults provided by these units doesn't suit your setup, any of the
 values may be overridden by using `systemctl --user edit offlineimap.service`.
 This'll prevent having to copy-and-edit the original file.

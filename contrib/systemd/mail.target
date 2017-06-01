@@ -1,5 +1,0 @@
-[Unit]
-Description=Mail Target
-
-[Install]
-WantedBy=default.target

@@ -8,4 +8,4 @@ Restart=on-failure
 RestartSec=60
 
 [Install]
-WantedBy=mail.target
+WantedBy=default.target
