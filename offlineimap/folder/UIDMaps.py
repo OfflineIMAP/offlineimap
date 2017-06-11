@@ -267,8 +267,12 @@ class MappedIMAPFolder(IMAPFolder):
 
         newluid = self._mb.savemessage(-1, content, flags, rtime)
         if newluid < 1:
-            raise ValueError("Backend could not find uid for message, "
-                "returned %s"% newluid)
+            raise OfflineImapError("server of repository '%s' did not return "
+                "a valid UID (got '%s') for UID '%s' from '%s'"% (
+                    self._mb.getname(), newluid, uid, self.getname()
+                ),
+                OfflineImapError.ERROR.MESSAGE
+            )
         with self.maplock:
             self.diskl2r[newluid] = uid
             self.diskr2l[uid] = newluid
