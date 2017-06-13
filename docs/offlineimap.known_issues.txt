@@ -102,6 +102,11 @@ folder behind offlineimap's back, causing them to get assigned a new UID, or
 when offlineimap first syncs a pre-existing Maildir. In the latter case, it
 could appear as if a noticeable and random subset of old messages are synced.
 
+* Offlineimap hangs.
++
+When having unexpected hangs it's advised to set `singlethreadperfolder' to
+'yes', especially when in IMAP/IMAP mode (no maildir).
+
 * Passwords in netrc.
 +
 Offlineimap doesn't know how to retrieve passwords when more than one account is
