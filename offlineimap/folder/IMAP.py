@@ -444,6 +444,7 @@ class IMAPFolder(BaseFolder):
         # in our way.
 
         result = imapobj.uid('FETCH', bytearray('%d:*'% start), 'rfc822.header')
+        orig_result = result
         if result[0] != 'OK':
             raise OfflineImapError('Error fetching mail headers: %s'%
                 '. '.join(result[1]), OfflineImapError.ERROR.MESSAGE)
@@ -463,9 +464,13 @@ class IMAPFolder(BaseFolder):
                     if uid:
                         return int(uid.group(1))
                     else:
-                        self.ui.warn("Can't parse FETCH response, can't find UID: %s", result.__repr__())
+                        self.ui.warn("Can't parse FETCH response, can't find UID: %s"%
+                            repr(orig_result)
+                        )
                 else:
-                    self.ui.warn("Can't parse FETCH response, we awaited string: %s", result.__repr__())
+                    self.ui.warn("Can't parse FETCH response, we awaited string: %s"%
+                        repr(orig_result)
+                    )
 
         return 0
 
