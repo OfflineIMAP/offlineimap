@@ -444,32 +444,49 @@ class IMAPFolder(BaseFolder):
         # in our way.
 
         result = imapobj.uid('FETCH', bytearray('%d:*'% start), 'rfc822.header')
-        orig_result = result
         if result[0] != 'OK':
             raise OfflineImapError('Error fetching mail headers: %s'%
                 '. '.join(result[1]), OfflineImapError.ERROR.MESSAGE)
 
+        # result is like:
+        # [
+        #    ('185 (RFC822.HEADER {1789}', '... mail headers ...'), ' UID 2444)',
+        #    ('186 (RFC822.HEADER {1789}', '... 2nd mail headers ...'), ' UID 2445)'
+        # ]
         result = result[1]
 
-        found = 0
+        found = None
+        # item is like:
+        # ('185 (RFC822.HEADER {1789}', '... mail headers ...'), ' UID 2444)'
         for item in result:
-            if found == 0 and type(item) == type( () ):
+            if found is None and type(item) == tuple:
                 # Walk just tuples.
                 if re.search("(?:^|\\r|\\n)%s:\s*%s(?:\\r|\\n)"% (headername, headervalue),
                         item[1], flags=re.IGNORECASE):
-                    found = 1
-            elif found == 1:
-                if type(item) == type (""):
+                    found = item[0]
+            elif found is not None:
+                if type(item) == type(""):
                     uid = re.search("UID\s+(\d+)", item, flags=re.IGNORECASE)
                     if uid:
                         return int(uid.group(1))
                     else:
-                        self.ui.warn("Can't parse FETCH response, can't find UID: %s"%
-                            repr(orig_result)
+                        # This parsing is for Davmail.
+                        # https://github.com/OfflineIMAP/offlineimap/issues/479
+                        # item is like:
+                        # ')'
+                        # and item[0] stored in "found" is like:
+                        # '1694 (UID 1694 RFC822.HEADER {1294}'
+                        uid = re.search("\d+\s+\(UID\s+(\d+)", found, flags=re.IGNORECASE)
+                        if uid:
+                            return int(uid.group(1))
+
+                        self.ui.warn("Can't parse FETCH response, can't find UID in %s"%
+                            item
                         )
+                        self.ui.debug('imap', "Got: %s"% repr(result))
                 else:
                     self.ui.warn("Can't parse FETCH response, we awaited string: %s"%
-                        repr(orig_result)
+                        repr(item)
                     )
 
         return 0
@@ -711,8 +728,9 @@ class IMAPFolder(BaseFolder):
                         'UID failed. Search headers manually.')
                     uid = self.__savemessage_fetchheaders(imapobj, headername,
                         headervalue)
-                    self.ui.warn('imap', "savemessage: Searching mails for new "
-                        "Message-ID failed. Could not determine new UID.")
+                    self.ui.warn("savemessage: Searching mails for new "
+                        "Message-ID failed. Could not determine new UID "
+                        "on %s."% self.getname())
         finally:
             if imapobj:
                 self.imapserver.releaseconnection(imapobj)
