@@ -11,7 +11,7 @@ Produce the "upcoming release" notes.
 from os import system
 
 from helpers import (
-    MAILING_LIST, CACHEDIR, EDITOR, getTesters, Git, OfflineimapInfo, User
+    MAILING_LIST, CACHEDIR, EDITOR, Testers, Git, OfflineimapInfo, User
 )
 
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     Git.chdirToRepositoryTopLevel()
     oVersion = offlineimapInfo.getVersion()
-    ccList = getTesters()
+    ccList = Testers.listTestersInTeam()
     authors = Git.getAuthorsList(oVersion)
     for author in authors:
         email = author.getEmail()
