@@ -18,8 +18,9 @@ into `/etc/systemd/user` or `${XDG_DATA_HOME}/systemd/user` followed by
 
 These files are meant to be triggered either manually using `systemctl --user
 start offlineimap.service` or by enabling the timer unit using `systemctl --user
-enable offlineimap.timer`. Additionally, specific accounts may be triggered by
-using `offlineimap@myaccount.timer` or `offlineimap@myaccount.service`.
+enable offlineimap-oneshot.timer`. Additionally, specific accounts may be
+triggered by using `offlineimap@myaccount.timer` or
+`offlineimap-oneshot@myaccount.service`.
 
 If the defaults provided by these units doesn't suit your setup, any of the
 values may be overridden by using `systemctl --user edit offlineimap.service`.
