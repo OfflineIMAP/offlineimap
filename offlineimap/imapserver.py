@@ -619,7 +619,8 @@ class IMAPServer(object):
                 if self.port != 993:
                     reason = "Could not connect via SSL to host '%s' and non-s"\
                         "tandard ssl port %d configured. Make sure you connect"\
-                        " to the correct port."% (self.hostname, self.port)
+                        " to the correct port. Got: %s"%
+                        (self.hostname, self.port, e)
                 else:
                     reason = "Unknown SSL protocol connecting to host '%s' for "\
                          "repository '%s'. OpenSSL responded:\n%s"\
