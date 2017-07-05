@@ -136,7 +136,6 @@ class App(object):
 
 if __name__ == '__main__':
     Git.chdirToRepositoryTopLevel()
-    ccList = Testers.listTestersInTeam()
 
     app = App()
     app.parseArgs()
