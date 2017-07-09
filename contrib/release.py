@@ -112,11 +112,14 @@ class State(object):
 
     def restore(self):
         Git.chdirToRepositoryTopLevel()
-        Git.checkout('-f')
-        Git.checkout('master')
-        Git.resetKeep(self.master)
-        Git.checkout('next')
-        Git.resetKeep(self.next)
+        try:
+            Git.checkout('-f')
+        except:
+            pass
+        # Git.checkout('master')
+        # Git.resetKeep(self.master)
+        # Git.checkout('next')
+        # Git.resetKeep(self.next)
 
         if self.tag is not None:
             Git.rmTag(self.tag)
@@ -152,7 +155,9 @@ class Changelog(object):
         return False
 
     def showPrevious(self):
-        return run(shlex.split("tail {}".format(CHANGELOG_EXCERPT_OLD)))
+        output = run(shlex.split("cat '{}'".format(CHANGELOG_EXCERPT_OLD)))
+        for line in output.splitlines():
+            print(line.decode('utf-8')) # Weird to have to decode bytes here.
 
     def usePrevious(self):
         rename(CHANGELOG_EXCERPT_OLD, CHANGELOG_EXCERPT)
@@ -354,9 +359,13 @@ class Release(object):
 
         if not self.changelog.usingPrevious():
             date = datetime.now().strftime('%Y-%m-%d')
-            testersList = self.testers.getList()
+            testersList = ""
+            testers = self.testers.getListOk()
             authorsList = ""
             authors = Git.getAuthorsList(currentVersion)
+
+            for tester in testers:
+                testersList += "- {}\n".format(tester.getName())
             for author in authors:
                 authorsList += "- {} ({})\n".format(
                     author.getName(), author.getCount()
@@ -386,7 +395,7 @@ class Release(object):
         Git.add('offlineimap/__init__.py')
         Git.add('Changelog.md')
         commitMsg = "{}\n".format(newVersion)
-        for tester in self.testers.get():
+        for tester in self.testers.getListOk():
             commitMsg = "{}\nTested-by: {} {}".format(
                 commitMsg, tester.getName(), tester.getEmail()
             )
@@ -441,7 +450,11 @@ if __name__ == '__main__':
         release.after()
 
         websiteBranch = release.getWebsiteBranch()
-        print(END_MESSAGE.format(ANNOUNCE_FILE, newVersion, websiteBranch))
+        print(END_MESSAGE.format(
+            announce=ANNOUNCE_FILE,
+            new_version=newVersion,
+            website_branch=websiteBranch)
+        )
     except Exception as e:
         release.restore()
         raise

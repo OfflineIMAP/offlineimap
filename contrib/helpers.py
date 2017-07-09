@@ -253,6 +253,9 @@ class Tester(object):
     def getFeedback(self):
         return self.feedback
 
+    def positiveFeedback(self):
+        return self.feedback is True
+
     def setFeedback(self, feedback):
         assert feedback in [True, False, None]
         self.feedback = feedback
@@ -263,10 +266,11 @@ class Tester(object):
 
 class Testers(object):
     def __init__(self):
-        self.testers = []
+        self.testers = None
         self._read()
 
     def _read(self):
+        self.testers = []
         with open(TESTERS_FILE, 'r') as fd:
             testers = yaml.load(fd)
             for tester in testers:
@@ -298,6 +302,13 @@ class Testers(object):
         for tester in self.testers:
             testersList += "- {}\n".format(tester.getName())
         return testersList
+
+    def getListOk(self):
+        testersOk = []
+        for tester in self.testers:
+            if tester.positiveFeedback():
+                testersOk.append(tester)
+        return testersOk
 
     def reset(self):
         for tester in self.testers:
