@@ -25,7 +25,7 @@ this virtual_imaplib2 or we might go into troubles.
 DESC = None
 
 _SUPPORTED_RELEASE = 2
-_SUPPORTED_REVISION = 55
+_SUPPORTED_REVISION = 57
 
 try:
     # Try any imaplib2 in PYTHONPATH first. This allows both maintainers of
