@@ -15,6 +15,68 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.1.2 (2017-07-10)
+
+#### Notes
+
+This release introduces better Davmail support, better reliability when in
+IMAP/IMAP mode, better output on some errors, and minor fixes. The provided
+systemd files are improved.
+
+The imaplib2 requirement is now v2.57.
+
+Remi Locherer is joining our tester team. Great!
+
+Starting with this release, the feedbacks from the testers are recorded in the
+release notes, the git logs and the Changelog. Thanks to all of them for
+improving the releases.
+
+This release was tested by:
+
+- benutzer193
+- Nicolas Sebrecht
+- Remi Locherer
+
+#### Authors
+
+- Nicolas Sebrecht (20)
+- Hugo Osvaldo Barrera (5)
+- Alvaro Pereyra (1)
+- benutzer193 (1)
+
+#### Features
+
+- contrib/release.py: consider positive feedbacks from testers. [Nicolas Sebrecht]
+- Introduce the github CODEOWNERS file. [Nicolas Sebrecht]
+- IMAP/IMAP: continue to sync if the local side does not return a valid UID on upload. [Nicolas Sebrecht]
+
+#### Fixes
+
+- folder/IMAP: introduce dedicated parsing for davmail (not supporting UIDPLUS). [Nicolas Sebrecht]
+- offlineimap.conf: minor typo fix. [Alvaro Pereyra]
+- Respect systemd conventions for timers. [Hugo Osvaldo Barrera]
+- Use a pre-existing target for systemd services. [Hugo Osvaldo Barrera]
+- Remove invalid systemd setting. [Hugo Osvaldo Barrera]
+- systemd: remove unused watchdog functionality. [benutzer193]
+- gitignore generated css file. [Nicolas Sebrecht]
+- Changelog: fix syntax. [Nicolas Sebrecht]
+
+#### Changes
+
+- Increase imaplib2 requirement from v2.55 to v2.57. [Nicolas Sebrecht]
+- folder/IMAP: improve the warning when we can't parse the returned UID. [Nicolas Sebrecht]
+- Provide more details in error message when SSL fails on non-standard port. [Nicolas Sebrecht]
+- Use basic logger (since systemd picks up stdout). [Hugo Osvaldo Barrera]
+- Explain how to override systemd values. [Hugo Osvaldo Barrera]
+- systemd: add documentation entry in configuration files. [Nicolas Sebrecht]
+- offlineimap.conf: ssl must be disabled to force STARTTLS in some cases. [Nicolas Sebrecht]
+- Advise singlethreadperfolder when offlineimap hangs. [Nicolas Sebrecht]
+- offlineimap.conf: minor improvements. [Nicolas Sebrecht]
+- contrib: more release automation. [Nicolas Sebrecht]
+- MAINTAINERS: Remi Locherer joins the team of testers. [Nicolas Sebrecht]
+- systemd: README: credit Hugo as contributor. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.1.1 (2017-05-28)
 
 #### Notes
