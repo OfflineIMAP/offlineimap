@@ -51,11 +51,6 @@ Contacts
   - github: nicolas33
   - system: Linux
 
-- Rainer M Krug
-  - email: Rainer at krugs.de
-  - github: rkrug
-  - system: OSX
-
 - Remi Locherer
   - email: remi.locherer at relo.ch
   - system: OpenBSD maintainer
@@ -79,7 +74,6 @@ Testers
 - "J"
 - Łukasz Żarnowiecki
 - Nicolas Sebrecht
-- Rainer M Krug
 - Remi Locherer
 
 
