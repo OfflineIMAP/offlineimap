@@ -278,6 +278,7 @@ class Testers(object):
                 email = tester['email']
                 feedback = tester['feedback']
                 self.testers.append(Tester(name, email, feedback))
+        self.testers.sort(key=lambda x: x.getName().lower())
 
     @staticmethod
     def listTestersInTeam():
