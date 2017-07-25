@@ -352,8 +352,14 @@ class LocalStatusSQLiteFolder(BaseFolder):
         self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime, 'mtime': mtime, 'labels': labels}
         flags = ''.join(sorted(flags))
         labels = ', '.join(sorted(labels))
-        self.__sql_write('INSERT INTO status (id,flags,mtime,labels) VALUES (?,?,?,?)',
-                         (uid,flags,mtime,labels))
+        try:
+            self.__sql_write('INSERT INTO status (id,flags,mtime,labels) VALUES (?,?,?,?)',
+                            (uid,flags,mtime,labels))
+        except Exception as e:
+            six.reraise(UserWarning,
+                        UserWarning("%s while inserting UID %s"%
+                            (str(e), str(uid))),
+                        exc_info()[2])
         return uid
 
 
