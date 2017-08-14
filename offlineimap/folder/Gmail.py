@@ -43,9 +43,6 @@ class GmailFolder(IMAPFolder):
 
     def __init__(self, imapserver, name, repository):
         super(GmailFolder, self).__init__(imapserver, name, repository)
-        self.trash_folder = repository.gettrashfolder(name)
-        # Gmail will really delete messages upon EXPUNGE in these folders
-        self.real_delete_folders = [self.trash_folder, repository.getspamfolder()]
 
         # The header under which labels are stored
         self.labelsheader = self.repository.account.getconf('labelsheader', 'X-Keywords')
