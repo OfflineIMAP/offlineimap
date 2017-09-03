@@ -4,7 +4,7 @@ offlineimap(1)
 
 NAME
 ----
-offlineimap - Synchronize mailboxes and Maildirs
+offlineimap - Synchronize mailboxes and Maildirs both ways or one either way.
 
 SYNOPSIS
 --------
