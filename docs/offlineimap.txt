@@ -18,7 +18,7 @@ Synchronize the accounts configured in the configuration file via IMAP. Each
 account has two sides.  One of the side must be an IMAP server.  The other side
 can either be a Maildir or another IMAP server.
 
-Python 3 is supported while still EXPERIMENTAL.
+Works with Python 2.
 
 
 OPTIONS
