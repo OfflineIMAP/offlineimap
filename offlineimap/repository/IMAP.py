@@ -480,8 +480,7 @@ class IMAPRepository(BaseRepository):
             flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
             if '\\noselect' in flaglist:
                 continue
-            foldername = imaputil.dequote(name)
-            retval.append(self.getfoldertype()(self.imapserver, foldername,
+            retval.append(self.getfoldertype()(self.imapserver, name,
                                                self))
         # Add all folderincludes
         if len(self.folderincludes):
