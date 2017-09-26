@@ -376,6 +376,18 @@ def decode_mailbox_name(name):
 # Functionality to convert folder names encoded in IMAP_utf_7 to utf_8.
 # This is achieved by defining 'imap4_utf_7' as a proper encoding scheme.
 
+# Public API, to be used in repository definitions
+
+def IMAP_utf8(foldername):
+    """Convert IMAP4_utf_7 encoded string to utf-8"""
+    return foldername.decode('imap4-utf-7').encode('utf-8')
+
+def utf8_IMAP(foldername):
+    """Convert utf-8 encoded string to IMAP4_utf_7"""
+    return foldername.decode('utf-8').encode('imap4-utf-7')
+
+# Codec definition
+
 def modified_base64(s):
     s = s.encode('utf-16be')
     return binascii.b2a_base64(s).rstrip('\n=').replace('/', ',')
