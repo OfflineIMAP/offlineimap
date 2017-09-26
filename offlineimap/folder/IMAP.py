@@ -47,6 +47,8 @@ class IMAPFolder(BaseFolder):
         name = imaputil.dequote(name)
         self.sep = imapserver.delim
         super(IMAPFolder, self).__init__(name, repository)
+        if repository.getdecodefoldernames():
+            self.visiblename = imaputil.decode_mailbox_name(self.visiblename)
         self.idle_mode = False
         self.expunge = repository.getexpunge()
         self.root = None # imapserver.root
@@ -289,13 +291,6 @@ class IMAPFolder(BaseFolder):
                 self.messagelist[uid] = {'uid': uid, 'flags': flags, 'time': rtime,
                     'keywords': keywords}
         self.ui.messagelistloaded(self.repository, self, self.getmessagecount())
-
-    # Interface from BaseFolder
-    def getvisiblename(self):
-        vname = super(IMAPFolder, self).getvisiblename()
-        if self.repository.getdecodefoldernames():
-            return imaputil.decode_mailbox_name(vname)
-        return vname
 
     # Interface from BaseFolder
     def getmessage(self, uid):
