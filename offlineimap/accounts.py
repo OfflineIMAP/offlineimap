@@ -274,6 +274,21 @@ class SyncableAccount(Account):
                 raise
             return
 
+        if self.utf_8_support and self.remoterepos.getdecodefoldernames():
+            e = OfflineImapError("Configuration mismatch in account " +
+                        "'%s'. "% self.getname() +
+                        "\nAccount setting 'utf8foldernames' and repository " +
+                        "setting 'decodefoldernames'\nmay not be used at the " +
+                        "same time. This account has not been synchronized.\n" +
+                        "Please check the configuration and documentation.",
+                    OfflineImapError.ERROR.REPO)
+            self.ui.error(e, exc_info()[2],
+                          msg="Configuration mismatch in account " +
+                        "'%s'. "% self.getname())
+            # Abort *this* account without doing any changes.
+            # Other accounts are not affected.
+            return
+
         # Loop account sync if needed (bail out after 3 failures).
         looping = 3
         while looping:
