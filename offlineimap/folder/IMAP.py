@@ -86,9 +86,9 @@ class IMAPFolder(BaseFolder):
         :param: Enforce new SELECT even if we are on that folder already.
         :returns: raises :exc:`OfflineImapError` severity FOLDER on error"""
         try:
-            imapobj.select(self.getfullIMAPname(), force = force)
+            imapobj.select(self.getfullIMAPname(), force=force)
         except imapobj.readonly:
-            imapobj.select(self.getfullIMAPname(), readonly = True, force = force)
+            imapobj.select(self.getfullIMAPname(), readonly=True, force=force)
 
     def getfullIMAPname(self):
         name = self.getfullname()
