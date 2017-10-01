@@ -69,6 +69,8 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.name = name
         self.metadatadir = config.getmetadatadir()
         self.localeval = config.getlocaleval()
+        # Store utf-8 support as a property of Account object
+        self.utf_8_support = self.getconfboolean('utf8foldernames', False)
         # Current :mod:`offlineimap.ui`, can be used for logging:
         self.ui = getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
@@ -360,7 +362,7 @@ class SyncableAccount(Account):
 
                 if not remotefolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
-                                  "[%s]"% (remotefolder, remoterepos))
+                                  "[%s]"% (remotefolder.getname(), remoterepos))
                     continue # Ignore filtered folder.
 
                 # The remote folder names must not have the local sep char in
@@ -378,7 +380,7 @@ class SyncableAccount(Account):
                 localfolder = self.get_local_folder(remotefolder)
                 if not localfolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
-                                 "[%s]"% (localfolder, localfolder.repository))
+                                 "[%s]"% (localfolder.getname(), localfolder.repository))
                     continue # Ignore filtered folder.
 
                 if not globals.options.singlethreading:
