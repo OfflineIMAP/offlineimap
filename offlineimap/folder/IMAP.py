@@ -41,10 +41,17 @@ MSGCOPY_NAMESPACE = 'MSGCOPY_'
 
 
 class IMAPFolder(BaseFolder):
-    def __init__(self, imapserver, name, repository):
-        # FIXME: decide if unquoted name is from the responsability of the
-        # caller or not, but not both.
+    def __init__(self, imapserver, name, repository, decode=True):
+        # decode the folder name from IMAP4_utf_7 to utf_8 if
+        # - utf8foldernames is enabled for the *account*
+        # - the decode argument is given
+        #   (default True is used when the folder name is the result of
+        #    querying the IMAP server, while False is used when creating
+        #    a folder object from a locally available utf_8 name)
+        # In any case the given name is first dequoted.
         name = imaputil.dequote(name)
+        if decode and repository.account.utf_8_support:
+            name = imaputil.IMAP_utf8(name)
         self.sep = imapserver.delim
         super(IMAPFolder, self).__init__(name, repository)
         if repository.getdecodefoldernames():
@@ -69,7 +76,6 @@ class IMAPFolder(BaseFolder):
         if self.repository.getidlefolders():
             self.idle_mode = True
 
-
     def __selectro(self, imapobj, force=False):
         """Select this folder when we do not need write access.
 
@@ -80,9 +86,15 @@ class IMAPFolder(BaseFolder):
         :param: Enforce new SELECT even if we are on that folder already.
         :returns: raises :exc:`OfflineImapError` severity FOLDER on error"""
         try:
-            imapobj.select(self.getfullname(), force = force)
+            imapobj.select(self.getfullIMAPname(), force = force)
         except imapobj.readonly:
-            imapobj.select(self.getfullname(), readonly = True, force = force)
+            imapobj.select(self.getfullIMAPname(), readonly = True, force = force)
+
+    def getfullIMAPname(self):
+        name = self.getfullname()
+        if self.repository.account.utf_8_support:
+            name = imaputil.utf8_IMAP(name)
+        return name
 
     # Interface from BaseFolder
     def suggeststhreads(self):
@@ -147,7 +159,7 @@ class IMAPFolder(BaseFolder):
             imapobj = self.imapserver.acquireconnection()
             try:
                 # Select folder and get number of messages.
-                restype, imapdata = imapobj.select(self.getfullname(), True,
+                restype, imapdata = imapobj.select(self.getfullIMAPname(), True,
                                                    True)
                 self.imapserver.releaseconnection(imapobj)
             except OfflineImapError as e:
@@ -213,7 +225,7 @@ class IMAPFolder(BaseFolder):
                 res_data.remove(0)
             return res_data
 
-        res_type, imapdata = imapobj.select(self.getfullname(), True, True)
+        res_type, imapdata = imapobj.select(self.getfullIMAPname(), True, True)
         if imapdata == [None] or imapdata[0] == '0':
             # Empty folder, no need to populate message list.
             return None
@@ -630,7 +642,7 @@ class IMAPFolder(BaseFolder):
 
                 try:
                     # Select folder for append and make the box READ-WRITE.
-                    imapobj.select(self.getfullname())
+                    imapobj.select(self.getfullIMAPname())
                 except imapobj.readonly:
                     # readonly exception. Return original uid to notify that
                     # we did not save the message. (see savemessage in Base.py)
@@ -639,7 +651,7 @@ class IMAPFolder(BaseFolder):
 
                 # Do the APPEND.
                 try:
-                    (typ, dat) = imapobj.append(self.getfullname(),
+                    (typ, dat) = imapobj.append(self.getfullIMAPname(),
                         imaputil.flagsmaildir2imap(flags), date, content)
                     # This should only catch 'NO' responses since append()
                     # will raise an exception for 'BAD' responses:
@@ -753,7 +765,7 @@ class IMAPFolder(BaseFolder):
             fails_left = retry_num  # Retry on dropped connection.
             while fails_left:
                 try:
-                    imapobj.select(self.getfullname(), readonly=True)
+                    imapobj.select(self.getfullIMAPname(), readonly=True)
                     res_type, data = imapobj.uid('fetch', uids, query)
                     break
                 except imapobj.abort as e:
@@ -813,7 +825,7 @@ class IMAPFolder(BaseFolder):
         - field: field name to be stored/updated
         - data: field contents
         """
-        imapobj.select(self.getfullname())
+        imapobj.select(self.getfullIMAPname())
         res_type, retdata = imapobj.uid('store', uid, field, data)
         if res_type != 'OK':
             severity = OfflineImapError.ERROR.MESSAGE
@@ -874,7 +886,7 @@ class IMAPFolder(BaseFolder):
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
-                imapobj.select(self.getfullname())
+                imapobj.select(self.getfullIMAPname())
             except imapobj.readonly:
                 self.ui.flagstoreadonly(self, uidlist, flags)
                 return
@@ -949,7 +961,7 @@ class IMAPFolder(BaseFolder):
         imapobj = self.imapserver.acquireconnection()
         try:
             try:
-                imapobj.select(self.getfullname())
+                imapobj.select(self.getfullIMAPname())
             except imapobj.readonly:
                 self.ui.deletereadonly(self, uidlist)
                 return

@@ -40,8 +40,8 @@ class MappedIMAPFolder(IMAPFolder):
       diskr2l: dict mapping message uids: self.r2l[remoteuid]=localuid
       diskl2r: dict mapping message uids: self.r2l[localuid]=remoteuid"""
 
-    def __init__(self, *args, **kwargs):
-        IMAPFolder.__init__(self, *args, **kwargs)
+    def __init__(self, imapserver, name, repository, decode=True):
+        IMAPFolder.__init__(self, imapserver, name, repository, decode=False)
         self.dryrun = self.config.getdefaultboolean("general", "dry-run", True)
         self.maplock = Lock()
         self.diskr2l, self.diskl2r = self._loadmaps()
@@ -49,7 +49,7 @@ class MappedIMAPFolder(IMAPFolder):
         # Representing the local IMAP Folder using local UIDs.
         # XXX: This should be removed since we inherit from IMAPFolder.
         # See commit 3ce514e92ba7 to know more.
-        self._mb = IMAPFolder(*args, **kwargs)
+        self._mb = IMAPFolder(imapserver, name, repository, decode=False)
 
     def _getmapfilename(self):
         return os.path.join(self.repository.getmapdir(),

@@ -242,7 +242,7 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
                 # Get IMAPFolder and see if the reverse nametrans works fine.
                 # TODO: getfolder() works only because we succeed in getting
                 # inexisting folders which I would like to change. Take care!
-                tmp_remotefolder = remote_repo.getfolder(remote_name)
+                tmp_remotefolder = remote_repo.getfolder(remote_name, decode=False)
                 loop_name = tmp_remotefolder.getvisiblename().replace(
                     remote_repo.getsep(), local_repo.getsep())
                 if local_name != loop_name:
