@@ -428,10 +428,10 @@ class IMAPRepository(BaseRepository):
         # No strategy yielded a password!
         return None
 
-    def getfolder(self, foldername):
+    def getfolder(self, foldername, decode=True):
         """Return instance of OfflineIMAP representative folder."""
 
-        return self.getfoldertype()(self.imapserver, foldername, self)
+        return self.getfoldertype()(self.imapserver, foldername, self, decode)
 
     def getfoldertype(self):
         return folder.IMAP.IMAPFolder
@@ -480,8 +480,7 @@ class IMAPRepository(BaseRepository):
             flaglist = [x.lower() for x in imaputil.flagsplit(flags)]
             if '\\noselect' in flaglist:
                 continue
-            foldername = imaputil.dequote(name)
-            retval.append(self.getfoldertype()(self.imapserver, foldername,
+            retval.append(self.getfoldertype()(self.imapserver, name,
                                                self))
         # Add all folderincludes
         if len(self.folderincludes):
@@ -489,7 +488,7 @@ class IMAPRepository(BaseRepository):
             try:
                 for foldername in self.folderincludes:
                     try:
-                        imapobj.select(foldername, readonly=True)
+                        imapobj.select(imaputil.utf8_IMAP(foldername), readonly=True)
                     except OfflineImapError as e:
                         # couldn't select this folderinclude, so ignore folder.
                         if e.severity > OfflineImapError.ERROR.FOLDER:
@@ -498,7 +497,7 @@ class IMAPRepository(BaseRepository):
                                       'Invalid folderinclude:')
                         continue
                     retval.append(self.getfoldertype()(
-                        self.imapserver, foldername, self))
+                        self.imapserver, foldername, self, decode=False))
             finally:
                 self.imapserver.releaseconnection(imapobj)
 
@@ -556,6 +555,9 @@ class IMAPRepository(BaseRepository):
             return
         imapobj = self.imapserver.acquireconnection()
         try:
+            if self.account.utf_8_support:
+                foldername = imaputil.utf8_IMAP(foldername)
+
             result = imapobj.create(foldername)
             if result[0] != 'OK':
                 raise OfflineImapError("Folder '%s'[%s] could not be created. "

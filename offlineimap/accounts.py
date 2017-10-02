@@ -69,6 +69,8 @@ class Account(CustomConfig.ConfigHelperMixin):
         self.name = name
         self.metadatadir = config.getmetadatadir()
         self.localeval = config.getlocaleval()
+        # Store utf-8 support as a property of Account object
+        self.utf_8_support = self.getconfboolean('utf8foldernames', False)
         # Current :mod:`offlineimap.ui`, can be used for logging:
         self.ui = getglobalui()
         self.refreshperiod = self.getconffloat('autorefresh', 0.0)
@@ -272,6 +274,21 @@ class SyncableAccount(Account):
                 raise
             return
 
+        if self.utf_8_support and self.remoterepos.getdecodefoldernames():
+            e = OfflineImapError("Configuration mismatch in account " +
+                        "'%s'. "% self.getname() +
+                        "\nAccount setting 'utf8foldernames' and repository " +
+                        "setting 'decodefoldernames'\nmay not be used at the " +
+                        "same time. This account has not been synchronized.\n" +
+                        "Please check the configuration and documentation.",
+                    OfflineImapError.ERROR.REPO)
+            self.ui.error(e, exc_info()[2],
+                          msg="Configuration mismatch in account " +
+                        "'%s'. "% self.getname())
+            # Abort *this* account without doing any changes.
+            # Other accounts are not affected.
+            return
+
         # Loop account sync if needed (bail out after 3 failures).
         looping = 3
         while looping:
@@ -361,7 +378,7 @@ class SyncableAccount(Account):
 
                 if not remotefolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
-                                  "[%s]"% (remotefolder, remoterepos))
+                                  "[%s]"% (remotefolder.getname(), remoterepos))
                     continue # Ignore filtered folder.
 
                 # The remote folder names must not have the local sep char in
@@ -379,7 +396,7 @@ class SyncableAccount(Account):
                 localfolder = self.get_local_folder(remotefolder)
                 if not localfolder.sync_this:
                     self.ui.debug('', "Not syncing filtered folder '%s'"
-                                 "[%s]"% (localfolder, localfolder.repository))
+                                 "[%s]"% (localfolder.getname(), localfolder.repository))
                     continue # Ignore filtered folder.
 
                 if not globals.options.singlethreading:

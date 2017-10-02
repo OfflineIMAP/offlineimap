@@ -797,7 +797,7 @@ class IdleThread(object):
         localrepos = account.localrepos
         remoterepos = account.remoterepos
         statusrepos = account.statusrepos
-        remotefolder = remoterepos.getfolder(self.folder)
+        remotefolder = remoterepos.getfolder(self.folder, decode=False)
 
         hook = account.getconf('presynchook', '')
         account.callhook(hook)
