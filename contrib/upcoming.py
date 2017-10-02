@@ -72,3 +72,4 @@ if __name__ == '__main__':
         upcoming.write("\n\n\n-- \n{}\n".format(Git.getLocalUser()[0]))
 
     system("{} {}".format(EDITOR, UPCOMING_FILE))
+    print("{} written".format(UPCOMING_FILE))
