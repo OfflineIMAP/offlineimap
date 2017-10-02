@@ -338,6 +338,7 @@ class SyncableAccount(Account):
             quick = False
 
         try:
+            startedThread = False
             remoterepos = self.remoterepos
             localrepos = self.localrepos
             statusrepos = self.statusrepos
@@ -394,10 +395,15 @@ class SyncableAccount(Account):
                     folderthreads.append(thread)
                 else:
                     syncfolder(self, remotefolder, quick)
+                startedThread = True
             # Wait for all threads to finish.
             for thr in folderthreads:
                 thr.join()
-            mbnames.writeIntermediateFile(self.name) # Write out mailbox names.
+            if startedThread is True:
+                mbnames.writeIntermediateFile(self.name) # Write out mailbox names.
+            else:
+                msg = "Account {}: no folder to sync (folderfilter issue?)".format(self)
+                raise OfflineImapError(msg, OfflineImapError.ERROR.REPO)
             localrepos.forgetfolders()
             remoterepos.forgetfolders()
         except:
