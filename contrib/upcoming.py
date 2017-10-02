@@ -17,34 +17,36 @@ from helpers import (
 
 
 UPCOMING_FILE = "{}/upcoming.txt".format(CACHEDIR)
+UPCOMING_HEADER = "{}/upcoming-header.txt".format(CACHEDIR)
 
-UPCOMING_HEADER = """
-Message-Id: <{messageId}>
-Date: {date}
-From: {name} <{email}>
-To: {mailinglist}
-Cc: {ccList}
-Subject: [ANNOUNCE] upcoming offlineimap v{expectedVersion}
-
-# Notes
-
-I think it's time for a new release.
-
-I aim to make the new release in one week, approximately. If you'd like more
-time, please let me know. ,-)
-
-Please, send me a mail to confirm it works for you. This will be written in the
-release notes and the git logs.
-
-
-# Authors
-
-"""
+# Header is like:
+#
+#Message-Id: <{messageId}>
+#Date: {date}
+#From: {name} <{email}>
+#To: {mailinglist}
+#Cc: {ccList}
+#Subject: [ANNOUNCE] upcoming offlineimap v{expectedVersion}
+#
+## Notes
+#
+#I think it's time for a new release.
+#
+#I aim to make the new release in one week, approximately. If you'd like more
+#time, please let me know. ,-)
+#
+#Please, send me a mail to confirm it works for you. This will be written in the
+#release notes and the git logs.
+#
+#
+## Authors
+#
 
 
 if __name__ == '__main__':
     offlineimapInfo = OfflineimapInfo()
 
+    print("Will read headers from {}".format(UPCOMING_HEADER))
     Git.chdirToRepositoryTopLevel()
     oVersion = offlineimapInfo.getVersion()
     ccList = Testers.listTestersInTeam()
@@ -54,7 +56,8 @@ if __name__ == '__main__':
         if email not in ccList:
             ccList.append(email)
 
-    with open(UPCOMING_FILE, 'w') as upcoming:
+    with open(UPCOMING_FILE, 'w') as upcoming, \
+         open(UPCOMING_HEADER, 'r') as fd_header:
         header = {}
 
         header['messageId'] = Git.buildMessageId()
@@ -64,7 +67,7 @@ if __name__ == '__main__':
         header['expectedVersion'] = User.request("Expected new version?")
         header['ccList'] = ", ".join(ccList)
 
-        upcoming.write(UPCOMING_HEADER.format(**header).lstrip())
+        upcoming.write(fd_header.read().format(**header).lstrip())
         upcoming.write(Git.getShortlog(oVersion))
 
         upcoming.write("\n\n# Diffstat\n\n")
