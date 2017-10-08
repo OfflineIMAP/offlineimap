@@ -83,7 +83,7 @@ class Git(object):
 
     @staticmethod
     def commit(msg):
-        cmd = shlex.split("git commit -s -m 'v{}'".format(msg))
+        cmd = shlex.split("git commit -s -m '{}'".format(msg))
         return run(cmd).decode(ENCODING)
 
     @staticmethod

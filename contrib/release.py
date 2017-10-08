@@ -394,7 +394,7 @@ class Release(object):
     def make(self):
         Git.add('offlineimap/__init__.py')
         Git.add('Changelog.md')
-        commitMsg = "{}\n".format(newVersion)
+        commitMsg = "v{}\n".format(newVersion)
         for tester in self.testers.getListOk():
             commitMsg = "{}\nTested-by: {} {}".format(
                 commitMsg, tester.getName(), tester.getEmail()
