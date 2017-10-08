@@ -309,7 +309,7 @@ Then, commit and push changes of the website.""".format(SPHINXBUILD, DOCSDIR))
             return
 
         Git.checkout(branchName, create=True)
-        Git.add('_doc/versions')
+        Git.add('.')
         Git.commit("update for offlineimap v{}".format(version))
 
         User.pause(
