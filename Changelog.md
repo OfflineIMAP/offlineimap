@@ -15,6 +15,70 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.1.3 (2017-10-08)
+
+#### Notes
+
+This release introduces a new experimental utf8foldernames configuration option.
+
+We already had the "tricky" decodefoldernames which is now deprecated. The new
+code is the correct implementation for this feature. The changes are neat and
+rather small. All the users having decodefoldernames are requested to move to
+utf8foldernames. This requires to update almost all the functions like
+nametrans, folderfilter, etc, because they work on the UTF-8 encoding. See the
+documentation for more. Thank you Urs Liska for this contribution!
+
+In the long run, the idea is to:
+
+1. Remove decodefoldernames in favour of utf8foldernames.
+2. Promote utf8foldernames up to stable.
+3. Turn utf8foldernames on by default.
+
+Currently, folders with non-ASCII characters in their name have to be fully
+re-downloaded. So, there's a bit more work to be done to have (3) and maybe (2).
+
+Also, this release includes a fix about remotehost and transporttunnel that
+would require some testing. Thanks Thomas Merkel!
+
+There are documentation improvements, improved errors and minor code cleanups,
+too.
+
+This release was tested by:
+
+- Nicolas Sebrecht
+- Remi Locherer
+
+
+#### Authors
+
+- Nicolas Sebrecht (11)
+- Urs Liska (8)
+- Thomas Merkel (1)
+
+#### Features
+
+- utf8: implement utf8foldernames option. [Urs Liska]
+- utf8: document new feature, deprecate old one. [Urs Liska]
+
+#### Fixes
+
+- remotehost should not be required if transporttunnel is used. [Thomas Merkel]
+- accounts: error out when no folder to sync. [Nicolas Sebrecht]
+- sqlite: provide better message error for insert. [Nicolas Sebrecht]
+- folder: Gmail: fix copyright header. [Nicolas Sebrecht]
+
+#### Changes
+
+- man: remove mention of experimental support for python 3. [Nicolas Sebrecht]
+- man: mention the supported directions of the syncs. [Nicolas Sebrecht]
+- folder: Gmail: remove dead code. [Nicolas Sebrecht]
+- upcoming.py: get header template from external file. [Nicolas Sebrecht]
+- upcoming.py: display a message with the filename once written. [Nicolas Sebrecht]
+- contrib/helpers: sort testers by name. [Nicolas Sebrecht]
+- Remove some unnecessary whitespace (in existing code). [Urs Liska]
+- MAINTAINERS: Rainer is not currently active. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.1.2 (2017-07-10)
 
 #### Notes
