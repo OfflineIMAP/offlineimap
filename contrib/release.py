@@ -221,7 +221,7 @@ class Announce(object):
         self.version = version
 
     def setHeaders(self, messageId, date):
-        self.fd.write("Message-Id: <{}>\n".format(messageId))
+        self.fd.write("Message-Id: {}\n".format(messageId))
         self.fd.write("Date: {}\n".format(date))
         self.fd.write("From: Nicolas Sebrecht <nicolas.s-dev@laposte.net>\n")
         self.fd.write("To: {}\n".format(MAILING_LIST))
@@ -261,8 +261,8 @@ Pip:
 
 class Website(object):
     def updateAPI(self):
-        req = "update API of the website? (requires {}) [Y/n]".format(SPHINXBUILD)
-        if not User.yesNo(req, defaultToYes=True):
+        req = "update API of the website? (requires {})".format(SPHINXBUILD)
+        if User.yesNo(req, defaultToYes=True) is False:
             return False
 
         if check_call(shlex.split("{} --version".format(SPHINXBUILD))) != 0:
@@ -451,9 +451,9 @@ if __name__ == '__main__':
 
         websiteBranch = release.getWebsiteBranch()
         print(END_MESSAGE.format(
-            announce=ANNOUNCE_FILE,
-            new_version=newVersion,
-            website_branch=websiteBranch)
+                announce=ANNOUNCE_FILE,
+                new_version=newVersion,
+                website_branch=websiteBranch)
         )
     except Exception as e:
         release.restore()

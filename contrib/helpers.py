@@ -230,7 +230,7 @@ class User(object):
         answer = User.request(msg, prompt).lower()
         if answer in ['y', 'yes']:
             return True
-        if defaultToYes and answer not in ['n', 'no']:
+        if defaultToYes is not False and answer not in ['n', 'no']:
             return True
         return False
 
