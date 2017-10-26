@@ -1,6 +1,6 @@
 """ Base repository support """
 
-# Copyright (C) 2002-2016 John Goerzen & contributors
+# Copyright (C) 2002-2017 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -165,7 +165,13 @@ class BaseRepository(CustomConfig.ConfigHelperMixin):
     def deletefolder(self, foldername):
         raise NotImplementedError
 
-    def getfolder(self, foldername):
+    def getfolder(self, foldername, decode=True):
+        """Get the folder for this repo.
+
+        WARNING: the signature changes whether it's remote or local:
+        - remote types have the decode arg
+        - local types don't have the decode arg
+        """
         raise NotImplementedError
 
     def sync_folder_structure(self, local_repo, status_repo):

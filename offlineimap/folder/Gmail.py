@@ -15,6 +15,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+"""Folder implementation to support features of the Gmail IMAP server."""
+
 import re
 import six
 from sys import exc_info
@@ -23,7 +25,6 @@ from offlineimap import imaputil, imaplibutil, OfflineImapError
 import offlineimap.accounts
 from .IMAP import IMAPFolder
 
-"""Folder implementation to support features of the Gmail IMAP server."""
 
 class GmailFolder(IMAPFolder):
     """Folder implementation to support features of the Gmail IMAP server.
@@ -41,8 +42,8 @@ class GmailFolder(IMAPFolder):
       https://developers.google.com/google-apps/gmail/imap_extensions
     """
 
-    def __init__(self, imapserver, name, repository):
-        super(GmailFolder, self).__init__(imapserver, name, repository)
+    def __init__(self, imapserver, name, repository, decode=True):
+        super(GmailFolder, self).__init__(imapserver, name, repository, decode)
 
         # The header under which labels are stored
         self.labelsheader = self.repository.account.getconf('labelsheader', 'X-Keywords')

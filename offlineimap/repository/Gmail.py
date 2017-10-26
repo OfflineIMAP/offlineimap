@@ -19,6 +19,7 @@
 from offlineimap.repository.IMAP import IMAPRepository
 from offlineimap import folder, OfflineImapError
 
+
 class GmailRepository(IMAPRepository):
     """Gmail IMAP repository.
 
@@ -87,9 +88,9 @@ class GmailRepository(IMAPRepository):
     def getpreauthtunnel(self):
         return None
 
-    def getfolder(self, foldername):
+    def getfolder(self, foldername, decode=True):
         return self.getfoldertype()(self.imapserver, foldername,
-                                    self)
+                                    self, decode)
 
     def getfoldertype(self):
         return folder.Gmail.GmailFolder
