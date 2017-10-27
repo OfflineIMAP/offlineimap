@@ -92,7 +92,7 @@ class IMAPServer(object):
             self.af = socket.AF_INET
         else:
             self.af = socket.AF_UNSPEC
-        self.hostname = None if self.transport_tunnel else repos.gethost()
+        self.hostname = None if self.transport_tunnel or self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
         if self.port is None:
             self.port = 993 if self.usessl else 143
