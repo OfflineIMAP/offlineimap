@@ -524,6 +524,8 @@ class IMAPRepository(BaseRepository):
     def deletefolder(self, foldername):
         """Delete a folder on the IMAP server."""
 
+        if self.account.utf_8_support:
+            foldername = imaputil.utf8_IMAP(foldername)
         imapobj = self.imapserver.acquireconnection()
         try:
             result = imapobj.delete(foldername)
