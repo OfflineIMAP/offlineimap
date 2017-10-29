@@ -15,6 +15,34 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.1.4 (2017-10-29)
+
+#### Notes
+
+Here is a bugfix release for v7.1.3. Two regressions got fixes and the
+--delete-folder CLI option now expects an UTF-8 folder name when utf8foldernames
+is enabled.
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+#### Authors
+
+- Nicolas Sebrecht (5)
+- Thomas Merkel (1)
+
+#### Fixes
+
+- utf8foldernames: fix missing decode argument. [Nicolas Sebrecht]
+- Fix: if any tunnel (preauth_tunnel or transport_tunnel) the hostname should not be required. [Thomas Merkel]
+
+#### Changes
+
+- utf8foldernames: support --delete-folder with UTF-8 folder name. [Nicolas Sebrecht]
+- contrib/release.py improvements
+
+
 ### OfflineIMAP v7.1.3 (2017-10-08)
 
 #### Notes
