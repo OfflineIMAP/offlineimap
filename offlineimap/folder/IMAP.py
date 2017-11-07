@@ -722,22 +722,32 @@ class IMAPFolder(BaseFolder):
                         OfflineImapError.ERROR.MESSAGE)
                 if uid == 0:
                     self.ui.warn("savemessage: Server supports UIDPLUS, but"
-                        " we got no usable uid back. APPENDUID reponse was "
+                        " we got no usable UID back. APPENDUID reponse was "
                         "'%s'"% str(resp))
             else:
-                # We don't support UIDPLUS.
-                uid = self.__savemessage_searchforheader(imapobj, headername,
-                    headervalue)
-                # See docs for savemessage in Base.py for explanation
-                # of this and other return values.
-                if uid == 0:
-                    self.ui.debug('imap', 'savemessage: attempt to get new UID '
-                        'UID failed. Search headers manually.')
-                    uid = self.__savemessage_fetchheaders(imapobj, headername,
+                try:
+                    # We don't use UIDPLUS.
+                    uid = self.__savemessage_searchforheader(imapobj, headername,
                         headervalue)
-                    self.ui.warn("savemessage: Searching mails for new "
-                        "Message-ID failed. Could not determine new UID "
-                        "on %s."% self.getname())
+                    # See docs for savemessage in Base.py for explanation
+                    # of this and other return values.
+                    if uid == 0:
+                        self.ui.debug('imap', 'savemessage: attempt to get new UID '
+                            'UID failed. Search headers manually.')
+                        uid = self.__savemessage_fetchheaders(imapobj, headername,
+                            headervalue)
+                        self.ui.warn("savemessage: Searching mails for new "
+                            "Message-ID failed. Could not determine new UID "
+                            "on %s."% self.getname())
+                # Something wrong happened while trying to get the UID. Explain
+                # the error might be about the 'get UID' process not necesseraly
+                # the APPEND.
+                except Exception:
+                    self.ui.warn("%s: could not determine the UID while we got "
+                        "no error while appending the email with '%s: %s'"%
+                        (self.getname(), headername, headervalue)
+                    )
+                    raise
         finally:
             if imapobj:
                 self.imapserver.releaseconnection(imapobj)
