@@ -119,7 +119,7 @@ class LocalStatusFolder(BaseFolder):
 
             # Convert from format v1.
             elif line == (self.magicline % 1):
-                self.ui._msg('Upgrading LocalStatus cache from version 1'
+                self.ui._msg('Upgrading LocalStatus cache from version 1 '
                     'to version 2 for %s:%s'% (self.repository, self))
                 self.readstatus_v1(cachefd)
                 cachefd.close()
