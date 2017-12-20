@@ -209,11 +209,17 @@ class IMAPFolder(BaseFolder):
 
             Returns: range(s) for messages or None if no messages
             are to be fetched."""
-            res_type, res_data = imapobj.search(None, search_conditions)
-            if res_type != 'OK':
+            try:
+                res_type, res_data = imapobj.search(None, search_conditions)
+                if res_type != 'OK':
+                    raise OfflineImapError("SEARCH in folder [%s]%s failed. "
+                        "Search string was '%s'. Server responded '[%s] %s'"% (
+                            self.getrepository(), self, search_cond, res_type, res_data),
+                        OfflineImapError.ERROR.FOLDER)
+            except Exception as e:
                 raise OfflineImapError("SEARCH in folder [%s]%s failed. "
-                    "Search string was '%s'. Server responded '[%s] %s'"% (
-                    self.getrepository(), self, search_cond, res_type, res_data),
+                        "Search string was '%s'. Error: %s"% (
+                            self.getrepository(), self, search_cond, str(e)),
                     OfflineImapError.ERROR.FOLDER)
             # Davmail returns list instead of list of one element string.
             # On first run the first element is empty.
