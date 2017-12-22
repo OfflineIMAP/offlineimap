@@ -518,6 +518,9 @@ def syncfolder(account, remotefolder, quick):
             # emails).
             localfolder.cachemessagelist(min_date=date)
             uids = localfolder.getmessageuidlist()
+            # Take care to only consider positive uids. Negative UIDs might be
+            # present due to new emails.
+            uids = [uid for uid in uids if uid > 0]
             if len(uids) > 0:
                 # Update the remote cache list for this new min(uids).
                 remotefolder.cachemessagelist(min_uid=min(uids))
