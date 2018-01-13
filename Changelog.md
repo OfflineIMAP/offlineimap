@@ -15,6 +15,43 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.1.5 (2018-01-13)
+
+#### Notes
+
+This minor release fixes a bug about maxage failing to upload some emails. Also,
+this introduces the snapcraft.yaml to package offlineimap with this packaging
+system.
+
+This release was tested by:
+
+- Nicolas Sebrecht
+- Remi Locherer
+
+
+#### Authors
+
+- Nicolas Sebrecht (4)
+- Evan Dandrea (1)
+- John Ferlito (1)
+
+
+#### Features
+
+- Initial commit of snapcraft.yaml. [Evan Dandrea]
+
+#### Fixes
+
+- maxage: don't consider negative UIDs when computing min UID. [Nicolas Sebrecht]
+- Add missing space to output string. [John Ferlito]
+
+#### Changes
+
+- folder: IMAP: improve search logging. [Nicolas Sebrecht]
+- no UIDPLUS: improve logging on failures. [Nicolas Sebrecht]
+- github: remove the trick to download the PR. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.1.4 (2017-10-29)
 
 #### Notes
