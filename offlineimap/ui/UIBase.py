@@ -396,9 +396,9 @@ class UIBase(object):
     def copyingmessage(self, uid, num, num_to_copy, src, destfolder):
         """Output a log line stating which message we copy."""
 
-        self.logger.info("Copy message UID %s (%d/%d) %s:%s -> %s"% (
+        self.logger.info("Copy message UID %s (%d/%d) %s:%s -> %s:%s"% (
                 uid, num, num_to_copy, src.repository, src,
-                destfolder.repository))
+                destfolder.repository, destfolder))
 
     def deletingmessages(self, uidlist, destlist):
         ds = self.folderlist(destlist)
