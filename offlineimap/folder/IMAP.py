@@ -541,7 +541,7 @@ class IMAPFolder(BaseFolder):
         if rtime is None or internal_date_for_append_method == 'header':
             rtime = emailutil.get_message_date(content)
         
-        if internal_date_for_append_method == 'imap' or rtime == None:
+        if internal_date_for_append_method == 'imap' or rtime is None:
                 return None
 
         datetuple = time.localtime(rtime)
