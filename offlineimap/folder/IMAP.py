@@ -537,11 +537,12 @@ class IMAPFolder(BaseFolder):
         # if config parameter is set respect this setting:
         # for the default value we don't need to change anything
         internal_date_for_append_method = self.repository.getconf('internal_date_for_append_method', 'timestamp')
-        
-        if internal_date_for_append_method == 'imap':
-            return None
-        elif internal_date_for_append_method == 'header':
+
+        if rtime is None or internal_date_for_append_method == 'header':
             rtime = emailutil.get_message_date(content)
+        
+        if internal_date_for_append_method == 'imap' or rtime == None:
+                return None
 
         datetuple = time.localtime(rtime)
 
