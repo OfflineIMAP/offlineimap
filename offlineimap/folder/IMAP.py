@@ -27,7 +27,6 @@ from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
 from offlineimap import globals
 from offlineimap.virtual_imaplib2 import MonthNames
 
-
 # Globals
 CRLF = '\r\n'
 MSGCOPY_NAMESPACE = 'MSGCOPY_'
