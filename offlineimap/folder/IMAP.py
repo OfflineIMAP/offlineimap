@@ -27,7 +27,6 @@ from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
 from offlineimap import globals
 from offlineimap.virtual_imaplib2 import MonthNames
 
-
 # Globals
 CRLF = '\r\n'
 MSGCOPY_NAMESPACE = 'MSGCOPY_'
@@ -534,11 +533,17 @@ class IMAPFolder(BaseFolder):
         :returns: string in the form of "DD-Mmm-YYYY HH:MM:SS +HHMM"
                   (including double quotes) or `None` in case of failure
                   (which is fine as value for append)."""
+        
+        # if config parameter is set respect this setting:
+        # for the default value we don't need to change anything
+        internal_date_for_append_method = self.repository.getconf('internal_date_for_append_method', 'timestamp')
 
-        if rtime is None:
+        if rtime is None or internal_date_for_append_method == 'header':
             rtime = emailutil.get_message_date(content)
-            if rtime == None:
+        
+        if internal_date_for_append_method == 'imap' or rtime is None:
                 return None
+
         datetuple = time.localtime(rtime)
 
         try:
