@@ -17,7 +17,6 @@
 
 import hmac
 import socket
-import base64
 import json
 import urllib
 import time
@@ -36,13 +35,10 @@ from offlineimap.ui import getglobalui
 
 
 try:
-    # do we have a recent pykerberos?
-    have_gss = False
-    import kerberos
-    if 'authGSSClientWrap' in dir(kerberos):
-        have_gss = True
+    import gssapi
+    have_gss = True
 except ImportError:
-    pass
+    have_gss = False
 
 
 class IMAPServer(object):
@@ -54,9 +50,6 @@ class IMAPServer(object):
     Public instance variables are: self.:
      delim The server's folder delimiter. Only valid after acquireconnection()
     """
-
-    GSS_STATE_STEP = 0
-    GSS_STATE_WRAP = 1
 
     def __init__(self, repos):
         """:repos: a IMAPRepository instance."""
@@ -127,7 +120,6 @@ class IMAPServer(object):
         self.connectionlock = Lock()
         self.reference = repos.getreference()
         self.idlefolders = repos.getidlefolders()
-        self.gss_step = self.GSS_STATE_STEP
         self.gss_vc = None
         self.gssapi = False
 
@@ -267,32 +259,34 @@ class IMAPServer(object):
         self.ui.debug('imap', 'xoauth2handler: returning "%s"'% auth_string)
         return auth_string
 
-    def __gssauth(self, response):
-        data = base64.b64encode(response)
+    # Perform the next step handling a GSSAPI connection.
+    # Client sends first, so token will be ignored if there is no context.
+    def __gsshandler(self, token):
+        if token == "":
+            token = None
         try:
-            if self.gss_step == self.GSS_STATE_STEP:
-                if not self.gss_vc:
-                    rc, self.gss_vc = kerberos.authGSSClientInit(
-                        'imap@' + self.hostname)
-                    response = kerberos.authGSSClientResponse(self.gss_vc)
-                rc = kerberos.authGSSClientStep(self.gss_vc, data)
-                if rc != kerberos.AUTH_GSS_CONTINUE:
-                    self.gss_step = self.GSS_STATE_WRAP
-            elif self.gss_step == self.GSS_STATE_WRAP:
-                rc = kerberos.authGSSClientUnwrap(self.gss_vc, data)
-                response = kerberos.authGSSClientResponse(self.gss_vc)
-                rc = kerberos.authGSSClientWrap(
-                    self.gss_vc, response, self.username)
-            response = kerberos.authGSSClientResponse(self.gss_vc)
-        except kerberos.GSSError as err:
-            # Kerberos errored out on us, respond with None to cancel the
-            # authentication
-            self.ui.debug('imap', '%s: %s'% (err[0][0], err[1][0]))
-            return None
+            if not self.gss_vc:
+                name = gssapi.Name('imap@' + self.hostname,
+                                   gssapi.NameType.hostbased_service)
+                self.gss_vc = gssapi.SecurityContext(usage="initiate",
+                                                     name=name)
 
-        if not response:
-            response = ''
-        return base64.b64decode(response)
+            if not self.gss_vc.complete:
+                response = self.gss_vc.step(token)
+                return response if response else ""
+
+            # Don't bother checking qop because we're over a TLS channel
+            # already.  But hey, if some server started encrypting tomorrow,
+            # we'd be ready since krb5 always requests integrity and
+            # confidentiality support.
+            response = self.gss_vc.unwrap(token)
+            response = self.gss_vc.wrap(response.message, response.encrypted)
+            return response.message if response.message else ""
+        except gssapi.exceptions.GSSError as err:
+            # GSSAPI errored out on us; respond with None to cancel the
+            # authentication
+            self.ui.debug('imap', err.gen_message())
+            return None
 
     def __start_tls(self, imapobj):
         if 'STARTTLS' in imapobj.capabilities and not self.usessl:
@@ -327,16 +321,14 @@ class IMAPServer(object):
 
         self.connectionlock.acquire()
         try:
-            imapobj.authenticate('GSSAPI', self.__gssauth)
+            imapobj.authenticate('GSSAPI', self.__gsshandler)
             return True
         except imapobj.error as e:
             self.gssapi = False
             raise
         else:
             self.gssapi = True
-            kerberos.authGSSClientClean(self.gss_vc)
             self.gss_vc = None
-            self.gss_step = self.GSS_STATE_STEP
         finally:
             self.connectionlock.release()
 
@@ -680,8 +672,7 @@ class IMAPServer(object):
             self.assignedconnections = []
             self.availableconnections = []
             self.lastowner = {}
-            # reset kerberos state
-            self.gss_step = self.GSS_STATE_STEP
+            # reset GSSAPI state
             self.gss_vc = None
             self.gssapi = False
 
