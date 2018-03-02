@@ -90,6 +90,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 * Python v3.4+ ***[STALLED] (experimental: [see known issues](https://github.com/OfflineIMAP/offlineimap/issues?q=is%3Aissue+is%3Aopen+label%3APy3))***
 * six (required)
 * imaplib2 >= 2.57 (optional)
+* gssapi (optional), for Kerberos authentication
 
 
 ## Documentation

@@ -1,2 +1,3 @@
 # Requirements
 six
+gssapi[kerberos]
