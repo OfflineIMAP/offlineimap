@@ -1,7 +1,23 @@
+Upstream status:
+[![OfflineIMAP build status on Travis-CI.org](https://travis-ci.org/OfflineIMAP/offlineimap.svg?branch=master)](https://travis-ci.org/OfflineIMAP/offlineimap)
+[![OfflineIMAP code coverage on Codecov.io](https://codecov.io/gh/OfflineIMAP/offlineimap/branch/master/graph/badge.svg)](https://codedov.io/gh/OfflineIMAP/offlineimap)
+[![Gitter chat](https://badges.gitter.im/OfflineIMAP/offlineimap.png)](https://gitter.im/OfflineIMAP/offlineimap)
+
+Fork status:
+[![OfflineIMAP build status on Travis-CI.org](https://travis-ci.org/EspaceNetworks/offlineimap.svg?branch=master)](https://travis-ci.org/EspaceNetworks/offlineimap)
+[![OfflineIMAP code coverage on Codecov.io](https://codecov.io/gh/EspaceNetworks/offlineimap/branch/master/graph/badge.svg)](https://codedov.io/gh/EspaceNetworks/offlineimap)
+[![Gitter chat](https://badges.gitter.im/EspaceNetworks/offlineimap.png)](https://gitter.im/EspaceNetworks/offlineimap)
+
 [offlineimap]: http://github.com/OfflineIMAP/offlineimap
 [website]: http://www.offlineimap.org
 [wiki]: http://github.com/OfflineIMAP/offlineimap/wiki
 [blog]: http://www.offlineimap.org/posts.html
+
+Links:
+* Official github code repository: [offlineimap]
+* Website: [website]
+* Wiki: [wiki]
+* Blog: [blog]
 
 # OfflineIMAP
 
@@ -87,7 +103,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 ## Requirements & dependencies
 
 * Python v2.7+
-* Python v3.4+ ***[STALLED] (experimental: [see known issues](https://github.com/OfflineIMAP/offlineimap/issues?q=is%3Aissue+is%3Aopen+label%3APy3))***
+* Python v3.4+ ***[STALLED](experimental: [see known issues](https://github.com/OfflineIMAP/offlineimap/issues?q=is%3Aissue+is%3Aopen+label%3APy3))***
 * six (required)
 * imaplib2 >= 2.57 (optional)
 
