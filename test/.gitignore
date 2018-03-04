@@ -1,2 +1,5 @@
 credentials.conf
 tmp_*
+*.pyc
+OLItest/*.pyc
+tests/*.pyc
