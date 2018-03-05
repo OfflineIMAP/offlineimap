@@ -1,0 +1,68 @@
+language: python
+python:
+  - '2.7'
+  - '3.6'
+os:
+  - linux
+  #- osx  #Can't specify OSX here, because Travis can't yet install python in its test environment, so Travis would remove OSX from the test run.
+          #We have a good workaround however, no worries.
+env:
+  global:
+  - secure: iF/0aJyLAfx4dfFIWcdDOfAQKcN9GyZmi0+n7lmHnCdPC1uEer7W8eCvyeIoN3lGPUjXKcYkKyUvX6m8n64E2Js0w3zTNzCx0e/0owu4T5mgbxYEm4/p+cZLVuHMwdBs+qU90yPy8aQnUkQgUISDf53dl5MTtcBVbXTpx6H14IJmNXjrfXabG/07kclh5rAZnrmgQHvfR7n32BTghwo0nZfe41SVpM1T9YKoomBEu0yABV/+74i3tZr1Y+BF4sy8noipr1mwUhOIawaz8TmNRT+8E+1vLzbgAfd8qJgNmLPqd0hHLdDU5Fuo6I2XpvaUIPwShn6wZmloH6inbDuN4aafc9NgytvSDfwvHlYSYJJppiqYKqtd145ppsiPE7peT4k7i9U7fmbuJkH87Z1POF/CQRSs32YWRFpVppUBOUGJPSSMxr/dofX/E01YNGButoMJPvyCsQQX/9KwRFkwEK7mX++c0RMAv1R8VeI1ZKtUixYKLU3lYLYJsKduHaZnH2wOC9YJG/qU3ywp3EDfhVTLkY0eQ1PFcqurw1BUICS/d58vH121f/cMhvn5Pa3+bvHZBq7ZbC6jEU2QXWquzOkM5CBXMqLoxgKiVlrzTfWxgQIjY4IHZH6V4E2BOfFJw5s6bG8mMZjY3dpHRvsIMltNn9tXGSWcVepWlyXdlN4=
+  - secure: FKrFjv/MDkvJTQ9/5XnvHAFjDv7q+PWDPOXAAZkgdHmA/HdQnIp8J73O2MwmyP0Pqd+Eb2OZ1Qw4K9aQeYy56YIZkqZcupKxReqvtD6Ixp8oPTcu6YhvblDRKDJw6UC279LgTI0KtgWSN3Uqm1fAeriFJHRkUv4+vsNofidCmvHmJ39xWp+9G5Gt0lOeCMnkridxSPbTFUKRusEVMREj84QewkPSG9inF7zeFAPNNMT4QQHZrKFJ/rUGflWVwWMB3NSTLsj62V8mbbzgoelBk/RvreoV5WmFx8LdbiNyXvAobuDq4X3sohYs6BOJfTQOHi9JeDo/MuW1s8tc8ixruIg4RLdEd/JDhdQOW4qtDhEEfwronYSPzV3WUj/QrUOCIu68pQFOWflbk0pbH8V588gRqzh24BXHSb220tkJV4AvcRjZD1X7Rv5wIDSmsZDnleCgXoO2TGYpan0zbP/MQCEnlgjT5Qo00Ib+e+H2wkn6puTWkkIOXKYuagagsGB6jHs/fmbWlClbSXNkGdpYz6uAqamcWvLyBhbO2EIIVd1Lvf9CrswrNdELSaqmtSKlGKgeeaiJS7TEAYYNQ9dgLAmDRjKAsXnLFMEdD47jDh0jbMMMhqOBDsmk6nXLi0fWQ17MOuBAS4kAaYHOZfEWCVTmPCMZGpG8EecBe5N5WVs=
+  - secure: CkUhCTmaAzNmuCqyZk/ApysYKJ8LYyanQSMhIxcr+7oefgAegXl3XJnwMbx5e0mnhTmeM+lJGVicbWpVoPTOb3JW2p1u8JCNBl6LO07Vr9AahH/gk2vZGnxU3vTDihj2SqluOOVDE8wKADCwAFDoPonwiRxWAJMfD2F8pICN/PN6UYzXfugd6JWlYgMBMdVJ1CYPyBuh+mL7SQGPr+yrPs1Bd+gyOaCH92Q0megUwlwR0MyCo76ivhTQJPjDQYBFB6/xnvoI32I9YrvDfSueTA9UPHLXBV1EYzhAeRKc9Xe/kuefHown+n/uwP3NNfI5rd5w43E6Q2denK9T99cDbgyNQYxzb3BCh5CFF4NAwwNIbNiYzZOGfezYTEleH5B/wwLk5uFsjvADg2+iwatbPI2G1e6uuKZwhp0m5+vDQyvyK6tkAuPHPU5N+X+fYj9pSdMz8ljjtA9bItfTKj2ueNk3eZt0B3/JaPJtW8r+ibJo9qzoM1PPAAsaxMjTGTSZAAB1QAV4HumOARapyGkfteBooOwkp23B2EuEVg9ph9aBfQSm1z4yDIgFvR0XdTdfDS+iaPJ8SlvCNZS0dKli/3v2VjG6Wm6Ao9ASXw1s/tKzyEp7HTrhVanjokO7JD2aEg03gIJhF/7GaINFrMxRafOJvtx2x7aKqUes35qToTI=
+  - secure: RFH1UZ0a3Rd+VmxeVKh49tUqw12aLlpRl0+bqmWPxpoBXRbcpDq6kH/F7hozmdwAmYAzHtyQfEeUQ0jQd/MUxJ7QiZWzEW77ZgNToUt4DbnFuVj6wwNXWAUcZWAN4f2HTKam0Blk8ji50wI57+7ZiOOKEKJCynlBGcihQd8TVqGhx040N2UFgxKsDr1fmrStqf+rSyrlzrOXnirLHQQn2oiDKy3X/DDSoFdOrR88bR4VGGAuI/0eiJBBQnpgLLeGPq13GkyjbcxLewW6kFitqRHgoCwBkq3lSHqem0rbkdfekq94FR4wWnbvCyWse1PbtK9cFVa0AyR6QscNYXpADbI1s6Aubh23CDXDlm92feEdSElvgbxczzTrP4I5mPjrDRsanPpnS2xG3QZk3gQ9lRHH91JxPXI/pCu/XHptfpPCIaS5aBL2ekGT0dGC1GOHDvjLqH+OKLiOfzj75UXeo0a3VhJ2o+HWlRJMyzvUNIWKFd4ZSKMHl/v5Jpgr4lE8q4VB2pHf5zBp1ttdNRTlrifq393RTKzYsNeHPxBqcRv9eGJbws4q4kyQiH0lqAU2RUA7HFyAqeBzeMwSYK1IlXNkB3uXo0Im2IUwC0v6j6UTv23zniwz8mMQxru0OuTs7qzBfoKxvaHk4ywSXhsFQpQDpuWMptZ4VU+dwoL5pWI=
+  - secure: YTdj+wWBXikkSwz5iAxamxGIaPjadw+Fyec3fdNhV+HEM2z2+AiJ4AIP6UU34Agy6vOjtH1jCzrhf2Zj8R/W+vUT+GA2OOZylr68SOyM4A8thqiGiZ8FQDGJtQ24/GcaHgm/kkjJkILARfuWJy8zZ0kr60JH45SkwKRSWeP6Mic6/uANY5jxTZFIi7H0yhfbUURCk/ftA8y2RUA3P/5GpCiXI05VKJvIhQ0jFjrRkrqF3Pr3h6O0CjtqifV3YGQx9UrinmWmDQIey0HKzYvPpUsRejG3X+uoNTp63u6VeeYOkqRIHxYcsJtoKNeydbaQpbuIrZ/8i6IaakT50b1FNMgiwfu+Ta0cfimbkllRF2V0FAX35FAjoD+QHgI93kfhYgrpCgzJEf3a+WFFI4jlrCKF/r95QfNcMBXKGK6x6vx0LJLqT/PSuVhKrFvfbUxXjHsCZBBYGQqb5F4dVK7DAyyPkQoKXQKso6HhfO1CLpSnMwzsSlWnefx+b4py0e5ZYP0AHClfm00WdOxWmd6mWvrWmA4xLxACEF78lUQnd0+2KXmeodlBxZxkq0K/VsPdkE8kKw7eTkYVWDWoK41ahRhM4Q4ZoENarPTBH4F1qTWOdeC9feqwG2LPvRK5ZLbCxX+qujtS8xtwqamQQHt+J7b1o9vhl53cTsNzBYONGrU=
+  - secure: cXmKt5yvklVRpRj9/u+U8TA4zrbk8VE+wnU/L75i24zRZ38z9HH1POSVW/YrnBeAmPMzfBsWaXZ4Q2kjH2t4krB/FouEXLdzWbCc4ozw5mU+uySVuH2mkscxP1T1zv2asaDn7vTgJBs+QpRcvm/RQmeZq9IKwezV2SC82sCUG68NQKLAFYl0igd/DrBfLRNS58YQ/RJcCyWm5IItZ9ONvR+0mvpT0mM8owyNz6wsvVip/LWyfxoGmou7D5QgRYPDO5EDI/Jr0q3TzUZdGdPjfCPfDTwOWRzBUssPM4sAD6zQAqFxPiOcuiUpCGMKw2PJdrvKvpufrPhbsUsiW9gDU+uiz3tESgHIlH47fdrhCC1FZKR3O7QWl6JyvAkt2Ass56cw4mMskIhe93UC65spfapolusOs8IJJAGiSBv6J+m4w7+W/R/dfb06lkEAvG1nNyNPRM2lpoyZ3wuoWO2VoahyoUYEO+pWdtFfe5TuLyXYRjmTiAztcxFkRfqw7wjL2Ju6qmKS0ChKex1H6gDwftg0wku6/LlMvyTMnRs3kLHzsgjy/lY/mQK10Z6nXAPpB7EZQAptwCp2XCJoZYRTFS1pEWXc7gxBdv3d6C7KtZnLlMp/N+U61qfEaM227dl7ol01f0waBZXP/GUY8ap8tF+aiKDRFaMU+FnYFxE60sw=
+  matrix:
+  #- DOVECOT_AUTH=GSSAPI   GMAIL_AUTH=XOAUTH2 #Dovecot IMAP server inbox not yet created.
+  #- DOVECOT_AUTH=CRAM-MD5 GMAIL_AUTH=XOAUTH2 #
+  - OUTLOOK_AUTH=PLAIN    GMAIL_AUTH=XOAUTH2
+  - OUTLOOK_AUTH=LOGIN    GMAIL_AUTH=XOAUTH2
+matrix:
+  include:
+  - os: osx
+    language: generic
+    env: PYTHON=2.7.14 OUTLOOK_AUTH=PLAIN GMAIL_AUTH=XOAUTH2
+  - os: osx
+    language: generic
+    env: PYTHON=2.7.14 OUTLOOK_AUTH=LOGIN GMAIL_AUTH=XOAUTH2
+  - os: osx
+    language: generic
+    env: PYTHON=3.6.4 OUTLOOK_AUTH=PLAIN GMAIL_AUTH=XOAUTH2
+  - os: osx
+    language: generic
+    env: PYTHON=3.6.4 OUTLOOK_AUTH=LOGIN GMAIL_AUTH=XOAUTH2
+  allow_failures:
+  #- python: '3.6'  # Python3 runs should work fine, because shebang is set to python2.
+  - os: osx  # OSX should work now.
+cache: pip
+before_install:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew install openssl readline; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OSX_BREW_SSLCACERTFILE="/usr/local/etc/openssl/cert.pem"; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew outdated pyenv || brew upgrade pyenv; fi
+# virtualenv doesn't work without pyenv knowledge. 
+# venv in Python 3.3 doesn't provide pip by default. 
+# So, use 'pyenv-virtualenv'.
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install pyenv-virtualenv; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pyenv install $PYTHON; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PYENV_VERSION="${PYTHON}"; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH="/Users/travis/.pyenv/shims:${PATH}"; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pyenv virtualenv $PYTHON myvenv; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pyenv versions; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then python --version; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pyenv version; fi
+#- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pyenv activate myvenv; fi
+# Manually check that the correct version of python is running.
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then python --version; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then python -m pip install -U pip; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then python -m easy_install -U setuptools; fi
+install:
+- pip install -r requirements.txt
+- pip install -r tests/requirements.txt
+- export PATH=$PATH:.
+- python tests/create_conf_file.py
+script:
+#- pytest  # Disabled because OLItest hardcoded LOGIN method which fails on Gmail. Gmail must use/test the built-in XOAUTH2 authentication in offlineimap.
+- ./offlineimap.py -c ./oli-travis.conf
+- codecov
