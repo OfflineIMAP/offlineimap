@@ -2,6 +2,13 @@ language: python
 python:
 - '2.7'
 - '3.6'
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/975e807e0314c9fa189c
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: never
 os:
 - linux
 env:
