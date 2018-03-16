@@ -44,7 +44,7 @@ Upstream status (`next` branch):
 <p style="center">
 <h1><img src="https://upload.wikimedia.org/wikipedia/commons/1/13/OfflineIMAP_logo.png" alt="OfflineIMAP"/>OfflineIMAP</h1>
 <b><i>"Get the emails where you need them."</i></b>
-<h2> Read/sync your IMAP mailboxes. Works on Linux and Mac OSX. </h2>
+<h2> Read/sync your IMAP mailboxes. Tested on Linux, Mac OSX. Also works on BSD and Windows.</h2>
 </p>
 
 Links:
@@ -133,7 +133,7 @@ and [read/search the Mailing List Archive][mailing_list_archive].
 
 * Have a look at the ["To Do" list][todo], and the ["need contributor!" issues][issues_need_contrib], 
 then, contribute your code to solve the issue by [opening a pull request][pull_request_new].
-* Remeber to heed the [Code of Conduct][code_of_conduct].
+* Remember to heed the [Code of Conduct][code_of_conduct].
 
 ## The community
 
