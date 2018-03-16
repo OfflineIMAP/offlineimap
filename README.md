@@ -15,8 +15,6 @@ Upstream status (`next` branch):
 [![Python versions supported](https://img.shields.io/pypi/pyversions/offlineimap.svg)](https://pypi.python.org/pypi/offlineimap)
 [![Package stability](https://img.shields.io/pypi/status/offlineimap.svg)](https://pypi.python.org/pypi/offlineimap)
 [![PyPI status](https://badge.fury.io/py/offlineimap.svg)](https://pypi.python.org/pypi/offlineimap)
-[![Kit format](https://img.shields.io/pypi/format/offlineimap.svg)](https://pypi.python.org/pypi/offlineimap)
-[![Implementation](https://img.shields.io/pypi/implementation/offlineimap.svg)](https://pypi.python.org/pypi/offlineimap)
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/OfflineIMAP/offlineimap.svg)](https://github.com/OfflineIMAP/offlineimap/commits/master)
 [![Github Tag](https://img.shields.io/github/tag/OfflineIMAP/offlineimap.svg)](https://github.com/OfflineIMAP/offlineimap/releases)
