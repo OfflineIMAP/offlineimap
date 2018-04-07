@@ -15,6 +15,58 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.2.0 (2018-04-07)
+
+#### Notes
+
+The biggest change with this release is the introduction of automated tests;
+thanks to Chris from http://www.espacenetworks.com.
+
+Robbie Hardwood from RedHat switched the GSSAPI dependency from pykerberos to
+python-gssapi because it's more active and has more pleasant interface.
+
+The shebang is fixed back to python2 to fix issues on some environments.
+
+The UI was improved to show both the local and remote foldernames (usefull when
+nametrans is enabled).
+
+Thanks to all the contributors.
+
+This release was tested by:
+
+- Nicolas Sebrecht
+- Remi Locherer
+
+
+#### Authors
+
+- Nicolas Sebrecht (9)
+- Musashi69 (1)
+- Robbie Harwood (1)
+- chris001 (1)
+
+
+#### Features
+
+- Autmomated testing using Travis and CodeCov.io!. [chris001]
+- README: travis: add badge for the next branch. [Nicolas Sebrecht]
+- travis: add notification to gitter room OfflineIMAP/offlineimap. [Nicolas Sebrecht]
+
+#### Fixes
+
+- offlineimap.py: fix shebang to python2. [Nicolas Sebrecht]
+- bin/offlineimap: fix shebang to env python2. [Nicolas Sebrecht]
+
+#### Changes
+
+- Port to python-gssapi from pykerberos. [Robbie Harwood]
+- requirements: add gssapi as optional dependency. [Nicolas Sebrecht]
+- make UI output show local AND remote dirs involved. [Musashi69]
+- maxsyncaccounts: improve documentation. [Nicolas Sebrecht]
+
+
+
+
 ### OfflineIMAP v7.1.5 (2018-01-13)
 
 #### Notes
