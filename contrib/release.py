@@ -26,7 +26,7 @@ from helpers import (
 )
 
 
-__VERSION__ = "0.1"
+__VERSION__ = "0.2"
 
 SPHINXBUILD = 'sphinx-build'
 DOCSDIR = 'docs'
@@ -260,6 +260,15 @@ Pip:
 
 
 class Website(object):
+    def updateUploads(self):
+        req = ("update uploads/ of the website? "
+            "(warning: checksums will change if they already exist)")
+        if User.yesNo(req, defaultToYes=True) is False:
+            return False
+        if check_call(shlex.split("./docs/build-uploads.sh")) != 0:
+            return exit(5)
+        return True
+
     def updateAPI(self):
         req = "update API of the website? (requires {})".format(SPHINXBUILD)
         if User.yesNo(req, defaultToYes=True) is False:
@@ -292,9 +301,7 @@ Then, commit and push changes of the website.""".format(SPHINXBUILD, DOCSDIR))
         with open(WEBSITE_LATEST, 'w') as fd:
             fd.write(WEBSITE_LATEST_SKEL.format(stable=version))
 
-    def exportDocs(self, version):
-        branchName = "import-v{}".format(version)
-
+    def exportDocs(self):
         if not goTo(DOCSDIR):
             User.pause()
             return
@@ -302,6 +309,9 @@ Then, commit and push changes of the website.""".format(SPHINXBUILD, DOCSDIR))
         if check_call(shlex.split("make websitedoc")) != 0:
             print("error while calling 'make websitedoc'")
             exit(3)
+
+    def createImportBranch(self, version):
+        branchName = "import-v{}".format(version)
 
         Git.chdirToRepositoryTopLevel()
         if not goTo("website"):
@@ -410,8 +420,12 @@ class Release(object):
         self.state.saveWebsite()
         website = Website()
         website.buildLatest(newVersion)
-        if website.updateAPI():
-            self.websiteBranch = website.exportDocs(newVersion)
+        res_upload = website.updateUploads()
+        res_api = website.updateAPI()
+        if res_api:
+            res_export = website.exportDocs()
+        if True in [res_upload, res_api, res_export]:
+            self.websiteBranch = website.createImportBranch(newVersion)
 
     def getWebsiteBranch(self):
         return self.websiteBranch

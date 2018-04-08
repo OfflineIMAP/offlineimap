@@ -14,9 +14,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+# Warning: VERSION, ABBREV and TARGZ are used in docs/build-uploads.sh.
 VERSION=$(shell ./offlineimap.py --version)
 ABBREV=$(shell git log --format='%h' HEAD~1..)
-TARGZ=offlineimap-$(VERSION)-$(ABBREV)
+TARGZ=offlineimap-v$(VERSION)-$(ABBREV)
 SHELL=/bin/bash
 RST2HTML=`type rst2html >/dev/null 2>&1 && echo rst2html || echo rst2html.py`
 
@@ -49,7 +50,7 @@ websitedoc:
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
-	cd .. && tar -zhcv -f $(TARGZ).tar.gz --exclude '.*.swp' --exclude '.*.swo' --exclude '*.pyc' --exclude '__pycache__' offlineimap/{bin,Changelog.md,Changelog.maint.md,contrib,CONTRIBUTING.rst,COPYING,docs,MAINTAINERS.rst,Makefile,MANIFEST.in,offlineimap,offlineimap.conf,offlineimap.conf.minimal,offlineimap.py,README.md,requirements.txt,scripts,setup.cfg,setup.py,snapcraft.yaml,test,tests,TODO.rst}
+	cd .. && tar -zhcv --transform s,^offlineimap,$(TARGZ), -f $(TARGZ).tar.gz --exclude '.*.swp' --exclude '.*.swo' --exclude '*.pyc' --exclude '__pycache__' offlineimap/{bin,Changelog.md,Changelog.maint.md,contrib,CONTRIBUTING.rst,COPYING,docs,MAINTAINERS.rst,Makefile,MANIFEST.in,offlineimap,offlineimap.conf,offlineimap.conf.minimal,offlineimap.py,README.md,requirements.txt,scripts,setup.cfg,setup.py,snapcraft.yaml,test,tests,TODO.rst}
 
 rpm: targz
 	cd .. && sudo rpmbuild -ta $(TARGZ)
