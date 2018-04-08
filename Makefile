@@ -1,5 +1,4 @@
-# Copyright (C) 2002 - 2006 John Goerzen
-# <jgoerzen@complete.org>
+# Copyright (C) 2002 - 2018 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -36,6 +35,7 @@ clean:
 	-find . -name '*.pygc' -exec rm -f {} \;
 	-find . -name '*.class' -exec rm -f {} \;
 	-find . -name '.cache*' -exec rm -f {} \;
+	-find . -type d -name '__pycache__' -exec rm -rf {} \;
 	-rm -f manpage.links manpage.refs 2>/dev/null
 	-find . -name auth -exec rm -vf {}/password {}/username \;
 	-$(MAKE) -C docs clean
