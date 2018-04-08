@@ -11,6 +11,7 @@ DOCBASE="${WEBSITE}/_doc"
 DESTBASE="${DOCBASE}/versions"
 VERSIONS_YML="${WEBSITE}/_data/versions.yml"
 ANNOUNCES_YML="${WEBSITE}/_data/announces.yml"
+ANNOUNCES_YML_LIMIT=31
 ANNOUNCES_YML_TMP="${ANNOUNCES_YML}.tmp"
 CONTRIB_YML="${WEBSITE}/_data/contribs.yml"
 CONTRIB="${DOCBASE}/contrib"
@@ -122,7 +123,7 @@ function releases () {
     d="$(parse_releases_get_date "$title")"
     echo "- {date: '${d}', version: '${v}', link: 'Changelog.maint.html#${link}'}"
   done | tee -a "$ANNOUNCES_YML_TMP"
-  sort -nr "$ANNOUNCES_YML_TMP" >> "$ANNOUNCES_YML"
+  sort -nr "$ANNOUNCES_YML_TMP" | head -n $ANNOUNCES_YML_LIMIT >> "$ANNOUNCES_YML"
   rm -f "$ANNOUNCES_YML_TMP"
 }
 
