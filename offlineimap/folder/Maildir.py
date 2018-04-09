@@ -82,6 +82,10 @@ class MaildirFolder(BaseFolder):
             "general", "utime_from_header", False)
         self._utime_from_header = self.config.getdefaultboolean(
             self.repoconfname, "utime_from_header", utime_from_header_global)
+        # What do we substitute pathname separator in names (if any)
+        self.sep_subst = '-'
+        if os.path.sep == self.sep_subst:
+            self.sep_subst = '_'
 
     # Interface from BaseFolder
     def getfullname(self):
@@ -286,9 +290,10 @@ class MaildirFolder(BaseFolder):
         :returns: String containing unique message filename"""
 
         timeval, timeseq = _gettimeseq(date)
-        return '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s'% \
+        uniq_name = '%d_%d.%d.%s,U=%d,FMD5=%s%s2,%s' % \
             (timeval, timeseq, os.getpid(), socket.gethostname(),
             uid, self._foldermd5, self.infosep, ''.join(sorted(flags)))
+        return uniq_name.replace(os.path.sep, self.sep_subst)
 
 
     def save_to_tmp_file(self, filename, content):
