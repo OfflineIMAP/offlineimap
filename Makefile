@@ -50,7 +50,7 @@ websitedoc:
 
 targz: ../$(TARGZ)
 ../$(TARGZ):
-	cd .. && tar -zhcv --transform s,^offlineimap,$(TARGZ), -f $(TARGZ).tar.gz --exclude '.*.swp' --exclude '.*.swo' --exclude '*.pyc' --exclude '__pycache__' offlineimap/{bin,Changelog.md,Changelog.maint.md,contrib,CONTRIBUTING.rst,COPYING,docs,MAINTAINERS.rst,Makefile,MANIFEST.in,offlineimap,offlineimap.conf,offlineimap.conf.minimal,offlineimap.py,README.md,requirements.txt,scripts,setup.cfg,setup.py,snapcraft.yaml,test,tests,TODO.rst}
+	cd .. && tar -zhcv --transform s,^offlineimap,offlineimap-v$(VERSION), -f $(TARGZ).tar.gz --exclude '.*.swp' --exclude '.*.swo' --exclude '*.pyc' --exclude '__pycache__' offlineimap/{bin,Changelog.md,Changelog.maint.md,contrib,CONTRIBUTING.rst,COPYING,docs,MAINTAINERS.rst,Makefile,MANIFEST.in,offlineimap,offlineimap.conf,offlineimap.conf.minimal,offlineimap.py,README.md,requirements.txt,scripts,setup.cfg,setup.py,snapcraft.yaml,test,tests,TODO.rst}
 
 rpm: targz
 	cd .. && sudo rpmbuild -ta $(TARGZ)
