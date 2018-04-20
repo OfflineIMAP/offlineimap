@@ -16,7 +16,7 @@ Contacts
   - github: benutzer193
 
 - Chris Coleman
-  - email: christocoleman at yahoo.com
+  - email: chris at espacenetworks.com
   - github: chris001
 
 - Darshit Shah
@@ -83,6 +83,7 @@ Maintainers
 - Eygene Ryabinkin
 - Sebastian Spaeth
 - Nicolas Sebrecht
+- Chris Coleman
 
 
 Github
