@@ -433,8 +433,9 @@ class OfflineImap(object):
                 accounts.Account.set_abort_event(self.config, 2)
             elif sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
                 # tell each account to ABORT ASAP (ctrl-c)
-                getglobalui().warn("Terminating NOW (this may "\
-                                   "take a few seconds)...")
+                getglobalui().warn("Preparing to shutdown after sync (this may "\
+                                   "take some time), press CTRL-C three "\
+                                   "times to shutdown immediately")
                 accounts.Account.set_abort_event(self.config, 3)
                 if 'thread' in self.ui.debuglist:
                     self.__dumpstacks(5)
