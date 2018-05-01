@@ -5,7 +5,7 @@
 # IMAP synchronization
 # Module: installer
 # COPYRIGHT #
-# Copyright (C) 2002 - 2006 John Goerzen
+# Copyright (C) 2002 - 2018 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -53,6 +53,7 @@ class TestCommand(Command):
 setup(name = "offlineimap",
       version = offlineimap.__version__,
       description = offlineimap.__description__,
+      long_description = offlineimap.__description__,
       author = offlineimap.__author__,
       author_email = offlineimap.__author_email__,
       url = offlineimap.__homepage__,
