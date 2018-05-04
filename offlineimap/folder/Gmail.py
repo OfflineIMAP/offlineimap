@@ -79,7 +79,7 @@ class GmailFolder(IMAPFolder):
 
         # Embed the labels into the message headers
         if self.synclabels:
-            m = re.search('X-GM-LABELS\s*\(([^\)]*)\)', data[0][0])
+            m = re.search('X-GM-LABELS\s*[(](.*)[)]', data[0][0])
             if m:
                 labels = set([imaputil.dequote(lb) for lb in imaputil.imapsplit(m.group(1))])
             else:
@@ -153,6 +153,7 @@ class GmailFolder(IMAPFolder):
             if messagestr == None:
                 continue
             messagestr = messagestr.split(' ', 1)[1]
+            # e.g.: {'X-GM-LABELS': '("Webserver (RW.net)" "\\Inbox" GInbox)', 'FLAGS': '(\\Seen)', 'UID': '275440'}
             options = imaputil.flags2hash(messagestr)
             if not 'UID' in options:
                 self.ui.warn('No UID in message with options %s' %\
@@ -162,7 +163,8 @@ class GmailFolder(IMAPFolder):
                 uid = int(options['UID'])
                 self.messagelist[uid] = self.msglist_item_initializer(uid)
                 flags = imaputil.flagsimap2maildir(options['FLAGS'])
-                m = re.search('\(([^\)]*)\)', options['X-GM-LABELS'])
+                # e.g.: '("Webserver (RW.net)" "\\Inbox" GInbox)'
+                m = re.search('^[(](.*)[)]', options['X-GM-LABELS'])
                 if m:
                     labels = set([imaputil.dequote(lb) for lb in imaputil.imapsplit(m.group(1))])
                 else:
