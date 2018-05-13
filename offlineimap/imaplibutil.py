@@ -23,7 +23,7 @@ import socket
 import errno
 import zlib
 from sys import exc_info
-from hashlib import sha1
+from hashlib import sha512, sha384, sha256, sha224, sha1
 
 import six
 
@@ -201,15 +201,18 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
               "having SSL helps nothing.", OfflineImapError.ERROR.REPO)
         super(WrappedIMAP4_SSL, self).open(host, port)
         if self._fingerprint:
+            server_cert = self.sock.getpeercert(True)
+            hashes = sha512, sha384, sha256, sha224, sha1
+            server_fingerprints = [hash(server_cert).hexdigest() for hash in hashes]
             # compare fingerprints
-            fingerprint = sha1(self.sock.getpeercert(True)).hexdigest()
-            if fingerprint not in self._fingerprint:
+            matches = [(server_fingerprint in self._fingerprint) for server_fingerprint in server_fingerprints]
+            if not any(matches):
                 raise OfflineImapError("Server SSL fingerprint '%s' "
                       "for hostname '%s' "
                       "does not match configured fingerprint(s) %s.  "
                       "Please verify and set 'cert_fingerprint' accordingly "
                       "if not set yet."%
-                      (fingerprint, host, self._fingerprint),
+                      (server_fingerprints, host, self._fingerprint),
                       OfflineImapError.ERROR.REPO)
 
 
