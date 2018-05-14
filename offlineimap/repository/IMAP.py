@@ -293,7 +293,7 @@ class IMAPRepository(BaseRepository):
         comma-separated fingerprints in hex form."""
 
         value = self.getconf('cert_fingerprint', "")
-        return [f.strip().lower() for f in value.split(',') if f]
+        return [f.strip().lower().replace(":", "") for f in value.split(',') if f]
 
     def setoauth2_request_url(self, url):
         self.oauth2_request_url = url
