@@ -207,12 +207,12 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
             # compare fingerprints
             matches = [(server_fingerprint in self._fingerprint) for server_fingerprint in server_fingerprints]
             if not any(matches):
-                raise OfflineImapError("Server SSL fingerprint '%s' "
+                raise OfflineImapError("Server SSL fingerprint(s) '%s' "
                       "for hostname '%s' "
                       "does not match configured fingerprint(s) %s.  "
                       "Please verify and set 'cert_fingerprint' accordingly "
                       "if not set yet."%
-                      (server_fingerprints, host, self._fingerprint),
+                      (list(zip([hash.__name__ for hash in hashes], server_fingerprints)), host, self._fingerprint),
                       OfflineImapError.ERROR.REPO)
 
 
