@@ -212,7 +212,7 @@ class WrappedIMAP4_SSL(UsefulIMAPMixIn, IMAP4_SSL):
                       "does not match configured fingerprint(s) %s.  "
                       "Please verify and set 'cert_fingerprint' accordingly "
                       "if not set yet."%
-                      (list(zip([hash.__name__ for hash in hashes], server_fingerprints)), host, self._fingerprint),
+                      (zip([hash.__name__ for hash in hashes], server_fingerprints), host, self._fingerprint),
                       OfflineImapError.ERROR.REPO)
 
 
