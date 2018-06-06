@@ -280,7 +280,18 @@ class IMAPServer(object):
             # we'd be ready since krb5 always requests integrity and
             # confidentiality support.
             response = self.gss_vc.unwrap(token)
-            response = self.gss_vc.wrap(response.message, response.encrypted)
+
+            # This is a behavior we got from pykerberos.  First byte is one,
+            # first four bytes are preserved (pykerberos calls this a length).
+            # Any additional bytes are username.
+            reply = []
+            reply[0:4] = response.message[0:4]
+            reply[0] = '\x01'
+            if self.username:
+                reply[5:] = self.username
+            reply = ''.join(reply)
+
+            response = self.gss_vc.wrap(reply, response.encrypted)
             return response.message if response.message else ""
         except gssapi.exceptions.GSSError as err:
             # GSSAPI errored out on us; respond with None to cancel the
