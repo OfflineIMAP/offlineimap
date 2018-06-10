@@ -1,0 +1,63 @@
+[general]
+# GPG quirks, leave unconfigured
+ui = ttyui
+# you can use any name as long as it matches the 'account1, 'account2' in the rest
+# of the file
+accounts = account1, account2
+# this is where the `gpg-pw.py` file is on disk
+pythonfile=~/where/is/the/file/gpg-pw.py
+fsync = False
+
+# you can call this any way you like
+[Account account1]
+localrepository = account1-local
+remoterepository = account1-remote
+# no need to touch this
+status_backend = sqlite
+
+[Account account2]
+localrepository = account2-local
+remoterepository = account2-remote
+status_backend = sqlite
+
+# thi sis a gmail account
+[Repository account1-local]
+type = Maildir
+# create with maildirmake or by hand by creating cur, new, tmp
+localfolders = ~/Mail/Mailboxes/account1
+# standard Gmail stuff
+nametrans = lambda folder: { 'drafts': '[Gmail]/Drafts',
+                             'sent':   '[Gmail]/Sent mail',
+                             'flagged': '[Gmail]/Starred',
+                             'trash':   '[Gmail]/Trash',
+                             'archive': '[Gmail]/All Mail' 
+                            }.get(folder, folder)
+
+[Repository account1-remote]
+maxconnections = 1
+type = Gmail
+ssl=yes
+# for osx, you might need to download the certs by hand
+#sslcacertfile=~/Mail/certs.pem
+#sslcacertfile=~/Mail/imap.gmail.com.pem
+# sslcacertfile=/etc/ssl/cert.pem
+
+# or use Linux's standard certs
+sslcacertfile=/etc/ssl/certs/ca-certificates.crt
+# your account
+remoteuser = account1@gmail.com
+remotepasseval = get_pass(account="account1@gmail.com", server="imap.gmail.com", passwd_file="passwords-gmail.txt.gpg")
+realdelete = no
+createfolders = no
+nametrans = lambda folder: {'[Gmail]/Drafts':    'drafts',
+                            '[Gmail]/Sent Mail': 'sent',
+                            '[Gmail]/Starred':   'star',
+                            '[Gmail]/Trash':     'trash',
+                            '[Gmail]/All Mail':  'archive',
+                            }.get(folder, folder)
+folderfilter = lambda folder: folder not in ['[Gmail]/Trash',
+                                             '[Gmail]/Spam',
+                                             ]
+
+[Repository account2-remote]
+# copy the stanza above, change the 'account' parameter of get_pass, etc.
