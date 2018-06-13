@@ -257,7 +257,7 @@ class UIBase(object):
 
     ################################################## INPUT
 
-    def getpass(self, accountname, config, errmsg = None):
+    def getpass(self, username, config, errmsg = None):
         raise NotImplementedError("Prompting for a password is not supported"
             " in this UI backend.")
 

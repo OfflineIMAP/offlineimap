@@ -182,15 +182,15 @@ class MachineUI(UIBase):
         return 0
 
 
-    def getpass(s, accountname, config, errmsg=None):
+    def getpass(s, username, config, errmsg=None):
         if errmsg:
             s._printData(s.logger.warning,
-              'getpasserror', "%s\n%s"% (accountname, errmsg),
+              'getpasserror', "%s\n%s"% (username, errmsg),
               False)
 
         s._log_con_handler.acquire() # lock the console output
         try:
-            s._printData(s.logger.info, 'getpass', accountname)
+            s._printData(s.logger.info, 'getpass', username)
             return (sys.stdin.readline()[:-1])
         finally:
             s._log_con_handler.release()

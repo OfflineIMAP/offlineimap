@@ -175,8 +175,7 @@ class IMAPServer(object):
 
         # get 1) configured password first 2) fall back to asking via UI
         self.password = self.repos.getpassword() or \
-            self.ui.getpass(self.repos.getname(), self.config,
-                self.passworderror)
+            self.ui.getpass(self.username, self.config, self.passworderror)
         self.passworderror = None
         return self.password
 
