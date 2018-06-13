@@ -76,14 +76,14 @@ class TTYUI(UIBase):
 
         return sys.stdout.isatty() and sys.stdin.isatty()
 
-    def getpass(self, accountname, config, errmsg=None):
+    def getpass(self, username, config, errmsg=None):
         """TTYUI backend is capable of querying the password."""
 
         if errmsg:
-            self.warn("%s: %s"% (accountname, errmsg))
+            self.warn("%s: %s"% (username, errmsg))
         self._log_con_handler.acquire() # lock the console output
         try:
-            return getpass("Enter password for account '%s': " % accountname)
+            return getpass("Enter password for user '%s': " % username)
         finally:
             self._log_con_handler.release()
 

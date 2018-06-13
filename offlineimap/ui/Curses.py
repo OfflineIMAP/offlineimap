@@ -549,7 +549,7 @@ class Blinkenlights(UIBase, CursesUtil):
     def mainException(self):
         UIBase.mainException(self)
 
-    def getpass(self, accountname, config, errmsg=None):
+    def getpass(self, username, config, errmsg=None):
         # disable the hotkeys inputhandler
         self.inputhandler.input_acquire()
 
@@ -558,8 +558,8 @@ class Blinkenlights(UIBase, CursesUtil):
         try:
             #s.gettf().setcolor('white')
             self.warn(" *** Input Required")
-            self.warn(" *** Please enter password for account %s: " % \
-                          accountname)
+            self.warn(" *** Please enter password for user '%s': " % \
+                          username)
             self.logwin.refresh()
             password = self.logwin.getstr()
         finally:
