@@ -199,6 +199,11 @@ class IMAPServer(object):
           http://tools.ietf.org/html/rfc4616"""
 
         authc = self.username
+        if not authc:
+            raise OfflineImapError("No username provided for '%s'"
+                                    % self.repos.getname(),
+                                   OfflineImapError.ERROR.REPO)
+
         passwd = self.__getpassword()
         authz = b''
         if self.user_identity != None:
