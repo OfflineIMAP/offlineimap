@@ -55,9 +55,13 @@ function api () {
   # This let know the website about the available APIs documentations.
   echo "Building Jekyll data: $VERSIONS_YML"
   # Erase previous content.
-  echo "$HEADER" > "$VERSIONS_YML"
-  echo "# However, it's correct to /remove/ old API docs here."
-  echo "# While at it, don't forget to adjust the _doc/versions directory."
+  echo > "$VERSIONS_YML" <<EOF
+$HEADER
+# Used to publish the APIs.
+#
+# However, it's correct to _remove_ old API docs here. In this case, don't
+# forget to adjust the _doc/versions directory too.
+EOF
   for version in $(ls "$DESTBASE" -1 | sort -nr)
   do
     echo "- $version"
