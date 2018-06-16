@@ -261,8 +261,8 @@ Pip:
 
 class Website(object):
     def updateUploads(self):
-        req = ("update uploads/ of the website? "
-            "(warning: checksums will change if they already exist)")
+        req = ("add new archive to uploads/ on the website? "
+            "(warning: checksums will change if it already exists)")
         if User.yesNo(req, defaultToYes=True) is False:
             return False
         if check_call(shlex.split("./docs/build-uploads.sh")) != 0:
