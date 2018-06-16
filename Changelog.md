@@ -15,6 +15,78 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.2.1 (2018-06-16)
+
+#### Notes
+
+This new version introduces interesting features. The fingerprints now accepts
+hashes in sha224, sha256, sha384 and sha512 to improve the compatibility with
+IMAP servers.
+
+There's a new script in ./contrib to store passwords with GPG.
+
+The new GSSAPI library for kerberos gets a fix about authentication. Gmail
+labels can now have parenthesis and the hostname can have path separators in
+theirs names.
+
+There's a lot of other minors improvements to make offlineimap better
+(in the documentation, UI, configuration file and the code).
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+Thanks to all the contributors. A lot of patches are first time contributions to
+this project. This is very pleasant.
+
+Special thanks to Ilias Tsitsimpis, Eygene Ryabinkin, Chris Coleman our long
+time contributors involved in this release and Sebastian Spaeth who is still
+paying for the domain name!
+
+
+#### Authors
+
+- Nicolas Sebrecht (9)
+- velleto (6)
+- Chris Coleman (1)
+- Edgar HIPP (1)
+- Eygene Ryabinkin (1)
+- Lorenzo (1)
+- Michael Billington (1)
+- Robbie Harwood (1)
+
+
+#### Features
+
+- Script to store passwords in a file with GPG or using OSX's secure keychain. [Lorenzo]
+- Added support for sha512, sha384, sha256, sha224 hashing algorithms to calculate server certificate fingerprints.. [velleto]
+
+#### Fixes
+
+- Pass username through in GSSAPI connections. [Robbie Harwood]
+- Gmail: allow parenthesis in labels. [Nicolas Sebrecht]
+- Correct typographical errors in offlineimap.conf. [Michael Billington]
+- Create filenames with no path separators in them. [Eygene Ryabinkin]
+
+#### Changes
+
+- imapserver: fix copyright line. [Nicolas Sebrecht]
+- Available hashes added to documentation.. [velleto]
+- Documented the now allowed use of colon separated fingerprints with examples.. [velleto]
+- Allow users to keep colons between each hex pair of server certificate fingerprint in configuration file.. [velleto]
+- Removed uneccessary call of list() on zip() object.. [velleto]
+- Changed the 'exception raised' message, to be more understandable.. [velleto]
+- Make CTRL-C message more clear. [Edgar HIPP]
+- setup: add long_description. [Nicolas Sebrecht]
+- offlineimap.conf: fix comment about gssapi. [Nicolas Sebrecht]
+- Add self to maintainers. Update email address.. [Chris Coleman]
+- Makefile: targz: don't set the abbrev in the archive directory name. [Nicolas Sebrecht]
+- contrib: learn to build website/_uploads. [Nicolas Sebrecht]
+- docs/website-doc.sh: limit the number of exported versions in _data/announces.yml. [Nicolas Sebrecht]
+- Makefile: targz: update files. [Nicolas Sebrecht]
+- Makefile: clean: remove __pycache__ directories. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.2.0 (2018-04-07)
 
 #### Notes
