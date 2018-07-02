@@ -101,7 +101,7 @@ class IMAPServer(object):
         self.starttls = repos.getstarttls()
 
         if self.tlslevel is not "tls_compat" and self.sslversion is None:
-            raise Exception("When 'tls_version' is not 'tls_compat' "
+            raise Exception("When 'tls_level' is not 'tls_compat' "
                 "the 'ssl_version' must be set explicitly.")
 
         self.oauth2_refresh_token = repos.getoauth2_refresh_token()
