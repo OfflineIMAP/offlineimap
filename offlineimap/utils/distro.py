@@ -48,7 +48,7 @@ def get_os_name():
     if OS.startswith('linux'):
         DISTRO = platform.linux_distribution()[0]
         if DISTRO:
-          OS = OS + "-%s" % DISTRO.split()[0].lower()
+            OS = OS + "-%s" % DISTRO.split()[0].lower()
         if os.path.exists('/etc/arch-release'):
             OS = "linux-arch"
 
