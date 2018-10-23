@@ -545,7 +545,16 @@ class IMAP4(object):
 
             ssl_version =  TLS_MAP[self.tls_level][self.ssl_version]
 
-            self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, ca_certs=self.ca_certs, cert_reqs=cert_reqs, ssl_version=ssl_version)
+            if getattr(ssl, 'HAS_SNI', False):
+                ctx = ssl.SSLContext(ssl_version)
+                ctx.verify_mode = cert_reqs
+                if self.ca_certs is not None:
+                    ctx.load_verify_locations(self.ca_certs)
+                if self.certfile or self.keyfile:
+                    ctx.load_cert_chain(self.certfile, self.keyfile)
+                self.sock = ctx.wrap_socket(self.sock, server_hostname=self.host)
+            else:
+                self.sock = ssl.wrap_socket(self.sock, self.keyfile, self.certfile, ca_certs=self.ca_certs, cert_reqs=cert_reqs, ssl_version=ssl_version)
             ssl_exc = ssl.SSLError
             self.read_fd = self.sock.fileno()
         except ImportError:
