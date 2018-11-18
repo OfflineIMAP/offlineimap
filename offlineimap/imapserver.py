@@ -15,6 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import datetime
 import hmac
 import socket
 import json
@@ -111,6 +112,7 @@ class IMAPServer(object):
         self.oauth2_client_id = repos.getoauth2_client_id()
         self.oauth2_client_secret = repos.getoauth2_client_secret()
         self.oauth2_request_url = repos.getoauth2_request_url()
+        self.oauth2_access_token_expires_at = None
 
         self.delim = None
         self.root = None
@@ -219,6 +221,12 @@ class IMAPServer(object):
         return retval
 
     def __xoauth2handler(self, response):
+        now = datetime.datetime.now()
+        if self.oauth2_access_token_expires_at \
+                and self.oauth2_access_token_expires_at < now:
+            self.oauth2_access_token = None
+            self.ui.debug('imap', 'xoauth2handler: oauth2_access_token expired')
+
         if self.oauth2_access_token is None:
             if self.oauth2_request_url is None:
                 raise OfflineImapError("No remote oauth2_request_url for "
@@ -256,9 +264,13 @@ class IMAPServer(object):
                 raise OfflineImapError("xoauth2handler got: %s"% resp,
                     OfflineImapError.ERROR.REPO)
             self.oauth2_access_token = resp['access_token']
+            if u'expires_in' in resp:
+                self.oauth2_access_token_expires_at = now + datetime.timedelta(
+                    seconds=resp['expires_in']/2
+                )
 
-        self.ui.debug('imap', 'xoauth2handler: access_token "%s"'%
-            self.oauth2_access_token)
+        self.ui.debug('imap', 'xoauth2handler: access_token "%s expires %s"'% (
+            self.oauth2_access_token, self.oauth2_access_token_expires_at))
         auth_string = 'user=%s\1auth=Bearer %s\1\1'% (
             self.username, self.oauth2_access_token)
         #auth_string = base64.b64encode(auth_string)
