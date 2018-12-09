@@ -511,6 +511,11 @@ def syncfolder(account, remotefolder, quick):
         uids = remotefolder.getmessageuidlist()
         localfolder.dropmessagelistcache()
         if len(uids) > 0:
+            # Reload the remote message list from min_uid. This avoid issues for
+            # old messages, which has been added from local on any previous run
+            # (IOW, message is older than maxage _and_ has high enough UID).
+            remotefolder.dropmessagelistcache()
+            remotefolder.cachemessagelist(min_uid=min(uids))
             localfolder.cachemessagelist(min_uid=min(uids))
         else:
             # Remote folder UIDs list is empty for the given range. We still
@@ -523,6 +528,7 @@ def syncfolder(account, remotefolder, quick):
             uids = [uid for uid in uids if uid > 0]
             if len(uids) > 0:
                 # Update the remote cache list for this new min(uids).
+                remotefolder.dropmessagelistcache()
                 remotefolder.cachemessagelist(min_uid=min(uids))
 
     def cachemessagelists_startdate(new, partial, date):
