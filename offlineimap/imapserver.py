@@ -292,6 +292,13 @@ class IMAPServer(object):
             if not self.gss_vc.complete:
                 response = self.gss_vc.step(token)
                 return response if response else ""
+            elif token is None:
+                # uh... context is complete, so there's no negotiation we can
+                # do.  But we also don't have a token, so we can't send any
+                # kind of response.  Empirically, some (but not all) servers
+                # seem to put us in this state, and seem fine with getting no
+                # GSSAPI content in response, so give it to them.
+                return ""
 
             # Don't bother checking qop because we're over a TLS channel
             # already.  But hey, if some server started encrypting tomorrow,
