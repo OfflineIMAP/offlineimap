@@ -15,6 +15,58 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.2.2 (2018-12-22)
+
+#### Notes
+
+With this release offlineimap can renew the token for OAUTH2. There is better
+integration for ArchLinux and OSX. SSL configuration options are more
+consistent.
+
+There are bug fixes about maxage and GSSAPI.
+
+The imaplib2 library looks discontinued. I wonder we'll have no other choice
+than maintaining our own fork.
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+
+#### Authors
+
+- Nicolas Sebrecht (5)
+- Philippe Loctaux (4)
+- Benedikt Heine (2)
+- Carnë Draug (2)
+- Frode Aannevik (1)
+- Robbie Harwood (1)
+
+
+#### Features
+
+- 2890dec Added ssl certfile on osx for openssl pacakge on homebrew. [Philippe Loctaux]
+- 761e10e Add Archlinux to list of supported distros. [Philippe Loctaux]
+
+#### Fixes
+
+- 8692799 Fix expired oauth2_access_token. [Frode Aannevik]
+- 096aa07 Handle empty token with complete GSSAPI context. [Robbie Harwood]
+- a51064e maxage: always compute the remote cache list for min_uid. [Nicolas Sebrecht]
+- 698ec64 offlineimap.conf: minor fixes. [Nicolas Sebrecht]
+- af3a35a offlineimap/utilis/distro.py: indentation fix. [Philippe Loctaux]
+- d3ba837 Fix typo in exception message. [Benedikt Heine]
+- c9005cd Check if username is provided before trying plain authentication.. [Carnë Draug]
+
+#### Changes
+
+- 5f9474e Print username instead of accountname when asking for password. [Carnë Draug]
+- ce9a198 Chain tls_level and ssl_version only if ssl is enabled. [Benedikt Heine]
+- 6ef5937 docs/website-doc.sh: minor improvements in comments of versions.yml. [Nicolas Sebrecht]
+- 4544bb1 contrib/release.py: minor UI improvement. [Nicolas Sebrecht]
+- d930125 fix dates in copyright lines. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.2.1 (2018-06-16)
 
 #### Notes
