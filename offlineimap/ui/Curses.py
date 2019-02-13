@@ -137,7 +137,13 @@ class CursesAccountFrame:
         sleepstr = '%3d:%02d'% (secs // 60, secs % 60) if secs else 'active'
         accstr = '%s: [%s] %12.12s: '% (self.acc_num, sleepstr, self.account)
 
-        self.ui.exec_locked(self.window.addstr, 0, 0, accstr)
+        def addstr():
+            try:
+                self.window.addstr(0, 0, accstr)
+            except curses.error as e: # Occurs when the terminal is very small
+                pass
+        self.ui.exec_locked(addstr);
+
         self.location = len(accstr)
 
     def setwindow(self, curses_win, acc_num):
@@ -211,7 +217,10 @@ class CursesThreadFrame:
 
     def display(self):
         def locked_display():
-            self.window.addch(self.y, self.x, '@', self.curses_color)
+            try:
+                self.window.addch(self.y, self.x, '@', self.curses_color)
+            except curses.error: # Occurs when the terminal is very small
+                pass
             self.window.refresh()
         # lock the curses IO while fudging stuff
         self.ui.exec_locked(locked_display)
