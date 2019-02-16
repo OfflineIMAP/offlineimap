@@ -15,6 +15,27 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.2.3 (2019-02-17)
+
+#### Notes
+
+A tiny release for one minor bug fix.
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+
+#### Authors
+
+- Mart Lubbers (1)
+
+
+#### Fixes
+
+- add checks in curses ui for small windows. [Mart Lubbers]
+
+
 ### OfflineIMAP v7.2.2 (2018-12-22)
 
 #### Notes
