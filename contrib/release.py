@@ -274,7 +274,10 @@ class Website(object):
         if User.yesNo(req, defaultToYes=True) is False:
             return False
 
-        if check_call(shlex.split("{} --version".format(SPHINXBUILD))) != 0:
+        try:
+            if check_call(shlex.split("{} --version".format(SPHINXBUILD))) != 0:
+                raise RuntimeError("{} not found".format(SPHINXBUILD))
+        except:
             print("""
 Oops! you don't have {} installed?"
 Cannot update the webite documentation..."
