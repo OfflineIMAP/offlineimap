@@ -34,7 +34,7 @@ SYNC_MUTEXES = {}
 SYNC_MUTEXES_LOCK = Lock()
 
 try:
-    import fcntl
+    import portalocker
 except:
     pass # Ok if this fails, we can do without.
 
@@ -232,7 +232,7 @@ class SyncableAccount(Account):
 
         self._lockfd = open(self._lockfilepath, 'w')
         try:
-            fcntl.lockf(self._lockfd, fcntl.LOCK_EX|fcntl.LOCK_NB)
+            portalocker.lock(self._lockfd, portalocker.LOCK_EX)
         except NameError:
             #fcntl not available (Windows), disable file locking... :(
             pass
@@ -250,6 +250,7 @@ class SyncableAccount(Account):
 
         #If we own the lock file, delete it
         if self._lockfd and not self._lockfd.closed:
+            portalocker.unlock(self._lockfd)
             self._lockfd.close()
             try:
                 os.unlink(self._lockfilepath)
