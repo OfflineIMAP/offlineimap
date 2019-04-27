@@ -1,4 +1,4 @@
 # Requirements
 six
 gssapi[kerberos]
-portalocker
+portalocker[cygwin]

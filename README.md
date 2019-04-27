@@ -105,7 +105,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 * six (required)
 * imaplib2 >= 2.57 (optional)
 * gssapi (optional), for Kerberos authentication
-* portalocker(optional), if you need to run offlineimap in Cygwin for Windows
+* portalocker (optional), if you need to run offlineimap in Cygwin for Windows
 
 ## Documentation
 

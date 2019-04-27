@@ -36,7 +36,10 @@ SYNC_MUTEXES_LOCK = Lock()
 try:
     import portalocker
 except:
-    pass # Ok if this fails, we can do without.
+    try:
+        import fcntl
+    except:
+        pass # Ok if this fails, we can do without.
 
 # FIXME: spaghetti code alert!
 def getaccountlist(customconfig):
@@ -234,8 +237,11 @@ class SyncableAccount(Account):
         try:
             portalocker.lock(self._lockfd, portalocker.LOCK_EX)
         except NameError:
-            #fcntl not available (Windows), disable file locking... :(
-            pass
+            # portalocker not available for Windows.
+            try:
+                fcntl.lockf(self._lockfd, fcntl.LOCK_EX|fcntl.LOCK_NB)
+            except NameError:
+                pass # fnctl not available, disable file locking... :(
         except IOError:
             self._lockfd.close()
             six.reraise(OfflineImapError,
@@ -250,7 +256,10 @@ class SyncableAccount(Account):
 
         #If we own the lock file, delete it
         if self._lockfd and not self._lockfd.closed:
-            portalocker.unlock(self._lockfd)
+            try:
+                portalocker.unlock(self._lockfd)
+            except NameError:
+                pass
             self._lockfd.close()
             try:
                 os.unlink(self._lockfilepath)
