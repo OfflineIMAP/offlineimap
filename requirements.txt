@@ -1,3 +1,4 @@
 # Requirements
 six
 gssapi[kerberos]
+portalocker
