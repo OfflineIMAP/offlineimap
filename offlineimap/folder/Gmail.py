@@ -280,13 +280,14 @@ class GmailFolder(IMAPFolder):
         :param dstfolder: A BaseFolder-derived instance
         :param statusfolder: A LocalStatusFolder instance
         :param register: whether we should register a new thread."
-        :returns: Nothing on success, or raises an Exception."""
+        :returns: the new UID on success, or raises an Exception."""
 
         # Check if we are really copying
         realcopy = uid > 0 and not dstfolder.uidexists(uid)
 
         # first copy the message
-        super(GmailFolder, self).copymessageto(uid, dstfolder, statusfolder, register)
+        new_uid = super(GmailFolder, self).copymessageto(
+            uid, dstfolder, statusfolder, register)
 
         # sync labels and mtime now when the message is new (the embedded labels are up to date)
         # otherwise we may be spending time for nothing, as they will get updated on a later pass.
@@ -299,6 +300,8 @@ class GmailFolder(IMAPFolder):
             # dstfolder is not GmailMaildir.
             except NotImplementedError:
                 return
+
+        return new_uid
 
     def syncmessagesto_labels(self, dstfolder, statusfolder):
         """Pass 4: Label Synchronization (Gmail only)

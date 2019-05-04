@@ -818,7 +818,7 @@ class BaseFolder(object):
         :param dstfolder: A BaseFolder-derived instance
         :param statusfolder: A LocalStatusFolder instance
         :param register: whether we should register a new thread."
-        :returns: Nothing on success, or raises an Exception."""
+        :returns: the new UID on success, or raises an Exception."""
 
         # Sometimes, it could be the case that if a sync takes awhile,
         # a message might be deleted from the maildir before it can be
@@ -863,9 +863,10 @@ class BaseFolder(object):
                 self.deletemessage(uid)
             else:
                 raise OfflineImapError("Trying to save msg (uid %d) on folder "
-                    "%s returned invalid uid %d"% (uid, dstfolder.getvisiblename(),
-                    new_uid), OfflineImapError.ERROR.MESSAGE)
         except (KeyboardInterrupt): # Bubble up CTRL-C.
+                                       "%s returned invalid uid %d" % (uid, dstfolder.getvisiblename(),
+                                                                       new_uid), OfflineImapError.ERROR.MESSAGE)
+            return new_uid
             raise
         except OfflineImapError as e:
             if e.severity > OfflineImapError.ERROR.MESSAGE:
@@ -941,7 +942,8 @@ class BaseFolder(object):
                     thread.start()
                     threads.append(thread)
                 else:
-                    self.copymessageto(uid, dstfolder, statusfolder, register=0)
+                    new_uid = self.copymessageto(
+                        uid, dstfolder, statusfolder, register=0)
             for thread in threads:
                 thread.join() # Block until all "copy" threads are done.
 
