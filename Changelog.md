@@ -15,6 +15,42 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.2.4 (2019-06-08)
+
+#### Notes
+
+This release introduces mkdir -p alike folder creation and fixes cygwin support
+in Windows.
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+
+#### Authors
+
+- Nicolas Sebrecht (4)
+- kimim (2)
+- Jelmer Vernooĳ (1)
+- Kyle Altendorf (1)
+
+
+#### Features
+
+- mkdir -p alike folder creation. [Kyle Altendorf]
+
+#### Fixes
+
+- Use portable locker to support cygwin in Windows. [kimim]
+- contrib/release.py: don't break if sphinx-build is missing. [Nicolas Sebrecht]
+
+#### Changes
+
+- Update FSF postal address. [Jelmer Vernooĳ]
+- repository/IMAP: update copyright header date. [Nicolas Sebrecht]
+- PULL_REQUEST_TEMPLATE: add space between brackets to enable the edition in the gui. [Nicolas Sebrecht]
+
+
 ### OfflineIMAP v7.2.3 (2019-02-17)
 
 #### Notes
