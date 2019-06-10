@@ -1,7 +1,6 @@
 language: python
 python:
 - '2.7'
-- '3.6'
 notifications:
   webhooks:
     urls:
@@ -30,12 +29,6 @@ matrix:
   - os: osx
     language: generic
     env: PYTHON=2.7.14 OUTLOOK_AUTH=LOGIN GMAIL_AUTH=XOAUTH2
-  - os: osx
-    language: generic
-    env: PYTHON=3.6.4 OUTLOOK_AUTH=PLAIN GMAIL_AUTH=XOAUTH2
-  - os: osx
-    language: generic
-    env: PYTHON=3.6.4 OUTLOOK_AUTH=LOGIN GMAIL_AUTH=XOAUTH2
   allow_failures:
   - os: osx
 cache: pip
