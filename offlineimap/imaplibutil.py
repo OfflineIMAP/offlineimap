@@ -19,6 +19,7 @@ import fcntl
 import time
 import subprocess
 import threading
+import rfc6555
 import socket
 import errno
 import zlib
@@ -78,8 +79,15 @@ class UsefulIMAPMixIn(object):
     def open_socket(self):
         """open_socket()
         Open socket choosing first address family available."""
+        if self.af == socket.AF_UNSPEC:
+            # happy-eyeballs!
+            return rfc6555.create_connection((self.host, self.port))
+        else:
+            return self._open_socket_for_af(self.af)
+
+    def _open_socket_for_af(self, af):
         msg = (-1, 'could not open socket')
-        for res in socket.getaddrinfo(self.host, self.port, self.af, socket.SOCK_STREAM):
+        for res in socket.getaddrinfo(self.host, self.port, af, socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
             try:
                 # use socket of our own, possiblly socksified socket.
