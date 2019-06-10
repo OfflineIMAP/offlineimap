@@ -2,3 +2,4 @@
 six
 gssapi[kerberos]
 portalocker[cygwin]
+rfc6555
