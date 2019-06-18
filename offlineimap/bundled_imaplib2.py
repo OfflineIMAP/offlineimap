@@ -18,9 +18,9 @@ __all__ = ("IMAP4", "IMAP4_SSL", "IMAP4_stream",
            "Internaldate2Time", "ParseFlags", "Time2Internaldate",
            "Mon2num", "MonthNames", "InternalDate")
 
-__version__ = "2.57"
+__version__ = "2.100"
 __release__ = "2"
-__revision__ = "57"
+__revision__ = "100"
 __credits__ = """
 Authentication code contributed by Donn Cave <donn@u.washington.edu> June 1998.
 String method conversion by ESR, February 2001.
@@ -53,7 +53,7 @@ Fix for correct Python 3 exception handling by Tobias Brink <tobias.brink@gmail.
 Fix to allow interruptible IDLE command by Tim Peoples <dromedary512@users.sf.net> September 2015.
 Add support for TLS levels by Ben Boeckel <mathstuf@gmail.com> September 2015.
 Fix for shutown exception by Sebastien Gross <seb@chezwam.org> November 2015."""
-__author__ = "Piers Lauder <piers@janeelix.com>"
+__author__ = "Piers Lauder <piers@janeelix.com> & offlineimap team"
 __URL__ = "http://imaplib2.sourceforge.net"
 __license__ = "Python License"
 
