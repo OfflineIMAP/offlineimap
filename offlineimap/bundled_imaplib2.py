@@ -342,7 +342,7 @@ class IMAP4(object):
         self.tagpre = Int2AP(random.randint(4096, 65535))
         self.tagre = re.compile(r'(?P<tag>'
                         + self.tagpre
-                        + r'\d+) (?P<type>[A-Z]+) (?P<data>.*)')
+                        + r'\d+) (?P<type>[A-Z]+) ?(?P<data>.*)')
 
         self._mode_ascii()	# Only option in py2
 
