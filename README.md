@@ -71,6 +71,11 @@ GNU General Public License v2.
 You should first check if your distribution already packages OfflineIMAP for you.
 Downloads releases as [tarball or zipball](https://github.com/OfflineIMAP/offlineimap/tags).
 
+If you are running Linux Os, you can install offlineimap with:
+
+-  openSUSE `zypper in offlineimap`
+-  archLinux `pacman -S offlineimap`
+-  fedora `dnf install offlineimap`
 
 ## Feedbacks and contributions
 
