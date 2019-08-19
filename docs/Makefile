@@ -7,7 +7,7 @@ HTML_TARGETS = $(patsubst %.rst,%.html,$(SOURCES))
 RM = rm
 RST2HTML=`type rst2html >/dev/null 2>&1 && echo rst2html || echo rst2html.py`
 RST2MAN=`type rst2man >/dev/null 2>&1 && echo rst2man || echo rst2man.py`
-SPHINXBUILD = sphinx-build
+SPHINXBUILD = python2 -msphinx
 
 docs: man api
 
