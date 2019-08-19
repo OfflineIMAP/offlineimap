@@ -15,6 +15,77 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.3.0 (2019-08-19)
+
+#### Notes
+
+Here comes a new release.
+
+The upstream imaplib2 project is discontinued. That's why I've decided to take
+over the maintenance of imaplib2 for offlineimap.
+
+For the use of offlineimap I've applied the pending PRs from imaplib2.  I have
+applied another change sent to offlineimap (see OfflineIMAP/offlineimap#623).
+
+However, there are 3 important limitations:
+
+- I intend to maintain imaplib2 for offlineimap only. Everything will take place
+  in the offlineimap project. I'll neither package imaplib2 nor maintain any
+  "official" repository dedicated to imaplib2. If you want imaplib2 but not
+  offlineimap, you should extract the file `offlineimap/bundled_imaplib2.py` from
+  the offlineimap repository. Please, send your patches for imaplib2.py to the
+  offlineimap project directly.
+
+- Starting from imaplib2 v2.100 (tagged: imaplib2-v2.100) I'm taking the patches
+  in the lazy mode. This means that I won't make deep checks/tests of the
+  changes.  Hence, the quality and the stability might become a bit more
+  fluctuating. For more stability, you might like to only consider the imaplib2
+  versions released with the stable versions of offlineimap. Don't expect
+  changelogs dedicated to imaplib2. They will be part of the offlineimap
+  changelogs.
+
+- All of this only applies to the py2 version of imaplib2. Sadly, offlineimap
+  has few chances to be ported on py3 so I don't aim to maintain the py3 version
+  of imaplib2.
+
+
+In this release, offlineimap is learning Happy Eyeballs.
+
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+
+#### Authors
+
+- Nicolas Sebrecht (4)
+- Ben Cotterell (1)
+- Dario Maiocchi (1)
+- Ilias Tsitsimpis (1)
+- Julien Cristau (1)
+- Olivier Mehani (1)
+
+
+#### Features
+
+- Implement Happy Eyeballs. [Olivier Mehani]
+- imaplib2 v2.101. [Nicolas Sebrecht]
+- imaplib2 v2.100. [Nicolas Sebrecht]
+
+#### Changes
+
+- Update readme to give an hint about Linux distros. [Dario Maiocchi]
+- travis: remove python3.6. [Nicolas Sebrecht]
+- README: add required dependency to rfc6555. [Nicolas Sebrecht]
+
+#### imaplib2
+
+- Do not use TIMEOUT_MAX for Condition.wait(). [Ilias Tsitsimpis]
+- Use SSLContext if available so we send SNI. [Julien Cristau]
+- Don't expect trailing space on command completion. [Ben Cotterell]
+
+
 ### OfflineIMAP v7.2.4 (2019-06-08)
 
 #### Notes
