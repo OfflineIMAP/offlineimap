@@ -272,7 +272,7 @@ class Testers(object):
     def _read(self):
         self.testers = []
         with open(TESTERS_FILE, 'r') as fd:
-            testers = yaml.load(fd)
+            testers = yaml.safe_load(fd)
             for tester in testers:
                 name = tester['name']
                 email = tester['email']
