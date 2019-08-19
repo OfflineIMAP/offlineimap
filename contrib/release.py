@@ -77,7 +77,7 @@ Announce template stands in '{announce}'.
 Command samples to do manually:
 
 - git push <remote> master next {new_version}
-- python setup.py sdist && twine upload dist/* && rm -rf dist MANIFEST
+- python2 setup.py sdist && twine upload dist/* && rm -rf dist MANIFEST
 - cd website
 - git checkout master
 - git merge {website_branch}

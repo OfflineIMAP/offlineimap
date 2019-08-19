@@ -24,13 +24,13 @@ RST2HTML=`type rst2html >/dev/null 2>&1 && echo rst2html || echo rst2html.py`
 all: build
 
 build:
-	python setup.py build
+	python2 setup.py build
 	@echo
-	@echo "Build process finished, run 'python setup.py install' to install" \
-		"or 'python setup.py --help' for more information".
+	@echo "Build process finished, run 'python2 setup.py install' to install" \
+		"or 'python2 setup.py --help' for more information".
 
 clean:
-	-python setup.py clean --all
+	-python2 setup.py clean --all
 	-rm -f bin/offlineimapc 2>/dev/null
 	-find . -name '*.pyc' -exec rm -f {} \;
 	-find . -name '*.pygc' -exec rm -f {} \;
