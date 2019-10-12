@@ -96,8 +96,13 @@ class UIBase(object):
     def setup_sysloghandler(self):
         """Backend specific syslog handler."""
 
+        if sys.platform == 'darwin':
+            address = '/var/run/syslog'
+        else:
+            address = '/dev/log'
+
         # create syslog handler
-        ch = logging.handlers.SysLogHandler('/dev/log')
+        ch = logging.handlers.SysLogHandler(address)
         # create formatter and add it to the handlers
         self.formatter = logging.Formatter("%(message)s")
         ch.setFormatter(self.formatter)
