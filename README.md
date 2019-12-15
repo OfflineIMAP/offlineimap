@@ -1,5 +1,6 @@
 Upstream status (`master` branch):
 [![OfflineIMAP build status on Travis-CI.org](https://travis-ci.org/OfflineIMAP/offlineimap.svg?branch=master)](https://travis-ci.org/OfflineIMAP/offlineimap)
+[![Financial Contributors on Open Collective](https://opencollective.com/offlineimap-organization/all/badge.svg?label=financial+contributors)](https://opencollective.com/offlineimap-organization) 
 [![OfflineIMAP code coverage on Codecov.io](https://codecov.io/gh/OfflineIMAP/offlineimap/branch/master/graph/badge.svg)](https://codecov.io/gh/OfflineIMAP/offlineimap)
 [![Gitter chat](https://badges.gitter.im/OfflineIMAP/offlineimap.png)](https://gitter.im/OfflineIMAP/offlineimap)
 
@@ -60,6 +61,36 @@ message without internet connection? No problem, the message is still there.
 >
 >                                  Nicolas Sebrecht. ,-)
 
+
+## Contributors
+
+### Code Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/OfflineIMAP/offlineimap/graphs/contributors"><img src="https://opencollective.com/offlineimap-organization/contributors.svg?width=890&button=false" /></a>
+
+### Financial Contributors
+
+Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/offlineimap-organization/contribute)]
+
+#### Individuals
+
+<a href="https://opencollective.com/offlineimap-organization"><img src="https://opencollective.com/offlineimap-organization/individuals.svg?width=890"></a>
+
+#### Organizations
+
+Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/offlineimap-organization/contribute)]
+
+<a href="https://opencollective.com/offlineimap-organization/organization/0/website"><img src="https://opencollective.com/offlineimap-organization/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/1/website"><img src="https://opencollective.com/offlineimap-organization/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/2/website"><img src="https://opencollective.com/offlineimap-organization/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/3/website"><img src="https://opencollective.com/offlineimap-organization/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/4/website"><img src="https://opencollective.com/offlineimap-organization/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/5/website"><img src="https://opencollective.com/offlineimap-organization/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/6/website"><img src="https://opencollective.com/offlineimap-organization/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/7/website"><img src="https://opencollective.com/offlineimap-organization/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/8/website"><img src="https://opencollective.com/offlineimap-organization/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/offlineimap-organization/organization/9/website"><img src="https://opencollective.com/offlineimap-organization/organization/9/avatar.svg"></a>
 
 ## License
 
