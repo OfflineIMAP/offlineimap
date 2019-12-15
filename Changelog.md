@@ -15,6 +15,44 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.3.1 (2019-12-15)
+
+#### Notes
+
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+
+#### Authors
+
+- Nicolas Sebrecht (5)
+- Chris Coleman (1)
+- Chris Coutinho (1)
+- Jess (1)
+
+
+#### Features
+
+- Additional address for sysloghandler to handle mac. [Chris Coutinho]
+- Added financial contributors to the README. [Jess]
+- Introduce FUNDING.yml for opencollective. [Nicolas Sebrecht]
+
+
+#### Fixes
+
+- Fix check for unsupported sep character. [Nicolas Sebrecht]
+- Contrib: use yaml.safe_load() instead of load(). [Nicolas Sebrecht]
+- Ensure python2 in the release workflow. [Nicolas Sebrecht]
+- Make docs: ensure py2 when running sphinx. [Nicolas Sebrecht]
+
+
+#### Changes
+
+- Update README.md. [Chris Coleman]
+
+
 ### OfflineIMAP v7.3.0 (2019-08-19)
 
 #### Notes
