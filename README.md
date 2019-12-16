@@ -106,7 +106,7 @@ Downloads releases as [tarball or zipball](https://github.com/OfflineIMAP/offlin
 If you are running Linux Os, you can install offlineimap with:
 
 -  openSUSE `zypper in offlineimap`
--  archLinux `pacman -S offlineimap`
+-  Arch Linux `pacman -S offlineimap`
 -  fedora `dnf install offlineimap`
 
 ## Feedbacks and contributions
