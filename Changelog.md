@@ -15,6 +15,30 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.3.2 (2019-12-17)
+
+#### Notes
+
+This is a very small bug fix release.
+
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+
+#### Authors
+
+- Jaroslav Lichtblau (1)
+- Nicolas Sebrecht (1)
+
+
+#### Fixes
+
+- Revert "fix check for unsupported sep character". [Nicolas Sebrecht]
+- Fixing the Arch Linux name. [Jaroslav Lichtblau]
+
+
 ### OfflineIMAP v7.3.1 (2019-12-15)
 
 #### Notes
