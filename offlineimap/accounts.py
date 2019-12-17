@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2019 John Goerzen & contributors
+# Copyright (C) 2003-2016 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -385,23 +385,23 @@ class SyncableAccount(Account):
                                   "[%s]"% (remotefolder.getname(), remoterepos))
                     continue # Ignore filtered folder.
 
-                localfolder = self.get_local_folder(remotefolder)
-                if not localfolder.sync_this:
-                    self.ui.debug('', "Not syncing filtered folder '%s'"
-                                 "[%s]"% (localfolder.getname(), localfolder.repository))
-                    continue # Ignore filtered folder.
-
                 # The remote folder names must not have the local sep char in
                 # their names since this would cause troubles while converting
                 # the name back (from local to remote).
                 sep = localrepos.getsep()
-                if (sep == os.path.sep or
-                    sep == remoterepos.getsep() or
+                if (sep != os.path.sep and
+                    sep != remoterepos.getsep() and
                     sep in remotefolder.getname()):
                     self.ui.warn('', "Ignoring folder '%s' due to unsupported "
                         "'%s' character serving as local separator."%
                         (remotefolder.getname(), localrepos.getsep()))
                     continue # Ignore unsupported folder name.
+
+                localfolder = self.get_local_folder(remotefolder)
+                if not localfolder.sync_this:
+                    self.ui.debug('', "Not syncing filtered folder '%s'"
+                                 "[%s]"% (localfolder.getname(), localfolder.repository))
+                    continue # Ignore filtered folder.
 
                 if not globals.options.singlethreading:
                     thread = InstanceLimitedThread(
