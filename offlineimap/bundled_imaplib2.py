@@ -435,8 +435,8 @@ class IMAP4(object):
         self.utf8_enabled = False
         self._encoding = 'ascii'
         if bytes != str:
-            self.literal_cre = re.compile(self._literal, re.ASCII)
-            self.untagged_status_cre = re.compile(self._untagged_status, re.ASCII)
+            self.literal_cre = re.compile(self._literal.decode("ASCII"), re.ASCII)
+            self.untagged_status_cre = re.compile(self._untagged_status.decode("ASCII"), re.ASCII)
         else:
             self.literal_cre = re.compile(self._literal)
             self.untagged_status_cre = re.compile(self._untagged_status)
@@ -446,8 +446,8 @@ class IMAP4(object):
         self.utf8_enabled = True
         self._encoding = 'utf-8'
         if bytes != str:
-            self.literal_cre = re.compile(self._literal)
-            self.untagged_status_cre = re.compile(self._untagged_status)
+            self.literal_cre = re.compile(self._literal.decode(self._encoding))
+            self.untagged_status_cre = re.compile(self._untagged_status.decode(self._encoding))
         else:
             self.literal_cre = re.compile(self._literal, re.UNICODE)
             self.untagged_status_cre = re.compile(self._untagged_status, re.UNICODE)
