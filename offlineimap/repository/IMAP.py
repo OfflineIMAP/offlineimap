@@ -561,7 +561,8 @@ class IMAPRepository(BaseRepository):
             try:
                 self.makefolder_single(folder_path)
             except OfflineImapError as e:
-                if '[ALREADYEXISTS]' not in e.reason:
+                reasonLower = e.reason.lower()  # Handle reasons '[ALREADYEXISTS]' and 'Mailbox already exists!' @chris001
+                if not ('already' in reasonLower and 'exists' in reasonLower): 
                     raise
 
     def makefolder_single(self, foldername):
