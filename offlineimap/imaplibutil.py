@@ -132,7 +132,7 @@ class IMAP4_Tunnel(UsefulIMAPMixIn, IMAP4):
         """The tunnelcmd comes in on host!"""
 
         self.host = host
-        self.process = subprocess.Popen(host, shell=True, close_fds=True,
+        self.process = subprocess.Popen('exec %s'%host, shell=True, close_fds=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         (self.outfd, self.infd) = (self.process.stdin, self.process.stdout)
         # imaplib2 polls on this fd
