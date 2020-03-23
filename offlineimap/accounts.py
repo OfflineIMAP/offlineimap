@@ -333,8 +333,11 @@ class SyncableAccount(Account):
 
         folderthreads = []
 
-        hook = self.getconf('presynchook', '')
-        self.callhook(hook)
+        hook_env = {
+            'OIMAP_ACCOUNT_NAME': self.getname(),
+        }
+
+        self.callhook('presynchook', hook_env)
 
         if self.utf_8_support and self.remoterepos.getdecodefoldernames():
             raise OfflineImapError("Configuration mismatch in account " +
@@ -438,20 +441,23 @@ class SyncableAccount(Account):
             localrepos.holdordropconnections()
             remoterepos.holdordropconnections()
 
-        hook = self.getconf('postsynchook', '')
-        self.callhook(hook)
+        self.callhook('postsynchook', hook_env)
 
-    def callhook(self, cmd):
+    def callhook(self, name, env={}):
         # Check for CTRL-C or SIGTERM and run postsynchook.
         if Account.abort_NOW_signal.is_set():
             return
+        cmd = self.getconf(name, '')
         if not cmd:
             return
         try:
             self.ui.callhook("Calling hook: " + cmd)
             if self.dryrun:
                 return
-            p = Popen(cmd, shell=True,
+            env = env.copy()
+            env.update(os.environ)
+            env['OIMAP_HOOK_NAME'] = name
+            p = Popen(cmd, shell=True, env=env,
                       stdin=PIPE, stdout=PIPE, stderr=PIPE,
                       close_fds=True)
             r = p.communicate()
