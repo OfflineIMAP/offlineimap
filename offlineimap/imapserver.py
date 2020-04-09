@@ -356,16 +356,13 @@ class IMAPServer(object):
             return False
 
         self.connectionlock.acquire()
+        self.gssapi = False
         try:
             imapobj.authenticate('GSSAPI', self.__gsshandler)
-            return True
-        except imapobj.error as e:
-            self.gssapi = False
-            raise
-        else:
             self.gssapi = True
-            self.gss_vc = None
+            return True
         finally:
+            self.gss_vc = None
             self.connectionlock.release()
 
     def __authn_cram_md5(self, imapobj):
