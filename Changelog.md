@@ -15,6 +15,42 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.3.3 (2020-04-11)
+
+#### Notes
+
+Here is a small release after nearly 4 months of slow moves. Still, the patches
+are very usefull for some use cases. Thanks to the contributors!
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+
+#### Authors
+
+- Chris Coleman (1)
+- Frank LENORMAND (1)
+- Herton R. Krzesinski (1)
+- martin f. krafft (1)
+
+
+#### Features
+
+- export env. variables when running account hooks. [Frank LENORMAND]
+
+#### Fixes
+
+- Fix stale gss api authentication security context. [Herton R. Krzesinski]
+- Handle [ALREADYEXISTS] and Mailbox already exists!. [Chris Coleman]
+
+#### Changes
+
+- exec() the tunnel command. [martin f. krafft]
+
+
+
+
 ### OfflineIMAP v7.3.2 (2019-12-17)
 
 #### Notes
