@@ -1,5 +1,5 @@
-# Requirements
-six
+# Minimal requirements defined in setup.py
+-e .
+# Extra "optional" requirements
 gssapi[kerberos]
 portalocker[cygwin]
-rfc6555
