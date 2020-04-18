@@ -58,6 +58,11 @@ class TestCommand(Command):
         #TODO: failfast does not seem to exist in python2.6?
         TextTestRunner(verbosity=2,failfast=True).run(suite)
 
+reqs = [
+    'six',
+    'rfc6555'
+    ]
+
 setup(name = "offlineimap",
       version = __version__,
       description = __description__,
@@ -71,6 +76,7 @@ setup(name = "offlineimap",
       scripts = ['bin/offlineimap'],
       license = __copyright__ + \
                 ", Licensed under the GPL version 2",
-      cmdclass = { 'test': TestCommand}
+      cmdclass = { 'test': TestCommand},
+      install_requires = reqs
 )
 
