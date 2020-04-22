@@ -5,7 +5,7 @@
 # IMAP synchronization
 # Module: installer
 # COPYRIGHT #
-# Copyright (C) 2002 - 2018 John Goerzen & contributors
+# Copyright (C) 2002 - 2020 John Goerzen & contributors
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

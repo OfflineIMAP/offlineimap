@@ -204,9 +204,8 @@ class OfflineimapInfo(object):
         cmd = shlex.split("./offlineimap.py --version")
         return run(cmd).rstrip().decode(FS_ENCODING)
 
-    def editInit(self):
-        return system("{} ./offlineimap/__init__.py".format(EDITOR))
-
+    def editVersion(self):
+        return system("{} ./offlineimap/version.py".format(EDITOR))
 
 
 class User(object):

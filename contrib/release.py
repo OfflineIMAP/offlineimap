@@ -357,7 +357,7 @@ class Release(object):
         User.request("going to make a new release after {}".format(currentVersion))
 
     def updateVersion(self):
-        self.offlineimapInfo.editInit()
+        self.offlineimapInfo.editVersion()
 
     def checkVersions(self, current, new):
         if new == current:
@@ -405,7 +405,7 @@ class Release(object):
         announce.close()
 
     def make(self):
-        Git.add('offlineimap/__init__.py')
+        Git.add('offlineimap/version.py')
         Git.add('Changelog.md')
         commitMsg = "v{}\n".format(newVersion)
         for tester in self.testers.getListOk():
