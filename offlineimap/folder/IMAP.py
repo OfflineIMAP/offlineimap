@@ -402,6 +402,7 @@ class IMAPFolder(BaseFolder):
             return 0
 
         matchinguids = matchinguids.split(' ')
+        matchinguids = list(set(matchinguids)) # Remove duplicates.
         self.ui.debug('imap', '__savemessage_searchforheader: matchinguids now '
             + repr(matchinguids))
         if len(matchinguids) != 1 or matchinguids[0] is None:
