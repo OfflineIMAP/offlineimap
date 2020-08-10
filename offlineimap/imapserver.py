@@ -823,11 +823,12 @@ class IdleThread(object):
         statusrepos = account.statusrepos
         remotefolder = remoterepos.getfolder(self.folder, decode=False)
 
-        hook = account.getconf('presynchook', '')
-        account.callhook(hook)
+        hook_env = {
+            'OIMAP_ACCOUNT_NAME': account.getname(),
+        }
+        account.callhook('presynchook', hook_env)
         offlineimap.accounts.syncfolder(account, remotefolder, quick=False)
-        hook = account.getconf('postsynchook', '')
-        account.callhook(hook)
+        account.callhook('postsynchook', hook_env)
 
         ui = getglobalui()
         ui.unregisterthread(currentThread()) #syncfolder registered the thread
