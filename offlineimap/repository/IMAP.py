@@ -545,7 +545,7 @@ class IMAPRepository(BaseRepository):
 
         :param foldername: Full path of the folder to be created."""
 
-        if foldername is '':
+        if foldername == '':
             return
 
         if self.getreference():
