@@ -102,7 +102,7 @@ class IMAPServer(object):
         self.starttls = repos.getstarttls()
 
         if self.usessl \
-           and self.tlslevel is not "tls_compat" \
+           and self.tlslevel != "tls_compat" \
            and self.sslversion is None:
             raise Exception("When 'tls_level' is not 'tls_compat' "
                 "the 'ssl_version' must be set explicitly.")
