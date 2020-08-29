@@ -15,13 +15,12 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-from threading import Lock, Thread, BoundedSemaphore, currentThread
+from threading import Lock, Thread, BoundedSemaphore
 try:
     from Queue import Queue, Empty
 except ImportError: # python3
     from queue import Queue, Empty
 import traceback
-import os.path
 from offlineimap.ui import getglobalui
 
 
