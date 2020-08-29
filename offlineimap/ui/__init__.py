@@ -24,7 +24,7 @@ UI_LIST = {'ttyui': TTY.TTYUI,
            'syslog': Noninteractive.Syslog,
            'machineui': Machine.MachineUI}
 
-#add Blinkenlights UI if it imports correctly (curses installed)
+# add Blinkenlights UI if it imports correctly (curses installed)
 try:
     from offlineimap.ui import Curses
     UI_LIST['blinkenlights'] = Curses.Blinkenlights
