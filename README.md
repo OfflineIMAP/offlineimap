@@ -9,6 +9,7 @@ Upstream status (`next` branch):
 Financial contributors: [![Financial Contributors on Open Collective](https://opencollective.com/offlineimap-organization/all/badge.svg?label=financial+contributors)](https://opencollective.com/offlineimap-organization) 
 
 [offlineimap]: http://github.com/OfflineIMAP/offlineimap
+[offlineimap3]: http://github.com/OfflineIMAP/offlineimap3
 [website]: http://www.offlineimap.org
 [wiki]: http://github.com/OfflineIMAP/offlineimap/wiki
 [blog]: http://www.offlineimap.org/posts.html
@@ -23,7 +24,8 @@ Links:
 
 ***"Get the emails where you need them."***
 
-[Official offlineimap][offlineimap].
+[Official offlineimap for python2][offlineimap].
+[Official offlineimap for python3][offlineimap3].
 
 
 ## Description
@@ -45,22 +47,9 @@ message without internet connection? No problem, the message is still there.
 
 ## Project status and future
 
-> As one of the maintainer of OfflineIMAP, I'd like to put my efforts into
-> [imapfw](http://github.com/OfflineIMAP/imapfw). **imapfw** is software in
-> development that I intend to replace OfflineIMAP with in the long term.
->
-> That's why I'm not going to continue OfflineIMAP development. I'll continue
-> to maintain OfflineIMAP (fixing small bugs, reviewing patches and merging,
-> and rolling out new releases), but that's all.
->
-> While I keep tracking issues for OfflineIMAP, you should not expect future support.
->
-> You won't be left at the side. OfflineIMAP's community is large enough so that
-> you'll find people for most of your issues.
->
-> Get news from the [blog][blog].
->
->                                  Nicolas Sebrecht. ,-)
+The [offlineimap][offlineimap] project was forked to
+[offlineimap3][offlineimap3] to support python3. Contributions are welcome to
+this project.
 
 
 ## Contributors
@@ -144,7 +133,8 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 * gssapi (optional), for Kerberos authentication
 * portalocker (optional), if you need to run offlineimap in Cygwin for Windows
 
-* Python v3.4+ ***[STALLED] (experimental: [see known issues](https://github.com/OfflineIMAP/offlineimap/issues?q=is%3Aissue+is%3Aopen+label%3APy3))***
+* Python v3: See the [offlineimap3][offlineimap3] fork of
+  [offlineimap][offlineimap].
 
 ## Documentation
 
