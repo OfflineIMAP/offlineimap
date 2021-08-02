@@ -15,7 +15,7 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
-### OfflineIMAP v7.4.0 (2021-08-03)
+### OfflineIMAP v7.3.4 (2021-08-03)
 
 #### Notes
 
