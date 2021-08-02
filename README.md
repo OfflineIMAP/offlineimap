@@ -17,10 +17,10 @@ Links:
 
 ***"Get the emails where you need them."***
 
-> The offlineimap project is about python2 oonly. The support for offlineimap3
+> IMPORTANT NOTE: This repository is for python2 only. The support for offlineimap3
 > is happening in [Official offlineimap for python3][offlineimap3].
 >
-> I'll still lazily maintain offlineimap but users should definitely go with
+> I'll still lazily maintain this legacy offlineimap but users should definitely go with
 > offlineimap3.
 
 - [Official offlineimap for python3][offlineimap3].
