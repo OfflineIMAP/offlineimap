@@ -125,7 +125,7 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 
 ## Requirements & dependencies
 
-* Python v2.7+
+* Python v2.7.x
 * six (required)
 * rfc6555 (required)
 * imaplib2 >= 2.57 (optional)
