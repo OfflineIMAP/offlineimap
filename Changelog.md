@@ -15,6 +15,50 @@ Note to mainainers:
 * The following excerpt is only usefull when rendered in the website.
 {:toc}
 
+### OfflineIMAP v7.4.0 (2021-08-03)
+
+#### Notes
+
+The release is likely the last minor release. This project will be maintained
+for minor bug fixes only.
+
+In this version we've backported patches from the offlineimap3 project. There's
+no new features. Users should try this fork. The official project is there and
+is maintained by Rodolfo:
+
+  https://github.com/OfflineIMAP/offlineimap3
+
+This release was tested by:
+
+- Nicolas Sebrecht
+
+
+#### Authors
+
+- Nicolas Sebrecht (5)
+- Rodolfo García Peñas (kix) (4)
+- Martin Di Paola (2)
+- Reto Schnyder (1)
+
+
+#### Fixes
+
+- folder: IMAP: fix issue when the response of searchforheaders is the same UID multiple times. [Nicolas Sebrecht]
+- Fix hooks for IDLE sync. [Reto Schnyder]
+- Changed wrong comparison equal. [Rodolfo García Peñas (kix)]
+- Comparison error. [Rodolfo García Peñas (kix)]
+- remove outdated links to travis. [Nicolas Sebrecht]
+- ui init is lintian clean. [Rodolfo García Peñas (kix)]
+- Require the minimal dependencies in python package. [Martin Di Paola]
+
+#### Changes
+
+- README: update regarding the offlineimap3 fork. [Nicolas Sebrecht]
+- redirect the users to offlineimap3. [Nicolas Sebrecht]
+- threadutil imports not used. [Rodolfo García Peñas (kix)]
+- Move out pkg attributes from __init__.py. [Martin Di Paola]
+
+
 ### OfflineIMAP v7.3.3 (2020-04-11)
 
 #### Notes

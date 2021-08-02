@@ -1,7 +1,7 @@
 __productname__ = 'OfflineIMAP'
 # Expecting trailing "-rcN" or "" for stable releases.
-__version__     = "7.3.3"
-__copyright__   = "Copyright 2002-2020 John Goerzen & contributors"
+__version__     = "7.3.4"
+__copyright__   = "Copyright 2002-2021 John Goerzen & contributors"
 __author__      = "John Goerzen"
 __author_email__= "offlineimap-project@lists.alioth.debian.org"
 __description__ = "Disconnected Universal IMAP Mail Synchronization/Reader Support"
