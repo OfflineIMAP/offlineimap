@@ -18,7 +18,9 @@
 
 import os
 import sys
-
+if sys.version_info.major > 2:
+    print ("Offlineimap runs with python2 only. To use python 3, switch to using Offlineimap3")
+    sys.exit(1)
 from offlineimap import OfflineImap
 
 oi = OfflineImap()
