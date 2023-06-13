@@ -457,3 +457,42 @@ class LocalStatusSQLiteFolder(BaseFolder):
         self.__sql_write('DELETE FROM status WHERE id=?', list(zip(uidlist, )), True)
         for uid in uidlist:
             del(self.messagelist[uid])
+
+
+    # Function to check if all entries can be read
+    def check_read_entries(SELF):
+        connection = sqlite3.connect(self.filename)
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM entries")
+        entries = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return len(entries) > 0
+
+    # Function to insert a fake entry
+    def insert_fake_entry(self):
+        connection = sqlite3.connect(self.filename)
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO entries (title, content) VALUES ('Fake Entry', 'This is a fake entry.')")
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    # Function to remove the fake entry
+    def remove_fake_entry(self):
+        connection = sqlite3.connect(self.filename)
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM entries WHERE title='Fake Entry'")
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Database management tool")
+    parser.add_argument("database", help="the path to the SQLite database")
+    parser.add_argument("--check-database", action="store_true", help="check database integrity")
+    args = parser.parse_args()
+
+
+
+     
